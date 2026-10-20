@@ -48,6 +48,21 @@ mergeable field anywhere, while GitHub withheld the PR run because the PR confli
   body is in that route's fields_compared. PRBodyKeysTrackTheCodeTests scans the code's PR-body read sites so the list
   cannot fall behind the code, and greps every listed key in the code so it cannot run ahead of it either.
 
+253-167 adds two pagination rules (blind spot #5: the R12 audit compared header:link on rules_main but not on check_runs,
+and its live pagination row was covered only by tests using the /repos/ link form, while GitHub's first real rel=next link,
+253-143 sequence 21, used /repositories/<id>/):
+
+- paginated_link_fields (check_paginated_link_fields): every response-shape row whose route is in the transport's
+  fetch_pages route set, read from ci-hosted-transport.py at check time (test_page excluded), lists header:link and
+  meta:page_ordinal in fields_compared.
+- link_forms_modelled: every rel=next/last destination path in every committed window ledger (CANARY-HTTP-LEDGER-R7..R12,
+  PR-HTTP-LEDGER-R11, PROBE-HTTP-LEDGER-R11-PROBE) is the repos form (/repos/szTheory/sigra/) or the repositories-id form
+  (/repositories/1207487684/), any other form fails, and each observed form is emitted by at least one fake source
+  (ci-gate-canary-dryrun.py, ci-hosted-transport.test.py, ci-pr-proof.test.sh), grepped at check time; the
+  repositories-id form's fake must carry the id 1207487684.
+
+The observed-route rule's window ledgers include CANARY-HTTP-LEDGER-R12 since 253-167.
+
 Field syntax: a dotted path into the decoded response body ([] steps into each list item, a leading [] for a list root);
 meta:FIELD for a ledger transaction field; header:NAME for a scrubbed response header; value:PATH=TEXT for a leaf equal to
 TEXT; source:TEXT for text present in a committed source sample (a workflow file).
@@ -556,7 +571,8 @@ def check_response_shapes(record, root):
                 problems.append(f"{rid}: ref {ref!r} shows no real-sample read, so it cannot count as real-shape coverage")
     for route in sorted(expected - set(seen)):
         problems.append(f"route {route} has no response-shape row")
-    return problems + check_probe_observed_routes(record, root) + check_window_observed_routes(record, root)
+    return (problems + check_probe_observed_routes(record, root) + check_window_observed_routes(record, root)
+            + check_paginated_link_fields(record, root) + link_forms_modelled(root))
 
 
 def check_fields_backed(rid, fields, coverage, loaded):
@@ -650,12 +666,17 @@ def check_probe_observed_routes(record, root):
 CANARY_LEDGER_R11_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json"
 PR_LEDGER_R11_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json"
 WINDOW_LEDGERS_R11 = (CANARY_LEDGER_R11_REL, PR_LEDGER_R11_REL)
+# 253-167 (D-18/D-21): the 253-143 canary window (R12) answered real preflight reads, check_runs page 1 among them with
+# the first real rel=next link (sequence 21, /repositories/<id>/ form: blind spot #5). The observed-route rule reads it too.
+CANARY_LEDGER_R12_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R12.json"
+WINDOW_LEDGERS = WINDOW_LEDGERS_R11 + (CANARY_LEDGER_R12_REL,)
 
 
 def observed_window_routes(root):
-    """{ledger rel: {route: {sequence, ...}}} for every 2xx/3xx transaction of each committed R11 window ledger at root."""
+    """{ledger rel: {route: {sequence, ...}}} for every 2xx/3xx transaction of each committed window ledger at root
+    (the R11 canary and PR windows and, since 253-167, the R12 canary window)."""
     observed = {}
-    for rel in WINDOW_LEDGERS_R11:
+    for rel in WINDOW_LEDGERS:
         path = Path(root) / rel
         if not path.is_file():
             continue
@@ -675,11 +696,11 @@ def observed_window_routes(root):
 
 
 def check_window_observed_routes(record, root):
-    """Every route a committed R11 window ledger saw answer 2xx/3xx whose row is not real-shape-test on one of its rows."""
+    """Every route a committed window ledger saw answer 2xx/3xx whose row is not real-shape-test on one of its rows."""
     observed = observed_window_routes(root)
-    missing = [rel for rel in WINDOW_LEDGERS_R11 if not observed.get(rel)]
+    missing = [rel for rel in WINDOW_LEDGERS if not observed.get(rel)]
     if missing:
-        return [f"the committed R11 window ledger(s) {missing} hold no 2xx/3xx row or are absent, so the window "
+        return [f"the committed window ledger(s) {missing} hold no 2xx/3xx row or are absent, so the window "
                 "observed-route rule would be vacuous"]
     rows = {row.get("route"): row for row in record.get("response_shape_rows") or [] if isinstance(row, dict)}
     problems = []
@@ -707,11 +728,120 @@ def check_window_observed_routes(record, root):
 
 
 def window_ledger_tx(rel, sequence, root=ROOT):
-    """(transaction, decoded body bytes) for one sequence of a committed R11 window ledger."""
+    """(transaction, decoded body bytes) for one sequence of a committed window ledger."""
     rows = [tx for tx in json.loads((Path(root) / rel).read_bytes())["transactions"] if tx["sequence"] == sequence]
     if len(rows) != 1:
         raise AssertionError(f"{rel} has {len(rows)} transactions with sequence {sequence}")
     return rows[0], base64.b64decode(rows[0].get("response_body_base64") or "")
+
+
+# ------------------------------------------------------------------------------- pagination rules (253-167, D-18/D-21)
+PAGINATED_ROUTE_SET = re.compile(r'^def fetch_pages\(.*?initial\.get\("route_id"\) not in \{([^}]*)\}', re.S | re.M)
+LINK_FORM_LEDGERS = tuple(f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R{n}.json" for n in (7, 8, 9, 10, 11, 12)) \
+    + (PR_LEDGER_R11_REL, PROBE_LEDGER_R11_REL)
+LINK_FORM_FAKES = ("scripts/ci/ci-gate-canary-dryrun.py", "scripts/ci/ci-hosted-transport.test.py", "scripts/ci/ci-pr-proof.test.sh")
+GITHUB_REPOSITORY_ID = "1207487684"
+# form: (destination path pattern, the literal prefix a fake must emit, any extra literal the fake must carry)
+LINK_FORMS = {"repos": (re.compile(r"^/repos/szTheory/sigra/"), "/repos/szTheory/sigra/", None),
+              "repositories-id": (re.compile(r"^/repositories/[0-9]+/"), "/repositories/", GITHUB_REPOSITORY_ID)}
+PAGINATION_LINK_RELS = ("next", "last")
+PAGINATED_FIELDS = ("header:link", "meta:page_ordinal")
+
+
+def paginated_routes(root):
+    """The approved paginated GET routes of fetch_pages, parsed from the transport source at root (test routes removed).
+    A missing or empty set is an error, never an empty rule."""
+    match = PAGINATED_ROUTE_SET.search((Path(root) / TRANSPORT_REL).read_text())
+    if match is None:
+        raise AssertionError(f"fetch_pages' paginated route set was not found in {TRANSPORT_REL}")
+    routes = set(re.findall(r'"(\w+)"', match.group(1)))
+    if not routes:
+        raise AssertionError(f"fetch_pages' paginated route set in {TRANSPORT_REL} is empty")
+    return routes - TEST_ROUTES
+
+
+def check_paginated_link_fields(record, root):
+    """paginated_link_fields: a paginated route's row compares the Link header and the page ordinal."""
+    routes = paginated_routes(root)
+    problems = []
+    for needed in ("check_runs", "rules_main"):
+        if needed not in routes:
+            problems.append(f"fetch_pages' route set {sorted(routes)} lacks {needed}, so paginated_link_fields cannot be trusted")
+    for row in record.get("response_shape_rows") or []:
+        if not isinstance(row, dict) or row.get("route") not in routes:
+            continue
+        fields = row.get("fields_compared") or []
+        for field in PAGINATED_FIELDS:
+            if field not in fields:
+                problems.append(f"{row.get('id')}: route {row['route']} is paginated by fetch_pages but fields_compared lacks "
+                                f"{field} (paginated_link_fields)")
+    return problems
+
+
+def _link_entries(headers):
+    link = headers.get("link") if isinstance(headers, dict) else None
+    if link is None:
+        return []
+    return link if isinstance(link, list) else [link]
+
+
+def observed_link_forms(root):
+    """({form: [(ledger rel, sequence, path), ...]}, problems) for every rel=next/last destination path in every
+    committed window ledger at root. A path in neither approved form is a problem, never a silent skip."""
+    forms, problems = {}, []
+    for rel in LINK_FORM_LEDGERS:
+        path = Path(root) / rel
+        if not path.is_file():
+            problems.append(f"window ledger {rel} is absent, so link_forms_modelled cannot read its link headers")
+            continue
+        try:
+            document = json.loads(path.read_bytes())
+        except (UnicodeError, ValueError):
+            problems.append(f"window ledger {rel} is not JSON")
+            continue
+        for tx in (document.get("transactions") if isinstance(document, dict) else None) or []:
+            if not isinstance(tx, dict):
+                continue
+            for entry in _link_entries(tx.get("scrubbed_headers")):
+                if not isinstance(entry, dict) or entry.get("rel") not in PAGINATION_LINK_RELS:
+                    continue
+                destination = entry.get("destination") if isinstance(entry.get("destination"), dict) else {}
+                dest = destination.get("path")
+                where = f"{rel} sequence {tx.get('sequence')} rel={entry.get('rel')}"
+                form = next((name for name, (pattern, _, _) in LINK_FORMS.items()
+                             if isinstance(dest, str) and pattern.match(dest)), None)
+                if form is None:
+                    problems.append(f"{where}: link destination {dest!r} is neither the repos nor the repositories-id form "
+                                    "(link_forms_modelled)")
+                    continue
+                if form == "repositories-id" and not dest.startswith(f"/repositories/{GITHUB_REPOSITORY_ID}/"):
+                    problems.append(f"{where}: link destination {dest!r} names another repository id than "
+                                    f"{GITHUB_REPOSITORY_ID} (link_forms_modelled)")
+                    continue
+                forms.setdefault(form, []).append((rel, tx.get("sequence"), dest))
+    return forms, problems
+
+
+def link_forms_modelled(root):
+    """link_forms_modelled: every observed live link form is emitted by at least one fake source at root. This is also
+    the entry point 253-167 runs against an archived pre-R13 tree (a path argument, nothing else read)."""
+    root = Path(root)
+    forms, problems = observed_link_forms(root)
+    if not forms and not problems:
+        problems.append("no committed window ledger carries a rel=next/last link, so link_forms_modelled would be vacuous")
+    fakes = {rel: (root / rel).read_text() if (root / rel).is_file() else None for rel in LINK_FORM_FAKES}
+    for rel, text in fakes.items():
+        if text is None:
+            problems.append(f"fake source {rel} is absent, so link_forms_modelled cannot grep it")
+    for form, seen in sorted(forms.items()):
+        _, prefix, extra = LINK_FORMS[form]
+        emitters = [rel for rel, text in fakes.items() if text is not None and prefix in text and (extra is None or extra in text)]
+        if not emitters:
+            rel, sequence, dest = seen[0]
+            problems.append(f"link form {form} observed live ({rel} sequence {sequence}: {dest}) is emitted by no fake in "
+                            f"{list(LINK_FORM_FAKES)} (link_forms_modelled: {prefix!r}"
+                            + (f" with id {extra}" if extra else "") + ")")
+    return problems
 
 
 # 253-140: the code's PR-body read sites. Each region is the stretch of source between a start and an end line (both
@@ -793,7 +923,8 @@ def response_shape_sample_paths(record):
 def copy_audited_tree(record, root):
     """Copy everything the checker reads into a scratch root: audited sources, test files and every real sample."""
     for rel in sorted(set(FILES + TEST_FILES + SHAPE_TEST_FILES) | set(response_shape_sample_paths(record))
-                      | set(probe_ledger_paths(ROOT)) | set(WINDOW_LEDGERS_R11)):
+                      | set(probe_ledger_paths(ROOT)) | set(WINDOW_LEDGERS) | set(LINK_FORM_LEDGERS)
+                      | set(LINK_FORM_FAKES)):
         target = Path(root) / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / rel, target)
@@ -1284,14 +1415,20 @@ class WindowObservedRouteTests(unittest.TestCase):
             "run_jobs": [28, 37, 45, 55, 65, 76, 82], "run_artifacts": [29, 38, 46, 56, 66, 77],
             "artifact_zip": [30, 31, 39, 40, 49, 50, 59, 60, 69, 70], "run_logs": [47, 48, 57, 58, 67, 68], "cancel_run": [73]},
         PR_LEDGER_R11_REL: {"rate_limit": [1], "rules_main": [2], "workflow": [4], "pr_create": [5], "workflow_runs": [6, 7]},
+        # 253-167: the 253-143 window (R12) stopped after preflight check_runs page 1 (sequence 21); 12 and 15 are 404s.
+        CANARY_LEDGER_R12_REL: {
+            "git_get_commit": [1, 6, 10], "git_create_tree": [2, 3, 4, 8], "git_create_commit": [5, 9], "git_get_blob": [7, 11],
+            "get_ref": [14, 17], "create_ref": [13, 16], "rate_limit": [18], "rules_main": [19], "check_runs": [21]},
     }
 
     def test_window_observed_routes_rest_on_their_window_bytes(self):
-        # Positive control for the rule's input: both committed window ledgers are found, tracked, and name these routes.
+        # Positive control for the rule's input: all three committed window ledgers are found, tracked, and name these
+        # routes (253-167 added the R12 canary window).
+        self.assertIn(CANARY_LEDGER_R12_REL, WINDOW_LEDGERS)
         observed = observed_window_routes(ROOT)
         self.assertEqual({rel: {route: sorted(seqs) for route, seqs in routes.items()} for rel, routes in observed.items()},
                          self.EXPECTED)
-        tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--error-unmatch", *WINDOW_LEDGERS_R11],
+        tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--error-unmatch", *WINDOW_LEDGERS],
                                  capture_output=True, text=True)
         self.assertEqual(tracked.returncode, 0, tracked.stderr)
         problems = check_window_observed_routes(load_record(), ROOT)
@@ -1392,6 +1529,117 @@ class PRBodyKeysTrackTheCodeTests(unittest.TestCase):
             path.write_text(text.replace("def no_run_verdict(self, number):", "def no_run_verdict_renamed(self, number):", 1))
             with self.assertRaises(AssertionError):
                 code_pr_body_reads(Path(tmp))
+
+
+class PaginationRuleTests(unittest.TestCase):
+    """253-167: the pagination rules on the committed record, the live transport source and the committed ledgers."""
+
+    def test_the_paginated_route_set_is_read_from_the_transport(self):
+        routes = paginated_routes(ROOT)
+        # Positive control: the parsed set holds the two routes blind spot #5 and the rules reader page, and no test route.
+        self.assertTrue({"check_runs", "rules_main"} <= routes, routes)
+        self.assertNotIn("test_page", routes)
+        self.assertEqual(routes, {"workflow_runs", "rules_main", "check_runs", "run_jobs", "run_artifacts", "attempt_jobs",
+                                  "compare"})
+
+    def test_r12_sequence_21_yields_the_repositories_id_form(self):
+        forms, problems = observed_link_forms(ROOT)
+        self.assertEqual(problems, [], "\n".join(problems))
+        self.assertIn((CANARY_LEDGER_R12_REL, 21, "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs"),
+                      forms["repositories-id"])
+        self.assertEqual(sorted(forms), ["repositories-id"], "no committed window has sent a /repos/ next link yet")
+        tx, _ = window_ledger_tx(CANARY_LEDGER_R12_REL, 21)
+        self.assertEqual(sorted(entry["rel"] for entry in tx["scrubbed_headers"]["link"]), ["last", "next"])
+
+    def test_the_committed_record_passes_both_pagination_rules(self):
+        problems = check_paginated_link_fields(load_record(), ROOT) + link_forms_modelled(ROOT)
+        self.assertEqual(problems, [], "\n".join(problems))
+
+
+class PaginationRulePositiveControls(unittest.TestCase):
+    """Each control mutates a temporary copy and must make a pagination rule fail."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-167-pagination-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.record = load_record()
+        copy_audited_tree(self.record, self.root)
+        self.assertEqual(check_paginated_link_fields(self.record, self.root) + link_forms_modelled(self.root), [],
+                         "the unmutated copy must pass before a control means anything")
+
+    def row(self, record, route):
+        return next(row for row in record["response_shape_rows"] if row["route"] == route)
+
+    def test_control_rules_main_without_header_link_fails(self):
+        record = copy.deepcopy(self.record)
+        row = self.row(record, "rules_main")
+        row["fields_compared"].remove("header:link")
+        row["coverage"].get("fields_without_real_sample", {}).pop("header:link", None)
+        problems = check_paginated_link_fields(record, self.root)
+        self.assertIn("shape-rules_main: route rules_main is paginated by fetch_pages but fields_compared lacks header:link "
+                      "(paginated_link_fields)", problems)
+        self.assertTrue(any("paginated_link_fields" in item for item in check_response_shapes(record, self.root)))
+
+    def test_control_check_runs_without_page_ordinal_fails(self):
+        record = copy.deepcopy(self.record)
+        self.row(record, "check_runs")["fields_compared"].remove("meta:page_ordinal")
+        self.assertTrue(any("check_runs is paginated by fetch_pages but fields_compared lacks meta:page_ordinal" in item
+                            for item in check_paginated_link_fields(record, self.root)))
+
+    def test_control_a_route_added_to_fetch_pages_needs_the_link_fields(self):
+        path = self.root / TRANSPORT_REL
+        text = path.read_text()
+        anchor = '"attempt_jobs", "compare", "test_page"}'
+        self.assertEqual(text.count(anchor), 1)
+        path.write_text(text.replace(anchor, '"attempt_jobs", "compare", "test_page", "run"}', 1))
+        self.assertIn("run", paginated_routes(self.root))
+        self.assertTrue(any("shape-run: route run is paginated by fetch_pages" in item
+                            for item in check_paginated_link_fields(self.record, self.root)))
+
+    def test_control_a_removed_route_set_is_loud(self):
+        path = self.root / TRANSPORT_REL
+        path.write_text(path.read_text().replace('initial.get("route_id") not in {', 'initial.get("route_idx") not in {', 1))
+        with self.assertRaises(AssertionError):
+            paginated_routes(self.root)
+
+    def test_control_fakes_without_the_repositories_id_form_fail(self):
+        for rel in LINK_FORM_FAKES:
+            path = self.root / rel
+            path.write_text(path.read_text().replace("/repositories/", "/repos-elsewhere/"))
+        problems = link_forms_modelled(self.root)
+        self.assertTrue(any(item.startswith("link form repositories-id observed live") and "emitted by no fake" in item
+                            for item in problems), problems)
+
+    def test_control_fakes_without_the_repository_id_fail(self):
+        for rel in LINK_FORM_FAKES:
+            path = self.root / rel
+            path.write_text(path.read_text().replace(GITHUB_REPOSITORY_ID, "1000000001"))
+        self.assertTrue(any("emitted by no fake" in item and "with id 1207487684" in item for item in link_forms_modelled(self.root)))
+
+    def _rewrite_seq21_link(self, new_path):
+        path = self.root / CANARY_LEDGER_R12_REL
+        document = json.loads(path.read_bytes())
+        tx = next(item for item in document["transactions"] if item["sequence"] == 21)
+        for entry in tx["scrubbed_headers"]["link"]:
+            entry["destination"]["path"] = new_path
+        path.write_text(json.dumps(document))
+
+    def test_control_an_unknown_link_form_fails(self):
+        self._rewrite_seq21_link("/orgs/szTheory/commits/x/check-runs")
+        self.assertTrue(any("is neither the repos nor the repositories-id form" in item for item in link_forms_modelled(self.root)))
+
+    def test_control_another_repository_id_fails(self):
+        self._rewrite_seq21_link("/repositories/42/commits/x/check-runs")
+        self.assertTrue(any("names another repository id" in item for item in link_forms_modelled(self.root)))
+
+    def test_control_no_link_in_any_ledger_is_reported_as_vacuous(self):
+        path = self.root / CANARY_LEDGER_R12_REL
+        document = json.loads(path.read_bytes())
+        for tx in document["transactions"]:
+            tx.get("scrubbed_headers", {}).pop("link", None)
+        path.write_text(json.dumps(document))
+        self.assertTrue(any("would be vacuous" in item for item in link_forms_modelled(self.root)))
 
 
 if __name__ == "__main__":
