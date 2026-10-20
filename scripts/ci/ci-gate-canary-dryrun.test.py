@@ -1493,5 +1493,96 @@ class DryRunPaginatedCheckRunsTests(unittest.TestCase):
         self.assertEqual(runner.paginated_reads(twice), [])
 
 
+class DryRunPagedListingsTests(unittest.TestCase):
+    """253-165: --paged-listings (default off) splits the full-pass run's run_jobs and run_artifacts listings over two
+    pages, with page 1 carrying rel next/last in the mode's link form (live-policy: GitHub's /repositories/<id>/ form;
+    hermetic: the local /repos/ form). The one 253-146 transport rule must follow both, and the driver and verifier must
+    see every item, inside the canary category table."""
+
+    FLAGS = DryRunPaginatedCheckRunsTests.FLAGS
+    PAGED_ROUTES = ("run_jobs", "run_artifacts")
+    COMBINED = "--paged-listings cannot be combined with --repos-link-form"
+
+    def check_paged(self, code, summary, form):
+        self.assertEqual(code, 0, summary)
+        self.assertEqual(summary.get("status"), "passed", summary)
+        self.assertIn("full-pass", summary.get("scenarios") or [], summary)
+        reads = summary.get("paginated_reads") or []
+        for route in self.PAGED_ROUTES:
+            self.assertEqual([read for read in reads if read.get("route") == route],
+                             [{"route": route, "pages": 2, "next_link_forms": [form]}], reads)
+        self.assertEqual([read for read in reads if read.get("route") == "check_runs"],
+                         [{"route": "check_runs", "pages": 3, "next_link_forms": [form]}], reads)
+        categories = summary.get("requests_by_category") or {}
+        self.assertLessEqual(categories.get("attempt_jobs", 0), FROZEN_CANARY["attempt_jobs"], categories)
+        self.assertLessEqual(categories.get("artifact_metadata", 0), FROZEN_CANARY["artifact_metadata"], categories)
+        self.assertEqual(categories.get("preflight"), 7, categories)
+        self.assertEqual(summary.get("violations"), [], summary)
+
+    def check_default_unchanged(self, default, paged):
+        """Without the flag the summary keys and request counts are the 253-155 gate's; the flag adds exactly one page
+        to each of the two listings and nothing else."""
+        code, summary = default
+        self.assertEqual(code, 0, summary)
+        self.assertEqual(sorted(summary), sorted(paged[1]), "the flag adds or removes no summary key")
+        self.assertEqual([read["route"] for read in summary.get("paginated_reads") or []], ["check_runs"], summary)
+        expected_routes = dict(summary.get("requests_by_route") or {})
+        for route in self.PAGED_ROUTES:
+            self.assertGreaterEqual(expected_routes.get(route, 0), 1, expected_routes)
+            expected_routes[route] += 1
+        self.assertEqual(paged[1].get("requests_by_route"), expected_routes)
+        expected_categories = dict(summary.get("requests_by_category") or {})
+        expected_categories["attempt_jobs"] = expected_categories.get("attempt_jobs", 0) + 1
+        expected_categories["artifact_metadata"] = expected_categories.get("artifact_metadata", 0) + 1
+        self.assertEqual(paged[1].get("requests_by_category"), expected_categories)
+        self.assertEqual(paged[1].get("requests_total"), summary.get("requests_total") + 2)
+
+    def test_live_policy_paged_listings_follow_two_repositories_id_pages_end_to_end(self):
+        code, summary = live_run(*self.FLAGS, "--paged-listings")
+        self.check_paged(code, summary, "repositories-id")
+        self.assertEqual(summary.get("mode"), "live-policy")
+        self.assertEqual(summary.get("shim_refusals"), [], summary)
+        self.assertEqual((summary.get("authorization") or {}).get("blob_with"), 0, summary)
+        self.assertEqual((summary.get("authorization") or {}).get("api_without"), 0, summary)
+        self.assertIsNone(summary.get("link_form_override"), summary)
+        self.check_default_unchanged(live_run(*self.FLAGS), (code, summary))
+
+    def test_hermetic_paged_listings_follow_two_repos_form_pages_end_to_end(self):
+        code, summary = run_gate(*self.FLAGS, "--paged-listings")
+        self.check_paged(code, summary, "repos")
+        self.assertEqual(summary.get("mode"), "hermetic")
+        self.check_default_unchanged(run_gate(*self.FLAGS), (code, summary))
+
+    def test_the_fake_pages_are_the_unpaged_listing_split_in_half_with_githubs_link_rels(self):
+        runner = load_runner()
+        record = {"id": 40000000901, "run_number": 901, "scenario": "full-pass", "inputs": {}, "head_branch": "b",
+                  "head_sha": "0" * 40, "completed": True, "conclusion": "success", "polls": 3, "needed": 3}
+        whole = runner.build_jobs_page(record)
+        self.assertGreaterEqual(len(whole["jobs"]), 2)
+        for base, form in ((f"https://api.github.com/repositories/1207487684/actions/runs/{record['id']}/jobs", "/repositories/1207487684/"),
+                           (f"https://localhost:4443/repos/szTheory/sigra/actions/runs/{record['id']}/jobs", "/repos/szTheory/sigra/")):
+            with self.subTest(form=form):
+                first, link1 = runner.paged_listing(whole, "jobs", 1, base)
+                second, link2 = runner.paged_listing(whole, "jobs", 2, base)
+                self.assertEqual(first["jobs"] + second["jobs"], whole["jobs"])
+                self.assertTrue(first["jobs"] and second["jobs"])
+                self.assertEqual(len(first["jobs"]), (len(whole["jobs"]) + 1) // 2)
+                self.assertEqual(first["total_count"], whole["total_count"])
+                self.assertEqual(second["total_count"], whole["total_count"])
+                self.assertEqual(link1, f'<{base}?per_page=100&page=2>; rel="next", <{base}?per_page=100&page=2>; rel="last"')
+                self.assertEqual(link2, f'<{base}?per_page=100&page=1>; rel="prev", <{base}?per_page=100&page=1>; rel="first"')
+                self.assertIn(form, link1)
+
+    def test_paged_listings_with_the_repos_link_form_knob_is_refused(self):
+        fix = redirect_fix_commit()
+        for args in (("--live-policy", "--transport-from", fix, "--repos-link-form", "--paged-listings"),
+                     ("--paged-listings", "--repos-link-form")):
+            with self.subTest(args=args):
+                result = subprocess.run([sys.executable, str(RUNNER), "--overlay-worktree", "--stop-after", "full-pass", *args],
+                                        cwd=ROOT, env=clean_env(), capture_output=True, text=True, timeout=1800)
+                self.assertNotEqual(result.returncode, 0, result.stdout[-2000:])
+                self.assertIn(self.COMBINED, result.stderr, result.stderr[-1000:])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
