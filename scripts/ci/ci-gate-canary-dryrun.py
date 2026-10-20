@@ -151,6 +151,8 @@ PUBLISHER = load_module("ci_git_publication_for_dryrun", HERE / "ci-git-publicat
 
 REPOS_LINK_FORM_SCOPE = "--repos-link-form is only for a --live-policy run with --transport-from"
 REPOS_LINK_FORM_CURRENT = "--repos-link-form refused: the transport under test already accepts the /repositories/<id>/ link form"
+# 253-165: --paged-listings must never meet the 253-164 knob (that knob is for the 253-108 sensitivity transports only).
+PAGED_LISTINGS_WITH_REPOS_LINK_FORM = "--paged-listings cannot be combined with --repos-link-form"
 
 
 class DryRunError(Exception):
@@ -1097,12 +1099,16 @@ class FakeGitHub(ObjectServer):
         match = re.fullmatch(rf"/repos/{REPO}/actions/runs/(\d+)", path)
         if match and not query:
             return lambda: self._poll(int(match.group(1)))
+        # 253-165: with --paged-listings the jobs and artifacts listings also serve page 2; otherwise page 1 only.
+        listing_pages = 2 if getattr(server, "paged_listings", False) else 1
         match = re.fullmatch(rf"/repos/{REPO}/actions/runs/(\d+)/jobs", path)
-        if match and self._paged(query) is not None:
-            return lambda: self._jobs(int(match.group(1)))
+        fields = self._paged(query, max_page=listing_pages) if match else None
+        if match and fields is not None:
+            return lambda: self._jobs(int(match.group(1)), int(fields["page"]))
         match = re.fullmatch(rf"/repos/{REPO}/actions/runs/(\d+)/artifacts", path)
-        if match and self._paged(query) is not None:
-            return lambda: self._artifacts(int(match.group(1)))
+        fields = self._paged(query, max_page=listing_pages) if match else None
+        if match and fields is not None:
+            return lambda: self._artifacts(int(match.group(1)), int(fields["page"]))
         match = re.fullmatch(rf"/repos/{REPO}/actions/artifacts/(\d+)/zip", path)
         if match and not query:
             return lambda: self._redirect("artifacts", int(match.group(1)))
@@ -1255,17 +1261,37 @@ class FakeGitHub(ObjectServer):
         record["polls"] = 0
         self._reply(202, {})
 
-    def _jobs(self, run_id):
+    def _jobs(self, run_id, page=1):
         record = self.server.runs.get(run_id)
         if record is None:
             return self._reply(404, {"message": "Not Found"})
-        self._reply(200, self._jobs_body(record))
+        self._listing_reply(record, "jobs", self._jobs_body(record), page)
+
+    def _listing_reply(self, record, key, body, page):
+        """253-165: the full-pass run's jobs/artifacts listing, as two pages with GitHub's Link header in this mode's
+        form when --paged-listings is on (and the listing has at least two items); otherwise the one unpaged page."""
+        paged = (getattr(self.server, "paged_listings", False) and record["scenario"] == "full-pass"
+                 and len(body.get(key) or []) >= 2)
+        if not paged:
+            if page != 1:
+                return self._refuse(f"only the full-pass run's {key} listing is paginated", 404)
+            return self._reply(200, body)
+        page_body, link = paged_listing(body, key, page, self._listing_link_base(record["id"], key))
+        self._send(200, json.dumps(page_body, ensure_ascii=False, separators=(",", ":")).encode(), extra=[("Link", link)])
+
+    def _listing_link_base(self, run_id, key):
+        """The Link base for a run's jobs/artifacts listing: live-policy GitHub's /repositories/<id>/ form on
+        api.github.com, hermetic the local origin's /repos/ form (the same forms as check_runs_link)."""
+        suffix = f"actions/runs/{run_id}/{key}"
+        if self.server.live:
+            return f"https://{API_HOST}/repositories/{GITHUB_REPOSITORY_ID}/{suffix}"
+        return f"https://localhost:{self.server.server_address[1]}/repos/{REPO}/{suffix}"
 
     def _jobs_body(self, record):
         """The run's jobs page (253-128: also the job list the failed-log archive is built from)."""
         return build_jobs_page(record, getattr(self.server, "faults", ()))
 
-    def _artifacts(self, run_id):
+    def _artifacts(self, run_id, page=1):
         record = self.server.runs.get(run_id)
         if record is None:
             return self._reply(404, {"message": "Not Found"})
@@ -1283,7 +1309,7 @@ class FakeGitHub(ObjectServer):
             if record["scenario"] != "cancelled":
                 artifacts.append(self._artifact(record, f"gate-canary-{record['scenario']}-{run_id}-1",
                                                 zip_bytes("canary-result.json", self._result(record))))
-        self._reply(200, {"total_count": len(artifacts), "artifacts": artifacts})
+        self._listing_reply(record, "artifacts", {"total_count": len(artifacts), "artifacts": artifacts}, page)
 
     def _artifact(self, record, name, archive):
         server = self.server
@@ -1476,6 +1502,17 @@ def server_parent_check_runs(sha: str, total: int, page: dict | None = None) -> 
     return real + synthetic
 
 
+def paged_listing(body: dict, key: str, page: int, base: str) -> tuple:
+    """253-165: page 1 or 2 of a two-page listing. Page 1 holds the first half (rounded up), page 2 the rest; both carry
+    the unpaged total_count. Page 1's Link is rel next+last, page 2's rel prev+first, as GitHub sends them."""
+    items = list(body.get(key) or [])
+    half = (len(items) + 1) // 2
+    page_body = dict(body)
+    page_body[key] = items[:half] if page == 1 else items[half:]
+    rels = [(2, "next"), (2, "last")] if page == 1 else [(1, "prev"), (1, "first")]
+    return page_body, ", ".join(f'<{base}?per_page=100&page={target}>; rel="{rel}"' for target, rel in rels)
+
+
 def paginated_reads(ledger: dict) -> list:
     """253-146: every multi-page read in the window ledger, in order: {route, pages, next_link_forms}, where a form is
     "repositories-id" (GitHub's /repositories/<id>/ link) or "repos" (the /repos/<owner>/<repo>/ link), read from the
@@ -1502,7 +1539,7 @@ def paginated_reads(ledger: dict) -> list:
 
 def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_parent: str, verifier_module,
                visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False, seed_refs: dict | None = None,
-               repos_link_form: bool = False):
+               repos_link_form: bool = False, paged_listings: bool = False):
     cert, key = work / "tls-cert.pem", work / "tls-key.pem"
     # Live-policy mode: a certificate for the real hostnames, so SNI and hostname verification use them (253-108).
     names = LIVE_TLS_NAMES if live else ("localhost",)
@@ -1512,6 +1549,7 @@ def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_pare
     server = FakeServer(("127.0.0.1", 0), FakeGitHub)
     server.live = live
     server.repos_link_form = bool(live and repos_link_form)
+    server.paged_listings = bool(paged_listings)
     server.authorization = {"api_with": 0, "api_without": 0, "blob_with": 0, "results_receiver_with": 0}
     server.log_tokens = {}
     server.work = str(work)
@@ -1793,7 +1831,8 @@ def dry_run(args) -> dict:
         server, thread, cert = start_fake(work, clone, ledger, journal, freeze["identity"]["server_parent_sha"],
                                           verifier_module, visibility, polls, args.seed_legacy_refs, live=live,
                                           seed_refs=seeded_scoped_refs(args) or None,
-                                          repos_link_form=bool(getattr(args, "repos_link_form", False)))
+                                          repos_link_form=bool(getattr(args, "repos_link_form", False)),
+                                          paged_listings=bool(getattr(args, "paged_listings", False)))
         server.faults = set(args.fault or [])
         for item in args.inject or []:
             key, _, status = item.rpartition("=")
@@ -2070,6 +2109,10 @@ def main() -> int:
                              "headers in the pre-146 /repos/<owner>/<repo>/ form on api.github.com, for the 253-108 "
                              "sensitivity transports (375b41138 and its parent); refused for a transport that already "
                              "accepts the /repositories/<id>/ form")
+    parser.add_argument("--paged-listings", action="store_true",
+                        help="253-165: serve the full-pass run's run_jobs and run_artifacts listings as two pages each, "
+                             "with rel next/last in this mode's link form (live-policy /repositories/<id>/, hermetic "
+                             "/repos/); default off; refused together with --repos-link-form")
     parser.add_argument("--sleep-scale", type=float, default=0.01,
                         help="live-policy: fraction of each requested driver sleep actually slept (default 0.01)")
     parser.add_argument("--polls", action="append", help="SCENARIO=N modeled polls to completion (repeatable)")
@@ -2092,6 +2135,8 @@ def main() -> int:
         parser.error("--discovery-wait and --poll-seconds are hermetic-only; live-policy runs the live 20/60-second waits")
     if args.sleep_scale < 0:
         parser.error("--sleep-scale must be non-negative")
+    if args.paged_listings and args.repos_link_form:
+        parser.error(PAGED_LISTINGS_WITH_REPOS_LINK_FORM)
     if args.repos_link_form and not (args.live_policy and args.transport_from):
         parser.error(REPOS_LINK_FORM_SCOPE)
     for key in ("GH_TOKEN", "GITHUB_TOKEN"):
