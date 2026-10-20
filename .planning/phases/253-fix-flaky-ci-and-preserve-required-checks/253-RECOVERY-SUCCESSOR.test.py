@@ -285,6 +285,58 @@ def committed_receipt_fixture(parent):
 
 
 class SuccessorContractTests(unittest.TestCase):
+    def test_sdk_report_rejects_rehashed_fabricated_queries(self):
+        execution = json.loads((ROOT / f"{PHASE}/253-178-EXECUTION-RECORD.json").read_bytes())
+        finding = next(item for item in execution["findings"] if item["id"] == "178-REVIEW-02")
+        source = pathlib.Path(finding["fabricated_report_path"])
+        raw = source.read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), finding["fabricated_report_sha256"])
+        with tempfile.TemporaryDirectory(prefix="sigra-253-fabricated-sdk-") as temp:
+            root = pathlib.Path(temp) / "project"
+            (root / successor.R12_CONTRACT).parent.mkdir(parents=True)
+            shutil.copy2(ROOT / successor.R12_CONTRACT, root / successor.R12_CONTRACT)
+            report = pathlib.Path(temp) / "fabricated-report.json"
+            report.write_bytes(raw)
+            evidence = {"report_path": str(report), "report_sha256": hashlib.sha256(raw).hexdigest()}
+            with self.assertRaisesRegex(successor.ContractError, "readiness_init.*JSON|query.*JSON|SDK.*output"):
+                successor.validate_sdk_copy_report(root, evidence)
+
+    def test_sdk_indexes_require_exact_unique_plan_universe(self):
+        validator = getattr(successor, "validate_sdk_index_rows", None)
+        self.assertTrue(callable(validator), "missing raw SDK index validator")
+        expected_ids = [f"253-{number:02d}" for number in range(1, 182)]
+        expected_halted = {f"253-{number:02d}" for number in successor.HISTORICAL_HALT_IDS}
+
+        def rows(final):
+            incomplete = set() if final else {"253-168"}
+            return [{"id": plan, "has_summary": plan not in incomplete,
+                     "halted": plan in expected_halted, "blocked_by": []}
+                    for plan in expected_ids]
+
+        ready_rows = rows(False)
+        ready_init = {"plan_count": 181, "incomplete_count": 1,
+                      "incomplete_plans": ["253-168-PLAN.md"],
+                      "runnable_plans": ["253-168-PLAN.md"]}
+        final_rows = rows(True)
+        final_init = {"plan_count": 181, "incomplete_count": 0,
+                      "incomplete_plans": [], "runnable_plans": []}
+        self.assertEqual(len(validator(ready_rows, ready_init, "readiness")), 181)
+        self.assertEqual(len(validator(final_rows, final_init, "final")), 181)
+
+        attacks = {
+            "duplicate": lambda values: values[:-1] + [dict(values[0])],
+            "missing": lambda values: values[:-1],
+            "extra": lambda values: values + [{"id": "253-182", "has_summary": True,
+                                                 "halted": False, "blocked_by": []}],
+            "replaced": lambda values: values[:-1] + [{**values[-1], "id": "253-999"}],
+            "malformed": lambda values: values[:-1] + [{**values[-1], "id": "253-0181"}],
+            "non-object": lambda values: values[:-1] + ["253-181"],
+        }
+        for stage, base, init in (("readiness", ready_rows, ready_init), ("final", final_rows, final_init)):
+            for label, mutate in attacks.items():
+                with self.subTest(stage=stage, mutation=label), self.assertRaises(successor.ContractError):
+                    validator(mutate(base), init, stage)
+
     def test_168_requires_receipt_before_each_automated_body(self):
         original = {
             f"{PHASE}/253-{number}-PLAN.md": (ROOT / f"{PHASE}/253-{number}-PLAN.md").read_bytes()
