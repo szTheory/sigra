@@ -1,0 +1,461 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "recorded_at": "2026-10-20T23:01:53.868347+00:00",
+  "plan_sha256": "42fb59b87e1b37b9321bebc278dbb3824b382cbcfae1a662fd9a4c1afa50b954",
+  "frontmatter": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "frontmatter.validate",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLAN.md",
+      "--schema",
+      "plan-gap-closure"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+    "stderr": "",
+    "stdout_sha256": "1dc7d083392efc52ce8392b3b1fd133485cf575e309731f1a04a86f741621be1",
+    "data": {
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    }
+  },
+  "structure": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "verify.plan-structure",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLAN.md"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [],\n  \"task_count\": 3,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Make the historical25-to22 bridge mutation real at validation time\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Add the182 repair lifecycle while preserving the181 halt\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 3: Preserve and amend179/180 instructions, then record the finite182 result\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+    "stderr": "",
+    "stdout_sha256": "b173e98082823d1a57d9b69a1c395ff12fb7117e2458164a05e3dcb7e94a3504",
+    "data": {
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "task_count": 3,
+      "tasks": [
+        {
+          "name": "Task 1: Make the historical25-to22 bridge mutation real at validation time",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 2: Add the182 repair lifecycle while preserving the181 halt",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 3: Preserve and amend179/180 instructions, then record the finite182 result",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    }
+  },
+  "verify_probes": {
+    "paths": {
+      "status": "not_applicable",
+      "commands": [
+        {
+          "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 1: Make the historical25-to22 bridge mutation real at validation time"
+        },
+        {
+          "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_validate_review182_requires_real_source_commits_and_rejects_forgery SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 2: Add the182 repair lifecycle while preserving the181 halt"
+        },
+        {
+          "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 3: Preserve and amend179/180 instructions, then record the finite182 result"
+        },
+        {
+          "command": "python3 -B -c 'import hashlib,json,pathlib,subprocess; phase=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\"); node=\"/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node\"; sdk=\"/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs\"; rows=[]\nfor number in (179,180):\n path=phase/f\"253-{number}-PLAN.md\"\n for verb,extra in ((\"frontmatter.validate\",[\"--schema\",\"plan-gap-closure\"]),(\"verify.plan-structure\",[])):\n  argv=[node,sdk,\"query\",verb,str(path),*extra]; result=subprocess.run(argv,capture_output=True); raw=result.stdout; parsed=json.loads(raw.decode(\"utf-8\",\"strict\")); row={\"plan_path\":str(path),\"plan_sha256\":hashlib.sha256(path.read_bytes()).hexdigest(),\"argv\":argv,\"exit_code\":result.returncode,\"stdout\":raw.decode(\"utf-8\",\"strict\"),\"stderr\":result.stderr.decode(\"utf-8\",\"strict\"),\"stdout_sha256\":hashlib.sha256(raw).hexdigest()}; rows.append(row); print(json.dumps(row,sort_keys=True),flush=True); assert result.returncode==0 and parsed.get(\"valid\") is True,(number,verb,parsed); assert (parsed.get(\"schema\")==\"plan-gap-closure\" if verb==\"frontmatter.validate\" else parsed.get(\"errors\")==[] and isinstance(parsed.get(\"tasks\"),list) and len(parsed[\"tasks\"])==2),(number,verb,parsed)\nassert len(rows)==4'",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 3: Preserve and amend179/180 instructions, then record the finite182 result"
+        },
+        {
+          "command": "python3 -B -c 'import importlib.util,pathlib; path=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py\"); spec=importlib.util.spec_from_file_location(\"repair182\",path); module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module); review=module.validate_review182(pathlib.Path.cwd(),require_summary=False); assert review[\"repair_plan\"]==\"253-182\" and review[\"status\"]==\"reviewed_for_new_acceptance\"; print(\"182 committed repair review verified; 181 remains halted; 179 not run\")'",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 3: Preserve and amend179/180 instructions, then record the finite182 result"
+        }
+      ],
+      "readError": null
+    },
+    "directions": {
+      "status": "ok",
+      "commands": [
+        {
+          "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses",
+          "statement": "Nonzero exit, fewer than2 named tests, zero/multiple matched anchors, equal before/after bytes or digest, a restored good file at the negative validator call, acceptance of22, an unrelated exception, missing neighboring positive or rewritten historical bytes.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 1: Make the historical25-to22 bridge mutation real at validation time"
+        },
+        {
+          "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_validate_review182_requires_real_source_commits_and_rejects_forgery SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries",
+          "statement": "Nonzero exit, fewer than5 named tests, accepted halted181 authority, altered historical bytes, synthetic complete181, any missing/replaced/duplicate/extra182 ID or26th halt, changed73 targets, fabricated SDK output accepted, unbound committed source/UTF8 bytes or an actual179 acceptance/external action.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 2: Add the182 repair lifecycle while preserving the181 halt"
+        },
+        {
+          "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+          "statement": "Nonzero or incomplete native output, fewer than24 tests or any original method omitted, historical bytes/results changed, failed/no-op mutation, current lifecycle/source/SDK contract disagreement, any actual amended-plan validator fails, review consumer refuses, missing original readbacks, changed179/180 command body, actual179 acceptance or an external action.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 3: Preserve and amend179/180 instructions, then record the finite182 result"
+        },
+        {
+          "command": "python3 -B -c 'import hashlib,json,pathlib,subprocess; phase=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\"); node=\"/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node\"; sdk=\"/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs\"; rows=[]\nfor number in (179,180):\n path=phase/f\"253-{number}-PLAN.md\"\n for verb,extra in ((\"frontmatter.validate\",[\"--schema\",\"plan-gap-closure\"]),(\"verify.plan-structure\",[])):\n  argv=[node,sdk,\"query\",verb,str(path),*extra]; result=subprocess.run(argv,capture_output=True); raw=result.stdout; parsed=json.loads(raw.decode(\"utf-8\",\"strict\")); row={\"plan_path\":str(path),\"plan_sha256\":hashlib.sha256(path.read_bytes()).hexdigest(),\"argv\":argv,\"exit_code\":result.returncode,\"stdout\":raw.decode(\"utf-8\",\"strict\"),\"stderr\":result.stderr.decode(\"utf-8\",\"strict\"),\"stdout_sha256\":hashlib.sha256(raw).hexdigest()}; rows.append(row); print(json.dumps(row,sort_keys=True),flush=True); assert result.returncode==0 and parsed.get(\"valid\") is True,(number,verb,parsed); assert (parsed.get(\"schema\")==\"plan-gap-closure\" if verb==\"frontmatter.validate\" else parsed.get(\"errors\")==[] and isinstance(parsed.get(\"tasks\"),list) and len(parsed[\"tasks\"])==2),(number,verb,parsed)\nassert len(rows)==4'",
+          "statement": "Any actual validator nonzero, missing/invalid/nonobject JSON, valid not true, wrong frontmatter schema, structure error or task count other than2, fewer than4 retained result rows, or argv/raw-output/hash/current-plan binding differs from the new review.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 3: Preserve and amend179/180 instructions, then record the finite182 result"
+        },
+        {
+          "command": "python3 -B -c 'import importlib.util,pathlib; path=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py\"); spec=importlib.util.spec_from_file_location(\"repair182\",path); module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module); review=module.validate_review182(pathlib.Path.cwd(),require_summary=False); assert review[\"repair_plan\"]==\"253-182\" and review[\"status\"]==\"reviewed_for_new_acceptance\"; print(\"182 committed repair review verified; 181 remains halted; 179 not run\")'",
+          "statement": "Nonzero exit, missing new reviewed182 result, rejected source commits/validator records/native suite, accepted halted181 review as authority, changed historical bytes, actual acceptance consumed or premature completed182 SUMMARY required.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "253-182-PLAN.md",
+          "task": "Task 3: Preserve and amend179/180 instructions, then record the finite182 result"
+        }
+      ],
+      "readError": null
+    }
+  },
+  "decision_coverage": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "check.decision-coverage-plan",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"passed\": true,\n  \"skipped\": false,\n  \"total\": 24,\n  \"covered\": 24,\n  \"uncovered\": [],\n  \"message\": \"All trackable CONTEXT.md decisions are covered by plans.\"\n}",
+    "stderr": "",
+    "stdout_sha256": "a6939ed43cd66a7a0f5fcd2980f1b7595d97f3efc035b5799a6eedf6607bd3be",
+    "data": {
+      "passed": true,
+      "skipped": false,
+      "total": 24,
+      "covered": 24,
+      "uncovered": [],
+      "message": "All trackable CONTEXT.md decisions are covered by plans."
+    }
+  },
+  "post_planning_gap_analysis": {
+    "block": false,
+    "passed": true,
+    "enabled": true,
+    "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | ✓ Covered |\n| REQUIREMENTS.md | CIREL-02 | ✓ Covered |\n| CONTEXT.md | D-01 | ✓ Covered |\n| CONTEXT.md | D-02 | ✓ Covered |\n| CONTEXT.md | D-03 | ✓ Covered |\n| CONTEXT.md | D-04 | ✓ Covered |\n| CONTEXT.md | D-05 | ✓ Covered |\n| CONTEXT.md | D-06 | ✓ Covered |\n| CONTEXT.md | D-07 | ✓ Covered |\n| CONTEXT.md | D-08 | ✓ Covered |\n| CONTEXT.md | D-09 | ✓ Covered |\n| CONTEXT.md | D-10 | ✓ Covered |\n| CONTEXT.md | D-11 | ✓ Covered |\n| CONTEXT.md | D-12 | ✓ Covered |\n| CONTEXT.md | D-13 | ✓ Covered |\n| CONTEXT.md | D-14 | ✓ Covered |\n| CONTEXT.md | D-15 | ✓ Covered |\n| CONTEXT.md | D-16 | ✓ Covered |\n| CONTEXT.md | D-17 | ✓ Covered |\n| CONTEXT.md | D-18 | ✓ Covered |\n| CONTEXT.md | D-19 | ✓ Covered |\n| CONTEXT.md | D-20 | ✓ Covered |\n| CONTEXT.md | D-21 | ✓ Covered |\n| CONTEXT.md | D-22 | ✓ Covered |\n| CONTEXT.md | D-23 | ✓ Covered |\n| CONTEXT.md | D-24 | ✓ Covered |\n\n✓ All 26 items covered by plans\n",
+    "summary": "✓ All 26 items covered by plans",
+    "counts": {
+      "total": 26,
+      "covered": 26,
+      "uncovered": 0
+    },
+    "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | ✓ Covered |\n| REQUIREMENTS.md | CIREL-02 | ✓ Covered |\n| CONTEXT.md | D-01 | ✓ Covered |\n| CONTEXT.md | D-02 | ✓ Covered |\n| CONTEXT.md | D-03 | ✓ Covered |\n| CONTEXT.md | D-04 | ✓ Covered |\n| CONTEXT.md | D-05 | ✓ Covered |\n| CONTEXT.md | D-06 | ✓ Covered |\n| CONTEXT.md | D-07 | ✓ Covered |\n| CONTEXT.md | D-08 | ✓ Covered |\n| CONTEXT.md | D-09 | ✓ Covered |\n| CONTEXT.md | D-10 | ✓ Covered |\n| CONTEXT.md | D-11 | ✓ Covered |\n| CONTEXT.md | D-12 | ✓ Covered |\n| CONTEXT.md | D-13 | ✓ Covered |\n| CONTEXT.md | D-14 | ✓ Covered |\n| CONTEXT.md | D-15 | ✓ Covered |\n| CONTEXT.md | D-16 | ✓ Covered |\n| CONTEXT.md | D-17 | ✓ Covered |\n| CONTEXT.md | D-18 | ✓ Covered |\n| CONTEXT.md | D-19 | ✓ Covered |\n| CONTEXT.md | D-20 | ✓ Covered |\n| CONTEXT.md | D-21 | ✓ Covered |\n| CONTEXT.md | D-22 | ✓ Covered |\n| CONTEXT.md | D-23 | ✓ Covered |\n| CONTEXT.md | D-24 | ✓ Covered |\n\n✓ All 26 items covered by plans\n"
+  },
+  "code_drift": {
+    "block": false,
+    "skipped": true,
+    "reason": "no-structure-md",
+    "action_required": false,
+    "directive": "none",
+    "elements": []
+  },
+  "context_drift": {
+    "block": false,
+    "skipped": false,
+    "stale_artifacts": [],
+    "action": "warn",
+    "message": ""
+  },
+  "historical_and_existing_source_unchanged": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+      "sha256": "b4e6282d963c33c5a462593470e1ed969e2df9affd9565f2423bf124a98d8c85",
+      "bytes": 2997
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+      "sha256": "1d4b8518bf2bd7016dc4b66ec9f1ec7a85ca8bc521a977411c10c980b9b0d33e",
+      "bytes": 12815
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-SOURCE-AUDIT.md",
+      "sha256": "2c7d7bd9acbc8ba98ab3d0d19877273d853ebd470f14155daa5f29486a78690e",
+      "bytes": 12059
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+      "sha256": "ab7a0282eb760b635376807062285c1361828b0ccb56915a4a93a3b404d15567",
+      "bytes": 9456
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-PLAN.md",
+      "sha256": "f260cf0df47ab986c228bb8cf0b1cbfc5fdcb594b2adc3a3bb88cb4f733351b5",
+      "bytes": 24981
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-REPAIR-REVIEW.json",
+      "sha256": "169ecf458eccc7ed440b7533875f3b580f8334bc8189a024efea55dac83212ee",
+      "bytes": 10497
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-SUMMARY.md",
+      "sha256": "622517dff95bf2d7feef336c4d8e3c11af1bfc1bb0fbee51d7dc9a048ce259b0",
+      "bytes": 4849
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md",
+      "sha256": "ce2d5dda8b8b1d893eab99eaa78301048104eb0fdb5e8d4569f792008a1da52a",
+      "bytes": 17886
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md",
+      "sha256": "d7a2ccce92d6091fcc5d9ab665f8e3de64d9a91046565e2912e3a679c9e7cf65",
+      "bytes": 24389
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-01.md",
+      "sha256": "b4ba2c4266c3033de971cdab888a7722ee31471a54f4977336b9840ddf43abbc",
+      "bytes": 3447
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-02.md",
+      "sha256": "cb9647b0106230ef831c803b7e5a44ae72afc5c7f8660aa2917c49b4ba1ccb1b",
+      "bytes": 1319
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-CHECKS.json",
+      "sha256": "9901ba10d2af7f80f006e1927f6ecb71bea617adf7906bba471f2985d2d1864d",
+      "bytes": 2552
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-PRESERVATION.json",
+      "sha256": "ce4f1fc81303ef70b4f53b0f8e738948911eebf10b7ef52c2c89d45593c7dec6",
+      "bytes": 2969
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-COMPLETION-RECORD.json",
+      "sha256": "f74305389a417f337f6e8713064e81d7a0dbd9dd57b9da3506eadf8703b2b521",
+      "bytes": 1674
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-RECORD.json",
+      "sha256": "49cb151963afd2656db38eca68f7e3ed0d5326b129d2fbdd29719b989d52e4ba",
+      "bytes": 9561
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-ROUTING.json",
+      "sha256": "d5b2c4f67877fa1facd3762f8e312ff5c730bbaf31015b325bfe6b9f01e06ccc",
+      "bytes": 25007
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-FINAL-CHECKS.json",
+      "sha256": "1a7e111815ed4f79789f08da9da5f8a25ded7e8f11ed2d882ba82dbd8eb0321a",
+      "bytes": 415
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md",
+      "sha256": "14f66a4d3494ed60c448de4d01e96b5bd187aae240036eecc2e142acb9f38ed5",
+      "bytes": 39142
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-CHECKS.json",
+      "sha256": "8c55ac8d969490778839d94c8bc0685526166e6b3aa7999db7a60df6f3e65d76",
+      "bytes": 18044
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-RECORD.json",
+      "sha256": "8f6fb22dd31baeb0b654799c8d10e006eb3fdcaad413e22664e3ab9384fb9207",
+      "bytes": 8754
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-REPAIR-REVIEW.json",
+      "sha256": "359abfc4cb9567f84606211626e9e79fa85eb4c3b88d4fd24bdf39983bb08f48",
+      "bytes": 8182
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-ROUTING-CHECKS.json",
+      "sha256": "b210740b1cb015f39010ee7820c1b12098b2c66fa59d5c12c62198ba98daa8ea",
+      "bytes": 265076
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SOURCE-AUDIT.md",
+      "sha256": "e5c9c3f5c0979c8c8a7f93c0d5d201e6e2d8d682ebb861cb0361ed3b499cfd25",
+      "bytes": 15124
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SUMMARY.md",
+      "sha256": "f1e0c31e4cafe080fe03cf9f0caeaa405fe692847ed4574381b9d82fd8c879ef",
+      "bytes": 4463
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.json",
+      "sha256": "3ade48364cd44794c897208088e5321d564cf3e8868158f05db5d0ee9e109722",
+      "bytes": 1522
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.log",
+      "sha256": "6b563fe47a157c9013413f5a62ddcc8bba5f6f6738220be56c0c787c46e88f5d",
+      "bytes": 770
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-RED-REPLAY.json",
+      "sha256": "6c13ca103ea4343a68303c1da1fcda4aaf0c0bed0fdb8812d25c9f64119a5b20",
+      "bytes": 98970
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN-VALIDATED.log",
+      "sha256": "3c721029c14065676521c7f24d5b46160d7b400fee8912e706723f9dcd242a89",
+      "bytes": 556
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN.log",
+      "sha256": "5a294a881f9f521935a30417fe43ff4a9ac07011a4076e907d381d6c23459f0a",
+      "bytes": 556
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-RED.json",
+      "sha256": "39299e34a4307e9999383edffeea5e82d281310e2b5df2a204d3f5cf0531f842",
+      "bytes": 103911
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log",
+      "sha256": "6864de43372cce91efb9b01ccc5404c6c72e20ee7ed791dd42b5c5b5ac1a39ab",
+      "bytes": 4647
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-VALIDATORS.json",
+      "sha256": "706d0351cf0a3af718e94ada37a92efe065e622bdd95995f01bbe6aa817c6083",
+      "bytes": 5297
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FIRST-FULL-FAILED.log",
+      "sha256": "901946f8435254be8a272436377b6ddd2549e2760657ef4773e6b7a69ff87b30",
+      "bytes": 7645
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-RED.log",
+      "sha256": "62390104a8b4feeb6569e6a2da9b9acf87027474e3ee68942e6e8c2e73d4f856",
+      "bytes": 1093
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "sha256": "14b1aba3aceca988aaf201f25b8fc84995e5766cac7a36c600e46b4a087d10b5",
+      "bytes": 109840
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "sha256": "404a7dd7d30c60c25c742032db290e528eb03945bfb5de5beb5c87156b314677",
+      "bytes": 97649
+    }
+  ],
+  "embedded_python_parse": "passed",
+  "implementation_tests_run": false,
+  "phase_verification_status": "not_started"
+}

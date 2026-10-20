@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:181 total:75 implementation summaries,25 halted summaries,81 without summaries. New181 reviewed and ready;179/180 remain blocked pending preserved amendments during181. Whole-phase verification not_started. Earlier lists below record historical stages.
+**Plans**:182 total:75 implementation summaries,26 halted summaries,81 without summaries. New182 reviewed and ready;179/180 remain blocked pending preserved amendments during182. Whole-phase verification not_started. Earlier lists below record historical stages.
 
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
@@ -306,6 +306,15 @@ Future waves2–8 depend on successful181 and its preserved instruction amendmen
 
 Cross-cutting constraints: preserve all failed results and original instructions; keep the existing acceptance identity179 and request/retry/time/tree limits; 181pins/25halts/73dispositions in the eventual contract; actual hosted proof required for CIREL-02. Requirements and whole-phase verification remain incomplete. Records:253-181-CHECK-02.md,253-181-PLANNING-CHECKS.json,253-181-ROUTING-CHECKS.json. Next:$gsd-execute-phase 253 --gaps-only.
 
+### Latest gap repair planning — Plan182 (2026-10-20)
+
+Plan181 remains halted with its complete failed native output. Plan182 passed independent review with no blockers or warnings. No existing helper/tests or179/180 instructions changed during planning.
+
+**Wave 1**
+- [ ] 253-182-PLAN.md — Repair real25/26-to22 mutation controls, preserve failed181, add strict182 review and exact182/26/73 lifecycle, then preserve/amend unrun179/180 during execution.
+
+Future waves2–8 are blocked on successful182 and execution-time amendments:179→180→168→169→170→171→172. Cross-cutting constraints: retain all26 historical halts, exact73 dispositions, original179 acceptance identity and fixed budgets; local simulation cannot replace hosted proof. Requirements remain open and whole-phase verification not_started. Next:$gsd-execute-phase 253 --gaps-only. Records:253-182-PLANNING-RECORD.json,253-182-PLAN-CHECK.json,253-182-PLANNING-CHECKS.json,253-182-ROUTING-CHECKS.json.
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
@@ -334,12 +343,12 @@ Cross-cutting constraints: preserve all failed results and original instructions
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252complete;253has181plans:75completed implementation,25halted,81without summaries. Only181ready. Phase254/255pending.
+**Execution order:**252→253→254→255. Phase252complete;253has182plans:75completed implementation,26halted,81without summaries. Only182ready. Phase254/255pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/181 | Partial implementation; 181 ready; phase verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/182 | Partial implementation; 182 ready; phase verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

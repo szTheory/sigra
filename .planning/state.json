@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -33,11 +33,11 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 253 --gaps",
-    "label": "Repair Plan181 negative control",
-    "reason": "22-halt negative control replaces 24 in a fixture already containing 25, changing no bytes; intended refusal remains unproven."
+    "command": "$gsd-execute-phase 253 --gaps-only",
+    "label": "Execute Plan182 repair",
+    "reason": "Plan182 passed independent review; only182 runnable.179/180 remain blocked pending successful repair."
   },
-  "updated_at": "2026-10-20T22:27:02.838416+00:00",
+  "updated_at": "2026-10-20T23:01:53.868347+00:00",
   "phase253_execution": {
     "status": "halted",
     "implementation_status": "partial",
@@ -1135,9 +1135,9 @@
     ],
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
-  "status": "halted",
-  "next_command": "$gsd-plan-phase 253 --gaps",
-  "resume_command": "$gsd-plan-phase 253 --gaps",
+  "status": "ready_to_execute",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -1635,9 +1635,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-20T22:27:02.838416+00:00",
-  "stopped_at": "Plan181 halted: final suite20/21;179/180 blocked",
-  "state_head": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+  "last_updated": "2026-10-20T23:01:53.868347+00:00",
+  "stopped_at": "Plan182 reviewed and ready;181 remains halted",
+  "state_head": "de7431076a7fa2c624257c4fd0ea7674fd4407b9",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2074,8 +2074,10 @@
     "github_requests": 0,
     "acceptance_attempts": 0
   },
-  "phase253_plan_count": 181,
-  "phase253_ready_plans": [],
+  "phase253_plan_count": 182,
+  "phase253_ready_plans": [
+    "253-182"
+  ],
   "phase253_verification_status": "not_started",
   "phase253_bridge_repair_execution": {
     "status": "halted",
@@ -2540,5 +2542,75 @@
       "ready_plans": []
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
+  },
+  "workflow_step": "execute",
+  "phase253_gap_repair182_planning": {
+    "schema": 1,
+    "status": "passed",
+    "capture_head": "de7431076a7fa2c624257c4fd0ea7674fd4407b9",
+    "recorded_at": "2026-10-20T23:01:53.868347+00:00",
+    "invocation": "$gsd-plan-phase 253 --gaps",
+    "plans": [
+      "253-182"
+    ],
+    "new_tasks": 3,
+    "new_waves": 1,
+    "research": "skipped_gap_mode",
+    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLAN-CHECK.json",
+    "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-CHECKS.json",
+    "routing_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-ROUTING-CHECKS.json",
+    "preservation": {
+      "capture_head": "de7431076a7fa2c624257c4fd0ea7674fd4407b9",
+      "ref": "refs/gsd/phase253-plan182-sdk-state",
+      "commit": "033d3b4bb78eae7931de069a670a3f56628ff720",
+      "readback_verified": true,
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "status": " M .planning/STATE.md\n",
+          "bytes": 23952,
+          "sha256": "d6c206326ab725e266fdbc4e4dae0e238ff8ef80f023dcf4a1a5ebe8203984cb",
+          "blob": "cfbe61f1e6aec56f4be929e29d839065498d4810"
+        },
+        {
+          "path": ".planning/state.json",
+          "status": " M .planning/state.json\n",
+          "bytes": 769,
+          "sha256": "686847cd25f6f91cd7e1e177b08ff29774fb63874f68a83e3fedeb85a361dd6d",
+          "blob": "0c58e3b88f1cc9b44670fa789a6fe7e703f23c3d"
+        }
+      ]
+    },
+    "readiness": {
+      "plan_count": 182,
+      "completed_implementation_count": 75,
+      "halted_count": 26,
+      "without_summary": 81,
+      "incomplete_count": 81,
+      "runnable_count": 1,
+      "ready_plans": [
+        "253-182"
+      ]
+    },
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "implementation_status": "partial",
+    "phase_verification_status": "not_started",
+    "acceptance_attempts": 0,
+    "github_requests": 0,
+    "browser_invocations": 0,
+    "future_chain": [
+      "253-182",
+      "253-179",
+      "253-180",
+      "253-168",
+      "253-169",
+      "253-170",
+      "253-171",
+      "253-172"
+    ]
   }
 }
