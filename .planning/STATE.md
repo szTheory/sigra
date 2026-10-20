@@ -5,17 +5,17 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
 status: "partial_implementation_recovery_ready"
-stopped_at: "Recovery planning passed; implementation and whole-phase verification remain incomplete"
-last_updated: "2026-10-14T02:26:45.898798+00:00"
-last_activity: "2026-10-14"
-last_activity_desc: "Twelve append-only recovery plans independently reviewed; no native or hosted work performed"
-state_head: "08fa9e93f2035879666324c6bf63b9ef5cc8573a"
+stopped_at: "Plan 173 ready; execution and whole-phase verification remain incomplete"
+last_updated: "2026-10-20T16:10:57.283643+00:00"
+last_activity: "2026-10-20"
+last_activity_desc: "One new recovery plan and five continuation repairs passed independent review; Plan 173 ready first"
+state_head: "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 53
-  completed_plans: 17
-  percent: 32
+  total_plans: 179
+  completed_plans: 81
+  percent: 45
 milestone_status: active
 workflow_step: "execute_recovery"
 verification_status: not_started
@@ -28,13 +28,13 @@ historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
 phase253_planning_status: "passed"
-phase253_plan_count: 47
-phase253_wave_count: 9
-phase253_task_count: 102
+phase253_plan_count: 173
+phase253_wave_count: 6
+phase253_task_count: 456
 phase253_implementation_status: partial
-phase253_completed_plans: 11
-phase253_halted_plans: ["253-02", "253-07", "253-09", "253-12", "253-16", "253-27"]
-phase253_blocked_plans: ["253-08", "253-10", "253-13", "253-14", "253-17", "253-21", "253-22", "253-23", "253-24", "253-25", "253-28", "253-29", "253-30", "253-31", "253-32", "253-33", "253-34", "253-35"]
+phase253_completed_plans: 75
+phase253_halted_plans: ["253-02", "253-07", "253-09", "253-104", "253-113", "253-12", "253-122", "253-134", "253-143", "253-146", "253-155", "253-16", "253-167", "253-27", "253-40", "253-51", "253-63", "253-73", "253-84", "253-92", "253-97"]
+phase253_blocked_plans: ["253-08", "253-10", "253-105", "253-106", "253-114", "253-115", "253-123", "253-124", "253-13", "253-135", "253-14", "253-144", "253-145", "253-147", "253-148", "253-149", "253-150", "253-151", "253-152", "253-153", "253-154", "253-156", "253-157", "253-158", "253-159", "253-160", "253-161", "253-162", "253-163", "253-17", "253-21", "253-22", "253-23", "253-24", "253-25", "253-28", "253-29", "253-30", "253-31", "253-32", "253-33", "253-34", "253-35", "253-41", "253-44", "253-45", "253-46", "253-47", "253-52", "253-53", "253-54", "253-55", "253-56", "253-64", "253-65", "253-66", "253-67", "253-68", "253-74", "253-75", "253-76", "253-77", "253-78", "253-85", "253-86", "253-87", "253-88", "253-93", "253-94", "253-98", "253-99"]
 
 phase253_recovery_plan_count: 6
 
@@ -47,7 +47,7 @@ phase253_control_recovery_plan_count: 10
 
 phase253_control_recovery_task_count: 22
 
-phase253_ready_plans: ["253-36", "253-37", "253-42", "253-43"]
+phase253_ready_plans: ["253-173"]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
 ---
@@ -63,19 +63,21 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — partially implemented; recovery plans ready
-Plans: 11/47 implemented; Plans 36–47 add 12 reviewed recovery plans in nine waves
-Status: Plans 36, 37, 42 and 43 are ready first; six prior plans halted and 18 original plans blocked
-Last activity: 2026-10-14T02:26:45.898798+00:00 — planning passed; no browser, database or GitHub work performed
-Progress: 17/53 milestone plans implemented (32%); whole-phase verification not started
+Phase: 253 — partially implemented; execution-halt recovery planned
+Plans: 75 implementation summaries, 21 halted summaries and 77 without summaries among 173 plans
+Status: Plan 173 is ready; then Plans 168, 169, 170, 171 and 172 follow in six waves
+Last activity: 2026-10-20T16:10:57.283643+00:00 — independent plan review passed after two corrections; no acceptance suites or GitHub requests ran
+Progress: 81/179 milestone implementation summaries (45%); whole-phase verification not started
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Begin with the actual Node 20 transformed-spec loading test, safe redaction/cleanup receipts, PR proof contracts and accepted-only SDK disposition contracts. The remaining native controls, conditional repeats, six hosted scenarios and normal/docs PR proof must be accepted before unfiltered whole-phase verification. Both reliability requirements remain open.
+Start with Plan 173's corrected complete offline acceptance block and separately checked result file. Continue through 168–172 only as each prerequisite passes. Original Plan 167 remains halted. CIREL-01 remains partial because the selected cause is not reproduced; CIREL-02 awaits real canary and PR proof. Full phase verification remains a separate unfiltered execute-phase run after the evidence and historical dispositions are ready.
 
-Current native total remains 276,453 ms across five Playwright CLI launches, with no retry available. Four regular command allocations and nine conditional acceptance allocations remain. The failed CR-DARK-FIRST receipt and all original 35 plans remain unchanged. Planning record: 253-LOAD-RECOVERY-PLANNING-RECORD.json; review: 253-LOAD-RECOVERY-PLAN-CHECK-01.md; route: 253-LOAD-RECOVERY-ROUTING.json. Phase 254 remains pending.
+The existing config and runtime-switch record bytes were committed unchanged at a868a40286540ed06bb500aa7f892b87b5312107. The reviewed draft is recoverable at 8aefae4a05a8f200eb79df57d42dbe91ba6d2f17. The prior shared-state bytes are recorded with exact commit/blob/hash identities in 253-173-PLANNING-RECORD.json. Phase 254 is pending with no context/research/plans; its readiness was checked, and it has not started.
+
+Planning record: 253-173-PLANNING-RECORD.json; review: 253-173-CHECK-02.md; checks: 253-173-PLANNING-CHECKS.json; routing: 253-173-ROUTING-CHECKS.json. Earlier recovery records below describe historical stages and do not override this route.
 
 ## Known unfinished work
 
@@ -122,9 +124,9 @@ Current native total remains 276,453 ms across five Playwright CLI launches, wit
 
 ## Session
 
-**Last session:** 2026-10-14T01:30:01.883389+00:00
-**Stopped at:** Native spec collection failed on parse5; next recovery planning
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json
+**Last session:** 2026-10-20T16:10:57.283643+00:00
+**Stopped at:** Gap planning passed; Plan 173 ready, implementation and full verification incomplete
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json
 
 ## Deferred Items
 

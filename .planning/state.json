@@ -13,9 +13,11 @@
       "name": "Fix Flaky CI and Preserve Required Checks",
       "status": "in_progress",
       "planning_status": "passed",
-      "plan_count": 47,
-      "completed_implementation_count": 11,
-      "phase_verification_status": "not_started"
+      "plan_count": 173,
+      "completed_implementation_count": 75,
+      "phase_verification_status": "not_started",
+      "halted_plan_count": 21,
+      "unsummarized_plan_count": 77
     },
     {
       "number": "254",
@@ -30,12 +32,12 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 253 --gaps-only",
-    "label": "Execute reviewed Phase 253 recovery plans",
-    "reason": "Execute the 12 reviewed recovery plans, beginning with offline Node 20 loading, safe log/cleanup receipts, PR proof contracts and accepted-only SDK disposition contracts. Native and hosted proof remain required."
+    "label": "Execute Plan 173, then reviewed Plans 168\u2013172",
+    "reason": "Start with Plan 173 corrected offline acceptance. Then execute Plans 168\u2013172 for the final freeze, reconciliation, real canary and PR proof, and completion records. Whole-phase verification remains separate."
   },
-  "updated_at": "2026-10-14T02:26:45.898798+00:00",
+  "updated_at": "2026-10-20T16:10:57.283643+00:00",
   "phase253_execution": {
-    "status": "control_recovery_planned_ready_to_execute",
+    "status": "execution_halt_recovery_planned_ready",
     "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "plans": {
@@ -75,11 +77,108 @@
       "253-14": "blocked_by_253-09_and_253-12"
     },
     "current_next_command": "$gsd-execute-phase 253 --gaps-only",
-    "total_phase_plans": 35,
+    "total_phase_plans": 173,
     "current_ready_plans": [
-      "253-26"
+      "253-173"
     ],
-    "completed_plan_count": 10
+    "completed_plan_count": 75,
+    "halted_plans": [
+      "253-02",
+      "253-07",
+      "253-09",
+      "253-104",
+      "253-113",
+      "253-12",
+      "253-122",
+      "253-134",
+      "253-143",
+      "253-146",
+      "253-155",
+      "253-16",
+      "253-167",
+      "253-27",
+      "253-40",
+      "253-51",
+      "253-63",
+      "253-73",
+      "253-84",
+      "253-92",
+      "253-97"
+    ],
+    "blocked_plans": [
+      "253-08",
+      "253-10",
+      "253-105",
+      "253-106",
+      "253-114",
+      "253-115",
+      "253-123",
+      "253-124",
+      "253-13",
+      "253-135",
+      "253-14",
+      "253-144",
+      "253-145",
+      "253-147",
+      "253-148",
+      "253-149",
+      "253-150",
+      "253-151",
+      "253-152",
+      "253-153",
+      "253-154",
+      "253-156",
+      "253-157",
+      "253-158",
+      "253-159",
+      "253-160",
+      "253-161",
+      "253-162",
+      "253-163",
+      "253-17",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25",
+      "253-28",
+      "253-29",
+      "253-30",
+      "253-31",
+      "253-32",
+      "253-33",
+      "253-34",
+      "253-35",
+      "253-41",
+      "253-44",
+      "253-45",
+      "253-46",
+      "253-47",
+      "253-52",
+      "253-53",
+      "253-54",
+      "253-55",
+      "253-56",
+      "253-64",
+      "253-65",
+      "253-66",
+      "253-67",
+      "253-68",
+      "253-74",
+      "253-75",
+      "253-76",
+      "253-77",
+      "253-78",
+      "253-85",
+      "253-86",
+      "253-87",
+      "253-88",
+      "253-93",
+      "253-94",
+      "253-98",
+      "253-99"
+    ],
+    "current_planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json"
   },
   "phase253_registration_startup_debug": {
     "status": "resolved_startup_only",
@@ -1477,9 +1576,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-14T02:26:45.898798+00:00",
-  "stopped_at": "Recovery planning reviewed; implementation and whole-phase verification remain incomplete",
-  "state_head": "08fa9e93f2035879666324c6bf63b9ef5cc8573a",
+  "last_updated": "2026-10-20T16:10:57.283643+00:00",
+  "stopped_at": "Plan 173 and continuation 168\u2013172 reviewed; execution and full phase verification remain incomplete",
+  "state_head": "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -1824,5 +1923,26 @@
     },
     "human_actions_pending": [],
     "async_jobs": []
+  },
+  "phase253_gap_planning": {
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json",
+    "status": "planning_passed_ready_to_execute",
+    "active_order": [
+      "253-173",
+      "253-168",
+      "253-169",
+      "253-170",
+      "253-171",
+      "253-172"
+    ],
+    "ready_plans": [
+      "253-173"
+    ],
+    "runnable_count": 6,
+    "phase_verification_status": "not_started",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    }
   }
 }

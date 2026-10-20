@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 11/47 implemented; 12 new recovery plans reviewed; first ready Plans 36, 37, 42, 43; six prior halts preserved; whole-phase verification not started
+**Plans**: 75 implementation summaries, 21 halted summaries and 77 plans without summaries among 173 plans; new Plan 173 and repaired continuation 168–172 reviewed; Plan 173 ready first; whole-phase verification not started. Earlier lists below record historical recovery stages.
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -224,6 +224,26 @@ Cross-cutting constraints: preserve original Phase 252 and failed Phase 253 reco
 
 Cross-cutting constraints: preserve all failed records and spent allocations; first prove actual Node 20 collection offline; use only four remaining regular commands and nine conditional acceptance commands; retain all three-project controls and required-check names; require independent native/hosted proof before dispositions or whole-phase completion.
 
+**Current execution-halt recovery** *(one new plan; five unexecuted continuations repaired; independent review passed)*
+
+| Active wave | Plan | Dependency and remaining work |
+|---|---|---|
+| 1 | 253-173 | Independent entry; check completed inputs, run the corrected offline acceptance block and bind its new result to the unchanged Plan 167 halt. |
+| 2 | 253-168 | After 173; derive the final R13 publication proposal and source freeze within the existing byte/request limits. |
+| 3 | 253-169 | After 168; retain 21 halted records and the same 71 unexecuted-summary targets in the R13 reconciliation contract. |
+| 4 | 253-170 | After 168/169; obtain the scoped approval and actual six-scenario canary evidence. |
+| 5 | 253-171 | After 170; obtain the scoped approval and normal/docs-only PR required-check proof. |
+| 6 | 253-172 | After 169/171; reopen completion evidence and prepare historical dispositions, then route to whole-phase verification. |
+
+- [ ] 253-173-PLAN.md — Correct the stopped verification command and produce a separately checked local result; Plan 167 remains halted.
+- [ ] 253-168-PLAN.md — Final source/publication freeze.
+- [ ] 253-169-PLAN.md — R13 responsibility and disposition contract.
+- [ ] 253-170-PLAN.md — Real canary and separate verifier.
+- [ ] 253-171-PLAN.md — Real normal and docs-only PR proof.
+- [ ] 253-172-PLAN.md — Completion records and full-verification route.
+
+Cross-cutting constraints: preserve every historical halt and spent allocation; keep original Plan 167 bytes; keep CIREL-01 partial under the existing not-reproduced disposition; require actual hosted proof before CIREL-02 acceptance; retain existing approval, request, retry and 2,097,152-byte tree limits. Planning review is complete; execution and whole-phase verification remain incomplete. Current records: `253-173-PLANNING-RECORD.json`, `253-173-CHECK-02.md`, `253-173-PLANNING-CHECKS.json`, `253-173-ROUTING-CHECKS.json`.
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
@@ -252,12 +272,12 @@ Cross-cutting constraints: preserve all failed records and spent allocations; fi
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans; Phase 253 has 47 preserved plans, including 12 new load recovery plans in nine waves; 11 implemented, six halted, 18 originals blocked, four new plans ready first. Phase 254/255 remain pending.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans. Phase 253 has 173 plans: 75 implementation summaries, 21 halted summaries and 77 without summaries. The six-plan active route starts with 173, then 168–172; 71 historical unexecuted plans await evidence-backed dispositions. Phase 254/255 remain pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 11/47 | Partial implementation; recovery plans reviewed and ready; verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/173 | Partial implementation; Plan 173 ready, then 168–172; verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
