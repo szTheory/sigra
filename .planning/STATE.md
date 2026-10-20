@@ -4,50 +4,136 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "partial_implementation_recovery_ready"
-stopped_at: "Plan 173 ready; execution and whole-phase verification remain incomplete"
-last_updated: "2026-10-20T16:10:57.283643+00:00"
-last_activity: "2026-10-20"
-last_activity_desc: "One new recovery plan and five continuation repairs passed independent review; Plan 173 ready first"
-state_head: "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17"
+status: executing
+stopped_at: Plan 173 ready; execution and whole-phase verification remain incomplete
+last_updated: "2026-10-20T16:15:33.365Z"
+last_activity: 2026-10-20
+last_activity_desc: Phase 253 execution started
+state_head: 421bab1b1aa1bff940a0e8ea2cc23bfa3e2b0e28
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 179
-  completed_plans: 81
-  percent: 45
+  completed_plans: 102
+  percent: 25
 milestone_status: active
-workflow_step: "execute_recovery"
+workflow_step: execute_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: $gsd-execute-phase 253 --gaps-only
+resume_command: $gsd-execute-phase 253 --gaps-only
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
-phase253_planning_status: "passed"
+phase253_planning_status: passed
 phase253_plan_count: 173
 phase253_wave_count: 6
 phase253_task_count: 456
 phase253_implementation_status: partial
 phase253_completed_plans: 75
-phase253_halted_plans: ["253-02", "253-07", "253-09", "253-104", "253-113", "253-12", "253-122", "253-134", "253-143", "253-146", "253-155", "253-16", "253-167", "253-27", "253-40", "253-51", "253-63", "253-73", "253-84", "253-92", "253-97"]
-phase253_blocked_plans: ["253-08", "253-10", "253-105", "253-106", "253-114", "253-115", "253-123", "253-124", "253-13", "253-135", "253-14", "253-144", "253-145", "253-147", "253-148", "253-149", "253-150", "253-151", "253-152", "253-153", "253-154", "253-156", "253-157", "253-158", "253-159", "253-160", "253-161", "253-162", "253-163", "253-17", "253-21", "253-22", "253-23", "253-24", "253-25", "253-28", "253-29", "253-30", "253-31", "253-32", "253-33", "253-34", "253-35", "253-41", "253-44", "253-45", "253-46", "253-47", "253-52", "253-53", "253-54", "253-55", "253-56", "253-64", "253-65", "253-66", "253-67", "253-68", "253-74", "253-75", "253-76", "253-77", "253-78", "253-85", "253-86", "253-87", "253-88", "253-93", "253-94", "253-98", "253-99"]
-
+phase253_halted_plans:
+  - 253-02
+  - 253-07
+  - 253-09
+  - 253-104
+  - 253-113
+  - 253-12
+  - 253-122
+  - 253-134
+  - 253-143
+  - 253-146
+  - 253-155
+  - 253-16
+  - 253-167
+  - 253-27
+  - 253-40
+  - 253-51
+  - 253-63
+  - 253-73
+  - 253-84
+  - 253-92
+  - 253-97
+phase253_blocked_plans:
+  - 253-08
+  - 253-10
+  - 253-105
+  - 253-106
+  - 253-114
+  - 253-115
+  - 253-123
+  - 253-124
+  - 253-13
+  - 253-135
+  - 253-14
+  - 253-144
+  - 253-145
+  - 253-147
+  - 253-148
+  - 253-149
+  - 253-150
+  - 253-151
+  - 253-152
+  - 253-153
+  - 253-154
+  - 253-156
+  - 253-157
+  - 253-158
+  - 253-159
+  - 253-160
+  - 253-161
+  - 253-162
+  - 253-163
+  - 253-17
+  - 253-21
+  - 253-22
+  - 253-23
+  - 253-24
+  - 253-25
+  - 253-28
+  - 253-29
+  - 253-30
+  - 253-31
+  - 253-32
+  - 253-33
+  - 253-34
+  - 253-35
+  - 253-41
+  - 253-44
+  - 253-45
+  - 253-46
+  - 253-47
+  - 253-52
+  - 253-53
+  - 253-54
+  - 253-55
+  - 253-56
+  - 253-64
+  - 253-65
+  - 253-66
+  - 253-67
+  - 253-68
+  - 253-74
+  - 253-75
+  - 253-76
+  - 253-77
+  - 253-78
+  - 253-85
+  - 253-86
+  - 253-87
+  - 253-88
+  - 253-93
+  - 253-94
+  - 253-98
+  - 253-99
 phase253_recovery_plan_count: 6
-
 phase253_recovery_task_count: 13
-
 phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
-
 phase253_control_recovery_plan_count: 10
-
 phase253_control_recovery_task_count: 22
-
-phase253_ready_plans: ["253-173"]
+phase253_ready_plans: [253-173]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
 ---
@@ -63,11 +149,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — partially implemented; execution-halt recovery planned
+Phase: 253 (Fix Flaky CI and Preserve Required Checks) — EXECUTING
 Plans: 75 implementation summaries, 21 halted summaries and 77 without summaries among 173 plans
-Status: Plan 173 is ready; then Plans 168, 169, 170, 171 and 172 follow in six waves
-Last activity: 2026-10-20T16:10:57.283643+00:00 — independent plan review passed after two corrections; no acceptance suites or GitHub requests ran
-Progress: 81/179 milestone implementation summaries (45%); whole-phase verification not started
+Status: Executing Phase 253
+Last activity: 2026-10-20 — Phase 253 execution started
+Progress: 81/179 milestone implementation summaries ([███░░░░░░░] 25%); whole-phase verification not started
 
 ## Next GSD command
 
