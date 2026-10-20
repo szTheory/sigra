@@ -946,30 +946,34 @@ class SuccessorContractTests(unittest.TestCase):
             (root / record_path).write_text(json.dumps(record))
             self.assertEqual(successor.validate_bridge(root, "entry", record_path)["status"], "verified")
             corruptions = []
-            bad = json.loads(json.dumps(record)); bad169 = good169.replace("c.halted_plans.length!==24", "c.halted_plans.length!==22", 1)
-            (root / f"{PHASE}/253-169-PLAN.md").write_text(bad169)
+            bad = json.loads(json.dumps(record)); bad169 = good169.replace("c.halted_plans.length!==25", "c.halted_plans.length!==22", 1)
+            self.assertNotEqual(bad169, good169, "22-halt mutation must change the current26-stage source")
             bad["amended_sha256"][f"{PHASE}/253-169-PLAN.md"] = hashlib.sha256(bad169.encode()).hexdigest()
-            corruptions.append(("22-halt", bad, lambda: None))
-            (root / f"{PHASE}/253-169-PLAN.md").write_text(good169)
+            corruptions.append(("22-halt", f"{PHASE}/253-169-PLAN.md", bad169.encode(), bad,
+                                "25 halt set"))
             bad = json.loads(json.dumps(record)); bad169 = good169.replace("253-175-EXECUTION-RECORD.json", "")
-            (root / f"{PHASE}/253-169-PLAN.md").write_text(bad169)
             bad["amended_sha256"][f"{PHASE}/253-169-PLAN.md"] = hashlib.sha256(bad169.encode()).hexdigest()
-            corruptions.append(("174-pin", bad, lambda: None))
-            (root / f"{PHASE}/253-169-PLAN.md").write_text(good169)
+            corruptions.append(("174-pin", f"{PHASE}/253-169-PLAN.md", bad169.encode(), bad,
+                                "ownership table"))
             bad = json.loads(json.dumps(record)); bad168 = 'depends_on: ["253-180"]\n253-174-RECOVERY-RECEIPT.json\n'
-            (root / f"{PHASE}/253-168-PLAN.md").write_text(bad168)
             bad["amended_sha256"][f"{PHASE}/253-168-PLAN.md"] = hashlib.sha256(bad168.encode()).hexdigest()
-            corruptions.append(("stale174", bad, lambda: None))
-            (root / f"{PHASE}/253-168-PLAN.md").write_text(good168)
+            corruptions.append(("stale174", f"{PHASE}/253-168-PLAN.md", bad168.encode(), bad,
+                                "168"))
             bad = json.loads(json.dumps(record)); bad172 = good172.replace("- publication = ", "- publication = tampered-", 1)
-            (root / f"{PHASE}/253-172-PLAN.md").write_text(bad172)
             bad["amended_sha256"][f"{PHASE}/253-172-PLAN.md"] = hashlib.sha256(bad172.encode()).hexdigest()
-            corruptions.append(("hosted-link", bad, lambda: None))
-            (root / f"{PHASE}/253-172-PLAN.md").write_text(good172)
-            for label, bad_record, _ in corruptions:
+            corruptions.append(("hosted-link", f"{PHASE}/253-172-PLAN.md", bad172.encode(), bad,
+                                "scope exactly"))
+            for label, rel, bad_bytes, bad_record, reason in corruptions:
                 with self.subTest(label=label):
+                    path = root / rel
+                    path.write_bytes(bad_bytes)
+                    self.assertEqual(path.read_bytes(), bad_bytes,
+                                     "mutated source bytes must be installed at the validator call")
+                    self.assertNotEqual(hashlib.sha256(path.read_bytes()).hexdigest(),
+                                        record["amended_sha256"].get(rel),
+                                        "mutated source digest must differ from the positive control")
                     (root / record_path).write_text(json.dumps(bad_record))
-                    with self.assertRaises(successor.ContractError):
+                    with self.assertRaisesRegex(successor.ContractError, reason):
                         successor.validate_bridge(root, "entry", record_path)
 
     def test_installed_sdk_copy_executes_queries_and_proves_full_route(self):
