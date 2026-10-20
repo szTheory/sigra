@@ -2995,72 +2995,107 @@
     {
       "id": "shape-pr_read-real-pr",
       "row": "shape-pr_read",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "pr_read on a real PR in both families: the post-run read whose merge_commit_sha and base.sha the collector and the verifier use (253-134 stopped at run discovery, before any pr_read)",
-      "stop": "collector: 'the PR has no tested merge commit or base identity' (ci-pr-proof.sh:636); verifier: 'read PR is not the same open unmerged draft PR' (check_pr, ci-hosted-gate-verify.py:1274) and 'PR has no distinct tested merge commit' (ci-hosted-gate-verify.py:1290)"
+      "stop": "collector: 'the PR has no tested merge commit or base identity' (ci-pr-proof.sh:636); verifier: '<label> is not the same open unmerged draft PR' (check_pr, ci-hosted-gate-verify.py:1361) and 'PR has no distinct tested merge commit' (ci-hosted-gate-verify.py:1377)"
     },
     {
       "id": "shape-compare-tested-merge",
       "row": "shape-compare",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "compare on a real tested merge (files[], ahead_by, behind_by), both families",
-      "stop": "'compare file inventory is empty, malformed or incomplete' (ci-hosted-gate-verify.py:1310); docs-only: 'docs-only head is not one commit ahead of the docs base' (ci-hosted-gate-verify.py:1318)"
+      "stop": "'compare file inventory is empty, malformed or incomplete' (ci-hosted-gate-verify.py:1397); docs-only: 'docs-only head is not one commit ahead of the docs base' (ci-hosted-gate-verify.py:1405)"
     },
     {
       "id": "shape-repo_contents-tested-merge",
       "row": "shape-repo_contents",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "repo_contents at a real tested merge commit (type, path, encoding, content, sha)",
-      "stop": "'source read is not a base64 file response' (ci-hosted-gate-verify.py:1338) / 'source blob differs from the frozen blob' (ci-hosted-gate-verify.py:1340)"
+      "stop": "'source read is not a base64 file response' (ci-hosted-gate-verify.py:1425) / 'source blob differs from the frozen blob' (ci-hosted-gate-verify.py:1427)"
     },
     {
       "id": "shape-attempt_jobs-pr-head",
       "row": "shape-attempt_jobs",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "attempt_jobs for a real pull_request run on the PR head (the transport has never called this route)",
-      "stop": "'job page is not for the terminal run attempt' (ci-hosted-gate-verify.py:1373)"
+      "stop": "'job page is not for the terminal run attempt' (ci-hosted-gate-verify.py:1460)"
     },
     {
       "id": "shape-check_runs-pr-head",
       "row": "shape-check_runs",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "check_runs on a real PR head commit (only main's and the canary candidates' check runs were read)",
-      "stop": "'native check is not a successful check of the PR head: <name>' (ci-hosted-gate-verify.py:1404)"
+      "stop": "'native check is not a successful check of the PR head: <name>' (ci-hosted-gate-verify.py:1491)"
     },
     {
       "id": "shape-workflow_runs-populated-pull_request",
       "row": "shape-workflow_runs",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "a populated pull_request workflow_runs list for the published head (253-134 saw only the empty {\"total_count\":0,\"workflow_runs\":[]}, seq 6 and 7)",
-      "stop": "collector: only a run with the published head_sha and event pull_request is taken (ci-pr-proof.sh:613), else both attempts end in a no_run_verdict stop (ci-pr-proof.sh:664); verifier: 'exactly one discovered pull_request run for the PR head is required' (ci-hosted-gate-verify.py:1353) and 'run is not the actual PR workflow run for the published head' (ci-hosted-gate-verify.py:1359)"
+      "stop": "collector: only a run with the published head_sha and event pull_request is taken (ci-pr-proof.sh:613), else both attempts end in a no_run_verdict stop (ci-pr-proof.sh:664); verifier: 'exactly one discovered pull_request run for the PR head is required' (ci-hosted-gate-verify.py:1440) and 'run is not the actual PR workflow run for the published head' (ci-hosted-gate-verify.py:1446)"
     },
     {
       "id": "shape-pr_read-conflicted-pr",
       "row": "shape-pr_read",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "pr_read on a conflicted PR (failure path only: the one diagnostic read after both discovery attempts are empty); expected mergeable false, mergeable_state dirty",
       "stop": "Collector.no_run_verdict (ci-pr-proof.sh:664): 'pull request #N has merge conflicts with its base (mergeable false, mergeable_state <state>); GitHub creates no pull_request run for it'; mergeable null gives 'pull request #N mergeability is still unknown ...'; anything else gives 'no pull_request run although pull request #N is mergeable ...'. Every branch is a stop."
     },
     {
       "id": "step-0-moved-clean-main",
       "row": "step-0 main preflight (ci-pr-proof.sh --main-preflight)",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "a moved but clean main at step 0: GitHub's main has moved past the fetched 09df342a, the frozen head still merges cleanly into it, and the created PR base equals the preflight's current_main",
-      "stop": "A conflicting move stops before any request at the 253-144 runner's step 0: --main-preflight exits 1 with status conflicted or rewritten (ci-pr-proof.sh:335) and --family normal refuses that file ('the step-0 main preflight is not clean', ci-pr-proof.sh:370; network_requests 0). A move during the window stops after pr_create with 'main moved between the step-0 preflight and PR creation' (ci-pr-proof.sh:607), leaving one open draft PR for Jon; the verifier binds the ledger pr_create base.sha to current_main ('the created PR base ... differs from the step-0 preflight current_main', ci-hosted-gate-verify.py:1209)."
+      "stop": "A conflicting move stops before any request at the 253-171 runner's step 0: --main-preflight exits 1 with status conflicted or rewritten (ci-pr-proof.sh:335) and --family normal refuses that file ('the step-0 main preflight is not clean', ci-pr-proof.sh:370; network_requests 0). A move during the window stops after pr_create with 'main moved between the step-0 preflight and PR creation' (ci-pr-proof.sh:607), leaving one open draft PR for Jon; the verifier binds the ledger pr_create base.sha to current_main ('the created PR base ... differs from the step-0 preflight current_main', ci-hosted-gate-verify.py:1296)."
     },
     {
       "id": "docs-only-scoped-ref-publication",
       "row": "shape-create_ref",
-      "first_window": "253-144",
+      "first_window": "253-171",
       "unobserved": "the docs-only scoped-ref publication (docs base and head trees, commits, readbacks and two create-only scoped refs from absent); never created before (253-134 never reached the remaining family)",
-      "stop": "publish_docs: '<label>: server tree differs from the frozen tree' (ci-pr-proof.sh:533), '<label>: server commit differs from the frozen commit' (ci-pr-proof.sh:537), '<label>: commit readback differs' (ci-pr-proof.sh:540), '<label>: scoped ref readback differs' (ci-pr-proof.sh:549); verifier: 'scoped docs refs were not created exactly once from absent and read back' (ci-hosted-gate-verify.py:1256)"
+      "stop": "publish_docs: '<label>: server tree differs from the frozen tree' (ci-pr-proof.sh:533), '<label>: server commit differs from the frozen commit' (ci-pr-proof.sh:537), '<label>: commit readback differs' (ci-pr-proof.sh:540), '<label>: scoped ref readback differs' (ci-pr-proof.sh:549); verifier: 'scoped docs refs were not created exactly once from absent and read back' (ci-hosted-gate-verify.py:1343)"
     },
     {
       "id": "canary-failure_logs-zero-slack",
       "row": "shape-run_logs",
-      "first_window": "253-143",
+      "first_window": "253-170",
       "unobserved": "any failed-log request beyond the canary table's failure_logs 6 of 6 (3 failed scenarios x 2 hops, zero slack, carried from R11 unchanged; 253-133 used exactly 6, so the slack has never been exercised)",
-      "stop": "the transport's predebit refuses a seventh failure_logs request with category_budget_exhausted (ci-hosted-transport.py:625), and the driver stops with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:916)"
+      "stop": "the transport's predebit refuses a seventh failure_logs request with category_budget_exhausted ('category failure_logs allocation is exhausted', ci-hosted-transport.py:628), and the driver stops with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:926)"
+    },
+    {
+      "id": "check_runs-next-link-query-keys",
+      "row": "shape-check_runs",
+      "first_window": "253-170",
+      "unobserved": "the query keys of a real check_runs rel=next link: 253-143 sequence 21 recorded the destination with its query scrubbed to has_query: true, so which keys GitHub puts on page 2's URL (expected per_page and page) has never been seen; the next request is re-derived from the approved route, never the Link URL",
+      "stop": "'pagination link has an unapproved or repeated query key' (ci-hosted-transport.py:1044), raised before the second request; a page value that is not the next ordinal stops with 'pagination link did not advance exactly one page' (ci-hosted-transport.py:1047)"
+    },
+    {
+      "id": "check_runs-server-parent-pages-2-plus",
+      "row": "shape-check_runs",
+      "first_window": "253-170",
+      "unobserved": "pages 2 and later of the server parent's (main 09df342a) check runs: 253-143 stopped after page 1 (100 of 209), so the duplicate distribution of the five required names on pages 2-3 and the link form those pages carry are unseen",
+      "stop": "a different app across a name's duplicates: 'native check source identity differs across duplicate runs: <name>' (ci-hosted-gate-verify.py:335); an unknown link form: 'pagination link changed its approved API route' (ci-hosted-transport.py:1041); a run of another commit or without head_sha: 'native check source run is not of the frozen source commit: <name>' (ci-hosted-gate-verify.py:328)"
+    },
+    {
+      "id": "check_runs-main-nightly-growth",
+      "row": "shape-check_runs",
+      "first_window": "253-170",
+      "unobserved": "total_count growth of the unchanged main's check runs from the nightly scheduled runs: page 1 of 253-143 shows one scheduled check suite per night, and the only complete day on it (2026-10-18) added 55 runs, so 55/day is used (not a lower figure) from 209 on 2026-10-19. The R13 preflight table (preflight 16, 253-166) has request room for rate_limit, up to two rules pages, branch_protection, the workflow and 11 check_runs pages, but the effective ceiling is 10 pages because the verifier's MAX_CHECK_RUN_PAGES = 10 (ci-hosted-gate-verify.py:269) is the binding cap (the allocation's max_pages 12 is not). The 253-170 runner projects total_count for the current UTC date as 209 + 55 per started day since the sequence-21 date header and refuses before the clock and before any publication when the projection needs more than 10 pages",
+      "stop": "before the window: 'STOP: projected check_runs pages exceed the preflight budget' (253-R13-CANARY-OPERATOR.sh, written by 253-170; zero requests). Faster growth than projected stops inside the window after the publication spend: an eleventh page is charged (5 + 11 = 16, inside the table) and then refused with \"native check-run pages exceed the allocation's max_pages\" (check_run_page_set, ci-hosted-gate-verify.py:301); twelve or more pages stop on preflight with category_budget_exhausted ('category preflight allocation is exhausted', ci-hosted-transport.py:628) inside the driver's check-runs read (ci-gate-canary.sh:766)"
+    },
+    {
+      "id": "check_runs-pr-head-over-100",
+      "row": "shape-check_runs",
+      "first_window": "253-171",
+      "unobserved": "a PR head with more than 100 check runs: the PR-head native check_runs read stays one page (253-165), so a 101-run head has never been read; the verifier refuses it fail-closed after exactly one check_runs request, while the collector still finishes with status collected and exit 0 (ci-pr-proof.sh:721), so the refusal surfaces at verification, not collection",
+      "stop": "'native check-run response is incomplete or needs another charged page' (check_run_page_set, ci-hosted-gate-verify.py:302)"
+    },
+    {
+      "id": "paginated-listing-two-page",
+      "row": "shape-run_jobs",
+      "first_window": "253-170",
+      "unobserved": "a real two-page jobs, artifacts or workflow-run listing (canary 253-170; PR families 253-171, attempt jobs included): every real listing so far is one page without a Link header, and the two-page /repositories/<id>/ links have only been modelled by fakes (the dry-run's jobs and artifacts links, the PR universe's two-page listings, the transport's 253-146 tests), all under the one transport rule",
+      "stop": "the one transport rule in _next_page_url: 'pagination link changed its approved API route' (ci-hosted-transport.py:1041), 'pagination link has an unapproved or repeated query key' (ci-hosted-transport.py:1044) and 'pagination link did not advance exactly one page' (ci-hosted-transport.py:1047), each before a further request"
     }
   ]
 }
