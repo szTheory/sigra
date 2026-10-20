@@ -65,7 +65,7 @@ FROZEN_175_COMMITS = {
     f"{PHASE}/253-175-PLAN.md": "6b8bccad1a51a3455ab27d88360064d7ac8d30c8",
     f"{PHASE}/253-175-SUMMARY.md": "071f9894e7ed8625462b894f1df3fc0be3598928",
     f"{PHASE}/253-175-REPAIR-REVIEW.json": "071f9894e7ed8625462b894f1df3fc0be3598928",
-    f"{PHASE}/253-175-EXECUTION-RECORD.json": "071f9894e7ed8625462b894f1df3fc0be3598928",
+    f"{PHASE}/253-175-EXECUTION-RECORD.json": "fea8f29e79f7d6e96f1bf2c6f15cfa6eee73681d",
 }
 TREE_CAP = 2 * 1024 * 1024
 SHARED = (".planning/config.json", ".planning/state.json", ".planning/STATE.md", ".planning/HANDOFF.json")
@@ -876,21 +876,42 @@ def _replace_exactly_once(text: str, old: str, new: str, label: str) -> str:
     return text.replace(old, new, 1)
 
 
+def validate_168_receipt_placement(plan: str) -> None:
+    bodies = re.findall(r"<automated>(.*?)</automated>", plan, re.S)
+    prefix = ("python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+              "253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?;")
+    if len(bodies) != 2 or any(body.count("verify-receipt --consumer 168") != 1 or
+                                not body.lstrip().startswith(prefix) for body in bodies):
+        raise ContractError("168 receipt check must appear exactly once at the start of both automated bodies")
+
+
 def expected_plan_amendment(original: str, number: int, root: Path) -> str:
     """Return the only permitted complete future-plan rewrite from its pinned bytes."""
     if number == 168:
         current = _replace_exactly_once(original, "wave: 2", "wave: 4", "168 wave")
         current = _replace_exactly_once(current, 'depends_on: ["253-174"]',
                                         'depends_on: ["253-180"]', "168 dependency")
+        bodies = re.findall(r"<automated>(.*?)</automated>", current, re.S)
+        if len(bodies) != 2:
+            raise ContractError("168 must retain exactly two original automated bodies")
         old_matches = list(re.finditer(
             r'python3 -c \'import os,pathlib,re,subprocess; p=pathlib\.Path\("[^"]*253-174-PLAN\.md"\);.*?\' \|\| exit \$\?; ?',
-            current, re.S))
+            bodies[0], re.S))
         if len(old_matches) != 1:
             raise ContractError("ambiguous or missing 168 original receipt preamble")
-        old = old_matches[0].group(0)
-        current = _replace_exactly_once(current, old,
-            "python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?; ",
-            "168 receipt preamble")
+        bodies[0] = bodies[0].replace(old_matches[0].group(0), "", 1)
+        prefix = ("python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+                  "253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?; ")
+        body_index = 0
+        def prefix_body(_match: re.Match) -> str:
+            nonlocal body_index
+            body = bodies[body_index]
+            body_index += 1
+            return "<automated>" + prefix + body + "</automated>"
+        current, replacements = re.subn(r"<automated>.*?</automated>", prefix_body,
+                                        current, count=2, flags=re.S)
+        if replacements != 2 or body_index != 2:
+            raise ContractError("168 original automated bodies could not be amended exactly once")
         return _replace_exactly_once(current, "253-174-RECOVERY-RECEIPT.json",
                                      "253-179-RECOVERY-RECEIPT.json", "168 receipt path")
     if number == 169:
@@ -1212,6 +1233,8 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
                 raise ContractError(f"bridge amendment hash differs: {rel}")
             original_text = git(root, "show", f"{ref}:{rel}").decode("utf-8", "strict")
             current_text = read_source_bytes(root, rel).decode("utf-8", "strict")
+            if rel == f"{PHASE}/253-168-PLAN.md":
+                validate_168_receipt_placement(current_text)
             if rel == f"{PHASE}/253-169-PLAN.md":
                 validate_169_executable_contract(current_text, root)
                 validate_169_owner_contract(current_text, original_text, root)

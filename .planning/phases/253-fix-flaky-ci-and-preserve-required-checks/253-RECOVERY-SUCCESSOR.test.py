@@ -33,11 +33,17 @@ def amend_entry_plans(root, original):
     p168 = p168.replace('depends_on: ["253-174"]', 'depends_on: ["253-180"]', 1)
     nested = re.compile(
         r'python3 -c \'import os,pathlib,re,subprocess; p=pathlib\.Path\("[^"]*253-174-PLAN\.md"\);.*?\' \|\| exit \$\?; ?')
-    p168, count = nested.subn(
-        "python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?; ",
-        p168, count=1)
+    p168, count = nested.subn("", p168, count=1)
     if count != 1:
-        raise AssertionError("entry fixture could not replace the old nested verifier")
+        raise AssertionError("entry fixture could not remove the old nested verifier")
+    bodies = re.findall(r"<automated>(.*?)</automated>", p168, re.S)
+    if len(bodies) != 2:
+        raise AssertionError("168 fixture requires exactly two original automated bodies")
+    prefix = ("python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+              "253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?; ")
+    for body in bodies:
+        p168 = p168.replace("<automated>" + body + "</automated>",
+                            "<automated>" + prefix + body + "</automated>", 1)
     p168 = p168.replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
     (root / rel168).write_text(p168)
 
@@ -279,6 +285,44 @@ def committed_receipt_fixture(parent):
 
 
 class SuccessorContractTests(unittest.TestCase):
+    def test_168_requires_receipt_before_each_automated_body(self):
+        original = {
+            f"{PHASE}/253-{number}-PLAN.md": (ROOT / f"{PHASE}/253-{number}-PLAN.md").read_bytes()
+            for number in (168, 169, 170, 171, 172, 176, 177)
+        }
+        with tempfile.TemporaryDirectory(prefix="sigra-253-168-receipt-") as temp:
+            root = pathlib.Path(temp)
+            plan = successor.expected_plan_amendment(
+                original[f"{PHASE}/253-168-PLAN.md"].decode("utf-8"), 168, root)
+            bodies = re.findall(r"<automated>(.*?)</automated>", plan, re.S)
+            self.assertEqual(len(bodies), 2)
+            self.assertEqual([body.count("verify-receipt --consumer 168") for body in bodies], [1, 1])
+            original_bodies = re.findall(r"<automated>(.*?)</automated>",
+                original[f"{PHASE}/253-168-PLAN.md"].decode("utf-8"), re.S)
+            old_check = re.compile(
+                r'python3 -c \'import os,pathlib,re,subprocess; p=pathlib\.Path\("[^"]*253-174-PLAN\.md"\);.*?\' \|\| exit \$\?; ?',
+                re.S)
+            original_bodies[0], removed = old_check.subn("", original_bodies[0], count=1)
+            self.assertEqual(removed, 1)
+            prefix = ("python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+                      "253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?; ")
+            self.assertEqual(bodies, [prefix + body for body in original_bodies])
+            for body in bodies:
+                self.assertTrue(body.startswith(prefix))
+                original_tail = body[len(prefix):]
+                self.assertTrue(original_tail)
+                script = ("receipt_spy() { printf receipt; return 7; }; "
+                          "downstream_spy() { printf downstream; }; "
+                          + body.replace(prefix, "receipt_spy || exit $?; ", 1)
+                               .replace(original_tail, "downstream_spy", 1))
+                result = subprocess.run(["bash", "-c", script], capture_output=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, b"receipt")
+                success = subprocess.run(["bash", "-c", script.replace("return 7", "return 0")],
+                                          capture_output=True)
+                self.assertEqual(success.returncode, 0)
+                self.assertEqual(success.stdout, b"receiptdownstream")
+
     def test_bridge_rejects_stale_executable_assertions_and_owners(self):
         """The prior green fixture must fail when only recovery prose is updated."""
         with tempfile.TemporaryDirectory(prefix="sigra-253-bridge-stale-executable-") as temp:
@@ -538,10 +582,16 @@ class SuccessorContractTests(unittest.TestCase):
         real = (ROOT / successor.REVIEW_173).read_bytes()
         with tempfile.TemporaryDirectory(prefix="sigra-253-review-fixture-") as temp:
             root = pathlib.Path(temp)
+            subprocess.run(["git", "-C", str(root), "init", "-q"], check=True)
+            alternates = root / ".git/objects/info/alternates"
+            alternates.parent.mkdir(parents=True, exist_ok=True)
+            alternates.write_text(str((ROOT / ".git/objects").resolve()) + "\n", encoding="utf-8")
             for rel in successor.HISTORICAL_SHA256:
                 target = root / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((ROOT / rel).read_bytes())
+            for rel, commit in successor.FROZEN_175_COMMITS.items():
+                self.assertEqual(successor.git(root, "show", f"{commit}:{rel}"), (root / rel).read_bytes())
             self.assertEqual(successor.check_historical_inputs(root)["findings"], 10)
             parsed = json.loads(real)
             parsed["product_changes"] = []
@@ -616,6 +666,33 @@ class SuccessorContractTests(unittest.TestCase):
             record_path = f"{PHASE}/253-180-BRIDGE-RECORD.json"
             (root / record_path).write_text(json.dumps(record))
             self.assertEqual(successor.validate_bridge(root, "entry", record_path)["status"], "verified")
+            good168 = (root / f"{PHASE}/253-168-PLAN.md").read_text()
+            receipt_prefix = ("python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/"
+                              "253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 || exit $?; ")
+            receipt_attacks = (
+                ("missing", lambda body: body.replace(receipt_prefix, "", 1)),
+                ("late", lambda body: body.replace(receipt_prefix, "printf before; " + receipt_prefix, 1)),
+                ("duplicate", lambda body: body.replace(receipt_prefix, receipt_prefix + receipt_prefix, 1)),
+                ("ignored", lambda body: body.replace("|| exit $?;", ";", 1)),
+            )
+            good168_bodies = re.findall(r"<automated>(.*?)</automated>", good168, re.S)
+            for label, mutate_body in receipt_attacks:
+                for body_index in range(2):
+                    bad_bodies = list(good168_bodies)
+                    bad_bodies[body_index] = mutate_body(bad_bodies[body_index])
+                    self.assertNotEqual(bad_bodies[body_index], good168_bodies[body_index])
+                    bad168 = re.sub(r"<automated>.*?</automated>",
+                                    lambda match, it=iter(bad_bodies): "<automated>" + next(it) + "</automated>",
+                                    good168, count=2, flags=re.S)
+                    (root / f"{PHASE}/253-168-PLAN.md").write_text(bad168)
+                    bad_record = json.loads(json.dumps(record))
+                    bad_record["amended_sha256"][f"{PHASE}/253-168-PLAN.md"] = hashlib.sha256(bad168.encode()).hexdigest()
+                    (root / record_path).write_text(json.dumps(bad_record))
+                    with self.subTest(stage="entry", label=label, body=body_index), self.assertRaisesRegex(
+                            successor.ContractError, "168 receipt check must appear exactly once at the start"):
+                        successor.validate_bridge(root, "entry", record_path)
+                    (root / f"{PHASE}/253-168-PLAN.md").write_text(good168)
+                    (root / record_path).write_text(json.dumps(record))
             executable_bodies = re.findall(r"<automated>(.*?)</automated>", good169, re.S)
             script_match = re.search(r'(?:node|"\$N")\s+-e\s+\'(.*?)\'', executable_bodies[2], re.S)
             self.assertIsNotNone(script_match)
@@ -668,22 +745,37 @@ class SuccessorContractTests(unittest.TestCase):
             record["amended_sha256"] = {
                 rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
                 for rel in (f"{PHASE}/253-{n}-PLAN.md" for n in range(168, 173))}
-            sdk_report = successor.run_sdk_copy(root, record, record_path)
-            sdk_report_path = pathlib.Path(tempfile.gettempdir()) / "sigra-phase253-178-sdk-copy-report.json"
-            sdk_report_raw = (json.dumps(sdk_report, sort_keys=True, indent=2) + "\n").encode()
-            sdk_report_path.write_bytes(sdk_report_raw)
-            record["sdk_copy"] = {"report_path": str(sdk_report_path),
-                                  "report_sha256": hashlib.sha256(sdk_report_raw).hexdigest()}
+            record["sdk_copy"] = {"report_path": "/tmp/fixture-sdk-report.json",
+                                  "report_sha256": "0" * 64}
             (root / record_path).write_text(json.dumps(record))
-            self.assertEqual(successor.validate_bridge(root, "complete", record_path)["status"], "verified")
-            # A cap edit is refused even when its changed-file hash is self-consistent.
-            p170 = root / f"{PHASE}/253-170-PLAN.md"
-            p170.write_bytes(p170.read_bytes().replace(b"at most 24 publication-category requests",
-                                                        b"at most 25 publication-category requests", 1))
-            record["amended_sha256"][f"{PHASE}/253-170-PLAN.md"] = hashlib.sha256(p170.read_bytes()).hexdigest()
-            (root / record_path).write_text(json.dumps(record))
-            with self.assertRaisesRegex(successor.ContractError, "request/retry/time/page/size contract limits changed"):
-                successor.validate_bridge(root, "complete", record_path)
+            with mock.patch.object(successor, "validate_sdk_copy_report", return_value={"status": "passed"}):
+                self.assertEqual(successor.validate_bridge(root, "complete", record_path)["status"], "verified")
+                for label, mutate_body in receipt_attacks:
+                    for body_index in range(2):
+                        good168 = (root / f"{PHASE}/253-168-PLAN.md").read_text()
+                        good168_bodies = re.findall(r"<automated>(.*?)</automated>", good168, re.S)
+                        bad_bodies = list(good168_bodies)
+                        bad_bodies[body_index] = mutate_body(bad_bodies[body_index])
+                        bad168 = re.sub(r"<automated>.*?</automated>",
+                                        lambda match, it=iter(bad_bodies): "<automated>" + next(it) + "</automated>",
+                                        good168, count=2, flags=re.S)
+                        (root / f"{PHASE}/253-168-PLAN.md").write_text(bad168)
+                        bad_record = json.loads(json.dumps(record))
+                        bad_record["amended_sha256"][f"{PHASE}/253-168-PLAN.md"] = hashlib.sha256(bad168.encode()).hexdigest()
+                        (root / record_path).write_text(json.dumps(bad_record))
+                        with self.subTest(stage="complete", label=label, body=body_index), self.assertRaisesRegex(
+                                successor.ContractError, "168 receipt check must appear exactly once at the start"):
+                            successor.validate_bridge(root, "complete", record_path)
+                        (root / f"{PHASE}/253-168-PLAN.md").write_text(good168)
+                        (root / record_path).write_text(json.dumps(record))
+                # A cap edit is refused even when its changed-file hash is self-consistent.
+                p170 = root / f"{PHASE}/253-170-PLAN.md"
+                p170.write_bytes(p170.read_bytes().replace(b"at most 24 publication-category requests",
+                                                            b"at most 25 publication-category requests", 1))
+                record["amended_sha256"][f"{PHASE}/253-170-PLAN.md"] = hashlib.sha256(p170.read_bytes()).hexdigest()
+                (root / record_path).write_text(json.dumps(record))
+                with self.assertRaisesRegex(successor.ContractError, "request/retry/time/page/size contract limits changed"):
+                    successor.validate_bridge(root, "complete", record_path)
 
     def test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits(self):
         with tempfile.TemporaryDirectory(prefix="sigra-253-bridge-mutations-") as temp:
