@@ -1189,7 +1189,7 @@ class PRVerifierContractTests(unittest.TestCase):
                 with self.assertRaises(self.module.VerificationError):
                     self.module.verify_pr_family({"schema_version": "sigra.phase253.pr-proof-evidence/v1", "family": family}, family)
 
-    def test_253_102_normal_head_is_one_of_the_six_candidate_names_and_docs_refs_stay_exact(self):
+    def test_253_102_normal_head_is_one_of_the_seven_candidate_names_and_docs_refs_stay_exact(self):
         import importlib.util
         spec = importlib.util.spec_from_file_location("publisher_for_pr_heads", ROOT / "scripts/ci/ci-git-publication.py")
         publisher = importlib.util.module_from_spec(spec)
@@ -1197,14 +1197,16 @@ class PRVerifierContractTests(unittest.TestCase):
         self.assertEqual(set(self.module.PR_NORMAL_HEADS), {pair["candidate"] for pair in publisher.REF_PAIRS.values()})
         self.assertEqual(set(self.module.PR_NORMAL_HEADS),
                          {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate",
-                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate"})
+                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate",
+                          "gsd/253-replan-r13-candidate"})
         for head in ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate",
-                     "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate"):
+                     "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate",
+                     "gsd/253-replan-r13-candidate"):
             with self.subTest(accepted=head):
                 self.module.require_pr_refs("normal", head, "main")
         self.module.require_pr_refs("docs-only", "gsd/253-replan-docs-head", "gsd/253-replan-docs-base")
         refused = [("normal", "gsd/253-replan-fixture", "main"), ("normal", "gsd/253-replan-r8-fixture", "main"),
-                   ("normal", "gsd/253-replan-r13-candidate", "main"), ("normal", "refs/heads/gsd/253-replan-r8-candidate", "main"),
+                   ("normal", "gsd/253-replan-r14-candidate", "main"), ("normal", "refs/heads/gsd/253-replan-r8-candidate", "main"),
                    ("normal", "gsd/253-replan-r9-fixture", "main"), ("normal", "gsd/253-replan-r9-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-r9-candidate", "gsd/253-replan-docs-base"),
                    ("normal", "gsd/253-replan-docs-head", "main"), ("normal", "gsd/253-replan-r8-candidate", "gsd/253-replan-docs-base"),
@@ -1220,11 +1222,11 @@ class PRVerifierContractTests(unittest.TestCase):
         self.assertIn("require_pr_refs(family, head_ref, base_ref)", pr_family)
 
     def test_253_119_the_r10_candidate_is_a_normal_head_and_nothing_else_r10_is_accepted(self):
-        self.assertEqual(len(self.module.PR_NORMAL_HEADS), 6)
-        self.assertEqual(len(set(self.module.PR_NORMAL_HEADS)), 6)
+        self.assertEqual(len(self.module.PR_NORMAL_HEADS), 7)
+        self.assertEqual(len(set(self.module.PR_NORMAL_HEADS)), 7)
         self.module.require_pr_refs("normal", "gsd/253-replan-r10-candidate", "main")
         self.assertEqual(self.module.PR_DOCS_REFS, ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base"))
-        refused = [("normal", "gsd/253-replan-r13-candidate", "main"), ("normal", "gsd/253-replan-r10-fixture", "main"),
+        refused = [("normal", "gsd/253-replan-r14-candidate", "main"), ("normal", "gsd/253-replan-r10-fixture", "main"),
                    ("normal", "gsd/253-replan-r10-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-r10-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-docs-head", "gsd/253-replan-r10-candidate"),
@@ -1238,12 +1240,13 @@ class PRVerifierContractTests(unittest.TestCase):
     def test_253_130_the_r11_candidate_is_a_normal_head_and_nothing_else_r11_is_accepted(self):
         self.assertEqual(set(self.module.PR_NORMAL_HEADS),
                          {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate",
-                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate"})
-        self.assertEqual(len(self.module.PR_NORMAL_HEADS), 6)
+                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate",
+                          "gsd/253-replan-r13-candidate"})
+        self.assertEqual(len(self.module.PR_NORMAL_HEADS), 7)
         self.module.require_pr_refs("normal", "gsd/253-replan-r11-candidate", "main")
         self.module.require_pr_refs("normal", "gsd/253-replan-r10-candidate", "main")
         self.assertEqual(self.module.PR_DOCS_REFS, ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base"))
-        refused = [("normal", "gsd/253-replan-r13-candidate", "main"), ("normal", "gsd/253-replan-r11-fixture", "main"),
+        refused = [("normal", "gsd/253-replan-r14-candidate", "main"), ("normal", "gsd/253-replan-r11-fixture", "main"),
                    ("normal", "gsd/253-replan-r11-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-r11-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-docs-head", "gsd/253-replan-r11-candidate"),
@@ -1258,18 +1261,37 @@ class PRVerifierContractTests(unittest.TestCase):
     def test_253_137_the_r12_candidate_is_a_normal_head_and_nothing_else_r12_is_accepted(self):
         self.assertEqual(set(self.module.PR_NORMAL_HEADS),
                          {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate",
-                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate"})
-        self.assertEqual(len(self.module.PR_NORMAL_HEADS), 6)
+                          "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate",
+                          "gsd/253-replan-r13-candidate"})
+        self.assertEqual(len(self.module.PR_NORMAL_HEADS), 7)
         self.module.require_pr_refs("normal", "gsd/253-replan-r12-candidate", "main")
         self.module.require_pr_refs("normal", "gsd/253-replan-r11-candidate", "main")
         self.assertEqual(self.module.PR_DOCS_REFS, ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base"))
-        refused = [("normal", "gsd/253-replan-r13-candidate", "main"), ("normal", "gsd/253-replan-r12-fixture", "main"),
+        refused = [("normal", "gsd/253-replan-r14-candidate", "main"), ("normal", "gsd/253-replan-r12-fixture", "main"),
                    ("normal", "gsd/253-replan-r12-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-r12-candidate", "gsd/253-replan-docs-base"),
                    ("docs-only", "gsd/253-replan-docs-head", "gsd/253-replan-r12-candidate"),
                    ("normal", "refs/heads/gsd/253-replan-r12-candidate", "main"), ("normal", "gsd/253-replan-r12-candidate ", "main"),
                    ("normal", "gsd/253-replan-R12-candidate", "main"), ("normal", "gsd/253-replan-r120-candidate", "main"),
                    ("normal", "gsd/253-replan-r12-candidate", "gsd/253-replan-r11-candidate")]
+        for family, head, base in refused:
+            with self.subTest(refused=(family, head, base)):
+                with self.assertRaisesRegex(self.module.VerificationError, "frozen PR head/base refs are not the exact proof refs"):
+                    self.module.require_pr_refs(family, head, base)
+
+    def test_253_166_the_r13_candidate_is_a_normal_head_and_nothing_else_r13_is_accepted(self):
+        self.assertEqual(len(self.module.PR_NORMAL_HEADS), 7)
+        self.assertIn("gsd/253-replan-r13-candidate", self.module.PR_NORMAL_HEADS)
+        self.module.require_pr_refs("normal", "gsd/253-replan-r13-candidate", "main")
+        self.module.require_pr_refs("normal", "gsd/253-replan-r12-candidate", "main")
+        self.assertEqual(self.module.PR_DOCS_REFS, ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base"))
+        refused = [("normal", "gsd/253-replan-r14-candidate", "main"), ("normal", "gsd/253-replan-r13-fixture", "main"),
+                   ("normal", "gsd/253-replan-r13-candidate", "gsd/253-replan-docs-base"),
+                   ("docs-only", "gsd/253-replan-r13-candidate", "gsd/253-replan-docs-base"),
+                   ("docs-only", "gsd/253-replan-docs-head", "gsd/253-replan-r13-candidate"),
+                   ("normal", "refs/heads/gsd/253-replan-r13-candidate", "main"), ("normal", "gsd/253-replan-r13-candidate ", "main"),
+                   ("normal", "gsd/253-replan-R13-candidate", "main"), ("normal", "gsd/253-replan-r130-candidate", "main"),
+                   ("normal", "gsd/253-replan-r13-candidate", "gsd/253-replan-r12-candidate")]
         for family, head, base in refused:
             with self.subTest(refused=(family, head, base)):
                 with self.assertRaisesRegex(self.module.VerificationError, "frozen PR head/base refs are not the exact proof refs"):
