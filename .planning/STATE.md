@@ -4,10 +4,10 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "ready_to_execute"
-stopped_at: "Plan 174 reviewed; ready for elevated offline acceptance"
-last_updated: "2026-10-20T17:13:17.452426+00:00"
-last_activity: "2026-10-20T16:23:46.325059+00:00 — failed command and permission diagnosis saved; regression suite did not start"
+status: "blocked"
+stopped_at: "Plan 174 halted after publication regression failure"
+last_updated: "2026-10-20T17:45:20.901156+00:00"
+last_activity: "2026-10-20T17:45:20.901156+00:00 — elevated permission probe passed; 118 publication tests had one failure; no rerun"
 state_head: "c6f629aa1e5c274dcd4ac9476919ee86412eb762"
 progress:
   total_phases: 4
@@ -16,12 +16,12 @@ progress:
   completed_plans: 81
   percent: 25
 milestone_status: active
-workflow_step: "execute_gap_recovery"
+workflow_step: "plan_gap_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: "$gsd-plan-phase 253 --gaps"
+resume_command: "$gsd-plan-phase 253 --gaps"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -47,6 +47,7 @@ phase253_halted_plans:
   - 253-16
   - 253-167
   - 253-173
+  - 253-174
   - 253-27
   - 253-40
   - 253-51
@@ -138,10 +139,10 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: ["253-174"]
+phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-last_activity_desc: "Plan 174 added; continuations 168–172 reviewed; no acceptance executed"
+last_activity_desc: "Plan 174 halted; 168–172 blocked; no recovery receipt"
 ---
 
 # Project State
@@ -155,23 +156,21 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — partially implemented; gap planning reviewed
-Plans: 75 implementation summaries, 22 halted summaries and 77 without summaries among 174 plans
-Status: Plan 174 ready; six reviewed active plans across six waves
-Last activity: 2026-10-20T17:13:17.452426+00:00 — new permission recovery plan and continuations passed independent review
+Phase: 253 — implementation partial; latest recovery attempt halted
+Plans: 75 implementation summaries, 23 halted summaries and 76 without summaries among 174 plans
+Status: Plan 174 halted; no runnable plans; 168–172 blocked
+Last activity: 2026-10-20T17:45:20.901156+00:00 — permission probe and three offline gates passed; publication suite failed one of 118 tests
 Whole-phase verification: not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
+$gsd-plan-phase 253 --gaps
 
-Execute the reviewed Git permission recovery Plan 174 first; run its write/readback probe and once-only offline acceptance in the same root-launched elevated shell. Continue 168–172 only after validated success. Preserve halted 167/173 and all prior limits.
+Plan 174 stopped after a publication regression test copied current config bytes into a fixture that permits only the older pinned hash. Its once-only contract forbids a rerun. Plan the fixture and receipt-verifier corrections and a separately identified acceptance attempt; 168–172 remain blocked.
 
-Active order: 174 → 168 → 169 → 170 → 171 → 172. Only 174 is ready now; six plans are reachable through their dependencies. Planning checks do not prove execution. No regression, Git-writing permission probe, browser or hosted work ran in this planning invocation.
+Exact attempt output and diagnosis: `253-174-SUMMARY.md`, `253-174-REGRESSION.log`, `253-174-PERMISSION-PREFLIGHT.json` and `253-174-EXECUTION-RECORD.json`. No success receipt exists, and the full dry-run suite did not start. Do not rerun 174. A second static issue for planning: 174's receipt verifier requests a top-level product_changes field absent from the preserved 173 review.
 
-Phase 254 readiness was checked with init.plan-phase 254: pending, no context/research/plans, not started. After Phase 253 completes, its default route is $gsd-discuss-phase 254. Historical release verification remains separate.
-
-Planning record: `253-174-PLANNING-RECORD.json`; independent review: `253-174-CHECK-01.md`; source audit: `253-174-SOURCE-AUDIT.md`. Prior shared bytes are recoverable at 4f4647983673423fb6d57cfa1a71790350949098; the exact planning-tool transition is preserved at c6f629aa1e5c274dcd4ac9476919ee86412eb762, with readbacks in `.planning/recovery/phase253-git-permission-planning-20261020/post-sdk-shared-prior.json`. Existing execution records below are historical and do not override this route.
+Fresh readiness: init.execute-phase 253 and phase-plan-index 253 report zero runnable/ready plans. init.plan-phase 253 finds context/research and existing plans. init.plan-phase 254 confirms pending with no context/research/plans; after 253 completes, use $gsd-discuss-phase 254. Phase 254 was not started. Prior shared bytes are recoverable at dba64798ea23b2a329b8fffe6e302c99cfe362d7; exact readbacks are in 253-174-EXECUTION-RECORD.json. All 174 PLANs, earlier SUMMARY files and Phase 252 files remain unchanged.
 
 ## Known unfinished work
 
@@ -218,9 +217,9 @@ Planning record: `253-174-PLANNING-RECORD.json`; independent review: `253-174-CH
 
 ## Session
 
-**Last session:** 2026-10-20T17:13:17.452426+00:00
-**Stopped at:** Gap planning passed; Plan 174 ready; acceptance not run
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-PLANNING-RECORD.json
+**Last session:** 2026-10-20T17:45:20.901156+00:00
+**Stopped at:** Plan 174 halted; next is gap planning
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-EXECUTION-RECORD.json
 
 ## Deferred Items
 
