@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import unicodedata
 import unittest
 from unittest import mock
 
@@ -94,6 +95,46 @@ def amend_entry_plans(root, original):
     (root / rel169).write_text(p169)
 
 
+def amend_complete_plans(root, original):
+    """Independent positive oracle for the five authorized future plan edits."""
+    amend_entry_plans(root, original)
+    for number, old_wave, new_wave in ((170, 4, 6), (171, 5, 7)):
+        rel = f"{PHASE}/253-{number}-PLAN.md"
+        source = original[rel].decode("utf-8")
+        changed, count = re.subn(rf"(?m)^wave: {old_wave}$", f"wave: {new_wave}", source, count=1)
+        if count != 1:
+            raise AssertionError(f"{number} wave anchor was not unique")
+        (root / rel).write_text(changed, encoding="utf-8")
+    rel = f"{PHASE}/253-172-PLAN.md"
+    plan = original[rel].decode("utf-8")
+    plan = (plan.replace("Twenty-two halted", "Twenty-four halted")
+                .replace("22 halted", "24 halted")
+                .replace("71 targets", "73 targets")
+                .replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
+                .replace("253-174-RECOVERY-SUCCESSOR.py", "253-RECOVERY-SUCCESSOR.py"))
+    plan = re.sub(r"(?m)^wave: 6$", "wave: 8", plan, count=1)
+    plan = plan.replace(
+        '<automated>N="$HOME/.asdf/installs/nodejs/20.18.1/bin/node";',
+        '<automated>python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 && N="$HOME/.asdf/installs/nodejs/20.18.1/bin/node";', 1)
+    r12 = json.loads((ROOT / successor.R12_CONTRACT).read_bytes())
+    targets = [row["plan"] for row in r12["responsibilities"]]
+    targets.extend(f"253-{n:02d}" for n in successor.NEVER_RAN_IDS + (176, 177))
+    bodies = re.findall(r"<automated>(.*?)</automated>", plan, re.S)
+    matches = list(re.finditer(r'"?\$N"?\s+-e\s+\'(const b=JSON\.parse\(require\("fs"\).*?process\.exit\(1\))\' \$P/253-LOAD-RECOVERY-SUPERSESSION-SUMMARIES-R13\.json', bodies[1], re.S))
+    if len(matches) != 1:
+        raise AssertionError("172 executable bundle assertion is not unique")
+    code = (
+        'const b=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
+        'const paths=(b.entries||[]).map(e=>e.path||e.disposition_path||""); '
+        f'const EXPECTED={json.dumps([f"{n}-SUMMARY.md" for n in targets],separators=(",",":"))}; '
+        'const sort=(xs)=>[...xs].sort(); '
+        'if(paths.length!==73||new Set(paths).size!==73||'
+        'JSON.stringify(sort(paths))!==JSON.stringify(sort(EXPECTED))) process.exit(1)'
+    )
+    plan = plan.replace(matches[0].group(1), code, 1)
+    (root / rel).write_text(plan, encoding="utf-8")
+
+
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
@@ -159,30 +200,37 @@ def committed_receipt_fixture(parent):
         target = project / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / rel, target)
-    reviewed = {"scripts/ci/ci-git-publication.test.py", successor.PLAN_175,
+    reviewed = {"scripts/ci/ci-git-publication.test.py", successor.PLAN_178,
+                successor.PLAN_179, successor.PLAN_180,
                 f"{PHASE}/253-RECOVERY-SUCCESSOR.py",
                 f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
                 "scripts/ci/ci-git-publication.py", "scripts/ci/ci-gate-canary-dryrun.py"}
+    (project / f"{PHASE}/253-178-SUMMARY.md").write_text(
+        "---\nphase: 253-fix-flaky-ci-and-preserve-required-checks\nplan: \"178\"\nstatus: complete\n---\n", encoding="utf-8")
     subprocess.run(["git", "-C", str(project), "init", "-q"], check=True)
     subprocess.run(["git", "-C", str(project), "config", "user.name", "Receipt Fixture"], check=True)
     subprocess.run(["git", "-C", str(project), "config", "user.email", "receipt-fixture@example.test"], check=True)
     subprocess.run(["git", "-C", str(project), "add", ".planning", "scripts"], check=True)
     subprocess.run(["git", "-C", str(project), "commit", "-qm", "receipt source files"], check=True)
     reviewed_commit = subprocess.check_output(["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
+    successor.FROZEN_175_COMMITS.update({rel: reviewed_commit for rel in successor.FROZEN_175_COMMITS})
     review = {"schema": successor.REVIEW_SCHEMA, "status": "reviewed_for_new_acceptance",
-              "repair_plan": "253-175", "acceptance_plan": "253-176", "bridge_plan": "253-177",
+              "repair_plan": "253-178", "acceptance_plan": "253-179", "bridge_plan": "253-180",
               "source_files": {rel: hashlib.sha256((project / rel).read_bytes()).hexdigest() for rel in reviewed},
               "source_commits": {rel: reviewed_commit for rel in reviewed},
               "unresolved_implementation_findings": [],
+              "acceptance_attempts": 0,
+              "requirements": {"CIREL-01": "partial_not_reproduced", "CIREL-02": "unaccepted"},
+              "phase_verification_status": "not_started",
               "scope": {"product_changes": ["scripts/ci/ci-git-publication.test.py"],
-                        "github_requests": 0, "native_browser_launches": 0}}
-    (project / successor.REVIEW_175).write_text(json.dumps(review, sort_keys=True, indent=2) + "\n")
-    subprocess.run(["git", "-C", str(project), "add", successor.REVIEW_175], check=True)
+                        "product_changes_during_178": [], "github_requests": 0, "native_browser_launches": 0}}
+    (project / successor.REVIEW_178).write_text(json.dumps(review, sort_keys=True, indent=2) + "\n")
+    subprocess.run(["git", "-C", str(project), "add", successor.REVIEW_178], check=True)
     subprocess.run(["git", "-C", str(project), "commit", "-qm", "repair review input"], check=True)
     source = subprocess.check_output(["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
     generated, _ = successor.expected_acceptance_body(
         successor.command_body((project / successor.PLAN_174).read_bytes(), successor.PLAN_174))
-    plan_body = successor.command_body((project / successor.PLAN_176).read_bytes(), successor.PLAN_176)
+    plan_body = successor.command_body((project / successor.PLAN_179).read_bytes(), successor.PLAN_179)
     payload = b"phase253 isolated receipt probe payload\n"
     oid = subprocess.check_output(["git", "-C", str(project), "hash-object", "-w", "--stdin"], input=payload).decode().strip()
     common = pathlib.Path(subprocess.check_output(["git", "-C", str(project), "rev-parse", "--git-common-dir"], text=True).strip())
@@ -203,29 +251,29 @@ def committed_receipt_fixture(parent):
     attempt = pathlib.Path(parent) / "attempt"
     attempt.mkdir()
     bindings = successor.original_bindings(project)["files"]
-    prepared = {"source_commit": source, "plan176_body_sha256": plan_hash,
+    prepared = {"source_commit": source, "plan179_body_sha256": plan_hash,
                 "generated_script_sha256": generated_hash,
                 "shared_sha256": {rel: hashlib.sha256((project / rel).read_bytes()).hexdigest()
                                   for rel in successor.SHARED},
                 "source_bindings": bindings}
     (attempt / "prepared.json").write_text(json.dumps(prepared))
-    (attempt / "253-176-REGRESSION.log").write_bytes(log)
-    (attempt / "253-176-PERMISSION-PREFLIGHT.json").write_text(json.dumps(preflight, sort_keys=True, indent=2) + "\n")
+    (attempt / "253-179-REGRESSION.log").write_bytes(log)
+    (attempt / "253-179-PERMISSION-PREFLIGHT.json").write_text(json.dumps(preflight, sort_keys=True, indent=2) + "\n")
     # Match the real plan: commit log/preflight before producing the receipt.
-    for name in ("253-176-REGRESSION.log", "253-176-PERMISSION-PREFLIGHT.json"):
+    for name in ("253-179-REGRESSION.log", "253-179-PERMISSION-PREFLIGHT.json"):
         shutil.copyfile(attempt / name, project / PHASE / name)
-    subprocess.run(["git", "-C", str(project), "add", f"{PHASE}/253-176-REGRESSION.log",
-                    f"{PHASE}/253-176-PERMISSION-PREFLIGHT.json"], check=True)
+    subprocess.run(["git", "-C", str(project), "add", f"{PHASE}/253-179-REGRESSION.log",
+                    f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json"], check=True)
     subprocess.run(["git", "-C", str(project), "commit", "-qm", "commit run evidence before receipt"], check=True)
     receipt = successor.expected_receipt(project, attempt)
-    receipt_path = project / successor.RECEIPT_176
+    receipt_path = project / successor.RECEIPT_179
     receipt_path.parent.mkdir(parents=True, exist_ok=True)
     receipt_path.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\n")
     # Attempt evidence is canonicalized only after the source-bound receipt was produced.
-    (project / f"{PHASE}/253-176-REGRESSION.log").write_bytes(log)
-    (project / f"{PHASE}/253-176-PERMISSION-PREFLIGHT.json").write_text(json.dumps(preflight, sort_keys=True, indent=2) + "\n")
-    subprocess.run(["git", "-C", str(project), "add", successor.RECEIPT_176,
-                    f"{PHASE}/253-176-REGRESSION.log", f"{PHASE}/253-176-PERMISSION-PREFLIGHT.json"], check=True)
+    (project / f"{PHASE}/253-179-REGRESSION.log").write_bytes(log)
+    (project / f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json").write_text(json.dumps(preflight, sort_keys=True, indent=2) + "\n")
+    subprocess.run(["git", "-C", str(project), "add", successor.RECEIPT_179,
+                    f"{PHASE}/253-179-REGRESSION.log", f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json"], check=True)
     subprocess.run(["git", "-C", str(project), "commit", "-qm", "receipt and evidence"], check=True)
     return project
 
@@ -275,7 +323,7 @@ class SuccessorContractTests(unittest.TestCase):
             record = {"schema": successor.BRIDGE_SCHEMA, "stage": "entry", "source_commit": source_commit,
                       "preservation_ref": ref, "originals": pins, "amended_sha256": amended,
                       "protected_source_bindings": protected, "dispositions_for": []}
-            record_path = f"{PHASE}/253-177-BRIDGE-RECORD.json"
+            record_path = f"{PHASE}/253-180-BRIDGE-RECORD.json"
             (root / record_path).write_text(json.dumps(record))
 
             # These are the false-positive executable checks from the recorded
@@ -328,6 +376,19 @@ class SuccessorContractTests(unittest.TestCase):
                     unapproved = after.replace('plan: "169"', 'plan: "999"', 1)
                     with self.assertRaisesRegex(successor.ContractError, "unapproved plan instruction diff"):
                         successor.validate_scoped_plan_diff(before, unapproved, rel, root)
+                    empty_owner_table = after.replace("149 -> 179", "", 1)
+                    with self.assertRaises(successor.ContractError):
+                        successor.validate_scoped_plan_diff(before, empty_owner_table, rel, root)
+
+            before = original[f"{PHASE}/253-168-PLAN.md"].decode("utf-8")
+            after = (root / f"{PHASE}/253-168-PLAN.md").read_text(encoding="utf-8")
+            composed = after.replace("Task 1", "Å", 1)
+            decomposed = after.replace("Task 1", "A\u030a", 1)
+            self.assertNotEqual(composed.encode("utf-8"), decomposed.encode("utf-8"))
+            self.assertEqual(unicodedata.normalize("NFC", composed), unicodedata.normalize("NFC", decomposed))
+            for changed in (composed, decomposed):
+                with self.assertRaises(successor.ContractError):
+                    successor.validate_scoped_plan_diff(before, changed, f"{PHASE}/253-168-PLAN.md", root)
 
     def test_prepare_transformation_matches_independent_expected_script(self):
         plan = (ROOT / successor.PLAN_174).read_bytes()
@@ -335,7 +396,7 @@ class SuccessorContractTests(unittest.TestCase):
         actual, stats = successor.expected_acceptance_body(body)
 
         # Independent construction from the frozen command text and reviewed edits.
-        expected = body.replace("253-174", "253-176")
+        expected = body.replace("253-174", "253-179")
         old = "grep -v -e '^$' -e '^scripts/ci/ci-hermetic-live-audit.test.py$'"
         new = ("grep -v -e '^$' -e '^scripts/ci/ci-hermetic-live-audit.test.py$' "
                "-e '^scripts/ci/ci-git-publication.test.py$'")
@@ -434,6 +495,9 @@ class SuccessorContractTests(unittest.TestCase):
             "projection largest mismatch": valid_log().replace(b'"largest_tree_body_bytes":2096775', b'"largest_tree_body_bytes":1024'),
             "projection cap mismatch": valid_log().replace(b'"max_tree_body_bytes":2097152', b'"max_tree_body_bytes":2097151'),
             "projection merge failure": valid_log().replace(b'"clean":true,"conflicts":[],"exit":0', b'"clean":false,"conflicts":["mix.exs"],"exit":1'),
+            "null projection object": valid_log().replace(b"PROJECTION {", b"PROJECTION null", 1),
+            "nonobject paged result": valid_log().replace(b"PAGED-FULL-PASS {", b"PAGED-FULL-PASS []", 1),
+            "empty required request set": valid_log().replace(b'"requests_by_category":{"preflight":7}', b'"requests_by_category":{}', 1),
             "empty tree list": valid_log().replace(b'"tree_requests":[{"body_bytes":2096775},{"body_bytes":1024}]', b'"tree_requests":[]'),
             "over cap tree": valid_log().replace(b'"body_bytes":2096775', b'"body_bytes":2097153'),
             "empty tree body": valid_log().replace(b'"body_bytes":2096775', b'"body_bytes":0'),
@@ -446,7 +510,7 @@ class SuccessorContractTests(unittest.TestCase):
 
     def test_preflight_binds_root_call_plan_script_pid_probe_and_readback(self):
         log = successor.parse_log(valid_log())
-        prepared = {"source_commit": "a" * 40, "plan176_body_sha256": "d" * 64,
+        prepared = {"source_commit": "a" * 40, "plan179_body_sha256": "d" * 64,
                     "generated_script_sha256": "e" * 64}
         with tempfile.TemporaryDirectory(prefix="sigra-253-preflight-") as temp:
             root = pathlib.Path(temp)
@@ -513,8 +577,8 @@ class SuccessorContractTests(unittest.TestCase):
     def test_bridge_accepts_exact_five_plan_amendment_fixture(self):
         with tempfile.TemporaryDirectory(prefix="sigra-253-bridge-") as temp:
             root = pathlib.Path(temp)
+            shutil.copytree(ROOT / ".planning", root / ".planning")
             phase = root / PHASE
-            phase.mkdir(parents=True)
             original = {}
             for number in (*range(168, 173), 176, 177):
                 rel = f"{PHASE}/253-{number}-PLAN.md"
@@ -549,7 +613,7 @@ class SuccessorContractTests(unittest.TestCase):
                       "preservation_ref": ref, "originals": pins, "amended_sha256": amended,
                       "protected_source_bindings": protected,
                       "dispositions_for": []}
-            record_path = f"{PHASE}/253-177-BRIDGE-RECORD.json"
+            record_path = f"{PHASE}/253-180-BRIDGE-RECORD.json"
             (root / record_path).write_text(json.dumps(record))
             self.assertEqual(successor.validate_bridge(root, "entry", record_path)["status"], "verified")
             executable_bodies = re.findall(r"<automated>(.*?)</automated>", good169, re.S)
@@ -599,53 +663,17 @@ class SuccessorContractTests(unittest.TestCase):
                 successor.validate_bridge(root, "entry", record_path)
             # Rebuild the positive fixture from the source bytes; never carry a
             # deliberately corrupted file into the complete-stage assertion.
-            amend_entry_plans(root, original)
-            for number, old_wave, new_wave in ((170, 4, 6), (171, 5, 7)):
-                rel = f"{PHASE}/253-{number}-PLAN.md"
-                plan = (root / rel).read_text(encoding="utf-8")
-                (root / rel).write_text(re.sub(rf"(?m)^wave: {old_wave}$",
-                                               f"wave: {new_wave}", plan, count=1))
-            plan172 = (original[f"{PHASE}/253-172-PLAN.md"].decode("utf-8")
-                       .replace("Twenty-two halted", "Twenty-four halted")
-                       .replace("22 halted", "24 halted")
-                       .replace("71 targets", "73 targets")
-                       .replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
-                       .replace("253-174-RECOVERY-SUCCESSOR.py", "253-RECOVERY-SUCCESSOR.py"))
-            plan172 = re.sub(r"(?m)^wave: 6$", "wave: 8", plan172, count=1)
-            plan172 = plan172.replace(
-                '<automated>N="$HOME/.asdf/installs/nodejs/20.18.1/bin/node";',
-                '<automated>python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 && N="$HOME/.asdf/installs/nodejs/20.18.1/bin/node";', 1)
-            r12 = json.loads((ROOT / successor.R12_CONTRACT).read_bytes())
-            targets = [row["plan"] for row in r12["responsibilities"]]
-            targets.extend(f"253-{n:02d}" for n in successor.NEVER_RAN_IDS + (176, 177))
-            second = re.findall(r"<automated>(.*?)</automated>", plan172, re.S)[1]
-            old_script = re.search(r'"?\$N"?\s+-e\s+\'(const b=JSON\.parse\(require\("fs"\).*?process\.exit\(1\))\' \$P/253-LOAD-RECOVERY-SUPERSESSION-SUMMARIES-R13\.json', second, re.S).group(1)
-            new_script = (
-                'const b=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
-                'const paths=(b.entries||[]).map(e=>e.path||e.disposition_path||""); '
-                f'const EXPECTED={json.dumps([f"{n}-SUMMARY.md" for n in targets],separators=(",",":"))}; '
-                'const sort=(xs)=>[...xs].sort(); '
-                'if(paths.length!==73||new Set(paths).size!==73||'
-                'JSON.stringify(sort(paths))!==JSON.stringify(sort(EXPECTED))) process.exit(1)'
-            )
-            plan172 = plan172.replace(old_script, new_script, 1)
-            (root / f"{PHASE}/253-172-PLAN.md").write_text(plan172)
+            amend_complete_plans(root, original)
             record["stage"] = "complete"
             record["amended_sha256"] = {
                 rel: hashlib.sha256((root / rel).read_bytes()).hexdigest()
                 for rel in (f"{PHASE}/253-{n}-PLAN.md" for n in range(168, 173))}
-            ids = tuple(int(row["plan"].removeprefix("253-"))
-                        for row in json.loads((ROOT / successor.R12_CONTRACT).read_bytes())["responsibilities"])
-            ids += successor.NEVER_RAN_IDS + (176, 177)
-            record["sdk_copy"] = {
-                "status": "passed", "readiness_168_runnable": True, "readiness_175_halted": True,
-                "post_chain_incomplete": 0, "post_chain_halted": 24,
-                "post_chain_blocked_summaries": [], "temporary_copy": True,
-                "source_copy_commit": "f" * 40,
-                **{key: "a" * 64 for key in ("sdk_sha256", "source_snapshot_sha256",
-                    "pre_simulation_init_sha256", "pre_simulation_index_sha256",
-                    "post_chain_init_sha256", "post_chain_index_sha256")},
-                "disposition_ids": [f"253-{number:02d}" for number in ids]}
+            sdk_report = successor.run_sdk_copy(root, record, record_path)
+            sdk_report_path = pathlib.Path(tempfile.gettempdir()) / "sigra-phase253-178-sdk-copy-report.json"
+            sdk_report_raw = (json.dumps(sdk_report, sort_keys=True, indent=2) + "\n").encode()
+            sdk_report_path.write_bytes(sdk_report_raw)
+            record["sdk_copy"] = {"report_path": str(sdk_report_path),
+                                  "report_sha256": hashlib.sha256(sdk_report_raw).hexdigest()}
             (root / record_path).write_text(json.dumps(record))
             self.assertEqual(successor.validate_bridge(root, "complete", record_path)["status"], "verified")
             # A cap edit is refused even when its changed-file hash is self-consistent.
@@ -698,7 +726,7 @@ class SuccessorContractTests(unittest.TestCase):
                       "preservation_ref": ref, "originals": pins, "amended_sha256": amended,
                       "protected_source_bindings": protected,
                       "dispositions_for": []}
-            record_path = f"{PHASE}/253-177-BRIDGE-RECORD.json"
+            record_path = f"{PHASE}/253-180-BRIDGE-RECORD.json"
             (root / record_path).write_text(json.dumps(record))
             self.assertEqual(successor.validate_bridge(root, "entry", record_path)["status"], "verified")
             corruptions = []
@@ -733,11 +761,9 @@ class SuccessorContractTests(unittest.TestCase):
             project = pathlib.Path(temp) / "project"
             project.mkdir()
             shutil.copytree(ROOT / ".planning", project / ".planning")
-            plan168 = project / PHASE / "253-168-PLAN.md"
-            amended = re.sub(r"(?m)^depends_on:.*$", 'depends_on: ["253-177"]',
-                             plan168.read_text(encoding="utf-8"), count=1)
-            amended += "\npython3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168\n"
-            plan168.write_text(amended, encoding="utf-8")
+            originals = {f"{PHASE}/253-{n}-PLAN.md": (ROOT / f"{PHASE}/253-{n}-PLAN.md").read_bytes()
+                         for n in (*range(168, 173), 176, 177)}
+            amend_complete_plans(project, originals)
             result = successor.run_sdk_copy(project, {}, "unused")
         self.assertEqual(result["status"], "passed")
         self.assertTrue(result["readiness_168_runnable"])
@@ -746,17 +772,26 @@ class SuccessorContractTests(unittest.TestCase):
         self.assertEqual(result["post_chain_halted"], 24)
         self.assertEqual(len(result["disposition_ids"]), 73)
         self.assertTrue(result["source_copy_commit"])
+        self.assertEqual(set(result["sdk_queries"]), {"readiness_init", "readiness_index", "post_init", "post_index"})
+        self.assertTrue(all(row["stdout_sha256"] for row in result["sdk_queries"].values()))
+        self.assertTrue(result["immutable_copy_input_sha256"])
 
     def test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions(self):
         with tempfile.TemporaryDirectory(prefix="sigra-253-receipt-verify-") as temp:
             project = committed_receipt_fixture(temp)
             self.assertEqual(successor.verify_receipt(project)["status"], "verified")
-            receipt_path = project / successor.RECEIPT_176
-            log_path = project / f"{PHASE}/253-176-REGRESSION.log"
-            preflight_path = project / f"{PHASE}/253-176-PERMISSION-PREFLIGHT.json"
+            receipt_path = project / successor.RECEIPT_179
+            log_path = project / f"{PHASE}/253-179-REGRESSION.log"
+            preflight_path = project / f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json"
             original_receipt = receipt_path.read_bytes()
             original_log = log_path.read_bytes()
             original_preflight = preflight_path.read_bytes()
+
+            for non_object in (b"null\n", b"[]\n", b"\"receipt\"\n", b"{\xff}\n"):
+                receipt_path.write_bytes(non_object)
+                with self.assertRaises(successor.ContractError):
+                    successor.verify_receipt(project)
+            receipt_path.write_bytes(original_receipt)
 
             def commit_fixture(label):
                 subprocess.run(["git", "-C", str(project), "add", "."], check=True)
@@ -824,7 +859,7 @@ class SuccessorContractTests(unittest.TestCase):
             old_receipt = project / f"{PHASE}/253-174-RECOVERY-RECEIPT.json"
             old_receipt.write_text("{}\n")
             commit_fixture("fabricated historical174 receipt")
-            with self.assertRaisesRegex(successor.ContractError, "old 173/174 success receipt"):
+            with self.assertRaisesRegex(successor.ContractError, "174 success receipt must remain absent"):
                 successor.verify_receipt(project)
 
             # Consumer168 may see later committed shared planning movement because it
@@ -845,15 +880,33 @@ class SuccessorContractTests(unittest.TestCase):
             with self.assertRaisesRegex(successor.ContractError, "original halted evidence changed"):
                 successor.verify_receipt(project)
 
+    def test_lifecycle_preserves_175_halt_and_retires_176_177(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-253-lifecycle-178-") as temp:
+            project = committed_receipt_fixture(temp)
+            self.assertEqual(successor.check_historical_inputs(project)["175_status"], "halted")
+            for number in (176, 177):
+                summary = project / f"{PHASE}/253-{number}-SUMMARY.md"
+                summary.write_text("status: complete\n")
+                with self.assertRaisesRegex(successor.ContractError, f"unexecuted {number} must not have a summary"):
+                    successor.check_historical_inputs(project)
+                summary.unlink()
+            summary175 = project / f"{PHASE}/253-175-SUMMARY.md"
+            prior175 = summary175.read_bytes()
+            summary175.write_bytes(prior175.replace(b"status: halted", b"status: complete", 1))
+            with self.assertRaisesRegex(successor.ContractError, "original halted evidence changed: .*253-175-SUMMARY.md"):
+                successor.check_historical_inputs(project)
+            summary175.write_bytes(prior175)
+            self.assertEqual(successor.check_historical_inputs(project)["175_status"], "halted")
+
     def test_consumer168_uses_entry_bridge_without_repeating_sdk_queries(self):
         with tempfile.TemporaryDirectory(prefix="sigra-253-consumer-bridge-") as temp:
             project = committed_receipt_fixture(temp)
-            receipt = json.loads((project / successor.RECEIPT_176).read_bytes())
+            receipt = json.loads((project / successor.RECEIPT_179).read_bytes())
             source = receipt["source_commit"]
-            ref = "refs/gsd/phase253-successor-177-plan-originals"
+            ref = "refs/gsd/phase253-successor-180-plan-originals"
             subprocess.run(["git", "-C", str(project), "update-ref", ref, source], check=True)
             originals = {}
-            for number in range(168, 173):
+            for number in (*range(168, 173), 176, 177):
                 rel = f"{PHASE}/253-{number}-PLAN.md"
                 originals[rel] = subprocess.check_output(["git", "-C", str(project), "show", f"{source}:{rel}"])
             amend_entry_plans(project, originals)
@@ -873,7 +926,7 @@ class SuccessorContractTests(unittest.TestCase):
                       "protected_source_bindings": {rel: hashlib.sha256(
                           subprocess.check_output(["git", "-C", str(project), "show", f"{source}:{rel}"])).hexdigest()
                           for rel in source_paths}, "dispositions_for": []}
-            bridge_rel = f"{PHASE}/253-177-BRIDGE-RECORD.json"
+            bridge_rel = f"{PHASE}/253-180-BRIDGE-RECORD.json"
             (project / bridge_rel).write_text(json.dumps(bridge, sort_keys=True, indent=2) + "\n")
             subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
             subprocess.run(["git", "-C", str(project), "commit", "-qm", "simulated 177 entry bridge"], check=True)
@@ -882,34 +935,26 @@ class SuccessorContractTests(unittest.TestCase):
 
             # Complete the remaining three exact plan paths and exercise the real SDK
             # against this committed amended copy; then consume it again without a rerun.
-            plan170 = project / f"{PHASE}/253-170-PLAN.md"
-            plan171 = project / f"{PHASE}/253-171-PLAN.md"
-            plan172 = project / f"{PHASE}/253-172-PLAN.md"
-            plan170.write_text(re.sub(r"(?m)^wave: 4$", "wave: 6", plan170.read_text(), count=1))
-            plan171.write_text(re.sub(r"(?m)^wave: 5$", "wave: 7", plan171.read_text(), count=1))
-            p172 = plan172.read_text()
-            p172 = re.sub(r"(?m)^wave: 6$", "wave: 8", p172, count=1)
-            p172 = p172.replace("Twenty-two halted", "Twenty-three halted").replace("22 halted", "23 halted")
-            p172 = p172.replace("253-174-RECOVERY-RECEIPT.json", "253-176-RECOVERY-RECEIPT.json")
-            p172 += "\nverify-receipt --consumer 168\n"
-            plan172.write_text(p172)
+            amend_complete_plans(project, originals)
             bridge["stage"] = "complete"
             bridge["amended_sha256"] = {f"{PHASE}/253-{number}-PLAN.md": hashlib.sha256(
                 (project / f"{PHASE}/253-{number}-PLAN.md").read_bytes()).hexdigest() for number in range(168, 173)}
-            r12 = json.loads((project / successor.R12_CONTRACT).read_bytes())
-            disposition_ids = [f"253-{int(row['plan'].removeprefix('253-')):02d}" for row in r12["responsibilities"]]
-            disposition_ids += [f"253-{number:02d}" for number in successor.NEVER_RAN_IDS]
-            bridge["sdk_copy"] = {"status": "passed", "readiness_168_runnable": True,
-                "readiness_174_halted": True, "post_chain_incomplete": 0, "post_chain_halted": 23,
-                "post_chain_blocked_summaries": [], "temporary_copy": True, "source_copy_commit": "f" * 40,
-                **{key: "a" * 64 for key in ("sdk_sha256", "source_snapshot_sha256",
-                    "pre_simulation_init_sha256", "pre_simulation_index_sha256",
-                    "post_chain_init_sha256", "post_chain_index_sha256")},
-                "disposition_ids": disposition_ids}
+            # A placeholder merely satisfies the schema precondition; --sdk below
+            # performs the installed SDK calls and returns their actual outputs.
+            bridge["sdk_copy"] = {"status": "not-yet-run"}
             (project / bridge_rel).write_text(json.dumps(bridge, sort_keys=True, indent=2) + "\n")
             subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
             subprocess.run(["git", "-C", str(project), "commit", "-qm", "simulated 177 complete bridge"], check=True)
-            self.assertEqual(successor.validate_bridge(project, "complete", bridge_rel, sdk=True)["status"], "verified")
+            verified_bridge = successor.validate_bridge(project, "complete", bridge_rel, sdk=True)
+            self.assertEqual(verified_bridge["status"], "verified")
+            report_path = pathlib.Path(tempfile.gettempdir()) / "sigra-phase253-178-consumer-sdk-copy-report.json"
+            report_raw = (json.dumps(verified_bridge["sdk_copy"], sort_keys=True, indent=2) + "\n").encode()
+            report_path.write_bytes(report_raw)
+            bridge["sdk_copy"] = {"report_path": str(report_path),
+                                  "report_sha256": hashlib.sha256(report_raw).hexdigest()}
+            (project / bridge_rel).write_text(json.dumps(bridge, sort_keys=True, indent=2) + "\n")
+            subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
+            subprocess.run(["git", "-C", str(project), "commit", "-qm", "retain actual SDK copy result"], check=True)
             with mock.patch.object(successor, "run_sdk_copy", side_effect=AssertionError("consumer must not rerun SDK")):
                 self.assertEqual(successor.verify_receipt(project, consumer="168")["status"], "verified")
 

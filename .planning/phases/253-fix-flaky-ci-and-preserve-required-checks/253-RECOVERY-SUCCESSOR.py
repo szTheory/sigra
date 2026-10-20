@@ -30,7 +30,9 @@ PLAN_179 = f"{PHASE}/253-179-PLAN.md"
 PLAN_180 = f"{PHASE}/253-180-PLAN.md"
 REVIEW_173 = f"{PHASE}/253-173-RECOVERY-REVIEW.json"
 REVIEW_175 = f"{PHASE}/253-175-REPAIR-REVIEW.json"
-RECEIPT_176 = f"{PHASE}/253-176-RECOVERY-RECEIPT.json"
+REVIEW_178 = f"{PHASE}/253-178-REPAIR-REVIEW.json"
+RECEIPT_179 = f"{PHASE}/253-179-RECOVERY-RECEIPT.json"
+BRIDGE_180 = f"{PHASE}/253-180-BRIDGE-RECORD.json"
 SUCCESSOR_SCHEMA = "sigra.phase253.successor-acceptance/v1"
 REVIEW_SCHEMA = "sigra.phase253.successor-repair-review/v1"
 BRIDGE_SCHEMA = "sigra.phase253.successor-bridge/v1"
@@ -54,6 +56,16 @@ HISTORICAL_SHA256 = {
     f"{PHASE}/253-174-REGRESSION.log": HISTORICAL_174_LOG_SHA256,
     f"{PHASE}/253-174-PERMISSION-PREFLIGHT.json": "11b9156eb6afd9e60d6871de55d91cc34411a563a3cc85cb9ad6c93cee0ae77b",
     f"{PHASE}/253-174-EXECUTION-RECORD.json": "b4b4edf630de91bee762f74f345fc3ab939cc494f3364c3141c33743a232bd27",
+    f"{PHASE}/253-175-PLAN.md": "8cb8b78ed8283860c1daff28c689ef9c556311f6c46826b0dbc6820b3292ae65",
+    f"{PHASE}/253-175-SUMMARY.md": "74059b7ca4e1730dde91d21b5bf260090332aef7be20cc8ab258c41437482098",
+    f"{PHASE}/253-175-REPAIR-REVIEW.json": "dc9a7ed14f881a2f8d7428d9e4121a89f7b49a9a9144a544f1e8bc545511b603",
+    f"{PHASE}/253-175-EXECUTION-RECORD.json": "a6e068c80db579e093ac5c374fb57db471c207a01be46ac77a10ee1b388f8c00",
+}
+FROZEN_175_COMMITS = {
+    f"{PHASE}/253-175-PLAN.md": "6b8bccad1a51a3455ab27d88360064d7ac8d30c8",
+    f"{PHASE}/253-175-SUMMARY.md": "071f9894e7ed8625462b894f1df3fc0be3598928",
+    f"{PHASE}/253-175-REPAIR-REVIEW.json": "071f9894e7ed8625462b894f1df3fc0be3598928",
+    f"{PHASE}/253-175-EXECUTION-RECORD.json": "071f9894e7ed8625462b894f1df3fc0be3598928",
 }
 TREE_CAP = 2 * 1024 * 1024
 SHARED = (".planning/config.json", ".planning/state.json", ".planning/STATE.md", ".planning/HANDOFF.json")
@@ -142,7 +154,7 @@ def expected_acceptance_body(body: str) -> tuple[str, dict]:
     identifier_count = transformed.count("253-174")
     if identifier_count < 5:
         raise ContractError("174 attempt identifier substitution count is unexpectedly small")
-    transformed = transformed.replace("253-174", "253-176")
+    transformed = transformed.replace("253-174", "253-179")
 
     allow_old = "grep -v -e '^$' -e '^scripts/ci/ci-hermetic-live-audit.test.py$'"
     allow_new = ("grep -v -e '^$' -e '^scripts/ci/ci-hermetic-live-audit.test.py$' "
@@ -208,6 +220,9 @@ def check_historical_inputs(root: Path) -> dict:
     for rel, expected in HISTORICAL_SHA256.items():
         if sha256(read_bytes(root, rel)) != expected:
             raise ContractError(f"original halted evidence changed: {rel}")
+    for rel, commit in FROZEN_175_COMMITS.items():
+        if git(root, "show", f"{commit}:{rel}") != read_bytes(root, rel):
+            raise ContractError(f"175 historical producing-commit bytes differ: {rel}")
     review173 = read_json(root, REVIEW_173)
     raw_review173 = read_bytes(root, REVIEW_173)
     if sha256(raw_review173) != REVIEW_173_SHA256:
@@ -238,14 +253,26 @@ def check_historical_inputs(root: Path) -> dict:
     log173 = read_bytes(root, f"{PHASE}/253-173-REGRESSION.log").decode("utf-8")
     if not re.search(r"^status: halted$", summary167, re.M) or not re.search(r"^status: halted$", summary173, re.M):
         raise ContractError("167 and173 original summaries must remain halted")
+    summary175 = read_bytes(root, f"{PHASE}/253-175-SUMMARY.md").decode("utf-8", "strict")
+    review175 = read_json(root, REVIEW_175)
+    execution175 = read_json(root, f"{PHASE}/253-175-EXECUTION-RECORD.json")
+    if not re.search(r"(?m)^status: halted$", summary175):
+        raise ContractError("175 must remain halted")
+    if review175.get("status") != "halted" or execution175.get("status") != "halted":
+        raise ContractError("175 review/execution record no longer preserves its halted result")
     if log173.splitlines()[-1] != "VERIFY-EXIT 1":
         raise ContractError("173's original failure sentinel changed")
-    if (root / f"{PHASE}/253-173-RECOVERY-RECEIPT.json").exists() or (root / f"{PHASE}/253-174-RECOVERY-RECEIPT.json").exists():
-        raise ContractError("old 173/174 success receipt must remain absent")
+    for number in (173, 174, 175, 176, 177):
+        if (root / f"{PHASE}/253-{number}-RECOVERY-RECEIPT.json").exists():
+            raise ContractError(f"historical/superseded {number} success receipt must remain absent")
+    for number in (176, 177):
+        if (root / f"{PHASE}/253-{number}-SUMMARY.md").exists():
+            raise ContractError(f"unexecuted {number} must not have a summary")
     return {"review173_sha256": sha256(raw_review173), "findings": len(review173["findings"]),
             "historical_sha256": HISTORICAL_SHA256,
             "174_log_sha256": sha256(log174), "174_status": "halted", "174_exit": 1,
-            "173_status": "halted", "173_exit": 1, "167_status": "halted"}
+            "173_status": "halted", "173_exit": 1, "167_status": "halted",
+            "175_status": "halted", "175_commits": FROZEN_175_COMMITS}
 
 
 def clean_status(root: Path) -> bytes:
@@ -273,6 +300,42 @@ def run_deadline_guards(root: Path) -> dict:
             "command_sha256": sha256(command_one.encode())}
 
 
+def validate_review178(root: Path) -> dict:
+    summary = read_bytes(root, f"{PHASE}/253-178-SUMMARY.md").decode("utf-8", "strict")
+    if not re.search(r"(?m)^status: complete$", summary):
+        raise ContractError("178 repair summary is not complete")
+    review = read_json(root, REVIEW_178)
+    if (review.get("schema") != REVIEW_SCHEMA or review.get("status") != "reviewed_for_new_acceptance"
+            or review.get("repair_plan") != "253-178" or review.get("acceptance_plan") != "253-179"
+            or review.get("bridge_plan") != "253-180"):
+        raise ContractError("178 review identity or status is invalid")
+    if review.get("unresolved_implementation_findings") != [] or review.get("acceptance_attempts") != 0:
+        raise ContractError("178 review has unresolved findings or records an acceptance attempt")
+    if review.get("requirements") != {"CIREL-01": "partial_not_reproduced", "CIREL-02": "unaccepted"}:
+        raise ContractError("178 review overstates unresolved CIREL requirements")
+    if review.get("phase_verification_status") != "not_started":
+        raise ContractError("178 review overstates phase verification")
+    required = {f"{PHASE}/253-RECOVERY-SUCCESSOR.py", f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
+                PLAN_178, PLAN_179, PLAN_180, "scripts/ci/ci-git-publication.test.py",
+                "scripts/ci/ci-git-publication.py", "scripts/ci/ci-gate-canary-dryrun.py"}
+    files, commits = review.get("source_files"), review.get("source_commits")
+    if not isinstance(files, dict) or set(files) != required or not isinstance(commits, dict) or set(commits) != required:
+        raise ContractError("178 review does not bind the complete helper/test/plan/product-source set")
+    for rel in sorted(required):
+        if sha256(read_bytes(root, rel)) != files[rel]:
+            raise ContractError(f"178 reviewed source hash differs: {rel}")
+        commit = commits[rel]
+        if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+            raise ContractError(f"178 producing commit is missing: {rel}")
+        if git(root, "show", f"{commit}:{rel}") != read_bytes(root, rel):
+            raise ContractError(f"178 producing commit does not contain exact reviewed bytes: {rel}")
+    if review.get("scope", {}).get("product_changes") != ["scripts/ci/ci-git-publication.test.py"]:
+        raise ContractError("178 review product scope differs from the single reviewed test repair")
+    if review.get("scope", {}).get("product_changes_during_178") != []:
+        raise ContractError("178 review records product changes during the repair")
+    return review
+
+
 def prepare(root: Path, attempt_dir: Path) -> dict:
     root = root.resolve()
     attempt_dir = attempt_dir.resolve()
@@ -284,38 +347,7 @@ def prepare(root: Path, attempt_dir: Path) -> dict:
     status = clean_status(root)
     if status:
         raise ContractError("prepare requires clean committed source inputs")
-    summary175 = read_bytes(root, f"{PHASE}/253-175-SUMMARY.md").decode("utf-8")
-    if not re.search(r"^status: complete$", summary175, re.M):
-        raise ContractError("175 must be complete before preparation")
-    review175 = read_json(root, REVIEW_175)
-    if review175.get("schema") != REVIEW_SCHEMA or review175.get("status") != "reviewed_for_new_acceptance":
-        raise ContractError("175 repair review schema/status is invalid")
-    if review175.get("unresolved_implementation_findings") != []:
-        raise ContractError("175 repair review has unresolved findings")
-    if review175.get("scope") != {"product_changes": ["scripts/ci/ci-git-publication.test.py"],
-                                   "github_requests": 0, "native_browser_launches": 0}:
-        raise ContractError("175 review product scope differs from the one test repair")
-    reviewed_files = review175.get("source_files")
-    required_reviewed_files = {"scripts/ci/ci-git-publication.test.py", PLAN_175,
-                               f"{PHASE}/253-RECOVERY-SUCCESSOR.py",
-                               f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
-                               "scripts/ci/ci-git-publication.py", "scripts/ci/ci-gate-canary-dryrun.py"}
-    if not isinstance(reviewed_files, dict) or set(reviewed_files) != required_reviewed_files:
-        raise ContractError("175 review does not bind the exact changed/tooling source files")
-    for rel, digest in reviewed_files.items():
-        if sha256(read_bytes(root, rel)) != digest:
-            raise ContractError(f"175 review source hash differs: {rel}")
-    commits = review175.get("source_commits")
-    if not isinstance(commits, dict) or set(commits) == set():
-        raise ContractError("175 review lacks source commit identities")
-    if set(commits) != required_reviewed_files:
-        raise ContractError("175 review commit identities do not cover exactly the source files")
-    for rel in required_reviewed_files:
-        commit = commits.get(rel)
-        if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
-            raise ContractError(f"175 review commit identity missing: {rel}")
-        if git(root, "show", f"{commit}:{rel}") != read_bytes(root, rel):
-            raise ContractError(f"175 review commit does not contain exact source bytes: {rel}")
+    validate_review178(root)
     if sha256(read_bytes(root, "scripts/ci/ci-git-publication.py")) != PUBLISHER_SHA256:
         raise ContractError("production publisher pin changed")
     if sha256(read_bytes(root, "scripts/ci/ci-gate-canary-dryrun.py")) != DRYRUN_SHA256:
@@ -329,22 +361,22 @@ def prepare(root: Path, attempt_dir: Path) -> dict:
         raise ContractError("origin/main differs from MAIN-FETCH-R12; preparation refuses stale source")
     check_historical_inputs(root)
     deadline = run_deadline_guards(root)
-    if any((root / f"{PHASE}/253-176-{name}").exists() for name in
+    if any((root / f"{PHASE}/253-179-{name}").exists() for name in
            ("PERMISSION-PREFLIGHT.json", "REGRESSION.log", "RECOVERY-RECEIPT.json", "SUMMARY.md")):
-        raise ContractError("176 attempt artifacts already exist")
+        raise ContractError("179 acceptance artifacts already exist")
     source174 = read_bytes(root, PLAN_174)
     body174 = command_body(source174, PLAN_174)
     generated, transformations = expected_acceptance_body(body174)
-    source176 = read_bytes(root, PLAN_176)
-    body176 = command_body(source176, PLAN_176)
-    body176_hash = sha256(body176.encode("utf-8"))
+    source179 = read_bytes(root, PLAN_179)
+    body179 = command_body(source179, PLAN_179)
+    body179_hash = sha256(body179.encode("utf-8"))
     bindings = original_bindings(root)
     shared = {rel: sha256(read_bytes(root, rel)) for rel in SHARED}
     prepared = {
         "schema": "sigra.phase253.successor-prepared/v1",
         "source_commit": bindings["source_commit"],
         "plan174_body_sha256": sha256(body174.encode("utf-8")),
-        "plan176_body_sha256": body176_hash,
+        "plan179_body_sha256": body179_hash,
         "generated_script_sha256": sha256(generated.encode("utf-8")),
         "transformations": transformations,
         "historical": check_historical_inputs(root),
@@ -439,6 +471,8 @@ def parse_log(log: bytes) -> dict:
             json_rows[marker] = json.loads(values[0])
         except json.JSONDecodeError as error:
             raise ContractError(f"invalid {marker} JSON: {error}") from error
+        if not isinstance(json_rows[marker], dict):
+            raise ContractError(f"{marker} JSON root must be an object")
     projection = json_rows["PROJECTION"]
     if projection.get("status") != "ready-local-proposal" or projection.get("server_parent_sha") != "09df342a82e03c3d5d40173c912b70e827f7eadc":
         raise ContractError("projection status or main parent differs from the pinned R13 source")
@@ -507,16 +541,16 @@ def validate_preflight(root: Path, preflight: dict, parsed: dict, prepared: dict
     launch = preflight.get("launch")
     if not isinstance(launch, dict) or launch.get("tool") != "exec_command" or launch.get("sandbox_permissions") != "require_escalated" or launch.get("executor") != "root":
         raise ContractError("actual root require_escalated launch metadata is missing")
-    if launch.get("block_sha256") != prepared.get("plan176_body_sha256"):
-        raise ContractError("root launch did not bind the exact176 automated body")
+    if launch.get("block_sha256") != prepared.get("plan179_body_sha256"):
+        raise ContractError("root launch did not bind the exact179 automated body")
     if not isinstance(launch.get("tool_call_id"), str) or not launch["tool_call_id"].strip() or not launch.get("session_id"):
         raise ContractError("actual tool call/session identity is missing")
     if launch.get("generated_script_sha256") != prepared.get("generated_script_sha256"):
         raise ContractError("launch record generated-script hash differs")
     if preflight.get("generated_script_sha256") != prepared.get("generated_script_sha256"):
         raise ContractError("preflight generated script hash differs")
-    if preflight.get("plan_command_sha256") != prepared.get("plan176_body_sha256"):
-        raise ContractError("preflight exact plan-command hash differs")
+    if preflight.get("plan_command_sha256") != prepared.get("plan179_body_sha256"):
+        raise ContractError("preflight exact179 plan-command hash differs")
     if parsed["json"]["PAGED-FULL-PASS"].get("mode") != "live-policy":
         raise ContractError("paged pass mode changed")
 
@@ -539,8 +573,8 @@ def validate_probe_object(root: Path, probe: dict) -> None:
 
 def expected_receipt(root: Path, attempt_dir: Path) -> dict:
     prepared = json.loads(read_bytes(attempt_dir, "prepared.json"))
-    log = read_bytes(attempt_dir, "253-176-REGRESSION.log")
-    preflight = read_json(attempt_dir, "253-176-PERMISSION-PREFLIGHT.json")
+    log = read_bytes(attempt_dir, "253-179-REGRESSION.log")
+    preflight = read_json(attempt_dir, "253-179-PERMISSION-PREFLIGHT.json")
     parsed = parse_log(log)
     validate_preflight(root, preflight, parsed, prepared, attempt_dir)
     history = check_historical_inputs(root)
@@ -561,21 +595,21 @@ def expected_receipt(root: Path, attempt_dir: Path) -> dict:
     return {
         "schema": SUCCESSOR_SCHEMA,
         "status": "verified_local_success",
-        "recovery_plan": "253-176",
-        "repair_plan": "253-175",
-        "bridge_plan": "253-177",
+        "recovery_plan": "253-179",
+        "repair_plan": "253-178",
+        "bridge_plan": "253-180",
         "attempt_count": 1,
-        "next_plan": "253-177",
+        "next_plan": "253-180",
         "source_commit": source,
-        "plan_command_sha256": prepared["plan176_body_sha256"],
+        "plan_command_sha256": prepared["plan179_body_sha256"],
         "generated_script_sha256": prepared["generated_script_sha256"],
         "historical": history,
         "historical_sha256": {rel: row["sha256"] for rel, row in prepared["source_bindings"].items()},
         "shared_sha256": prepared["shared_sha256"],
         "review": {"path": REVIEW_173, "sha256": REVIEW_173_SHA256},
-        "repair_review": {"path": REVIEW_175, "sha256": sha256(read_bytes(root, REVIEW_175))},
-        "permission_preflight": {"path": f"{PHASE}/253-176-PERMISSION-PREFLIGHT.json", "sha256": sha256(read_bytes(attempt_dir, "253-176-PERMISSION-PREFLIGHT.json"))},
-        "regression_log": {"path": f"{PHASE}/253-176-REGRESSION.log", "sha256": sha256(log)},
+        "repair_review": {"path": REVIEW_178, "sha256": sha256(read_bytes(root, REVIEW_178))},
+        "permission_preflight": {"path": f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json", "sha256": sha256(read_bytes(attempt_dir, "253-179-PERMISSION-PREFLIGHT.json"))},
+        "regression_log": {"path": f"{PHASE}/253-179-REGRESSION.log", "sha256": sha256(log)},
         "projection": projection,
         "hermetic": parsed["json"]["HERMETIC-GATE"],
         "live_policy": parsed["json"]["LIVE-POLICY-GATE"],
@@ -597,21 +631,21 @@ def expected_receipt(root: Path, attempt_dir: Path) -> dict:
 
 def write_receipt(root: Path, attempt_dir: Path) -> dict:
     receipt = expected_receipt(root.resolve(), attempt_dir.resolve())
-    target = root / RECEIPT_176
+    target = root / RECEIPT_179
     if target.exists():
-        raise ContractError("176 receipt already exists")
+        raise ContractError("179 receipt already exists")
     target.write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     return receipt
 
 
 def verify_receipt(root: Path, consumer: str | None = None) -> dict:
     root = root.resolve()
-    receipt = read_json(root, RECEIPT_176)
+    receipt = read_json(root, RECEIPT_179)
     if receipt.get("schema") != SUCCESSOR_SCHEMA or receipt.get("status") != "verified_local_success":
-        raise ContractError("176 successor receipt schema/status invalid")
-    for rel, field in ((REVIEW_173, "review"), (REVIEW_175, "repair_review"),
-                       (f"{PHASE}/253-176-PERMISSION-PREFLIGHT.json", "permission_preflight"),
-                       (f"{PHASE}/253-176-REGRESSION.log", "regression_log")):
+        raise ContractError("179 successor receipt schema/status invalid")
+    for rel, field in ((REVIEW_173, "review"), (REVIEW_178, "repair_review"),
+                       (f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json", "permission_preflight"),
+                       (f"{PHASE}/253-179-REGRESSION.log", "regression_log")):
         bound_file(root, receipt.get(field), field)
         if receipt[field]["path"] != rel:
             raise ContractError(f"{field} points at the wrong canonical path")
@@ -627,51 +661,26 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
     history = check_historical_inputs(root)
     if receipt.get("historical") != history:
         raise ContractError("receipt historical outcomes differ from reopened original evidence")
-    repair_review = read_json(root, REVIEW_175)
-    if repair_review.get("schema") != REVIEW_SCHEMA or repair_review.get("status") != "reviewed_for_new_acceptance":
-        raise ContractError("175 repair review schema/status is invalid")
-    if repair_review.get("unresolved_implementation_findings") != []:
-        raise ContractError("175 repair review has unresolved implementation findings")
-    if repair_review.get("scope") != {"product_changes": ["scripts/ci/ci-git-publication.test.py"],
-                                      "github_requests": 0, "native_browser_launches": 0}:
-        raise ContractError("175 repair review product scope is invalid")
-    reviewed_files = repair_review.get("source_files")
-    reviewed_commits = repair_review.get("source_commits")
-    required_review_files = {"scripts/ci/ci-git-publication.test.py", PLAN_175,
-                             f"{PHASE}/253-RECOVERY-SUCCESSOR.py",
-                             f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
-                             "scripts/ci/ci-git-publication.py", "scripts/ci/ci-gate-canary-dryrun.py"}
-    if not isinstance(reviewed_files, dict) or set(reviewed_files) != required_review_files:
-        raise ContractError("175 repair review does not bind the exact reviewed source set")
-    if not isinstance(reviewed_commits, dict) or set(reviewed_commits) != required_review_files:
-        raise ContractError("175 repair review does not bind each reviewed commit")
-    for rel in required_review_files:
-        if sha256(read_bytes(root, rel)) != reviewed_files[rel]:
-            raise ContractError(f"175 review source hash mismatch: {rel}")
-        commit = reviewed_commits[rel]
-        if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
-            raise ContractError(f"175 review commit identity is invalid: {rel}")
-        if git(root, "show", f"{commit}:{rel}") != read_bytes(root, rel):
-            raise ContractError(f"175 review commit does not contain reviewed bytes: {rel}")
+    validate_review178(root)
     parsed = parse_log(bound_file(root, receipt["regression_log"], "regression log"))
     preflight = read_json(root, receipt["permission_preflight"]["path"])
     body174 = command_body(read_bytes(root, PLAN_174), PLAN_174)
     generated, _ = expected_acceptance_body(body174)
-    body176 = command_body(read_bytes(root, PLAN_176), PLAN_176)
-    if sha256(body176.encode()) != receipt.get("plan_command_sha256"):
-        raise ContractError("receipt plan command hash is not the exact176 first body")
+    body179 = command_body(read_bytes(root, PLAN_179), PLAN_179)
+    if sha256(body179.encode()) != receipt.get("plan_command_sha256"):
+        raise ContractError("receipt plan command hash is not the exact179 first body")
     if sha256(generated.encode()) != receipt.get("generated_script_sha256"):
-        raise ContractError("receipt generated script hash is not the reviewed174 transformation")
+        raise ContractError("receipt generated script hash is not the reviewed174-to-179 transformation")
     prepared = {"source_commit": receipt.get("source_commit"),
-                "plan176_body_sha256": receipt.get("plan_command_sha256"),
+                "plan179_body_sha256": receipt.get("plan_command_sha256"),
                 "generated_script_sha256": receipt.get("generated_script_sha256"),
                 "shared_sha256": receipt.get("shared_sha256", {}),
                 "source_bindings": {rel: {"sha256": value} for rel, value in receipt.get("historical_sha256", {}).items()}}
     validate_preflight(root, preflight, parsed, prepared, root)
     validate_probe_object(root, preflight["probe"])
-    if receipt.get("recovery_plan") != "253-176" or receipt.get("repair_plan") != "253-175" or receipt.get("bridge_plan") != "253-177":
+    if receipt.get("recovery_plan") != "253-179" or receipt.get("repair_plan") != "253-178" or receipt.get("bridge_plan") != "253-180":
         raise ContractError("receipt plan lineage is incorrect")
-    if receipt.get("attempt_count") != 1 or receipt.get("next_plan") != "253-177":
+    if receipt.get("attempt_count") != 1 or receipt.get("next_plan") != "253-180":
         raise ContractError("receipt attempt count or next plan is incorrect")
     if receipt.get("verify_exit") != 0 or receipt.get("full_dryrun_count") != parsed["count"]:
         raise ContractError("receipt native result differs from the log")
@@ -727,20 +736,20 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
             else:
                 raise ContractError(f"current historical bytes differ: {rel}")
     if consumer == "168":
-        bridge_rel = f"{PHASE}/253-177-BRIDGE-RECORD.json"
+        bridge_rel = BRIDGE_180
         bridge_file = root / bridge_rel
         if changed_originals and not bridge_file.exists():
-            raise ContractError("168 consumer requires the177 durable bridge record after plan amendments")
+            raise ContractError("168 consumer requires the180 durable bridge record after plan amendments")
         if bridge_file.exists():
             bridge_record = read_json(root, bridge_rel)
             if bridge_record.get("source_commit") != source:
-                raise ContractError("177 bridge source commit differs from the176 receipt")
+                raise ContractError("180 bridge source commit differs from the179 receipt")
             validate_bridge(root, bridge_record.get("stage"), bridge_rel)
             allowed = ({f"{PHASE}/253-{n}-PLAN.md" for n in (168, 169)}
                        if bridge_record.get("stage") == "entry"
                        else {f"{PHASE}/253-{n}-PLAN.md" for n in range(168, 173)})
             if set(bridge_record.get("amended_sha256", {})) != allowed:
-                raise ContractError("177 bridge does not scope exactly the active-stage plan amendments")
+                raise ContractError("180 bridge does not scope exactly the active-stage plan amendments")
     if clean_status(root):
         raise ContractError("receipt verification requires a clean committed tree")
     return {"status": "verified", "source_commit": source, "count": parsed["count"]}
@@ -969,7 +978,7 @@ def validate_169_owner_contract(plan: str, original: str, root: Path) -> None:
 
 
 def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
-    """Run the installed GSD queries against a separately committed planning copy."""
+    """Run installed GSD queries on a committed, disposable copy of the real planning tree."""
     planning = root / ".planning"
     if not planning.is_dir():
         raise ContractError("SDK copy requires a complete .planning tree")
@@ -977,106 +986,127 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
     if sha256(r12_raw) != R12_CONTRACT_SHA256:
         raise ContractError("the R12 disposition source bytes differ from their frozen pin")
     r12 = json.loads(r12_raw)
-    if len(r12.get("responsibilities", [])) != 53:
-        raise ContractError("frozen R12 contract does not contain exactly53 original targets")
-    try:
-        disposition_ids = tuple(int(row["plan"].removeprefix("253-"))
-                                for row in r12["responsibilities"]) + NEVER_RAN_IDS
-    except (KeyError, TypeError, ValueError) as error:
-        raise ContractError(f"frozen R12 target list is malformed: {error}") from error
-    if len(disposition_ids) != 71 or len(set(disposition_ids)) != 71:
-        raise ContractError("the exact R12 plus18-target disposition fixture is not71 unique plans")
+    targets = [row["plan"] for row in r12.get("responsibilities", [])]
+    targets.extend(f"253-{number:02d}" for number in NEVER_RAN_IDS + (176, 177))
+    disposition_ids = tuple(int(plan.removeprefix("253-")) for plan in targets)
+    if len(disposition_ids) != 73 or len(set(disposition_ids)) != 73:
+        raise ContractError("the frozen original71 plus176/177 disposition set is not73 unique plans")
+    plan168 = read_bytes(root, f"{PHASE}/253-168-PLAN.md").decode("utf-8", "strict")
+    if not re.search(r'(?m)^depends_on:\s*\["253-180"\]\s*$', plan168):
+        raise ContractError("SDK copy input is not the actual amended168 plan depending on180")
+    if "verify-receipt --consumer 168" not in plan168:
+        raise ContractError("SDK copy input does not use the amended168 receipt consumer")
+    for number in (176, 177):
+        if (root / f"{PHASE}/253-{number}-SUMMARY.md").exists():
+            raise ContractError(f"unexecuted {number} summary exists before SDK simulation")
+    sdk = Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs"
+    node = Path.home() / ".asdf/installs/nodejs/20.18.1/bin/node"
+    if not sdk.is_file() or not node.is_file():
+        raise ContractError("installed GSD SDK or pinned Node runtime is unavailable")
+    sdk_identity = {"path": str(sdk), "sha256": sha256(sdk.read_bytes()),
+                    "node": str(node), "node_sha256": sha256(node.read_bytes())}
+
     with tempfile.TemporaryDirectory(prefix="sigra-253-sdk-copy-") as temp:
         project = Path(temp) / "project"
         project.mkdir()
         shutil.copytree(planning, project / ".planning", symlinks=False)
         phase_dir = project / PHASE
-        original_summaries = {p.name: p.read_bytes() for p in phase_dir.glob("253-*-SUMMARY.md")}
-        for number in (175, 176, 177):
-            sdk_write_summary(project, number, "complete", "Temporary readiness fixture; not project evidence.")
-        plan168 = phase_dir / "253-168-PLAN.md"
-        plan168_text = plan168.read_text(encoding="utf-8")
-        if not re.search(r'(?m)^depends_on:\s*\["253-177"\]\s*$', plan168_text):
-            raise ContractError("SDK copy input is not the actual amended168 plan depending on177")
-        if "verify-receipt --consumer 168" not in plan168_text:
-            raise ContractError("SDK copy input does not use the amended168 receipt consumer")
-        # First committed snapshot proves the next active plan is runnable and174 stays halted.
+        source_snapshot = {
+            path.relative_to(project).as_posix(): sha256(path.read_bytes())
+            for path in sorted((project / ".planning").rglob("*"))
+            if path.is_file() and path.relative_to(project).as_posix() != BRIDGE_180
+        }
+        immutable_input_sha256 = sha256(canonical_json_bytes(source_snapshot))
+        original_summaries = {path.name: path.read_bytes() for path in phase_dir.glob("253-*-SUMMARY.md")}
+        for number in (176, 177):
+            if (phase_dir / f"253-{number}-SUMMARY.md").exists():
+                raise ContractError(f"SDK copy input unexpectedly contains {number} summary")
         subprocess.run(["git", "-C", str(project), "init", "-q"], check=True, capture_output=True)
         subprocess.run(["git", "-C", str(project), "config", "user.name", "SDK Fixture"], check=True)
         subprocess.run(["git", "-C", str(project), "config", "user.email", "sdk-fixture@example.test"], check=True)
         subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
-        subprocess.run(["git", "-C", str(project), "commit", "-qm", "simulated completed 175-177"], check=True)
+        subprocess.run(["git", "-C", str(project), "commit", "-qm", "committed SDK copy inputs"], check=True)
+        copy_input_commit = git(project, "rev-parse", "HEAD").decode().strip()
+        for number in (178, 179, 180):
+            summary = phase_dir / f"253-{number}-SUMMARY.md"
+            if summary.exists():
+                if not re.search(r"(?m)^status: complete$", summary.read_text(encoding="utf-8")):
+                    raise ContractError(f"SDK copy refuses non-complete existing {number} summary")
+            else:
+                sdk_write_summary(project, number, "complete", "Temporary SDK readiness fixture; not project evidence.")
+        subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
+        subprocess.run(["git", "-C", str(project), "commit", "-qm", "temporary 178-180 SDK readiness"], check=True)
         readiness, readiness_raw = sdk_query(project, "init.execute-phase")
         index, index_raw = sdk_query(project, "phase-plan-index")
         plans = {str(row.get("id")): row for row in index.get("plans", []) if isinstance(row, dict)}
-        row168 = plans.get("253-168")
-        row174 = plans.get("253-174")
+        row168, row175 = plans.get("253-168"), plans.get("253-175")
         if not isinstance(row168, dict) or row168.get("halted") is not False or row168.get("blocked_by") != []:
-            raise ContractError("real SDK copy does not show168 runnable after completed177")
-        if not isinstance(row174, dict) or row174.get("halted") is not True:
-            raise ContractError("real SDK copy does not retain174 halted")
-        init_runnable = readiness.get("runnable_plans")
-        if not isinstance(init_runnable, list) or "253-168-PLAN.md" not in init_runnable:
-            raise ContractError("init.execute-phase does not select168 as runnable after177")
+            raise ContractError("installed SDK does not show168 runnable after180")
+        if not isinstance(row175, dict) or row175.get("halted") is not True:
+            raise ContractError("installed SDK copy does not retain175 halted")
+        if "253-168-PLAN.md" not in readiness.get("runnable_plans", []):
+            raise ContractError("installed init.execute-phase does not select168 as runnable")
+        initial_halted = sorted(row["id"] for row in plans.values() if row.get("halted") is True)
+        expected_halted = sorted(f"253-{number:02d}" for number in HISTORICAL_HALT_IDS)
+        if initial_halted != expected_halted:
+            raise ContractError("installed SDK initial halted IDs differ from exact24 set")
 
-        # Apply only the explicitly listed71 dispositions and ordinary168-172 summaries.
-        # Preserve the literal historical halted set, now including174.
+        # Simulate ordinary168–172 completion plus the exact original71+176/177 disposition set.
         for number in disposition_ids:
             if number in HISTORICAL_HALT_IDS:
                 raise ContractError(f"disposition list overlaps halted historical plan {number}")
-            sdk_write_summary(project, number, "complete", "Simulated disposition from the same71-target contract.")
+            sdk_write_summary(project, number, "complete", "Temporary disposition from the exact73-target contract.")
         for number in (168, 169, 170, 171, 172):
             sdk_write_summary(project, number, "complete", "Temporary ordinary completion fixture; not project evidence.")
-        sdk_write_summary(project, 174, "halted", "Retained literal historical halt fixture.")
         for name, raw in original_summaries.items():
             if (phase_dir / name).read_bytes() != raw:
                 raise ContractError(f"SDK fixture overwrote an existing summary: {name}")
         subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
-        subprocess.run(["git", "-C", str(project), "commit", "-qm", "simulated 169-172 and71 dispositions"], check=True)
+        subprocess.run(["git", "-C", str(project), "commit", "-qm", "temporary 168-172 and73 disposition simulation"], check=True)
+        simulation_commit = git(project, "rev-parse", "HEAD").decode().strip()
         final_init, final_init_raw = sdk_query(project, "init.execute-phase")
         final_index, final_index_raw = sdk_query(project, "phase-plan-index")
         final_rows = [row for row in final_index.get("plans", []) if isinstance(row, dict)]
         incomplete = [row for row in final_rows if row.get("has_summary") is not True]
         halted = [row for row in final_rows if row.get("halted") is True]
-        blocked_summaries = []
+        blocked = []
         for row in final_rows:
-            if row.get("has_summary"):
-                rel = phase_dir / f"{row['id']}-SUMMARY.md"
-                if rel.is_file() and re.search(r"(?m)^status:\s*blocked\s*$", rel.read_text(encoding="utf-8")):
-                    blocked_summaries.append(row["id"])
-        if len(incomplete) != 0 or len(halted) != 24 or blocked_summaries:
-            raise ContractError(f"real SDK copy final accounting differs: incomplete={len(incomplete)}, "
-                                f"halted={len(halted)}, blocked={blocked_summaries}")
+            summary = phase_dir / f"{row['id']}-SUMMARY.md"
+            if summary.is_file() and re.search(r"(?m)^status:\s*blocked\s*$", summary.read_text(encoding="utf-8")):
+                blocked.append(row["id"])
+        halted_ids = sorted(row["id"] for row in halted)
+        if len(incomplete) != 0 or halted_ids != expected_halted or blocked:
+            raise ContractError(f"installed SDK post-chain accounting differs: incomplete={len(incomplete)}, halted={halted_ids}, blocked={blocked}")
         if final_init.get("incomplete_count") != 0 or final_init.get("incomplete_plans") != []:
-            raise ContractError("init.execute-phase disagrees with zero incomplete plans")
-        if len(HISTORICAL_HALT_IDS) != 24:
-            raise ContractError("historical halted fixture does not contain exactly24 IDs")
-        final_plan_rows = {str(row.get("id")): row for row in final_rows}
-        if set(row["id"] for row in halted) != {f"253-{number:02d}" for number in HISTORICAL_HALT_IDS}:
-            raise ContractError("SDK copy halted IDs differ from the exact24-plan set")
+            raise ContractError("installed init.execute-phase disagrees with zero incomplete plans")
+        for name, raw in original_summaries.items():
+            if (phase_dir / name).read_bytes() != raw:
+                raise ContractError(f"SDK fixture changed original summary bytes: {name}")
+        if any(not (phase_dir / f"253-{n:02d}-SUMMARY.md").is_file() for n in (176, 177)):
+            raise ContractError("SDK simulation omitted one of the explicitly retired176/177 dispositions")
+        query_reports = {
+            "readiness_init": {"arguments": ["init.execute-phase", "253"], "stdout": readiness_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(readiness_raw)},
+            "readiness_index": {"arguments": ["phase-plan-index", "253"], "stdout": index_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(index_raw)},
+            "post_init": {"arguments": ["init.execute-phase", "253"], "stdout": final_init_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(final_init_raw)},
+            "post_index": {"arguments": ["phase-plan-index", "253"], "stdout": final_index_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(final_index_raw)},
+        }
         return {
-            "status": "passed",
-            "sdk": str(Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs"),
-            "sdk_sha256": sha256((Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs").read_bytes()),
-            "node": str(Path.home() / ".asdf/installs/nodejs/20.18.1/bin/node"),
-            "source_copy_commit": git(project, "rev-parse", "HEAD").decode().strip(),
-            "source_snapshot_sha256": sha256(canonical_json_bytes({p.relative_to(project).as_posix(): sha256(p.read_bytes())
-                                      for p in sorted((project / ".planning").rglob("*")) if p.is_file()})),
-            "readiness_168_runnable": True,
-            "readiness_175_halted": True,
+            "status": "passed", "temporary_copy": True, "sdk_identity": sdk_identity,
+            "immutable_copy_input_sha256": immutable_input_sha256,
+            "source_snapshot_sha256": immutable_input_sha256,
+            "copy_input_commit": copy_input_commit, "source_copy_commit": simulation_commit,
+            "simulation_commit": simulation_commit,
+            "readiness_168_runnable": True, "readiness_175_halted": True,
             "pre_simulation_init_sha256": sha256(readiness_raw),
             "pre_simulation_index_sha256": sha256(index_raw),
-            "post_chain_incomplete": 0,
-            "post_chain_halted": 24,
-            "post_chain_halted_ids": sorted(row["id"] for row in halted),
-            "post_chain_blocked_summaries": [],
+            "post_chain_incomplete": 0, "post_chain_halted": 24,
+            "post_chain_halted_ids": halted_ids, "post_chain_blocked_summaries": blocked,
             "post_chain_init_sha256": sha256(final_init_raw),
             "post_chain_index_sha256": sha256(final_index_raw),
             "preserved_summary_sha256": {name: sha256(raw) for name, raw in original_summaries.items()},
             "disposition_ids": [f"253-{number:02d}" for number in disposition_ids],
-            "temporary_copy": True,
+            "sdk_queries": query_reports,
         }
-
 
 def canonical_json_bytes(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -1093,6 +1123,47 @@ def validate_scoped_plan_diff(original: str, current: str, rel: str, root: Path)
     expected = expected_plan_amendment(original, number, root)
     if current != expected:
         raise ContractError(f"unapproved plan instruction diff in {rel}: bytes do not equal the finite original-derived amendment")
+
+
+def validate_sdk_copy_report(root: Path, evidence: dict) -> dict:
+    report_path = evidence.get("report_path")
+    report_hash = evidence.get("report_sha256")
+    if not isinstance(report_path, str) or not Path(report_path).is_absolute():
+        raise ContractError("SDK-copy evidence must point to an absolute external report")
+    path = Path(report_path).resolve()
+    if path == root.resolve() or root.resolve() in path.parents:
+        raise ContractError("SDK-copy report must remain outside the project checkout")
+    raw = read_bytes(path.parent, path.name)
+    if sha256(raw) != report_hash:
+        raise ContractError("SDK-copy external report hash differs")
+    try:
+        report = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
+        raise ContractError(f"SDK-copy external report is invalid JSON: {error}") from error
+    if report.get("status") != "passed" or report.get("temporary_copy") is not True:
+        raise ContractError("SDK-copy external report is not a passing labeled temporary copy")
+    if report.get("readiness_168_runnable") is not True or report.get("readiness_175_halted") is not True:
+        raise ContractError("SDK-copy report does not prove readiness168 and halted175")
+    if report.get("post_chain_incomplete") != 0 or report.get("post_chain_halted") != 24:
+        raise ContractError("SDK-copy report final plan counts differ")
+    expected_ids = sorted(f"253-{n:02d}" for n in HISTORICAL_HALT_IDS)
+    if report.get("post_chain_halted_ids") != expected_ids or report.get("post_chain_blocked_summaries") != []:
+        raise ContractError("SDK-copy report halted or blocked sets differ")
+    expected_targets = [row["plan"] for row in read_json(root, R12_CONTRACT)["responsibilities"]]
+    expected_targets.extend(f"253-{n:02d}" for n in NEVER_RAN_IDS + (176, 177))
+    if report.get("disposition_ids") != expected_targets:
+        raise ContractError("SDK-copy report does not use the exact73 disposition targets")
+    queries = report.get("sdk_queries")
+    if not isinstance(queries, dict) or set(queries) != {"readiness_init", "readiness_index", "post_init", "post_index"}:
+        raise ContractError("SDK-copy report lacks all four actual installed-SDK query outputs")
+    for name, row in queries.items():
+        if not isinstance(row, dict) or not isinstance(row.get("stdout"), str):
+            raise ContractError(f"SDK-copy actual {name} output is missing")
+        if sha256(row["stdout"].encode("utf-8")) != row.get("stdout_sha256"):
+            raise ContractError(f"SDK-copy actual {name} output hash differs")
+    if not isinstance(report.get("sdk_identity"), dict) or not isinstance(report.get("immutable_copy_input_sha256"), str):
+        raise ContractError("SDK-copy report lacks SDK identity or immutable input digest")
+    return report
 
 
 def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False) -> dict:
@@ -1213,35 +1284,17 @@ def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False)
             raise ContractError("172 does not verify the179 receipt before bundle consumers")
     if record.get("dispositions_for") not in ([], None):
         raise ContractError("bridge record may not disposition historical halted or recovery plans")
+    sdk_copy = None
     if stage == "complete":
         evidence = record.get("sdk_copy")
-        if not isinstance(evidence, dict) or evidence.get("status") != "passed":
-            raise ContractError("complete bridge requires installed SDK copy evidence")
-        required_claims = {"readiness_168_runnable": True, "readiness_175_halted": True,
-                           "post_chain_incomplete": 0, "post_chain_halted": 24,
-                           "post_chain_blocked_summaries": [], "temporary_copy": True}
-        for key, expected in required_claims.items():
-            if evidence.get(key) != expected:
-                raise ContractError(f"stored SDK-copy claim {key} differs")
-        if not re.fullmatch(r"[0-9a-f]{40}", str(evidence.get("source_copy_commit"))):
-            raise ContractError("SDK-copy committed source identity is missing")
-        for key in ("sdk_sha256", "source_snapshot_sha256", "pre_simulation_init_sha256",
-                    "pre_simulation_index_sha256", "post_chain_init_sha256", "post_chain_index_sha256"):
-            if not re.fullmatch(r"[0-9a-f]{64}", str(evidence.get(key))):
-                raise ContractError(f"SDK-copy evidence lacks a valid {key}")
-        if evidence.get("disposition_ids") != [f"253-{n:02d}" for n in
-                tuple(int(row["plan"].removeprefix("253-")) for row in read_json(root, R12_CONTRACT)["responsibilities"])
-                + NEVER_RAN_IDS + (176, 177)]:
-            raise ContractError("SDK-copy evidence does not use the same frozen73 targets")
+        if not isinstance(evidence, dict):
+            raise ContractError("complete bridge requires externally retained installed-SDK query evidence")
         if sdk:
-            actual = run_sdk_copy(root, record, record_path)
-            for key, expected in required_claims.items():
-                if actual.get(key) != expected:
-                    raise ContractError(f"installed SDK rerun failed {key}")
-            if actual.get("post_chain_halted_ids") != sorted(
-                    f"253-{n:02d}" for n in HISTORICAL_HALT_IDS):
-                raise ContractError("installed SDK rerun halted IDs differ from exact24-plan set")
-    return {"status": "verified", "stage": stage, "plans": 5}
+            sdk_copy = run_sdk_copy(root, record, record_path)
+        else:
+            sdk_copy = validate_sdk_copy_report(root, evidence)
+    return {"status": "verified", "stage": stage, "plans": 5,
+            **({"sdk_copy": sdk_copy} if sdk_copy is not None else {})}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1268,13 +1321,13 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(result, sort_keys=True))
         elif args.command == "enter":
             enter(root, args.attempt_dir)
-            print("176 attempt marker created; launch acceptance.sh once in the authorized root shell")
+            print("179 attempt marker created; launch acceptance.sh once in the authorized root shell")
         elif args.command == "write-receipt":
             result = write_receipt(root, args.attempt_dir)
-            print(json.dumps({"status": result["status"], "receipt": RECEIPT_176}, sort_keys=True))
+            print(json.dumps({"status": result["status"], "receipt": RECEIPT_179}, sort_keys=True))
         elif args.command == "verify-receipt":
             result = verify_receipt(root, args.consumer)
-            print("253-176 successor receipt verified; 167/173/174 remain halted; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted; full verification not_started")
+            print("253-179 successor receipt verified; 167/173/174/175 remain halted; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted; full verification not_started")
             print(json.dumps(result, sort_keys=True))
         else:
             result = validate_bridge(root, args.stage, args.record, args.sdk)
