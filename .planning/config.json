@@ -52,7 +52,7 @@
   "granularity": "fine",
   "model_profile_overrides": {
     "codex": {
-      "opus": "gpt-6-sol",
+      "opus": "gpt-6.1-sol",
       "sonnet": "gpt-6-luna",
       "haiku": "gpt-6-luna"
     },
@@ -61,5 +61,6 @@
       "sonnet": "claude-opus-5-5",
       "haiku": "claude-sonnet-5-5"
     }
-  }
+  },
+  "runtime": "codex"
 }
