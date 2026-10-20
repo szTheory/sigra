@@ -149,6 +149,10 @@ ObjectServer = OBJECT_TESTS.ObjectServer
 PUBLISHER = load_module("ci_git_publication_for_dryrun", HERE / "ci-git-publication.py")
 
 
+REPOS_LINK_FORM_SCOPE = "--repos-link-form is only for a --live-policy run with --transport-from"
+REPOS_LINK_FORM_CURRENT = "--repos-link-form refused: the transport under test already accepts the /repositories/<id>/ link form"
+
+
 class DryRunError(Exception):
     pass
 
@@ -1126,7 +1130,10 @@ class FakeGitHub(ObjectServer):
     def _check_runs_link(self, sha, page, last):
         """GitHub's Link shape for page of last: page 1 next+last; a middle page prev+first+next+last; the last prev+first.
         Live-policy uses GitHub's /repositories/<id>/ form on api.github.com; hermetic the local origin's /repos/ form."""
-        if self.server.live:
+        # 253-164: --repos-link-form (live-policy with a pre-146 --transport-from only) uses /repos/ on api.github.com.
+        if self.server.live and self.server.repos_link_form:
+            base = f"https://{API_HOST}/repos/{REPO}/commits/{sha}/check-runs"
+        elif self.server.live:
             base = f"https://{API_HOST}/repositories/{GITHUB_REPOSITORY_ID}/commits/{sha}/check-runs"
         else:
             base = f"https://localhost:{self.server.server_address[1]}/repos/{REPO}/commits/{sha}/check-runs"
@@ -1494,7 +1501,8 @@ def paginated_reads(ledger: dict) -> list:
 
 
 def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_parent: str, verifier_module,
-               visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False, seed_refs: dict | None = None):
+               visibility_delay: float, polls: dict, seed_legacy: bool, live: bool = False, seed_refs: dict | None = None,
+               repos_link_form: bool = False):
     cert, key = work / "tls-cert.pem", work / "tls-key.pem"
     # Live-policy mode: a certificate for the real hostnames, so SNI and hostname verification use them (253-108).
     names = LIVE_TLS_NAMES if live else ("localhost",)
@@ -1503,6 +1511,7 @@ def start_fake(work: Path, clone: Path, ledger: Path, journal: Path, server_pare
          "-addext", "subjectAltName=" + ",".join(f"DNS:{name}" for name in names), "-keyout", str(key), "-out", str(cert)])
     server = FakeServer(("127.0.0.1", 0), FakeGitHub)
     server.live = live
+    server.repos_link_form = bool(live and repos_link_form)
     server.authorization = {"api_with": 0, "api_without": 0, "blob_with": 0, "results_receiver_with": 0}
     server.log_tokens = {}
     server.work = str(work)
@@ -1749,7 +1758,8 @@ def dry_run(args) -> dict:
                "requests_by_category": {}, "requests_total": 0, "journal_requests": 0, "stop": None,
                "mode": "live-policy" if live else "hermetic", "live_hops": [], "paginated_reads": [],
                "authorization": {"api_with": 0, "api_without": 0, "blob_with": 0, "results_receiver_with": 0},
-               "requested_sleeps": requested_sleeps(None), "shim_refusals": [], "shim_connect_hosts": [], "violations": []}
+               "requested_sleeps": requested_sleeps(None), "shim_refusals": [], "shim_connect_hosts": [], "violations": [],
+               "link_form_override": "repos" if getattr(args, "repos_link_form", False) else None}
     if getattr(args, "transport_from", None):
         summary["transport_from"] = args.transport_from
     if args.driver_from:
@@ -1782,7 +1792,8 @@ def dry_run(args) -> dict:
             visibility = 0.05 if live else 3.0
         server, thread, cert = start_fake(work, clone, ledger, journal, freeze["identity"]["server_parent_sha"],
                                           verifier_module, visibility, polls, args.seed_legacy_refs, live=live,
-                                          seed_refs=seeded_scoped_refs(args) or None)
+                                          seed_refs=seeded_scoped_refs(args) or None,
+                                          repos_link_form=bool(getattr(args, "repos_link_form", False)))
         server.faults = set(args.fault or [])
         for item in args.inject or []:
             key, _, status = item.rpartition("=")
@@ -1807,6 +1818,12 @@ def dry_run(args) -> dict:
             del allocation["test_origin"], allocation["test_ca_file"]
             hosts = list(json.loads((ROOT / R8_ALLOCATION_REL).read_text())["download_hosts"])
             under_test = load_module("ci_hosted_transport_under_dryrun", clone / TRANSPORT_REL)
+            # 253-164: the /repos/ link-form knob exists only for pre-146 transports; one that already accepts GitHub's
+            # /repositories/<id>/ form must be gated on that real form, so the knob is refused before any request.
+            if getattr(args, "repos_link_form", False) and getattr(under_test, "GITHUB_REPOSITORY_ID", None) == GITHUB_REPOSITORY_ID:
+                summary["stop"] = REPOS_LINK_FORM_CURRENT
+                sys.stderr.write(REPOS_LINK_FORM_CURRENT + "\n")
+                raise DryRunError(REPOS_LINK_FORM_CURRENT)
             if getattr(under_test, "RESULTS_RECEIVER_HOST", None) == RESULTS_RECEIVER_HOST:
                 hosts.append(RESULTS_RECEIVER_HOST)
             allocation.update({"window_id": f"{LIVE_WINDOW_PREFIX}{os.getpid()}", "max_pages": 10, "mode": "live",
@@ -2048,6 +2065,11 @@ def main() -> int:
     parser.add_argument("--transport-from", help="substitute the clone's ci-hosted-transport.py with this commit's blob")
     parser.add_argument("--live-policy", action="store_true",
                         help="253-108: a live canary allocation through the live-policy shim (see the module docstring)")
+    parser.add_argument("--repos-link-form", action="store_true",
+                        help="253-164: live-policy with --transport-from only: serve the server parent's check_runs Link "
+                             "headers in the pre-146 /repos/<owner>/<repo>/ form on api.github.com, for the 253-108 "
+                             "sensitivity transports (375b41138 and its parent); refused for a transport that already "
+                             "accepts the /repositories/<id>/ form")
     parser.add_argument("--sleep-scale", type=float, default=0.01,
                         help="live-policy: fraction of each requested driver sleep actually slept (default 0.01)")
     parser.add_argument("--polls", action="append", help="SCENARIO=N modeled polls to completion (repeatable)")
@@ -2070,6 +2092,8 @@ def main() -> int:
         parser.error("--discovery-wait and --poll-seconds are hermetic-only; live-policy runs the live 20/60-second waits")
     if args.sleep_scale < 0:
         parser.error("--sleep-scale must be non-negative")
+    if args.repos_link_form and not (args.live_policy and args.transport_from):
+        parser.error(REPOS_LINK_FORM_SCOPE)
     for key in ("GH_TOKEN", "GITHUB_TOKEN"):
         os.environ.pop(key, None)
     summary = dry_run(args)
