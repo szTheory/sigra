@@ -74,5 +74,10 @@
     "CIREL-02": "unaccepted pending 170/171 hosted proof and 172 completion",
     "full_phase_verification": "not_started",
     "product_changes": []
+  },
+  "known_flake": {
+    "test": "LivePolicyPRTests.test_live_policy_token_and_host_rules_hold_across_both_families",
+    "prior_observation": "253-166 recorded one recurrence of a 0.001 second CPython subprocess wait sleep in a non-verify development run; it did not recur in that plan's verify block.",
+    "disposition": "If it recurs in this one new run, treat it as a failure. Do not edit or ignore it."
   }
 }
