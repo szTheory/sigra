@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T18:04:57.874438+00:00",
-  "status": "ready_to_execute",
+  "timestamp": "2026-10-20T19:18:16.333725+00:00",
+  "status": "halted",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "75 implementation summaries, 23 halted summaries and 79 plans without summaries among 177 plans; 175 ready",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Execute 175 to repair the historical config fixture and test the successor receipt contract; 176 then runs one separately identified acceptance attempt; 177 preserves and amends the blocked continuation plans. Do not rerun 173 or 174.",
+  "current": "75 implementation plans complete;24 halted;78 without summaries;175 halted and176/177 blocked",
+  "next_command": "$gsd-plan-phase 253",
+  "resume_command": "$gsd-plan-phase 253",
+  "next_action": "Plan175 halted: bridge validator accepts stale executable174-pin/22-halt assertions and owners174. Plan176 acceptance was not launched; repair the bridge checker and its positive fixtures before any continuation.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "immediate_gsd_command": "$gsd-plan-phase 253",
+    "resume_command": "$gsd-plan-phase 253",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -27,11 +27,9 @@
     "current_phase": 253,
     "readiness": {
       "plan_count": 177,
-      "incomplete_count": 79,
-      "runnable_count": 3,
-      "ready_plans": [
-        "253-175"
-      ],
+      "incomplete_count": 78,
+      "runnable_count": 0,
+      "ready_plans": [],
       "blocked_active_plans": [
         "253-168",
         "253-169",
@@ -39,37 +37,34 @@
         "253-171",
         "253-172"
       ],
-      "eligible_runnable_plans": [
-        "253-175",
-        "253-176",
-        "253-177"
-      ]
+      "eligible_runnable_plans": []
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
-      "253-02",
-      "253-07",
-      "253-09",
-      "253-104",
-      "253-113",
-      "253-12",
-      "253-122",
-      "253-134",
-      "253-143",
-      "253-146",
-      "253-155",
-      "253-16",
-      "253-167",
-      "253-173",
-      "253-174",
-      "253-27",
-      "253-40",
-      "253-51",
-      "253-63",
-      "253-73",
-      "253-84",
-      "253-92",
-      "253-97"
+      "253-02-PLAN.md",
+      "253-07-PLAN.md",
+      "253-09-PLAN.md",
+      "253-104-PLAN.md",
+      "253-113-PLAN.md",
+      "253-12-PLAN.md",
+      "253-122-PLAN.md",
+      "253-134-PLAN.md",
+      "253-143-PLAN.md",
+      "253-146-PLAN.md",
+      "253-155-PLAN.md",
+      "253-16-PLAN.md",
+      "253-167-PLAN.md",
+      "253-173-PLAN.md",
+      "253-174-PLAN.md",
+      "253-175-PLAN.md",
+      "253-27-PLAN.md",
+      "253-40-PLAN.md",
+      "253-51-PLAN.md",
+      "253-63-PLAN.md",
+      "253-73-PLAN.md",
+      "253-84-PLAN.md",
+      "253-92-PLAN.md",
+      "253-97-PLAN.md"
     ],
     "historical_blocked_unsummarized_plans": [
       "253-08",
@@ -152,7 +147,8 @@
     "reason": "Execute 175 to repair the historical config fixture and test the successor receipt contract; 176 then runs one separately identified acceptance attempt; 177 preserves and amends the blocked continuation plans. Do not rerun 173 or 174.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json",
     "whole_phase_verification_status": "not_started",
-    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-EXECUTION-RECORD.json"
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-EXECUTION-RECORD.json",
+    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-EXECUTION-RECORD.json"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -3354,5 +3350,15 @@
     "sdk_ref": "refs/gsd/phase253-gap-planning175-sdk",
     "sdk_commit": "bbef03270a1c6cdfa244452a173f44586488c252",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json"
+  },
+  "latest_successor_execution": {
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-EXECUTION-RECORD.json",
+    "blocking_review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-REPAIR-REVIEW.json",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "phase_verification_status": "not_started",
+    "acceptance_attempts": 0
   }
 }

@@ -4,10 +4,10 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "ready_to_execute"
-stopped_at: "Plans175–177 reviewed; Plan175 ready"
-last_updated: "2026-10-20T18:04:57.874438+00:00"
-last_activity: "2026-10-20T18:04:57.874438+00:00 \u2014 three gap plans passed independent review; no acceptance run"
+status: "halted"
+stopped_at: "Plan175 source audit found bridge false pass;176 unrun"
+last_updated: "2026-10-20T19:18:16.333725+00:00"
+last_activity: "2026-10-20T19:18:16.333725+00:00 \u2014 fixture repaired; successor checker failed source review"
 state_head: "cd4baac3feaddfd99790db0dc742bf4fc62a09ce"
 progress:
   total_phases: 4
@@ -16,12 +16,12 @@ progress:
   completed_plans: 81
   percent: 25
 milestone_status: active
-workflow_step: "execute_gap_recovery"
+workflow_step: "gap_replanning_required"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: "$gsd-plan-phase 253"
+resume_command: "$gsd-plan-phase 253"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,6 +33,7 @@ phase253_task_count: 464
 phase253_implementation_status: partial
 phase253_completed_plans: 75
 phase253_halted_plans:
+  - 253-175
   - 253-02
   - 253-07
   - 253-09
@@ -57,6 +58,8 @@ phase253_halted_plans:
   - 253-92
   - 253-97
 phase253_blocked_plans:
+  - 253-176
+  - 253-177
   - 253-08
   - 253-10
   - 253-105
@@ -139,10 +142,10 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: [253-175]
+phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-last_activity_desc: "Plans175–177 reviewed;175 first; original174 failed"
+last_activity_desc: "Plan175 halted; no acceptance launched"
 ---
 
 # Project State
@@ -156,23 +159,20 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — implementation partial; gap plans175–177 ready
-Plans: 75 implementation summaries, 23 halted summaries and 79 without summaries among177 plans
-Status: Plan175 ready;176/177 depend on preceding new plans;168–172 remain blocked until177
-Last activity: 2026-10-20T18:04:57.874438+00:00 — independent plan review passed, zero blockers/warnings
-Whole-phase verification: not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted
+Phase253 — implementation partial; Plan175 halted after source review.
+Plans:75 completed implementation plans,24 halted,78 without summaries among177.
+Task175.1 delivered the config fixture repair; Task175.2 remains unaccepted because the bridge checker accepts stale executable counts and failed proof owners.176/177 blocked; no new acceptance attempt.
+Whole-phase verification:not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
+$gsd-plan-phase 253
 
-Execute 175 to repair the historical config fixture and test the successor receipt contract; 176 then runs one separately identified acceptance attempt; 177 preserves and amends the blocked continuation plans. Do not rerun 173 or 174.
+Plan175 halted: bridge validator accepts stale executable174-pin/22-halt assertions and owners174. Plan176 acceptance was not launched; repair the bridge checker and its positive fixtures before any continuation.
 
-Route:175 →176 →177 →168 →169 →170 →171 →172. Three new plans in three waves; the later five remain unchanged until177. Six plan schema/structure checks and six command syntax checks passed; all24 decisions and both requirements are covered by plans. No tests or acceptance ran during planning.
+Fresh init.execute-phase253:0 runnable,78 incomplete. Phase-plan-index:175 halted;176/177 blocked behind175. Fresh init.plan-phase253:In Progress, context/research present.254:Pending, no context/research/plans; not started. After253 completes, check254 again before recommending `$gsd-discuss-phase 254`. Historical verification maintenance is separate.
 
-Records: `253-175-177-PLANNING-RECORD.json`, `253-175-177-CHECK-01.md`, `253-175-177-SOURCE-AUDIT.md`. All174 prior PLANs, earlier SUMMARY/evidence and Phase252 inputs retain original bytes. Prior shared history is recoverable at `cd4baac3feaddfd99790db0dc742bf4fc62a09ce`; exact generated SDK output at `refs/gsd/phase253-gap-planning175-sdk` (`bbef03270a1c6cdfa244452a173f44586488c252`), with readbacks in the planning record.
-
-Fresh readiness: init.execute-phase253 reports175/176/177 eligible; phase-plan-index253 reports only175 ready. init.plan-phase254 confirms Pending, no context/research/plans. After253 completes, default `$gsd-discuss-phase 254`;254 not started. Old verification maintenance is separate.
+Records:`253-175-SUMMARY.md`, `253-175-REPAIR-REVIEW.json`, `253-175-EXECUTION-RECORD.json`. Prior shared bytes exactly recoverable at `071f9894e7ed8625462b894f1df3fc0be3598928` with readbacks in the execution record. All old PLAN/SUMMARY/evidence and Phase252 bytes remain unchanged.
 
 ## Known unfinished work
 
@@ -312,3 +312,7 @@ Plan 173 is the first ready plan; Plans 168–172 await its result and their own
 ## Gap execution halt (2026-10-20)
 
 Plan 173 produced a review and one failed 339-byte log ending VERIFY-EXIT 1. Git object creation was denied in the default sandbox before projection or regression tests ran. A separate harmless Git object write/readback passed with elevated permission; it is environment diagnosis, not acceptance. No product edits, native launches, GitHub requests, requirement completion or whole-phase verification. Plans 168–172 were skipped because they depend on halted 173. Next: $gsd-plan-phase 253 --gaps.
+
+## Latest successor execution
+
+Plan175 halted: bridge validator accepts stale executable174-pin/22-halt assertions and owners174. Plan176 acceptance was not launched; repair the bridge checker and its positive fixtures before any continuation. Seven config tests and14 successor tests passed, but the independent source audit reproduced a false pass. The review stays halted with an unresolved high finding. No176/177 run or whole-phase verification. Next:`$gsd-plan-phase 253`. Evidence:`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-EXECUTION-RECORD.json`.
