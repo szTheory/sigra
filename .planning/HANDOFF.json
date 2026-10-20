@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T16:10:57.283643+00:00",
-  "status": "partial_implementation_recovery_ready",
+  "timestamp": "2026-10-20T16:16:17.579537+00:00",
+  "status": "executing_gap_recovery",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "75 implementation summaries, 21 halted summaries and 77 plans without summaries among 173 plans; Plan 173 ready first; full phase verification not started",
+  "current": "Plan 173 starting; 168\u2013172 depend on its success; whole-phase verification not started",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
   "next_action": "Start with Plan 173 corrected offline acceptance. Then execute Plans 168\u2013172 for the final freeze, reconciliation, real canary and PR proof, and completion records. Whole-phase verification remains separate.",
@@ -1283,7 +1283,7 @@
       "readback_exact": true
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-CAPTURE.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3274,5 +3274,23 @@
       "CIREL-01": "partial_not_reproduced",
       "CIREL-02": "unaccepted"
     }
+  },
+  "phase253_gap_execution": {
+    "status": "executing_plan_173",
+    "command": "$gsd-execute-phase 253 --gaps-only",
+    "capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-CAPTURE.json",
+    "captured_head": "421bab1b1aa1bff940a0e8ea2cc23bfa3e2b0e28",
+    "sdk_start_preserved_commit": "ed7370b64dba197e3b89fd5107fdaf50ddc0f8b7",
+    "active_route": [
+      "253-173",
+      "253-168",
+      "253-169",
+      "253-170",
+      "253-171",
+      "253-172"
+    ],
+    "verification_status": "not_started",
+    "requests_this_invocation": 0,
+    "updated_at": "2026-10-20T16:16:17.579537+00:00"
   }
 }
