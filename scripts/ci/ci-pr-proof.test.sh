@@ -232,14 +232,14 @@ class PRHandler(pubtest.ObjectServer):
                 done = family["polls"] >= 3 and not flags.get("never_finish")
                 return self._reply(200, family["run"](family["polls"] if done else 0))
             if tail[1] == "attempts":
-                jobs = family["jobs"]
-                return self._reply(200, {"total_count": len(jobs), "jobs": jobs})
+                return self._listing(family, "jobs", family["jobs"], route, query)
             if tail[1] == "artifacts":
-                artifacts = family["artifacts"]
-                return self._reply(200, {"total_count": len(artifacts), "artifacts": artifacts})
+                return self._listing(family, "artifacts", family["artifacts"], route, query)
         if route.startswith(base + "/commits/") and route.endswith("/check-runs"):
             head = route.removeprefix(base + "/commits/").split("/")[0]
             family = next((f for f in model["families"].values() if f["head"] == head), None)
+            if family and flags.get("pr_head_checks") and family["name"] == "normal":
+                return self._oversized_checks(family, route, flags["pr_head_checks"])
             return self._reply(200, {"total_count": len(family["checks"]), "check_runs": family["checks"]}) if family else self._reply(404, {})
         if route.startswith(base + "/actions/artifacts/") and route.endswith("/zip"):
             artifact_id = route.removeprefix(base + "/actions/artifacts/").split("/")[0]
@@ -248,6 +248,41 @@ class PRHandler(pubtest.ObjectServer):
         if route.startswith("/blob/"):
             return self._emit(200, model["zips"][int(route.rsplit("/", 1)[1])], content_type="application/zip")
         return super().do_GET()
+
+    def _link_base(self, route):
+        """253-165: the Link base for route (a /repos/szTheory/sigra/... path): the local origin's /repos/ form."""
+        return f"https://localhost:{self.server.server_address[1]}{route}"
+
+    def _link(self, route, page, last):
+        base = self._link_base(route)
+        rels = ([(page - 1, "prev"), (1, "first")] if page > 1 else []) + ([(page + 1, "next"), (last, "last")] if page < last else [])
+        return ", ".join(f'<{base}?per_page=100&page={target}>; rel="{rel}"' for target, rel in rels)
+
+    def _listing(self, family, key, items, route, query):
+        """A run's jobs or artifacts listing. 253-165: with the paged_listings flag the normal family's listing is two
+        pages (the first half rounded up, then the rest; total_count on both), page 1 carrying rel next/last in this
+        fake's link form; otherwise the one page, exactly as before."""
+        if not (self.server.flags.get("paged_listings") and family["name"] == "normal" and len(items) >= 2):
+            return self._reply(200, {"total_count": len(items), key: items})
+        page = (query.get("page") or ["1"])[0]
+        if page not in ("1", "2"):
+            return self._reply(404, {"message": "Not Found"})
+        half = (len(items) + 1) // 2
+        body = {"total_count": len(items), key: items[:half] if page == "1" else items[half:]}
+        return self._emit(200, json.dumps(body, ensure_ascii=False, separators=(",", ":")).encode(),
+                          [("Link", self._link(route, int(page), 2))])
+
+    def _oversized_checks(self, family, route, total):
+        """253-165: a PR head with total check runs (> 100): page 1 holds the family's checks then unrelated fillers, 100
+        runs in all, total_count total and GitHub's rel next/last; the collector reads it as its one check page."""
+        fillers = [{"name": f"Unrelated check {index}", "head_sha": family["head"], "status": "completed", "conclusion": "success",
+                    "app": {"id": 15368, "slug": "github-actions"},
+                    "html_url": f"https://github.com/szTheory/sigra/actions/runs/1/job/{900000 + index}"}
+                   for index in range(total - len(family["checks"]))]
+        runs = (family["checks"] + fillers)[:100]
+        last = -(-total // 100)
+        return self._emit(200, json.dumps({"total_count": total, "check_runs": runs}, ensure_ascii=False, separators=(",", ":")).encode(),
+                          [("Link", self._link(route, 1, last))])
 
     def do_POST(self):  # noqa: N802
         self._first()
@@ -700,6 +735,10 @@ class LivePRHandler(PRHandler):
 
     def _host(self):
         return (self.headers.get("Host") or "").split(":", 1)[0].lower()
+
+    def _link_base(self, route):
+        """253-165: GitHub's live form, /repositories/<id>/ on api.github.com, for the same route suffix."""
+        return f"https://{API_HOST}/repositories/{transport.GITHUB_REPOSITORY_ID}" + route.removeprefix("/repos/szTheory/sigra")
 
     def _emit(self, status, body, extra=(), content_type="application/json"):
         super()._emit(status, body, extra, content_type)
