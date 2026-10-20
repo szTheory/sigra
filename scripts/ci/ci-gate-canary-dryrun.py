@@ -109,6 +109,9 @@ R10_REFS = {"gsd/253-replan-r10-candidate": "d16617f77223ff136a0c9e04bc3cd067bc6
 # 253-137: the two refs 253-133 created on GitHub (R11 pair, FREEZE-R11's commits); a run seeded with them must never move them.
 R11_REFS = {"gsd/253-replan-r11-candidate": "2b239a98df72b8d47e8c4e03edf193905b3239da",
             "gsd/253-replan-r11-fixture": "65c402f966602dfc4a609af724457808cd8528eb"}
+# 253-166: the two refs 253-143 created on GitHub (R12 pair, FREEZE-R12's commits); a run seeded with them must never move them.
+R12_REFS = {"gsd/253-replan-r12-candidate": "6e4f87657254ed9d4a3c8b661d5e707751bc5214",
+            "gsd/253-replan-r12-fixture": "b37f05424b2b497b3c786fc604caa4dab4dbcdf0"}
 # 253-117: GitHub's recorded responses, read from the committed R9 ledger at run time (the harness runs locally only):
 # seq 25 the workflow_runs listing, 27 the run poll, 28 the jobs page and 29 the artifacts page of real run 38906314106.
 R9_LEDGER_REL = f"{PHASE_REL}/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json"
@@ -1455,7 +1458,7 @@ class FakeServer(OBJECT_TESTS.ObjectHTTPServer):
 
 def seeded_scoped_refs(args) -> dict:
     """The earlier scoped refs the run pre-seeds at their real GitHub SHAs: r8 (--seed-r8-refs), r9 (--seed-r9-refs),
-    r10 (--seed-r10-refs) and/or r11 (--seed-r11-refs), in any combination."""
+    r10 (--seed-r10-refs), r11 (--seed-r11-refs) and/or r12 (--seed-r12-refs), in any combination."""
     refs = {}
     if getattr(args, "seed_r8_refs", False):
         refs.update(R8_REFS)
@@ -1465,6 +1468,8 @@ def seeded_scoped_refs(args) -> dict:
         refs.update(R10_REFS)
     if getattr(args, "seed_r11_refs", False):
         refs.update(R11_REFS)
+    if getattr(args, "seed_r12_refs", False):
+        refs.update(R12_REFS)
     return refs
 
 
@@ -1665,8 +1670,8 @@ def prepare_clone(args, work: Path) -> dict:
         manifest_rel = f"{PHASE_REL}/253-DRYRUN-CANARY-PUBLICATION.json"
         candidate_source = git(clone, "rev-parse", "HEAD")
         main_record_args = []
-        if args.ref_pair == "r12":
-            # 253-138: an r12 freeze must sit on a recorded fresh main. The harness satisfies that guard (never skips it)
+        if args.ref_pair in PUBLISHER.MAIN_FRESHNESS_PAIRS:
+            # 253-138/253-166: an r12 or r13 freeze must sit on a recorded fresh main. The harness satisfies that guard (never skips it)
             # with a synthetic main-fetch record whose fetched_main_sha is its own synthetic server parent, and points the
             # clone's origin/main at that parent. Both live only in this temporary clone; the real checkout's refs are
             # never written.
@@ -2049,6 +2054,11 @@ def dry_run(args) -> dict:
             summary["seeded_r11_refs_changed"] = bool(changed)
             if changed:
                 problems.append(f"a seeded r11 ref changed: {changed}")
+        if getattr(args, "seed_r12_refs", False):
+            changed = {name: server.refs.get(name) for name, sha in R12_REFS.items() if server.refs.get(name) != sha}
+            summary["seeded_r12_refs_changed"] = bool(changed)
+            if changed:
+                problems.append(f"a seeded r12 ref changed: {changed}")
         expected = ["full-pass"] if args.stop_after == "full-pass" else list(SCENARIOS)
         if failed is None and summary["scenarios"] != expected:
             problems.append(f"verifier accepted {summary['scenarios']}, expected {expected}")
@@ -2089,6 +2099,9 @@ def main() -> int:
     parser.add_argument("--seed-r11-refs", action="store_true",
                         help="pre-seed the two r11 refs 253-133 left on GitHub; they must not change "
                              "(combinable with --seed-r8-refs, --seed-r9-refs and --seed-r10-refs)")
+    parser.add_argument("--seed-r12-refs", action="store_true",
+                        help="pre-seed the two r12 refs 253-143 left on GitHub; they must not change "
+                             "(combinable with --seed-r8-refs through --seed-r11-refs)")
     parser.add_argument("--ref-pair", choices=sorted(PUBLISHER.REF_PAIRS),
                         help="forwarded to --build-freeze for the derived synthetic freeze: one of the publisher's REF_PAIRS "
                              f"({', '.join(sorted(PUBLISHER.REF_PAIRS))}; the publisher's default is "
