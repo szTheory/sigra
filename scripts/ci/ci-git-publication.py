@@ -482,12 +482,13 @@ def validate_main_freshness(value: object, candidate: str) -> dict:
     return value
 
 
-def require_r12_main_freshness(repo: Path, manifest: dict) -> dict:
-    """An r12 freeze sits on the recorded fresh main: the manifest carries a clean main_freshness on its server parent,
-    and the record still has the bytes the publication was prepared from. Returns the record binding."""
+def require_main_freshness(repo: Path, manifest: dict, pair_name: str = "r12") -> dict:
+    """An r12 or r13 freeze (MAIN_FRESHNESS_PAIRS) sits on the recorded fresh main: the manifest carries a clean
+    main_freshness on its server parent, and the record still has the bytes the publication was prepared from. Returns the
+    record binding."""
     fresh = manifest.get("main_freshness")
     if not isinstance(fresh, dict):
-        raise PublicationError("an r12 freeze needs a publication manifest with main_freshness (prepare with --main-record)")
+        raise PublicationError(f"an {pair_name} freeze needs a publication manifest with main_freshness (prepare with --main-record)")
     if fresh["fetched_main_sha"] != manifest["server_parent_sha"]:
         raise PublicationError(f"server parent is not the recorded fresh main: server parent {manifest['server_parent_sha']}, "
                                f"recorded fresh main {fresh['fetched_main_sha']}")
@@ -1268,6 +1269,12 @@ CANARY_CATEGORIES = {
     "attempt_jobs": 7, "artifact_metadata": 7, "artifact_downloads": 12, "failure_logs": 6, "cancellation": 1,
     "infrastructure_retry": 13,
 }
+# 253-166 (R13 decision, Jon approves the resulting table at 253-170): an r13 freeze moves 8 requests from the expired,
+# unspendable infrastructure_retry (13 -> 5) to preflight (8 -> 16), because main's first check-runs page grew to 209 runs
+# and gains about 55 a day; every other category and the 117 total are unchanged. Earlier pairs keep CANARY_CATEGORIES.
+CANARY_CATEGORIES_R13 = {**CANARY_CATEGORIES, "preflight": 16, "infrastructure_retry": 5}
+if sum(CANARY_CATEGORIES.values()) != 117 or sum(CANARY_CATEGORIES_R13.values()) != 117:
+    raise RuntimeError("canary category tables do not add up to the 117 allocation")
 PRODUCTION_CATEGORIES = {
     "preflight": 8, "docs_publication": 14, "pr_create": 2, "pr_identity": 8, "run_discovery": 4, "pre_watch_rate": 2,
     "terminal_polls": 27, "attempt_jobs": 4, "native_checks": 4, "artifact_metadata": 4, "artifact_downloads": 20,
@@ -1278,7 +1285,7 @@ NATIVE_NOTE = ("CIREL-01 partial: target not reproduced; the nine D-20 acceptanc
                "the normal PR runs each browser seam once as integration coverage only")
 PROHIBITED = ["rerun", "merge", "auto_merge", "push", "force_update", "delete_ref", "rule_change", "release", "tag"]
 WORKFLOW_ID = 259268962
-# 253-102/253-111/253-119/253-130/253-137: exactly six code-pinned scoped ref pairs. The freeze identity selects one;
+# 253-102/253-111/253-119/253-130/253-137/253-166: exactly seven code-pinned scoped ref pairs. The freeze identity selects one;
 # legacy stays the default so every earlier freeze (253-91, R7-R11) derives byte-identical outward actions. No other is accepted.
 REF_PAIRS = {
     "legacy": {"candidate": "gsd/253-replan-candidate", "fixture": "gsd/253-replan-fixture"},
@@ -1287,8 +1294,17 @@ REF_PAIRS = {
     "r10": {"candidate": "gsd/253-replan-r10-candidate", "fixture": "gsd/253-replan-r10-fixture"},
     "r11": {"candidate": "gsd/253-replan-r11-candidate", "fixture": "gsd/253-replan-r11-fixture"},
     "r12": {"candidate": "gsd/253-replan-r12-candidate", "fixture": "gsd/253-replan-r12-fixture"},
+    "r13": {"candidate": "gsd/253-replan-r13-candidate", "fixture": "gsd/253-replan-r13-fixture"},
 }
 DEFAULT_REF_PAIR = "legacy"
+# 253-138/253-166: pairs whose freeze must sit on the recorded fresh main (one guard, keyed on this set).
+MAIN_FRESHNESS_PAIRS = ("r12", "r13")
+# 253-166: the canary category table each pair's freeze carries; pairs not named here carry CANARY_CATEGORIES.
+PAIR_CANARY_CATEGORIES = {"r13": CANARY_CATEGORIES_R13}
+
+
+def canary_categories(pair_name: str) -> dict:
+    return PAIR_CANARY_CATEGORIES.get(pair_name, CANARY_CATEGORIES)
 
 
 def ref_pair_name(candidate_ref: object, fixture_ref: object) -> str:
@@ -1296,7 +1312,7 @@ def ref_pair_name(candidate_ref: object, fixture_ref: object) -> str:
     for name, pair in REF_PAIRS.items():
         if candidate_ref == "refs/heads/" + pair["candidate"] and fixture_ref == "refs/heads/" + pair["fixture"]:
             return name
-    raise PublicationError("candidate and fixture scoped refs are not one known ref pair (legacy, r8, r9, r10, r11 or r12)")
+    raise PublicationError("candidate and fixture scoped refs are not one known ref pair (legacy, r8, r9, r10, r11, r12 or r13)")
 
 
 def identity_ref_pair(identity: dict) -> dict:
@@ -1370,15 +1386,18 @@ def doc_binding(repo: Path, rel: str) -> dict:
     return {"path": rel, "sha256": sha256_hex(path.read_bytes())}
 
 
-def static_freeze_sections() -> dict:
-    """The parts of the freeze that never vary with the source: policy, bounds, categories, expired reruns."""
+def static_freeze_sections(pair_name: str = DEFAULT_REF_PAIR) -> dict:
+    """The parts of the freeze that never vary with the source: policy, bounds, categories, expired reruns. Only the canary
+    category table (and so the expired retry's request count) depends on the ref pair."""
+    canary = canary_categories(pair_name)
     return {
         "scenarios": {"count": 6, "optional_infrastructure_retry": 0, "retry_status": "expired", "retry_reason": RERUN_REASON,
                       "cases": [{"name": name, "expected_outcome": outcome} for name, outcome in SCENARIO_CASES]},
         "expired_reruns": {
-            "canary": {"category": "infrastructure_retry", "status": "expired", "requests": 13, "jobs": 6, "used": 0, "reason": RERUN_REASON},
+            "canary": {"category": "infrastructure_retry", "status": "expired", "requests": canary["infrastructure_retry"], "jobs": 6,
+                       "used": 0, "reason": RERUN_REASON},
             "pull_requests": {"category": "infrastructure_rerun", "status": "expired", "requests": 21, "used": 0, "reason": RERUN_REASON}},
-        "bounds": BOUNDS, "categories": {"canary": CANARY_CATEGORIES, "production": PRODUCTION_CATEGORIES},
+        "bounds": BOUNDS, "categories": {"canary": canary, "production": PRODUCTION_CATEGORIES},
         "clock": {"minutes": 60, "begins": "before_first_preflight_or_publication_request"},
         "required_checks": REQUIRED_CHECKS,
         "workflow": {"name": "Phase 253 Gate Canary", "path": REGISTERED_WORKFLOW_PATH, "trigger": ["workflow_dispatch"],
@@ -1446,7 +1465,7 @@ def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: st
     manifest = validate_manifest(json.loads((repo / manifest_rel).read_text()))
     if manifest["status"] != "ready-local-proposal":
         raise PublicationError("the publication manifest is not ready")
-    main_record_binding = require_r12_main_freshness(repo, manifest) if ref_pair == "r12" else None
+    main_record_binding = require_main_freshness(repo, manifest, ref_pair) if ref_pair in MAIN_FRESHNESS_PAIRS else None
     fixture_binding = manifest.get("fixture_file") or {}
     if not fixture_binding.get("path") or manifest["workflow_path"] != REGISTERED_WORKFLOW_PATH:
         raise PublicationError("the freeze needs the registered ci.yml fixture child and its bound fixture file")
@@ -1481,7 +1500,7 @@ def build_freeze(repo: Path, manifest_rel: str, output: Path, acceptance_rel: st
         "identity": identity, "helper_blobs": helper_blobs,
         "bound_documents": {"publication_manifest": manifest_binding, "fixture_workflow": doc_binding(repo, fixture_binding["path"]),
                             **({"main_freshness_record": main_record_binding} if main_record_binding else {})},
-        **static_freeze_sections(),
+        **static_freeze_sections(ref_pair),
         "native_target": native, "outward_actions": sections, "outward_actions_sha256": digests,
     }
     atomic_json(repo / output if not Path(output).is_absolute() else Path(output), freeze)
@@ -1528,19 +1547,19 @@ def check_revision_freeze(freeze_path: Path, repo: Path) -> dict:
             raise PublicationError(f"freeze identity {field} differs from the bound publication manifest")
     if manifest["source_sha"] != source.get("commit"):
         raise PublicationError("freeze source differs from the publication manifest source")
-    if pair_name == "r12" or "main_freshness_record" in bound:
+    if pair_name in MAIN_FRESHNESS_PAIRS or "main_freshness_record" in bound:
         # 253-138: re-hash the bound main-fetch record; the local origin/main is never consulted here, so an approved
         # later re-fetch cannot invalidate the freeze.
         item = bound.get("main_freshness_record") or {}
         path = safe_repo_file(repo, item.get("path"), "bound document main_freshness_record path")
         if not path.is_file() or sha256_hex(path.read_bytes()) != item.get("sha256"):
             raise PublicationError("bound document main_freshness_record is missing or differs from its digest")
-        if require_r12_main_freshness(repo, manifest) != {"path": item["path"], "sha256": item["sha256"]}:
+        if require_main_freshness(repo, manifest, pair_name) != {"path": item["path"], "sha256": item["sha256"]}:
             raise PublicationError("bound document main_freshness_record is not the publication manifest's main-fetch record")
-    for key, expected in static_freeze_sections().items():
+    for key, expected in static_freeze_sections(pair_name).items():
         if freeze.get(key) != expected:
             raise PublicationError(f"freeze {key} differs from the frozen policy (expired reruns, bounds, categories, clock, history)")
-    if sum(CANARY_CATEGORIES.values()) != 117 or sum(PRODUCTION_CATEGORIES.values()) != 120:
+    if sum(canary_categories(pair_name).values()) != 117 or sum(PRODUCTION_CATEGORIES.values()) != 120:
         raise PublicationError("category tables do not add up to the 117/120 allocations")
     import importlib.util
     spec = importlib.util.spec_from_file_location("ci_hosted_transport_for_freeze", TRANSPORT)
@@ -1571,7 +1590,7 @@ def main() -> int:
     parser.add_argument("--workflow-path", help="workflow file the fixture child changes (default: the superseded unregistered path)")
     parser.add_argument("--main-record", help="--prepare: repository-relative sigra.phase253.main-fetch/r12 record; the "
                         "server parent must be its fetched_main_sha, local origin/main must equal it, and the candidate must "
-                        "merge cleanly into it (required for an r12 freeze)")
+                        "merge cleanly into it (required for an r12 or r13 freeze)")
     parser.add_argument("--repo-root", help=argparse.SUPPRESS)
     parser.add_argument("--check-manifest")
     parser.add_argument("--publish", action="store_true")
@@ -1591,7 +1610,7 @@ def main() -> int:
     parser.add_argument("--check-freeze")
     parser.add_argument("--freeze-plan", default="253-91")
     parser.add_argument("--ref-pair", default=DEFAULT_REF_PAIR,
-                        help="scoped ref pair recorded in the freeze identity: legacy (default), r8, r9, r10, r11 or r12")
+                        help="scoped ref pair recorded in the freeze identity: legacy (default), r8, r9, r10, r11, r12 or r13")
     parser.add_argument("--acceptance-evidence")
     parser.add_argument("--disposition")
     parser.add_argument("--disposition-approval")
