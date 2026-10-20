@@ -1,0 +1,33 @@
+{
+  "schema": "sigra.phase253.successor-repair-review/v1",
+  "status": "halted",
+  "repair_plan": "253-182",
+  "acceptance_plan": "253-179",
+  "bridge_plan": "253-180",
+  "reviewed_candidate_commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378",
+  "blocking_findings": [
+    {
+      "id": "182-PROCESS-01",
+      "severity": "blocking",
+      "finding": "Test edited before required baseline failure; no pre-edit RED or per-invocation source binding exists."
+    },
+    {
+      "id": "182-TEST-01",
+      "severity": "blocking",
+      "finding": "Two focused invocations failed. Final 22-halt check expects 25 halt set but validator says stale count. No passing named two-test group exists."
+    },
+    {
+      "id": "182-TEST-02",
+      "severity": "blocking",
+      "finding": "Hosted-link negative checks wrong entry-stage scope, missing finally restoration/neighboring positives; historical frozen25 test and remaining Task1 requirements unimplemented."
+    },
+    {
+      "id": "182-EVIDENCE-01",
+      "severity": "blocking",
+      "finding": "Failed outputs retained only as labeled transcript reconstructions, not direct process captures."
+    }
+  ],
+  "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
+  "phase_verification_status": "not_started",
+  "real_acceptance_attempts": 0
+}
