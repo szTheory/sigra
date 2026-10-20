@@ -3126,6 +3126,127 @@ class DocsPublicationReceiptTests(unittest.TestCase):
         self.assertEqual(receipt["refs"][0]["sha"], "f" * 40)
 
 
+# ------------------------------------------------------------------------------- 253-165 paginated PR listings
+PAGED_LISTING_ROUTES = ("attempt_jobs", "run_artifacts")
+CHECK_PAGE_STOP = "native check-run response is incomplete or needs another charged page"
+
+
+def paged_r12_world(test, tag, live, flags=None):
+    """253-165: an r12 PR universe (live-policy beside seeded r8..r11 refs, or hermetic) whose normal family serves its
+    attempt_jobs and run_artifacts listings over two pages (the paged_listings flag)."""
+    flags = {"paged_listings": True, **(flags or {})}
+    if live:
+        return LiveWorld(test, flags=flags, tag=tag, ref_pair="r12", seed_r8_refs=True, seed_r9_refs=True, seed_r10_refs=True,
+                         seed_r11_refs=True, main_record=True)
+    return World(test, flags=flags, tag=tag, ref_pair="r12", main_record=True)
+
+
+class PrPaginatedListingsTests(unittest.TestCase):
+    """253-165: GitHub's Link form is per response, not per route. The PR window's attempt_jobs and run_artifacts reads
+    (jcall pages) must follow a two-page listing under the one 253-146 transport rule: GitHub's /repositories/<id>/ next
+    link in live-policy mode, the local /repos/ form in hermetic mode, inside the unchanged PRODUCTION_CATEGORY_LIMITS.
+    The PR head's native check_runs read stays one page by design and must fail closed past 100 runs."""
+
+    def assert_two_page_listings(self, world, evidence, form_prefix):
+        transactions = evidence["transport_ledger"]["transactions"]
+        for route in PAGED_LISTING_ROUTES:
+            rows = [tx for tx in transactions if tx["family"] == "normal" and tx["route_id"] == route]
+            self.assertEqual([tx["page_ordinal"] for tx in rows], [1, 2], route)
+            self.assertEqual([tx["actual_status"] for tx in rows], [200, 200], route)
+            nexts = [entry["destination"]["path"] for entry in rows[0]["scrubbed_headers"].get("link") or [] if entry["rel"] == "next"]
+            self.assertEqual(len(nexts), 1, rows[0]["scrubbed_headers"])
+            self.assertTrue(nexts[0].startswith(form_prefix), nexts)
+            self.assertEqual([entry for entry in rows[1]["scrubbed_headers"].get("link") or [] if entry["rel"] == "next"], [],
+                             "page 2 is the last page")
+            for tx in rows:
+                self.assertIn("/repos/szTheory/sigra/actions/runs/7001/", tx["url"], "the request itself stays on the approved route")
+            bodies = [json.loads(base64.b64decode(tx["response_body_base64"])) for tx in rows]
+            key = "jobs" if route == "attempt_jobs" else "artifacts"
+            family = world.server.model["families"][101]
+            self.assertEqual(bodies[0][key] + bodies[1][key], family[key], f"the two {route} pages are the whole listing")
+            self.assertTrue(bodies[0][key] and bodies[1][key], route)
+            self.assertEqual({body["total_count"] for body in bodies}, {len(family[key])}, route)
+        paths = [row["path"] for row in world.server.journal]
+        self.assertFalse([path for path in paths if path.startswith("/repositories/")], "a /repositories/<id>/ path reached the fake")
+        self.assertFalse([path for path in paths if not path.startswith(("/repos/szTheory/sigra/", "/rate_limit", "/blob/"))], paths)
+
+    def assert_within_production_table(self, world):
+        ledger = json.loads(world.ledger.read_text())
+        counts = category_counts(ledger)
+        self.assertEqual((transport.PRODUCTION_CATEGORY_LIMITS["attempt_jobs"], transport.PRODUCTION_CATEGORY_LIMITS["artifact_metadata"]),
+                         (4, 4), "the production table is unchanged")
+        # normal: two pages each; docs-only: one page each.
+        self.assertEqual((counts.get("attempt_jobs"), counts.get("artifact_metadata")), (3, 3), counts)
+        for category, count in counts.items():
+            self.assertLessEqual(count, transport.PRODUCTION_CATEGORY_LIMITS[category], category)
+        self.assertLessEqual(len(ledger["transactions"]), 120)
+        self.assertEqual(sum(1 for tx in ledger["transactions"] if tx["route_id"] == "check_runs"), 2, "one native check page per family")
+        print(f"253-165 {'live' if isinstance(world, LiveWorld) else 'hermetic'} paged counts: {json.dumps(counts, sort_keys=True)}",
+              file=sys.stderr)
+
+    def test_live_policy_normal_family_follows_two_repositories_id_pages_inside_the_production_table(self):
+        w = paged_r12_world(self, "live-paged", live=True)
+        process, normal_path = w.collect("normal", "live-paged-normal.json", check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        process, docs_path = w.collect("docs-only", "live-paged-docs.json", check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        normal = json.loads(normal_path.read_text())
+        self.assert_two_page_listings(w, normal, f"/repositories/{transport.GITHUB_REPOSITORY_ID}/actions/runs/7001/")
+        self.assert_within_production_table(w)
+        self.assertEqual(w.refusals(), [])
+        self.assertEqual(w.server.violations, [])
+        process, result = run_verifier("--mode", "pr", "--family", "normal", "--evidence", normal_path)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+        process, result = run_verifier("--mode", "pr", "--family", "both", "--evidence", normal_path, "--docs-evidence", docs_path)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(result["status"], "synthetic_pr_pair_verified")
+
+    def test_hermetic_normal_family_follows_two_local_repos_form_pages_inside_the_production_table(self):
+        w = paged_r12_world(self, "hermetic-paged", live=False)
+        process, normal_path = w.collect("normal", "paged-normal.json", check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        normal_requests = len(w.server.journal)
+        process, docs_path = w.collect("docs-only", "paged-docs.json", check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        normal = json.loads(normal_path.read_text())
+        self.assert_two_page_listings(w, normal, "/repos/szTheory/sigra/actions/runs/7001/")
+        self.assert_within_production_table(w)
+        journal = list(w.server.journal)
+        pair = verifier.verify_pr_pair(attach_journal(normal_path, journal[:normal_requests]), attach_journal(docs_path, journal))
+        self.assertEqual(pair["status"], "synthetic_pr_pair_verified")
+
+    def test_a_pr_head_with_101_check_runs_fails_closed_after_one_check_runs_request(self):
+        w = r12_world(self, "head-101", {"pr_head_checks": 101})
+        process, path = w.collect("normal", "head-101.json", check=False)
+        evidence = json.loads(path.read_text())
+        transactions = evidence["transport_ledger"]["transactions"]
+        checks = [tx for tx in transactions if tx["route_id"] == "check_runs"]
+        self.assertEqual([tx["page_ordinal"] for tx in checks], [1], "exactly one check_runs request; no second page")
+        body = json.loads(base64.b64decode(checks[0]["response_body_base64"]))
+        self.assertEqual((body["total_count"], len(body["check_runs"])), (101, 100))
+        self.assertTrue([entry for entry in checks[0]["scrubbed_headers"].get("link") or [] if entry["rel"] == "next"],
+                        "positive control: GitHub advertised a second page")
+        self.assertTrue(set(NAMES) <= {item["name"] for item in body["check_runs"]}, "every required check is on page 1")
+        self.assertFalse([row for row in w.server.journal if "/check-runs" in row["path"] and "page=2" in row["path"]])
+        requests = len(w.server.journal)
+        with self.assertRaises(verifier.VerificationError) as caught:
+            verifier.verify_pr_family(attach_journal(path, list(w.server.journal)), "normal")
+        self.assertIn(CHECK_PAGE_STOP, str(caught.exception))
+        self.assertEqual(len(w.server.journal), requests, "no request after the stop")
+        print(f"253-165 head-101: collector exit {process.returncode}, stop {evidence['collection']['stop']!r}, "
+              f"routes after check_runs {[tx['route_id'] for tx in transactions[transactions.index(checks[0]) + 1:]]}", file=sys.stderr)
+        # Positive control: the default universe (six check runs on the PR head) verifies on its one check_runs page.
+        control = r12_world(self, "head-default")
+        process, control_path = control.collect("normal", "head-default.json", check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        control_checks = [tx for tx in json.loads(control_path.read_text())["transport_ledger"]["transactions"] if tx["route_id"] == "check_runs"]
+        self.assertEqual([tx["page_ordinal"] for tx in control_checks], [1])
+        self.assertLess(json.loads(base64.b64decode(control_checks[0]["response_body_base64"]))["total_count"], 100)
+        result = verifier.verify_pr_family(attach_journal(control_path, list(control.server.journal)), "normal")
+        self.assertEqual(result["status"], "synthetic_pr_family_verified")
+
+
 if __name__ == "__main__":
     outcome = unittest.main(verbosity=2, exit=False).result
     if outcome.testsRun < 20:
