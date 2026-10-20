@@ -16,8 +16,9 @@
       "plan_count": 173,
       "completed_implementation_count": 75,
       "phase_verification_status": "not_started",
-      "halted_plan_count": 21,
-      "unsummarized_plan_count": 77
+      "halted_plan_count": 22,
+      "unsummarized_plan_count": 76,
+      "ready_plans": []
     },
     {
       "number": "254",
@@ -31,11 +32,11 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 253 --gaps-only",
-    "label": "Execute Plan 173, then reviewed Plans 168\u2013172",
-    "reason": "Start with Plan 173 corrected offline acceptance. Then execute Plans 168\u2013172 for the final freeze, reconciliation, real canary and PR proof, and completion records. Whole-phase verification remains separate."
+    "command": "$gsd-plan-phase 253 --gaps",
+    "label": "Plan recovery from the Plan 173 environment failure",
+    "reason": "Plan 173 permits one attempt only. Plan 168 lacks its required completed 173 summary and success receipt; Plans 169\u2013172 are blocked transitively. Plan a separately identified successor attempt with a Git object write/readback permission preflight."
   },
-  "updated_at": "2026-10-20T16:16:17.579537+00:00",
+  "updated_at": "2026-10-20T16:23:46.325059+00:00",
   "phase253_execution": {
     "status": "execution_halt_recovery_planned_ready",
     "implementation_status": "partial",
@@ -1076,9 +1077,9 @@
     ],
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
-  "status": "executing_gap_recovery",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "status": "execution_halted",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "resume_command": "$gsd-plan-phase 253 --gaps",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -1576,9 +1577,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-20T16:16:17.579537+00:00",
-  "stopped_at": "Executing Plan 173 corrected offline acceptance",
-  "state_head": "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17",
+  "last_updated": "2026-10-20T16:23:46.325059+00:00",
+  "stopped_at": "Plan 173 halted on sandbox Git object write; acceptance suite not run",
+  "state_head": "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -1946,21 +1947,68 @@
     }
   },
   "phase253_gap_execution": {
-    "status": "executing_plan_173",
-    "command": "$gsd-execute-phase 253 --gaps-only",
-    "capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-CAPTURE.json",
-    "captured_head": "421bab1b1aa1bff940a0e8ea2cc23bfa3e2b0e28",
-    "sdk_start_preserved_commit": "ed7370b64dba197e3b89fd5107fdaf50ddc0f8b7",
-    "active_route": [
-      "253-173",
-      "253-168",
-      "253-169",
-      "253-170",
-      "253-171",
-      "253-172"
+    "entry": {
+      "status": "executing_plan_173",
+      "command": "$gsd-execute-phase 253 --gaps-only",
+      "capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-CAPTURE.json",
+      "captured_head": "421bab1b1aa1bff940a0e8ea2cc23bfa3e2b0e28",
+      "sdk_start_preserved_commit": "ed7370b64dba197e3b89fd5107fdaf50ddc0f8b7",
+      "active_route": [
+        "253-173",
+        "253-168",
+        "253-169",
+        "253-170",
+        "253-171",
+        "253-172"
+      ],
+      "verification_status": "not_started",
+      "requests_this_invocation": 0,
+      "updated_at": "2026-10-20T16:16:17.579537+00:00"
+    },
+    "status": "halted",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json",
+    "summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SUMMARY.md",
+    "diagnostic": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-ENVIRONMENT-DIAGNOSTIC.json",
+    "blocked_plans": [
+      {
+        "id": "253-168",
+        "blocked_by": [
+          "253-173"
+        ],
+        "ready": false
+      },
+      {
+        "id": "253-169",
+        "blocked_by": [
+          "253-173"
+        ],
+        "ready": false
+      },
+      {
+        "id": "253-170",
+        "blocked_by": [
+          "253-173"
+        ],
+        "ready": false
+      },
+      {
+        "id": "253-171",
+        "blocked_by": [
+          "253-173"
+        ],
+        "ready": false
+      },
+      {
+        "id": "253-172",
+        "blocked_by": [
+          "253-173"
+        ],
+        "ready": false
+      }
     ],
     "verification_status": "not_started",
+    "next_command": "$gsd-plan-phase 253 --gaps",
     "requests_this_invocation": 0,
-    "updated_at": "2026-10-20T16:16:17.579537+00:00"
+    "updated_at": "2026-10-20T16:23:46.325059+00:00"
   }
 }

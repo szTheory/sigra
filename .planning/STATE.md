@@ -4,12 +4,12 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "executing_gap_recovery"
-stopped_at: "Executing Plan 173 corrected offline acceptance"
-last_updated: "2026-10-20T16:16:17.579537+00:00"
+status: "execution_halted"
+stopped_at: "Plan 173 halted on sandbox Git object write; 168–172 blocked"
+last_updated: "2026-10-20T16:23:46.325059+00:00"
 last_activity: "2026-10-20"
-last_activity_desc: "One new recovery plan and five continuation repairs passed independent review; Plan 173 ready first"
-state_head: "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17"
+last_activity_desc: "Plan 173 failed before regression; permission diagnosis saved; no acceptance receipt"
+state_head: "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2"
 progress:
   total_phases: 4
   completed_phases: 1
@@ -17,12 +17,12 @@ progress:
   completed_plans: 81
   percent: 45
 milestone_status: active
-workflow_step: "execute_recovery"
+workflow_step: "plan_execution_halt_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: "$gsd-plan-phase 253 --gaps"
+resume_command: "$gsd-plan-phase 253 --gaps"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,8 +33,8 @@ phase253_wave_count: 6
 phase253_task_count: 456
 phase253_implementation_status: partial
 phase253_completed_plans: 75
-phase253_halted_plans: ["253-02", "253-07", "253-09", "253-104", "253-113", "253-12", "253-122", "253-134", "253-143", "253-146", "253-155", "253-16", "253-167", "253-27", "253-40", "253-51", "253-63", "253-73", "253-84", "253-92", "253-97"]
-phase253_blocked_plans: ["253-08", "253-10", "253-105", "253-106", "253-114", "253-115", "253-123", "253-124", "253-13", "253-135", "253-14", "253-144", "253-145", "253-147", "253-148", "253-149", "253-150", "253-151", "253-152", "253-153", "253-154", "253-156", "253-157", "253-158", "253-159", "253-160", "253-161", "253-162", "253-163", "253-17", "253-21", "253-22", "253-23", "253-24", "253-25", "253-28", "253-29", "253-30", "253-31", "253-32", "253-33", "253-34", "253-35", "253-41", "253-44", "253-45", "253-46", "253-47", "253-52", "253-53", "253-54", "253-55", "253-56", "253-64", "253-65", "253-66", "253-67", "253-68", "253-74", "253-75", "253-76", "253-77", "253-78", "253-85", "253-86", "253-87", "253-88", "253-93", "253-94", "253-98", "253-99"]
+phase253_halted_plans: ["253-02", "253-07", "253-09", "253-104", "253-113", "253-12", "253-122", "253-134", "253-143", "253-146", "253-155", "253-16", "253-167", "253-173", "253-27", "253-40", "253-51", "253-63", "253-73", "253-84", "253-92", "253-97"]
+phase253_blocked_plans: ["253-08", "253-10", "253-105", "253-106", "253-114", "253-115", "253-123", "253-124", "253-13", "253-135", "253-14", "253-144", "253-145", "253-147", "253-148", "253-149", "253-150", "253-151", "253-152", "253-153", "253-154", "253-156", "253-157", "253-158", "253-159", "253-160", "253-161", "253-162", "253-163", "253-168", "253-169", "253-17", "253-170", "253-171", "253-172", "253-21", "253-22", "253-23", "253-24", "253-25", "253-28", "253-29", "253-30", "253-31", "253-32", "253-33", "253-34", "253-35", "253-41", "253-44", "253-45", "253-46", "253-47", "253-52", "253-53", "253-54", "253-55", "253-56", "253-64", "253-65", "253-66", "253-67", "253-68", "253-74", "253-75", "253-76", "253-77", "253-78", "253-85", "253-86", "253-87", "253-88", "253-93", "253-94", "253-98", "253-99"]
 
 phase253_recovery_plan_count: 6
 
@@ -47,7 +47,7 @@ phase253_control_recovery_plan_count: 10
 
 phase253_control_recovery_task_count: 22
 
-phase253_ready_plans: ["253-173"]
+phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
 ---
@@ -63,21 +63,21 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — partially implemented; execution-halt recovery planned
-Plans: 75 implementation summaries, 21 halted summaries and 77 without summaries among 173 plans
-Status: Plan 173 is ready; then Plans 168, 169, 170, 171 and 172 follow in six waves
-Last activity: 2026-10-20T16:10:57.283643+00:00 — independent plan review passed after two corrections; no acceptance suites or GitHub requests ran
+Phase: 253 — partially implemented; Plan 173 halted
+Plans: 75 implementation summaries, 22 halted summaries and 76 without summaries among 173 plans
+Status: No ready or runnable plans; 168–172 depend on the failed 173 acceptance attempt
+Last activity: 2026-10-20T16:23:46.325059+00:00 — failed command and permission diagnosis saved; regression suite did not start
 Progress: 81/179 milestone implementation summaries (45%); whole-phase verification not started
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
+$gsd-plan-phase 253 --gaps
 
-Start with Plan 173's corrected complete offline acceptance block and separately checked result file. Continue through 168–172 only as each prerequisite passes. Original Plan 167 remains halted. CIREL-01 remains partial because the selected cause is not reproduced; CIREL-02 awaits real canary and PR proof. Full phase verification remains a separate unfiltered execute-phase run after the evidence and historical dispositions are ready.
+Plan a separately identified successor to Plan 173, keeping its failed log and halted summary unchanged. Before any new once-only acceptance command, prove Git object write/readback under the same permission context; use `sandbox_permissions=require_escalated` for commands that write Git objects. The small elevated probe passed, but the regression command was not repeated. Plans 168–172 remain blocked; no success receipt exists.
 
-The existing config and runtime-switch record bytes were committed unchanged at a868a40286540ed06bb500aa7f892b87b5312107. The reviewed draft is recoverable at 8aefae4a05a8f200eb79df57d42dbe91ba6d2f17. The prior shared-state bytes are recorded with exact commit/blob/hash identities in 253-173-PLANNING-RECORD.json. Phase 254 is pending with no context/research/plans; its readiness was checked, and it has not started.
+CIREL-01 remains partial_not_reproduced, CIREL-02 remains unaccepted, and whole-phase verification remains not_started. Phase 254 readiness was checked: pending, with no context, research or plans; it was not started.
 
-Planning record: 253-173-PLANNING-RECORD.json; review: 253-173-CHECK-02.md; checks: 253-173-PLANNING-CHECKS.json; routing: 253-173-ROUTING-CHECKS.json. Earlier recovery records below describe historical stages and do not override this route.
+Execution record: `253-173-EXECUTION-RECORD.json`; diagnosis: `253-173-ENVIRONMENT-DIAGNOSTIC.json`; failed run: `253-173-REGRESSION.log`; summary: `253-173-SUMMARY.md`. The four prior shared files are recoverable at `92b46b1dd0d381cef59d7650a00f59fc96ca1ea2`, with exact blob/hash/readback identities in the execution record. Earlier sections below record historical stages and do not override this route.
 
 ## Known unfinished work
 
@@ -124,9 +124,9 @@ Planning record: 253-173-PLANNING-RECORD.json; review: 253-173-CHECK-02.md; chec
 
 ## Session
 
-**Last session:** 2026-10-20T16:10:57.283643+00:00
-**Stopped at:** Gap planning passed; Plan 173 ready, implementation and full verification incomplete
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json
+**Last session:** 2026-10-20T16:23:46.325059+00:00
+**Stopped at:** Plan 173 halted before regression; 168–172 blocked; plan recovery next
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json
 
 ## Deferred Items
 
@@ -213,3 +213,7 @@ Plans 36–47: 12 plans, 26 tasks and nine waves. Independent review passed with
 ## Gap execution started (2026-10-20)
 
 Plan 173 is the first ready plan; Plans 168–172 await its result and their own prerequisites. All prior state history is retained. The SDK start output is preserved at ed7370b64dba197e3b89fd5107fdaf50ddc0f8b7. Capture: 253-173-EXECUTION-CAPTURE.json. No acceptance result or hosted request exists in this invocation yet. Whole-phase verification remains not_started.
+
+## Gap execution halt (2026-10-20)
+
+Plan 173 produced a review and one failed 339-byte log ending VERIFY-EXIT 1. Git object creation was denied in the default sandbox before projection or regression tests ran. A separate harmless Git object write/readback passed with elevated permission; it is environment diagnosis, not acceptance. No product edits, native launches, GitHub requests, requirement completion or whole-phase verification. Plans 168–172 were skipped because they depend on halted 173. Next: $gsd-plan-phase 253 --gaps.

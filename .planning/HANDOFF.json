@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T16:16:17.579537+00:00",
-  "status": "executing_gap_recovery",
+  "timestamp": "2026-10-20T16:23:46.325059+00:00",
+  "status": "execution_halted",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Plan 173 starting; 168\u2013172 depend on its success; whole-phase verification not started",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Start with Plan 173 corrected offline acceptance. Then execute Plans 168\u2013172 for the final freeze, reconciliation, real canary and PR proof, and completion records. Whole-phase verification remains separate.",
+  "current": "75 implementation summaries, 22 halted summaries and 76 plans without summaries; Plan 173 halted before regression; 168\u2013172 blocked",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "resume_command": "$gsd-plan-phase 253 --gaps",
+  "next_action": "Plan 173 permits one attempt only. Plan 168 lacks its required completed 173 summary and success receipt; Plans 169\u2013172 are blocked transitively. Plan a separately identified successor attempt with a Git object write/readback permission preflight.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "immediate_gsd_command": "$gsd-plan-phase 253 --gaps",
+    "resume_command": "$gsd-plan-phase 253 --gaps",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -26,18 +26,45 @@
     "current_phase": 253,
     "readiness": {
       "plan_count": 173,
-      "incomplete_count": 77,
-      "runnable_count": 6,
-      "ready_plans": [
-        "253-173"
-      ],
-      "active_order": [
-        "253-173",
-        "253-168",
-        "253-169",
-        "253-170",
-        "253-171",
-        "253-172"
+      "incomplete_count": 76,
+      "runnable_count": 0,
+      "ready_plans": [],
+      "blocked_active_plans": [
+        {
+          "id": "253-168",
+          "blocked_by": [
+            "253-173"
+          ],
+          "ready": false
+        },
+        {
+          "id": "253-169",
+          "blocked_by": [
+            "253-173"
+          ],
+          "ready": false
+        },
+        {
+          "id": "253-170",
+          "blocked_by": [
+            "253-173"
+          ],
+          "ready": false
+        },
+        {
+          "id": "253-171",
+          "blocked_by": [
+            "253-173"
+          ],
+          "ready": false
+        },
+        {
+          "id": "253-172",
+          "blocked_by": [
+            "253-173"
+          ],
+          "ready": false
+        }
       ]
     },
     "historical_verification_is_forward_blocker": false,
@@ -55,6 +82,7 @@
       "253-155",
       "253-16",
       "253-167",
+      "253-173",
       "253-27",
       "253-40",
       "253-51",
@@ -137,9 +165,10 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Start with Plan 173 corrected offline acceptance. Then execute Plans 168\u2013172 for the final freeze, reconciliation, real canary and PR proof, and completion records. Whole-phase verification remains separate.",
+    "reason": "Plan 173 permits one attempt only. Plan 168 lacks its required completed 173 summary and success receipt; Plans 169\u2013172 are blocked transitively. Plan a separately identified successor attempt with a Git object write/readback permission preflight.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json",
-    "whole_phase_verification_status": "not_started"
+    "whole_phase_verification_status": "not_started",
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -162,7 +191,7 @@
       254,
       255
     ],
-    "next_required_gate": "Plan 173 corrected offline acceptance; then final freeze and actual hosted proof",
+    "next_required_gate": "Plan a separately identified acceptance attempt with a proven Git object write permission context",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -177,7 +206,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute_recovery",
+    "workflow_step": "plan_execution_halt_recovery",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -235,15 +264,13 @@
     "phase253_remaining_plans": 25,
     "phase253_control_recovery_plan_count": 10,
     "phase253_control_recovery_task_count": 22,
-    "phase253_ready_plans": [
-      "253-36",
-      "253-37",
-      "253-42",
-      "253-43"
-    ],
+    "phase253_ready_plans": [],
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
-    "phase253_active_wave_count": 6
+    "phase253_active_wave_count": 6,
+    "phase253_execution_status": "halted",
+    "phase253_halted_plan_count": 22,
+    "phase253_unsummarized_plan_count": 76
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -1283,7 +1310,7 @@
       "readback_exact": true
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-CAPTURE.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3276,21 +3303,13 @@
     }
   },
   "phase253_gap_execution": {
-    "status": "executing_plan_173",
-    "command": "$gsd-execute-phase 253 --gaps-only",
-    "capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-CAPTURE.json",
-    "captured_head": "421bab1b1aa1bff940a0e8ea2cc23bfa3e2b0e28",
-    "sdk_start_preserved_commit": "ed7370b64dba197e3b89fd5107fdaf50ddc0f8b7",
-    "active_route": [
-      "253-173",
-      "253-168",
-      "253-169",
-      "253-170",
-      "253-171",
-      "253-172"
-    ],
-    "verification_status": "not_started",
-    "requests_this_invocation": 0,
-    "updated_at": "2026-10-20T16:16:17.579537+00:00"
+    "status": "halted",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json",
+    "summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SUMMARY.md",
+    "diagnostic": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-ENVIRONMENT-DIAGNOSTIC.json",
+    "failed_log": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-REGRESSION.log",
+    "acceptance_suite_ran": false,
+    "github_requests": 0,
+    "next_command": "$gsd-plan-phase 253 --gaps"
   }
 }
