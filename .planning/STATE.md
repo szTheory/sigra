@@ -4,10 +4,10 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "halted"
-stopped_at: "Plan182 halted; no runnable plans"
-last_updated: "2026-10-20T23:11:36.285550+00:00"
-last_activity: "2026-10-20T23:11:36.285550+00:00 — Plan182 halted during Task1; no completed tasks"
+status: "ready_to_execute"
+stopped_at: "Plan183 planned and independently reviewed; implementation remains partial"
+last_updated: "2026-10-20T23:39:21.142020+00:00"
+last_activity: "2026-10-20T23:39:21.142020+00:00 \u2014 Plan183 planning passed; no execution"
 state_head: "7f54a001b10f0478f98c3dd2503babaf76e7bdcc"
 progress:
   total_phases: 4
@@ -16,20 +16,20 @@ progress:
   completed_plans: 81
   percent: 25
 milestone_status: active
-workflow_step: "plan"
+workflow_step: "execute"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-plan-phase 253 --gaps"
-resume_command: "$gsd-plan-phase 253 --gaps"
+next_command: "$gsd-execute-phase 253 --gaps-only"
+resume_command: "$gsd-execute-phase 253 --gaps-only"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
 phase253_planning_status: passed
-phase253_plan_count: 182
+phase253_plan_count: 183
 phase253_wave_count: 8
-phase253_task_count: 476
+phase253_task_count: 479
 phase253_implementation_status: partial
 phase253_completed_plans: 75
 phase253_halted_plans:
@@ -147,11 +147,11 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: []
+phase253_ready_plans: [253-183]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-last_activity_desc: "Plan182 halted; requirements and verification remain open"
-resume_file: ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json"
+last_activity_desc: "Plan183 ready; requirements and whole-phase verification remain open"
+resume_file: ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLANNING-RECORD.json"
 ---
 
 # Project State
@@ -343,3 +343,9 @@ Three tasks in one new wave fix real mutation controls, add the182 review/invent
 ## Latest Plan182 execution halt
 
 Plan182 edited its test before required baseline failure and exhausted two failing focused runs; no task completed;179/180 remain blocked. The executor omitted the required pre-edit failure, then recorded two failed focused invocations (exit1; three then one failing subtests). Output files are labeled transcript reconstructions; source hashes at invocation are missing. No retry or acceptance was made. Candidate:cd0019dfeb9ccba86e94967eba9cf76de5c8e378 under refs/gsd/phase253-execution182-diagnostics. Original42inputs and shared prior bytes are recoverable at26f9266ed439b9834e7b675c001aad38d224e9cc under refs/gsd/phase253-repair182-inputs; root rechecked all41 unchanged files. Fresh readiness:182plans,75complete,27halted,80without summaries,0runnable. Phase254 has no context/research/plans and remains unstarted. Next:$gsd-plan-phase 253 --gaps.
+
+## Latest gap repair planning — Plan183
+
+One new plan, three tasks and one wave. Independent final review has zero blockers and warnings; 13 verification commands have explicit failure conditions. Expected-failure capture, bounded correction commands and pre-launch command/order/source guards are explicit. All 24 decisions and both requirements have plan coverage. Plan182 and all27 historical halts remain unchanged. 183plans:75 implementation complete,27halted,81without summaries; only183 is ready. Original179/180 instructions are amended only during execution after exact preservation. Both requirements and whole-phase verification remain open.
+
+Prior full history is recoverable at 9a091dd14949ef5afd1f3de8f651c8d381607b84; exact SDK output is preserved and read back at 59876b699c7cd00e92b0b54131605015975d91bb under refs/gsd/phase253-plan183-sdk-state. Planning record:253-183-PLANNING-RECORD.json; final review:253-183-PLAN-CHECK-04.json. No tests, acceptance, browser launch or GitHub request ran during planning. Next:$gsd-execute-phase 253 --gaps-only.

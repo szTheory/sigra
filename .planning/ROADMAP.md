@@ -315,6 +315,8 @@ Plan181 remains halted with its complete failed native output. Plan182 passed in
 
 Future waves2–8 are blocked on successful182 and execution-time amendments:179→180→168→169→170→171→172. Cross-cutting constraints: retain all26 historical halts, exact73 dispositions, original179 acceptance identity and fixed budgets; local simulation cannot replace hosted proof. Requirements remain open and whole-phase verification not_started. Next:$gsd-execute-phase 253 --gaps-only. Records:253-182-PLANNING-RECORD.json,253-182-PLAN-CHECK.json,253-182-PLANNING-CHECKS.json,253-182-ROUTING-CHECKS.json.
 
+**Latest additive gap plan:** 253-183-PLAN.md — one wave, three tasks: real mutation tracer; strict183/27/73 lifecycle; preserved179/180 continuation. Cross-cutting constraints: retain all27 historical halts, exact73 dispositions, original179 acceptance identity and fixed budgets; local simulation cannot replace hosted proof. Independent review253-183-PLAN-CHECK-04.json passed; both requirements and whole-phase verification remain open. Next:$gsd-execute-phase 253 --gaps-only.
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
