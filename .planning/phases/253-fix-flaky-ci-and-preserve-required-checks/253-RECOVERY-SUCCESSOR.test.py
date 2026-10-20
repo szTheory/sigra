@@ -188,6 +188,58 @@ def committed_receipt_fixture(parent):
 
 
 class SuccessorContractTests(unittest.TestCase):
+    def test_bridge_rejects_stale_executable_assertions_and_owners(self):
+        """The prior green fixture must fail when only recovery prose is updated."""
+        with tempfile.TemporaryDirectory(prefix="sigra-253-bridge-stale-executable-") as temp:
+            root = pathlib.Path(temp)
+            phase = root / PHASE
+            phase.mkdir(parents=True)
+            originals = {}
+            for number in range(168, 173):
+                rel = f"{PHASE}/253-{number}-PLAN.md"
+                raw = (ROOT / rel).read_bytes()
+                originals[rel] = raw
+                (root / rel).write_bytes(raw)
+            (root / successor.R12_CONTRACT).write_bytes((ROOT / successor.R12_CONTRACT).read_bytes())
+            subprocess.run(["git", "-C", str(root), "init", "-q"], check=True)
+            subprocess.run(["git", "-C", str(root), "config", "user.name", "Fixture"], check=True)
+            subprocess.run(["git", "-C", str(root), "config", "user.email", "fixture@example.test"], check=True)
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(root), "commit", "-qm", "original plans"], check=True)
+            source_commit = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+            ref = "refs/gsd/phase253-successor-177-plan-originals"
+            subprocess.run(["git", "-C", str(root), "update-ref", ref, source_commit], check=True)
+            amend_entry_plans(root, originals)
+            amended = {f"{PHASE}/253-{number}-PLAN.md": hashlib.sha256(
+                (root / f"{PHASE}/253-{number}-PLAN.md").read_bytes()).hexdigest() for number in (168, 169)}
+            pins = {}
+            for rel, raw in originals.items():
+                blob = subprocess.check_output(["git", "-C", str(root), "hash-object", "--stdin"], input=raw).decode().strip()
+                pins[rel] = {"blob": blob, "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw)}
+            paths = {row.split(b"\t", 1)[1].decode() for row in subprocess.check_output(
+                ["git", "-C", str(root), "ls-tree", "-rz", "-r", source_commit, "--", PHASE,
+                 ".planning/phases/252-measure-current-ci"]).split(b"\0") if row}
+            protected = {rel: hashlib.sha256(subprocess.check_output(
+                ["git", "-C", str(root), "show", f"{source_commit}:{rel}"])).hexdigest() for rel in paths}
+            record = {"schema": successor.BRIDGE_SCHEMA, "stage": "entry", "source_commit": source_commit,
+                      "preservation_ref": ref, "originals": pins, "amended_sha256": amended,
+                      "protected_source_bindings": protected, "dispositions_for": []}
+            record_path = f"{PHASE}/253-177-BRIDGE-RECORD.json"
+            (root / record_path).write_text(json.dumps(record))
+
+            # These are the false-positive executable checks from the recorded
+            # report. Hashes are current and self-consistent, so only semantic
+            # validation can reject them.
+            p169 = (root / f"{PHASE}/253-169-PLAN.md").read_text()
+            self.assertRegex(p169, r"c\.plan_pins\.length\s*!==\s*174")
+            self.assertRegex(p169, r"c\.halted_plans\.length\s*!==\s*22")
+            self.assertIn("149 -> 174", p169)
+            self.assertIn("158 -> 174", p169)
+            self.assertIn("167 -> 174", p169)
+            self.assertIn("173 -> 174", p169)
+            with self.assertRaisesRegex(successor.ContractError, "executable.*(180|24|73)|stale executable"):
+                successor.validate_bridge(root, "entry", record_path)
+
     def test_full_dryrun_requires_native_output_and_matching_count(self):
         good = valid_log()
         self.assertEqual(successor.parse_log(good)["count"], 79)
