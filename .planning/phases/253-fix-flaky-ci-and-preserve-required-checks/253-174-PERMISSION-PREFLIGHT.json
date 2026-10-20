@@ -1,0 +1,48 @@
+{
+  "schema": "sigra.phase253.git-permission-preflight/v1",
+  "status": "passed",
+  "probe": {
+    "schema": "sigra.phase253.git-permission-probe/v1",
+    "source_commit": "441442566071ac5cc861fe87f35297c1b2e1d240",
+    "shell_pid": 15673,
+    "git_common_dir": "/Users/jon/projects/sigra/.git",
+    "object_dir": "/Users/jon/projects/sigra/.git/objects",
+    "command": [
+      "git",
+      "hash-object",
+      "-w",
+      "--stdin"
+    ],
+    "object_oid": "7ff2c3db6ad020b35e643bf121bfab2eb31eb695",
+    "payload_sha256": "efe7b9b6bc0f9ada188589e382a204523cfb865bf9b9c86c2d87272827692f9a",
+    "readback_sha256": "efe7b9b6bc0f9ada188589e382a204523cfb865bf9b9c86c2d87272827692f9a",
+    "payload_bytes": 77,
+    "write_exit": 0,
+    "read_exit": 0,
+    "readback": "exact"
+  },
+  "once_only": true,
+  "launch": {
+    "tool": "exec_command",
+    "sandbox_permissions": "require_escalated",
+    "executor": "root",
+    "block_sha256": "090350ba19dbfd1311feb14134286c0a3c4eaf0a2d004a43f21e154506c4ddcc",
+    "tool_call_id": "exec_command chunk a6e350; session 87298",
+    "session_id": 87298,
+    "initial_chunk_id": "a6e350",
+    "terminal_chunk_id": "80eb44",
+    "arguments": {
+      "cmd": "bash /private/tmp/sigra-253-174-to4qb_2g/launch.sh",
+      "workdir": "/Users/jon/projects/sigra",
+      "sandbox_permissions": "require_escalated",
+      "justification": "Run Plan 174\u2019s authorized once-only offline acceptance with its Git object write/readback probe in the same elevated process.",
+      "yield_time_ms": 1000,
+      "max_output_tokens": 1600
+    }
+  },
+  "acceptance_status": "halted",
+  "acceptance_exit": 1,
+  "acceptance_source": "441442566071ac5cc861fe87f35297c1b2e1d240",
+  "raw_attempt_directory": "/private/tmp/sigra-253-174-to4qb_2g",
+  "note": "The Git permission probe passed; the acceptance failed later. This is not a recovery receipt."
+}
