@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T23:01:53.868347+00:00",
-  "status": "ready_to_execute",
+  "timestamp": "2026-10-20T23:11:22.112438+00:00",
+  "status": "halted",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "182plans:75 implementation complete,26 halted,81 without summaries;only182 runnable.",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Execute the reviewed local repair182; preserve178/181 failures; do not run179 acceptance before successful182.",
+  "current": "182plans:75 implementation complete,27halted,80without summaries;none runnable.",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "resume_command": "$gsd-plan-phase 253 --gaps",
+  "next_action": "Plan a bounded repair using182 diagnostics; preserve prior failures.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "immediate_gsd_command": "$gsd-plan-phase 253 --gaps",
+    "resume_command": "$gsd-plan-phase 253 --gaps",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -28,13 +28,11 @@
     "readiness": {
       "plan_count": 182,
       "completed_implementation_count": 75,
-      "halted_count": 26,
-      "without_summary": 81,
-      "incomplete_count": 81,
-      "runnable_count": 1,
-      "ready_plans": [
-        "253-182"
-      ]
+      "halted_count": 27,
+      "without_summary": 80,
+      "incomplete_count": 80,
+      "runnable_count": 0,
+      "ready_plans": []
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -56,6 +54,7 @@
       "253-175-PLAN.md",
       "253-178-PLAN.md",
       "253-181-PLAN.md",
+      "253-182-PLAN.md",
       "253-27-PLAN.md",
       "253-40-PLAN.md",
       "253-51-PLAN.md",
@@ -147,11 +146,11 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Reviewed182 is independently runnable;179/180 remain blocked by halted181 until182 executes its instruction amendments.",
+    "reason": "Plan182 edited its test before required baseline failure and exhausted two failing focused runs; no task completed;179/180 remain blocked.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json",
     "whole_phase_verification_status": "not_started",
-    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
-    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json"
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
+    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -174,7 +173,7 @@
       254,
       255
     ],
-    "next_required_gate": "Execute reviewed bounded repair182;179 remains blocked pending successful182",
+    "next_required_gate": "Replan bounded182 repair; no179 acceptance before new successful repair",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -189,7 +188,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute",
+    "workflow_step": "plan",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -230,6 +229,7 @@
       "253-175",
       "253-178",
       "253-181",
+      "253-182",
       "253-27",
       "253-40",
       "253-51",
@@ -321,23 +321,21 @@
       "253-98",
       "253-99"
     ],
-    "phase253_execution_dispatch": "Historical181halted; new182 planning passed typed independent review; implementation not run",
+    "phase253_execution_dispatch": "Typed executor halted during Task1; root preserved candidate and diagnostics; no task completed.",
     "phase253_recovery_plan_count": 6,
     "phase253_recovery_task_count": 13,
     "phase253_replan_count": 11,
     "phase253_replan_task_count": 24,
-    "phase253_remaining_plans": 81,
+    "phase253_remaining_plans": 80,
     "phase253_control_recovery_plan_count": 10,
     "phase253_control_recovery_task_count": 22,
-    "phase253_ready_plans": [
-      "253-182"
-    ],
+    "phase253_ready_plans": [],
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
-    "phase253_execution_status": "partial_halted181_repair182_ready",
-    "phase253_halted_plan_count": 26,
-    "phase253_unsummarized_plan_count": 81
+    "phase253_execution_status": "partial_halted182",
+    "phase253_halted_plan_count": 27,
+    "phase253_unsummarized_plan_count": 80
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -435,7 +433,10 @@
       "source_audit": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SOURCE-AUDIT.md"
     },
     "phase253_plan181_execution": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-RECORD.json",
-    "phase253_plan181_final_test_log": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log"
+    "phase253_plan181_final_test_log": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log",
+    "phase253_plan182_execution": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
+    "phase253_plan182_summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-SUMMARY.md",
+    "phase253_plan182_routing": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-ROUTING.json"
   },
   "preservation": {
     "capture_ref": "d57869d114471921162d453a9db5c75935edea93",
@@ -1459,7 +1460,7 @@
       ]
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -1543,8 +1544,9 @@
       "253-24": "blocked",
       "253-25": "blocked",
       "253-178": "halted",
-      "253-179": "blocked_by_253-178",
-      "253-180": "blocked_by_253-178"
+      "253-179": "blocked_by_253-181",
+      "253-180": "blocked_by_253-181",
+      "253-182": "halted"
     },
     "blockers": [
       {
@@ -1627,37 +1629,39 @@
     ],
     "status": "halted",
     "completed_plan_count": 75,
-    "total_phase_plans": 180,
+    "total_phase_plans": 182,
     "current_next_command": "$gsd-plan-phase 253 --gaps",
     "current_ready_plans": [],
     "phase_verification_status": "not_started",
     "implementation_status": "partial",
     "halted_plans": [
-      "253-02-PLAN.md",
-      "253-07-PLAN.md",
-      "253-09-PLAN.md",
-      "253-104-PLAN.md",
-      "253-113-PLAN.md",
-      "253-12-PLAN.md",
-      "253-122-PLAN.md",
-      "253-134-PLAN.md",
-      "253-143-PLAN.md",
-      "253-146-PLAN.md",
-      "253-155-PLAN.md",
-      "253-16-PLAN.md",
-      "253-167-PLAN.md",
-      "253-173-PLAN.md",
-      "253-174-PLAN.md",
-      "253-175-PLAN.md",
-      "253-178-PLAN.md",
-      "253-27-PLAN.md",
-      "253-40-PLAN.md",
-      "253-51-PLAN.md",
-      "253-63-PLAN.md",
-      "253-73-PLAN.md",
-      "253-84-PLAN.md",
-      "253-92-PLAN.md",
-      "253-97-PLAN.md"
+      "253-02",
+      "253-07",
+      "253-09",
+      "253-104",
+      "253-113",
+      "253-12",
+      "253-122",
+      "253-134",
+      "253-143",
+      "253-146",
+      "253-155",
+      "253-16",
+      "253-167",
+      "253-173",
+      "253-174",
+      "253-175",
+      "253-178",
+      "253-181",
+      "253-182",
+      "253-27",
+      "253-40",
+      "253-51",
+      "253-63",
+      "253-73",
+      "253-84",
+      "253-92",
+      "253-97"
     ],
     "blocked_plans": [
       "253-08",
@@ -1741,7 +1745,46 @@
       "253-98",
       "253-99"
     ],
-    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json"
+    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
+    "latest_successor_execution": {
+      "plan": "253-182",
+      "status": "halted",
+      "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
+      "summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-SUMMARY.md",
+      "candidate_commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378",
+      "diagnostic_ref": "refs/gsd/phase253-execution182-diagnostics",
+      "blocker": "Plan182 edited its test before required baseline failure and exhausted two failing focused runs; no task completed;179/180 remain blocked.",
+      "completed_tasks": 0,
+      "tests": {
+        "focused_invocations": 2,
+        "exit_codes": [
+          1,
+          1
+        ],
+        "failing_subtests": [
+          3,
+          1
+        ],
+        "direct_process_captures": false,
+        "pre_edit_red": false
+      },
+      "next_command": "$gsd-plan-phase 253 --gaps",
+      "requirements": {
+        "CIREL-01": "partial_not_reproduced",
+        "CIREL-02": "unaccepted"
+      },
+      "phase_verification_status": "not_started",
+      "readiness": {
+        "plan_count": 182,
+        "completed_implementation_count": 75,
+        "halted_count": 27,
+        "without_summary": 80,
+        "incomplete_count": 80,
+        "runnable_count": 0,
+        "ready_plans": []
+      },
+      "recorded_at": "2026-10-20T23:11:22.112438+00:00"
+    }
   },
   "phase253_registration_startup_debug": {
     "status": "resolved_startup_only",
@@ -3689,7 +3732,7 @@
     },
     "phase_verification_status": "not_started"
   },
-  "last_updated": "2026-10-20T23:01:53.868347+00:00",
+  "last_updated": "2026-10-20T23:11:22.112438+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4223,5 +4266,47 @@
       "253-172"
     ]
   },
-  "phase253_plan182_closeout_preservation": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-CLOSEOUT-PRESERVATION.json"
+  "phase253_plan182_closeout_preservation": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-CLOSEOUT-PRESERVATION.json",
+  "phase253_gap_repair182_execution": {
+    "plan": "253-182",
+    "status": "halted",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
+    "summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-SUMMARY.md",
+    "candidate_commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378",
+    "diagnostic_ref": "refs/gsd/phase253-execution182-diagnostics",
+    "blocker": "Plan182 edited its test before required baseline failure and exhausted two failing focused runs; no task completed;179/180 remain blocked.",
+    "completed_tasks": 0,
+    "tests": {
+      "focused_invocations": 2,
+      "exit_codes": [
+        1,
+        1
+      ],
+      "failing_subtests": [
+        3,
+        1
+      ],
+      "direct_process_captures": false,
+      "pre_edit_red": false
+    },
+    "next_command": "$gsd-plan-phase 253 --gaps",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "phase_verification_status": "not_started",
+    "readiness": {
+      "plan_count": 182,
+      "completed_implementation_count": 75,
+      "halted_count": 27,
+      "without_summary": 80,
+      "incomplete_count": 80,
+      "runnable_count": 0,
+      "ready_plans": []
+    },
+    "recorded_at": "2026-10-20T23:11:22.112438+00:00"
+  },
+  "phase253_ready_plans": [],
+  "phase253_verification_status": "not_started",
+  "workflow_step": "plan"
 }
