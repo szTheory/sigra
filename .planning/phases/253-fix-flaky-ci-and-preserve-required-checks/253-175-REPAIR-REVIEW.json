@@ -164,6 +164,6 @@
     "CIREL-02": "unaccepted"
   },
   "phase_verification_status": "not_started",
-  "next_command": "$gsd-plan-phase 253 --gaps",
+  "next_command": "$gsd-plan-phase 253",
   "limitation": "Passing finite tests do not establish the full successor contract. Source review demonstrated a false pass.176/177 are not authorized past this failed precondition."
 }

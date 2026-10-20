@@ -35,7 +35,7 @@ Task1 delivered; Task2 acceptance criteria failed source review. Plan175 is halt
 
 Required repair: make the bridge consumer reject unchanged executable counts and failed owners, verify all scoped amendments, and replace permissive positive fixtures with actual corrected instructions. Preserve this failed review and current candidate before future repairs. CIREL-01 remains partial_not_reproduced; CIREL-02 unaccepted; whole-phase verification not_started.
 
-Next command: `$gsd-plan-phase 253 --gaps`. Fresh SDK readiness must confirm no runnable continuation after this halted summary;254 remains pending and unstarted.
+Next command: `$gsd-plan-phase 253`. Fresh SDK readiness must confirm no runnable continuation after this halted summary;254 remains pending and unstarted.
 
 ## Self-Check: FAILED
 
