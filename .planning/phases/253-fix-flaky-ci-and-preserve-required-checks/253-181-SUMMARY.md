@@ -20,7 +20,7 @@ The earlier complete run is also preserved unchanged at [253-181-TASK3-FIRST-FUL
 
 ## Completed implementation work
 
-Root committed and verified Task 1 (`59ffb8228`), Task 2 RED (`e03ab7c30`), Task 2 GREEN (`9090010e3`), and Task 3 RED (`bbc5e50e8`). Task 2's strict source manifest, shared semantic SDK-report validation, exact unique index checks, and mutation tests passed the root rerun. Task 3 candidate source and 179/180 plan amendments remain uncommitted; their exact hashes, sizes, and preserved input readbacks are in [253-181-EXECUTION-RECORD.json](253-181-EXECUTION-RECORD.json).
+Root committed and verified Task 1 (`59ffb8228`), Task 2 RED (`e03ab7c30`), Task 2 GREEN (`9090010e3`), and Task 3 RED (`bbc5e50e8`). Task 2's strict source manifest, shared semantic SDK-report validation, exact unique index checks, and mutation tests passed the root rerun. Task 3 candidate source and 179/180 plan amendments are preserved in halted candidate commit `c88c3f8d96b490abe49cd2812c491fc7dd04b400`; their exact hashes, sizes, and preserved input readbacks are in [253-181-EXECUTION-RECORD.json](253-181-EXECUTION-RECORD.json).
 
 Actual installed SDK schema and structure validators for amended plans 179 and 180 exited successfully and were rerun against the exact retained argv, stdout, hashes, and plan bytes. The full evidence is [253-181-TASK3-FINAL-VALIDATORS.json](253-181-TASK3-FINAL-VALIDATORS.json), SHA-256 `706d0351cf0a3af718e94ada37a92efe065e622bdd95995f01bbe6aa817c6083`. Those checks validate plan structure only and do not negate the failed suite.
 
@@ -38,3 +38,9 @@ The original 178 plan, summary, review, and execution record remain unchanged an
 `CIREL-01` remains `partial_not_reproduced`; `CIREL-02` remains `unaccepted`; whole-phase verification is `not_started`. No real acceptance, browser, hosted request, install, or requirement completion occurred.
 
 Next route: `$gsd-plan-phase 253 --gaps`.
+
+## Deviations and preservation
+
+Task 1's failing test was replayed against the preserved original helper after implementation; this is recorded in `253-181-TASK1-RED-REPLAY.json`, rather than represented as a historical RED commit. The initial full run failed with three fixture errors; the bounded correction left one broken negative control in the final run. No further repair or acceptance was run.
+
+Shared prior bytes are recoverable at `c88c3f8d96b490abe49cd2812c491fc7dd04b400` under `refs/gsd/phase253-execution181-diagnostics`, with exact path/blob/hash readbacks in the execution record. Fresh readiness: 181 plans, 75 completed implementation plans, 26 halted, 80 without summaries, zero runnable.

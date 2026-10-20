@@ -4,7 +4,7 @@
   "repair_plan": "253-181",
   "acceptance_plan": "253-179",
   "bridge_plan": "253-180",
-  "reviewed_candidate_commit": null,
+  "reviewed_candidate_commit": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
   "source_files": {
     ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "14b1aba3aceca988aaf201f25b8fc84995e5766cac7a36c600e46b4a087d10b5",
     ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "404a7dd7d30c60c25c742032db290e528eb03945bfb5de5beb5c87156b314677",
@@ -13,11 +13,11 @@
     ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md": "14f66a4d3494ed60c448de4d01e96b5bd187aae240036eecc2e142acb9f38ed5"
   },
   "source_commits": {
-    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": null,
-    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": null,
-    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": null,
-    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": null,
-    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md": null
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400"
   },
   "task_commits": [
     "59ffb8228",
@@ -141,5 +141,6 @@
     "install": "none",
     "shared_state_modified": false
   },
-  "next_route": "$gsd-plan-phase 253 --gaps"
+  "next_route": "$gsd-plan-phase 253 --gaps",
+  "preserved_diagnostics_ref": "refs/gsd/phase253-execution181-diagnostics"
 }

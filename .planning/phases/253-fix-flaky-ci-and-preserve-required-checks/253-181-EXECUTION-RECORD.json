@@ -28,7 +28,13 @@
         "result": "root rerun confirmed missing validate_review181 failure; committed by root"
       }
     ],
-    "task3_candidate_source_commits": null,
+    "task3_candidate_source_commits": {
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400"
+    },
     "candidate_files": {
       ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": {
         "sha256": "14b1aba3aceca988aaf201f25b8fc84995e5766cac7a36c600e46b4a087d10b5",
@@ -150,5 +156,53 @@
     "hosted_requests": 0,
     "browser_launches": 0
   },
-  "next_route": "$gsd-plan-phase 253 --gaps"
+  "next_route": "$gsd-plan-phase 253 --gaps",
+  "candidate_commit": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+  "diagnostic_ref": "refs/gsd/phase253-execution181-diagnostics",
+  "root_closeout": {
+    "shared_prior_bytes": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "bytes": 23627,
+        "sha256": "c9cbc5e7f7262102fd7abd211d553cc34064ecb1e0f646cae08153eba4fa27c8",
+        "commit": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+        "blob": "5dc28a2c00660c972506538b01cd15f8b5a79ea6",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "bytes": 85462,
+        "sha256": "187b25a3c9cf6dc075e84ef82fd94e16786f6d8c7d4003ec10721be2ce56b6e2",
+        "commit": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+        "blob": "0453791ceec8a6a64397b8cb727cea5b1ea5f5b1",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "bytes": 151948,
+        "sha256": "8765ce7ab9f68233e4db59e76747afc6bd8ec300030777a1834c8a6d93877adb",
+        "commit": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+        "blob": "86b3e859e3b4bb2a441dfd8428c3a4d49c2b3564",
+        "readback_verified": true
+      }
+    ],
+    "readiness": {
+      "plan_count": 181,
+      "completed_implementation_count": 75,
+      "incomplete_count": 80,
+      "halted_count": 26,
+      "without_summary": 80,
+      "runnable_count": 0,
+      "ready_plans": []
+    },
+    "planning_context_available": true,
+    "phase_complete": false,
+    "next_command": "$gsd-plan-phase 253 --gaps"
+  },
+  "deviations": [
+    "Task1 RED was replayed against preserved original helper after implementation; exact failing source/output retained. No historical RED commit was fabricated."
+  ]
 }
