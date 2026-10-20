@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T19:18:16.333725+00:00",
-  "status": "halted",
+  "timestamp": "2026-10-20T19:38:13.863585+00:00",
+  "status": "ready_to_execute",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "75 implementation plans complete;24 halted;78 without summaries;175 halted and176/177 blocked",
-  "next_command": "$gsd-plan-phase 253",
-  "resume_command": "$gsd-plan-phase 253",
-  "next_action": "Plan175 halted: bridge validator accepts stale executable174-pin/22-halt assertions and owners174. Plan176 acceptance was not launched; repair the bridge checker and its positive fixtures before any continuation.",
+  "current": "75 implementation plans complete; 24 halted; 81 without summaries among 180. New Plan 178 ready.",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Execute Plan 178 to repair strict executable bridge checks and lifecycle fixtures; 179 then runs one distinct offline acceptance, and 180 preserves originals before amending blocked instructions. Plan 175 remains halted; 176/177 remain unexecuted. No requirement or phase verification is complete.",
   "route": {
     "immediate_gsd_command": "$gsd-plan-phase 253",
     "resume_command": "$gsd-plan-phase 253",
@@ -1309,7 +1309,7 @@
       "readback_exact": true
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3360,5 +3360,52 @@
     },
     "phase_verification_status": "not_started",
     "acceptance_attempts": 0
+  },
+  "phase253_bridge_repair_planning": {
+    "status": "passed",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+    "plans": [
+      "253-178",
+      "253-179",
+      "253-180"
+    ],
+    "plan_count": 3,
+    "tasks": 6,
+    "waves": 3,
+    "total_phase_plans": 180,
+    "ready_plans": [
+      "253-178"
+    ],
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "implementation_status": "partial",
+    "phase_verification_status": "not_started",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "recorded_at": "2026-10-20T19:38:13.863585+00:00",
+    "browser_invocations": 0,
+    "github_requests": 0,
+    "acceptance_attempts": 0
+  },
+  "current_routing": {
+    "current_phase": 253,
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "ready_plans": [
+      "253-178"
+    ],
+    "incomplete_count": 81,
+    "halted_count": 24,
+    "next_roadmap_phase": {
+      "number": 254,
+      "status": "Pending",
+      "has_context": false,
+      "has_research": false,
+      "has_plans": false,
+      "route_after_253_completion": "Recheck 254 readiness; currently $gsd-discuss-phase 254",
+      "started": false
+    },
+    "historical_verification_is_forward_blocker": false
   }
 }

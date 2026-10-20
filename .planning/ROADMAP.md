@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 253 --gaps-only — Execute reviewed gap plans175–177, starting with175. Both requirements and phase verification remain open.
+**Next command:** $gsd-execute-phase 253 --gaps-only — Execute reviewed plans 178–180, starting with 178. Both requirements and phase verification remain open.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -278,6 +278,22 @@ Plan174 halted after one of118 publication tests failed; its exact log remains V
 
 Cross-cutting constraints: exact historical publisher allowance, retained173/174 failure logs, same-process elevated probe/acceptance, unchanged limits, no acceptance retry, actual hosted proof still required. The future route after177 is168→169→170→171→172 in waves4–8. Existing168–172 bytes remain unchanged during planning. Records:253-175-177-PLANNING-RECORD.json and253-175-177-CHECK-01.md. Planning checks passed; implementation and phase verification remain incomplete.
 
+
+### Latest additive repair plans 178–180 (2026-10-20)
+
+Plan 175 halted because the bridge accepted stale executable checks and failed proof owners. Plans 176/177 never ran; their instructions remain unchanged. New planning passed independent review with no blockers or warnings.
+
+**Wave 1**
+- [ ] 253-178-PLAN.md — Repair strict executable validation, receipt lifecycle and SDK-copy fixtures.
+
+**Wave 2 (blocked on Wave 1 completion)**
+- [ ] 253-179-PLAN.md — One distinct offline acceptance attempt; preserve every older result.
+
+**Wave 3 (blocked on Wave 2 completion)**
+- [ ] 253-180-PLAN.md — Preserve seven originals, then amend five blocked continuation plans.
+
+Cross-cutting constraints: keep Plan 175 halted, all failed results and original instructions recoverable, and the existing request/retry/time/tree limits. Local acceptance and copied SDK simulations cannot satisfy hosted CI requirements. The future contract must account for 180 plan pins, 24 halts and 73 dispositions. The current 180-plan set has 75 completed implementation plans, 24 halts and 81 without summaries. Records: `253-178-180-PLANNING-RECORD.json`, `253-178-180-CHECK-01.md`, `253-178-180-SOURCE-AUDIT.md`. Next: `$gsd-execute-phase 253 --gaps-only`, starting with 178. Implementation and whole-phase verification remain incomplete.
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
@@ -306,12 +322,12 @@ Cross-cutting constraints: exact historical publisher allowance, retained173/174
 
 ## Progress
 
-**Execution order:**252 →253 →254 →255. Phase252 complete; Phase253 has177plans:75 implementation,23halts,79unsummarized.175ready;176/177 then168–172.71historical unexecuted plans await evidence-backed dispositions.254/255 pending.
+**Execution order:** 252 → 253 → 254 → 255. Phase 252 complete; Phase 253 has 180 plans: 75 completed implementation, 24 halted, 81 without summaries. Plan 178 ready; 179/180 then the preserved 168–172 continuation. Phase 254/255 pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/177 | Partial implementation;175 ready; phase verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/180 | Partial implementation; 178 ready; phase verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

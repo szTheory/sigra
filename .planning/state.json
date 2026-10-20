@@ -13,12 +13,13 @@
       "name": "Fix Flaky CI and Preserve Required Checks",
       "status": "in_progress",
       "planning_status": "passed",
-      "plan_count": 177,
+      "plan_count": 180,
       "completed_implementation_count": 75,
       "phase_verification_status": "not_started",
       "halted_plan_count": 24,
       "unsummarized_plan_count": 78,
-      "ready_plans": []
+      "ready_plans": [],
+      "verification_status": "not_started"
     },
     {
       "number": "254",
@@ -32,11 +33,11 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 253",
-    "label": "Repair Phase253 bridge validation",
-    "reason": "Plan175 halted: bridge validator accepts stale executable174-pin/22-halt assertions and owners174. Plan176 acceptance was not launched; repair the bridge checker and its positive fixtures before any continuation."
+    "command": "$gsd-execute-phase 253 --gaps-only",
+    "label": "Execute reviewed bridge repair",
+    "reason": "Execute Plan 178 to repair strict executable bridge checks and lifecycle fixtures; 179 then runs one distinct offline acceptance, and 180 preserves originals before amending blocked instructions. Plan 175 remains halted; 176/177 remain unexecuted. No requirement or phase verification is complete."
   },
-  "updated_at": "2026-10-20T19:18:16.333725+00:00",
+  "updated_at": "2026-10-20T19:38:13.863585+00:00",
   "phase253_execution": {
     "status": "halted",
     "implementation_status": "partial",
@@ -1597,9 +1598,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-20T18:04:57.874438+00:00",
-  "stopped_at": "Plans175\u2013177 reviewed; Plan175 ready",
-  "state_head": "cd4baac3feaddfd99790db0dc742bf4fc62a09ce",
+  "last_updated": "2026-10-20T19:38:13.863585+00:00",
+  "stopped_at": "Plans 178\u2013180 reviewed; Plan 178 ready",
+  "state_head": "fea8f29e79f7d6e96f1bf2c6f15cfa6eee73681d",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2007,5 +2008,38 @@
     "sdk_ref": "refs/gsd/phase253-gap-planning175-sdk",
     "sdk_commit": "bbef03270a1c6cdfa244452a173f44586488c252",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json"
-  }
+  },
+  "phase253_bridge_repair_planning": {
+    "status": "passed",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+    "plans": [
+      "253-178",
+      "253-179",
+      "253-180"
+    ],
+    "plan_count": 3,
+    "tasks": 6,
+    "waves": 3,
+    "total_phase_plans": 180,
+    "ready_plans": [
+      "253-178"
+    ],
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "implementation_status": "partial",
+    "phase_verification_status": "not_started",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "recorded_at": "2026-10-20T19:38:13.863585+00:00",
+    "browser_invocations": 0,
+    "github_requests": 0,
+    "acceptance_attempts": 0
+  },
+  "phase253_plan_count": 180,
+  "phase253_ready_plans": [
+    "253-178"
+  ],
+  "phase253_verification_status": "not_started"
 }
