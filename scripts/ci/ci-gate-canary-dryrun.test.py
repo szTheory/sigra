@@ -498,7 +498,7 @@ class TransportSensitivityTests(unittest.TestCase):
         self.assertNotEqual(latest[0], self.fix)
 
     def test_the_pre_fix_transport_fails_the_live_policy_gate_at_artifact_zip_with_origin_rejected(self):
-        code, summary = live_run("--transport-from", self.pre_fix, "--stop-after", "full-pass")
+        code, summary = live_run("--transport-from", self.pre_fix, "--stop-after", "full-pass", "--repos-link-form")
         self.assertNotEqual(code, 0, f"the live-policy gate cannot see the 253-104 defect: {summary}")
         self.assertEqual(summary.get("status"), "failed", summary)
         self.assertEqual(summary.get("transport_from"), self.pre_fix, summary)
@@ -508,15 +508,21 @@ class TransportSensitivityTests(unittest.TestCase):
         self.assertEqual([hop for hop in summary.get("live_hops") or [] if hop.get("hop_ordinal", 0) >= 1], [])
         self.assertEqual(summary.get("shim_connect_hosts"), ["api.github.com"], "no hop-1 connection to the blob host")
         self.assertEqual(summary.get("evidence_status"), "halted", summary)
+        self.assertEqual(summary.get("link_form_override"), "repos", summary)
+        self.assertEqual([read for read in summary.get("paginated_reads") or [] if read.get("route") == "check_runs"],
+                         [{"route": "check_runs", "pages": 3, "next_link_forms": ["repos"]}], summary.get("paginated_reads"))
 
     def test_the_redirect_fix_transport_passes_the_same_gate(self):
-        code, summary = live_run("--transport-from", self.fix, "--stop-after", "full-pass")
+        code, summary = live_run("--transport-from", self.fix, "--stop-after", "full-pass", "--repos-link-form")
         self.assertEqual(code, 0, summary)
         self.assertEqual(summary.get("status"), "passed", summary)
         self.assertEqual(summary.get("transport_from"), self.fix, summary)
         hops = [hop for hop in summary.get("live_hops") or [] if hop.get("route") == "artifact_zip"]
         self.assertEqual(len(hops), 1, summary.get("live_hops"))
         self.assertRegex(hops[0]["host"], BLOB_HOST)
+        self.assertEqual(summary.get("link_form_override"), "repos", summary)
+        self.assertEqual([read for read in summary.get("paginated_reads") or [] if read.get("route") == "check_runs"],
+                         [{"route": "check_runs", "pages": 3, "next_link_forms": ["repos"]}], summary.get("paginated_reads"))
 
     def test_the_hermetic_mode_result_for_the_pre_fix_transport_is_recorded(self):
         # Recorded, not gated: the hermetic allocation is exempt from the live origin check, which is why 253-101's
@@ -526,6 +532,44 @@ class TransportSensitivityTests(unittest.TestCase):
         self.assertEqual(summary.get("mode"), "hermetic", summary)
         sys.stderr.write(f"\nhermetic --transport-from {self.pre_fix}: exit {code}, status {summary.get('status')}, "
                          f"stop {summary.get('stop')}\n")
+
+
+class HistoricalTransportLinkFormTests(unittest.TestCase):
+    """253-164: --repos-link-form is an explicit, scope-checked /repos/ link form for pre-146 --transport-from transports.
+    Without it the live-policy fake emits GitHub's /repositories/<id>/ form, which those transports refuse (blind spot #5)."""
+
+    KNOB_SCOPE = "--repos-link-form is only for a --live-policy run with --transport-from"
+    KNOB_CURRENT = "--repos-link-form refused: the transport under test already accepts the /repositories/<id>/ link form"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.fix = redirect_fix_commit()
+
+    def test_a_pre_146_transport_refuses_the_default_live_link_form_at_preflight_page_2(self):
+        code, summary = live_run("--transport-from", self.fix, "--stop-after", "full-pass")
+        self.assertNotEqual(code, 0, summary)
+        self.assertIn("pagination_destination_rejected", summary.get("stop") or "", summary)
+        self.assertIsNone(summary.get("link_form_override"), summary)
+        self.assertNotIn("artifact_zip", summary.get("requests_by_route") or {}, summary.get("requests_by_route"))
+
+    def test_the_knob_is_refused_outside_its_scope(self):
+        cases = [
+            (("--repos-link-form",), self.KNOB_SCOPE),
+            (("--live-policy", "--repos-link-form"), self.KNOB_SCOPE),
+            (("--transport-from", self.fix, "--repos-link-form"), self.KNOB_SCOPE),
+            (("--live-policy", "--repos-link-form", "--transport-from", "HEAD"), self.KNOB_CURRENT),
+        ]
+        for args, message in cases:
+            with self.subTest(args=args):
+                result = subprocess.run([sys.executable, str(RUNNER), "--overlay-worktree", "--stop-after", "full-pass", *args],
+                                        cwd=ROOT, env=clean_env(), capture_output=True, text=True, timeout=1800)
+                self.assertNotEqual(result.returncode, 0, result.stdout[-2000:])
+                try:
+                    stop = json.loads(result.stdout).get("stop") or ""
+                except ValueError:
+                    stop = ""
+                self.assertTrue(message in result.stderr or message in stop,
+                                f"exit {result.returncode}; stderr {result.stderr[-1000:]}; stop {stop!r}")
 
 
 FROZEN_CANARY = {"preflight": 8, "publication": 24, "dispatch": 7, "run_discovery": 7, "pre_watch_rate": 7,
