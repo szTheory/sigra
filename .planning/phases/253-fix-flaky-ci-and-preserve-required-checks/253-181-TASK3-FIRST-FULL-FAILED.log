@@ -1,0 +1,66 @@
+test_168_requires_receipt_before_each_automated_body (__main__.SuccessorContractTests.test_168_requires_receipt_before_each_automated_body) ... ok
+test_bridge_accepts_exact_five_plan_amendment_fixture (__main__.SuccessorContractTests.test_bridge_accepts_exact_five_plan_amendment_fixture) ... ok
+test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) ... ok
+test_bridge_rejects_stale_executable_assertions_and_owners (__main__.SuccessorContractTests.test_bridge_rejects_stale_executable_assertions_and_owners)
+The prior green fixture must fail when only recovery prose is updated. ... ok
+test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions (__main__.SuccessorContractTests.test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions) ... ERROR
+test_consumer168_uses_entry_bridge_without_repeating_sdk_queries (__main__.SuccessorContractTests.test_consumer168_uses_entry_bridge_without_repeating_sdk_queries) ... ERROR
+test_each_suite_spy_failure_keeps_exit_and_stops_later_suites_and_receipt (__main__.SuccessorContractTests.test_each_suite_spy_failure_keeps_exit_and_stops_later_suites_and_receipt) ... ok
+test_enter_is_once_only_and_rechecks_prepared_commit_and_script (__main__.SuccessorContractTests.test_enter_is_once_only_and_rechecks_prepared_commit_and_script) ... ok
+test_full_dryrun_failure_does_not_print_pass_or_continue (__main__.SuccessorContractTests.test_full_dryrun_failure_does_not_print_pass_or_continue) ... ok
+test_full_dryrun_requires_native_output_and_matching_count (__main__.SuccessorContractTests.test_full_dryrun_requires_native_output_and_matching_count) ... ok
+test_installed_sdk_copy_executes_queries_and_proves_full_route (__main__.SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route) ... ok
+test_lifecycle_181_preserves_178_halt_and_reuses_179_180 (__main__.SuccessorContractTests.test_lifecycle_181_preserves_178_halt_and_reuses_179_180) ... ok
+test_lifecycle_preserves_175_halt_and_retires_176_177 (__main__.SuccessorContractTests.test_lifecycle_preserves_175_halt_and_retires_176_177) ... ok
+test_log_parser_accepts_only_complete_ordered_native_evidence (__main__.SuccessorContractTests.test_log_parser_accepts_only_complete_ordered_native_evidence) ... ok
+test_nested_173_review_requires_original_location_schema_and_findings (__main__.SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings) ... ERROR
+test_preflight_binds_root_call_plan_script_pid_probe_and_readback (__main__.SuccessorContractTests.test_preflight_binds_root_call_plan_script_pid_probe_and_readback) ... ok
+test_prepare_transformation_matches_independent_expected_script (__main__.SuccessorContractTests.test_prepare_transformation_matches_independent_expected_script) ... ok
+test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits (__main__.SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits) ... ok
+test_sdk_indexes_require_exact_unique_plan_universe (__main__.SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe) ... ok
+test_sdk_report_rejects_rehashed_fabricated_queries (__main__.SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries) ... ok
+test_validate_review181_requires_real_source_commits_and_rejects_forgery (__main__.SuccessorContractTests.test_validate_review181_requires_real_source_commits_and_rejects_forgery) ... ok
+
+======================================================================
+ERROR: test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions (__main__.SuccessorContractTests.test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 1061, in test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions
+    self.assertEqual(successor.verify_receipt(project)["status"], "verified")
+                     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py", line 748, in verify_receipt
+    validate_review181(root, require_summary=True)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py", line 393, in validate_review181
+    raise ContractError(f"181 validator record is not bound to exact amended bytes: {plan_id}")
+successor.ContractError: 181 validator record is not bound to exact amended bytes: 253-179
+
+======================================================================
+ERROR: test_consumer168_uses_entry_bridge_without_repeating_sdk_queries (__main__.SuccessorContractTests.test_consumer168_uses_entry_bridge_without_repeating_sdk_queries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 1355, in test_consumer168_uses_entry_bridge_without_repeating_sdk_queries
+    self.assertEqual(successor.verify_receipt(project, consumer="168")["status"], "verified")
+                     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py", line 748, in verify_receipt
+    validate_review181(root, require_summary=True)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py", line 393, in validate_review181
+    raise ContractError(f"181 validator record is not bound to exact amended bytes: {plan_id}")
+successor.ContractError: 181 validator record is not bound to exact amended bytes: 253-179
+
+======================================================================
+ERROR: test_nested_173_review_requires_original_location_schema_and_findings (__main__.SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 684, in test_nested_173_review_requires_original_location_schema_and_findings
+    self.assertEqual(successor.git(root, "show", f"{commit}:{rel}"), (root / rel).read_bytes())
+                     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py", line 143, in git
+    raise ContractError(f"git {' '.join(args)} failed ({result.returncode}): {detail}")
+successor.ContractError: git show b3e5372be1095e7a65e97adb8d9c29a6f3ea8a04:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-PLAN.md failed (128): fatal: path '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-PLAN.md' exists on disk, but not in 'b3e5372be1095e7a65e97adb8d9c29a6f3ea8a04'
+
+----------------------------------------------------------------------
+Ran 21 tests in 189.253s
+
+FAILED (errors=3)

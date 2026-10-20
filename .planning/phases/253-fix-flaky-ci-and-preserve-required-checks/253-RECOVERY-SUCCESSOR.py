@@ -28,10 +28,13 @@ PLAN_177 = f"{PHASE}/253-177-PLAN.md"
 PLAN_178 = f"{PHASE}/253-178-PLAN.md"
 PLAN_179 = f"{PHASE}/253-179-PLAN.md"
 PLAN_180 = f"{PHASE}/253-180-PLAN.md"
+PLAN_181 = f"{PHASE}/253-181-PLAN.md"
 REVIEW_173 = f"{PHASE}/253-173-RECOVERY-REVIEW.json"
 REVIEW_175 = f"{PHASE}/253-175-REPAIR-REVIEW.json"
 REVIEW_178 = f"{PHASE}/253-178-REPAIR-REVIEW.json"
+REVIEW_181 = f"{PHASE}/253-181-REPAIR-REVIEW.json"
 RECEIPT_179 = f"{PHASE}/253-179-RECOVERY-RECEIPT.json"
+RECEIPT_178 = f"{PHASE}/253-178-RECOVERY-RECEIPT.json"
 BRIDGE_180 = f"{PHASE}/253-180-BRIDGE-RECORD.json"
 SUCCESSOR_SCHEMA = "sigra.phase253.successor-acceptance/v1"
 REVIEW_SCHEMA = "sigra.phase253.successor-repair-review/v1"
@@ -60,6 +63,10 @@ HISTORICAL_SHA256 = {
     f"{PHASE}/253-175-SUMMARY.md": "74059b7ca4e1730dde91d21b5bf260090332aef7be20cc8ab258c41437482098",
     f"{PHASE}/253-175-REPAIR-REVIEW.json": "dc9a7ed14f881a2f8d7428d9e4121a89f7b49a9a9144a544f1e8bc545511b603",
     f"{PHASE}/253-175-EXECUTION-RECORD.json": "a6e068c80db579e093ac5c374fb57db471c207a01be46ac77a10ee1b388f8c00",
+    f"{PHASE}/253-178-PLAN.md": "f260cf0df47ab986c228bb8cf0b1cbfc5fdcb594b2adc3a3bb88cb4f733351b5",
+    f"{PHASE}/253-178-SUMMARY.md": "622517dff95bf2d7feef336c4d8e3c11af1bfc1bb0fbee51d7dc9a048ce259b0",
+    f"{PHASE}/253-178-REPAIR-REVIEW.json": "169ecf458eccc7ed440b7533875f3b580f8334bc8189a024efea55dac83212ee",
+    f"{PHASE}/253-178-EXECUTION-RECORD.json": "ab7a0282eb760b635376807062285c1361828b0ccb56915a4a93a3b404d15567",
 }
 FROZEN_175_COMMITS = {
     f"{PHASE}/253-175-PLAN.md": "6b8bccad1a51a3455ab27d88360064d7ac8d30c8",
@@ -67,6 +74,14 @@ FROZEN_175_COMMITS = {
     f"{PHASE}/253-175-REPAIR-REVIEW.json": "071f9894e7ed8625462b894f1df3fc0be3598928",
     f"{PHASE}/253-175-EXECUTION-RECORD.json": "fea8f29e79f7d6e96f1bf2c6f15cfa6eee73681d",
 }
+FROZEN_178_COMMITS = {
+    f"{PHASE}/253-178-PLAN.md": "e22874ea687fadd72347ca539470287d1abc9475",
+    f"{PHASE}/253-178-SUMMARY.md": "e2acfff8da38d8733248c602700d48f39625f3d2",
+    f"{PHASE}/253-178-REPAIR-REVIEW.json": "e2acfff8da38d8733248c602700d48f39625f3d2",
+    f"{PHASE}/253-178-EXECUTION-RECORD.json": "e2acfff8da38d8733248c602700d48f39625f3d2",
+}
+EXPECTED_178_FINDING_IDS = ("178-REVIEW-01", "178-REVIEW-02", "178-REVIEW-03", "178-TEST-01")
+EXPECTED_175_FINDING_ID = "BRIDGE-EXECUTABLE-COUNTS-OWNERS"
 TREE_CAP = 2 * 1024 * 1024
 SHARED = (".planning/config.json", ".planning/state.json", ".planning/STATE.md", ".planning/HANDOFF.json")
 SUITES = (
@@ -223,6 +238,9 @@ def check_historical_inputs(root: Path) -> dict:
     for rel, commit in FROZEN_175_COMMITS.items():
         if git(root, "show", f"{commit}:{rel}") != read_bytes(root, rel):
             raise ContractError(f"175 historical producing-commit bytes differ: {rel}")
+    for rel, commit in FROZEN_178_COMMITS.items():
+        if git(root, "show", f"{commit}:{rel}") != read_bytes(root, rel):
+            raise ContractError(f"178 historical producing-commit bytes differ: {rel}")
     review173 = read_json(root, REVIEW_173)
     raw_review173 = read_bytes(root, REVIEW_173)
     if sha256(raw_review173) != REVIEW_173_SHA256:
@@ -260,9 +278,24 @@ def check_historical_inputs(root: Path) -> dict:
         raise ContractError("175 must remain halted")
     if review175.get("status") != "halted" or execution175.get("status") != "halted":
         raise ContractError("175 review/execution record no longer preserves its halted result")
+    summary178 = read_bytes(root, f"{PHASE}/253-178-SUMMARY.md").decode("utf-8", "strict")
+    review178 = read_json(root, REVIEW_178)
+    execution178 = read_json(root, f"{PHASE}/253-178-EXECUTION-RECORD.json")
+    if not re.search(r"(?m)^status: halted$", summary178):
+        raise ContractError("178 must remain halted")
+    if review178.get("status") != "halted" or execution178.get("status") != "halted":
+        raise ContractError("178 review/execution record no longer preserves its halted result")
+    findings178 = review178.get("unresolved_implementation_findings")
+    finding_ids178 = [row.get("id") for row in findings178] if isinstance(findings178, list) else None
+    if finding_ids178 != list(EXPECTED_178_FINDING_IDS):
+        raise ContractError("178 review no longer retains its exact four original findings")
+    execution_findings = execution178.get("findings")
+    execution_ids178 = [row.get("id") for row in execution_findings] if isinstance(execution_findings, list) else None
+    if execution_ids178 != list(EXPECTED_178_FINDING_IDS):
+        raise ContractError("178 execution record no longer retains its exact four findings")
     if log173.splitlines()[-1] != "VERIFY-EXIT 1":
         raise ContractError("173's original failure sentinel changed")
-    for number in (173, 174, 175, 176, 177):
+    for number in (173, 174, 175, 176, 177, 178):
         if (root / f"{PHASE}/253-{number}-RECOVERY-RECEIPT.json").exists():
             raise ContractError(f"historical/superseded {number} success receipt must remain absent")
     for number in (176, 177):
@@ -272,7 +305,9 @@ def check_historical_inputs(root: Path) -> dict:
             "historical_sha256": HISTORICAL_SHA256,
             "174_log_sha256": sha256(log174), "174_status": "halted", "174_exit": 1,
             "173_status": "halted", "173_exit": 1, "167_status": "halted",
-            "175_status": "halted", "175_commits": FROZEN_175_COMMITS}
+            "175_status": "halted", "175_commits": FROZEN_175_COMMITS,
+            "178_status": "halted", "178_commits": FROZEN_178_COMMITS,
+            "178_findings": list(EXPECTED_178_FINDING_IDS)}
 
 
 def clean_status(root: Path) -> bytes:
@@ -300,39 +335,88 @@ def run_deadline_guards(root: Path) -> dict:
             "command_sha256": sha256(command_one.encode())}
 
 
-def validate_review178(root: Path) -> dict:
-    summary = read_bytes(root, f"{PHASE}/253-178-SUMMARY.md").decode("utf-8", "strict")
-    if not re.search(r"(?m)^status: complete$", summary):
-        raise ContractError("178 repair summary is not complete")
-    review = read_json(root, REVIEW_178)
+def validate_review181(root: Path, require_summary: bool = False) -> dict:
+    """Validate the current repair review against committed bytes and source history."""
+    if require_summary:
+        summary = read_bytes(root, f"{PHASE}/253-181-SUMMARY.md").decode("utf-8", "strict")
+        if not re.search(r"(?m)^status: complete$", summary):
+            raise ContractError("181 repair summary is not complete")
+    review = read_json(root, REVIEW_181)
     if (review.get("schema") != REVIEW_SCHEMA or review.get("status") != "reviewed_for_new_acceptance"
-            or review.get("repair_plan") != "253-178" or review.get("acceptance_plan") != "253-179"
+            or review.get("repair_plan") != "253-181" or review.get("acceptance_plan") != "253-179"
             or review.get("bridge_plan") != "253-180"):
-        raise ContractError("178 review identity or status is invalid")
+        raise ContractError("181 review identity or status is invalid")
     if review.get("unresolved_implementation_findings") != [] or review.get("acceptance_attempts") != 0:
-        raise ContractError("178 review has unresolved findings or records an acceptance attempt")
+        raise ContractError("181 review has unresolved findings or records an acceptance attempt")
     if review.get("requirements") != {"CIREL-01": "partial_not_reproduced", "CIREL-02": "unaccepted"}:
-        raise ContractError("178 review overstates unresolved CIREL requirements")
+        raise ContractError("181 review overstates unresolved CIREL requirements")
     if review.get("phase_verification_status") != "not_started":
-        raise ContractError("178 review overstates phase verification")
+        raise ContractError("181 review overstates phase verification")
+    if review.get("github_requests") != 0 or review.get("native_browser_launches") != 0:
+        raise ContractError("181 review records an unauthorized external action")
+    if review.get("scope", {}).get("product_changes") != ["scripts/ci/ci-git-publication.test.py"]:
+        raise ContractError("181 review product scope differs from the inherited single test repair")
+    if review.get("scope", {}).get("product_changes_during_181") != []:
+        raise ContractError("181 review records product changes during the repair")
+    if review.get("finding_dispositions") != {finding: "closed" for finding in EXPECTED_178_FINDING_IDS}:
+        raise ContractError("181 review does not close exactly the four recorded 178 findings")
     required = {f"{PHASE}/253-RECOVERY-SUCCESSOR.py", f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
-                PLAN_178, PLAN_179, PLAN_180, "scripts/ci/ci-git-publication.test.py",
+                f"{PHASE}/253-181-PLAN.md", PLAN_179, PLAN_180, "scripts/ci/ci-git-publication.test.py",
                 "scripts/ci/ci-git-publication.py", "scripts/ci/ci-gate-canary-dryrun.py"}
     files, commits = review.get("source_files"), review.get("source_commits")
     if not isinstance(files, dict) or set(files) != required or not isinstance(commits, dict) or set(commits) != required:
-        raise ContractError("178 review does not bind the complete helper/test/plan/product-source set")
+        raise ContractError("181 review does not bind the complete helper/test/plan/product-source set")
+    head = git(root, "rev-parse", "HEAD").decode("ascii").strip()
     for rel in sorted(required):
-        if sha256(read_bytes(root, rel)) != files[rel]:
-            raise ContractError(f"178 reviewed source hash differs: {rel}")
+        current = read_bytes(root, rel)
+        if not isinstance(files[rel], str) or not re.fullmatch(r"[0-9a-f]{64}", files[rel]) or sha256(current) != files[rel]:
+            raise ContractError(f"181 reviewed source hash differs: {rel}")
         commit = commits[rel]
         if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
-            raise ContractError(f"178 producing commit is missing: {rel}")
-        if git(root, "show", f"{commit}:{rel}") != read_bytes(root, rel):
-            raise ContractError(f"178 producing commit does not contain exact reviewed bytes: {rel}")
-    if review.get("scope", {}).get("product_changes") != ["scripts/ci/ci-git-publication.test.py"]:
-        raise ContractError("178 review product scope differs from the single reviewed test repair")
-    if review.get("scope", {}).get("product_changes_during_178") != []:
-        raise ContractError("178 review records product changes during the repair")
+            raise ContractError(f"181 producing commit is missing: {rel}")
+        git(root, "merge-base", "--is-ancestor", commit, head)
+        if git(root, "show", f"{commit}:{rel}") != current:
+            raise ContractError(f"181 producing commit does not contain exact reviewed bytes: {rel}")
+    if review.get("historical_178") != {
+            "status": "halted", "finding_ids": list(EXPECTED_178_FINDING_IDS),
+            "sha256": {rel: HISTORICAL_SHA256[rel] for rel in FROZEN_178_COMMITS}}:
+        raise ContractError("181 review does not preserve the original halted 178 identity")
+    validation = review.get("amended_plan_validation")
+    if not isinstance(validation, dict) or set(validation) != {"253-179", "253-180"}:
+        raise ContractError("181 review lacks the two actual amended-plan validator records")
+    node = Path.home() / ".asdf/installs/nodejs/20.18.1/bin/node"
+    sdk = Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs"
+    for plan_id, wave, dependency in (("253-179", 2, "253-181"), ("253-180", 3, "253-179")):
+        rel = f"{PHASE}/{plan_id}-PLAN.md"
+        row = validation[plan_id]
+        if not isinstance(row, dict) or row.get("plan_path") != rel or row.get("plan_sha256") != files.get(rel):
+            raise ContractError(f"181 validator record is not bound to exact amended bytes: {plan_id}")
+        plan_text = read_bytes(root, rel).decode("utf-8", "strict")
+        if not re.search(rf"(?m)^wave: {wave}\s*$", plan_text) or not re.search(
+                rf'(?m)^depends_on:\s*\["{dependency}"\]\s*$', plan_text):
+            raise ContractError(f"181 amended plan wave/dependency differs: {plan_id}")
+        for key, verb, extra in (("frontmatter", "frontmatter.validate", ["--schema", "plan-gap-closure"]),
+                                 ("structure", "verify.plan-structure", [])):
+            record = row.get(key)
+            argv = [str(node), str(sdk), "query", verb, rel, *extra]
+            if not isinstance(record, dict) or record.get("argv") != argv or record.get("exit_code") != 0:
+                raise ContractError(f"181 {key} validator argv/exit differs: {plan_id}")
+            stdout = record.get("stdout")
+            if not isinstance(stdout, str) or not stdout:
+                raise ContractError(f"181 {key} validator stdout is empty: {plan_id}")
+            raw_stdout = stdout.encode("utf-8", "strict")
+            if record.get("stdout_sha256") != sha256(raw_stdout):
+                raise ContractError(f"181 {key} validator raw stdout hash differs: {plan_id}")
+            try:
+                output = json.loads(raw_stdout)
+            except (json.JSONDecodeError, UnicodeDecodeError) as error:
+                raise ContractError(f"181 {key} validator stdout is not JSON: {plan_id}") from error
+            if not isinstance(output, dict) or output.get("valid") is not True:
+                raise ContractError(f"181 {key} validator result is not valid: {plan_id}")
+            if key == "frontmatter" and output.get("schema") != "plan-gap-closure":
+                raise ContractError(f"181 frontmatter validator used the wrong schema: {plan_id}")
+            if key == "structure" and (output.get("errors") != [] or not isinstance(output.get("tasks"), list)):
+                raise ContractError(f"181 plan structure validator reports errors: {plan_id}")
     return review
 
 
@@ -347,7 +431,7 @@ def prepare(root: Path, attempt_dir: Path) -> dict:
     status = clean_status(root)
     if status:
         raise ContractError("prepare requires clean committed source inputs")
-    validate_review178(root)
+    validate_review181(root, require_summary=True)
     if sha256(read_bytes(root, "scripts/ci/ci-git-publication.py")) != PUBLISHER_SHA256:
         raise ContractError("production publisher pin changed")
     if sha256(read_bytes(root, "scripts/ci/ci-gate-canary-dryrun.py")) != DRYRUN_SHA256:
@@ -596,7 +680,7 @@ def expected_receipt(root: Path, attempt_dir: Path) -> dict:
         "schema": SUCCESSOR_SCHEMA,
         "status": "verified_local_success",
         "recovery_plan": "253-179",
-        "repair_plan": "253-178",
+        "repair_plan": "253-181",
         "bridge_plan": "253-180",
         "attempt_count": 1,
         "next_plan": "253-180",
@@ -607,7 +691,7 @@ def expected_receipt(root: Path, attempt_dir: Path) -> dict:
         "historical_sha256": {rel: row["sha256"] for rel, row in prepared["source_bindings"].items()},
         "shared_sha256": prepared["shared_sha256"],
         "review": {"path": REVIEW_173, "sha256": REVIEW_173_SHA256},
-        "repair_review": {"path": REVIEW_178, "sha256": sha256(read_bytes(root, REVIEW_178))},
+        "repair_review": {"path": REVIEW_181, "sha256": sha256(read_bytes(root, REVIEW_181))},
         "permission_preflight": {"path": f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json", "sha256": sha256(read_bytes(attempt_dir, "253-179-PERMISSION-PREFLIGHT.json"))},
         "regression_log": {"path": f"{PHASE}/253-179-REGRESSION.log", "sha256": sha256(log)},
         "projection": projection,
@@ -643,7 +727,7 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
     receipt = read_json(root, RECEIPT_179)
     if receipt.get("schema") != SUCCESSOR_SCHEMA or receipt.get("status") != "verified_local_success":
         raise ContractError("179 successor receipt schema/status invalid")
-    for rel, field in ((REVIEW_173, "review"), (REVIEW_178, "repair_review"),
+    for rel, field in ((REVIEW_173, "review"), (REVIEW_181, "repair_review"),
                        (f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json", "permission_preflight"),
                        (f"{PHASE}/253-179-REGRESSION.log", "regression_log")):
         bound_file(root, receipt.get(field), field)
@@ -661,7 +745,7 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
     history = check_historical_inputs(root)
     if receipt.get("historical") != history:
         raise ContractError("receipt historical outcomes differ from reopened original evidence")
-    validate_review178(root)
+    validate_review181(root, require_summary=True)
     parsed = parse_log(bound_file(root, receipt["regression_log"], "regression log"))
     preflight = read_json(root, receipt["permission_preflight"]["path"])
     body174 = command_body(read_bytes(root, PLAN_174), PLAN_174)
@@ -678,7 +762,7 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
                 "source_bindings": {rel: {"sha256": value} for rel, value in receipt.get("historical_sha256", {}).items()}}
     validate_preflight(root, preflight, parsed, prepared, root)
     validate_probe_object(root, preflight["probe"])
-    if receipt.get("recovery_plan") != "253-179" or receipt.get("repair_plan") != "253-178" or receipt.get("bridge_plan") != "253-180":
+    if receipt.get("recovery_plan") != "253-179" or receipt.get("repair_plan") != "253-181" or receipt.get("bridge_plan") != "253-180":
         raise ContractError("receipt plan lineage is incorrect")
     if receipt.get("attempt_count") != 1 or receipt.get("next_plan") != "253-180":
         raise ContractError("receipt attempt count or next plan is incorrect")
@@ -982,11 +1066,11 @@ def validate_169_executable_contract(plan: str, root: Path) -> None:
         raise ContractError(f"169 exact target source is malformed: {error}") from error
     expected_targets.extend(f"253-{number:02d}" for number in NEVER_RAN_IDS + (176, 177))
     expected_halts = [f"253-{number:02d}" for number in HISTORICAL_HALT_IDS]
-    expected_plans = [f"253-{number:02d}" for number in range(1, 181)]
+    expected_plans = [f"253-{number:02d}" for number in range(1, 182)]
     for name, expected, reason in (
         ("EXPECTED_TARGET_IDS", expected_targets, "exact73 target set"),
-        ("EXPECTED_HALT_IDS", expected_halts, "exact24 halt set"),
-        ("EXPECTED_PLAN_IDS", expected_plans, "exact180 plan-pin set"),
+        ("EXPECTED_HALT_IDS", expected_halts, "exact25 halt set"),
+        ("EXPECTED_PLAN_IDS", expected_plans, "exact181 plan-pin set"),
     ):
         match = re.search(rf"const {name}=(\[.*?\]);", script, re.S)
         if not match:
@@ -996,15 +1080,15 @@ def validate_169_executable_contract(plan: str, root: Path) -> None:
         except json.JSONDecodeError as error:
             raise ContractError(f"169 executable {reason} is not a JSON array") from error
         if actual != expected:
-            label = {"exact73 target set": "73 target set", "exact24 halt set": "24 halt set",
-                     "exact180 plan-pin set": "180-plan-pin set"}[reason]
+            label = {"exact73 target set": "73 target set", "exact25 halt set": "25 halt set",
+                     "exact181 plan-pin set": "181-plan-pin set"}[reason]
             raise ContractError(f"169 executable {label} differs from the authoritative source")
         actual_rows = {"EXPECTED_TARGET_IDS": "targets", "EXPECTED_HALT_IDS": "halts",
                        "EXPECTED_PLAN_IDS": "pins"}[name]
         if f"JSON.stringify(sort({actual_rows}))!==JSON.stringify(sort({name}))" not in script:
             raise ContractError(f"169 executable {reason} is not compared with actual rows")
     if not all(needle in script for needle in (
-        "c.responsibilities.length!==73", "c.plan_pins.length!==180", "c.halted_plans.length!==24")):
+        "c.responsibilities.length!==73", "c.plan_pins.length!==181", "c.halted_plans.length!==25")):
         raise ContractError("169 executable reconciliation assertion has a stale count")
     if script != expected_script:
         raise ContractError("169 executable reconciliation assertion contains an unapproved executable or comment change")
@@ -1017,7 +1101,7 @@ def expected_169_script(root: Path) -> str:
     target_ids = [row["plan"] for row in r12["responsibilities"]]
     target_ids.extend(f"253-{number:02d}" for number in NEVER_RAN_IDS + (176, 177))
     halt_ids = [f"253-{number:02d}" for number in HISTORICAL_HALT_IDS]
-    plan_ids = [f"253-{number:02d}" for number in range(1, 181)]
+    plan_ids = [f"253-{number:02d}" for number in range(1, 182)]
     return (
         'const c=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
         'const t=JSON.stringify(c); '
@@ -1028,7 +1112,7 @@ def expected_169_script(root: Path) -> str:
         'const targets=c.responsibilities.map(r=>r.plan); '
         'const halts=c.halted_plans.map(r=>r.plan); '
         'const pins=c.plan_pins.map(r=>r.plan); '
-        'if(c.responsibilities.length!==73||c.plan_pins.length!==180||c.halted_plans.length!==24||'
+        'if(c.responsibilities.length!==73||c.plan_pins.length!==181||c.halted_plans.length!==25||'
         'c.application.bundle_requires_final_summary_of!=="253-172"||'
         'c.application.accepted_only_predicate!=="scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned"||'
         'JSON.stringify(sort(targets))!==JSON.stringify(sort(EXPECTED_TARGET_IDS))||'
@@ -1087,8 +1171,8 @@ def expected_plan_amendment(original: str, number: int, root: Path) -> str:
     if number == 169:
         current = _replace_exactly_once(original, "wave: 3", "wave: 5", "169 wave")
         for old, new, label in (
-            ("22 halted", "24 halted", "169 halt count"), ("22) and", "24) and", "169 halt predicate"),
-            ("23 halted", "24 halted", "169 prior halt count"), ("23) and", "24) and", "169 prior halt predicate"),
+            ("22 halted", "25 halted", "169 halt count"), ("22) and", "25) and", "169 halt predicate"),
+            ("23 halted", "25 halted", "169 prior halt count"), ("23) and", "25) and", "169 prior halt predicate"),
             ("71 unstarted", "73 unstarted", "169 target count"), ("71-target", "73-target", "169 target label"),
             ("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json", "169 receipt path"),
             ("253-174", "253-179", "169 recovery identity"),
@@ -1097,7 +1181,7 @@ def expected_plan_amendment(original: str, number: int, root: Path) -> str:
             ("154 -> 169 and 172;", "154 -> 169 and 172, 176 -> 179, 177 -> 180;", "new responsibility rows"),
             ("154 -> 169, 172 (all completion links plus load_target_disposition);",
              "154 -> 169, 172 (all completion links plus load_target_disposition), 176 -> 179, 177 -> 180;", "new proof rows"),
-            ("173 -> 179.", "173 -> 179; 174 -> [178, 179]; 175 -> [178, 179].", "failed attempt owners"),
+            ("173 -> 179.", "173 -> 179; 174 -> [181, 179]; 175 -> [181, 179]; 178 -> [181, 179].", "failed attempt owners"),
         ):
             # 253-174 has two distinct references after the receipt path is rewritten.
             if label == "169 recovery identity":
@@ -1131,8 +1215,8 @@ def expected_plan_amendment(original: str, number: int, root: Path) -> str:
             "<automated>python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py verify-receipt --consumer 168 && N=\"$HOME/.asdf/installs/nodejs/20.18.1/bin/node\";",
             "172 receipt verifier preamble")
         for old, new, label in (
-            ("Twenty-two halted", "Twenty-four halted", "172 halt prose"),
-            ("22 halted", "24 halted", "172 halt count"),
+            ("Twenty-two halted", "Twenty-five halted", "172 halt prose"),
+            ("22 halted", "25 halted", "172 halt count"),
             ("71 targets", "73 targets", "172 target count"),
             ("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json", "172 receipt"),
             ("253-174-RECOVERY-SUCCESSOR.py", "253-RECOVERY-SUCCESSOR.py", "172 verifier"),
@@ -1147,13 +1231,17 @@ def expected_plan_amendment(original: str, number: int, root: Path) -> str:
         r12 = read_json(root, R12_CONTRACT)
         targets = [row["plan"] for row in r12["responsibilities"]]
         targets.extend(f"253-{n:02d}" for n in NEVER_RAN_IDS + (176, 177))
+        forbidden = sorted({f"253-{n:02d}-SUMMARY.md" for n in
+                            (*HISTORICAL_HALT_IDS, *(number for number in range(168, 182) if number not in (176, 177)))})
         new_script = (
             'const b=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
             'const paths=(b.entries||[]).map(e=>e.path||e.disposition_path||""); '
             f'const EXPECTED={json.dumps([f"{n}-SUMMARY.md" for n in targets],separators=(",",":"))}; '
+            f'const FORBIDDEN={json.dumps(forbidden,separators=(",",":"))}; '
             'const sort=(xs)=>[...xs].sort(); '
             'if(paths.length!==73||new Set(paths).size!==73||'
-            'JSON.stringify(sort(paths))!==JSON.stringify(sort(EXPECTED))) process.exit(1)'
+            'JSON.stringify(sort(paths))!==JSON.stringify(sort(EXPECTED))||'
+            'paths.some(path=>FORBIDDEN.includes(path))) process.exit(1)'
         )
         body = bodies[1]
         old_script = scripts[0].group(1)
