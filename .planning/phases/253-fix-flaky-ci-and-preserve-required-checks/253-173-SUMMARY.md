@@ -24,7 +24,7 @@ metrics:
   duration: "~4 minutes"
   completed: 2026-10-20
 actuals:
-  tokens: 3170
+  tokens: 3257
   tasks: 1
   commits: 2
 plan_head_before: a26049c3dc95bd5139ee2682fd02f340a6f07890
