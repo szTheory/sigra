@@ -755,13 +755,181 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
     return {"status": "verified", "source_commit": source, "count": parsed["count"]}
 
 
-def sdk_query(project: Path, command: str, phase: str = "253") -> tuple[dict, bytes]:
+def sdk_identity() -> dict:
     sdk = Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs"
     node = Path.home() / ".asdf/installs/nodejs/20.18.1/bin/node"
     if not sdk.is_file() or not node.is_file():
         raise ContractError("installed GSD SDK or pinned Node runtime is unavailable")
-    result = subprocess.run([str(node), str(sdk), "query", command, phase,
-                             "--project-dir", str(project), "--raw"],
+    return {"path": str(sdk), "sha256": sha256(sdk.read_bytes()),
+            "node": str(node), "node_sha256": sha256(node.read_bytes())}
+
+
+def _git_manifest(root: Path, commit: str) -> list[dict]:
+    """Read a committed .planning tree through Git objects, excluding only the bridge record."""
+    if not re.fullmatch(r"[0-9a-f]{40}", str(commit)):
+        raise ContractError("SDK source input commit is invalid")
+    tree = git(root, "ls-tree", "-rz", "-r", commit, "--", ".planning")
+    entries = {}
+    for raw in tree.split(b"\0"):
+        if not raw:
+            continue
+        meta, path_raw = raw.split(b"\t", 1)
+        mode, kind, oid = meta.decode("ascii").split()
+        path = path_raw.decode("utf-8", "strict")
+        if kind != "blob" or not path.startswith(".planning/"):
+            continue
+        if path in SDK_MANIFEST_EXCLUSIONS:
+            continue
+        entries[path] = {"path": path, "blob": oid, "mode": mode}
+    if not entries:
+        raise ContractError("SDK source commit contains no committed planning inputs")
+    oids = list(dict.fromkeys(row["blob"] for row in entries.values()))
+    batch = git(root, "cat-file", "--batch", input_bytes=("\n".join(oids) + "\n").encode())
+    offset = 0
+    blobs = {}
+    for requested in oids:
+        header_end = batch.find(b"\n", offset)
+        if header_end < 0:
+            raise ContractError("Git source manifest blob header is truncated")
+        header = batch[offset:header_end].decode("ascii").split()
+        if len(header) != 3 or header[0] != requested or header[1] != "blob":
+            raise ContractError("Git source manifest blob identity differs")
+        size = int(header[2])
+        start, end = header_end + 1, header_end + 1 + size
+        if end >= len(batch) or batch[end:end + 1] != b"\n":
+            raise ContractError("Git source manifest blob bytes are truncated")
+        blobs[requested] = batch[start:end]
+        offset = end + 1
+    manifest = []
+    for path in sorted(entries):
+        row = entries[path]
+        content = blobs[row["blob"]]
+        manifest.append({"path": path, "blob": row["blob"], "bytes": len(content),
+                         "sha256": sha256(content)})
+    return manifest
+
+
+def _filesystem_manifest(root: Path) -> list[dict]:
+    planning = root / ".planning"
+    files = {}
+    for path in sorted(planning.rglob("*")):
+        if not path.is_file() and not path.is_symlink():
+            continue
+        rel = path.relative_to(root).as_posix()
+        if rel in SDK_MANIFEST_EXCLUSIONS:
+            continue
+        if path.is_symlink():
+            raise ContractError(f"SDK planning input may not be a symlink: {rel}")
+        raw = path.read_bytes()
+        files[rel] = {"path": rel, "bytes": len(raw), "sha256": sha256(raw)}
+    return [files[path] for path in sorted(files)]
+
+
+def _assert_sdk_source_binding(root: Path, commit: str, manifest: object,
+                               require_current: bool = False) -> list[dict]:
+    if not isinstance(manifest, list):
+        raise ContractError("SDK committed source manifest must be a list")
+    expected = _git_manifest(root, commit)
+    clean_rows = [{key: row.get(key) for key in ("path", "blob", "bytes", "sha256")}
+                  for row in manifest if isinstance(row, dict)]
+    if len(clean_rows) != len(manifest) or clean_rows != expected:
+        raise ContractError("SDK committed source manifest differs from Git source bytes")
+    if require_current:
+        current = _filesystem_manifest(root)
+        expected_files = [{"path": row["path"], "bytes": row["bytes"], "sha256": row["sha256"]}
+                          for row in expected]
+        if current != expected_files:
+            raise ContractError("SDK current planning input differs from its committed source manifest")
+    head = git(root, "rev-parse", "HEAD").decode("ascii").strip()
+    result = subprocess.run(["git", "-C", str(root), "merge-base", "--is-ancestor", commit, head],
+                            capture_output=True, check=False)
+    if result.returncode:
+        raise ContractError("SDK source input commit is not an ancestor of the consuming project HEAD")
+    return expected
+
+
+def validate_sdk_index_rows(rows: object, init: dict, stage: str) -> dict:
+    """Validate raw index rows before a caller can turn them into an ID-keyed map."""
+    if stage not in ("readiness", "final"):
+        raise ContractError("SDK index stage must be readiness or final")
+    if not isinstance(rows, list) or len(rows) != 181:
+        raise ContractError("SDK index must contain exactly181 raw plan rows")
+    if not isinstance(init, dict):
+        raise ContractError("SDK init output must be an object")
+    ids = []
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ContractError("SDK index rows must be objects before ID conversion")
+        plan_id = row.get("id")
+        if not isinstance(plan_id, str) or re.fullmatch(r"253-(?:0[1-9]|[1-9][0-9]{1,2})", plan_id) is None:
+            raise ContractError("SDK index plan ID is malformed")
+        ids.append(plan_id)
+        if not isinstance(row.get("has_summary"), bool) or not isinstance(row.get("halted"), bool):
+            raise ContractError(f"SDK index summary/halt fields are malformed for {plan_id}")
+        if not isinstance(row.get("gap_closure"), bool):
+            raise ContractError(f"SDK index gap_closure field is malformed for {plan_id}")
+        if "ready" in row and not isinstance(row["ready"], bool):
+            raise ContractError(f"SDK index readiness field is malformed for {plan_id}")
+        blocked = row.get("blocked_by")
+        if (not isinstance(blocked, list) or
+                any(not isinstance(item, str) or re.fullmatch(
+                    r"253-(?:0[1-9]|[1-9][0-9]{1,2})", item) is None for item in blocked)):
+            raise ContractError(f"SDK index blocked_by is malformed for {plan_id}")
+    if len(set(ids)) != 181:
+        raise ContractError("SDK index contains duplicate plan IDs")
+    if set(ids) != set(EXPECTED_PLAN_IDS):
+        raise ContractError("SDK index plan IDs differ from the exact 253-01 through253-181 universe")
+    if type(init.get("plan_count")) is not int or init["plan_count"] != 181:
+        raise ContractError("SDK init plan_count differs from the exact181-row index")
+    by_id = {row["id"]: row for row in rows}
+    halted = sorted(plan_id for plan_id, row in by_id.items() if row["halted"] is True)
+    expected_halted = sorted(f"253-{number:02d}" for number in HISTORICAL_HALT_IDS)
+    if halted != expected_halted:
+        raise ContractError("SDK index halted plan IDs differ from the exact25 halted set")
+    incomplete = sorted(f"{plan_id}-PLAN.md" for plan_id, row in by_id.items()
+                        if row["has_summary"] is not True)
+    incomplete_count = init.get("incomplete_count")
+    incomplete_plans = init.get("incomplete_plans")
+    if (type(incomplete_count) is not int or not isinstance(incomplete_plans, list) or
+            any(not isinstance(item, str) for item in incomplete_plans) or
+            incomplete_count != len(incomplete) or sorted(incomplete_plans) != incomplete):
+        raise ContractError("SDK init incomplete fields disagree with raw plan summary rows")
+    runnable = init.get("runnable_plans")
+    runnable_pattern = re.compile(r"253-(?:0[1-9]|[1-9][0-9]{1,2})-PLAN\.md")
+    if (not isinstance(runnable, list) or any(not isinstance(item, str) or
+                                               runnable_pattern.fullmatch(item) is None for item in runnable) or
+            len(set(runnable)) != len(runnable)):
+        raise ContractError("SDK init runnable field is malformed or duplicated")
+    if stage == "readiness":
+        row168 = by_id["253-168"]
+        if row168["has_summary"] or row168["halted"] or row168["blocked_by"] != []:
+            raise ContractError(f"SDK readiness168 row must be summary-absent, unhalted and unblocked: {row168}")
+        if "253-168-PLAN.md" not in runnable:
+            raise ContractError("SDK readiness init does not list168 as runnable")
+    for item in runnable:
+        plan_id = item.removesuffix("-PLAN.md")
+        row = by_id.get(plan_id)
+        if row is None or row["has_summary"] or row["halted"] or row["blocked_by"]:
+            raise ContractError(f"SDK init runnable plan disagrees with raw index row: {item}")
+    ready_plans = {f"{plan_id}-PLAN.md" for plan_id, row in by_id.items() if row.get("ready") is True}
+    if not ready_plans.issubset(set(runnable)):
+        raise ContractError("SDK init runnable fields omit a raw index row marked ready")
+    if stage == "final":
+        if incomplete or init.get("incomplete_count") != 0 or init.get("incomplete_plans") != []:
+            raise ContractError("SDK final index must have zero incomplete summaries")
+        # blocked_by reports dependency graph ancestry, including valid
+        # dispositions behind preserved halted plans. It differs from a
+        # summary whose own status is `blocked`, checked by the copy producer.
+    return by_id
+
+
+def sdk_query(project: Path, command: str, phase: str = "253") -> tuple[dict, bytes, dict]:
+    identity = sdk_identity()
+    sdk = Path(identity["path"])
+    node = Path(identity["node"])
+    argv = [str(node), str(sdk), "query", command, phase,
+            "--project-dir", str(project), "--raw"]
+    result = subprocess.run(argv,
                             capture_output=True, check=False)
     if result.returncode:
         raise ContractError(f"installed SDK {command} failed ({result.returncode}): "
@@ -772,7 +940,7 @@ def sdk_query(project: Path, command: str, phase: str = "253") -> tuple[dict, by
         raise ContractError(f"installed SDK {command} did not return JSON: {error}") from error
     if not isinstance(value, dict):
         raise ContractError(f"installed SDK {command} returned a non-object")
-    return value, result.stdout
+    return value, result.stdout, {"argv": argv, "returncode": result.returncode}
 
 
 def sdk_write_summary(project: Path, number: int, status: str, suffix: str) -> None:
@@ -789,8 +957,10 @@ def sdk_write_summary(project: Path, number: int, status: str, suffix: str) -> N
 
 NEVER_RAN_IDS = (144, 145, *range(147, 155), *range(156, 164))
 HISTORICAL_HALT_IDS = (2, 7, 9, 12, 16, 27, 40, 51, 63, 73, 84, 92, 97,
-                       104, 113, 122, 134, 143, 146, 155, 167, 173, 174, 175)
+                       104, 113, 122, 134, 143, 146, 155, 167, 173, 174, 175, 178)
 ORIGINALS_180 = "refs/gsd/phase253-successor-180-plan-originals"
+EXPECTED_PLAN_IDS = tuple(f"253-{number:02d}" for number in range(1, 182))
+SDK_MANIFEST_EXCLUSIONS = (BRIDGE_180,)
 
 
 def validate_169_executable_contract(plan: str, root: Path) -> None:
@@ -1020,24 +1190,22 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
     for number in (176, 177):
         if (root / f"{PHASE}/253-{number}-SUMMARY.md").exists():
             raise ContractError(f"unexecuted {number} summary exists before SDK simulation")
-    sdk = Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs"
-    node = Path.home() / ".asdf/installs/nodejs/20.18.1/bin/node"
-    if not sdk.is_file() or not node.is_file():
-        raise ContractError("installed GSD SDK or pinned Node runtime is unavailable")
-    sdk_identity = {"path": str(sdk), "sha256": sha256(sdk.read_bytes()),
-                    "node": str(node), "node_sha256": sha256(node.read_bytes())}
+    identity = sdk_identity()
+    source_input_commit = git(root, "rev-parse", "HEAD").decode("ascii").strip()
+    source_manifest = _git_manifest(root, source_input_commit)
+    source_manifest_digest = sha256(canonical_json_bytes(source_manifest))
+    _assert_sdk_source_binding(root, source_input_commit, source_manifest, require_current=True)
 
     with tempfile.TemporaryDirectory(prefix="sigra-253-sdk-copy-") as temp:
         project = Path(temp) / "project"
         project.mkdir()
         shutil.copytree(planning, project / ".planning", symlinks=False)
         phase_dir = project / PHASE
-        source_snapshot = {
-            path.relative_to(project).as_posix(): sha256(path.read_bytes())
-            for path in sorted((project / ".planning").rglob("*"))
-            if path.is_file() and path.relative_to(project).as_posix() != BRIDGE_180
-        }
-        immutable_input_sha256 = sha256(canonical_json_bytes(source_snapshot))
+        copied_manifest = _filesystem_manifest(project)
+        copied_manifest_expected = [{"path": row["path"], "bytes": row["bytes"], "sha256": row["sha256"]}
+                                   for row in source_manifest]
+        if copied_manifest != copied_manifest_expected:
+            raise ContractError("temporary SDK copy inputs differ from the committed source manifest")
         original_summaries = {path.name: path.read_bytes() for path in phase_dir.glob("253-*-SUMMARY.md")}
         for number in (176, 177):
             if (phase_dir / f"253-{number}-SUMMARY.md").exists():
@@ -1048,7 +1216,11 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
         subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
         subprocess.run(["git", "-C", str(project), "commit", "-qm", "committed SDK copy inputs"], check=True)
         copy_input_commit = git(project, "rev-parse", "HEAD").decode().strip()
-        for number in (178, 179, 180):
+        for number in (175, 178):
+            summary = phase_dir / f"253-{number}-SUMMARY.md"
+            if not summary.is_file() or not re.search(r"(?m)^status:\s*halted$", summary.read_text(encoding="utf-8")):
+                raise ContractError(f"SDK copy must retain halted{number} summary bytes")
+        for number in (179, 180, 181):
             summary = phase_dir / f"253-{number}-SUMMARY.md"
             if summary.exists():
                 if not re.search(r"(?m)^status: complete$", summary.read_text(encoding="utf-8")):
@@ -1057,20 +1229,11 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
                 sdk_write_summary(project, number, "complete", "Temporary SDK readiness fixture; not project evidence.")
         subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
         subprocess.run(["git", "-C", str(project), "commit", "-qm", "temporary 178-180 SDK readiness"], check=True)
-        readiness, readiness_raw = sdk_query(project, "init.execute-phase")
-        index, index_raw = sdk_query(project, "phase-plan-index")
-        plans = {str(row.get("id")): row for row in index.get("plans", []) if isinstance(row, dict)}
-        row168, row175 = plans.get("253-168"), plans.get("253-175")
-        if not isinstance(row168, dict) or row168.get("halted") is not False or row168.get("blocked_by") != []:
-            raise ContractError("installed SDK does not show168 runnable after180")
-        if not isinstance(row175, dict) or row175.get("halted") is not True:
-            raise ContractError("installed SDK copy does not retain175 halted")
-        if "253-168-PLAN.md" not in readiness.get("runnable_plans", []):
-            raise ContractError("installed init.execute-phase does not select168 as runnable")
-        initial_halted = sorted(row["id"] for row in plans.values() if row.get("halted") is True)
-        expected_halted = sorted(f"253-{number:02d}" for number in HISTORICAL_HALT_IDS)
-        if initial_halted != expected_halted:
-            raise ContractError("installed SDK initial halted IDs differ from exact24 set")
+        readiness, readiness_raw, readiness_init_meta = sdk_query(project, "init.execute-phase")
+        index, index_raw, readiness_index_meta = sdk_query(project, "phase-plan-index")
+        readiness_rows = validate_sdk_index_rows(index.get("plans"), readiness, "readiness")
+        if readiness_rows["253-175"]["halted"] is not True or readiness_rows["253-178"]["halted"] is not True:
+            raise ContractError("installed SDK copy does not retain halted175 and halted178")
 
         # Simulate ordinary168–172 completion plus the exact original71+176/177 disposition set.
         for number in disposition_ids:
@@ -1079,15 +1242,20 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
             sdk_write_summary(project, number, "complete", "Temporary disposition from the exact73-target contract.")
         for number in (168, 169, 170, 171, 172):
             sdk_write_summary(project, number, "complete", "Temporary ordinary completion fixture; not project evidence.")
+        for number in (*range(168, 173), 176, 177, 179, 180, 181):
+            summary = phase_dir / f"253-{number:02d}-SUMMARY.md"
+            if not summary.is_file() or not re.search(r"(?m)^status: complete$", summary.read_text(encoding="utf-8")):
+                raise ContractError(f"SDK simulation summary must be complete for {number}")
         for name, raw in original_summaries.items():
             if (phase_dir / name).read_bytes() != raw:
                 raise ContractError(f"SDK fixture overwrote an existing summary: {name}")
         subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
         subprocess.run(["git", "-C", str(project), "commit", "-qm", "temporary 168-172 and73 disposition simulation"], check=True)
         simulation_commit = git(project, "rev-parse", "HEAD").decode().strip()
-        final_init, final_init_raw = sdk_query(project, "init.execute-phase")
-        final_index, final_index_raw = sdk_query(project, "phase-plan-index")
-        final_rows = [row for row in final_index.get("plans", []) if isinstance(row, dict)]
+        final_init, final_init_raw, post_init_meta = sdk_query(project, "init.execute-phase")
+        final_index, final_index_raw, post_index_meta = sdk_query(project, "phase-plan-index")
+        final_rows_by_id = validate_sdk_index_rows(final_index.get("plans"), final_init, "final")
+        final_rows = list(final_rows_by_id.values())
         incomplete = [row for row in final_rows if row.get("has_summary") is not True]
         halted = [row for row in final_rows if row.get("halted") is True]
         blocked = []
@@ -1096,31 +1264,34 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
             if summary.is_file() and re.search(r"(?m)^status:\s*blocked\s*$", summary.read_text(encoding="utf-8")):
                 blocked.append(row["id"])
         halted_ids = sorted(row["id"] for row in halted)
-        if len(incomplete) != 0 or halted_ids != expected_halted or blocked:
+        if len(incomplete) != 0 or halted_ids != sorted(f"253-{n:02d}" for n in HISTORICAL_HALT_IDS) or blocked:
             raise ContractError(f"installed SDK post-chain accounting differs: incomplete={len(incomplete)}, halted={halted_ids}, blocked={blocked}")
-        if final_init.get("incomplete_count") != 0 or final_init.get("incomplete_plans") != []:
-            raise ContractError("installed init.execute-phase disagrees with zero incomplete plans")
         for name, raw in original_summaries.items():
             if (phase_dir / name).read_bytes() != raw:
                 raise ContractError(f"SDK fixture changed original summary bytes: {name}")
         if any(not (phase_dir / f"253-{n:02d}-SUMMARY.md").is_file() for n in (176, 177)):
             raise ContractError("SDK simulation omitted one of the explicitly retired176/177 dispositions")
         query_reports = {
-            "readiness_init": {"arguments": ["init.execute-phase", "253"], "stdout": readiness_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(readiness_raw)},
-            "readiness_index": {"arguments": ["phase-plan-index", "253"], "stdout": index_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(index_raw)},
-            "post_init": {"arguments": ["init.execute-phase", "253"], "stdout": final_init_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(final_init_raw)},
-            "post_index": {"arguments": ["phase-plan-index", "253"], "stdout": final_index_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(final_index_raw)},
+            "readiness_init": {"arguments": ["init.execute-phase", "253"], **readiness_init_meta, "stdout": readiness_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(readiness_raw)},
+            "readiness_index": {"arguments": ["phase-plan-index", "253"], **readiness_index_meta, "stdout": index_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(index_raw)},
+            "post_init": {"arguments": ["init.execute-phase", "253"], **post_init_meta, "stdout": final_init_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(final_init_raw)},
+            "post_index": {"arguments": ["phase-plan-index", "253"], **post_index_meta, "stdout": final_index_raw.decode("utf-8", "strict"), "stdout_sha256": sha256(final_index_raw)},
         }
-        return {
-            "status": "passed", "temporary_copy": True, "sdk_identity": sdk_identity,
-            "immutable_copy_input_sha256": immutable_input_sha256,
-            "source_snapshot_sha256": immutable_input_sha256,
+        report = {
+            "status": "passed", "temporary_copy": True, "sdk_identity": identity,
+            "source_input_commit": source_input_commit,
+            "source_input_manifest": source_manifest,
+            "source_input_manifest_sha256": source_manifest_digest,
+            "source_manifest_exclusions": {"project_input": list(SDK_MANIFEST_EXCLUSIONS),
+                                            "simulation_summaries": [f"{PHASE}/253-{n}-SUMMARY.md"
+                                                                      for n in (168, 169, 170, 171, 172, 176, 177, 179, 180, 181)]},
+            "sdk_copy_project_dir": str(project),
             "copy_input_commit": copy_input_commit, "source_copy_commit": simulation_commit,
             "simulation_commit": simulation_commit,
             "readiness_168_runnable": True, "readiness_175_halted": True,
             "pre_simulation_init_sha256": sha256(readiness_raw),
             "pre_simulation_index_sha256": sha256(index_raw),
-            "post_chain_incomplete": 0, "post_chain_halted": 24,
+            "post_chain_incomplete": len(incomplete), "post_chain_halted": len(halted),
             "post_chain_halted_ids": halted_ids, "post_chain_blocked_summaries": blocked,
             "post_chain_init_sha256": sha256(final_init_raw),
             "post_chain_index_sha256": sha256(final_index_raw),
@@ -1128,6 +1299,8 @@ def run_sdk_copy(root: Path, record: dict, record_path: str) -> dict:
             "disposition_ids": [f"253-{number:02d}" for number in disposition_ids],
             "sdk_queries": query_reports,
         }
+        validate_sdk_copy_report_data(root, report, verify_temporary_repo=True)
+        return report
 
 def canonical_json_bytes(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -1146,6 +1319,146 @@ def validate_scoped_plan_diff(original: str, current: str, rel: str, root: Path)
         raise ContractError(f"unapproved plan instruction diff in {rel}: bytes do not equal the finite original-derived amendment")
 
 
+def validate_sdk_copy_report_data(root: Path, report: object,
+                                  verify_temporary_repo: bool = False) -> dict:
+    if not isinstance(report, dict):
+        raise ContractError("SDK-copy report root must be an object")
+    if report.get("status") != "passed" or report.get("temporary_copy") is not True:
+        raise ContractError("SDK-copy external report is not a passing labeled temporary copy")
+    identity = sdk_identity()
+    if report.get("sdk_identity") != identity:
+        raise ContractError("SDK-copy report installed Node/GSD identity differs from actual files")
+    project_dir = report.get("sdk_copy_project_dir")
+    if not isinstance(project_dir, str) or not Path(project_dir).is_absolute():
+        raise ContractError("SDK-copy report project directory is missing or not absolute")
+    source_commit = report.get("source_input_commit")
+    manifest = report.get("source_input_manifest")
+    expected_manifest = _assert_sdk_source_binding(root, source_commit, manifest)
+    manifest_hash = sha256(canonical_json_bytes(expected_manifest))
+    if report.get("source_input_manifest_sha256") != manifest_hash:
+        raise ContractError("SDK-copy source manifest digest differs from committed bytes")
+    expected_exclusions = {"project_input": list(SDK_MANIFEST_EXCLUSIONS),
+                           "simulation_summaries": [f"{PHASE}/253-{n}-SUMMARY.md"
+                                                     for n in (168, 169, 170, 171, 172, 176, 177, 179, 180, 181)]}
+    if report.get("source_manifest_exclusions") != expected_exclusions:
+        raise ContractError("SDK-copy source manifest exclusions differ from the finite contract")
+
+    queries = report.get("sdk_queries")
+    query_names = {"readiness_init", "readiness_index", "post_init", "post_index"}
+    if not isinstance(queries, dict) or set(queries) != query_names:
+        raise ContractError("SDK-copy report lacks exactly four actual installed-SDK query outputs")
+    parsed, raw_outputs = {}, {}
+    command_by_name = {"readiness_init": "init.execute-phase",
+                       "readiness_index": "phase-plan-index",
+                       "post_init": "init.execute-phase",
+                       "post_index": "phase-plan-index"}
+    logical_args = {name: [command, "253"] for name, command in command_by_name.items()}
+    node, sdk = identity["node"], identity["path"]
+    for name in sorted(query_names):
+        row = queries[name]
+        if not isinstance(row, dict) or not isinstance(row.get("stdout"), str):
+            raise ContractError(f"SDK-copy actual {name} output is missing")
+        expected_argv = [node, sdk, "query", command_by_name[name], "253",
+                         "--project-dir", project_dir, "--raw"]
+        if row.get("arguments") != logical_args[name] or row.get("argv") != expected_argv:
+            raise ContractError(f"SDK-copy actual {name} query arguments differ from the installed SDK command")
+        if row.get("returncode") != 0:
+            raise ContractError(f"SDK-copy actual {name} query did not exit successfully")
+        try:
+            raw = row["stdout"].encode("utf-8", "strict")
+        except UnicodeEncodeError as error:
+            raise ContractError(f"SDK-copy actual {name} stdout contains invalid UTF-8 text: {error}") from error
+        if sha256(raw) != row.get("stdout_sha256"):
+            raise ContractError(f"SDK-copy actual {name} raw stdout hash differs")
+        try:
+            parsed_row = json.loads(raw.decode("utf-8", "strict"))
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
+            raise ContractError(f"SDK-copy actual {name} stdout is not strict UTF-8 JSON: {error}") from error
+        if not isinstance(parsed_row, dict):
+            raise ContractError(f"SDK-copy actual {name} stdout root must be an object")
+        parsed[name] = parsed_row
+        raw_outputs[name] = raw
+
+    readiness_rows = validate_sdk_index_rows(parsed["readiness_index"].get("plans"),
+                                             parsed["readiness_init"], "readiness")
+    final_rows = validate_sdk_index_rows(parsed["post_index"].get("plans"),
+                                         parsed["post_init"], "final")
+    expected_halted = sorted(f"253-{n:02d}" for n in HISTORICAL_HALT_IDS)
+    halted_ids = sorted(plan_id for plan_id, row in final_rows.items() if row["halted"])
+    blocked_summaries = report.get("post_chain_blocked_summaries")
+    if blocked_summaries != []:
+        raise ContractError("SDK-copy report records blocked summary statuses")
+    # Reopen every existing summary from the committed input manifest. The only
+    # synthetic summaries are the exact route/disposition set, each constrained
+    # to complete status by run_sdk_copy.
+    source_summary_paths = {row["path"] for row in expected_manifest
+                            if re.fullmatch(rf"{re.escape(PHASE)}/253-[0-9]+-SUMMARY\.md", row["path"])}
+    for rel in sorted(source_summary_paths):
+        original = git(root, "show", f"{source_commit}:{rel}").decode("utf-8", "strict")
+        if re.search(r"(?m)^status:\s*blocked\s*$", original):
+            raise ContractError(f"SDK-copy committed source contains a blocked summary status: {rel}")
+    simulated = expected_exclusions["simulation_summaries"]
+    if any(rel in source_summary_paths for rel in simulated[:7]):
+        raise ContractError("SDK-copy route must synthesize absent168-172 and176/177 summaries")
+    for number in (179, 180, 181):
+        rel = f"{PHASE}/253-{number}-SUMMARY.md"
+        if rel in source_summary_paths:
+            original = git(root, "show", f"{source_commit}:{rel}").decode("utf-8", "strict")
+            if not re.search(r"(?m)^status:\s*complete$", original):
+                raise ContractError(f"SDK-copy source contains a non-complete route summary: {rel}")
+    if report.get("readiness_168_runnable") is not True or not readiness_rows["253-168"]["has_summary"] is False:
+        raise ContractError("SDK-copy report readiness168 summary/runnable facts disagree with parsed SDK output")
+    if report.get("readiness_175_halted") is not True or not readiness_rows["253-175"]["halted"] or not readiness_rows["253-178"]["halted"]:
+        raise ContractError("SDK-copy report does not preserve halted175 and halted178 in parsed readiness output")
+    if report.get("post_chain_incomplete") != parsed["post_init"].get("incomplete_count") or report.get("post_chain_incomplete") != 0:
+        raise ContractError("SDK-copy report final incomplete count differs from parsed SDK output")
+    if report.get("post_chain_halted") != len(halted_ids) or halted_ids != expected_halted:
+        raise ContractError("SDK-copy report final halted count/IDs differ from parsed SDK output")
+    if report.get("post_chain_halted_ids") != halted_ids:
+        raise ContractError("SDK-copy report final halted IDs differ from parsed SDK output")
+    redundant_hashes = {
+        "pre_simulation_init_sha256": "readiness_init",
+        "pre_simulation_index_sha256": "readiness_index",
+        "post_chain_init_sha256": "post_init",
+        "post_chain_index_sha256": "post_index",
+    }
+    for field, query_name in redundant_hashes.items():
+        if report.get(field) != sha256(raw_outputs[query_name]):
+            raise ContractError(f"SDK-copy report redundant {field} differs from raw query bytes")
+    expected_targets = [row["plan"] for row in read_json(root, R12_CONTRACT)["responsibilities"]]
+    expected_targets.extend(f"253-{n:02d}" for n in NEVER_RAN_IDS + (176, 177))
+    if report.get("disposition_ids") != expected_targets:
+        raise ContractError("SDK-copy report does not use the exact73 disposition targets")
+    if report.get("copy_input_commit") is None or not re.fullmatch(r"[0-9a-f]{40}", str(report.get("copy_input_commit"))):
+        raise ContractError("SDK-copy report lacks its temporary copy input commit identity")
+    copy_commit = report["copy_input_commit"]
+    simulation_commit = report.get("simulation_commit")
+    source_copy_commit = report.get("source_copy_commit")
+    if (not isinstance(simulation_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", simulation_commit) or
+            not isinstance(source_copy_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", source_copy_commit) or
+            simulation_commit != source_copy_commit or simulation_commit == copy_commit):
+        raise ContractError("SDK-copy source/simulation commit identities are malformed or inconsistent")
+    if verify_temporary_repo:
+        temporary_project = Path(project_dir)
+        if not temporary_project.is_dir():
+            raise ContractError("SDK-copy temporary project disappeared before producer validation")
+        for commit in (copy_commit, simulation_commit):
+            git(temporary_project, "cat-file", "-e", f"{commit}^{{commit}}")
+        ancestry = subprocess.run(["git", "-C", str(temporary_project), "merge-base", "--is-ancestor",
+                                   copy_commit, simulation_commit], capture_output=True, check=False)
+        if ancestry.returncode:
+            raise ContractError("SDK-copy simulation commit does not descend from its copy-input commit")
+    original_summaries = report.get("preserved_summary_sha256")
+    if not isinstance(original_summaries, dict):
+        raise ContractError("SDK-copy report lacks preserved existing summary hashes")
+    source_summaries = {Path(row["path"]).name: row["sha256"] for row in expected_manifest
+                        if row["path"].startswith(PHASE + "/253-") and
+                        row["path"].endswith("-SUMMARY.md")}
+    if original_summaries != source_summaries:
+        raise ContractError("SDK-copy report did not preserve every existing summary byte hash")
+    return report
+
+
 def validate_sdk_copy_report(root: Path, evidence: dict) -> dict:
     report_path = evidence.get("report_path")
     report_hash = evidence.get("report_sha256")
@@ -1161,30 +1474,7 @@ def validate_sdk_copy_report(root: Path, evidence: dict) -> dict:
         report = json.loads(raw)
     except (json.JSONDecodeError, UnicodeDecodeError) as error:
         raise ContractError(f"SDK-copy external report is invalid JSON: {error}") from error
-    if report.get("status") != "passed" or report.get("temporary_copy") is not True:
-        raise ContractError("SDK-copy external report is not a passing labeled temporary copy")
-    if report.get("readiness_168_runnable") is not True or report.get("readiness_175_halted") is not True:
-        raise ContractError("SDK-copy report does not prove readiness168 and halted175")
-    if report.get("post_chain_incomplete") != 0 or report.get("post_chain_halted") != 24:
-        raise ContractError("SDK-copy report final plan counts differ")
-    expected_ids = sorted(f"253-{n:02d}" for n in HISTORICAL_HALT_IDS)
-    if report.get("post_chain_halted_ids") != expected_ids or report.get("post_chain_blocked_summaries") != []:
-        raise ContractError("SDK-copy report halted or blocked sets differ")
-    expected_targets = [row["plan"] for row in read_json(root, R12_CONTRACT)["responsibilities"]]
-    expected_targets.extend(f"253-{n:02d}" for n in NEVER_RAN_IDS + (176, 177))
-    if report.get("disposition_ids") != expected_targets:
-        raise ContractError("SDK-copy report does not use the exact73 disposition targets")
-    queries = report.get("sdk_queries")
-    if not isinstance(queries, dict) or set(queries) != {"readiness_init", "readiness_index", "post_init", "post_index"}:
-        raise ContractError("SDK-copy report lacks all four actual installed-SDK query outputs")
-    for name, row in queries.items():
-        if not isinstance(row, dict) or not isinstance(row.get("stdout"), str):
-            raise ContractError(f"SDK-copy actual {name} output is missing")
-        if sha256(row["stdout"].encode("utf-8")) != row.get("stdout_sha256"):
-            raise ContractError(f"SDK-copy actual {name} output hash differs")
-    if not isinstance(report.get("sdk_identity"), dict) or not isinstance(report.get("immutable_copy_input_sha256"), str):
-        raise ContractError("SDK-copy report lacks SDK identity or immutable input digest")
-    return report
+    return validate_sdk_copy_report_data(root, report)
 
 
 def validate_bridge(root: Path, stage: str, record_path: str, sdk: bool = False) -> dict:

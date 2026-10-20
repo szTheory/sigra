@@ -298,7 +298,7 @@ class SuccessorContractTests(unittest.TestCase):
             report = pathlib.Path(temp) / "fabricated-report.json"
             report.write_bytes(raw)
             evidence = {"report_path": str(report), "report_sha256": hashlib.sha256(raw).hexdigest()}
-            with self.assertRaisesRegex(successor.ContractError, "readiness_init.*JSON|query.*JSON|SDK.*output"):
+            with self.assertRaisesRegex(successor.ContractError, "SDK-copy|query.*JSON|SDK.*output"):
                 successor.validate_sdk_copy_report(root, evidence)
 
     def test_sdk_indexes_require_exact_unique_plan_universe(self):
@@ -309,9 +309,15 @@ class SuccessorContractTests(unittest.TestCase):
 
         def rows(final):
             incomplete = set() if final else {"253-168"}
-            return [{"id": plan, "has_summary": plan not in incomplete,
-                     "halted": plan in expected_halted, "blocked_by": []}
-                    for plan in expected_ids]
+            result = []
+            for plan in expected_ids:
+                row = {"id": plan, "has_summary": plan not in incomplete,
+                       "halted": plan in expected_halted, "blocked_by": [],
+                       "gap_closure": plan == "253-168"}
+                if row["gap_closure"]:
+                    row["ready"] = plan == "253-168" and not final
+                result.append(row)
+            return result
 
         ready_rows = rows(False)
         ready_init = {"plan_count": 181, "incomplete_count": 1,
@@ -336,6 +342,31 @@ class SuccessorContractTests(unittest.TestCase):
             for label, mutate in attacks.items():
                 with self.subTest(stage=stage, mutation=label), self.assertRaises(successor.ContractError):
                     validator(mutate(base), init, stage)
+        malformed = dict(ready_rows[0]); malformed["ready"] = "true"
+        with self.assertRaisesRegex(successor.ContractError, "readiness field"):
+            validator([malformed, *ready_rows[1:]], ready_init, "readiness")
+        wrong_halt = [dict(row) for row in ready_rows]
+        wrong_halt[1]["halted"] = False
+        with self.assertRaisesRegex(successor.ContractError, "halted plan IDs"):
+            validator(wrong_halt, ready_init, "readiness")
+        bad_runnable = dict(ready_init, runnable_plans=[])
+        with self.assertRaisesRegex(successor.ContractError, "168 as runnable"):
+            validator(ready_rows, bad_runnable, "readiness")
+        bad_incomplete = dict(final_init, incomplete_count=1)
+        with self.assertRaisesRegex(successor.ContractError, "incomplete fields"):
+            validator(final_rows, bad_incomplete, "final")
+        blocked168 = [dict(row) for row in ready_rows]
+        blocked168[167]["blocked_by"] = ["253-178"]
+        with self.assertRaisesRegex(successor.ContractError, "168 row"):
+            validator(blocked168, ready_init, "readiness")
+        summarized168 = [dict(row) for row in ready_rows]
+        summarized168[167]["has_summary"] = True
+        bad_ready_init = dict(ready_init, incomplete_count=0, incomplete_plans=[])
+        with self.assertRaisesRegex(successor.ContractError, "168 row"):
+            validator(summarized168, bad_ready_init, "readiness")
+        blocked_final = [dict(row) for row in final_rows]
+        blocked_final[175]["blocked_by"] = ["253-175"]
+        self.assertEqual(len(validator(blocked_final, final_init, "final")), 181)
 
     def test_168_requires_receipt_before_each_automated_body(self):
         original = {
@@ -901,24 +932,124 @@ class SuccessorContractTests(unittest.TestCase):
                         successor.validate_bridge(root, "entry", record_path)
 
     def test_installed_sdk_copy_executes_queries_and_proves_full_route(self):
-        with tempfile.TemporaryDirectory(prefix="sigra-253-sdk-amended-route-") as temp:
-            project = pathlib.Path(temp) / "project"
-            project.mkdir()
-            shutil.copytree(ROOT / ".planning", project / ".planning")
-            originals = {f"{PHASE}/253-{n}-PLAN.md": (ROOT / f"{PHASE}/253-{n}-PLAN.md").read_bytes()
-                         for n in (*range(168, 173), 176, 177)}
-            amend_complete_plans(project, originals)
-            result = successor.run_sdk_copy(project, {}, "unused")
+        temp = tempfile.TemporaryDirectory(prefix="sigra-253-sdk-amended-route-")
+        self.addCleanup(temp.cleanup)
+        project = pathlib.Path(temp.name) / "project"
+        project.mkdir()
+        shutil.copytree(ROOT / ".planning", project / ".planning")
+        originals = {f"{PHASE}/253-{n}-PLAN.md": (ROOT / f"{PHASE}/253-{n}-PLAN.md").read_bytes()
+                     for n in (*range(168, 173), 176, 177)}
+        amend_complete_plans(project, originals)
+        # This independent routing fixture models Task 3's prescribed repair:
+        # 179 moves off halted178 and depends on the completed preparation plan181.
+        # Keep the real root plans untouched; run_sdk_copy binds these fixture bytes
+        # to this temporary repository's commit before querying the installed SDK.
+        plan179 = project / PHASE / "253-179-PLAN.md"
+        text179 = plan179.read_text(encoding="utf-8")
+        old_dependency = 'depends_on: ["253-178"]'
+        if text179.count(old_dependency) != 1:
+            self.fail("independent SDK route fixture needs one original179 dependency")
+        plan179.write_text(text179.replace(old_dependency, 'depends_on: ["253-181"]', 1),
+                           encoding="utf-8")
+        subprocess.run(["git", "-C", str(project), "init", "-q"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(project), "config", "user.name", "SDK Fixture"], check=True)
+        subprocess.run(["git", "-C", str(project), "config", "user.email", "sdk-fixture@example.test"], check=True)
+        (project / ".planning/unrelated-fixture-input.txt").write_text("source-bound\n")
+        subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
+        subprocess.run(["git", "-C", str(project), "commit", "-qm", "committed amended SDK fixture"], check=True)
+        result = successor.run_sdk_copy(project, {}, "unused")
         self.assertEqual(result["status"], "passed")
         self.assertTrue(result["readiness_168_runnable"])
         self.assertTrue(result["readiness_175_halted"])
         self.assertEqual(result["post_chain_incomplete"], 0)
-        self.assertEqual(result["post_chain_halted"], 24)
+        self.assertEqual(result["post_chain_halted"], 25)
         self.assertEqual(len(result["disposition_ids"]), 73)
         self.assertTrue(result["source_copy_commit"])
         self.assertEqual(set(result["sdk_queries"]), {"readiness_init", "readiness_index", "post_init", "post_index"})
         self.assertTrue(all(row["stdout_sha256"] for row in result["sdk_queries"].values()))
-        self.assertTrue(result["immutable_copy_input_sha256"])
+        self.assertTrue(result["source_input_manifest_sha256"])
+        with tempfile.TemporaryDirectory(prefix="sigra-253-sdk-report-") as temp:
+            report_path = pathlib.Path(temp) / "sdk-report.json"
+
+            def persist(report):
+                raw = (json.dumps(report, sort_keys=True, indent=2) + "\n").encode()
+                report_path.write_bytes(raw)
+                return {"report_path": str(report_path), "report_sha256": hashlib.sha256(raw).hexdigest()}
+
+            def rewrite_query(report, name, update):
+                output = report["sdk_queries"][name]
+                parsed = json.loads(output["stdout"])
+                update(parsed)
+                output["stdout"] = json.dumps(parsed, sort_keys=True, separators=(",", ":"))
+                output["stdout_sha256"] = hashlib.sha256(output["stdout"].encode("utf-8")).hexdigest()
+
+            self.assertEqual(successor.validate_sdk_copy_report(project, persist(result))["status"], "passed")
+            mutations = {
+                "invalid raw JSON": lambda report: report["sdk_queries"]["readiness_init"].update(
+                    stdout="not JSON", stdout_sha256=hashlib.sha256(b"not JSON").hexdigest()),
+                "empty SDK output": lambda report: report["sdk_queries"]["readiness_init"].update(
+                    stdout="", stdout_sha256=hashlib.sha256(b"").hexdigest()),
+                "bogus query args": lambda report: report["sdk_queries"]["readiness_index"].update(
+                    arguments=["bogus"], argv=["bogus"]),
+                "wrong SDK identity": lambda report: report.update(sdk_identity={}),
+                "self-consistent wrong source digest": lambda report: report.update(
+                    source_input_manifest_sha256="f" * 64),
+                "altered manifest with recomputed digest": lambda report: (
+                    report["source_input_manifest"][0].update(sha256="f" * 64),
+                    report.update(source_input_manifest_sha256=successor.sha256(
+                        successor.canonical_json_bytes(report["source_input_manifest"]))))[-1],
+                "valid JSON with unknown plan ID": lambda report: rewrite_query(
+                    report, "readiness_index", lambda value: value["plans"][0].update(id="253-999")),
+                "valid JSON with false runnable list": lambda report: rewrite_query(
+                    report, "readiness_init", lambda value: value.update(runnable_plans=[])),
+                "invalid UTF-8 stdout text": lambda report: report["sdk_queries"]["readiness_init"].update(
+                    stdout="\udcff", stdout_sha256="0" * 64),
+                "non-object SDK output": lambda report: report["sdk_queries"]["post_init"].update(
+                    stdout="null", stdout_sha256=hashlib.sha256(b"null").hexdigest()),
+                "malformed raw digest": lambda report: report["sdk_queries"]["post_index"].update(
+                    stdout_sha256="g" * 64),
+                "blocked summary status claim": lambda report: report.update(
+                    post_chain_blocked_summaries=["253-176"]),
+                "inconsistent redundant halted summary claim": lambda report: report.update(
+                    post_chain_halted_ids=["253-175"]),
+                "inconsistent redundant pre-query SHA": lambda report: report.update(
+                    pre_simulation_init_sha256="f" * 64),
+                "mismatched source-copy simulation identity": lambda report: report.update(
+                    source_copy_commit="0" * 40),
+            }
+            expected_reasons = {
+                "invalid raw JSON": "stdout is not strict UTF-8 JSON",
+                "empty SDK output": "stdout is not strict UTF-8 JSON",
+                "bogus query args": "query arguments differ",
+                "wrong SDK identity": "identity differs",
+                "self-consistent wrong source digest": "manifest digest differs",
+                "altered manifest with recomputed digest": "manifest differs from Git",
+                "valid JSON with unknown plan ID": "exact 253-01 through253-181 universe",
+                "valid JSON with false runnable list": "168 as runnable",
+                "invalid UTF-8 stdout text": "invalid UTF-8 text",
+                "non-object SDK output": "stdout root must be an object",
+                "malformed raw digest": "raw stdout hash differs",
+                "blocked summary status claim": "blocked summary statuses",
+                "inconsistent redundant halted summary claim": "halted IDs differ from parsed SDK output",
+                "inconsistent redundant pre-query SHA": "redundant pre_simulation_init_sha256 differs",
+                "mismatched source-copy simulation identity": "commit identities are malformed or inconsistent",
+            }
+            for label, mutate in mutations.items():
+                bad = json.loads(json.dumps(result))
+                mutate(bad)
+                with self.subTest(report_mutation=label), self.assertRaisesRegex(
+                        successor.ContractError, expected_reasons[label]):
+                    successor.validate_sdk_copy_report(project, persist(bad))
+
+            unrelated = project / ".planning/unrelated-fixture-input.txt"
+            unrelated.write_text("different committed bytes\n")
+            subprocess.run(["git", "-C", str(project), "add", str(unrelated.relative_to(project))], check=True)
+            subprocess.run(["git", "-C", str(project), "commit", "-qm", "unrelated committed source mutation"], check=True)
+            changed_source = json.loads(json.dumps(result))
+            changed_source["source_input_commit"] = subprocess.check_output(
+                ["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
+            with self.assertRaisesRegex(successor.ContractError, "source manifest differs from Git"):
+                successor.validate_sdk_copy_report(project, persist(changed_source))
 
     def test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions(self):
         with tempfile.TemporaryDirectory(prefix="sigra-253-receipt-verify-") as temp:
