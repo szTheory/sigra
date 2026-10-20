@@ -82,7 +82,8 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 177 total:75 implementation summaries,23 halted summaries,79 without summaries. New175–177 reviewed in three waves;175 ready.168–172 remain blocked pending177; whole-phase verification not_started. Earlier lists below record historical stages.
+**Plans**:181 total:75 implementation summaries,25 halted summaries,81 without summaries. New181 reviewed and ready;179/180 remain blocked pending preserved amendments during181. Whole-phase verification not_started. Earlier lists below record historical stages.
+
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -294,6 +295,17 @@ Plan 175 halted because the bridge accepted stale executable checks and failed p
 
 Cross-cutting constraints: keep Plan 175 halted, all failed results and original instructions recoverable, and the existing request/retry/time/tree limits. Local acceptance and copied SDK simulations cannot satisfy hosted CI requirements. The future contract must account for 180 plan pins, 24 halts and 73 dispositions. The current 180-plan set has 75 completed implementation plans, 24 halts and 81 without summaries. Records: `253-178-180-PLANNING-RECORD.json`, `253-178-180-CHECK-01.md`, `253-178-180-SOURCE-AUDIT.md`. Next: `$gsd-execute-phase 253 --gaps-only`, starting with 178. Implementation and whole-phase verification remain incomplete.
 
+### Latest gap repair planning — Plan181 (2026-10-20)
+
+Plan178 remains halted with its original review and full-suite error. Plan181 covers all four recorded defects and passed independent review after one focused correction. No existing instructions are amended during planning.
+
+**Wave 1**
+- [ ] 253-181-PLAN.md — Repair both receipt prefixes, real Git fixture, strict SDK reports and exact181-plan inventory; preserve and amend unrun179/180.
+
+Future waves2–8 depend on successful181 and its preserved instruction amendments:179→180→168→169→170→171→172. Until then only181 is runnable.
+
+Cross-cutting constraints: preserve all failed results and original instructions; keep the existing acceptance identity179 and request/retry/time/tree limits; 181pins/25halts/73dispositions in the eventual contract; actual hosted proof required for CIREL-02. Requirements and whole-phase verification remain incomplete. Records:253-181-CHECK-02.md,253-181-PLANNING-CHECKS.json,253-181-ROUTING-CHECKS.json. Next:$gsd-execute-phase 253 --gaps-only.
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
@@ -322,12 +334,12 @@ Cross-cutting constraints: keep Plan 175 halted, all failed results and original
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 complete; Phase 253 has 180 plans: 75 completed implementation, 24 halted, 81 without summaries. Plan 178 ready; 179/180 then the preserved 168–172 continuation. Phase 254/255 pending.
+**Execution order:**252→253→254→255. Phase252complete;253has181plans:75completed implementation,25halted,81without summaries. Only181ready. Phase254/255pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/180 | Partial implementation; 178 ready; phase verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/181 | Partial implementation; 181 ready; phase verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
