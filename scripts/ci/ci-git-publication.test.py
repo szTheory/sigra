@@ -21,6 +21,41 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PUBLISHER = ROOT / "scripts/ci/ci-git-publication.py"
 TRANSPORT = ROOT / "scripts/ci/ci-hosted-transport.py"
+PRESERVED_CONFIG_FIXTURE_B64 = (
+    "ewogICJtb2RlbF9wcm9maWxlIjogImFkYXB0aXZlIiwKICAiY29tbWl0X2RvY3MiOiB0cnVlLAog"
+    "ICJwYXJhbGxlbGl6YXRpb24iOiB0cnVlLAogICJzZWFyY2hfZ2l0aWdub3JlZCI6IGZhbHNlLAog"
+    "ICJicmF2ZV9zZWFyY2giOiBmYWxzZSwKICAiZmlyZWNyYXdsIjogZmFsc2UsCiAgImV4YV9zZWFy"
+    "Y2giOiBmYWxzZSwKICAiZ2l0IjogewogICAgImNyZWF0ZV90YWciOiBmYWxzZSwKICAgICJicmFu"
+    "Y2hpbmdfc3RyYXRlZ3kiOiAibm9uZSIsCiAgICAicGhhc2VfYnJhbmNoX3RlbXBsYXRlIjogImdz"
+    "ZC9waGFzZS17cGhhc2V9LXtzbHVnfSIsCiAgICAibWlsZXN0b25lX2JyYW5jaF90ZW1wbGF0ZSI6"
+    "ICJnc2Qve21pbGVzdG9uZX0te3NsdWd9IiwKICAgICJxdWlja19icmFuY2hfdGVtcGxhdGUiOiBu"
+    "dWxsCiAgfSwKICAid29ya2Zsb3ciOiB7CiAgICAicmVzZWFyY2giOiB0cnVlLAogICAgInBsYW5f"
+    "Y2hlY2siOiB0cnVlLAogICAgInZlcmlmaWVyIjogdHJ1ZSwKICAgICJhaV9pbnRlZ3JhdGlvbl9w"
+    "aGFzZSI6IHRydWUsCiAgICAibnlxdWlzdF92YWxpZGF0aW9uIjogdHJ1ZSwKICAgICJhdXRvX2Fk"
+    "dmFuY2UiOiBmYWxzZSwKICAgICJub2RlX3JlcGFpciI6IHRydWUsCiAgICAibm9kZV9yZXBhaXJf"
+    "YnVkZ2V0IjogMiwKICAgICJ1aV9waGFzZSI6IHRydWUsCiAgICAidWlfc2FmZXR5X2dhdGUiOiB0"
+    "cnVlLAogICAgInRleHRfbW9kZSI6IGZhbHNlLAogICAgInJlc2VhcmNoX2JlZm9yZV9xdWVzdGlv"
+    "bnMiOiB0cnVlLAogICAgImRpc2N1c3NfbW9kZSI6ICJhc3N1bXB0aW9ucyIsCiAgICAic2tpcF9k"
+    "aXNjdXNzIjogZmFsc2UsCiAgICAiX2F1dG9fY2hhaW5fYWN0aXZlIjogZmFsc2UsCiAgICAiZGlz"
+    "Y3Vzc19jb21wcmVoZW5zaXZlX3Jlc2VhcmNoIjogdHJ1ZSwKICAgICJkaXNjdXNzX3N5bnRoZXNp"
+    "emVfd2hlbl91c2VyX2RlbGVnYXRlcyI6IHRydWUsCiAgICAiZGlzY3Vzc19hbHdheXNfc3VyZmFj"
+    "ZV9mb3JfdXNlciI6IFsKICAgICAgInNlbXZlcl9vcl9wdWJsaWNfYXBpX2JyZWFrIiwKICAgICAg"
+    "InNlY3VyaXR5X21vZGVsX3ZzX293YXNwX2RvYyIsCiAgICAgICJnZW5lcmF0b3Jfb3JfaG9zdF9j"
+    "b250cmFjdF9vdXRwdXQiCiAgICBdLAogICAgInVzZV93b3JrdHJlZXMiOiBmYWxzZQogIH0sCiAg"
+    "InNpZ3JhX2RlZmF1bHRzIjogewogICAgImF1ZGl0X2F0b21pY2l0eV9kb2MiOiAiLnBsYW5uaW5n"
+    "L0FVRElULUFUT01JQ0lUWS1ERUZBVUxUUy5tZCIsCiAgICAibm90ZSI6ICJTdWJhZ2VudC1iYWNr"
+    "ZWQgZGVmYXVsdHMgZnJvbSBQaGFzZSA4MCBkaXNjdXNzOyBsb2FkIGZvciBTRUVELTAwMiAvIGF1"
+    "ZGl0IE11bHRpIHBoYXNlcyB1bmxlc3MgQ09OVEVYVCBvdmVycmlkZXMuIgogIH0sCiAgImhvb2tz"
+    "IjogewogICAgImNvbnRleHRfd2FybmluZ3MiOiB0cnVlCiAgfSwKICAicHJvamVjdF9jb2RlIjog"
+    "bnVsbCwKICAicGhhc2VfbmFtaW5nIjogInNlcXVlbnRpYWwiLAogICJhZ2VudF9za2lsbHMiOiB7"
+    "fSwKICAibW9kZSI6ICJ5b2xvIiwKICAiZ3JhbnVsYXJpdHkiOiAiZmluZSIsCiAgIm1vZGVsX3By"
+    "b2ZpbGVfb3ZlcnJpZGVzIjogewogICAgImNvZGV4IjogewogICAgICAib3B1cyI6ICJncHQtNi4x"
+    "LXNvbCIsCiAgICAgICJzb25uZXQiOiAiZ3B0LTYtbHVuYSIsCiAgICAgICJoYWlrdSI6ICJncHQt"
+    "Ni1sdW5hIgogICAgfSwKICAgICJjbGF1ZGUiOiB7CiAgICAgICJvcHVzIjogImNsYXVkZS1vcHVz"
+    "LTUtNSIsCiAgICAgICJzb25uZXQiOiAiY2xhdWRlLW9wdXMtNS01IiwKICAgICAgImhhaWt1Ijog"
+    "ImNsYXVkZS1zb25uZXQtNS01IgogICAgfQogIH0KfQo="
+)
+PRESERVED_CONFIG_FIXTURE_SHA256 = "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d"
 
 
 def object_sha(kind, data):
@@ -878,33 +913,94 @@ class PublicationTests(unittest.TestCase):
             self.assertIn("dirty outside the exact preserved config", result.stderr)
             self.assertFalse(output.exists())
 
-    def test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes(self):
+    def run_preserved_config_case(self, *, config_bytes=None, stage_config=False, preservation_ref=True,
+                                  ref_bytes=None, dirty_product=False, clean_config=False):
         with tempfile.TemporaryDirectory(prefix="sigra-exact-config-") as temp:
             repo = pathlib.Path(temp) / "repo"
             parent, source = git_fixture(repo)
             (repo / ".planning").mkdir()
             config_path = repo / ".planning/config.json"
-            config_path.write_text("baseline config\n")
+            config_path.write_bytes(b"baseline config\n" if clean_config else b"baseline config\n")
             subprocess.run(["git", "-C", str(repo), "add", str(config_path)], check=True)
             subprocess.run(["git", "-C", str(repo), "commit", "-qm", "tracked config baseline"], check=True)
             source = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
-            exact_bytes = (ROOT / ".planning/config.json").read_bytes()
-            config_path.write_bytes(exact_bytes)
-            blob = subprocess.check_output(["git", "-C", str(repo), "hash-object", "-w", str(config_path)], text=True).strip()
-            subprocess.run(["git", "-C", str(repo), "update-ref", "refs/gsd/phase253-recovery-execution-unrelated-config", blob], check=True)
-            evidence = repo / ".planning/runtime/evidence.log"
-            evidence.parent.mkdir(parents=True)
-            evidence.write_text("local runtime evidence is not product source\n")
+            if not clean_config:
+                exact_bytes = base64.b64decode(PRESERVED_CONFIG_FIXTURE_B64, validate=True)
+                self.assertEqual(hashlib.sha256(exact_bytes).hexdigest(), PRESERVED_CONFIG_FIXTURE_SHA256)
+                config_path.write_bytes(exact_bytes if config_bytes is None else config_bytes)
+                if stage_config:
+                    subprocess.run(["git", "-C", str(repo), "add", str(config_path)], check=True)
+                if preservation_ref:
+                    ref_payload = exact_bytes if ref_bytes is None else ref_bytes
+                    blob = subprocess.check_output(["git", "-C", str(repo), "hash-object", "-w", "--stdin"],
+                                                   input=ref_payload, text=False).decode().strip()
+                    subprocess.run(["git", "-C", str(repo), "update-ref",
+                                    "refs/gsd/phase253-recovery-execution-unrelated-config", blob], check=True)
+                evidence = repo / ".planning/runtime/evidence.log"
+                evidence.parent.mkdir(parents=True)
+                evidence.write_text("local runtime evidence is not product source\n")
+            if dirty_product:
+                (repo / "app.txt").write_text("uncommitted product change\n")
             output = pathlib.Path(temp) / "proposal.json"
             result = subprocess.run(["python3", str(PUBLISHER), "--prepare", "--candidate-source", source,
                                      "--server-parent", parent, "--repo-root", str(repo), "--output", str(output)],
                                     cwd=ROOT, text=True, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            manifest = json.loads(output.read_text())
-            self.assertTrue(manifest["source_cleanliness"]["clean"])
-            self.assertEqual(manifest["source_cleanliness"]["config_ref"],
-                             "refs/gsd/phase253-recovery-execution-unrelated-config")
-            self.assertEqual(manifest["source_cleanliness"]["config_sha256"], "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d")
+            return result, (output.read_bytes() if output.exists() else None), output.exists()
+
+    def test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes(self):
+        result, payload, exists = self.run_preserved_config_case()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(exists)
+        manifest = json.loads(payload)
+        self.assertTrue(manifest["source_cleanliness"]["clean"])
+        self.assertEqual(manifest["source_cleanliness"]["config_status_hex"],
+                         b" M .planning/config.json\0".hex())
+        self.assertEqual(manifest["source_cleanliness"]["config_ref"],
+                         "refs/gsd/phase253-recovery-execution-unrelated-config")
+        self.assertEqual(manifest["source_cleanliness"]["config_sha256"], PRESERVED_CONFIG_FIXTURE_SHA256)
+
+    def test_preserved_config_independent_byte_and_trailing_newline_drift_is_rejected(self):
+        exact_bytes = base64.b64decode(PRESERVED_CONFIG_FIXTURE_B64, validate=True)
+        for label, changed in (("content byte", exact_bytes.replace(b"adaptive", b"AdaptivE", 1)),
+                               ("trailing newline", exact_bytes[:-1])):
+            with self.subTest(label=label):
+                result, payload, exists = self.run_preserved_config_case(config_bytes=changed)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("dirty outside the exact preserved config", result.stderr)
+                self.assertFalse(exists)
+
+    def test_preserved_config_staged_exact_bytes_are_rejected(self):
+        result, payload, exists = self.run_preserved_config_case(stage_config=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("dirty outside the exact preserved config", result.stderr)
+        self.assertFalse(exists)
+
+    def test_preserved_config_missing_preservation_ref_is_rejected(self):
+        result, payload, exists = self.run_preserved_config_case(preservation_ref=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("dirty outside the exact preserved config", result.stderr)
+        self.assertFalse(exists)
+
+    def test_preserved_config_ref_pointing_at_different_bytes_is_rejected(self):
+        result, payload, exists = self.run_preserved_config_case(ref_bytes=b"not the preserved historical config\n")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("dirty outside the exact preserved config", result.stderr)
+        self.assertFalse(exists)
+
+    def test_preserved_config_does_not_allow_dirty_product_source(self):
+        result, payload, exists = self.run_preserved_config_case(dirty_product=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("dirty outside the exact preserved config", result.stderr)
+        self.assertFalse(exists)
+
+    def test_preserved_config_clean_committed_config_uses_ordinary_clean_path(self):
+        result, payload, exists = self.run_preserved_config_case(clean_config=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(exists)
+        cleanliness = json.loads(payload)["source_cleanliness"]
+        self.assertTrue(cleanliness["clean"])
+        self.assertIsNone(cleanliness["config_ref"])
+        self.assertEqual(cleanliness["config_status_hex"], "")
 
     def test_commit_route_requires_second_resolution_utc_metadata_and_final_newline(self):
         transport = self.transport_module()
