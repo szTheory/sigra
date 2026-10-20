@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T16:23:46.325059+00:00",
-  "status": "execution_halted",
+  "timestamp": "2026-10-20T17:13:17.452426+00:00",
+  "status": "ready_to_execute",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "75 implementation summaries, 22 halted summaries and 76 plans without summaries; Plan 173 halted before regression; 168\u2013172 blocked",
-  "next_command": "$gsd-plan-phase 253 --gaps",
-  "resume_command": "$gsd-plan-phase 253 --gaps",
-  "next_action": "Plan 173 permits one attempt only. Plan 168 lacks its required completed 173 summary and success receipt; Plans 169\u2013172 are blocked transitively. Plan a separately identified successor attempt with a Git object write/readback permission preflight.",
+  "current": "75 implementation summaries, 22 halted summaries and 77 plans without summaries among 174 plans; reviewed Plan 174 is ready first",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Execute the reviewed Git permission recovery Plan 174 first; run its write/readback probe and once-only offline acceptance in the same root-launched elevated shell. Continue 168\u2013172 only after validated success. Preserve halted 167/173 and all prior limits.",
   "route": {
-    "immediate_gsd_command": "$gsd-plan-phase 253 --gaps",
-    "resume_command": "$gsd-plan-phase 253 --gaps",
+    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -21,51 +21,26 @@
       "has_context": false,
       "has_research": false,
       "has_plans": false,
-      "started": false
+      "started": false,
+      "after_phase253_command": "$gsd-discuss-phase 254"
     },
     "current_phase": 253,
     "readiness": {
-      "plan_count": 173,
-      "incomplete_count": 76,
-      "runnable_count": 0,
-      "ready_plans": [],
-      "blocked_active_plans": [
-        {
-          "id": "253-168",
-          "blocked_by": [
-            "253-173"
-          ],
-          "ready": false
-        },
-        {
-          "id": "253-169",
-          "blocked_by": [
-            "253-173"
-          ],
-          "ready": false
-        },
-        {
-          "id": "253-170",
-          "blocked_by": [
-            "253-173"
-          ],
-          "ready": false
-        },
-        {
-          "id": "253-171",
-          "blocked_by": [
-            "253-173"
-          ],
-          "ready": false
-        },
-        {
-          "id": "253-172",
-          "blocked_by": [
-            "253-173"
-          ],
-          "ready": false
-        }
-      ]
+      "plan_count": 174,
+      "incomplete_count": 77,
+      "runnable_count": 6,
+      "ready_plans": [
+        "253-174"
+      ],
+      "active_order": [
+        "253-174",
+        "253-168",
+        "253-169",
+        "253-170",
+        "253-171",
+        "253-172"
+      ],
+      "blocked_active_plans": []
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -180,7 +155,7 @@
     "roadmap_approved": true,
     "implementation_started": true,
     "phase_verification_status": "not_started",
-    "dispatch": "Typed planner plus independent checker; two blocker corrections rechecked with zero remaining findings.",
+    "dispatch": "Typed planner and independent checker; review passed with zero blockers/warnings.",
     "requirements_path": ".planning/REQUIREMENTS.md",
     "requirements_commit": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
     "roadmap_path": ".planning/ROADMAP.md",
@@ -191,7 +166,7 @@
       254,
       255
     ],
-    "next_required_gate": "Plan a separately identified acceptance attempt with a proven Git object write permission context",
+    "next_required_gate": "Plan 174 same-process elevated Git write/readback and fresh offline acceptance",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -206,7 +181,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "plan_execution_halt_recovery",
+    "workflow_step": "execute_gap_recovery",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -224,10 +199,10 @@
     "phase253_verification_status": "not_started",
     "phase252_verification_status": "passed",
     "phase253_planning_status": "passed",
-    "phase253_plan_count": 173,
-    "phase253_wave_count": 9,
-    "phase253_task_count": 456,
-    "phase253_completed_plans": 11,
+    "phase253_plan_count": 174,
+    "phase253_wave_count": 6,
+    "phase253_task_count": 458,
+    "phase253_completed_plans": 75,
     "phase253_halted_plans": [
       "253-02",
       "253-07",
@@ -261,16 +236,18 @@
     "phase253_recovery_task_count": 13,
     "phase253_replan_count": 11,
     "phase253_replan_task_count": 24,
-    "phase253_remaining_plans": 25,
+    "phase253_remaining_plans": 77,
     "phase253_control_recovery_plan_count": 10,
     "phase253_control_recovery_task_count": 22,
-    "phase253_ready_plans": [],
+    "phase253_ready_plans": [
+      "253-174"
+    ],
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 6,
-    "phase253_execution_status": "halted",
+    "phase253_execution_status": "not_started_for_174",
     "phase253_halted_plan_count": 22,
-    "phase253_unsummarized_plan_count": 76
+    "phase253_unsummarized_plan_count": 77
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -1310,7 +1287,7 @@
       "readback_exact": true
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-PLANNING-RECORD.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3282,10 +3259,10 @@
     "async_jobs": []
   },
   "phase253_gap_planning": {
-    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-PLANNING-RECORD.json",
     "status": "planning_passed_ready_to_execute",
     "active_order": [
-      "253-173",
+      "253-174",
       "253-168",
       "253-169",
       "253-170",
@@ -3293,9 +3270,19 @@
       "253-172"
     ],
     "ready_plans": [
-      "253-173"
+      "253-174"
     ],
     "runnable_count": 6,
+    "new_plans": [
+      "253-174"
+    ],
+    "amended_plans": [
+      "253-168",
+      "253-169",
+      "253-170",
+      "253-171",
+      "253-172"
+    ],
     "phase_verification_status": "not_started",
     "requirements": {
       "CIREL-01": "partial_not_reproduced",
@@ -3311,5 +3298,10 @@
     "acceptance_suite_ran": false,
     "github_requests": 0,
     "next_command": "$gsd-plan-phase 253 --gaps"
+  },
+  "phase253_git_permission_planning_preservation": {
+    "capture_head": "4f4647983673423fb6d57cfa1a71790350949098",
+    "tool_transition_commit": "c6f629aa1e5c274dcd4ac9476919ee86412eb762",
+    "exact_shared_readbacks": ".planning/recovery/phase253-git-permission-planning-20261020/post-sdk-shared-prior.json"
   }
 }

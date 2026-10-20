@@ -4,11 +4,11 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: execution_halted
-stopped_at: Plan 173 halted on sandbox Git object write; 168–172 blocked
-last_updated: "2026-10-20T17:12:07.800Z"
+status: "ready_to_execute"
+stopped_at: "Plan 174 reviewed; ready for elevated offline acceptance"
+last_updated: "2026-10-20T17:13:17.452426+00:00"
 last_activity: "2026-10-20T16:23:46.325059+00:00 — failed command and permission diagnosis saved; regression suite did not start"
-state_head: 4f4647983673423fb6d57cfa1a71790350949098
+state_head: "c6f629aa1e5c274dcd4ac9476919ee86412eb762"
 progress:
   total_phases: 4
   completed_phases: 1
@@ -16,20 +16,20 @@ progress:
   completed_plans: 81
   percent: 25
 milestone_status: active
-workflow_step: plan_execution_halt_recovery
+workflow_step: "execute_gap_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-plan-phase 253 --gaps
-resume_command: $gsd-plan-phase 253 --gaps
+next_command: "$gsd-execute-phase 253 --gaps-only"
+resume_command: "$gsd-execute-phase 253 --gaps-only"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
 phase253_planning_status: passed
-phase253_plan_count: 173
+phase253_plan_count: 174
 phase253_wave_count: 6
-phase253_task_count: 456
+phase253_task_count: 458
 phase253_implementation_status: partial
 phase253_completed_plans: 75
 phase253_halted_plans:
@@ -138,10 +138,10 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: []
+phase253_ready_plans: ["253-174"]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-last_activity_desc: Plan 173 failed before regression; permission diagnosis saved; no acceptance receipt
+last_activity_desc: "Plan 174 added; continuations 168–172 reviewed; no acceptance executed"
 ---
 
 # Project State
@@ -155,21 +155,23 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 (Fix Flaky CI and Preserve Required Checks) — READY TO EXECUTE
-Plans: 75 implementation summaries, 22 halted summaries and 76 without summaries among 173 plans
-Status: No ready or runnable plans; 168–172 depend on the failed 173 acceptance attempt
-Last activity: 2026-10-20T16:23:46.325059+00:00 — failed command and permission diagnosis saved; regression suite did not start
-Progress: 81/179 milestone implementation summaries ([███░░░░░░░] 25%); whole-phase verification not started
+Phase: 253 — partially implemented; gap planning reviewed
+Plans: 75 implementation summaries, 22 halted summaries and 77 without summaries among 174 plans
+Status: Plan 174 ready; six reviewed active plans across six waves
+Last activity: 2026-10-20T17:13:17.452426+00:00 — new permission recovery plan and continuations passed independent review
+Whole-phase verification: not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted
 
 ## Next GSD command
 
-$gsd-plan-phase 253 --gaps
+$gsd-execute-phase 253 --gaps-only
 
-Plan a separately identified successor to Plan 173, keeping its failed log and halted summary unchanged. Before any new once-only acceptance command, prove Git object write/readback under the same permission context; use `sandbox_permissions=require_escalated` for commands that write Git objects. The small elevated probe passed, but the regression command was not repeated. Plans 168–172 remain blocked; no success receipt exists.
+Execute the reviewed Git permission recovery Plan 174 first; run its write/readback probe and once-only offline acceptance in the same root-launched elevated shell. Continue 168–172 only after validated success. Preserve halted 167/173 and all prior limits.
 
-CIREL-01 remains partial_not_reproduced, CIREL-02 remains unaccepted, and whole-phase verification remains not_started. Phase 254 readiness was checked: pending, with no context, research or plans; it was not started.
+Active order: 174 → 168 → 169 → 170 → 171 → 172. Only 174 is ready now; six plans are reachable through their dependencies. Planning checks do not prove execution. No regression, Git-writing permission probe, browser or hosted work ran in this planning invocation.
 
-Execution record: `253-173-EXECUTION-RECORD.json`; diagnosis: `253-173-ENVIRONMENT-DIAGNOSTIC.json`; failed run: `253-173-REGRESSION.log`; summary: `253-173-SUMMARY.md`. The four prior shared files are recoverable at `92b46b1dd0d381cef59d7650a00f59fc96ca1ea2`, with exact blob/hash/readback identities in the execution record. Earlier sections below record historical stages and do not override this route.
+Phase 254 readiness was checked with init.plan-phase 254: pending, no context/research/plans, not started. After Phase 253 completes, its default route is $gsd-discuss-phase 254. Historical release verification remains separate.
+
+Planning record: `253-174-PLANNING-RECORD.json`; independent review: `253-174-CHECK-01.md`; source audit: `253-174-SOURCE-AUDIT.md`. Prior shared bytes are recoverable at 4f4647983673423fb6d57cfa1a71790350949098; the exact planning-tool transition is preserved at c6f629aa1e5c274dcd4ac9476919ee86412eb762, with readbacks in `.planning/recovery/phase253-git-permission-planning-20261020/post-sdk-shared-prior.json`. Existing execution records below are historical and do not override this route.
 
 ## Known unfinished work
 
@@ -216,9 +218,9 @@ Execution record: `253-173-EXECUTION-RECORD.json`; diagnosis: `253-173-ENVIRONME
 
 ## Session
 
-**Last session:** 2026-10-20T16:23:46.325059+00:00
-**Stopped at:** Plan 173 halted before regression; 168–172 blocked; plan recovery next
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json
+**Last session:** 2026-10-20T17:13:17.452426+00:00
+**Stopped at:** Gap planning passed; Plan 174 ready; acceptance not run
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-PLANNING-RECORD.json
 
 ## Deferred Items
 

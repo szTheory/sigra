@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 75 implementation summaries, 22 halted summaries and 76 plans without summaries among 173 plans; Plan 173 halted on a sandbox Git object write before regression; 168–172 blocked; whole-phase verification not started. Earlier lists below record historical recovery stages.
+**Plans**: 75 implementation summaries, 22 halted summaries and 77 plans without summaries among 174 plans; Plan 174 reviewed and ready first; continuations 168–172 follow in six active waves; whole-phase verification not started. Earlier lists below record historical recovery stages.
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -245,6 +245,22 @@ Cross-cutting constraints: preserve all failed records and spent allocations; fi
 Cross-cutting constraints: preserve every historical halt and spent allocation; keep original Plan 167 bytes; keep CIREL-01 partial under the existing not-reproduced disposition; require actual hosted proof before CIREL-02 acceptance; retain existing approval, request, retry and 2,097,152-byte tree limits. Planning review is complete; execution and whole-phase verification remain incomplete. Current records: `253-173-PLANNING-RECORD.json`, `253-173-CHECK-02.md`, `253-173-PLANNING-CHECKS.json`, `253-173-ROUTING-CHECKS.json`.
 
 **Latest execution result (2026-10-20):** Plan 173 halted with `VERIFY-EXIT 1`: the default sandbox denied Git object creation before projection or regression. The exact failed log and summary are committed. A separate elevated Git object write/readback probe passed; the acceptance command was not rerun. Plans 168–172 remain blocked. Next: `$gsd-plan-phase 253 --gaps`. Records: `253-173-EXECUTION-RECORD.json`, `253-173-ENVIRONMENT-DIAGNOSTIC.json`. Implementation and whole-phase verification remain incomplete.
+
+**Current Git permission recovery** *(planning review passed; execution not started)*
+
+| Active wave | Plan | Work |
+|---|---|---|
+| 1 | 174 | Root-launched elevated Git write/readback and one new offline acceptance result; preserve halted 167/173. |
+| 2 | 168 | Independently verify the new 174 receipt, then freeze final R13 inputs. |
+| 3 | 169 | Preserve 22 halts and the same 71 unstarted disposition targets; pin all 174 plans. |
+| 4 | 170 | Actual six-scenario canary and separate verifier within existing limits. |
+| 5 | 171 | Normal and docs-only PR native required-check proof. |
+| 6 | 172 | Reopen completion evidence and prepare historical dispositions before full phase verification. |
+
+- [ ] 253-174-PLAN.md — Fresh permission-checked acceptance attempt; previous failures remain unchanged.
+
+Cross-cutting constraints: unchanged request/retry/tree/time limits; exact source/log/receipt identities; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted pending hosted proof; whole-phase verification not_started. Only 174 is ready now. Next: `$gsd-execute-phase 253 --gaps-only`. Current records: `253-174-PLANNING-RECORD.json`, `253-174-CHECK-01.md`, `253-174-SOURCE-AUDIT.md`.
+
 
 ### Phase 254: Speed Up the Measured Slow Jobs
 
