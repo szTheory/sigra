@@ -1367,6 +1367,134 @@ class DryRunR12MainRecordTests(unittest.TestCase):
         self.assertNotEqual(clone_main, self.real_before["refs/remotes/origin/main"])
 
 
+class SeededR12RefsTests(unittest.TestCase):
+    """253-166: --seed-r12-refs pre-seeds the two r12 refs 253-143 created on GitHub, at their real SHAs, beside r8-r11."""
+
+    def test_the_seeded_r12_pair_is_freeze_r12s_commits_and_r8_to_r11_are_unchanged(self):
+        runner = load_runner()
+        self.assertEqual(runner.R11_REFS, {"gsd/253-replan-r11-candidate": "2b239a98df72b8d47e8c4e03edf193905b3239da",
+                                           "gsd/253-replan-r11-fixture": "65c402f966602dfc4a609af724457808cd8528eb"})
+        self.assertEqual(runner.R12_REFS, {"gsd/253-replan-r12-candidate": "6e4f87657254ed9d4a3c8b661d5e707751bc5214",
+                                           "gsd/253-replan-r12-fixture": "b37f05424b2b497b3c786fc604caa4dab4dbcdf0"})
+        phase = ROOT / ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+        freeze = json.loads((phase / "253-LOAD-RECOVERY-CANARY-FREEZE-R12.json").read_text())["identity"]
+        self.assertEqual({freeze["candidate_ref"].removeprefix("refs/heads/"): freeze["candidate_helper_commit"],
+                          freeze["fixture_ref"].removeprefix("refs/heads/"): freeze["fixture_workflow_commit"]}, runner.R12_REFS)
+        receipt = json.loads((phase / "253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R12.json").read_text())
+        created = {row["ref"].removeprefix("refs/heads/"): row["sha"] for row in receipt["server_object_receipts"] if row.get("kind") == "ref"}
+        self.assertEqual(created, runner.R12_REFS)
+
+    def test_seeded_scoped_refs_merges_exactly_the_requested_pairs_including_r12(self):
+        runner = load_runner()
+        flags = argparse.Namespace
+        self.assertEqual(runner.seeded_scoped_refs(flags()), {})
+        self.assertEqual(runner.seeded_scoped_refs(flags(seed_r12_refs=True)), runner.R12_REFS)
+        self.assertEqual(runner.seeded_scoped_refs(flags(seed_r11_refs=True)), runner.R11_REFS)
+        everything = flags(seed_r8_refs=True, seed_r9_refs=True, seed_r10_refs=True, seed_r11_refs=True, seed_r12_refs=True)
+        self.assertEqual(runner.seeded_scoped_refs(everything),
+                         {**runner.R8_REFS, **runner.R9_REFS, **runner.R10_REFS, **runner.R11_REFS, **runner.R12_REFS})
+        self.assertEqual(len(runner.seeded_scoped_refs(everything)), 10)
+
+    def test_an_r13_quick_gate_with_all_five_earlier_pairs_seeded_passes_in_both_modes_and_moves_none(self):
+        flags = ("--ref-pair", "r13", "--seed-r8-refs", "--seed-r9-refs", "--seed-r10-refs", "--seed-r11-refs", "--seed-r12-refs",
+                 "--stop-after", "full-pass")
+        for label, (code, summary) in (("hermetic", run_gate(*flags)), ("live-policy", live_run(*flags))):
+            with self.subTest(mode=label):
+                self.assertEqual(code, 0, summary)
+                self.assertEqual(summary.get("status"), "passed", summary)
+                for pair in ("r8", "r9", "r10", "r11", "r12"):
+                    self.assertIs(summary.get(f"seeded_{pair}_refs_changed"), False, summary)
+                self.assertIs((summary.get("response_shape") or {}).get("ok"), True, summary)
+                self.assertEqual(summary.get("requests_by_route", {}).get("create_ref"), 2, summary)
+
+    def test_an_r12_named_run_with_the_r12_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing(self):
+        code, summary = run_gate("--ref-pair", "r12", "--seed-r12-refs", "--stop-after", "full-pass")
+        self.assertNotEqual(code, 0, summary)
+        self.assertNotEqual(summary.get("status"), "passed", summary)
+        self.assertIn("scoped ref gsd/253-replan-r12-candidate already points to a different commit", summary.get("stop") or "", summary)
+        self.assertIs(summary.get("seeded_r12_refs_changed"), False, summary)
+        for pair in ("r8", "r9", "r10", "r11"):
+            self.assertNotIn(f"seeded_{pair}_refs_changed", summary)
+        self.assertNotIn("create_ref", summary.get("requests_by_route") or {"create_ref": 1})
+        self.assertEqual(summary.get("evidence_status"), "halted", summary)
+
+
+class DryRunR13MainRecordTests(unittest.TestCase):
+    """253-166: the derived r13 freeze passes the same main-freshness guard as r12 (one pair set): a synthetic main-fetch
+    record committed inside the temporary clone, bound to its own synthetic server parent. The guard is never skipped, the
+    r13 freeze carries the R13 canary table, and the real checkout's refs are never written."""
+
+    PAIRS = ("r13",)
+    REAL_REFS = DryRunR12MainRecordTests.REAL_REFS
+    RECORD_REL = DryRunR12MainRecordTests.RECORD_REL
+    RECORD_SUBJECT = DryRunR12MainRecordTests.RECORD_SUBJECT
+    git = classmethod(DryRunR12MainRecordTests.git.__func__)
+    setUpClass = classmethod(DryRunR12MainRecordTests.setUpClass.__func__)
+    tearDownClass = classmethod(DryRunR12MainRecordTests.tearDownClass.__func__)
+    manifest = DryRunR12MainRecordTests.manifest
+
+    def test_the_main_freshness_pair_set_names_r12_and_r13(self):
+        self.assertEqual(self.runner.PUBLISHER.MAIN_FRESHNESS_PAIRS, ("r12", "r13"))
+        source = RUNNER.read_text()
+        code = "\n".join(line for line in source.splitlines() if not line.lstrip().startswith("#"))
+        self.assertNotIn('args.ref_pair == "r12"', code)
+        self.assertIn("MAIN_FRESHNESS_PAIRS", code)
+
+    def test_the_r13_clone_commits_a_synthetic_main_record_bound_to_its_server_parent(self):
+        prepared = self.prepared["r13"]
+        clone, freeze = prepared["clone"], prepared["freeze"]
+        self.assertEqual(freeze["identity"]["candidate_ref"], "refs/heads/gsd/253-replan-r13-candidate")
+        self.assertEqual(freeze["identity"]["fixture_ref"], "refs/heads/gsd/253-replan-r13-fixture")
+        parent = freeze["identity"]["server_parent_sha"]
+        record_path = clone / self.RECORD_REL
+        record = json.loads(record_path.read_text())
+        self.assertEqual((record["schema_version"], record["status"], record["synthetic"], record["decided_by"]),
+                         ("sigra.phase253.main-fetch/r12", "fetched", True, "dry-run-synthetic"))
+        self.assertEqual((record["fetched_main_sha"], record["fetch_head_sha"]), (parent, parent))
+        self.assertEqual(self.git(clone, "ls-files", "--error-unmatch", self.RECORD_REL), self.RECORD_REL)
+        self.assertEqual(self.git(clone, "rev-parse", "refs/remotes/origin/main"), parent)
+        fresh = self.manifest(prepared)["main_freshness"]
+        self.assertEqual(fresh["fetched_main_sha"], parent)
+        self.assertIs(fresh["merge_preflight"]["clean"], True)
+        self.assertIs(fresh["candidate_parent_is_fetched_main"], True)
+        record_sha = hashlib.sha256(record_path.read_bytes()).hexdigest()
+        self.assertEqual(freeze["bound_documents"]["main_freshness_record"], {"path": self.RECORD_REL, "sha256": record_sha})
+        self.assertEqual(freeze["categories"]["canary"]["preflight"], 16)
+        self.assertEqual(freeze["categories"]["canary"]["infrastructure_retry"], 5)
+        self.assertEqual(freeze["expired_reruns"]["canary"]["requests"], 5)
+
+    def test_a_manifest_stripped_of_main_freshness_is_refused_for_r13_inside_the_same_clone(self):
+        prepared = self.prepared["r13"]
+        clone = prepared["clone"]
+        publisher = clone / "scripts/ci/ci-git-publication.py"
+        manifest = self.manifest(prepared)
+        del manifest["main_freshness"]
+        stripped_rel = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DRYRUN-STRIPPED-PUBLICATION.json"
+        (clone / stripped_rel).write_text(json.dumps(manifest, indent=2) + "\n")
+        self.git(clone, "add", stripped_rel)
+        self.git(clone, "commit", "-qm", "dry-run test: manifest stripped of main_freshness")
+
+        def build(manifest_rel, output_rel):
+            return subprocess.run([sys.executable, str(publisher), "--build-freeze", "--manifest", manifest_rel, "--output",
+                                   output_rel, "--repo-root", str(clone), "--ref-pair", "r13"],
+                                  cwd=ROOT, env=clean_env(), capture_output=True, text=True)
+        refused_rel = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DRYRUN-STRIPPED-FREEZE.json"
+        refused = build(stripped_rel, refused_rel)
+        self.assertNotEqual(refused.returncode, 0, "the stripped manifest built an r13 freeze: the guard was bypassed")
+        self.assertIn("an r13 freeze needs a publication manifest with main_freshness", refused.stderr)
+        self.assertFalse((clone / refused_rel).exists())
+        control_rel = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DRYRUN-CONTROL-FREEZE.json"
+        control = build(prepared["freeze"]["bound_documents"]["publication_manifest"]["path"], control_rel)
+        self.assertEqual(control.returncode, 0, control.stderr)
+        (clone / control_rel).unlink()
+
+    def test_the_real_checkout_refs_never_move(self):
+        self.assertEqual(self.real_after, self.real_before)
+        clone_main = self.git(self.prepared["r13"]["clone"], "rev-parse", "refs/remotes/origin/main")
+        self.assertEqual(clone_main, self.prepared["r13"]["freeze"]["identity"]["server_parent_sha"])
+        self.assertNotEqual(clone_main, self.real_before["refs/remotes/origin/main"])
+
+
 class DryRunPaginatedCheckRunsTests(unittest.TestCase):
     """253-146: the server parent is the fetched main as 253-143 read it (209 check runs, three pages, GitHub's Link
     header). Live-policy emits GitHub's /repositories/<id>/ next links, hermetic the local /repos/ form; both must pass the
