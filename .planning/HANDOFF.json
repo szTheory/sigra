@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T19:38:13.863585+00:00",
-  "status": "ready_to_execute",
+  "timestamp": "2026-10-20T20:37:06.672116+00:00",
+  "status": "ready_to_plan",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "75 implementation plans complete; 24 halted; 81 without summaries among 180. New Plan 178 ready.",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Execute Plan 178 to repair strict executable bridge checks and lifecycle fixtures; 179 then runs one distinct offline acceptance, and 180 preserves originals before amending blocked instructions. Plan 175 remains halted; 176/177 remain unexecuted. No requirement or phase verification is complete.",
+  "current": "75 implementation plans complete;25 halted;80 without summaries among180. Plan178 halted; no ready plan.",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "resume_command": "$gsd-plan-phase 253 --gaps",
+  "next_action": "Plan 178 halted: receipt check missing before the second Plan 168 command, fabricated SDK query reports accepted, exact 180-plan inventory unchecked, and one full-suite fixture error. Plan 179 acceptance and Plan 180 amendments were not started. Repair the four recorded defects before further execution.",
   "route": {
-    "immediate_gsd_command": "$gsd-plan-phase 253",
-    "resume_command": "$gsd-plan-phase 253",
+    "immediate_gsd_command": "$gsd-plan-phase 253 --gaps",
+    "resume_command": "$gsd-plan-phase 253 --gaps",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -26,18 +26,373 @@
     },
     "current_phase": 253,
     "readiness": {
-      "plan_count": 177,
-      "incomplete_count": 78,
+      "plan_count": 180,
+      "incomplete_count": 80,
+      "halted_count": 25,
       "runnable_count": 0,
       "ready_plans": [],
-      "blocked_active_plans": [
-        "253-168",
-        "253-169",
-        "253-170",
-        "253-171",
-        "253-172"
-      ],
-      "eligible_runnable_plans": []
+      "blocked_by": {
+        "253-08": [
+          "253-02",
+          "253-07"
+        ],
+        "253-10": [
+          "253-09"
+        ],
+        "253-105": [
+          "253-104",
+          "253-84",
+          "253-92"
+        ],
+        "253-106": [
+          "253-104",
+          "253-84",
+          "253-92"
+        ],
+        "253-114": [
+          "253-113",
+          "253-84",
+          "253-92"
+        ],
+        "253-115": [
+          "253-113",
+          "253-84",
+          "253-92"
+        ],
+        "253-123": [
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-124": [
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-13": [
+          "253-09",
+          "253-12"
+        ],
+        "253-135": [
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-14": [
+          "253-09",
+          "253-12"
+        ],
+        "253-144": [
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-145": [
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-147": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-148": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-149": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-150": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-151": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-152": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-153": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-154": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-156": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-157": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-158": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-159": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-160": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-161": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-162": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-163": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-168": [
+          "253-174"
+        ],
+        "253-169": [
+          "253-174"
+        ],
+        "253-17": [
+          "253-16"
+        ],
+        "253-170": [
+          "253-174"
+        ],
+        "253-171": [
+          "253-174"
+        ],
+        "253-172": [
+          "253-174"
+        ],
+        "253-176": [
+          "253-175"
+        ],
+        "253-177": [
+          "253-175"
+        ],
+        "253-179": [
+          "253-178"
+        ],
+        "253-180": [
+          "253-178"
+        ],
+        "253-21": [
+          "253-16"
+        ],
+        "253-22": [
+          "253-16"
+        ],
+        "253-23": [
+          "253-16"
+        ],
+        "253-24": [
+          "253-16"
+        ],
+        "253-25": [
+          "253-16"
+        ],
+        "253-28": [
+          "253-27"
+        ],
+        "253-29": [
+          "253-27"
+        ],
+        "253-30": [
+          "253-27"
+        ],
+        "253-31": [
+          "253-27"
+        ],
+        "253-32": [
+          "253-27"
+        ],
+        "253-33": [
+          "253-27"
+        ],
+        "253-34": [
+          "253-27"
+        ],
+        "253-35": [
+          "253-27"
+        ],
+        "253-41": [
+          "253-40"
+        ],
+        "253-44": [
+          "253-40"
+        ],
+        "253-45": [
+          "253-40"
+        ],
+        "253-46": [
+          "253-40"
+        ],
+        "253-47": [
+          "253-40"
+        ],
+        "253-52": [
+          "253-51"
+        ],
+        "253-53": [
+          "253-51"
+        ],
+        "253-54": [
+          "253-51"
+        ],
+        "253-55": [
+          "253-51"
+        ],
+        "253-56": [
+          "253-51"
+        ],
+        "253-64": [
+          "253-63"
+        ],
+        "253-65": [
+          "253-63"
+        ],
+        "253-66": [
+          "253-63"
+        ],
+        "253-67": [
+          "253-63"
+        ],
+        "253-68": [
+          "253-63"
+        ],
+        "253-74": [
+          "253-73"
+        ],
+        "253-75": [
+          "253-73"
+        ],
+        "253-76": [
+          "253-73"
+        ],
+        "253-77": [
+          "253-73"
+        ],
+        "253-78": [
+          "253-73"
+        ],
+        "253-85": [
+          "253-84"
+        ],
+        "253-86": [
+          "253-84"
+        ],
+        "253-87": [
+          "253-84"
+        ],
+        "253-88": [
+          "253-84"
+        ],
+        "253-93": [
+          "253-92",
+          "253-84"
+        ],
+        "253-94": [
+          "253-92",
+          "253-84"
+        ],
+        "253-98": [
+          "253-97",
+          "253-84",
+          "253-92"
+        ],
+        "253-99": [
+          "253-97",
+          "253-84",
+          "253-92"
+        ]
+      }
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -57,6 +412,7 @@
       "253-173-PLAN.md",
       "253-174-PLAN.md",
       "253-175-PLAN.md",
+      "253-178-PLAN.md",
       "253-27-PLAN.md",
       "253-40-PLAN.md",
       "253-51-PLAN.md",
@@ -102,6 +458,10 @@
       "253-170",
       "253-171",
       "253-172",
+      "253-176",
+      "253-177",
+      "253-179",
+      "253-180",
       "253-21",
       "253-22",
       "253-23",
@@ -144,11 +504,11 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Execute 175 to repair the historical config fixture and test the successor receipt contract; 176 then runs one separately identified acceptance attempt; 177 preserves and amends the blocked continuation plans. Do not rerun 173 or 174.",
+    "reason": "Plan 178 halted: receipt check missing before the second Plan 168 command, fabricated SDK query reports accepted, exact 180-plan inventory unchecked, and one full-suite fixture error. Plan 179 acceptance and Plan 180 amendments were not started. Repair the four recorded defects before further execution.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json",
     "whole_phase_verification_status": "not_started",
-    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-EXECUTION-RECORD.json",
-    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-EXECUTION-RECORD.json"
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -171,7 +531,7 @@
       254,
       255
     ],
-    "next_required_gate": "Plan175 historical fixture and successor contract tests",
+    "next_required_gate": "Plan178 four recorded defects require new gap plans",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -186,7 +546,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute_gap_recovery",
+    "workflow_step": "gap_repair_needed",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -204,7 +564,7 @@
     "phase253_verification_status": "not_started",
     "phase252_verification_status": "passed",
     "phase253_planning_status": "passed",
-    "phase253_plan_count": 177,
+    "phase253_plan_count": 180,
     "phase253_wave_count": 8,
     "phase253_task_count": 464,
     "phase253_completed_plans": 75,
@@ -224,6 +584,8 @@
       "253-167",
       "253-173",
       "253-174",
+      "253-175",
+      "253-178",
       "253-27",
       "253-40",
       "253-51",
@@ -236,9 +598,43 @@
     "phase253_blocked_plans": [
       "253-08",
       "253-10",
+      "253-105",
+      "253-106",
+      "253-114",
+      "253-115",
+      "253-123",
+      "253-124",
       "253-13",
+      "253-135",
       "253-14",
+      "253-144",
+      "253-145",
+      "253-147",
+      "253-148",
+      "253-149",
+      "253-150",
+      "253-151",
+      "253-152",
+      "253-153",
+      "253-154",
+      "253-156",
+      "253-157",
+      "253-158",
+      "253-159",
+      "253-160",
+      "253-161",
+      "253-162",
+      "253-163",
+      "253-168",
+      "253-169",
       "253-17",
+      "253-170",
+      "253-171",
+      "253-172",
+      "253-176",
+      "253-177",
+      "253-179",
+      "253-180",
       "253-21",
       "253-22",
       "253-23",
@@ -251,25 +647,51 @@
       "253-32",
       "253-33",
       "253-34",
-      "253-35"
+      "253-35",
+      "253-41",
+      "253-44",
+      "253-45",
+      "253-46",
+      "253-47",
+      "253-52",
+      "253-53",
+      "253-54",
+      "253-55",
+      "253-56",
+      "253-64",
+      "253-65",
+      "253-66",
+      "253-67",
+      "253-68",
+      "253-74",
+      "253-75",
+      "253-76",
+      "253-77",
+      "253-78",
+      "253-85",
+      "253-86",
+      "253-87",
+      "253-88",
+      "253-93",
+      "253-94",
+      "253-98",
+      "253-99"
     ],
-    "phase253_execution_dispatch": "Three typed sequential recovery executors returned:09halted,11localcomplete,12halted; rootlocalrepairs tested.",
+    "phase253_execution_dispatch": "Typed sequential executor and independent source reviewer; root full suite15passed/1error;178halted;179/180unstarted",
     "phase253_recovery_plan_count": 6,
     "phase253_recovery_task_count": 13,
     "phase253_replan_count": 11,
     "phase253_replan_task_count": 24,
-    "phase253_remaining_plans": 79,
+    "phase253_remaining_plans": 80,
     "phase253_control_recovery_plan_count": 10,
     "phase253_control_recovery_task_count": 22,
-    "phase253_ready_plans": [
-      "253-175"
-    ],
+    "phase253_ready_plans": [],
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
-    "phase253_execution_status": "not_started_for_175_177",
-    "phase253_halted_plan_count": 23,
-    "phase253_unsummarized_plan_count": 79
+    "phase253_execution_status": "halted_at_178",
+    "phase253_halted_plan_count": 25,
+    "phase253_unsummarized_plan_count": 80
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -1307,9 +1729,56 @@
       ],
       "config_ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
       "readback_exact": true
+    },
+    "execution178_prior_shared": {
+      ".planning/STATE.md": {
+        "ref": "refs/gsd/phase253-execution178-entry",
+        "commit": "e22874ea687fadd72347ca539470287d1abc9475",
+        "sha256": "1913677afdd7dcfd048fc368d3a8e35448d7dbd9d699abaa680d6d4a651ef344",
+        "readback": "exact",
+        "entry_status": "clean"
+      },
+      ".planning/state.json": {
+        "ref": "refs/gsd/phase253-execution178-entry",
+        "commit": "e22874ea687fadd72347ca539470287d1abc9475",
+        "sha256": "0cfc4d9bd48d165d2c463ed37e6733dc8a02da29f83dbf78aae9ace1b9444c94",
+        "readback": "exact",
+        "entry_status": "clean"
+      },
+      ".planning/HANDOFF.json": {
+        "ref": "refs/gsd/phase253-execution178-entry",
+        "commit": "e22874ea687fadd72347ca539470287d1abc9475",
+        "sha256": "f0f8eae1b7fabc2b9ef6878e3780540733dcad08db2731d7f61169d208a5ba02",
+        "readback": "exact",
+        "entry_status": "clean"
+      }
+    },
+    "execution178_intermediate_routing": {
+      "ref": "refs/gsd/phase253-execution178-routing-draft",
+      "commit": "d8a06ad07a5122f0d1cd8b09de75ee35bc41a5f0",
+      "files": {
+        ".planning/HANDOFF.json": {
+          "blob": "22858918b72f460f2796f901677d7f075734d663",
+          "sha256": "da79a4229ec1453f3c07d399cfcae214b5e57e94455b3e67d0bc71d2978bf22d",
+          "status": "M .planning/HANDOFF.json",
+          "readback": "exact"
+        },
+        ".planning/STATE.md": {
+          "blob": "5e4798c14c92c3753fbccb8a54d2bc92e7de359b",
+          "sha256": "9c0e0d2daa5e753e01784b60e2303b35aa2cefac693b010a8f7ffc97dd3cef3b",
+          "status": "M .planning/STATE.md",
+          "readback": "exact"
+        },
+        ".planning/state.json": {
+          "blob": "db9743036bf889d244f8cc1e5e2023d8a6ada687",
+          "sha256": "a2bed77dbd0a3180c1d7825687114491239c0aa967ee84aafb6aede9cc75514c",
+          "status": "M .planning/state.json",
+          "readback": "exact"
+        }
+      }
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -1391,7 +1860,10 @@
       "253-22": "blocked",
       "253-23": "blocked",
       "253-24": "blocked",
-      "253-25": "blocked"
+      "253-25": "blocked",
+      "253-178": "halted",
+      "253-179": "blocked_by_253-178",
+      "253-180": "blocked_by_253-178"
     },
     "blockers": [
       {
@@ -1472,12 +1944,123 @@
         "remaining": "No08SUMMARY and no253VERIFICATION exist; do not reconcile or mark phase complete."
       }
     ],
-    "status": "control_recovery_planned_ready_to_execute",
-    "completed_plan_count": 10,
-    "total_phase_plans": 35,
+    "status": "halted",
+    "completed_plan_count": 75,
+    "total_phase_plans": 180,
     "current_next_command": "$gsd-plan-phase 253 --gaps",
     "current_ready_plans": [],
-    "phase_verification_status": "not_started"
+    "phase_verification_status": "not_started",
+    "implementation_status": "partial",
+    "halted_plans": [
+      "253-02-PLAN.md",
+      "253-07-PLAN.md",
+      "253-09-PLAN.md",
+      "253-104-PLAN.md",
+      "253-113-PLAN.md",
+      "253-12-PLAN.md",
+      "253-122-PLAN.md",
+      "253-134-PLAN.md",
+      "253-143-PLAN.md",
+      "253-146-PLAN.md",
+      "253-155-PLAN.md",
+      "253-16-PLAN.md",
+      "253-167-PLAN.md",
+      "253-173-PLAN.md",
+      "253-174-PLAN.md",
+      "253-175-PLAN.md",
+      "253-178-PLAN.md",
+      "253-27-PLAN.md",
+      "253-40-PLAN.md",
+      "253-51-PLAN.md",
+      "253-63-PLAN.md",
+      "253-73-PLAN.md",
+      "253-84-PLAN.md",
+      "253-92-PLAN.md",
+      "253-97-PLAN.md"
+    ],
+    "blocked_plans": [
+      "253-08",
+      "253-10",
+      "253-105",
+      "253-106",
+      "253-114",
+      "253-115",
+      "253-123",
+      "253-124",
+      "253-13",
+      "253-135",
+      "253-14",
+      "253-144",
+      "253-145",
+      "253-147",
+      "253-148",
+      "253-149",
+      "253-150",
+      "253-151",
+      "253-152",
+      "253-153",
+      "253-154",
+      "253-156",
+      "253-157",
+      "253-158",
+      "253-159",
+      "253-160",
+      "253-161",
+      "253-162",
+      "253-163",
+      "253-168",
+      "253-169",
+      "253-17",
+      "253-170",
+      "253-171",
+      "253-172",
+      "253-176",
+      "253-177",
+      "253-179",
+      "253-180",
+      "253-21",
+      "253-22",
+      "253-23",
+      "253-24",
+      "253-25",
+      "253-28",
+      "253-29",
+      "253-30",
+      "253-31",
+      "253-32",
+      "253-33",
+      "253-34",
+      "253-35",
+      "253-41",
+      "253-44",
+      "253-45",
+      "253-46",
+      "253-47",
+      "253-52",
+      "253-53",
+      "253-54",
+      "253-55",
+      "253-56",
+      "253-64",
+      "253-65",
+      "253-66",
+      "253-67",
+      "253-68",
+      "253-74",
+      "253-75",
+      "253-76",
+      "253-77",
+      "253-78",
+      "253-85",
+      "253-86",
+      "253-87",
+      "253-88",
+      "253-93",
+      "253-94",
+      "253-98",
+      "253-99"
+    ],
+    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json"
   },
   "phase253_registration_startup_debug": {
     "status": "resolved_startup_only",
@@ -3352,14 +3935,10 @@
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json"
   },
   "latest_successor_execution": {
-    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-EXECUTION-RECORD.json",
-    "blocking_review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-REPAIR-REVIEW.json",
-    "requirements": {
-      "CIREL-01": "partial_not_reproduced",
-      "CIREL-02": "unaccepted"
-    },
-    "phase_verification_status": "not_started",
-    "acceptance_attempts": 0
+    "plan": "253-178",
+    "status": "halted",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+    "next_command": "$gsd-plan-phase 253 --gaps"
   },
   "phase253_bridge_repair_planning": {
     "status": "passed",
@@ -3390,22 +3969,759 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "current_phase": 253,
-    "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "ready_plans": [
-      "253-178"
-    ],
-    "incomplete_count": 81,
-    "halted_count": 24,
-    "next_roadmap_phase": {
-      "number": 254,
-      "status": "Pending",
-      "has_context": false,
-      "has_research": false,
-      "has_plans": false,
-      "route_after_253_completion": "Recheck 254 readiness; currently $gsd-discuss-phase 254",
-      "started": false
+    "next_command": "$gsd-plan-phase 253 --gaps",
+    "resume_command": "$gsd-plan-phase 253 --gaps",
+    "reason": "Plan 178 halted: receipt check missing before the second Plan 168 command, fabricated SDK query reports accepted, exact 180-plan inventory unchecked, and one full-suite fixture error. Plan 179 acceptance and Plan 180 amendments were not started. Repair the four recorded defects before further execution.",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+    "readiness": {
+      "plan_count": 180,
+      "incomplete_count": 80,
+      "halted_count": 25,
+      "runnable_count": 0,
+      "ready_plans": [],
+      "blocked_by": {
+        "253-08": [
+          "253-02",
+          "253-07"
+        ],
+        "253-10": [
+          "253-09"
+        ],
+        "253-105": [
+          "253-104",
+          "253-84",
+          "253-92"
+        ],
+        "253-106": [
+          "253-104",
+          "253-84",
+          "253-92"
+        ],
+        "253-114": [
+          "253-113",
+          "253-84",
+          "253-92"
+        ],
+        "253-115": [
+          "253-113",
+          "253-84",
+          "253-92"
+        ],
+        "253-123": [
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-124": [
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-13": [
+          "253-09",
+          "253-12"
+        ],
+        "253-135": [
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-14": [
+          "253-09",
+          "253-12"
+        ],
+        "253-144": [
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-145": [
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-147": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-148": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-149": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-150": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-151": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-152": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-153": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-154": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-156": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-157": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-158": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-159": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-160": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-161": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-162": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-163": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-168": [
+          "253-174"
+        ],
+        "253-169": [
+          "253-174"
+        ],
+        "253-17": [
+          "253-16"
+        ],
+        "253-170": [
+          "253-174"
+        ],
+        "253-171": [
+          "253-174"
+        ],
+        "253-172": [
+          "253-174"
+        ],
+        "253-176": [
+          "253-175"
+        ],
+        "253-177": [
+          "253-175"
+        ],
+        "253-179": [
+          "253-178"
+        ],
+        "253-180": [
+          "253-178"
+        ],
+        "253-21": [
+          "253-16"
+        ],
+        "253-22": [
+          "253-16"
+        ],
+        "253-23": [
+          "253-16"
+        ],
+        "253-24": [
+          "253-16"
+        ],
+        "253-25": [
+          "253-16"
+        ],
+        "253-28": [
+          "253-27"
+        ],
+        "253-29": [
+          "253-27"
+        ],
+        "253-30": [
+          "253-27"
+        ],
+        "253-31": [
+          "253-27"
+        ],
+        "253-32": [
+          "253-27"
+        ],
+        "253-33": [
+          "253-27"
+        ],
+        "253-34": [
+          "253-27"
+        ],
+        "253-35": [
+          "253-27"
+        ],
+        "253-41": [
+          "253-40"
+        ],
+        "253-44": [
+          "253-40"
+        ],
+        "253-45": [
+          "253-40"
+        ],
+        "253-46": [
+          "253-40"
+        ],
+        "253-47": [
+          "253-40"
+        ],
+        "253-52": [
+          "253-51"
+        ],
+        "253-53": [
+          "253-51"
+        ],
+        "253-54": [
+          "253-51"
+        ],
+        "253-55": [
+          "253-51"
+        ],
+        "253-56": [
+          "253-51"
+        ],
+        "253-64": [
+          "253-63"
+        ],
+        "253-65": [
+          "253-63"
+        ],
+        "253-66": [
+          "253-63"
+        ],
+        "253-67": [
+          "253-63"
+        ],
+        "253-68": [
+          "253-63"
+        ],
+        "253-74": [
+          "253-73"
+        ],
+        "253-75": [
+          "253-73"
+        ],
+        "253-76": [
+          "253-73"
+        ],
+        "253-77": [
+          "253-73"
+        ],
+        "253-78": [
+          "253-73"
+        ],
+        "253-85": [
+          "253-84"
+        ],
+        "253-86": [
+          "253-84"
+        ],
+        "253-87": [
+          "253-84"
+        ],
+        "253-88": [
+          "253-84"
+        ],
+        "253-93": [
+          "253-92",
+          "253-84"
+        ],
+        "253-94": [
+          "253-92",
+          "253-84"
+        ],
+        "253-98": [
+          "253-97",
+          "253-84",
+          "253-92"
+        ],
+        "253-99": [
+          "253-97",
+          "253-84",
+          "253-92"
+        ]
+      }
+    }
+  },
+  "last_updated": "2026-10-20T20:37:06.672116+00:00",
+  "phase253_bridge_repair_execution": {
+    "status": "halted",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+    "candidate_commit": "d0a2433f1aae2894819dda270de2a60974c928e5",
+    "next_command": "$gsd-plan-phase 253 --gaps",
+    "readiness": {
+      "plan_count": 180,
+      "incomplete_count": 80,
+      "halted_count": 25,
+      "runnable_count": 0,
+      "ready_plans": [],
+      "blocked_by": {
+        "253-08": [
+          "253-02",
+          "253-07"
+        ],
+        "253-10": [
+          "253-09"
+        ],
+        "253-105": [
+          "253-104",
+          "253-84",
+          "253-92"
+        ],
+        "253-106": [
+          "253-104",
+          "253-84",
+          "253-92"
+        ],
+        "253-114": [
+          "253-113",
+          "253-84",
+          "253-92"
+        ],
+        "253-115": [
+          "253-113",
+          "253-84",
+          "253-92"
+        ],
+        "253-123": [
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-124": [
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-13": [
+          "253-09",
+          "253-12"
+        ],
+        "253-135": [
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-14": [
+          "253-09",
+          "253-12"
+        ],
+        "253-144": [
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-145": [
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-147": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-148": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-149": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-150": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-151": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-152": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-153": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-154": [
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-156": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-157": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-158": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-159": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-160": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-161": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-162": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-163": [
+          "253-155",
+          "253-146",
+          "253-143",
+          "253-134",
+          "253-122",
+          "253-84",
+          "253-92"
+        ],
+        "253-168": [
+          "253-174"
+        ],
+        "253-169": [
+          "253-174"
+        ],
+        "253-17": [
+          "253-16"
+        ],
+        "253-170": [
+          "253-174"
+        ],
+        "253-171": [
+          "253-174"
+        ],
+        "253-172": [
+          "253-174"
+        ],
+        "253-176": [
+          "253-175"
+        ],
+        "253-177": [
+          "253-175"
+        ],
+        "253-179": [
+          "253-178"
+        ],
+        "253-180": [
+          "253-178"
+        ],
+        "253-21": [
+          "253-16"
+        ],
+        "253-22": [
+          "253-16"
+        ],
+        "253-23": [
+          "253-16"
+        ],
+        "253-24": [
+          "253-16"
+        ],
+        "253-25": [
+          "253-16"
+        ],
+        "253-28": [
+          "253-27"
+        ],
+        "253-29": [
+          "253-27"
+        ],
+        "253-30": [
+          "253-27"
+        ],
+        "253-31": [
+          "253-27"
+        ],
+        "253-32": [
+          "253-27"
+        ],
+        "253-33": [
+          "253-27"
+        ],
+        "253-34": [
+          "253-27"
+        ],
+        "253-35": [
+          "253-27"
+        ],
+        "253-41": [
+          "253-40"
+        ],
+        "253-44": [
+          "253-40"
+        ],
+        "253-45": [
+          "253-40"
+        ],
+        "253-46": [
+          "253-40"
+        ],
+        "253-47": [
+          "253-40"
+        ],
+        "253-52": [
+          "253-51"
+        ],
+        "253-53": [
+          "253-51"
+        ],
+        "253-54": [
+          "253-51"
+        ],
+        "253-55": [
+          "253-51"
+        ],
+        "253-56": [
+          "253-51"
+        ],
+        "253-64": [
+          "253-63"
+        ],
+        "253-65": [
+          "253-63"
+        ],
+        "253-66": [
+          "253-63"
+        ],
+        "253-67": [
+          "253-63"
+        ],
+        "253-68": [
+          "253-63"
+        ],
+        "253-74": [
+          "253-73"
+        ],
+        "253-75": [
+          "253-73"
+        ],
+        "253-76": [
+          "253-73"
+        ],
+        "253-77": [
+          "253-73"
+        ],
+        "253-78": [
+          "253-73"
+        ],
+        "253-85": [
+          "253-84"
+        ],
+        "253-86": [
+          "253-84"
+        ],
+        "253-87": [
+          "253-84"
+        ],
+        "253-88": [
+          "253-84"
+        ],
+        "253-93": [
+          "253-92",
+          "253-84"
+        ],
+        "253-94": [
+          "253-92",
+          "253-84"
+        ],
+        "253-98": [
+          "253-97",
+          "253-84",
+          "253-92"
+        ],
+        "253-99": [
+          "253-97",
+          "253-84",
+          "253-92"
+        ]
+      }
     },
-    "historical_verification_is_forward_blocker": false
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "phase_verification_status": "not_started"
   }
 }

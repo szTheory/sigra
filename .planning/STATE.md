@@ -4,11 +4,11 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "ready_to_execute"
-stopped_at: "Plans 178\u2013180 reviewed; Plan 178 ready"
-last_updated: "2026-10-20T19:38:13.863585+00:00"
-last_activity: "2026-10-20T19:38:13.863585+00:00 \u2014 bridge repair plans reviewed"
-state_head: "cd4baac3feaddfd99790db0dc742bf4fc62a09ce"
+status: "ready_to_plan"
+stopped_at: "Plan 178 halted: three review findings and one full-suite error"
+last_updated: "2026-10-20T20:37:20.605148+00:00"
+last_activity: "2026-10-20T20:37:20.605148+00:00 \u2014 Plan 178 halted; no acceptance launched"
+state_head: "e2acfff8da38d8733248c602700d48f39625f3d2"
 progress:
   total_phases: 4
   completed_phases: 1
@@ -16,12 +16,12 @@ progress:
   completed_plans: 81
   percent: 25
 milestone_status: active
-workflow_step: "gap_plans_ready"
+workflow_step: "gap_repair_needed"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253 --gaps-only"
-resume_command: "$gsd-execute-phase 253 --gaps-only"
+next_command: "$gsd-plan-phase 253 --gaps"
+resume_command: "$gsd-plan-phase 253 --gaps"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -33,6 +33,7 @@ phase253_task_count: 470
 phase253_implementation_status: partial
 phase253_completed_plans: 75
 phase253_halted_plans:
+  - 253-178
   - 253-175
   - 253-02
   - 253-07
@@ -144,11 +145,11 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: ["253-178"]
+phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-last_activity_desc: "Plans 178\u2013180 reviewed; Plan 178 ready"
-resume_file: ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json"
+last_activity_desc: "Plan 178 halted; repair planning required"
+resume_file: ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json"
 ---
 
 # Project State
@@ -162,18 +163,17 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase 253 implementation remains partial: 75 completed implementation plans, 24 halted, and 81 without summaries among 180. Plans 178–180 passed independent plan review (zero blockers/warnings); only 178 is ready now. Plan 175 remains halted. Plans 176/177 remain unexecuted and unchanged.
-Whole-phase verification: not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted.
+Phase 253 remains partial:75 completed implementation plans,25 halted,and80 without summaries among180. Plan178 halted with three independent review findings and one full-suite test error (15passed/1error). Plan179 acceptance and Plan180 amendments were not started. Whole-phase verification remains not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
+$gsd-plan-phase 253 --gaps
 
-Execute Plan 178 to repair strict executable bridge checks and lifecycle fixtures; 179 then runs one distinct offline acceptance, and 180 preserves originals before amending blocked instructions. Plan 175 remains halted; 176/177 remain unexecuted. No requirement or phase verification is complete.
+Plan 178 halted: receipt check missing before the second Plan 168 command, fabricated SDK query reports accepted, exact 180-plan inventory unchecked, and one full-suite fixture error. Plan 179 acceptance and Plan 180 amendments were not started. Repair the four recorded defects before further execution.
 
-Fresh installed SDK readiness: 180 plans, 81 incomplete; phase-plan-index ready_plans=[253-178]. Plans 179/180 depend sequentially on successful new work. Phase 254 is Pending with no context/research/plans; recheck after Phase 253 completes before recommending $gsd-discuss-phase 254. Historical verification maintenance is separate.
+Fresh readiness:180plans,80incomplete,25halts,no ready or runnable plans. Phase253 has context/research. Phase254 remains pending with no context/research/plans; recheck after253 completes before recommending its command. Historical verification remains separate.
 
-Records: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json`, `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md`. Original shared bytes are exactly recoverable at `refs/gsd/phase253-planning178-entry` (fea8f29e79f7d6e96f1bf2c6f15cfa6eee73681d); exact SDK output at `refs/gsd/phase253-planning178-sdk` (5306d92cca49443e47fc47b444c0899b82c97781). All old PLAN/SUMMARY/evidence and Phase 252 bytes remain unchanged.
+Record: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json`. Prior shared bytes: `refs/gsd/phase253-execution178-entry`; diagnostics: `refs/gsd/phase253-execution178-diagnostics`.
 
 ## Known unfinished work
 
@@ -220,9 +220,9 @@ Records: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178
 
 ## Session
 
-**Last session:** 2026-10-20T18:04:57.874438+00:00
-**Stopped at:** Gap planning175–177 reviewed;175 ready
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json
+**Last session:** 2026-10-20T20:37:20.605148+00:00
+**Stopped at:** Plan178 halted;179/180not started
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json
 
 ## Deferred Items
 
@@ -321,3 +321,7 @@ Plan175 halted: bridge validator accepts stale executable174-pin/22-halt asserti
 ## Additive bridge repair planning (2026-10-20)
 
 Three plans, six tasks, three sequential waves: 178 strict validator/lifecycle repair; 179 separate once-only offline acceptance; 180 original-plan preservation and five future-instruction amendments. Plan review passed without override. No acceptance, browser launch or GitHub request was made. The two requirements and whole-phase verification remain open. Next: $gsd-execute-phase 253 --gaps-only.
+
+## Latest bridge repair execution
+
+Phase 253 remains partial:75 completed implementation plans,25 halted,and80 without summaries among180. Plan178 halted with three independent review findings and one full-suite test error (15passed/1error). Plan179 acceptance and Plan180 amendments were not started. Whole-phase verification remains not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted. Plan 178 halted: receipt check missing before the second Plan 168 command, fabricated SDK query reports accepted, exact 180-plan inventory unchecked, and one full-suite fixture error. Plan 179 acceptance and Plan 180 amendments were not started. Repair the four recorded defects before further execution. Next: $gsd-plan-phase 253 --gaps. Exact candidate and complete diagnostics are committed and retained under the scoped refs in the execution record.
