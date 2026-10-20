@@ -1173,6 +1173,25 @@ class SuccessorContractTests(unittest.TestCase):
             summary175.write_bytes(prior175)
             self.assertEqual(successor.check_historical_inputs(project)["175_status"], "halted")
 
+    def test_lifecycle_181_preserves_178_halt_and_reuses_179_180(self):
+        # The preserved clean-input ref is the write-ahead copy for these exact
+        # unexecuted instructions. Read it before testing their successor route.
+        original_ref = "refs/gsd/phase253-repair181-inputs"
+        for rel in (successor.PLAN_179, successor.PLAN_180):
+            original = subprocess.check_output(["git", "show", f"{original_ref}:{rel}"], cwd=ROOT)
+            self.assertEqual(original, (ROOT / rel).read_bytes(), f"unexpected current source change: {rel}")
+
+        summary178 = (ROOT / f"{PHASE}/253-178-SUMMARY.md").read_text(encoding="utf-8")
+        summary175 = (ROOT / f"{PHASE}/253-175-SUMMARY.md").read_text(encoding="utf-8")
+        self.assertRegex(summary178, r"(?m)^status: halted$")
+        self.assertRegex(summary175, r"(?m)^status: halted$")
+        for number in (176, 177, 179, 180):
+            self.assertFalse((ROOT / f"{PHASE}/253-{number}-SUMMARY.md").exists())
+        self.assertFalse((ROOT / successor.RECEIPT_179).exists())
+
+        validator = getattr(successor, "validate_review181", None)
+        self.assertTrue(callable(validator), "missing source-bound validate_review181 lifecycle gate")
+
     def test_consumer168_uses_entry_bridge_without_repeating_sdk_queries(self):
         with tempfile.TemporaryDirectory(prefix="sigra-253-consumer-bridge-") as temp:
             project = committed_receipt_fixture(temp)
