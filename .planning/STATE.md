@@ -4,32 +4,32 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "blocked"
-stopped_at: "Plan 174 halted after publication regression failure"
-last_updated: "2026-10-20T17:45:20.901156+00:00"
-last_activity: "2026-10-20T17:45:20.901156+00:00 — elevated permission probe passed; 118 publication tests had one failure; no rerun"
-state_head: "c6f629aa1e5c274dcd4ac9476919ee86412eb762"
+status: "ready_to_execute"
+stopped_at: "Plans175–177 reviewed; Plan175 ready"
+last_updated: "2026-10-20T18:04:57.874438+00:00"
+last_activity: "2026-10-20T18:04:57.874438+00:00 \u2014 three gap plans passed independent review; no acceptance run"
+state_head: "cd4baac3feaddfd99790db0dc742bf4fc62a09ce"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 180
+  total_plans: 183
   completed_plans: 81
   percent: 25
 milestone_status: active
-workflow_step: "plan_gap_recovery"
+workflow_step: "execute_gap_recovery"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-plan-phase 253 --gaps"
-resume_command: "$gsd-plan-phase 253 --gaps"
+next_command: "$gsd-execute-phase 253 --gaps-only"
+resume_command: "$gsd-execute-phase 253 --gaps-only"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
 phase253_planning_status: passed
-phase253_plan_count: 174
-phase253_wave_count: 6
-phase253_task_count: 458
+phase253_plan_count: 177
+phase253_wave_count: 8
+phase253_task_count: 464
 phase253_implementation_status: partial
 phase253_completed_plans: 75
 phase253_halted_plans:
@@ -139,10 +139,10 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: []
+phase253_ready_plans: [253-175]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-last_activity_desc: "Plan 174 halted; 168–172 blocked; no recovery receipt"
+last_activity_desc: "Plans175–177 reviewed;175 first; original174 failed"
 ---
 
 # Project State
@@ -156,21 +156,23 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase: 253 — implementation partial; latest recovery attempt halted
-Plans: 75 implementation summaries, 23 halted summaries and 76 without summaries among 174 plans
-Status: Plan 174 halted; no runnable plans; 168–172 blocked
-Last activity: 2026-10-20T17:45:20.901156+00:00 — permission probe and three offline gates passed; publication suite failed one of 118 tests
+Phase: 253 — implementation partial; gap plans175–177 ready
+Plans: 75 implementation summaries, 23 halted summaries and 79 without summaries among177 plans
+Status: Plan175 ready;176/177 depend on preceding new plans;168–172 remain blocked until177
+Last activity: 2026-10-20T18:04:57.874438+00:00 — independent plan review passed, zero blockers/warnings
 Whole-phase verification: not_started; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted
 
 ## Next GSD command
 
-$gsd-plan-phase 253 --gaps
+$gsd-execute-phase 253 --gaps-only
 
-Plan 174 stopped after a publication regression test copied current config bytes into a fixture that permits only the older pinned hash. Its once-only contract forbids a rerun. Plan the fixture and receipt-verifier corrections and a separately identified acceptance attempt; 168–172 remain blocked.
+Execute 175 to repair the historical config fixture and test the successor receipt contract; 176 then runs one separately identified acceptance attempt; 177 preserves and amends the blocked continuation plans. Do not rerun 173 or 174.
 
-Exact attempt output and diagnosis: `253-174-SUMMARY.md`, `253-174-REGRESSION.log`, `253-174-PERMISSION-PREFLIGHT.json` and `253-174-EXECUTION-RECORD.json`. No success receipt exists, and the full dry-run suite did not start. Do not rerun 174. A second static issue for planning: 174's receipt verifier requests a top-level product_changes field absent from the preserved 173 review.
+Route:175 →176 →177 →168 →169 →170 →171 →172. Three new plans in three waves; the later five remain unchanged until177. Six plan schema/structure checks and six command syntax checks passed; all24 decisions and both requirements are covered by plans. No tests or acceptance ran during planning.
 
-Fresh readiness: init.execute-phase 253 and phase-plan-index 253 report zero runnable/ready plans. init.plan-phase 253 finds context/research and existing plans. init.plan-phase 254 confirms pending with no context/research/plans; after 253 completes, use $gsd-discuss-phase 254. Phase 254 was not started. Prior shared bytes are recoverable at dba64798ea23b2a329b8fffe6e302c99cfe362d7; exact readbacks are in 253-174-EXECUTION-RECORD.json. All 174 PLANs, earlier SUMMARY files and Phase 252 files remain unchanged.
+Records: `253-175-177-PLANNING-RECORD.json`, `253-175-177-CHECK-01.md`, `253-175-177-SOURCE-AUDIT.md`. All174 prior PLANs, earlier SUMMARY/evidence and Phase252 inputs retain original bytes. Prior shared history is recoverable at `cd4baac3feaddfd99790db0dc742bf4fc62a09ce`; exact generated SDK output at `refs/gsd/phase253-gap-planning175-sdk` (`bbef03270a1c6cdfa244452a173f44586488c252`), with readbacks in the planning record.
+
+Fresh readiness: init.execute-phase253 reports175/176/177 eligible; phase-plan-index253 reports only175 ready. init.plan-phase254 confirms Pending, no context/research/plans. After253 completes, default `$gsd-discuss-phase 254`;254 not started. Old verification maintenance is separate.
 
 ## Known unfinished work
 
@@ -217,9 +219,9 @@ Fresh readiness: init.execute-phase 253 and phase-plan-index 253 report zero run
 
 ## Session
 
-**Last session:** 2026-10-20T17:45:20.901156+00:00
-**Stopped at:** Plan 174 halted; next is gap planning
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-EXECUTION-RECORD.json
+**Last session:** 2026-10-20T18:04:57.874438+00:00
+**Stopped at:** Gap planning175–177 reviewed;175 ready
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-177-PLANNING-RECORD.json
 
 ## Deferred Items
 

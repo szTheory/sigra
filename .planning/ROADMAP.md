@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 253 --gaps-only — Execute the 12 reviewed recovery plans. Both requirements and phase verification remain open.
+**Next command:** $gsd-execute-phase 253 --gaps-only — Execute reviewed gap plans175–177, starting with175. Both requirements and phase verification remain open.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**: 75 implementation summaries, 22 halted summaries and 77 plans without summaries among 174 plans; Plan 174 reviewed and ready first; continuations 168–172 follow in six active waves; whole-phase verification not started. Earlier lists below record historical recovery stages.
+**Plans**: 177 total:75 implementation summaries,23 halted summaries,79 without summaries. New175–177 reviewed in three waves;175 ready.168–172 remain blocked pending177; whole-phase verification not_started. Earlier lists below record historical stages.
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
 - [ ] 253-02-PLAN.md — Pinned registration reproduction, controls and conditional fix
@@ -262,6 +262,22 @@ Cross-cutting constraints: preserve every historical halt and spent allocation; 
 Cross-cutting constraints: unchanged request/retry/tree/time limits; exact source/log/receipt identities; CIREL-01 partial_not_reproduced; CIREL-02 unaccepted pending hosted proof; whole-phase verification not_started. Only 174 is ready now. Next: `$gsd-execute-phase 253 --gaps-only`. Current records: `253-174-PLANNING-RECORD.json`, `253-174-CHECK-01.md`, `253-174-SOURCE-AUDIT.md`.
 
 
+### Latest gap planning — fixture and receipt repair (2026-10-20)
+
+Plan174 halted after one of118 publication tests failed; its exact log remains VERIFY-EXIT1. No rerun or success receipt. Additive plans preserve original instructions and failure bytes.
+
+| Wave | Plan | Result required |
+|---|---|---|
+| 1 |175| Historical config fixture and tested successor producer/consumer contract |
+| 2 (after175) |176| One separately identified elevated offline acceptance attempt |
+| 3 (after176) |177| Preserve original168–172 plans, then amend their receipt readers and dependency route |
+
+- [ ]253-175-PLAN.md — Fixture/receipt contract repair
+- [ ]253-176-PLAN.md — Once-only successor acceptance
+- [ ]253-177-PLAN.md — Preserved downstream amendments
+
+Cross-cutting constraints: exact historical publisher allowance, retained173/174 failure logs, same-process elevated probe/acceptance, unchanged limits, no acceptance retry, actual hosted proof still required. The future route after177 is168→169→170→171→172 in waves4–8. Existing168–172 bytes remain unchanged during planning. Records:253-175-177-PLANNING-RECORD.json and253-175-177-CHECK-01.md. Planning checks passed; implementation and phase verification remain incomplete.
+
 ### Phase 254: Speed Up the Measured Slow Jobs
 
 **Goal**: Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
@@ -290,12 +306,12 @@ Cross-cutting constraints: unchanged request/retry/tree/time limits; exact sourc
 
 ## Progress
 
-**Execution order:** 252 → 253 → 254 → 255. Phase 252 has six completed plans. Phase 253 has 173 plans: 75 implementation summaries, 22 halted summaries and 76 without summaries. Plan 173 halted before regression; 168–172 are blocked on its missing accepted result; 71 historical unexecuted plans await evidence-backed dispositions. Phase 254/255 remain pending.
+**Execution order:**252 →253 →254 →255. Phase252 complete; Phase253 has177plans:75 implementation,23halts,79unsummarized.175ready;176/177 then168–172.71historical unexecuted plans await evidence-backed dispositions.254/255 pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/173 | Partial implementation; Plan 173 halted; 168–172 blocked; verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/177 | Partial implementation;175 ready; phase verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
