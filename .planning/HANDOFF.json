@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T00:35:22.639872+00:00",
+  "timestamp": "2026-10-21T01:05:03.964300+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Local checker maintenance26/26passed; phase253incomplete;183halted;no new numbered plan.",
-  "next_command": "$gsd-progress",
-  "resume_command": "$gsd-progress",
-  "next_action": "Read253-RECOVERY-RESET.md and report actual original CI gaps. Do not auto-create another repair plan.",
+  "current": "Maintenance prerequisite reconnected;179 ready for its existing offline attempt;180 waits for179. Phase253 incomplete;183 halted; no CI launched.",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 1",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 1",
+  "next_action": "Verified maintenance replaces the halted181/183 prerequisite. Run only Wave1 (179 offline acceptance) under unchanged limits.180 legacy simulation must preserve actual halted183 before execution; no automatic hosted continuation.",
   "route": {
-    "immediate_gsd_command": "$gsd-progress",
-    "resume_command": "$gsd-progress",
+    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only --wave 1",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 1",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -31,8 +31,10 @@
       "halted_count": 28,
       "without_summary": 80,
       "incomplete_count": 80,
-      "runnable_count": 0,
-      "ready_plans": []
+      "runnable_count": 1,
+      "ready_plans": [
+        "253-179-PLAN.md"
+      ]
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -4317,7 +4319,9 @@
     },
     "recorded_at": "2026-10-20T23:11:22.112438+00:00"
   },
-  "phase253_ready_plans": [],
+  "phase253_ready_plans": [
+    "253-179-PLAN.md"
+  ],
   "phase253_verification_status": "not_started",
   "workflow_step": "review",
   "phase253_gap_repair183_planning": {
@@ -4573,5 +4577,23 @@
     "historical183_status": "halted",
     "no_new_numbered_plan": true,
     "next_command": "$gsd-progress"
+  },
+  "phase253_prerequisite_reconnection": {
+    "status": "prerequisite_reconnected",
+    "quick_task": "261020-swa",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.json",
+    "validation": ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/CHECKS.json",
+    "local_tests": 32,
+    "historical183_status": "halted",
+    "acceptance_attempts": 0,
+    "github_requests": 0,
+    "budget_renewal": false,
+    "phase_verification_status": "not_started",
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 1",
+    "remaining": [
+      "179 actual once-only offline acceptance has not run",
+      "180 legacy simulation must account for all28 halts including183 before execution",
+      "Registration reproduction/fix and hosted required-gate proof still missing"
+    ]
   }
 }

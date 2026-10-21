@@ -2,26 +2,24 @@
 gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
-current_phase: 253
-current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "in_progress"
-stopped_at: "Local maintenance26/26passed; recovery reset active; CI requirements open"
-last_updated: "2026-10-21T00:35:22.639872+00:00"
-last_activity: "2026-10-21T00:35:22.639872+00:00 \u2014 Lessons recorded; checker maintenance26/26passed; no new plan"
-state_head: "7122cc1da61d398bff3254319a4c66ce9db7e8aa"
+status: in_progress
+stopped_at: 179 prerequisite reconnected; offline acceptance not run; phase incomplete
+last_updated: "2026-10-21T01:05:08.069Z"
+state_head: 8e18d8a05d65eac6bb4afb372ac85c544dd21195
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 188
   completed_plans: 81
   percent: 25
+last_activity: "2026-10-21T01:05:03.964300+00:00 — Completed quick261020-swa: reconnect acceptance prerequisite"
 milestone_status: active
-workflow_step: "review"
+workflow_step: execute
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-progress"
-resume_command: "$gsd-progress"
+next_command: $gsd-execute-phase 253 --gaps-only --wave 1
+resume_command: $gsd-execute-phase 253 --gaps-only --wave 1
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -99,7 +97,6 @@ phase253_blocked_plans:
   - 253-172
   - 253-176
   - 253-177
-  - 253-179
   - 253-180
   - 253-21
   - 253-22
@@ -148,11 +145,13 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: []
+phase253_ready_plans: [253-179-PLAN.md]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-last_activity_desc: "Plan183 ready; requirements and whole-phase verification remain open"
-resume_file: ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md"
+resume_file: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md
+current_phase: 253
+current_phase_name: Fix Flaky CI and Preserve Required Checks
+last_activity_desc: Completed quick261020-swa;179 ready for offline acceptance; phase incomplete
 ---
 
 # Project State
@@ -166,13 +165,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase253 remains incomplete:183plans,75completed implementation plans,28halted,80without summaries,0runnable. Local checker maintenance passed26/26tests under the user-requested recovery reset. Plan183stays halted;179/180stayblocked. Both original CI requirements remain open; phase verification not_started.
+Phase253 remains incomplete:183 plans,75 completed implementation plans,28 halted,80 without summaries. Plan179 alone is ready for its existing offline acceptance;180 waits for179. The reconnected prerequisite passes32 local tests. Plan183 stays halted. Both original CI requirements remain open; phase verification not_started.
 
 ## Next GSD command
 
-$gsd-progress
+$gsd-execute-phase 253 --gaps-only --wave 1
 
-Read`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md` first. The user-requested reset supersedes historical automatic gap-planning routes. Review original CI gaps; do not create another numbered local repair plan or renew acceptance budgets. Maintenance result:`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-RESULT.json`.
+Verified maintenance replaces the halted181/183 prerequisite. Run only Wave1 (179 offline acceptance) under unchanged limits.180 legacy simulation must preserve actual halted183 before execution; no automatic hosted continuation. Current prerequisite: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.json`; local tests: `.planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/CHECKS.json`. No acceptance or hosted action ran in this quick task.
 
 ## Known unfinished work
 
@@ -360,3 +359,15 @@ The repeated checking-script repair loop is explicitly recorded, rather than cou
 ## Recovery reset after183
 
 The user requested lessons and an end to the repeated loop. Lessons:253-LEARNINGS.md;instructions:253-RECOVERY-RESET.md;local tests and retained failed runs:253-MAINTENANCE-RESULT.json.26/26full-suite tests passed;no new plan,acceptance,browserorGitHubrun.183remains halted. Further work must address the original CIREL gaps under existing limits, rather than another count/owner migration. Historical sections below/above are retained records, not current routing. Immediate command:$gsd-progress. Phase254remains pending;recheck before actualforwardrouting.
+
+## Current prerequisite reconnection (quick261020-swa)
+
+Maintenance prerequisite reconnected;179 ready for its existing offline attempt;180 waits for179. Phase253 incomplete;183 halted; no CI launched. Verified maintenance replaces the halted181/183 prerequisite. Run only Wave1 (179 offline acceptance) under unchanged limits.180 legacy simulation must preserve actual halted183 before execution; no automatic hosted continuation.
+
+Original maintenance record and historical halts are unchanged. Fresh local result:26 checker tests plus6 prerequisite tests passed; four installed-SDK plan checks passed. Prerequisite: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.json`. Next: `$gsd-execute-phase 253 --gaps-only --wave 1`. Phase verification remains not_started.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 261020-swa | Phase 253: reconnect acceptance prerequisites to the verified maintenance result; preserve historical halts and budgets; do not launch CI | 2026-10-20 | 8e18d8a05 | complete | [261020-swa-phase-253-reconnect-acceptance-prerequis](./quick/261020-swa-phase-253-reconnect-acceptance-prerequis/) |
