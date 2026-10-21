@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-20T23:39:21.142020+00:00",
-  "status": "ready_to_execute",
+  "timestamp": "2026-10-21T00:09:45.015506+00:00",
+  "status": "halted",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "183plans:75 implementation complete,27halted,81without summaries;only183 ready.",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Execute183; keep179/180 blocked until183 succeeds.",
+  "current": "183plans:75implementation complete,28halted,80without summaries;0runnable.",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "resume_command": "$gsd-plan-phase 253 --gaps",
+  "next_action": "Diagnose the retained183 failures and review the repeated checking-script repair loop before authoring another successor.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "immediate_gsd_command": "$gsd-plan-phase 253 --gaps",
+    "resume_command": "$gsd-plan-phase 253 --gaps",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -28,13 +28,11 @@
     "readiness": {
       "plan_count": 183,
       "completed_implementation_count": 75,
-      "halted_count": 27,
-      "without_summary": 81,
-      "incomplete_count": 81,
-      "runnable_count": 1,
-      "ready_plans": [
-        "253-183"
-      ]
+      "halted_count": 28,
+      "without_summary": 80,
+      "incomplete_count": 80,
+      "runnable_count": 0,
+      "ready_plans": []
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -148,11 +146,11 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Plan183 independently reviewed; earlier halts and requirements remain open.",
+    "reason": "Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent repairs are looping on evidence-checking code while original CI requirements stay open.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json",
     "whole_phase_verification_status": "not_started",
-    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
-    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json"
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
+    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -175,7 +173,7 @@
       254,
       255
     ],
-    "next_required_gate": "Replan bounded182 repair; no179 acceptance before new successful repair",
+    "next_required_gate": "Repair concrete183 failures without repeating the growing count/owner migration blindly",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -239,7 +237,8 @@
       "253-73",
       "253-84",
       "253-92",
-      "253-97"
+      "253-97",
+      "253-183"
     ],
     "phase253_blocked_plans": [
       "253-08",
@@ -323,17 +322,15 @@
       "253-98",
       "253-99"
     ],
-    "phase253_execution_dispatch": "Plan183 ready after independent planning review; no execution started.",
+    "phase253_execution_dispatch": "Task1inline;Task2typed executor;root directly captured all native runs;terminal nativeERRORs prevent retry",
     "phase253_recovery_plan_count": 6,
     "phase253_recovery_task_count": 13,
     "phase253_replan_count": 11,
     "phase253_replan_task_count": 24,
-    "phase253_remaining_plans": 81,
+    "phase253_remaining_plans": 80,
     "phase253_control_recovery_plan_count": 10,
     "phase253_control_recovery_task_count": 22,
-    "phase253_ready_plans": [
-      "253-183"
-    ],
+    "phase253_ready_plans": [],
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
@@ -1465,7 +1462,7 @@
       ]
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3692,7 +3689,10 @@
       "runnable_count": 0,
       "ready_plans": []
     },
-    "recorded_at": "2026-10-20T22:27:02.838416+00:00"
+    "recorded_at": "2026-10-20T22:27:02.838416+00:00",
+    "resume_command": "$gsd-plan-phase 253 --gaps",
+    "reason": "Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent repairs are looping on evidence-checking code while original CI requirements stay open.",
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json"
   },
   "phase253_bridge_repair_planning": {
     "status": "passed",
@@ -3723,7 +3723,7 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "next_command": "$gsd-plan-phase 253 --gaps",
     "readiness": {
       "plan_count": 183,
       "completed_implementation_count": 75,
@@ -3735,9 +3735,13 @@
         "253-183"
       ]
     },
-    "phase_verification_status": "not_started"
+    "phase_verification_status": "not_started",
+    "resume_command": "$gsd-plan-phase 253 --gaps",
+    "status": "halted",
+    "reason": "Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent repairs are looping on evidence-checking code while original CI requirements stay open.",
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json"
   },
-  "last_updated": "2026-10-20T23:39:21.142020+00:00",
+  "last_updated": "2026-10-21T00:09:45.015506+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4311,11 +4315,9 @@
     },
     "recorded_at": "2026-10-20T23:11:22.112438+00:00"
   },
-  "phase253_ready_plans": [
-    "253-183"
-  ],
+  "phase253_ready_plans": [],
   "phase253_verification_status": "not_started",
-  "workflow_step": "execute",
+  "workflow_step": "plan",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4513,5 +4515,50 @@
       "253-172"
     ],
     "review_note": "Three substantive findings repaired through independent revisions; scanner-only regex collision repaired automatically under AGENTS automation-first rule. No override."
+  },
+  "phase253_gap_repair183_execution": {
+    "status": "halted",
+    "task_status": {
+      "1": "complete",
+      "2": "halted",
+      "3": "not_started"
+    },
+    "completed_tasks": 1,
+    "native_final": {
+      "tests": 6,
+      "failures": 1,
+      "errors": 2,
+      "exit_code": 1,
+      "duration_seconds": 56.12
+    },
+    "candidate_commit": "5baa69964",
+    "summary_commit": "7122cc1da",
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
+    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-REPAIR-REVIEW.json",
+    "diagnostic_ref": "refs/gsd/phase253-execution183-terminal-t2-green",
+    "diagnostic_commit": "387a6d0e685739b16f32a06dee4a8152570e1a93",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "phase_verification_status": "not_started",
+    "acceptance_attempts": 0,
+    "github_requests": 0,
+    "browser_launches": 0,
+    "reason": "Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent repairs are looping on evidence-checking code while original CI requirements stay open.",
+    "next_command": "$gsd-plan-phase 253 --gaps",
+    "counts": {
+      "plan_count": 183,
+      "completed_implementation_count": 75,
+      "halted_count": 28,
+      "without_summary": 80,
+      "incomplete_count": 80,
+      "runnable_count": 0,
+      "ready_plans": []
+    },
+    "source_review_remaining": [
+      "Captured test-only source revisions cannot all equal captured HEAD; validate preserved invocation bytes without inventing old commits.",
+      "Actual owner invocation suffixes differ; retain captures and distinguish root identity from invocation identity."
+    ]
   }
 }

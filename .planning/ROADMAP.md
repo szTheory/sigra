@@ -350,10 +350,12 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/182 | Partial implementation; 182 ready; phase verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/183 | Partial implementation; 183 halted; no runnable plans; phase verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
 ## Historical Closeout
 
 Phases 246–251 are archived under `milestones/v1.49-phases/`. Phase 251 implementation is summarized; its verification remains `gaps_found` at 9/10. The strict v1.49 audit remains 8/9. See [the closeout decision](milestones/v1.49-CLOSEOUT-DECISION.json) and [known gaps](milestones/v1.49-CLOSEOUT.md).
+
+**Latest execution — Plan183:** Task1 complete; Task2 halted on6tests/1failure/2errors. Task3unrun;179/180unchanged;0runnable plans. Both requirements and whole-phase verification stay open. The repeated evidence-checker repair loop needs review before another successor. Record:`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json`. Next:`$gsd-plan-phase 253 --gaps`.
