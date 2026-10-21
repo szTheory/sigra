@@ -38,9 +38,9 @@
     "command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
     "label": "Continue existing Plan172 after corrected-bundle approval",
-    "reason": "The approved first attempt published its candidate/fixture, then stopped before workflow dispatch:32 measured requests but27 retained receipts. The five original operator receipts were omitted by the collector. The local repair and generated collector regression pass32 offline tests. Its stopped attempt stays closed. The corrected fresh bundle is committed and requires new explicit approval; Plan172 remains unfinished at that checkpoint. No new quick or progress command is needed. Phase253 is not verified."
+    "reason": "The approved second attempt spent41 requests and launched one full-pass workflow39684755372, which succeeded. Collection stopped because both the local and pinned candidate checkers reject the proposed253-proof branch prefix. All old attempts remain closed. The compatible bundle uses fresh253-replan-proof refs supported by both unchanged checkers.33 offline tests pass, including all six cases and the exact hosted verifier step on explicitly synthetic data. Five remaining hosted cases, separate verifier and both PR families still need actual results. Plan172 remains unfinished at the new exact-bundle approval checkpoint; no quick or progress scan is needed. Phase253 is not verified."
   },
-  "updated_at": "2026-10-21T20:28:01.077925Z",
+  "updated_at": "2026-10-21T22:19:14.575991Z",
   "phase253_execution": {
     "status": "pr171_halted_offline_repair_needed",
     "implementation_status": "partial",
@@ -1726,9 +1726,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-21T20:28:01.077925Z",
-  "stopped_at": "Plan172 first attempt stopped before dispatch;corrected fresh bundle awaits new explicit approval",
-  "state_head": "8e340c7a9a1bb1b582c2fbee62c9f6809a00ec3c",
+  "last_updated": "2026-10-21T22:19:14.575991Z",
+  "stopped_at": "Plan172 second attempt stopped after successful full-pass;compatible bundle awaits new explicit approval",
+  "state_head": "a41c8a5ee846d59c4ca4c0a810030d3a1962d00e",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -3150,10 +3150,10 @@
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "The approved first attempt published its candidate/fixture, then stopped before workflow dispatch:32 measured requests but27 retained receipts. The five original operator receipts were omitted by the collector. The local repair and generated collector regression pass32 offline tests. Its stopped attempt stays closed. The corrected fresh bundle is committed and requires new explicit approval; Plan172 remains unfinished at that checkpoint. No new quick or progress command is needed. Phase253 is not verified.",
+    "reason": "The approved second attempt spent41 requests and launched one full-pass workflow39684755372, which succeeded. Collection stopped because both the local and pinned candidate checkers reject the proposed253-proof branch prefix. All old attempts remain closed. The compatible bundle uses fresh253-replan-proof refs supported by both unchanged checkers.33 offline tests pass, including all six cases and the exact hosted verifier step on explicitly synthetic data. Five remaining hosted cases, separate verifier and both PR families still need actual results. Plan172 remains unfinished at the new exact-bundle approval checkpoint; no quick or progress scan is needed. Phase253 is not verified.",
     "evidence": ".planning/execution/253-172-EXECUTION.json",
     "readiness": {
-      "source": ".planning/execution/253-proof-bundle-16800f431-next/sdk-readiness.json",
+      "source": ".planning/execution/253-proof-bundle-16800f431-compatible/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
@@ -3245,11 +3245,11 @@
   "phase253_unsummarized_plans": 74,
   "phase253_pending_decision": {
     "status": "awaiting_explicit_approval",
-    "request": ".planning/execution/253-proof-bundle-16800f431-next/approval-request.json",
-    "bundle_sha256": "75b5fd26c059a6083257e0aa68377561ec1ebc62a26c80e1e305849404c95c06",
+    "request": ".planning/execution/253-proof-bundle-16800f431-compatible/approval-request.json",
+    "bundle_sha256": "3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c",
     "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
-    "scope": "Corrected fresh canary117 requests/60minutes/45jobs, then normal/docs draft PRs120 requests/60minutes;zero reruns;new create-only next refs;all closed windows preserved",
-    "reason": "The first approved attempt stopped; its closed window and approval cannot be reused. APPROVAL.md requires fresh explicit approval for another concrete bundle."
+    "scope": "Corrected fresh canary117 requests/60minutes/45jobs, then normal/docs draft PRs120 requests/60minutes;zero reruns;new create-only compatible refs;all closed windows preserved",
+    "reason": "The approved attempt stopped and its window is closed. APPROVAL.md forbids restarting it or reusing its approval for another bundle; fresh approval is required for the committed compatible-prefix bundle."
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "phase253_external_mutations_performed": true,
@@ -3311,26 +3311,28 @@
   },
   "phase253_hosted_execution_bundle": {
     "status": "offline_verified_awaiting_new_hosted_approval",
-    "record": ".planning/execution/253-proof-bundle-16800f431-next/bundle.json",
-    "bundle_sha256": "75b5fd26c059a6083257e0aa68377561ec1ebc62a26c80e1e305849404c95c06",
-    "commit": "8e340c7a9a1bb1b582c2fbee62c9f6809a00ec3c",
-    "approval_request": ".planning/execution/253-proof-bundle-16800f431-next/approval-request.json",
+    "record": ".planning/execution/253-proof-bundle-16800f431-compatible/bundle.json",
+    "bundle_sha256": "3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c",
+    "commit": "a41c8a5ee846d59c4ca4c0a810030d3a1962d00e",
+    "approval_request": ".planning/execution/253-proof-bundle-16800f431-compatible/approval-request.json",
     "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
-    "tests": 32,
+    "tests": 33,
     "ci_launches": 0,
     "github_requests": 0,
     "allocations": 0,
     "next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "phase253_plan172_hosted_attempt": {
-    "status": "halted_before_dispatch",
+    "status": "halted_after_successful_full_pass_run",
     "record": ".planning/execution/253-172-EXECUTION.json",
-    "attempt": ".planning/execution/253-proof-bundle-16800f431/attempt-result.json",
-    "commit": "e93140048",
-    "approval_commit": "213322b8d",
-    "github_requests": 32,
-    "workflow_dispatches": 0,
+    "attempt": ".planning/execution/253-proof-bundle-16800f431-next/attempt-result.json",
+    "commit": "0da925d9f",
+    "approval_commit": "328df94ac",
+    "github_requests": 41,
+    "workflow_dispatches": 1,
     "pr_creations": 0,
-    "window_closed": true
+    "window_closed": true,
+    "run_id": 39684755372,
+    "run_conclusion": "success"
   }
 }
