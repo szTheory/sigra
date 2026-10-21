@@ -1083,7 +1083,13 @@
     }
   },
   "capture_head": "dcf0453f8f3c606e82cafee2b49a5a8fad52c371",
-  "sdk_copy": {},
+  "sdk_copy": {
+    "report_path": "/tmp/sigra180-actual/sdk-report.json",
+    "report_sha256": "a4421b827f6cd049ede3cbdcbf1b43286cf4605d4cb000711791a89d6145b12b",
+    "preservation_ref": "refs/gsd/phase253-180-v2-sdk-evidence",
+    "preservation_commit": "a3cfc18db752eac34cff7d61519da8a2f5894cd9",
+    "durable_report_path": ".planning/diagnostics/phase253-180-v2/sdk-report.json"
+  },
   "entry_checks": {
     "entry-bridge": {
       "plans": 5,
@@ -1095,5 +1101,480 @@
       "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
       "status": "verified"
     }
+  },
+  "plan_validations": {
+    "168": {
+      "schema": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "missing": [],
+          "present": [
+            "phase",
+            "plan",
+            "type",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "must_haves",
+            "gap_closure"
+          ],
+          "invalidValue": [],
+          "schema": "plan-gap-closure"
+        }
+      },
+      "structure": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [\n    \"[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed \u2014 the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first.\"\n  ],\n  \"task_count\": 2,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Derive PUBLICATION-R13 and FREEZE-R13 on the fetched main, offline, with the parent, identity, approval and ledger controls\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Rehearse both offline gates on the committed FREEZE-R13 and run the frozen-state regression\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "errors": [],
+          "warnings": [
+            "[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed \u2014 the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first."
+          ],
+          "task_count": 2,
+          "tasks": [
+            {
+              "name": "Task 1: Derive PUBLICATION-R13 and FREEZE-R13 on the fetched main, offline, with the parent, identity, approval and ledger controls",
+              "type": "tracer",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            },
+            {
+              "name": "Task 2: Rehearse both offline gates on the committed FREEZE-R13 and run the frozen-state regression",
+              "type": "auto",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            }
+          ],
+          "frontmatter_fields": [
+            "phase",
+            "plan",
+            "type",
+            "gap_closure",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "requirements",
+            "tags",
+            "estimate",
+            "must_haves"
+          ]
+        }
+      }
+    },
+    "169": {
+      "schema": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "missing": [],
+          "present": [
+            "phase",
+            "plan",
+            "type",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "must_haves",
+            "gap_closure"
+          ],
+          "invalidValue": [],
+          "schema": "plan-gap-closure"
+        }
+      },
+      "structure": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [],\n  \"task_count\": 3,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: R13 revision skeleton end to end: constants, builder partition over 01-167 plus 173-178 and 181-183, dispositioned gating and CLI --check-only on a copy\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: R13 mapping, frozen receipts, pins and the real-SDK pairing proof on a copy\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 3: Generate and commit the R13 contract\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "errors": [],
+          "warnings": [],
+          "task_count": 3,
+          "tasks": [
+            {
+              "name": "Task 1: R13 revision skeleton end to end: constants, builder partition over 01-167 plus 173-178 and 181-183, dispositioned gating and CLI --check-only on a copy",
+              "type": "tracer",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            },
+            {
+              "name": "Task 2: R13 mapping, frozen receipts, pins and the real-SDK pairing proof on a copy",
+              "type": "auto",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            },
+            {
+              "name": "Task 3: Generate and commit the R13 contract",
+              "type": "auto",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            }
+          ],
+          "frontmatter_fields": [
+            "phase",
+            "plan",
+            "type",
+            "gap_closure",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "requirements",
+            "tags",
+            "estimate",
+            "must_haves"
+          ]
+        }
+      }
+    },
+    "170": {
+      "schema": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "missing": [],
+          "present": [
+            "phase",
+            "plan",
+            "type",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "must_haves",
+            "gap_closure"
+          ],
+          "invalidValue": [],
+          "schema": "plan-gap-closure"
+        }
+      },
+      "structure": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [\n    \"[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed \u2014 the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first.\"\n  ],\n  \"task_count\": 4,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Both offline gates on FREEZE-R13, then Jon approves the R13 enumerated canary actions before any request\",\n      \"type\": \"checkpoint:decision\",\n      \"hasFiles\": false,\n      \"hasAction\": false,\n      \"hasVerify\": true,\n      \"hasDone\": false\n    },\n    {\n      \"name\": \"Task 2: Record the approval, build the allocation, and commit a self-contained operator runner whose offline self-check passes end to end\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 3: Jon runs the operator runner (main step, then remaining)\",\n      \"type\": \"checkpoint:human-action\",\n      \"hasFiles\": false,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": false\n    },\n    {\n      \"name\": \"Task 4: Verify the committed records offline, with the restated multi-page preflight rule, and write the SUMMARY (halted if anything failed)\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "errors": [],
+          "warnings": [
+            "[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed \u2014 the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first."
+          ],
+          "task_count": 4,
+          "tasks": [
+            {
+              "name": "Task 1: Both offline gates on FREEZE-R13, then Jon approves the R13 enumerated canary actions before any request",
+              "type": "checkpoint:decision",
+              "hasFiles": false,
+              "hasAction": false,
+              "hasVerify": true,
+              "hasDone": false
+            },
+            {
+              "name": "Task 2: Record the approval, build the allocation, and commit a self-contained operator runner whose offline self-check passes end to end",
+              "type": "tracer",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            },
+            {
+              "name": "Task 3: Jon runs the operator runner (main step, then remaining)",
+              "type": "checkpoint:human-action",
+              "hasFiles": false,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": false
+            },
+            {
+              "name": "Task 4: Verify the committed records offline, with the restated multi-page preflight rule, and write the SUMMARY (halted if anything failed)",
+              "type": "auto",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            }
+          ],
+          "frontmatter_fields": [
+            "phase",
+            "plan",
+            "type",
+            "gap_closure",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "requirements",
+            "tags",
+            "estimate",
+            "must_haves"
+          ]
+        }
+      }
+    },
+    "171": {
+      "schema": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "missing": [],
+          "present": [
+            "phase",
+            "plan",
+            "type",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "must_haves",
+            "gap_closure"
+          ],
+          "invalidValue": [],
+          "schema": "plan-gap-closure"
+        }
+      },
+      "structure": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [\n    \"[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed \u2014 the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first.\"\n  ],\n  \"task_count\": 4,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Jon approves the docs_and_prs section and the step-0 fetch on their own before any PR request\",\n      \"type\": \"checkpoint:decision\",\n      \"hasFiles\": false,\n      \"hasAction\": false,\n      \"hasVerify\": true,\n      \"hasDone\": false\n    },\n    {\n      \"name\": \"Task 2: Record the approval, prepare the PR freeze on the main record, build the allocation and commit a self-contained PR operator runner whose offline self-check passes\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 3: Jon runs the PR operator runner (step 0 and the normal family, then remaining)\",\n      \"type\": \"checkpoint:human-action\",\n      \"hasFiles\": false,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": false\n    },\n    {\n      \"name\": \"Task 4: Verify the preflight, both family documents and the pair offline and write the SUMMARY (halted if anything failed)\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "errors": [],
+          "warnings": [
+            "[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed \u2014 the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first."
+          ],
+          "task_count": 4,
+          "tasks": [
+            {
+              "name": "Task 1: Jon approves the docs_and_prs section and the step-0 fetch on their own before any PR request",
+              "type": "checkpoint:decision",
+              "hasFiles": false,
+              "hasAction": false,
+              "hasVerify": true,
+              "hasDone": false
+            },
+            {
+              "name": "Task 2: Record the approval, prepare the PR freeze on the main record, build the allocation and commit a self-contained PR operator runner whose offline self-check passes",
+              "type": "tracer",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            },
+            {
+              "name": "Task 3: Jon runs the PR operator runner (step 0 and the normal family, then remaining)",
+              "type": "checkpoint:human-action",
+              "hasFiles": false,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": false
+            },
+            {
+              "name": "Task 4: Verify the preflight, both family documents and the pair offline and write the SUMMARY (halted if anything failed)",
+              "type": "auto",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            }
+          ],
+          "frontmatter_fields": [
+            "phase",
+            "plan",
+            "type",
+            "gap_closure",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "requirements",
+            "tags",
+            "estimate",
+            "must_haves"
+          ]
+        }
+      }
+    },
+    "172": {
+      "schema": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "missing": [],
+          "present": [
+            "phase",
+            "plan",
+            "type",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "must_haves",
+            "gap_closure"
+          ],
+          "invalidValue": [],
+          "schema": "plan-gap-closure"
+        }
+      },
+      "structure": {
+        "exit_code": 0,
+        "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [],\n  \"task_count\": 2,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Reopen one complete end-to-end requirement chain on the R13 records with literal CIREL statuses\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Prepare the exact dispositioned-only 71-summary R13 bundle (253-144, 253-145, 253-147..154 and 253-156..163 superseded) and the full-verification route\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+        "stderr": "",
+        "result": {
+          "valid": true,
+          "errors": [],
+          "warnings": [],
+          "task_count": 2,
+          "tasks": [
+            {
+              "name": "Task 1: Reopen one complete end-to-end requirement chain on the R13 records with literal CIREL statuses",
+              "type": "tracer",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            },
+            {
+              "name": "Task 2: Prepare the exact dispositioned-only 71-summary R13 bundle (253-144, 253-145, 253-147..154 and 253-156..163 superseded) and the full-verification route",
+              "type": "auto",
+              "hasFiles": true,
+              "hasAction": true,
+              "hasVerify": true,
+              "hasDone": true
+            }
+          ],
+          "frontmatter_fields": [
+            "phase",
+            "plan",
+            "type",
+            "gap_closure",
+            "wave",
+            "depends_on",
+            "files_modified",
+            "autonomous",
+            "requirements",
+            "tags",
+            "estimate",
+            "must_haves"
+          ]
+        }
+      }
+    }
+  },
+  "ignored_input_preservation": {
+    "ref": "refs/gsd/phase253-180-ignored-input-preservation",
+    "commit": "c9a9b2df3d023d5b0b5213c716730b722f9d2317",
+    "files": [
+      {
+        "path": ".planning/.DS_Store",
+        "status": "ignored",
+        "blob": "a53014a0c87969538c0f28c32f7518787eb687bc",
+        "bytes": 8196,
+        "sha256": "f2667e1fafd00126f075d8655a1cf330021f2858eab735f15904b378bda70a50"
+      },
+      {
+        "path": ".planning/milestone.lock",
+        "status": "ignored",
+        "blob": "e34e4c6b819b76dedd0533f331d88e9de7a4f23e",
+        "bytes": 137,
+        "sha256": "58b8b372ffa62b4c585f0bede047cc3459a74e9546c83dde6ff56bd5e979ad40"
+      }
+    ]
+  },
+  "evidence_preservation": {
+    "ref": "refs/gsd/phase253-180-v2-sdk-evidence",
+    "commit": "a3cfc18db752eac34cff7d61519da8a2f5894cd9",
+    "files": [
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/entry-bridge.json",
+        "blob": "abdc6c8e368b1d5b79516d9ecf309adc84776702",
+        "bytes": 53,
+        "sha256": "844f231954c726a118c879b891ad7b172f72532019b8f595541f4d64eaad19e3"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/entry-receipt.json",
+        "blob": "1a96a12a06f9b429354a853e0bab38b6189c206a",
+        "bytes": 97,
+        "sha256": "1c269263328fab6fdd5e0727480e9ef2b0653fc247cbee97a1a7105796450a99"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/ignored-preservation.json",
+        "blob": "65efa00fdfbb5864b488ffe669f50064eedd3f79",
+        "bytes": 619,
+        "sha256": "345b3d2a5657ddb44c77169150932cda365fa0fadbf3efbd050e67c08e91d209"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/manifest-diff.json",
+        "blob": "774e65666361e8076a8c41b287aed480fec2c1dc",
+        "bytes": 467,
+        "sha256": "51f2ef14de309bfcb32221dd29e384b40605ad4e487adeee844a2703c9ceb03d"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/plan-validations.json",
+        "blob": "26a00e6ff27fbb50fb639e62addaa9c58fd3fd52",
+        "bytes": 18792,
+        "sha256": "aae4390684d2f1bbfdef285a146b9cac4ef01bee95aa5a01505974aeb723eb67"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/render.json",
+        "blob": "91f02cb860b75456b4aa47d214cfed57cd903d83",
+        "bytes": 1579,
+        "sha256": "f5ef4d59fba5d3ed655aa56a15f1e5d0deba162cae3abd878045bfb1a8df49b4"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/sdk-command-02.stderr",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/sdk-command-02.stdout",
+        "blob": "18d59928ef2ad87b8816c66293cec8f8e9c2cb1a",
+        "bytes": 246,
+        "sha256": "ff8b471763d38eddb0a68c12cc1000bf56ea943946bf75e65c78d39cd0eb6cbf"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/sdk-command.stderr",
+        "blob": "4ce054e1acc958a323aa9b6f20cacee4c800b4fe",
+        "bytes": 89,
+        "sha256": "206e8c5c263369e3b2c9da8ab0168d8e1dd53ffc3102fd2db4591371dfe2a4f1"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/sdk-command.stdout",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/sdk-report.json",
+        "blob": "817d935b790940c1a587d1d4c51d6cad4f09d8a8",
+        "bytes": 1572272,
+        "sha256": "a4421b827f6cd049ede3cbdcbf1b43286cf4605d4cb000711791a89d6145b12b"
+      }
+    ]
   }
 }
