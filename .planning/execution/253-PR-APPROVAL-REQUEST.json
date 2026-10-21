@@ -1,8 +1,8 @@
 {
   "schema": "sigra.phase253.pr-preapproval/v1",
-  "status": "awaiting_user_approval",
-  "approval_received": false,
-  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
+  "status": "approved_executed_halted",
+  "approval_received": true,
+  "next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
   "plan": "253-171",
   "freeze": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R13.json",
   "freeze_sha256": "2a9b2415e4c9545252817ec3b299a66b76247ef4774b087be97faa4e0a578629",
@@ -84,13 +84,8 @@
     "reruns": 0
   },
   "canary_completed": ".planning/execution/253-170.json",
-  "operator_requested": "Codex, if Jon approves, to run the bounded committed runner without another human-action handoff",
-  "not_authorized_yet": [
-    "fetch",
-    "docs publication",
-    "draft PR creation",
-    "PR CI collection"
-  ],
+  "operator_requested": "Codex explicitly approved by Jon; runner executed once",
+  "not_authorized_yet": [],
   "no_merge_or_cleanup": true,
   "offline_prerequisites_log": ".planning/execution/253-171-preapproval/task1.log",
   "notes": [
@@ -104,5 +99,7 @@
     "audit_tests": 66,
     "verify_exit": 0,
     "log_sha256": "193a29130cc6c67d73ba955d583c3a0dff81d05876f578a61af19ad6f26a69e4"
-  }
+  },
+  "decision_text": "yes",
+  "execution_record": ".planning/execution/253-171.json"
 }

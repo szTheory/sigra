@@ -3,24 +3,24 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Actual hosted170 complete; separate draft PR decision needed for171
-last_updated: "2026-10-21T18:05:34.747379+00:00"
-state_head: a8e0e336fd3ea5c7fbe6d3a0b8281b924fed2da6
+stopped_at: PR171 halted; five concrete offline repairs identified
+last_updated: "2026-10-21T18:34:16.502682+00:00"
+state_head: 3e184fc1c862654e24e5c04ac04dd1701eda3591
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: "2026-10-21T18:05:34.747379+00:00 - Completed actual hosted canary; preparing separate draft PR decision"
+last_activity: "2026-10-21T18:34:16.502682+00:00 - Actual PR failure diagnosed; no rerun"
 milestone_status: active
-workflow_step: execute
+workflow_step: debug
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only --wave 7
-resume_command: $gsd-execute-phase 253 --gaps-only --wave 7
-next_command_conditional: true
+next_command: $gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI"
+resume_command: $gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI"
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -44,6 +44,7 @@ phase253_halted_plans:
   - 253-155
   - 253-16
   - 253-167
+  - 253-171
   - 253-173
   - 253-174
   - 253-175
@@ -90,7 +91,6 @@ phase253_blocked_plans:
   - 253-162
   - 253-163
   - 253-17
-  - 253-171
   - 253-172
   - 253-176
   - 253-177
@@ -141,9 +141,7 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans:
-  - 253-171-PLAN.md
-  - 253-172-PLAN.md
+phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
 resume_file: .planning/execution/253-CONTINUATION.json
@@ -164,13 +162,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan 170 completed on actual GitHub CI: six expected outcomes and the independent verifier passed, within 85/117 requests,37/45 jobs,832/3600 seconds. Plans168/169 remain complete. 183plans:80 implementation complete,28 historical halts,75 without summaries. Plan171 is next, requiring separate approval for one main fetch, docs publication and two draft PRs; no progress command or numbered repair plan is needed. Whole-phase verification remains not_started and both requirements remain open.
+Plan171 halted after19/120 requests: PR338 run39651372938 failed, then raw-text redaction corrupted the comparison JSON. Five concrete defects are documented from saved failure logs and an offline reproduction. Canary170 remains complete. No docs PR was created, no rerun or budget renewal occurred.183 plans:80 implementation complete,29 halted,74 without summaries.172 is blocked by171. Continue one bounded offline repair directly, without progress or a numbered plan. Whole-phase verification remains not_started.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only --wave 7
+$gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI"
 
-Conditional on Jon approving `.planning/execution/253-PR-APPROVAL-REQUEST.json`: one main fetch, docs publication and two draft PRs. The canary approval was received and Plan170 completed. Continue directly after the separate PR decision; no progress command is needed. Earlier sections are historical.
+Use the saved diagnosis and offline candidate directly. Do not rerun171,179, the completed canary or CI. Plan172 and phase verification remain blocked by failed and missing PR proof. Earlier sections are historical.
 
 ## Known unfinished work
 
@@ -217,9 +215,7 @@ Conditional on Jon approving `.planning/execution/253-PR-APPROVAL-REQUEST.json`:
 
 ## Session
 
-**Last session:** 2026-10-21T18:05:34.747379+00:00
-**Stopped at:** Actual hosted170 complete; separate draft PR approval for171
-**Resume file:** .planning/execution/253-CONTINUATION.json
+Current route: $gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI". Evidence: `.planning/execution/253-171.json` and `.planning/execution/253-171-diagnosis/diagnosis.json`. Prior shared bytes read back exactly from 3e184fc1c862654e24e5c04ac04dd1701eda3591.
 
 ## Deferred Items
 
@@ -395,3 +391,9 @@ The user requested direct continuation: after a scoped repair passes, execute th
 Plan 170 completed on actual GitHub CI: six expected outcomes and the independent verifier passed, within 85/117 requests,37/45 jobs,832/3600 seconds. Plans168/169 remain complete. 183plans:80 implementation complete,28 historical halts,75 without summaries. Plan171 is next, requiring separate approval for one main fetch, docs publication and two draft PRs; no progress command or numbered repair plan is needed. Whole-phase verification remains not_started and both requirements remain open.
 
 Next: `$gsd-execute-phase 253 --gaps-only --wave 7`, conditional on the separate request in `.planning/execution/253-PR-APPROVAL-REQUEST.json`. Actual results: `.planning/execution/253-170.json`. Prior exact state bytes recoverable at `a8e0e336fd3ea5c7fbe6d3a0b8281b924fed2da6`. Continue directly after approval; do not send the user to progress. Earlier sections are historical.
+
+## Actual PR171 halt and automatic diagnosis
+
+Plan171 halted after19/120 requests: PR338 run39651372938 failed, then raw-text redaction corrupted the comparison JSON. Five concrete defects are documented from saved failure logs and an offline reproduction. Canary170 remains complete. No docs PR was created, no rerun or budget renewal occurred.183 plans:80 implementation complete,29 halted,74 without summaries.172 is blocked by171. Continue one bounded offline repair directly, without progress or a numbered plan. Whole-phase verification remains not_started.
+
+The five read-only connector calls after the halt are diagnostic reads, not measured acceptance requests or a renewed window. Saved excerpts identify missing published evidence dependencies, stale browser branch-count assertions, generated docs drift, a canonical audit URL mismatch, and JSON redaction corruption. The isolated redaction candidate passed four tests; production source remains frozen. Apply these repairs together before requesting any new hosted verification. No new numbered phase plan was created.

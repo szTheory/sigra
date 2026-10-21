@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "canary_complete_awaiting_pr_decision",
-  "timestamp": "2026-10-21T18:05:34.747379+00:00",
+  "status": "pr171_halted_known_defects_need_offline_repair",
+  "timestamp": "2026-10-21T18:34:16.502682+00:00",
   "completed_local_plans": [
     "253-168",
     "253-169"
@@ -9,8 +9,8 @@
   "phase_counts": {
     "plans": 183,
     "implementation_complete": 80,
-    "halted": 28,
-    "without_summary": 75
+    "halted": 29,
+    "without_summary": 74
   },
   "verification": {
     "plan168_tasks": "passed",
@@ -25,7 +25,9 @@
       "requests": 85,
       "jobs": 37,
       "seconds": 832
-    }
+    },
+    "pr171": "halted: CI failure and compare JSON corruption",
+    "offline_redaction_candidate_tests": 4
   },
   "evidence_ref": "refs/gsd/phase253-local-continuation",
   "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
@@ -36,17 +38,22 @@
     "CIREL-01": "partial_not_reproduced",
     "CIREL-02": "unaccepted"
   },
-  "next_plan": "253-171",
-  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
-  "next_command_conditional": true,
-  "required_decision": ".planning/execution/253-PR-APPROVAL-REQUEST.json",
-  "reason_for_decision": "Jon approved canary only; Plan171 needs separate approval for draft PR actions and a single main fetch.",
+  "next_plan": null,
+  "next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
+  "next_command_conditional": false,
+  "required_decision": null,
+  "reason_for_decision": null,
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
-  "github_requests": 85,
-  "ci_launches": 7,
+  "github_requests": 104,
+  "ci_launches": 8,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "a8e0e336fd3ea5c7fbe6d3a0b8281b924fed2da6",
-  "canary_execution": ".planning/execution/253-170.json"
+  "prior_shared_state_commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
+  "canary_execution": ".planning/execution/253-170.json",
+  "pr_execution": ".planning/execution/253-171.json",
+  "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
+  "read_only_diagnostic_connector_calls": 5,
+  "diagnostic_http_request_count": "not exposed by connector; excluded from measured window totals",
+  "historical_halts_before_this_task": 28
 }
