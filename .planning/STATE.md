@@ -145,8 +145,6 @@ phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
 phase253_ready_plans:
-  - 253-168-PLAN.md
-  - 253-169-PLAN.md
   - 253-170-PLAN.md
   - 253-171-PLAN.md
   - 253-172-PLAN.md
