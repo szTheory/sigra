@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T14:29:47.422121+00:00",
+  "timestamp": "2026-10-21T14:30:00.278571+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -3760,7 +3760,7 @@
     "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-BRIDGE-V2-RECORD.json",
     "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md"
   },
-  "last_updated": "2026-10-21T14:29:47.422121+00:00",
+  "last_updated": "2026-10-21T14:30:00.278571+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4615,7 +4615,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "708594dbd5f5ceba2149ac0ba40bbb704b848062",
+  "state_head": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4672,7 +4672,7 @@
     "summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-SUMMARY.md",
     "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CHECKS-V2.json",
     "bridge_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-BRIDGE-V2-RECORD.json",
-    "completed_commit": "708594dbd5f5ceba2149ac0ba40bbb704b848062",
+    "completed_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "next_command": "$gsd-progress",
     "readiness": {
       "plan_count": 183,
@@ -4697,7 +4697,7 @@
     "acceptance179_rerun": false,
     "ci_launches": 0,
     "budgets_renewed": false,
-    "prior_shared_state_commit": "708594dbd5f5ceba2149ac0ba40bbb704b848062",
+    "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   }
 }

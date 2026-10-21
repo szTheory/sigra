@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: V2 consumer verified;180 local bridge ready under addendum;phase incomplete
-last_updated: "2026-10-21T14:19:03.754868+00:00"
-state_head: f354798196cc89d22ad2d1c7eaf89f4c3cd47b65
+stopped_at: Plan180 local bridge complete;168 contradictory174 prerequisite;phase incomplete
+last_updated: "2026-10-21T14:30:00.278571+00:00"
+state_head: e1061ce82b2492c4b40571e77ed8a1072bf27c58
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
-  completed_plans: 82
+  completed_plans: 83
   percent: 25
-last_activity: "2026-10-21T14:19:03.754868+00:00 — Completed quick261021-drl: additive28-halt consumer"
+last_activity: "2026-10-21T14:30:00.278571+00:00 \u2014 Plan180 local bridge complete"
 milestone_status: active
 workflow_step: execute
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only --wave 2
-resume_command: $gsd-execute-phase 253 --gaps-only --wave 2
+next_command: $gsd-progress
+resume_command: $gsd-progress
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -29,7 +29,7 @@ phase253_plan_count: 183
 phase253_wave_count: 8
 phase253_task_count: 479
 phase253_implementation_status: partial
-phase253_completed_plans: 76
+phase253_completed_plans: 77
 phase253_halted_plans:
   - 253-02
   - 253-07
@@ -144,13 +144,13 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: [253-180-PLAN.md]
+phase253_ready_plans: [253-168-PLAN.md, 253-169-PLAN.md, 253-170-PLAN.md, 253-171-PLAN.md, 253-172-PLAN.md]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
+resume_file: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-last_activity_desc: Completed quick261021-drl;V2 consumer passes18tests;179receipt reopened;180 notexecuted
+last_activity_desc: Plan180 local checks passed;168 still requires halted174 complete;phase incomplete
 phase253_current_execution_addendum: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
 ---
 
@@ -165,13 +165,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-The additive V2 consumer passed18 tests and reopened the actual179 receipt on a clean committed checkout. All179-pinned files, its receipt,28 historical halts and budgets are unchanged. Execute180 only under `253-180-EXECUTION-ADDENDUM-V2.md`;the original180 PLAN/helper remain frozen. Phase253 is still183plans/76completed/28halted/79without summaries;180 itself has not run and whole-phase verification remains not_started.
+Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan. Actual counts:183plans,77completed implementation,28halted,78without summaries. Both CI requirements remain open.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only --wave 2
+$gsd-progress
 
-V2 consumer passed18tests and reopened actual179 receipt. Execute only180 using its v2 addendum;preserve all28halts and179-pinned originals. No179 replay orhosted continuation. Read `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md` and `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json` before executing any original180 instructions. The old27-halt helper/25-halt prose is historical;use253-RECOVERY-BRIDGE-V2.py.
+Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan.
 
 ## Known unfinished work
 
@@ -372,3 +372,7 @@ Original maintenance record and historical halts are unchanged. Fresh local resu
 |---|-------------|------|--------|--------|-----------|
 | 261020-swa | Phase 253: reconnect acceptance prerequisites to the verified maintenance result; preserve historical halts and budgets; do not launch CI | 2026-10-20 | 8e18d8a05 | complete | [261020-swa-phase-253-reconnect-acceptance-prerequis](./quick/261020-swa-phase-253-reconnect-acceptance-prerequis/) |
 | 261021-drl | Phase253: additive28-halt consumer; preserve179 receipt/pins/halts/budgets; no179 replay orCI | 2026-10-21 | f35479819 | complete | [261021-drl-phase-253-resolve-plan-180-28-halt-incom](./quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/) |
+
+## Plan180 local closeout
+
+Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan. See `253-180-CHECKS-V2.json`, `253-180-BRIDGE-V2-RECORD.json` and `253-180-ROUTING-CHECKS-V2.json`. Original shared state is recoverable at `e1061ce82b2492c4b40571e77ed8a1072bf27c58`.
