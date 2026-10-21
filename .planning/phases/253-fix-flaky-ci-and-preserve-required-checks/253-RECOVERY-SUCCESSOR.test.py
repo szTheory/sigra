@@ -154,6 +154,14 @@ def amend_complete_plans(root, original):
 
 def amend_repair_183_route(root):
     """Independent temporary routing edit; the production renderer is not the oracle."""
+    # This fixture describes the old183 hypothetical success, not today's route.
+    # Seed its unexecuted plans from the committed pre-maintenance amendment.
+    for number in (179, 180):
+        rel = f"{PHASE}/253-{number}-PLAN.md"
+        raw = subprocess.check_output(["git", "-C", str(ROOT), "show",
+                                       f"697b6e328e07d8c307246e13a7aa77e7db0c3c24:{rel}"])
+        (root / rel).write_bytes(raw)
+    (root / f"{PHASE}/253-MAINTENANCE-PREREQUISITE.json").unlink(missing_ok=True)
     rel179 = f"{PHASE}/253-179-PLAN.md"
     path179 = root / rel179
     text179 = path179.read_text(encoding="utf-8")

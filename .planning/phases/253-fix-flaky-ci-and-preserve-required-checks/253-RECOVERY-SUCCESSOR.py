@@ -1014,6 +1014,95 @@ def validate_review183(root: Path, require_summary: bool = False) -> dict:
     return review
 
 
+MAINTENANCE_AUTHORITY = f"{PHASE}/253-MAINTENANCE-PREREQUISITE.json"
+MAINTENANCE_BASELINE = "697b6e328e07d8c307246e13a7aa77e7db0c3c24"
+MAINTENANCE_TASK = "quick-261020-swa"
+MAINTENANCE_SOURCES = (f"{PHASE}/253-RECOVERY-SUCCESSOR.py",
+                       f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
+                       f"{PHASE}/253-MAINTENANCE-PREREQUISITE.test.py", PLAN_179, PLAN_180)
+MAINTENANCE_RESULT = f"{PHASE}/253-MAINTENANCE-RESULT.json"
+MAINTENANCE_RESULT_SHA256 = "f730f5ab90e6bf320ffc37722a686c40d0adc9b9a963dea16f39c6a1fcae0330"
+
+
+def validate_maintenance_prerequisite(root: Path, *, bridge_consumer: bool = False) -> dict:
+    """Current local repair authority; never relabel a halted phase plan."""
+    authority = read_json(root, MAINTENANCE_AUTHORITY)
+    if (authority.get("schema") != "sigra.phase253.maintenance-prerequisite/v1"
+            or authority.get("status") != "verified_local_maintenance"
+            or authority.get("repair_task") != MAINTENANCE_TASK
+            or authority.get("baseline_commit") != MAINTENANCE_BASELINE):
+        raise ContractError("maintenance prerequisite identity/status differs")
+    if (authority.get("budget_renewal") is not False or authority.get("acceptance_attempts") != 0
+            or authority.get("github_requests") != 0
+            or authority.get("requirements") != {"CIREL-01": "partial_not_reproduced", "CIREL-02": "unaccepted"}
+            or authority.get("phase_verification_status") != "not_started"):
+        raise ContractError("maintenance prerequisite changes budgets or claims acceptance")
+    raw = read_bytes(root, MAINTENANCE_RESULT)
+    if sha256(raw) != MAINTENANCE_RESULT_SHA256 or git(root, "show", f"{MAINTENANCE_BASELINE}:{MAINTENANCE_RESULT}") != raw:
+        raise ContractError("original maintenance result differs from committed baseline")
+    result = json.loads(raw)
+    runs = [row for row in result["runs"] if row["name"] == result["final_run"]]
+    if len(runs) != 1:
+        raise ContractError("maintenance final run is missing or duplicated")
+    run = runs[0]
+    if (result["status"] != "passed" or result["final_tests"] != 26
+            or run["exit_code"] != 0 or run["native_tests"] != 26
+            or run["source_unchanged"] is not True
+            or run["before"] != run["after"] or run["after"] != result["source_sha256"]):
+        raise ContractError("maintenance full suite did not pass unchanged source")
+    commit = result["diagnostic_commit"]
+    if git(root, "rev-parse", result["diagnostic_ref"]).decode().strip() != commit:
+        raise ContractError("maintenance diagnostic ref no longer retains its capture")
+    for name, binding in run["evidence"].items():
+        captured = git(root, "show", f"{commit}:{binding['path']}")
+        if (len(captured) != binding["bytes"] or sha256(captured) != binding["sha256"]
+                or git(root, "rev-parse", f"{commit}:{binding['path']}").decode().strip() != binding["blob"]):
+            raise ContractError(f"maintenance captured bytes differ: {name}")
+        if name == "stderr.bin" and not re.search(rb"Ran 26 tests in [0-9.]+s\s+OK\s*$", captured):
+            raise ContractError("maintenance native output does not report26 passing tests")
+    approved = authority.get("source_sha256")
+    if not isinstance(approved, dict) or set(approved) != set(MAINTENANCE_SOURCES):
+        raise ContractError("maintenance prerequisite source inventory differs")
+    for rel, digest in approved.items():
+        if sha256(read_bytes(root, rel)) != digest:
+            raise ContractError(f"maintenance tested source changed: {rel}")
+    # Every pre-existing phase file outside the scoped repair stays byte-identical.
+    allowed = set(MAINTENANCE_SOURCES) | {f"{PHASE}/253-RECOVERY-RESET.md"}
+    if bridge_consumer:
+        # verify_receipt independently requires validate_bridge for these changes.
+        allowed.update(f"{PHASE}/253-{n}-PLAN.md" for n in range(168, 173))
+    original_paths = set(git(root, "ls-tree", "-rz", "--name-only", "-r", MAINTENANCE_BASELINE,
+                             "--", PHASE, ".planning/phases/252-measure-current-ci", "scripts/ci").decode().split("\0"))
+    changed = set(git(root, "diff", "--name-only", "-z", MAINTENANCE_BASELINE, "--", PHASE,
+                      ".planning/phases/252-measure-current-ci", "scripts/ci").decode().split("\0"))
+    unexpected = sorted((changed & original_paths) - allowed - {""})
+    if unexpected:
+        raise ContractError(f"maintenance historical/budget source changed: {unexpected[0]}")
+    for rel, wave, deps in ((PLAN_179, 1, []), (PLAN_180, 2, ["253-179"])):
+        text = read_bytes(root, rel).decode("utf-8", "strict")
+        if not re.search(rf"^wave: {wave}$", text, re.M) or not re.search(
+                rf"^depends_on: {re.escape(json.dumps(deps))}$", text, re.M):
+            raise ContractError(f"maintenance acceptance dependency differs: {rel}")
+        old = git(root, "show", f"{MAINTENANCE_BASELINE}:{rel}").decode("utf-8", "strict")
+        if re.findall(r"<automated>(.*?)</automated>", text, re.S) != re.findall(r"<automated>(.*?)</automated>", old, re.S):
+            raise ContractError(f"maintenance changed an acceptance command: {rel}")
+    checks = json.loads(bound_file(root, authority.get("validation"), "maintenance validation"))
+    if (checks.get("status") != "passed" or checks.get("source_sha256") != approved
+            or checks.get("acceptance_attempts") != 0 or checks.get("github_requests") != 0
+            or checks.get("historical183_status") != "halted"):
+        raise ContractError("maintenance current validation is missing or stale")
+    return authority
+
+
+def acceptance_prerequisite(root: Path, consumer: str | None = None) -> tuple[str, str]:
+    if (root / MAINTENANCE_AUTHORITY).exists():
+        validate_maintenance_prerequisite(root, bridge_consumer=consumer == "168")
+        return MAINTENANCE_TASK, MAINTENANCE_AUTHORITY
+    # Historical synthetic fixtures still exercise the old183 contract exactly.
+    validate_review183(root, require_summary=True)
+    return "253-183", REVIEW_183
+
+
 def prepare(root: Path, attempt_dir: Path) -> dict:
     root = root.resolve()
     attempt_dir = attempt_dir.resolve()
@@ -1025,7 +1114,7 @@ def prepare(root: Path, attempt_dir: Path) -> dict:
     status = clean_status(root)
     if status:
         raise ContractError("prepare requires clean committed source inputs")
-    validate_review183(root, require_summary=True)
+    acceptance_prerequisite(root)
     if sha256(read_bytes(root, "scripts/ci/ci-git-publication.py")) != PUBLISHER_SHA256:
         raise ContractError("production publisher pin changed")
     if sha256(read_bytes(root, "scripts/ci/ci-gate-canary-dryrun.py")) != DRYRUN_SHA256:
@@ -1270,11 +1359,12 @@ def expected_receipt(root: Path, attempt_dir: Path) -> dict:
         if sha256(current) != binding["sha256"]:
             raise ContractError(f"protected source file changed after preparation: {rel}")
     projection = parsed["json"]["PROJECTION"]
+    repair_task, repair_record = acceptance_prerequisite(root)
     return {
         "schema": SUCCESSOR_SCHEMA,
         "status": "verified_local_success",
         "recovery_plan": "253-179",
-        "repair_plan": "253-183",
+        "repair_plan": repair_task,
         "bridge_plan": "253-180",
         "attempt_count": 1,
         "next_plan": "253-180",
@@ -1285,7 +1375,7 @@ def expected_receipt(root: Path, attempt_dir: Path) -> dict:
         "historical_sha256": {rel: row["sha256"] for rel, row in prepared["source_bindings"].items()},
         "shared_sha256": prepared["shared_sha256"],
         "review": {"path": REVIEW_173, "sha256": REVIEW_173_SHA256},
-        "repair_review": {"path": REVIEW_183, "sha256": sha256(read_bytes(root, REVIEW_183))},
+        "repair_review": {"path": repair_record, "sha256": sha256(read_bytes(root, repair_record))},
         "permission_preflight": {"path": f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json", "sha256": sha256(read_bytes(attempt_dir, "253-179-PERMISSION-PREFLIGHT.json"))},
         "regression_log": {"path": f"{PHASE}/253-179-REGRESSION.log", "sha256": sha256(log)},
         "projection": projection,
@@ -1321,7 +1411,8 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
     receipt = read_json(root, RECEIPT_179)
     if receipt.get("schema") != SUCCESSOR_SCHEMA or receipt.get("status") != "verified_local_success":
         raise ContractError("179 successor receipt schema/status invalid")
-    for rel, field in ((REVIEW_173, "review"), (REVIEW_183, "repair_review"),
+    repair_task, repair_record = acceptance_prerequisite(root, consumer)
+    for rel, field in ((REVIEW_173, "review"), (repair_record, "repair_review"),
                        (f"{PHASE}/253-179-PERMISSION-PREFLIGHT.json", "permission_preflight"),
                        (f"{PHASE}/253-179-REGRESSION.log", "regression_log")):
         bound_file(root, receipt.get(field), field)
@@ -1339,7 +1430,6 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
     history = check_historical_inputs(root)
     if receipt.get("historical") != history:
         raise ContractError("receipt historical outcomes differ from reopened original evidence")
-    validate_review183(root, require_summary=True)
     parsed = parse_log(bound_file(root, receipt["regression_log"], "regression log"))
     preflight = read_json(root, receipt["permission_preflight"]["path"])
     body174 = command_body(read_bytes(root, PLAN_174), PLAN_174)
@@ -1356,7 +1446,7 @@ def verify_receipt(root: Path, consumer: str | None = None) -> dict:
                 "source_bindings": {rel: {"sha256": value} for rel, value in receipt.get("historical_sha256", {}).items()}}
     validate_preflight(root, preflight, parsed, prepared, root)
     validate_probe_object(root, preflight["probe"])
-    if receipt.get("recovery_plan") != "253-179" or receipt.get("repair_plan") != "253-183" or receipt.get("bridge_plan") != "253-180":
+    if receipt.get("recovery_plan") != "253-179" or receipt.get("repair_plan") != repair_task or receipt.get("bridge_plan") != "253-180":
         raise ContractError("receipt plan lineage is incorrect")
     if receipt.get("attempt_count") != 1 or receipt.get("next_plan") != "253-180":
         raise ContractError("receipt attempt count or next plan is incorrect")
@@ -2301,6 +2391,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[3])
     sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("verify-prerequisite")
     prep = sub.add_parser("prepare")
     prep.add_argument("--attempt-dir", type=Path, required=True)
     ent = sub.add_parser("enter")
@@ -2316,7 +2407,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     root = args.root.resolve()
     try:
-        if args.command == "prepare":
+        if args.command == "verify-prerequisite":
+            result = validate_maintenance_prerequisite(root)
+            print(json.dumps({"status": result["status"], "repair_task": result["repair_task"],
+                              "acceptance_launched": False}, sort_keys=True))
+        elif args.command == "prepare":
             result = prepare(root, args.attempt_dir)
             print(json.dumps(result, sort_keys=True))
         elif args.command == "enter":
