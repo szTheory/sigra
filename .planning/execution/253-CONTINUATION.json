@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "pr338_offline_repair_verified_hosted_proposal_next",
-  "timestamp": "2026-10-21T18:58:46.994484+00:00",
+  "status": "proposal_prepared_execution_bundle_next",
+  "timestamp": "2026-10-21T19:32:32.269086+00:00",
   "completed_local_plans": [
     "253-168",
     "253-169"
@@ -40,7 +40,7 @@
     "CIREL-02": "unaccepted"
   },
   "next_plan": null,
-  "next_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
+  "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
   "next_command_conditional": false,
   "required_decision": null,
   "reason_for_decision": null,
@@ -57,5 +57,16 @@
   "read_only_diagnostic_connector_calls": 5,
   "diagnostic_http_request_count": "not exposed by connector; excluded from measured window totals",
   "historical_halts_before_this_task": 28,
-  "offline_repair": ".planning/execution/253-pr338-repair/repair.json"
+  "offline_repair": ".planning/execution/253-pr338-repair/repair.json",
+  "hosted_proof_proposal": {
+    "status": "proposal_only_execution_bundle_required",
+    "record": ".planning/execution/253-hosted-proof-16800f431/proposal.json",
+    "commit": "6075f985ec0834f6df94f2d2f5616b9b04edfa81",
+    "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "github_requests": 0,
+    "ci_launches": 0,
+    "allocations": 0,
+    "budget_renewals": 0,
+    "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
+  }
 }
