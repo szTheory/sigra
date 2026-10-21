@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-21T20:00:18.124Z"
-state_head: ef3c2dd5946868459e2804d13e0a3728b4b3801b
+last_updated: "2026-10-21T20:28:01.077925Z"
+state_head: 8e340c7a9a1bb1b582c2fbee62c9f6809a00ec3c
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: 2026-10-21 - Offline execution bundle verified; normal172 approval checkpoint next
+last_activity: 2026-10-21 - Plan172 first attempt preserved;receipt handoff repaired;fresh approval pending
 milestone_status: active
-workflow_step: execute172_hosted_approval_checkpoint
+workflow_step: execute172_corrected_bundle_approval_checkpoint
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
@@ -90,7 +90,6 @@ phase253_blocked_plans:
   - 253-162
   - 253-163
   - 253-17
-  - 253-172
   - 253-176
   - 253-177
   - 253-21
@@ -147,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Offline bundle verified; normal Plan172 awaits explicit hosted approval
-last_activity_desc: Normal Phase253 execution restored; hosted approval is the remaining pause
+stopped_at: Plan172 first attempt stopped before dispatch;corrected bundle awaits fresh approval
+last_activity_desc: 32 offline tests pass;continue existing Plan172 after new bundle approval
 ---
 
 # Project State
@@ -162,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Offline execution bundle for source16800f431 is committed and23 tests pass. The installed GSD tools select unfinished172 as the sole runnable plan; its first task requires explicit approval of this concrete new hosted attempt. Continue normal execute-phase after that approval. No further quick/progress selection is needed. PR338 and171 remain halted, every old window remains closed, and phase verification is not_started. No CI or GitHub request occurred in this preparation.
+The approved first attempt published its candidate/fixture, then stopped before workflow dispatch:32 measured requests but27 retained receipts. The five original operator receipts were omitted by the collector. The local repair and generated collector regression pass32 offline tests. Its stopped attempt stays closed. The corrected fresh bundle is committed and requires new explicit approval; Plan172 remains unfinished at that checkpoint. No new quick or progress command is needed. Phase253 is not verified.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Conditional only on explicit approval of `.planning/execution/253-proof-bundle-16800f431/approval-request.json`. Plan172 is schedulable but its approval checkpoint grants no CI permission. No active allocation or approval exists. Preserve171/PR338 and all closed windows; do not run old R13 scripts. Whole-phase verification remains incomplete. Earlier sections are historical.
+Conditional on new approval of `.planning/execution/253-proof-bundle-16800f431-next/approval-request.json` (bundle SHA256 `75b5fd26c059a6083257e0aa68377561ec1ebc62a26c80e1e305849404c95c06`). The previous approval was used for the stopped attempt and cannot restart its window. Plan172 remains unfinished;no success summary or phase-completion claim. Earlier sections are historical.
 
 ## Known unfinished work
 
@@ -417,3 +416,9 @@ Proposal commit: `6075f985ec0834f6df94f2d2f5616b9b04edfa81`. Prior shared bytes 
 Offline execution bundle for source16800f431 is committed and23 tests pass. The installed GSD tools select unfinished172 as the sole runnable plan; its first task requires explicit approval of this concrete new hosted attempt. Continue normal execute-phase after that approval. No further quick/progress selection is needed. PR338 and171 remain halted, every old window remains closed, and phase verification is not_started. No CI or GitHub request occurred in this preparation.
 
 Bundle commit: `ef3c2dd5946868459e2804d13e0a3728b4b3801b`; exact bundle SHA256 `d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa`. All23 tests and the actual canary check-only contract pass. Prior shared bytes are recoverable at `a96a80bda6af01ecb69fd8f96a4fa13cd30288cb`; unfinished172 prior bytes have their own read-back record. Next: `$gsd-execute-phase 253 --gaps-only`, after explicit hosted approval. No further gsd-quick is needed merely to continue.
+
+## Plan172 actual attempt and corrected collector
+
+The approved first attempt published its candidate/fixture, then stopped before workflow dispatch:32 measured requests but27 retained receipts. The five original operator receipts were omitted by the collector. The local repair and generated collector regression pass32 offline tests. Its stopped attempt stays closed. The corrected fresh bundle is committed and requires new explicit approval; Plan172 remains unfinished at that checkpoint. No new quick or progress command is needed. Phase253 is not verified.
+
+Execution: `.planning/execution/253-172-EXECUTION.json`; original attempt commit `e93140048`; repair/bundle commit `8e340c7a9a1bb1b582c2fbee62c9f6809a00ec3c`. Prior shared bytes remain recoverable at `e931400487e8dc3c333fa14e34fe267e4dfe4998`, read-back identities in the corrected bundle preservation.json. No original evidence, halted plan, acceptance receipt or closed budget was rewritten.
