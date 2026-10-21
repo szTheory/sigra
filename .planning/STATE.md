@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: 179 prerequisite reconnected; offline acceptance not run; phase incomplete
-last_updated: "2026-10-21T01:05:08.069Z"
-state_head: 8e18d8a05d65eac6bb4afb372ac85c544dd21195
+stopped_at: 179 offline acceptance verified;180 simulation review remains;phase incomplete
+last_updated: "2026-10-21T04:02:14.336344+00:00"
+state_head: 46099155e6c481f7e2e505c25707d26370028d71
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 188
-  completed_plans: 81
+  completed_plans: 82
   percent: 25
-last_activity: "2026-10-21T01:05:03.964300+00:00 — Completed quick261020-swa: reconnect acceptance prerequisite"
+last_activity: "2026-10-21T04:04:11.946870+00:00 — Plan179 offline acceptance and receipt verified"
 milestone_status: active
-workflow_step: execute
+workflow_step: review
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only --wave 1
-resume_command: $gsd-execute-phase 253 --gaps-only --wave 1
+next_command: $gsd-progress
+resume_command: $gsd-progress
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -29,7 +29,7 @@ phase253_plan_count: 183
 phase253_wave_count: 8
 phase253_task_count: 479
 phase253_implementation_status: partial
-phase253_completed_plans: 75
+phase253_completed_plans: 76
 phase253_halted_plans:
   - 253-02
   - 253-07
@@ -97,7 +97,6 @@ phase253_blocked_plans:
   - 253-172
   - 253-176
   - 253-177
-  - 253-180
   - 253-21
   - 253-22
   - 253-23
@@ -145,13 +144,13 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: [253-179-PLAN.md]
+phase253_ready_plans: [253-180-PLAN.md]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md
+resume_file: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-SUMMARY.md
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-last_activity_desc: Completed quick261020-swa;179 ready for offline acceptance; phase incomplete
+last_activity_desc: Plan179 offline acceptance and receipt verified;review180 before execution;phase incomplete
 ---
 
 # Project State
@@ -165,13 +164,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase253 remains incomplete:183 plans,75 completed implementation plans,28 halted,80 without summaries. Plan179 alone is ready for its existing offline acceptance;180 waits for179. The reconnected prerequisite passes32 local tests. Plan183 stays halted. Both original CI requirements remain open; phase verification not_started.
+Plan179 offline acceptance is complete:10 suites passed (673 unittest tests plus the shell suite), full-dryrun90, VERIFY-EXIT0; committed receipt independently verified. Phase253 remains incomplete:183 plans,76 completed implementation plans,28 halted,79 without summaries. SDK dependencies select180 next, but its old simulation must preserve actual halted183/28 halts before execution. Both original CI requirements and phase verification remain open.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only --wave 1
+$gsd-progress
 
-Verified maintenance replaces the halted181/183 prerequisite. Run only Wave1 (179 offline acceptance) under unchanged limits.180 legacy simulation must preserve actual halted183 before execution; no automatic hosted continuation. Current prerequisite: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.json`; local tests: `.planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/CHECKS.json`. No acceptance or hosted action ran in this quick task.
+179 offline acceptance and committed receipt passed. Review180 legacy simulation against actual halted183/28 halts before execution; no automatic hosted continuation. Actual acceptance/receipt: `253-179-EXECUTION-RECORD.json`; raw diagnostics: `refs/gsd/phase253-179-offline-acceptance-diagnostics`. No CI was launched and no budget renewed.
 
 ## Known unfinished work
 
@@ -219,8 +218,8 @@ Verified maintenance replaces the halted181/183 prerequisite. Run only Wave1 (17
 ## Session
 
 **Last session:** 2026-10-21T00:36:11.648700+00:00
-**Stopped at:** Recovery reset active;local checker maintenance26/26passed;original CI requirements remain open
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md
+**Stopped at:** Plan179 offline acceptance verified;180 simulation review remains;phase incomplete
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-SUMMARY.md
 
 ## Deferred Items
 
