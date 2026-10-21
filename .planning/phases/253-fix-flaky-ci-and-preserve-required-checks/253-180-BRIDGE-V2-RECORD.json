@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.successor-bridge/v2",
-  "stage": "entry",
+  "stage": "complete",
   "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
   "preservation_ref": "refs/gsd/phase253-successor-180-v2-plan-originals",
   "originals": {
@@ -1066,7 +1066,10 @@
   },
   "amended_sha256": {
     ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md": "e1476714b4ee4ea7449ed336c3320981932e7a394bcb4e9f9b27b6e09a4b52d3",
-    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-169-PLAN.md": "42beb8c1d584add6c285b1fd5116f0f64d808b79f7df0d6dfd00f910cc49277f"
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-169-PLAN.md": "42beb8c1d584add6c285b1fd5116f0f64d808b79f7df0d6dfd00f910cc49277f",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-170-PLAN.md": "23fb4f4a1e3a1f8f79df6aea15059d7735694ed6857a309a247c77665c215143",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-171-PLAN.md": "4c2066d32d6242ab713ada683a1beca25467f3d210bfd8852ac172e0ffd3ab39",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md": "2ab1e5c8ca4e0158ea1d5a7b0eacd3b349fb34740955319d44b995f26c516296"
   },
   "dispositions_for": [],
   "retired_unexecuted": {
@@ -1079,5 +1082,18 @@
       "executed": false
     }
   },
-  "capture_head": "dcf0453f8f3c606e82cafee2b49a5a8fad52c371"
+  "capture_head": "dcf0453f8f3c606e82cafee2b49a5a8fad52c371",
+  "sdk_copy": {},
+  "entry_checks": {
+    "entry-bridge": {
+      "plans": 5,
+      "stage": "entry",
+      "status": "verified"
+    },
+    "entry-receipt": {
+      "count": 90,
+      "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+      "status": "verified"
+    }
+  }
 }
