@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: 179 offline acceptance verified;180 simulation review remains;phase incomplete
-last_updated: "2026-10-21T04:02:14.336344+00:00"
-state_head: 46099155e6c481f7e2e505c25707d26370028d71
+stopped_at: V2 consumer verified;180 local bridge ready under addendum;phase incomplete
+last_updated: "2026-10-21T14:19:03.754868+00:00"
+state_head: f354798196cc89d22ad2d1c7eaf89f4c3cd47b65
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 188
+  total_plans: 189
   completed_plans: 82
   percent: 25
-last_activity: "2026-10-21T04:04:11.946870+00:00 — Plan179 offline acceptance and receipt verified"
+last_activity: "2026-10-21T14:19:03.754868+00:00 — Completed quick261021-drl: additive28-halt consumer"
 milestone_status: active
-workflow_step: review
+workflow_step: execute
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-progress
-resume_command: $gsd-progress
+next_command: $gsd-execute-phase 253 --gaps-only --wave 2
+resume_command: $gsd-execute-phase 253 --gaps-only --wave 2
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -147,10 +147,11 @@ phase253_control_recovery_task_count: 22
 phase253_ready_plans: [253-180-PLAN.md]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-SUMMARY.md
+resume_file: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-last_activity_desc: Plan179 offline acceptance and receipt verified;review180 before execution;phase incomplete
+last_activity_desc: Completed quick261021-drl;V2 consumer passes18tests;179receipt reopened;180 notexecuted
+phase253_current_execution_addendum: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
 ---
 
 # Project State
@@ -164,13 +165,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan179 offline acceptance is complete:10 suites passed (673 unittest tests plus the shell suite), full-dryrun90, VERIFY-EXIT0; committed receipt independently verified. Phase253 remains incomplete:183 plans,76 completed implementation plans,28 halted,79 without summaries. SDK dependencies select180 next, but its old simulation must preserve actual halted183/28 halts before execution. Both original CI requirements and phase verification remain open.
+The additive V2 consumer passed18 tests and reopened the actual179 receipt on a clean committed checkout. All179-pinned files, its receipt,28 historical halts and budgets are unchanged. Execute180 only under `253-180-EXECUTION-ADDENDUM-V2.md`;the original180 PLAN/helper remain frozen. Phase253 is still183plans/76completed/28halted/79without summaries;180 itself has not run and whole-phase verification remains not_started.
 
 ## Next GSD command
 
-$gsd-progress
+$gsd-execute-phase 253 --gaps-only --wave 2
 
-179 offline acceptance and committed receipt passed. Review180 legacy simulation against actual halted183/28 halts before execution; no automatic hosted continuation. Actual acceptance/receipt: `253-179-EXECUTION-RECORD.json`; raw diagnostics: `refs/gsd/phase253-179-offline-acceptance-diagnostics`. No CI was launched and no budget renewed.
+V2 consumer passed18tests and reopened actual179 receipt. Execute only180 using its v2 addendum;preserve all28halts and179-pinned originals. No179 replay orhosted continuation. Read `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md` and `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json` before executing any original180 instructions. The old27-halt helper/25-halt prose is historical;use253-RECOVERY-BRIDGE-V2.py.
 
 ## Known unfinished work
 
@@ -218,8 +219,8 @@ $gsd-progress
 ## Session
 
 **Last session:** 2026-10-21T00:36:11.648700+00:00
-**Stopped at:** Plan179 offline acceptance verified;180 simulation review remains;phase incomplete
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-SUMMARY.md
+**Stopped at:** V2 consumer verified;180 local bridge ready under addendum;phase incomplete
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
 
 ## Deferred Items
 
@@ -370,3 +371,4 @@ Original maintenance record and historical halts are unchanged. Fresh local resu
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 261020-swa | Phase 253: reconnect acceptance prerequisites to the verified maintenance result; preserve historical halts and budgets; do not launch CI | 2026-10-20 | 8e18d8a05 | complete | [261020-swa-phase-253-reconnect-acceptance-prerequis](./quick/261020-swa-phase-253-reconnect-acceptance-prerequis/) |
+| 261021-drl | Phase253: additive28-halt consumer; preserve179 receipt/pins/halts/budgets; no179 replay orCI | 2026-10-21 | f35479819 | complete | [261021-drl-phase-253-resolve-plan-180-28-halt-incom](./quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/) |

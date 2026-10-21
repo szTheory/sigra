@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T04:02:14.336344+00:00",
+  "timestamp": "2026-10-21T14:19:03.754868+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "179 offline acceptance verified;180 not executed;Phase253 and both CI requirements remain incomplete.",
-  "next_command": "$gsd-progress",
-  "resume_command": "$gsd-progress",
-  "next_action": "179 offline acceptance and committed receipt passed. Review180 legacy simulation against actual halted183/28 halts before execution; no automatic hosted continuation.",
+  "current": "V2 consumer verified;179receipt preserved;180 ready for local execution under v2 addendum;Phase253 incomplete.",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+  "next_action": "V2 consumer passed18tests and reopened actual179 receipt. Execute only180 using its v2 addendum;preserve all28halts and179-pinned originals. No179 replay orhosted continuation.",
   "route": {
-    "immediate_gsd_command": "$gsd-progress",
-    "resume_command": "$gsd-progress",
+    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -35,10 +35,10 @@
       "ready_plans": [
         "253-180-PLAN.md"
       ],
-      "operationally_ready_plans": [],
-      "precondition_blocked_plans": [
-        "253-180"
-      ]
+      "operationally_ready_plans": [
+        "253-180-PLAN.md"
+      ],
+      "precondition_blocked_plans": []
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -157,7 +157,9 @@
     "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
     "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
     "latest_maintenance_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-RESULT.json",
-    "recovery_reset": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md"
+    "recovery_reset": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
+    "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+    "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -180,7 +182,7 @@
       254,
       255
     ],
-    "next_required_gate": "179 offline acceptance and committed receipt passed. Review180 legacy simulation against actual halted183/28 halts before execution; no automatic hosted continuation.",
+    "next_required_gate": "Actual180 local bridge verification using v2 addendum;no hosted continuation",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -195,7 +197,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "review",
+    "workflow_step": "execute",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -341,7 +343,7 @@
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
-    "phase253_execution_status": "local_acceptance_complete_review_bridge",
+    "phase253_execution_status": "ready_local_bridge_v2",
     "phase253_halted_plan_count": 28,
     "phase253_unsummarized_plan_count": 79
   },
@@ -1469,7 +1471,7 @@
       ]
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-SUMMARY.md",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -1636,10 +1638,10 @@
         "remaining": "No08SUMMARY and no253VERIFICATION exist; do not reconcile or mark phase complete."
       }
     ],
-    "status": "local_acceptance_complete_review_bridge",
+    "status": "ready_local_bridge_v2",
     "completed_plan_count": 76,
     "total_phase_plans": 183,
-    "current_next_command": "$gsd-progress",
+    "current_next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
     "current_ready_plans": [
       "253-180-PLAN.md"
     ],
@@ -1787,7 +1789,9 @@
       },
       "recorded_at": "2026-10-21T04:02:14.336344+00:00"
     },
-    "next_command": "$gsd-progress"
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+    "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+    "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json"
   },
   "phase253_registration_startup_debug": {
     "status": "resolved_startup_only",
@@ -3721,10 +3725,10 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "next_command": "$gsd-progress",
-    "resume_command": "$gsd-progress",
-    "status": "review",
-    "reason": "179 offline acceptance and committed receipt passed. Review180 legacy simulation against actual halted183/28 halts before execution; no automatic hosted continuation.",
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+    "status": "ready_local_bridge_v2",
+    "reason": "V2 consumer passed18tests and reopened actual179 receipt. Execute only180 using its v2 addendum;preserve all28halts and179-pinned originals. No179 replay orhosted continuation.",
     "readiness": {
       "plan_count": 183,
       "completed_implementation_count": 76,
@@ -3735,15 +3739,16 @@
       "ready_plans": [
         "253-180-PLAN.md"
       ],
-      "operationally_ready_plans": [],
-      "precondition_blocked_plans": [
-        "253-180"
-      ]
+      "operationally_ready_plans": [
+        "253-180-PLAN.md"
+      ],
+      "precondition_blocked_plans": []
     },
     "phase_verification_status": "not_started",
-    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-EXECUTION-RECORD.json"
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-EXECUTION-RECORD.json",
+    "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md"
   },
-  "last_updated": "2026-10-21T04:02:14.336344+00:00",
+  "last_updated": "2026-10-21T14:19:03.754868+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4321,7 +4326,7 @@
     "253-180-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "review",
+  "workflow_step": "execute",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4594,7 +4599,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "46099155e6c481f7e2e505c25707d26370028d71",
+  "state_head": "f354798196cc89d22ad2d1c7eaf89f4c3cd47b65",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4626,5 +4631,22 @@
       ]
     },
     "recorded_at": "2026-10-21T04:02:14.336344+00:00"
+  },
+  "phase253_current_execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+  "phase253_versioned_consumer": {
+    "task": "quick-261021-drl",
+    "status": "verified_local_consumer",
+    "implementation_commit": "f354798196cc89d22ad2d1c7eaf89f4c3cd47b65",
+    "authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json",
+    "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+    "checks": "/Users/jon/projects/sigra/.planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/CHECKS.json",
+    "receipt_reopen_check": "/Users/jon/projects/sigra/.planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/RECEIPT-REOPEN-CHECK.json",
+    "sdk_fixture_only": true,
+    "real180_executed": false,
+    "179_rerun": false,
+    "ci_launches": 0,
+    "budgets_renewed": false,
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+    "phase_verification_status": "not_started"
   }
 }
