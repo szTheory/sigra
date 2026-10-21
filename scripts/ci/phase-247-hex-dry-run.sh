@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly REVIEWED_BASE="d135cbce343947499a0810736c500ef5f1cb5c32"
-readonly APPROVED_MAIN="a494f3ee3878da93aab4f70712ffddeefd77a802"
-readonly CANDIDATE="0e773d3614a242e4fbcdd34c418ecb8a307703d6"
+readonly REVIEWED_BASE="590eb4ed3323db11dd74326cbee00c9c7973e529"
+readonly CANDIDATE="563f411bc2659bb9ac1652d552ce58ffb0c876b1"
 readonly PR_NUMBER="224"
 readonly ALGORITHM="git-diff-raw-v1"
 readonly MANIFEST_PATH=".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
@@ -13,30 +12,6 @@ die() { printf 'phase-247-hex-dry-run: %s\n' "$*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null 2>&1 || die "required command missing: $1"; }
 valid_sha() { [[ "${1:-}" =~ ^[0-9a-f]{40}$ ]]; }
 repo_root() { git -C "$1" rev-parse --show-toplevel 2>/dev/null; }
-
-assert_clean_checkout() {
-  local label="$1" repo="$2" paths
-  paths=$(git -C "$repo" status --porcelain --untracked-files=all) || die "unable to inspect $label checkout status"
-  if [[ -n "$paths" ]]; then
-    printf 'dirty path records in %s checkout:\n%s\n' "$label" "$paths" >&2
-    die "$label checkout is not clean"
-  fi
-}
-
-restore_generated_docs() {
-  local repo="${2:-candidate}" paths
-  [[ $(git -C "$repo" rev-parse HEAD) == "$CANDIDATE" ]] || die 'generated-doc cleanup requires the fixed candidate checkout'
-  paths=$(git -C "$repo" status --porcelain --untracked-files=all) || die 'unable to inspect candidate checkout status'
-  [[ -n "$paths" ]] || { printf 'candidate checkout clean after dry-run\n'; return 0; }
-  [[ "$paths" == ' M doc/llms.txt' ]] || {
-    printf 'unexpected dirty path records after dry-run:\n%s\n' "$paths" >&2
-    die 'candidate checkout contains changes outside the known generated documentation artifact'
-  }
-  git -C "$repo" ls-files --error-unmatch -- doc/llms.txt >/dev/null || die 'generated documentation artifact is not tracked at the candidate source'
-  git -C "$repo" restore --source=HEAD --worktree -- doc/llms.txt || die 'unable to restore generated documentation artifact'
-  assert_clean_checkout candidate "$repo"
-  printf 'restored generated documentation artifact: doc/llms.txt\n'
-}
 
 diff_digest() {
   local repo="$1" base="$2" candidate="$3" output="$4"
@@ -105,8 +80,8 @@ capture_baseline() {
   need gh; need git; need jq; need sha256sum
   [[ -n "${GH_TOKEN:-}" || -n "${GITHUB_TOKEN:-}" ]] || die 'read-only GitHub token unavailable'
   main=$(live_main) || die 'unable to query live main'
-  [[ "$main" == "$APPROVED_MAIN" ]] || die 'live main differs from the explicitly approved pre-merge SHA'
-  check_live_pr "$APPROVED_MAIN"
+  [[ "$main" == "$REVIEWED_BASE" ]] || die 'live main advanced; capture is permitted only before the evidence merge'
+  check_live_pr "$REVIEWED_BASE"
   manifest_write "${REPO_DIR:-.}" "$REVIEWED_BASE" "$CANDIDATE" "$dest"
   printf 'captured baseline: %s\n' "$dest"
 }
@@ -142,7 +117,7 @@ verify_baseline() {
   paths=$(git -C "${REPO_DIR:-.}" diff --name-only "$base" "$main" | sort)
   expected=$(printf '%s\n' .github/workflows/phase-247-hex-dry-run.yml scripts/ci/phase-247-hex-dry-run.sh scripts/ci/phase-247-hex-dry-run.test.sh "$MANIFEST_PATH" | sort)
   [[ "$paths" == "$expected" ]] || die 'live main advance contains paths outside the four approved evidence files'
-  assert_clean_checkout trusted "${REPO_DIR:-.}"
+  [[ -z "$(git -C "${REPO_DIR:-.}" status --porcelain --untracked-files=all)" ]] || die 'trusted checkout is not clean'
   evidence_pr=${EVIDENCE_PR_NUMBER:-}
   evidence_head=${EVIDENCE_PR_HEAD_SHA:-}
   blob_id=${EVIDENCE_MANIFEST_BLOB_ID:-}
@@ -171,8 +146,8 @@ write_receipt() {
   [[ "${GITHUB_REF:-}" == refs/heads/main ]] || die 'workflow ref is not refs/heads/main'
   [[ $(git -C "$trusted" rev-parse HEAD) == "${GITHUB_SHA:-}" ]] || die 'trusted checkout HEAD differs from workflow SHA'
   [[ $(git -C "$candidate_dir" rev-parse HEAD) == "$CANDIDATE" ]] || die 'candidate checkout HEAD differs from fixed SHA'
-  assert_clean_checkout trusted "$trusted"
-  assert_clean_checkout candidate "$candidate_dir"
+  [[ -z "$(git -C "$trusted" status --porcelain --untracked-files=all)" ]] || die 'trusted checkout is not clean'
+  [[ -z "$(git -C "$candidate_dir" status --porcelain --untracked-files=all)" ]] || die 'candidate checkout is not clean'
   run_id="${GITHUB_RUN_ID:-}"; run_attempt="${GITHUB_RUN_ATTEMPT:-}"; workflow_ref="${GITHUB_WORKFLOW_REF:-}"
   [[ "$run_id" =~ ^[0-9]+$ && "$run_attempt" =~ ^[0-9]+$ && "$workflow_ref" == szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main ]] || die 'workflow run identity is incomplete or untrusted'
   [[ "${GITHUB_RUN_STARTED_AT:-}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || die 'workflow run start timestamp is missing or malformed'
@@ -201,9 +176,8 @@ main() {
     capture-baseline) capture_baseline "$@" ;;
     verify-baseline) verify_baseline "$@" ;;
     check-release) check_hex_release_absent ;;
-    restore-generated-docs) restore_generated_docs "$@" ;;
     write-receipt) write_receipt "$@" ;;
-    *) die 'usage: phase-247-hex-dry-run.sh {capture-baseline [path]|verify-baseline [path]|restore-generated-docs <candidate-dir>|write-receipt <path> [trusted-dir] [candidate-dir]}' ;;
+    *) die 'usage: phase-247-hex-dry-run.sh {capture-baseline [path]|verify-baseline [path]|write-receipt <path> [trusted-dir] [candidate-dir]}' ;;
   esac
 }
 
