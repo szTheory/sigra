@@ -6,12 +6,24 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readSubject, parseEvidenceSlots } from './_lib.mjs';
+import { createHash } from 'node:crypto';
+import { readSubject, readRepoFile, parseEvidenceSlots } from './_lib.mjs';
 
 const PHASE_230_LEDGER =
   '.planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md';
 const PHASE_236_LEDGER =
-  '.planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md';
+  'test/fixtures/prohibitions/retained-236-evidence.md';
+
+// Product-only publication retains the server parent's old live planning ledger.
+// Read the exact corrected source copy explicitly, rather than selecting whichever
+// live/archive directory happens to exist in the checkout. Injection still uses
+// readSubject below so the original known-bad controls remain effective.
+test('the retained source ledger matches its recorded bytes', () => {
+  const origin = JSON.parse(readRepoFile('test/fixtures/prohibitions/retained-236-evidence.json'));
+  assert.equal(origin.source_commit, '16800f4319cdd0e2554938071d4ebc48caa969ac');
+  assert.equal(origin.source_path, '.planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md');
+  assert.equal(createHash('sha256').update(readRepoFile(PHASE_236_LEDGER)).digest('hex'), origin.sha256);
+});
 
 const DEFAULT_LEDGER_SPECS = Object.freeze([
   {

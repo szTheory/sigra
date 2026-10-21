@@ -53,7 +53,9 @@ const ADMIN_EVAL_SPEC = /admin-eval\.spec\.ts/;
 const pagesPublish = process.env.SIGRA_PLAYWRIGHT_PAGES_PUBLISH === '1';
 const checkpointVideo = pagesPublish ? 'on' : 'retain-on-failure';
 const jsonReportPath = process.env.SIGRA_PLAYWRIGHT_JSON;
-const reporters: ReporterDescription[] = [['list'], ['html', { open: 'never' }]];
+// HTML reporting clears its output directory. Keep it below the independently
+// collected selection/execution JSON, which the native coverage guard must retain.
+const reporters: ReporterDescription[] = [['list'], ['html', { open: 'never', outputFolder: 'playwright-report/html' }]];
 
 if (jsonReportPath) {
   reporters.push(['json', { outputFile: jsonReportPath }]);
