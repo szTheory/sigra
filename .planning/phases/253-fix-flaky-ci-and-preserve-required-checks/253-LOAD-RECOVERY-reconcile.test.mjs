@@ -4470,3 +4470,100 @@ describe("R12 pairing through the real installed SDK on a copy of the current pl
     assert.equal(existsSync(join(dir, "253-135-SUMMARY.md")), false);
   });
 });
+
+// R13 tests derive expected sets from the preserved R12 contract and the explicit current plan.
+const R13_EXPECTED_HALTS = ['02','07','09','12','16','27','40','51','63','73','84','92','97','104','113','122','134','143','146','155','167','173','174','175','178','181','182','183'];
+const R13_NEW_TARGETS = ['144','145','147','148','149','150','151','152','153','154','156','157','158','159','160','161','162','163','176','177'];
+const R13_EXPECTED_TARGETS = [...JSON.parse(readFileSync(join(REAL_PHASE_DIR,'253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R12.json'),'utf8')).responsibilities.map((r)=>r.plan.slice(4)),...R13_NEW_TARGETS].sort(byNumber9);
+const r13Fixture = () => r8Fixture({maxPlan:183,maxSummary:183});
+
+describe('R13 revision and contract',()=>{
+  test('R13 partitions the exact historical plans and uses dispositioned gating',()=>{
+    assert.equal(reconcile.CONTRACT_SCHEMA_R13,'sigra.phase253.load-recovery-reconciliation-contract/r13');
+    assert.deepEqual([...reconcile.HALTED_IDS_R13].sort(byNumber9),R13_EXPECTED_HALTS);
+    assert.deepEqual([...reconcile.UNSTARTED_IDS_R13],R13_EXPECTED_TARGETS);
+    const all=[...reconcile.COMPLETED_IDS_R13,...reconcile.HALTED_IDS_R13,...reconcile.UNSTARTED_IDS_R13].sort(byNumber9);
+    const expected=[...Array.from({length:167},(_,i)=>String(i+1).padStart(2,'0')),'173','174','175','176','177','178','181','182','183'];
+    assert.deepEqual(all,expected);assert.equal(new Set(all).size,176);
+    assert.equal(reconcile.COMPLETED_IDS_R13.length,75);
+    assert.ok(reconcile.completionArgv('r13','x').includes('--require-dispositioned'));
+    for(const r of ['v1','r2','r3','r4','r5'])assert.ok(reconcile.completionArgv(r,'x').includes('--require-accepted'));
+    assert.equal(reconcile.REVISIONS.at(-1),'r13');assert.throws(()=>reconcile.contractPathFor('r14'),/unknown revision/);
+  });
+  test('R13 real contract pins183 plans,73 targets and28 literal halts',()=>{
+    const c=reconcile.buildContract({revision:'r13'});
+    assert.equal(c.plan_pins.length,183);assert.equal(c.responsibilities.length,73);assert.equal(c.halted_plans.length,28);
+    assert.deepEqual(c.responsibilities.map((r)=>r.plan.slice(4)),R13_EXPECTED_TARGETS);
+    assert.deepEqual(c.halted_plans.map((r)=>r.plan.slice(4)),R13_EXPECTED_HALTS);
+    assert.ok(c.halted_plans.every((r)=>r.summary.status==='halted'));
+    assert.equal(c.application.bundle_requires_final_summary_of,'253-172');
+    assert.equal(c.application.accepted_only_predicate,'scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned');
+    const forbidden=new Set([...R13_EXPECTED_HALTS,...R13_EXPECTED_TARGETS].map((id)=>'253-'+id));
+    for(const row of c.responsibilities)for(const owner of row.owners)assert.ok(!forbidden.has(owner),owner);
+    for(const owners of Object.values(c.halted_proof_map))for(const owner of owners)assert.ok(!forbidden.has(owner),owner);
+    for(const [id,owners] of Object.entries({'149':['253-179'],'158':['253-179'],'176':['253-179'],'177':['253-180']}))assert.deepEqual(c.responsibilities.find((r)=>r.plan==='253-'+id).owners,owners);
+    for(const id of ['174','175','178','181','182','183'])assert.deepEqual(c.halted_proof_map['253-'+id],['253-179','253-180']);
+    assert.equal(c.recovery_proof.hosted_completion_links,false);assert.equal(c.recovery_proof.attempt_count,1);
+    assert.equal(c.r12_contract.sha256,'d36a2ab07ff2e716d777bc784432b12ab6c01cef987c81e170fd852dcdefc45c');
+    for(const [id,paths] of Object.entries(c.historical_receipt_origins))for(const [path,pin] of Object.entries(paths))assert.equal(sha(Buffer.from(git(reconcile.REPO_ROOT,'show',pin.commit+':'+path))),pin.sha256,`${id}:${path}`);
+  });
+  test('R13 current CLI builds on a temporary output and historical contracts remain unchanged',()=>{
+    const {root}=r13Fixture();const output=join(root,'r13.json');
+    const args=[SCRIPT,'--revision','r13','--prepare-contract','--output',output];
+    const produced=spawnSync(process.execPath,args,{encoding:'utf8'});assert.equal(produced.status,0,produced.stderr);
+    const checked=spawnSync(process.execPath,[...args,'--check-only'],{encoding:'utf8'});assert.equal(checked.status,0,checked.stderr);
+    for(const r of ['v1',...Array.from({length:11},(_,i)=>'r'+(i+2))]){
+      const name=r==='v1'?reconcile.CONTRACT_NAME:`253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-${r.toUpperCase()}.json`;
+      assert.equal(reconcile.serializeContract(reconcile.buildContract({revision:r})),readFileSync(join(REAL_PHASE_DIR,name),'utf8'),r);
+    }
+  });
+  test('R13 SDK simulation preserves all actual halts and returns no incomplete plans',()=>{
+    const {root,dir}=r13Fixture();const c=reconcile.buildContract({revision:'r13'}),hash=sha(reconcile.serializeContract(c));
+    const initial=sdk(root,'phase-plan-index','253');assert.equal(initial.plans.length,183);assert.equal(initial.plans.find((r)=>r.id==='253-169').has_summary,false);
+    assert.equal(initial.plans.find((r)=>r.id==='253-179').has_summary,true);assert.equal(initial.plans.find((r)=>r.id==='253-174').halted,true);
+    const preserved=Object.fromEntries(readdirSync(dir).filter((f)=>f.endsWith('-SUMMARY.md')).map((f)=>[f,sha(readFileSync(join(dir,f)))]));
+    for(const id of ['169','170','171','172'])writeFileSync(join(dir,`253-${id}-SUMMARY.md`),COMPLETE);
+    const completion=dispositionCompletionFixture(root);
+    const bundle=reconcile.prepareDispositions({root,contract:c,contractSha256:hash,completionPath:completion,verifier:dispositionedVerifier});assert.equal(bundle.entries.length,73);
+    const record=reconcile.applyBundle({root,contract:c,contractSha256:hash,bundle,completionPath:completion,verifier:dispositionedVerifier,allowFixture:true,recordPath:join(root,'applied.json')});assert.equal(record.applied,true);
+    const index=sdk(root,'phase-plan-index','253'),init=sdk(root,'init.execute-phase','253');
+    assert.deepEqual(index.incomplete,[]);assert.deepEqual(init.incomplete_plans,[]);
+    assert.deepEqual(index.plans.filter((r)=>r.halted).map((r)=>r.id.slice(4)).sort(byNumber9),R13_EXPECTED_HALTS);
+    for(const [name,hash]of Object.entries(preserved))assert.equal(sha(readFileSync(join(dir,name))),hash,name);
+    assert.equal(reconcile.checkIndex({root,contract:c}).route.outcome,'resume_phase_gates');
+  });
+  test('R13 negative controls preserve original plans and reject halted owners and edited pins',()=>{
+    const {root,dir}=r13Fixture(),c=reconcile.buildContract({revision:'r13'}),hash=sha(reconcile.serializeContract(c));
+    for(const id of ['169','170','171','172'])writeFileSync(join(dir,`253-${id}-SUMMARY.md`),COMPLETE);
+    const completion=dispositionCompletionFixture(root);
+    const prepare=()=>reconcile.prepareDispositions({root,contract:c,contractSha256:hash,completionPath:completion,verifier:dispositionedVerifier});
+    assert.equal(prepare().entries.length,73);
+    for(const name of ['253-167-SUMMARY.md','253-170-PLAN.md','253-161-PLAN.md','253-173-PLAN.md','253-174-PLAN.md']){
+      const path=join(dir,name),original=readFileSync(path);writeFileSync(path,Buffer.concat([original,Buffer.from('\n')]));
+      try{assert.throws(prepare,/differs/);}finally{writeFileSync(path,original);}
+    }
+    assert.throws(()=>reconcile.assertProofOwnerR13(dir,'167'),/halted or never-executed/);
+    for(const id of ['167','173','174'])assert.ok(!prepare().entries.some((e)=>e.plan==='253-'+id));
+    writeFileSync(join(dir,'253-170-SUMMARY.md'),BLOCKED);assert.throws(prepare,/253-170/);writeFileSync(join(dir,'253-170-SUMMARY.md'),COMPLETE);
+    assert.equal(prepare().entries.length,73);
+  });
+});
+
+describe('R13 original recovery input controls',()=>{
+  test('R13 refuses a missing or changed179 receipt and changed167 historical proof',async()=>{
+    const {symlinkSync}=await import('node:fs');
+    const root=mkdtempSync(join(tmpdir(),'p253-r13-proof-'));cleanup.push(root);const dir=join(root,PHASE_DIR_REL);mkdirSync(dir,{recursive:true});
+    symlinkSync(join(reconcile.REPO_ROOT,'.git'),join(root,'.git'));
+    for(const name of readdirSync(REAL_PHASE_DIR))symlinkSync(join(REAL_PHASE_DIR,name),join(dir,name));
+    const build=()=>reconcile.buildContract({revision:'r13',repoRoot:root});
+    assert.equal(build().responsibilities.length,73);
+    const name='253-179-RECOVERY-RECEIPT.json',path=join(dir,name);unlinkSync(path);
+    try{assert.throws(build,/ENOENT|receipt/);writeFileSync(path,'{}');assert.throws(build,/receipt/);}finally{if(existsSync(path))unlinkSync(path);symlinkSync(join(REAL_PHASE_DIR,name),path);}
+    assert.equal(build().responsibilities.length,73);
+    const receipt=JSON.parse(readFileSync(join(REAL_PHASE_DIR,name),'utf8'));
+    const target=Object.keys(receipt.historical_sha256).find((p)=>p.includes('/253-167-')&&!p.endsWith('PLAN.md')&&!p.endsWith('SUMMARY.md'));
+    assert.ok(target,'original167 proof path exists');const copy=join(root,target),bytes=readFileSync(copy);unlinkSync(copy);writeFileSync(copy,Buffer.concat([bytes,Buffer.from('\n')]));
+    try{assert.throws(build,/historical recovery input/);}finally{unlinkSync(copy);symlinkSync(join(reconcile.REPO_ROOT,target),copy);}
+    assert.equal(build().responsibilities.length,73);
+  });
+});
