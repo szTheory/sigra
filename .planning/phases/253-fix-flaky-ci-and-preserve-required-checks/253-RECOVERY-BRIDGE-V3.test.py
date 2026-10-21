@@ -13,8 +13,12 @@ v3 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(v3)
 
 class ConsumerTests(unittest.TestCase):
+    def test_168_mode_does_not_authorize_later_169_source_changes(self):
+        with self.assertRaisesRegex(ValueError, 'history changed'):
+            v3.validate_current(ROOT)
+
     def test_scoped_correction_matches_current(self):
-        original, count = v3.validate_current(ROOT)
+        original, count = v3.validate_current(ROOT, '172')
         self.assertGreater(count, 100)
         self.assertEqual(v3.corrected_plan(original), (ROOT / v3.PLAN).read_bytes())
 
@@ -28,9 +32,15 @@ class ConsumerTests(unittest.TestCase):
                 target = root / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.symlink_to(ROOT / rel)
-            v3.validate_current(root)
+            for rel in [v3.EXECUTION_169, PHASE + '/253-169-SUMMARY.md']:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.symlink_to(ROOT / rel)
+            v3.validate_current(root, '172')
             mutations = [(v3.PLAN, b'wrong receipt schema'),
                          (v3.PLAN_172, b'wrong receipt prefix'),
+                         (v3.TOOLING_169[0], b'changed reconciliation source'),
+                         (v3.EXECUTION_169, b'{}'),
                          (PHASE + '/253-179-RECOVERY-RECEIPT.json', b'{}'),
                          (PHASE + '/253-180-BRIDGE-V2-RECORD.json', b'{}'),
                          (PHASE + '/253-174-SUMMARY.md', b'status: complete\n'),
@@ -44,12 +54,12 @@ class ConsumerTests(unittest.TestCase):
                     try:
                         target.write_bytes(data)
                         with self.assertRaisesRegex(ValueError, 'differs|history changed'):
-                            v3.validate_current(root)
+                            v3.validate_current(root, '172')
                     finally:
                         target.unlink()
                         target.symlink_to(ROOT / rel)
                     self.assertEqual((ROOT / rel).read_bytes(), original)
-            v3.validate_current(root)
+            v3.validate_current(root, '172')
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

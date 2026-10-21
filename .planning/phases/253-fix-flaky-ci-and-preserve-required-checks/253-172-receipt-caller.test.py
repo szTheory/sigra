@@ -22,7 +22,7 @@ class CallerTests(unittest.TestCase):
         bodies=receipt_bodies()
         self.assertEqual([n for n,b in bodies],[168,168,172])
         for n,b in bodies:
-            with self.subTest(plan=n):self.assertTrue(b.startswith(PREFIX), b[:200])
+            with self.subTest(plan=n):self.assertTrue(b.startswith(PREFIX.replace('--consumer 168','--consumer 172') if n==172 else PREFIX), b[:200])
 
     def test_current_instructions_override_old_174_and_inventory_assumptions(self):
         text=(ROOT/PHASE/'253-172-PLAN.md').read_text()
@@ -40,6 +40,6 @@ class CallerTests(unittest.TestCase):
         old='python3 '+PHASE+'/253-RECOVERY-BRIDGE-V2.py verify-receipt --consumer 168 &&'
         self.assertEqual(original.count(old),1)
         without_override=re.sub(r'<current_receipt_contract>.*?</current_receipt_contract>\n', '', current, count=1, flags=re.S)
-        self.assertEqual(without_override, original.replace(old,PREFIX,1))
+        self.assertEqual(without_override, original.replace(old,PREFIX.replace('--consumer 168','--consumer 172'),1))
 
 if __name__=='__main__':unittest.main(verbosity=2)
