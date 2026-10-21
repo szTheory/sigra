@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T14:19:03.754868+00:00",
+  "timestamp": "2026-10-21T14:29:47.422121+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "V2 consumer verified;179receipt preserved;180 ready for local execution under v2 addendum;Phase253 incomplete.",
-  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
-  "next_action": "V2 consumer passed18tests and reopened actual179 receipt. Execute only180 using its v2 addendum;preserve all28halts and179-pinned originals. No179 replay orhosted continuation.",
+  "current": "Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan.",
+  "next_command": "$gsd-progress",
+  "resume_command": "$gsd-progress",
+  "next_action": "Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+    "immediate_gsd_command": "$gsd-progress",
+    "resume_command": "$gsd-progress",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -27,18 +27,22 @@
     "current_phase": 253,
     "readiness": {
       "plan_count": 183,
-      "completed_implementation_count": 76,
+      "completed_implementation_count": 77,
       "halted_count": 28,
-      "without_summary": 79,
-      "incomplete_count": 79,
-      "runnable_count": 1,
+      "without_summary": 78,
+      "incomplete_count": 78,
+      "runnable_count": 5,
       "ready_plans": [
-        "253-180-PLAN.md"
+        "253-168-PLAN.md",
+        "253-169-PLAN.md",
+        "253-170-PLAN.md",
+        "253-171-PLAN.md",
+        "253-172-PLAN.md"
       ],
-      "operationally_ready_plans": [
-        "253-180-PLAN.md"
-      ],
-      "precondition_blocked_plans": []
+      "operationally_ready_plans": [],
+      "precondition_blocked_plans": [
+        "253-168-PLAN.md"
+      ]
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -182,7 +186,7 @@
       254,
       255
     ],
-    "next_required_gate": "Actual180 local bridge verification using v2 addendum;no hosted continuation",
+    "next_required_gate": "Resolve168 completed174 contradiction;no179 rerun orCI",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -218,7 +222,7 @@
     "phase253_plan_count": 183,
     "phase253_wave_count": 8,
     "phase253_task_count": 476,
-    "phase253_completed_plans": 76,
+    "phase253_completed_plans": 77,
     "phase253_halted_plans": [
       "253-02",
       "253-07",
@@ -334,18 +338,22 @@
     "phase253_recovery_task_count": 13,
     "phase253_replan_count": 11,
     "phase253_replan_task_count": 24,
-    "phase253_remaining_plans": 79,
+    "phase253_remaining_plans": 78,
     "phase253_control_recovery_plan_count": 10,
     "phase253_control_recovery_task_count": 22,
     "phase253_ready_plans": [
-      "253-180-PLAN.md"
+      "253-168-PLAN.md",
+      "253-169-PLAN.md",
+      "253-170-PLAN.md",
+      "253-171-PLAN.md",
+      "253-172-PLAN.md"
     ],
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
-    "phase253_execution_status": "ready_local_bridge_v2",
+    "phase253_execution_status": "blocked_before168",
     "phase253_halted_plan_count": 28,
-    "phase253_unsummarized_plan_count": 79
+    "phase253_unsummarized_plan_count": 78
   },
   "human_actions_pending": [],
   "async_jobs": [],
@@ -1471,7 +1479,7 @@
       ]
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3725,30 +3733,34 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
-    "status": "ready_local_bridge_v2",
-    "reason": "V2 consumer passed18tests and reopened actual179 receipt. Execute only180 using its v2 addendum;preserve all28halts and179-pinned originals. No179 replay orhosted continuation.",
+    "next_command": "$gsd-progress",
+    "resume_command": "$gsd-progress",
+    "status": "blocked_before168",
+    "reason": "Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan.",
     "readiness": {
       "plan_count": 183,
-      "completed_implementation_count": 76,
+      "completed_implementation_count": 77,
       "halted_count": 28,
-      "without_summary": 79,
-      "incomplete_count": 79,
-      "runnable_count": 1,
+      "without_summary": 78,
+      "incomplete_count": 78,
+      "runnable_count": 5,
       "ready_plans": [
-        "253-180-PLAN.md"
+        "253-168-PLAN.md",
+        "253-169-PLAN.md",
+        "253-170-PLAN.md",
+        "253-171-PLAN.md",
+        "253-172-PLAN.md"
       ],
-      "operationally_ready_plans": [
-        "253-180-PLAN.md"
-      ],
-      "precondition_blocked_plans": []
+      "operationally_ready_plans": [],
+      "precondition_blocked_plans": [
+        "253-168-PLAN.md"
+      ]
     },
     "phase_verification_status": "not_started",
-    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-EXECUTION-RECORD.json",
+    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-BRIDGE-V2-RECORD.json",
     "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md"
   },
-  "last_updated": "2026-10-21T14:19:03.754868+00:00",
+  "last_updated": "2026-10-21T14:29:47.422121+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4323,7 +4335,11 @@
     "recorded_at": "2026-10-20T23:11:22.112438+00:00"
   },
   "phase253_ready_plans": [
-    "253-180-PLAN.md"
+    "253-168-PLAN.md",
+    "253-169-PLAN.md",
+    "253-170-PLAN.md",
+    "253-171-PLAN.md",
+    "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
   "workflow_step": "execute",
@@ -4599,7 +4615,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "f354798196cc89d22ad2d1c7eaf89f4c3cd47b65",
+  "state_head": "708594dbd5f5ceba2149ac0ba40bbb704b848062",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4648,5 +4664,40 @@
     "budgets_renewed": false,
     "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
     "phase_verification_status": "not_started"
+  },
+  "phase253_bridge180_execution": {
+    "status": "verified_local_bridge",
+    "implementation_complete": true,
+    "phase_verification_status": "not_started",
+    "summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-SUMMARY.md",
+    "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CHECKS-V2.json",
+    "bridge_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-BRIDGE-V2-RECORD.json",
+    "completed_commit": "708594dbd5f5ceba2149ac0ba40bbb704b848062",
+    "next_command": "$gsd-progress",
+    "readiness": {
+      "plan_count": 183,
+      "completed_implementation_count": 77,
+      "halted_count": 28,
+      "without_summary": 78,
+      "incomplete_count": 78,
+      "runnable_count": 5,
+      "ready_plans": [
+        "253-168-PLAN.md",
+        "253-169-PLAN.md",
+        "253-170-PLAN.md",
+        "253-171-PLAN.md",
+        "253-172-PLAN.md"
+      ],
+      "operationally_ready_plans": [],
+      "precondition_blocked_plans": [
+        "253-168-PLAN.md"
+      ]
+    },
+    "remaining_blocker": "Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan.",
+    "acceptance179_rerun": false,
+    "ci_launches": 0,
+    "budgets_renewed": false,
+    "prior_shared_state_commit": "708594dbd5f5ceba2149ac0ba40bbb704b848062",
+    "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   }
 }
