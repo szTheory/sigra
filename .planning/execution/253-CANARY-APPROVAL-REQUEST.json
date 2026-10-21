@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.canary-preapproval/v1",
-  "status": "awaiting_user_approval",
-  "approval_received": false,
+  "status": "approved_and_completed",
+  "approval_received": true,
   "prior_restriction": "User instructed no CI; no permission to remove it has been assumed",
   "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
   "freeze": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R13.json",
@@ -202,5 +202,8 @@
     "CIREL-01": "partial_not_reproduced",
     "CIREL-02": "unaccepted"
   },
-  "separate_later_decision": "Plan171 docs/PR actions are outside this canary approval"
+  "separate_later_decision": "Plan171 docs/PR actions are outside this canary approval",
+  "decision_text": "yes u can run it",
+  "approval_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R13.json",
+  "execution_record": ".planning/execution/253-170.json"
 }

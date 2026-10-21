@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Local168/169 complete;awaiting explicit CI decision for170
-last_updated: "2026-10-21T17:31:38.486802+00:00"
-state_head: a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08
+stopped_at: Actual hosted170 complete; separate draft PR decision needed for171
+last_updated: "2026-10-21T18:05:34.747379+00:00"
+state_head: a8e0e336fd3ea5c7fbe6d3a0b8281b924fed2da6
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
-  completed_plans: 85
+  completed_plans: 86
   percent: 25
-last_activity: "2026-10-21T17:31:38.486802+00:00 - Resumed execution; completed168/169; stopped at actual CI permission boundary"
+last_activity: "2026-10-21T18:05:34.747379+00:00 - Completed actual hosted canary; preparing separate draft PR decision"
 milestone_status: active
 workflow_step: execute
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only --wave 6
-resume_command: $gsd-execute-phase 253 --gaps-only --wave 6
+next_command: $gsd-execute-phase 253 --gaps-only --wave 7
+resume_command: $gsd-execute-phase 253 --gaps-only --wave 7
 next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -29,7 +29,7 @@ phase253_plan_count: 183
 phase253_wave_count: 8
 phase253_task_count: 479
 phase253_implementation_status: partial
-phase253_completed_plans: 79
+phase253_completed_plans: 80
 phase253_halted_plans:
   - 253-02
   - 253-07
@@ -89,10 +89,7 @@ phase253_blocked_plans:
   - 253-161
   - 253-162
   - 253-163
-  - 253-168
-  - 253-169
   - 253-17
-  - 253-170
   - 253-171
   - 253-172
   - 253-176
@@ -221,8 +218,8 @@ Conditional on Jon approving the exact actions in `.planning/execution/253-CANAR
 
 ## Session
 
-**Last session:** 2026-10-21T17:31:38.486802+00:00
-**Stopped at:** Local168/169 complete; explicit CI decision needed for170
+**Last session:** 2026-10-21T18:05:34.747379+00:00
+**Stopped at:** Actual hosted170 complete; separate draft PR approval for171
 **Resume file:** .planning/execution/253-CONTINUATION.json
 
 ## Deferred Items
@@ -394,6 +391,8 @@ Plan172 now uses the corrected V3 receipt consumer and explicit current instruct
 
 The user requested direct continuation: after a scoped repair passes, execute the next already-authorized local task in this turn. Use a status command only when the next action is genuinely uncertain. Stop for an actual failed limit, missing evidence or prohibited external action; name it. Do not create another numbered repair plan, replay179, renew a budget or launch CI. Current proof: refs/gsd/phase253-168-local-execution at a85f1e19f34b13d5ca7fd4eb7dffc0aeea282a7c.
 
-## Current continuation after the user ended status routing
+## Current continuation after actual hosted CI
 
-Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed. Exact current decision: `.planning/execution/253-CANARY-APPROVAL-REQUEST.json`; current execution: `.planning/execution/253-CONTINUATION.json`. Prior shared state is recoverable at `a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08`; final downstream evidence is `refs/gsd/phase253-local-continuation` at `493ff352c3488176aa9cde965adf18392b7eaa99`.
+Plan 170 completed on actual GitHub CI: six expected outcomes and the independent verifier passed, within 85/117 requests,37/45 jobs,832/3600 seconds. Plans168/169 remain complete. 183plans:80 implementation complete,28 historical halts,75 without summaries. Plan171 is next, requiring separate approval for one main fetch, docs publication and two draft PRs; no progress command or numbered repair plan is needed. Whole-phase verification remains not_started and both requirements remain open.
+
+Next: `$gsd-execute-phase 253 --gaps-only --wave 7`, conditional on the separate request in `.planning/execution/253-PR-APPROVAL-REQUEST.json`. Actual results: `.planning/execution/253-170.json`. Prior exact state bytes recoverable at `a8e0e336fd3ea5c7fbe6d3a0b8281b924fed2da6`. Continue directly after approval; do not send the user to progress. Earlier sections are historical.

@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -14,14 +14,11 @@
       "status": "in_progress",
       "planning_status": "passed",
       "plan_count": 183,
-      "completed_implementation_count": 77,
+      "completed_implementation_count": 80,
       "phase_verification_status": "not_started",
       "halted_plan_count": 28,
-      "unsummarized_plan_count": 78,
+      "unsummarized_plan_count": 75,
       "ready_plans": [
-        "253-168-PLAN.md",
-        "253-169-PLAN.md",
-        "253-170-PLAN.md",
         "253-171-PLAN.md",
         "253-172-PLAN.md"
       ],
@@ -39,14 +36,14 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+    "command": "$gsd-execute-phase 253 --gaps-only --wave 7",
     "conditional": true,
-    "label": "Approve prepared CI actions, then continue170 directly",
-    "reason": "Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed."
+    "label": "Approve two draft PRs, then continue171 directly",
+    "reason": "Plan 170 completed on actual GitHub CI: six expected outcomes and the independent verifier passed, within 85/117 requests,37/45 jobs,832/3600 seconds. Plans168/169 remain complete. 183plans:80 implementation complete,28 historical halts,75 without summaries. Plan171 is next, requiring separate approval for one main fetch, docs publication and two draft PRs; no progress command or numbered repair plan is needed. Whole-phase verification remains not_started and both requirements remain open."
   },
-  "updated_at": "2026-10-21T14:30:00.278571+00:00",
+  "updated_at": "2026-10-21T18:05:34.747379+00:00",
   "phase253_execution": {
-    "status": "ready_local_bridge_v2",
+    "status": "canary_complete_awaiting_pr_approval",
     "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "plans": {
@@ -76,20 +73,102 @@
       "253-24": "blocked",
       "253-25": "blocked",
       "253-174": "halted",
-      "253-168": "blocked",
-      "253-169": "blocked",
-      "253-170": "blocked",
-      "253-171": "blocked",
-      "253-172": "blocked",
+      "253-168": "complete",
+      "253-169": "complete",
+      "253-170": "complete",
+      "253-171": "awaiting_separate_approval",
+      "253-172": "waiting_for_253-171",
       "253-175": "halted",
       "253-176": "blocked",
       "253-177": "blocked",
       "253-178": "halted",
-      "253-179": "ready_offline_acceptance",
-      "253-180": "waiting_for_253-179",
+      "253-179": "complete",
+      "253-180": "complete",
       "253-181": "halted",
       "253-182": "halted",
-      "253-183": "halted"
+      "253-183": "halted",
+      "253-165": "complete",
+      "253-61": "complete",
+      "253-130": "complete",
+      "253-107": "complete",
+      "253-82": "complete",
+      "253-39": "complete",
+      "253-116": "complete",
+      "253-121": "complete",
+      "253-70": "complete",
+      "253-143": "halted",
+      "253-138": "complete",
+      "253-69": "complete",
+      "253-96": "complete",
+      "253-42": "complete",
+      "253-113": "halted",
+      "253-146": "halted",
+      "253-102": "complete",
+      "253-129": "complete",
+      "253-119": "complete",
+      "253-48": "complete",
+      "253-80": "complete",
+      "253-36": "complete",
+      "253-167": "halted",
+      "253-63": "halted",
+      "253-132": "complete",
+      "253-72": "complete",
+      "253-141": "complete",
+      "253-27": "halted",
+      "253-91": "complete",
+      "253-59": "complete",
+      "253-108": "complete",
+      "253-40": "halted",
+      "253-111": "complete",
+      "253-126": "complete",
+      "253-173": "halted",
+      "253-155": "halted",
+      "253-137": "complete",
+      "253-100": "complete",
+      "253-51": "halted",
+      "253-97": "halted",
+      "253-139": "complete",
+      "253-43": "complete",
+      "253-125": "complete",
+      "253-112": "complete",
+      "253-103": "complete",
+      "253-134": "halted",
+      "253-79": "complete",
+      "253-128": "complete",
+      "253-164": "complete",
+      "253-60": "complete",
+      "253-57": "complete",
+      "253-131": "complete",
+      "253-83": "complete",
+      "253-38": "complete",
+      "253-92": "halted",
+      "253-117": "complete",
+      "253-120": "complete",
+      "253-71": "complete",
+      "253-142": "complete",
+      "253-89": "complete",
+      "253-110": "complete",
+      "253-127": "complete",
+      "253-95": "complete",
+      "253-84": "halted",
+      "253-136": "complete",
+      "253-101": "complete",
+      "253-50": "complete",
+      "253-81": "complete",
+      "253-118": "complete",
+      "253-49": "complete",
+      "253-37": "complete",
+      "253-166": "complete",
+      "253-62": "complete",
+      "253-104": "halted",
+      "253-133": "complete",
+      "253-122": "halted",
+      "253-73": "halted",
+      "253-140": "complete",
+      "253-26": "complete",
+      "253-58": "complete",
+      "253-109": "complete",
+      "253-90": "complete"
     },
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
     "recovery_plans": {
@@ -102,12 +181,12 @@
       "253-179": "ready_offline_acceptance",
       "253-180": "waiting_for_253-179"
     },
-    "current_next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
+    "current_next_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
     "total_phase_plans": 183,
     "current_ready_plans": [
-      "253-180-PLAN.md"
+      "253-171-PLAN.md"
     ],
-    "completed_plan_count": 76,
+    "completed_plan_count": 80,
     "halted_plans": [
       "253-02",
       "253-07",
@@ -168,10 +247,7 @@
       "253-161",
       "253-162",
       "253-163",
-      "253-168",
-      "253-169",
       "253-17",
-      "253-170",
       "253-171",
       "253-172",
       "253-176",
@@ -253,7 +329,8 @@
     "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-EXECUTION-RECORD.json",
     "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2",
     "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
-    "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json"
+    "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json",
+    "unsummarized_plan_count": 75
   },
   "phase253_registration_startup_debug": {
     "status": "resolved_startup_only",
@@ -1152,8 +1229,8 @@
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "status": "in_progress",
-  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -1651,9 +1728,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-21T17:31:38.486802+00:00",
-  "stopped_at": "Local168/169 complete; awaiting user CI decision for170",
-  "state_head": "a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08",
+  "last_updated": "2026-10-21T18:05:34.747379+00:00",
+  "stopped_at": "Actual hosted170 complete; separate draft PR decision for171",
+  "state_head": "a8e0e336fd3ea5c7fbe6d3a0b8281b924fed2da6",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2092,7 +2169,6 @@
   },
   "phase253_plan_count": 183,
   "phase253_ready_plans": [
-    "253-170-PLAN.md",
     "253-171-PLAN.md",
     "253-172-PLAN.md"
   ],
@@ -3008,7 +3084,7 @@
     },
     "recorded_at": "2026-10-21T04:02:14.336344+00:00"
   },
-  "phase253_current_execution_addendum": ".planning/execution/253-CONTINUATION.json",
+  "phase253_current_execution_addendum": ".planning/execution/253-170.json",
   "phase253_versioned_consumer": {
     "task": "quick-261021-drl",
     "status": "verified_local_consumer",
@@ -3073,30 +3149,29 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
     "conditional": true,
-    "status": "awaiting_explicit_ci_approval",
-    "reason": "Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed.",
+    "status": "awaiting_separate_draft_pr_approval",
+    "reason": "Plan 170 completed on actual GitHub CI: six expected outcomes and the independent verifier passed, within 85/117 requests,37/45 jobs,832/3600 seconds. Plans168/169 remain complete. 183plans:80 implementation complete,28 historical halts,75 without summaries. Plan171 is next, requiring separate approval for one main fetch, docs publication and two draft PRs; no progress command or numbered repair plan is needed. Whole-phase verification remains not_started and both requirements remain open.",
     "readiness": {
       "plan_count": 183,
-      "completed_implementation_count": 79,
+      "completed_implementation_count": 80,
       "halted_count": 28,
-      "without_summary": 76,
-      "incomplete_count": 76,
+      "without_summary": 75,
+      "incomplete_count": 75,
       "sdk_runnable_plans": [
-        "253-170-PLAN.md",
         "253-171-PLAN.md",
         "253-172-PLAN.md"
       ],
-      "next_plan": "253-170-PLAN.md",
+      "next_plan": "253-171-PLAN.md",
       "authorization_blocked_plans": [
-        "253-170-PLAN.md"
+        "253-171-PLAN.md"
       ],
       "operationally_ready_plans": [],
-      "reason": "Awaiting explicit approval of the prepared CI canary actions;171/172 still need their predecessors actual hosted results."
+      "reason": "Actual canary is complete; separate docs_and_prs approval is pending.172 needs171 actual PR results."
     },
-    "evidence": ".planning/execution/253-CONTINUATION.json",
+    "evidence": ".planning/execution/253-170.json",
     "phase_verification_status": "not_started"
   },
   "phase253_plan172_receipt_connection": {
@@ -3159,11 +3234,13 @@
     "prior_shared_state_commit": "a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08"
   },
   "next_command_conditional": true,
-  "phase253_completed_plans": 79,
-  "phase253_unsummarized_plans": 76,
+  "phase253_completed_plans": 80,
+  "phase253_unsummarized_plans": 75,
   "phase253_pending_decision": {
-    "request": ".planning/execution/253-CANARY-APPROVAL-REQUEST.json",
+    "request": ".planning/execution/253-PR-APPROVAL-REQUEST.json",
     "approval_received": false,
-    "section_sha256": "df4ae86dcfd18d58a6fe9e172349edc7c299cbffddf1514a28f5a59fe45ddcd9"
-  }
+    "section": "docs_and_prs"
+  },
+  "phase253_canary170_execution": ".planning/execution/253-170.json",
+  "phase253_external_mutations_performed": true
 }
