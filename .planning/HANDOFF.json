@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T16:38:03.880769+00:00",
+  "timestamp": "2026-10-21T17:31:38.486802+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.",
-  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
-  "next_action": "Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.",
+  "current": "Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed.",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+  "next_action": "Ask Jon whether to permit the exact prepared R13 canary actions; do not launch CI without his reply.",
   "route": {
-    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
+    "immediate_gsd_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -27,21 +27,21 @@
     "current_phase": 253,
     "readiness": {
       "plan_count": 183,
-      "completed_implementation_count": 77,
+      "completed_implementation_count": 79,
       "halted_count": 28,
-      "without_summary": 78,
-      "incomplete_count": 78,
-      "runnable_count": 5,
-      "ready_plans": [
-        "253-168-PLAN.md",
-        "253-169-PLAN.md",
+      "without_summary": 76,
+      "incomplete_count": 76,
+      "sdk_runnable_plans": [
         "253-170-PLAN.md",
         "253-171-PLAN.md",
         "253-172-PLAN.md"
       ],
+      "next_plan": "253-170-PLAN.md",
+      "authorization_blocked_plans": [
+        "253-170-PLAN.md"
+      ],
       "operationally_ready_plans": [],
-      "precondition_blocked_plans": [],
-      "execution_note": "Stale174 prerequisite fixed; actual168 runtime guards/tasks have not been executed."
+      "reason": "Awaiting explicit approval of the prepared CI canary actions;171/172 still need their predecessors actual hosted results."
     },
     "historical_verification_is_forward_blocker": false,
     "halted_dependencies": [
@@ -154,15 +154,16 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.",
+    "reason": "Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json",
     "whole_phase_verification_status": "not_started",
     "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
     "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
     "latest_maintenance_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-RESULT.json",
     "recovery_reset": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
-    "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
-    "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json"
+    "execution_addendum": ".planning/execution/253-CONTINUATION.json",
+    "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json",
+    "next_command_conditional": true
   },
   "workflow": {
     "scope_confirmed": true,
@@ -1478,7 +1479,7 @@
       ]
     }
   },
-  "resume_file": ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json",
+  "resume_file": ".planning/execution/253-CONTINUATION.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3732,13 +3733,33 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
-    "status": "continuing_local169",
-    "reason": "Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.",
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+    "conditional": true,
+    "status": "awaiting_explicit_ci_approval",
+    "reason": "Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed.",
+    "readiness": {
+      "plan_count": 183,
+      "completed_implementation_count": 79,
+      "halted_count": 28,
+      "without_summary": 76,
+      "incomplete_count": 76,
+      "sdk_runnable_plans": [
+        "253-170-PLAN.md",
+        "253-171-PLAN.md",
+        "253-172-PLAN.md"
+      ],
+      "next_plan": "253-170-PLAN.md",
+      "authorization_blocked_plans": [
+        "253-170-PLAN.md"
+      ],
+      "operationally_ready_plans": [],
+      "reason": "Awaiting explicit approval of the prepared CI canary actions;171/172 still need their predecessors actual hosted results."
+    },
+    "evidence": ".planning/execution/253-CONTINUATION.json",
     "phase_verification_status": "not_started"
   },
-  "last_updated": "2026-10-21T17:03:21.061613+00:00",
+  "last_updated": "2026-10-21T17:31:38.486802+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4313,8 +4334,6 @@
     "recorded_at": "2026-10-20T23:11:22.112438+00:00"
   },
   "phase253_ready_plans": [
-    "253-168-PLAN.md",
-    "253-169-PLAN.md",
     "253-170-PLAN.md",
     "253-171-PLAN.md",
     "253-172-PLAN.md"
@@ -4593,7 +4612,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "1110a182ea540f87283903ce894621c044f86f33",
+  "state_head": "a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4626,7 +4645,7 @@
     },
     "recorded_at": "2026-10-21T04:02:14.336344+00:00"
   },
-  "phase253_current_execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+  "phase253_current_execution_addendum": ".planning/execution/253-CONTINUATION.json",
   "phase253_versioned_consumer": {
     "task": "quick-261021-drl",
     "status": "verified_local_consumer",
@@ -4678,7 +4697,7 @@
     "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   },
-  "stopped_at": "Plan168 complete; continuing local169; hosted CI prohibited",
+  "stopped_at": "Local168/169 complete; awaiting user CI decision for170",
   "phase253_plan168_prerequisite_correction": {
     "status": "corrected_not_executed",
     "summary": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
@@ -4705,13 +4724,56 @@
     "state_row_preservation_commit": "569db38a0df6a5a50dbbcb02040f1f91fb0f212e"
   },
   "phase253_local_continuation": {
-    "current_plan": "253-169",
-    "plan168_status": "complete",
-    "plan168_summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-SUMMARY.md",
-    "evidence_ref": "refs/gsd/phase253-168-local-execution",
-    "evidence_commit": "a85f1e19f34b13d5ca7fd4eb7dffc0aeea282a7c",
-    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
-    "policy": "Continue ready authorized local work without asking the user to run progress; preserve original halts and budgets; no179 replay or CI.",
-    "phase_verification_status": "not_started"
+    "schema": "sigra.phase253.current-continuation/v1",
+    "status": "local_work_complete_awaiting_ci_decision",
+    "timestamp": "2026-10-21T17:31:38.486802+00:00",
+    "completed_local_plans": [
+      "253-168",
+      "253-169"
+    ],
+    "phase_counts": {
+      "plans": 183,
+      "implementation_complete": 79,
+      "halted": 28,
+      "without_summary": 76
+    },
+    "verification": {
+      "plan168_tasks": "passed",
+      "plan168_audit_tests": 66,
+      "plan169_task1_tests": 183,
+      "plan169_task2_tests": 183,
+      "plan169_task3": "passed",
+      "downstream_actual_receipt_command": "verified",
+      "downstream_mutation_tests": 3
+    },
+    "evidence_ref": "refs/gsd/phase253-local-continuation",
+    "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
+    "plan168_evidence_ref": "refs/gsd/phase253-168-local-execution",
+    "plan169_execution_record": ".planning/execution/253-169.json",
+    "phase_verification_status": "not_started",
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "next_plan": "253-170",
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+    "next_command_conditional": true,
+    "required_decision": ".planning/execution/253-CANARY-APPROVAL-REQUEST.json",
+    "reason_for_decision": "Earlier explicit user instruction prohibits CI;170 also requires the user to approve its exact frozen outward actions. No approval has been inferred.",
+    "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
+    "github_requests": 0,
+    "ci_launches": 0,
+    "acceptance179_reruns": 0,
+    "budgets_renewed": false,
+    "historical_outcomes_modified": false,
+    "prior_shared_state_commit": "a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08"
+  },
+  "next_command_conditional": true,
+  "phase253_completed_plans": 79,
+  "phase253_unsummarized_plans": 76,
+  "phase253_pending_decision": {
+    "request": ".planning/execution/253-CANARY-APPROVAL-REQUEST.json",
+    "approval_received": false,
+    "section_sha256": "df4ae86dcfd18d58a6fe9e172349edc7c299cbffddf1514a28f5a59fe45ddcd9"
   }
 }

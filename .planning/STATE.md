@@ -3,24 +3,24 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Plan168 complete;continuing Plan169 locally;hosted CI prohibited
-last_updated: "2026-10-21T17:03:21.061613+00:00"
-state_head: 1110a182ea540f87283903ce894621c044f86f33
+stopped_at: Local168/169 complete;awaiting explicit CI decision for170
+last_updated: "2026-10-21T17:31:38.486802+00:00"
+state_head: a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
-  completed_plans: 83
+  completed_plans: 85
   percent: 25
-last_activity: "2026-10-21T16:38:03.880769+00:00 - Completed quick261021-he7: Plan172 receipt connection"
+last_activity: "2026-10-21T17:31:38.486802+00:00 - Resumed execution; completed168/169; stopped at actual CI permission boundary"
 milestone_status: active
 workflow_step: execute
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only --wave 5
-resume_command: $gsd-execute-phase 253 --gaps-only --wave 5
-next_command_conditional: false
+next_command: $gsd-execute-phase 253 --gaps-only --wave 6
+resume_command: $gsd-execute-phase 253 --gaps-only --wave 6
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -29,7 +29,7 @@ phase253_plan_count: 183
 phase253_wave_count: 8
 phase253_task_count: 479
 phase253_implementation_status: partial
-phase253_completed_plans: 78
+phase253_completed_plans: 79
 phase253_halted_plans:
   - 253-02
   - 253-07
@@ -152,11 +152,11 @@ phase253_ready_plans:
   - 253-172-PLAN.md
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: .planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json
-phase253_current_execution_addendum: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
+resume_file: .planning/execution/253-CONTINUATION.json
+phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-last_activity_desc: Plan168 completed actual local freeze and gates;continue169
+last_activity_desc: Completed168/169 and actual downstream receipt check;CI approval required
 ---
 
 # Project State
@@ -170,13 +170,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.
+Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only --wave 5
+$gsd-execute-phase 253 --gaps-only --wave 6
 
-Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.
+Conditional on Jon approving the exact actions in `.planning/execution/253-CANARY-APPROVAL-REQUEST.json`. The agent continues directly after that reply; no progress command is needed. Earlier status sections are retained historical snapshots, not current routing.
 
 ## Known unfinished work
 
@@ -223,9 +223,9 @@ Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. 
 
 ## Session
 
-**Last session:** 2026-10-21T16:38:03.880769+00:00
-**Stopped at:** Plan172 receipt connection verified locally; phase incomplete
-**Resume file:** .planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json
+**Last session:** 2026-10-21T17:31:38.486802+00:00
+**Stopped at:** Local168/169 complete; explicit CI decision needed for170
+**Resume file:** .planning/execution/253-CONTINUATION.json
 
 ## Deferred Items
 
@@ -395,3 +395,7 @@ Plan172 now uses the corrected V3 receipt consumer and explicit current instruct
 ## Resume rule after local repairs
 
 The user requested direct continuation: after a scoped repair passes, execute the next already-authorized local task in this turn. Use a status command only when the next action is genuinely uncertain. Stop for an actual failed limit, missing evidence or prohibited external action; name it. Do not create another numbered repair plan, replay179, renew a budget or launch CI. Current proof: refs/gsd/phase253-168-local-execution at a85f1e19f34b13d5ca7fd4eb7dffc0aeea282a7c.
+
+## Current continuation after the user ended status routing
+
+Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed. Exact current decision: `.planning/execution/253-CANARY-APPROVAL-REQUEST.json`; current execution: `.planning/execution/253-CONTINUATION.json`. Prior shared state is recoverable at `a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08`; final downstream evidence is `refs/gsd/phase253-local-continuation` at `493ff352c3488176aa9cde965adf18392b7eaa99`.

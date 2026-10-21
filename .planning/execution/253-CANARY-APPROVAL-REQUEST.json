@@ -1,0 +1,206 @@
+{
+  "schema": "sigra.phase253.canary-preapproval/v1",
+  "status": "awaiting_user_approval",
+  "approval_received": false,
+  "prior_restriction": "User instructed no CI; no permission to remove it has been assumed",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+  "freeze": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R13.json",
+  "freeze_sha256": "2a9b2415e4c9545252817ec3b299a66b76247ef4774b087be97faa4e0a578629",
+  "section": "canary",
+  "section_sha256": "df4ae86dcfd18d58a6fe9e172349edc7c299cbffddf1514a28f5a59fe45ddcd9",
+  "actions": {
+    "actions": [
+      {
+        "action": "publish_git_objects",
+        "candidate_commit": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "category": "publication",
+        "fixture_commit": "212a52365a6d0d413f9026678718610782ff50a9",
+        "manifest": "bound_documents.publication_manifest",
+        "max_requests": 24
+      },
+      {
+        "action": "create_ref",
+        "ref": "refs/heads/gsd/253-replan-r13-candidate",
+        "sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0"
+      },
+      {
+        "action": "create_ref",
+        "ref": "refs/heads/gsd/253-replan-r13-fixture",
+        "sha": "212a52365a6d0d413f9026678718610782ff50a9"
+      },
+      {
+        "action": "workflow_dispatch",
+        "inputs": {
+          "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+          "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+          "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "scenario": "full-pass"
+        },
+        "ref": "gsd/253-replan-r13-fixture",
+        "workflow_id": 259268962
+      },
+      {
+        "action": "workflow_dispatch",
+        "inputs": {
+          "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+          "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+          "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "scenario": "docs-only"
+        },
+        "ref": "gsd/253-replan-r13-fixture",
+        "workflow_id": 259268962
+      },
+      {
+        "action": "workflow_dispatch",
+        "inputs": {
+          "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+          "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+          "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "scenario": "actual-failure"
+        },
+        "ref": "gsd/253-replan-r13-fixture",
+        "workflow_id": 259268962
+      },
+      {
+        "action": "workflow_dispatch",
+        "inputs": {
+          "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+          "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+          "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "scenario": "missing-seam"
+        },
+        "ref": "gsd/253-replan-r13-fixture",
+        "workflow_id": 259268962
+      },
+      {
+        "action": "workflow_dispatch",
+        "inputs": {
+          "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+          "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+          "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "scenario": "unexpected-skip"
+        },
+        "ref": "gsd/253-replan-r13-fixture",
+        "workflow_id": 259268962
+      },
+      {
+        "action": "workflow_dispatch",
+        "inputs": {
+          "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+          "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+          "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "scenario": "cancelled"
+        },
+        "ref": "gsd/253-replan-r13-fixture",
+        "workflow_id": 259268962
+      },
+      {
+        "action": "cancel_run",
+        "max": 1,
+        "run_identity": {
+          "display_title_prefix": "Phase 253 Gate Canary / cancelled /",
+          "event": "workflow_dispatch",
+          "head_branch": "gsd/253-replan-r13-fixture",
+          "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "workflow_id": 259268962
+        },
+        "scenario": "cancelled"
+      },
+      {
+        "action": "workflow_dispatch",
+        "inputs": {
+          "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+          "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+          "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch",
+          "scenario": "verifier"
+        },
+        "ref": "gsd/253-replan-r13-fixture",
+        "workflow_id": 259268962
+      }
+    ],
+    "max_requests": 117,
+    "prohibited": [
+      "rerun",
+      "merge",
+      "auto_merge",
+      "push",
+      "force_update",
+      "delete_ref",
+      "rule_change",
+      "release",
+      "tag"
+    ],
+    "reruns": 0
+  },
+  "caps": {
+    "requests": 117,
+    "jobs": 45,
+    "minutes": 60,
+    "reruns": 0,
+    "effective_check_run_pages": 10
+  },
+  "growth_checks": {
+    "0": {
+      "returncode": 0,
+      "stdout": "projected check_runs pages 4 budget 10\n",
+      "stderr": ""
+    },
+    "20": {
+      "returncode": 1,
+      "stdout": "projected check_runs pages 15 budget 10\n",
+      "stderr": ""
+    }
+  },
+  "unobserved_live_shapes": [
+    {
+      "id": "canary-failure_logs-zero-slack",
+      "row": "shape-run_logs",
+      "first_window": "253-170",
+      "unobserved": "any failed-log request beyond the canary table's failure_logs 6 of 6 (3 failed scenarios x 2 hops, zero slack, carried from R11 unchanged; 253-133 used exactly 6, so the slack has never been exercised)",
+      "stop": "the transport's predebit refuses a seventh failure_logs request with category_budget_exhausted ('category failure_logs allocation is exhausted', ci-hosted-transport.py:628), and the driver stops with 'failed-log retrieval failed for run <id>' (ci-gate-canary.sh:926)"
+    },
+    {
+      "id": "check_runs-next-link-query-keys",
+      "row": "shape-check_runs",
+      "first_window": "253-170",
+      "unobserved": "the query keys of a real check_runs rel=next link: 253-143 sequence 21 recorded the destination with its query scrubbed to has_query: true, so which keys GitHub puts on page 2's URL (expected per_page and page) has never been seen; the next request is re-derived from the approved route, never the Link URL",
+      "stop": "'pagination link has an unapproved or repeated query key' (ci-hosted-transport.py:1044), raised before the second request; a page value that is not the next ordinal stops with 'pagination link did not advance exactly one page' (ci-hosted-transport.py:1047)"
+    },
+    {
+      "id": "check_runs-server-parent-pages-2-plus",
+      "row": "shape-check_runs",
+      "first_window": "253-170",
+      "unobserved": "pages 2 and later of the server parent's (main 09df342a) check runs: 253-143 stopped after page 1 (100 of 209), so the duplicate distribution of the five required names on pages 2-3 and the link form those pages carry are unseen",
+      "stop": "a different app across a name's duplicates: 'native check source identity differs across duplicate runs: <name>' (ci-hosted-gate-verify.py:335); an unknown link form: 'pagination link changed its approved API route' (ci-hosted-transport.py:1041); a run of another commit or without head_sha: 'native check source run is not of the frozen source commit: <name>' (ci-hosted-gate-verify.py:328)"
+    },
+    {
+      "id": "check_runs-main-nightly-growth",
+      "row": "shape-check_runs",
+      "first_window": "253-170",
+      "unobserved": "total_count growth of the unchanged main's check runs from the nightly scheduled runs: page 1 of 253-143 shows one scheduled check suite per night, and the only complete day on it (2026-10-18) added 55 runs, so 55/day is used (not a lower figure) from 209 on 2026-10-19. The R13 preflight table (preflight 16, 253-166) has request room for rate_limit, up to two rules pages, branch_protection, the workflow and 11 check_runs pages, but the effective ceiling is 10 pages because the verifier's MAX_CHECK_RUN_PAGES = 10 (ci-hosted-gate-verify.py:269) is the binding cap (the allocation's max_pages 12 is not). The 253-170 runner projects total_count for the current UTC date as 209 + 55 per started day since the sequence-21 date header and refuses before the clock and before any publication when the projection needs more than 10 pages",
+      "stop": "before the window: 'STOP: projected check_runs pages exceed the preflight budget' (253-R13-CANARY-OPERATOR.sh, written by 253-170; zero requests). Faster growth than projected stops inside the window after the publication spend: an eleventh page is charged (5 + 11 = 16, inside the table) and then refused with \"native check-run pages exceed the allocation's max_pages\" (check_run_page_set, ci-hosted-gate-verify.py:301); twelve or more pages stop on preflight with category_budget_exhausted ('category preflight allocation is exhausted', ci-hosted-transport.py:628) inside the driver's check-runs read (ci-gate-canary.sh:766)"
+    },
+    {
+      "id": "paginated-listing-two-page",
+      "row": "shape-run_jobs",
+      "first_window": "253-170",
+      "unobserved": "a real two-page jobs, artifacts or workflow-run listing (canary 253-170; PR families 253-171, attempt jobs included): every real listing so far is one page without a Link header, and the two-page /repositories/<id>/ links have only been modelled by fakes (the dry-run's jobs and artifacts links, the PR universe's two-page listings, the transport's 253-146 tests), all under the one transport rule; 253-167 review: the canary table's attempt_jobs category has zero slack (a full six-scenario r13 dry run spends attempt_jobs 7 of 7), so one real extra jobs page in any canary scenario exhausts it; the dry run's --paged-listings in a full run (not --stop-after full-pass) stops exactly there, while the scoped 253-165 form passes. With 35 jobs per run against per_page 100 a real second jobs page is not expected",
+      "stop": "the one transport rule in _next_page_url: 'pagination link changed its approved API route' (ci-hosted-transport.py:1041), 'pagination link has an unapproved or repeated query key' (ci-hosted-transport.py:1044) and 'pagination link did not advance exactly one page' (ci-hosted-transport.py:1047), each before a further request; in the canary window an extra jobs page beyond the zero-slack attempt_jobs 7 stops on the transport predebit with category_budget_exhausted ('category attempt_jobs allocation is exhausted', ci-hosted-transport.py:628) inside the driver's jobs read (ci-gate-canary.sh:919 or :983), after the publication spend"
+    }
+  ],
+  "offline_evidence_reused": {
+    "ref": "refs/gsd/phase253-168-local-execution",
+    "same_turn": true,
+    "product_source": "c17ae6a0b1dbcd4f53362407c1f1d1e1128da519",
+    "product_changed_since_offline_checks": false,
+    "reason": "Both gate modes and66-test audit passed this turn on this exact freeze. Subsequent changes are planning-only; avoid duplicate rehearsals with unchanged executable inputs."
+  },
+  "github_requests_so_far": 0,
+  "acceptance179_reruns": 0,
+  "remaining_requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "separate_later_decision": "Plan171 docs/PR actions are outside this canary approval"
+}

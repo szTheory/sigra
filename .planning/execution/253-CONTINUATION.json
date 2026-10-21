@@ -1,0 +1,45 @@
+{
+  "schema": "sigra.phase253.current-continuation/v1",
+  "status": "local_work_complete_awaiting_ci_decision",
+  "timestamp": "2026-10-21T17:31:38.486802+00:00",
+  "completed_local_plans": [
+    "253-168",
+    "253-169"
+  ],
+  "phase_counts": {
+    "plans": 183,
+    "implementation_complete": 79,
+    "halted": 28,
+    "without_summary": 76
+  },
+  "verification": {
+    "plan168_tasks": "passed",
+    "plan168_audit_tests": 66,
+    "plan169_task1_tests": 183,
+    "plan169_task2_tests": 183,
+    "plan169_task3": "passed",
+    "downstream_actual_receipt_command": "verified",
+    "downstream_mutation_tests": 3
+  },
+  "evidence_ref": "refs/gsd/phase253-local-continuation",
+  "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
+  "plan168_evidence_ref": "refs/gsd/phase253-168-local-execution",
+  "plan169_execution_record": ".planning/execution/253-169.json",
+  "phase_verification_status": "not_started",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "next_plan": "253-170",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+  "next_command_conditional": true,
+  "required_decision": ".planning/execution/253-CANARY-APPROVAL-REQUEST.json",
+  "reason_for_decision": "Earlier explicit user instruction prohibits CI;170 also requires the user to approve its exact frozen outward actions. No approval has been inferred.",
+  "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
+  "github_requests": 0,
+  "ci_launches": 0,
+  "acceptance179_reruns": 0,
+  "budgets_renewed": false,
+  "historical_outcomes_modified": false,
+  "prior_shared_state_commit": "a158f0d0d49c7ddd9867923b0eef34ba9fbe2e08"
+}
