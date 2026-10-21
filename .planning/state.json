@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -40,8 +40,8 @@
   ],
   "next": {
     "command": "$gsd-progress",
-    "label": "Inspect168 prerequisite before continuing",
-    "reason": "Plan180 local bridge checks passed and summary committed. Stop before168: its instructions still require completed174 although174 is halted. The deadline guard passes (4/10 pages); CI remains forbidden. Inspect current progress and resolve the contradictory prerequisite without replaying179 or adding another numbered plan."
+    "label": "Review remaining original CI requirements",
+    "reason": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress."
   },
   "updated_at": "2026-10-21T14:30:00.278571+00:00",
   "phase253_execution": {
@@ -1650,9 +1650,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-21T14:30:00.278571+00:00",
-  "stopped_at": "Plan180 local bridge complete;168 contradictory174 prerequisite;phase incomplete",
-  "state_head": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
+  "last_updated": "2026-10-21T14:55:41.145830+00:00",
+  "stopped_at": "Plan168 prerequisite correction verified locally; tasks unexecuted; phase incomplete",
+  "state_head": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -3060,5 +3060,25 @@
     "budgets_renewed": false,
     "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
+  },
+  "resume_file": ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json",
+  "phase253_plan168_prerequisite_correction": {
+    "status": "corrected_not_executed",
+    "summary": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
+    "checks": ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json",
+    "consumer": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py",
+    "next_command": "$gsd-progress",
+    "phase_verification_status": "not_started",
+    "acceptance_reruns": 0,
+    "ci_launches": 0,
+    "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
+  },
+  "current_routing": {
+    "next_command": "$gsd-progress",
+    "resume_command": "$gsd-progress",
+    "status": "local_prerequisite_correction_complete",
+    "reason": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
+    "phase_verification_status": "not_started",
+    "evidence": ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json"
   }
 }
