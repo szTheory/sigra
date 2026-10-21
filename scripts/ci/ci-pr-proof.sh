@@ -475,7 +475,10 @@ class Collector:
         status, data = self.call(*args, **kwargs)
         if status is not None and status not in expect:
             raise Stop(f"{args[1]} returned HTTP {status}; expected {list(expect)}")
-        return status, (json.loads(data) if data else None)
+        try:
+            return status, (json.loads(data) if data else None)
+        except (ValueError, UnicodeDecodeError) as error:
+            raise Stop(f"{args[1]} returned malformed JSON ({type(error).__name__}); charged response remains in the ledger") from error
 
     def preflight(self):
         if any(tx.get("family") == "shared" for tx in self.ledger()["transactions"]):

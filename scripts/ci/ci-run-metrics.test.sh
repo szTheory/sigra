@@ -43,13 +43,25 @@ SCRIPT="${SCRIPT_DIR}/ci-run-metrics.sh"
 
 diagnosis_contract() {
   python3 - "$SCRIPT" <<'PY'
-import hashlib, json, pathlib, subprocess, sys, tempfile, unittest
+import hashlib, json, pathlib, subprocess, sys, tarfile, tempfile, unittest
 
 script = pathlib.Path(sys.argv[1])
 root = script.parents[2]
-phase = root / '.planning/phases/252-measure-current-ci'
+phase = root / 'test/fixtures/ci-metrics/archived-diagnosis'
 
 class DiagnosisContract(unittest.TestCase):
+    def test_fixture_members_keep_their_original_hashes_and_cannot_claim_acceptance(self):
+        provenance = json.loads((phase / 'provenance.json').read_text())
+        self.assertTrue(provenance['fixture_only'])
+        self.assertTrue(json.loads((phase / 'baseline.json').read_text())['fixture_only'])
+        with tarfile.open(phase / 'source.tar.gz') as archive:
+            manifest = json.load(archive.extractfile('manifest.json'))
+            self.assertTrue(manifest['fixture_only'])
+            self.assertEqual(manifest['status'], 'test_fixture_only')
+            actual = {member.name: hashlib.sha256(archive.extractfile(member).read()).hexdigest()
+                      for member in archive.getmembers() if member.isfile() and member.name != 'manifest.json'}
+        self.assertEqual(actual, provenance['retained_original_members'])
+
     def test_late_failure_context_and_incomplete_inputs(self):
         sys.path.insert(0, str(script.parent))
         import ci_metrics_security as security
@@ -71,10 +83,10 @@ class DiagnosisContract(unittest.TestCase):
     def test_changed_archive_fails_closed_with_saved_diagnostic(self):
         with tempfile.TemporaryDirectory() as directory:
             archive = pathlib.Path(directory) / 'changed.tar.gz'
-            archive.write_bytes((phase / '252-CI-SOURCE-BUNDLE.tar.gz').read_bytes() + b'changed')
+            archive.write_bytes((phase / 'source.tar.gz').read_bytes() + b'changed')
             output = pathlib.Path(directory) / 'diagnosis.json'
             result = subprocess.run(['bash', str(script), '--diagnose-v1', '--source-bundle',
-                str(archive), '--baseline', str(phase / '252-BASELINE.json'), '--output', str(output)], capture_output=True, text=True)
+                str(archive), '--baseline', str(phase / 'baseline.json'), '--output', str(output)], capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('source_bundle_hash_mismatch', json.loads(output.read_text())['source_errors'])
 
@@ -82,12 +94,12 @@ class DiagnosisContract(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = pathlib.Path(directory) / 'diagnosis.json'
             result = subprocess.run(['bash', str(script), '--diagnose-v1', '--source-bundle',
-                str(phase / '252-CI-SOURCE-BUNDLE.tar.gz'), '--baseline',
-                str(phase / '252-BASELINE.json'), '--output', str(output)], capture_output=True, text=True)
+                str(phase / 'source.tar.gz'), '--baseline',
+                str(phase / 'baseline.json'), '--output', str(output)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, 'saved-family diagnosis must succeed: ' + result.stderr)
             data = json.loads(output.read_text())
             self.assertEqual(data['schema_version'], 'sigra.ci-diagnosis/v1')
-            self.assertEqual(data['source_bundle_sha256'], hashlib.sha256((phase / '252-CI-SOURCE-BUNDLE.tar.gz').read_bytes()).hexdigest())
+            self.assertEqual(data['source_bundle_sha256'], hashlib.sha256((phase / 'source.tar.gz').read_bytes()).hexdigest())
             for run in ('38314896976', '38316396580'):
                 records = [r for r in data['records'] if r['run_id'] == run]
                 selected = [r for r in records if r['step_name'] == 'CI run metrics self-test']

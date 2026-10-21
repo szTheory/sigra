@@ -30,13 +30,22 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     shard = job_body(workflow, "example_playwright_shard")
     admin_behavior = run_block(shard, "Run admin behavior browser truth")
 
-    for spec <- ["admin-theme.spec.ts", "admin-coherence-sweep.spec.ts"] do
-      assert occurrences(admin_behavior, "tests/#{spec}") == 1,
-             "admin_behavior must name tests/#{spec} exactly once"
+    # Selection is recorded separately from execution. Each command must own
+    # the same specs and flags; counting the entire step conflates the two.
+    [selection, execution] = String.split(admin_behavior, "npx playwright test") |> tl()
+    assert selection =~ "--list --reporter=json"
+    refute execution =~ "--list"
+
+    for command <- [selection, execution] do
+      for spec <- ["admin-theme.spec.ts", "admin-coherence-sweep.spec.ts"] do
+        assert occurrences(command, "tests/#{spec}") == 1,
+               "each admin_behavior command must name tests/#{spec} exactly once"
+      end
+
+      assert command =~ "--project=chromium"
+      assert command =~ "--retries=0"
     end
 
-    assert admin_behavior =~ "--project=chromium"
-    assert admin_behavior =~ "--retries=0"
     assert shard =~ "uses: ./.github/actions/example-playwright-boot"
     assert shard =~ "seam: admin_behavior"
     assert config =~ "admin-theme"

@@ -244,8 +244,26 @@ def scrub_receipt(headers, body: bytes, secrets: list[str], raw_headers: list[tu
         elif key in SAFE_HEADERS:
             safe[key] = _scrub_text(value, secrets)
 
-    text = body.decode("utf-8", errors="replace")
-    scrubbed = _scrub_text(text, secrets).encode("utf-8")
+    # Redact decoded values, never JSON syntax: a patch can contain escaped
+    # quotes after a URL, and a text regex can otherwise eat the escape byte.
+    try:
+        value = json.loads(body)
+    except (ValueError, UnicodeDecodeError):
+        scrubbed = _scrub_text(body.decode("utf-8", errors="replace"), secrets).encode("utf-8")
+    else:
+        sensitive = re.compile(r"^(access_token|token|secret|password|client_secret|authorization|cookie|set-cookie)$", re.I)
+
+        def scrub_value(node):
+            if isinstance(node, dict):
+                return {_scrub_text(key, secrets): "[REDACTED]" if sensitive.fullmatch(key) else scrub_value(item)
+                        for key, item in node.items()}
+            if isinstance(node, list):
+                return [scrub_value(item) for item in node]
+            if isinstance(node, str):
+                return _scrub_text(node, secrets)
+            return node
+
+        scrubbed = json.dumps(scrub_value(value), ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     return safe, scrubbed
 
 

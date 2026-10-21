@@ -385,6 +385,40 @@ class PublicationTests(unittest.TestCase):
         spec.loader.exec_module(transport)
         return transport
 
+    def test_candidate_carries_exact_reviewed_inputs_and_rejects_changed_bytes(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("publication_inputs", PUBLISHER)
+        publisher = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(publisher)
+        with tempfile.TemporaryDirectory() as temp:
+            repo = pathlib.Path(temp) / "repo"
+            parent, _ = git_fixture(repo)
+            selected = ".planning/archived/required.txt"
+            excluded = ".planning/private-runtime.txt"
+            for rel in (selected, excluded):
+                (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+                (repo / rel).write_text("original bytes\n")
+            manifest = repo / "scripts/ci/ci-candidate-inputs.json"
+            manifest.parent.mkdir(parents=True)
+            value = {"schema_version": "sigra.ci-candidate-inputs/v1",
+                     "inputs": {selected: hashlib.sha256((repo / selected).read_bytes()).hexdigest()}}
+            manifest.write_text(json.dumps(value))
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-qm", "immutable inputs"], check=True)
+            source = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+            fixture = repo / ".planning/canary.yml"
+            fixture.write_text("name: canary\n")
+            result = publisher.source_variants(repo, source, parent, fixture_file=".planning/canary.yml")
+            candidate = publisher.tree_entries(repo, result["candidate_helper_commit"])
+            self.assertEqual(candidate[selected], publisher.tree_entries(repo, source)[selected])
+            self.assertNotIn(excluded, candidate)
+            (repo / selected).write_text("changed bytes\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-qm", "tampered input"], check=True)
+            source = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+            with self.assertRaisesRegex(publisher.PublicationError, "immutable input hash differs"):
+                publisher.source_variants(repo, source, parent, fixture_file=".planning/canary.yml")
+
     def test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit(self):
         with tempfile.TemporaryDirectory(prefix="sigra-publication-proposal-") as temp:
             temp_path = pathlib.Path(temp)

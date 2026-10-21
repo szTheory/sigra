@@ -114,22 +114,27 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await expect(page.getByText('Impersonation').first()).toBeVisible();
     await expect(page.getByText('acting as').first()).toBeVisible();
 
-    // Repeating the same submit must preserve the connected URL and rendered
-    // rows. This exercises the second push_patch transition, not just the
-    // source-level query construction.
+    // The first submit adds the canonical sort/page defaults. Repeating that
+    // submit must then preserve both its canonical URL and rendered rows.
+    await page.getByRole('textbox', { name: 'Action prefix' }).fill('admin.impersonation');
+    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await expect(page).toHaveURL((url) =>
+      url.pathname === '/admin/audit' &&
+      url.searchParams.get('action_prefix') === 'admin.impersonation' &&
+      url.searchParams.get('order_by') === 'inserted_at' &&
+      url.searchParams.get('order_direction') === 'desc' &&
+      url.searchParams.get('page_size') === '25',
+    );
+    await waitForLiveViewReady(page);
     const connectedAuditUrl = page.url();
     const connectedRows = await page
       .locator('#admin-audit-desktop-results tbody tr')
       .allInnerTexts();
-    await page
-      .getByRole('textbox', { name: 'Action prefix' })
-      .fill('admin.impersonation');
     await page.getByRole('button', { name: 'Apply filters' }).click();
+    await expect(page.locator('form.phx-submit-loading')).toHaveCount(0);
     await waitForLiveViewReady(page);
     await expect(page).toHaveURL(connectedAuditUrl);
-    expect(
-      await page.locator('#admin-audit-desktop-results tbody tr').allInnerTexts(),
-    ).toEqual(connectedRows);
+    await expect(page.locator('#admin-audit-desktop-results tbody tr')).toHaveText(connectedRows, { useInnerText: true });
 
     // JavaScript disabled gives a deterministic pre-connect path: the
     // disconnected server-rendered form must submit through its native GET

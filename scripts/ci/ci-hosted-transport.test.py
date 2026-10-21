@@ -69,6 +69,36 @@ class JournalHandler(http.server.BaseHTTPRequestHandler):
         pass
 
 
+class JsonReceiptTests(unittest.TestCase):
+    def setUp(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("transport_json", TRANSPORT_SOURCE)
+        self.transport = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.transport)
+
+    def test_escaped_compare_patch_stays_json_and_removes_secrets(self):
+        patch = '+ <a href="https://example.invalid/x?private=query-value">Δ</a>\n'
+        raw = json.dumps({"files": [{"patch": patch}], "token": "hidden-field", "n": 2, "ok": True}).encode()
+        _, scrubbed = self.transport.scrub_receipt([], raw, [], [])
+        result = json.loads(scrubbed)
+        self.assertEqual(result["files"][0]["patch"], patch.replace("private=query-value", "[REDACTED]"))
+        self.assertEqual(result["token"], "[REDACTED]")
+        self.assertEqual(result["n"], 2)
+        self.assertIs(result["ok"], True)
+        self.assertNotIn(b"hidden-field", scrubbed)
+
+    def test_nested_credentials_known_secrets_and_header_checks(self):
+        raw = json.dumps({"nested": [{"Authorization": "Bearer credential", "cookie": "session=hidden",
+                                     "text": "known-private-value"}], "nil": None, "known-private-value": "key also redacted"}).encode()
+        _, body = self.transport.scrub_receipt([], raw, ["known-private-value"], [])
+        self.assertEqual(json.loads(body), {"nested": [{"Authorization": "[REDACTED]", "cookie": "[REDACTED]",
+                                                     "text": "[REDACTED]"}], "nil": None, "[REDACTED]": "key also redacted"})
+        with self.assertRaises(self.transport.TransportError):
+            self.transport.scrub_receipt([("Location", "https://example.invalid/x#fragment")], raw, [], [])
+        with self.assertRaises(self.transport.TransportError):
+            self.transport.scrub_receipt([], raw, [], [("Content-Type", "a"), ("Content-Type", "b")])
+
+
 class HostedTransportWireTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="sigra-253-transport-")

@@ -269,6 +269,37 @@ def check_workflow_path(workflow_path: str) -> str:
     return workflow_path
 
 
+def candidate_inputs(repo: Path, source_files: dict) -> dict:
+    """Copy only reviewed immutable CI inputs from the source planning tree."""
+    manifest_path = "scripts/ci/ci-candidate-inputs.json"
+    consumers = ("test/sigra/planning/phase_242_shift_left_contract_test.exs",
+                 "test/sigra/planning/phase_236_evidence_provenance_guard_test.exs",
+                 "scripts/ci/ci-run-metrics.test.sh")
+    if manifest_path not in source_files:
+        if any(path in source_files for path in consumers):
+            raise PublicationError("candidate immutable input manifest is missing")
+        return {}  # Minimal hermetic repositories have no historical consumers.
+    try:
+        manifest = json.loads(git(repo, "cat-file", "blob", source_files[manifest_path]["sha"]))
+        inputs = manifest["inputs"]
+        if manifest["schema_version"] != "sigra.ci-candidate-inputs/v1" or not isinstance(inputs, dict) or not inputs:
+            raise ValueError("unsupported or empty input manifest")
+        result = {}
+        for path, digest in inputs.items():
+            if not path.startswith(".planning/") or any(part in ("", ".", "..") for part in path.split("/")):
+                raise ValueError("input path is outside the planning tree")
+            entry = source_files[path]
+            if entry["type"] != "blob" or entry["mode"] not in ("100644", "100755"):
+                raise ValueError("input must be a regular file")
+            raw = git(repo, "cat-file", "blob", entry["sha"])
+            if hashlib.sha256(raw).hexdigest() != digest:
+                raise ValueError(f"immutable input hash differs: {path}")
+            result[path] = entry
+        return result
+    except (KeyError, TypeError, ValueError) as error:
+        raise PublicationError(f"candidate immutable inputs invalid: {error}") from error
+
+
 def source_variants(repo: Path, source: str, parent: str, frozen_date: str | None = None,
                     fixture_file: str | None = None, workflow_path: str | None = None,
                     allow_planning_descendant: bool = False) -> dict:
@@ -290,6 +321,8 @@ def source_variants(repo: Path, source: str, parent: str, frozen_date: str | Non
     source_files, parent_files = tree_entries(repo, source), tree_entries(repo, parent)
     merged = {path: entry for path, entry in source_files.items() if not path.startswith(".planning/")}
     merged.update({path: entry for path, entry in parent_files.items() if path.startswith(".planning/")})
+    immutable_inputs = candidate_inputs(repo, source_files)
+    merged.update(immutable_inputs)
     candidate_tree = commit_tree(repo, merged)
     now = frozen_date or datetime.now(timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
     candidate_message = "Phase 253 frozen CI candidate\n"
@@ -361,6 +394,7 @@ def source_variants(repo: Path, source: str, parent: str, frozen_date: str | Non
                                 "committer": "Sigra Publication Bot", "date_utc_second": now,
                                 "message_newline_terminated": True, "unsigned": True},
             "product_tree_parity": parity, "source_cleanliness": cleanliness,
+            "immutable_candidate_inputs": immutable_inputs,
             "candidate_tree_sha": candidate_tree,
             "tree_requests": [{key: item[key] for key in ("name", "variant", "sequence", "base_tree_sha", "tree_sha", "body_bytes", "binary_blobs", "changed_entries")}
                               for item in tree_requests],

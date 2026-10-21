@@ -198,6 +198,8 @@ class PRHandler(pubtest.ObjectServer):
                 view.update(mergeable=True, mergeable_state="clean")
             return self._reply(200, view)
         if route.startswith(base + "/compare/"):
+            if self.server.flags.get("malformed_compare_json"):
+                return self._emit(200, b'{"files": [')
             low, high = route.removeprefix(base + "/compare/").split("...")
             # 253-139: three-dot, as GitHub compares (from the merge base), so a base that moved past the head's parent
             # still lists only the head's own changes. Identical to the two-tree diff when low is an ancestor of high.
@@ -2063,6 +2065,18 @@ class CollectorFaultTests(unittest.TestCase):
         world = World(self, flags=flags, tag="fault")
         process, evidence = world.collect(family, "fault.json", check=False)
         return world, process, json.loads(evidence.read_text())
+
+    def test_malformed_compare_json_saves_current_charged_partial_evidence(self):
+        world, process, evidence = self.collected({"malformed_compare_json": True})
+        self.assertEqual(process.returncode, 1)
+        self.assertIn("compare returned malformed JSON", evidence["collection"]["stop"])
+        self.assertFalse(evidence["collection"]["complete"])
+        ledger = json.loads(world.ledger.read_text())
+        self.assertEqual(evidence["transport_ledger"], ledger)
+        self.assertGreater(len(ledger["transactions"]), 0)
+        self.assertEqual(ledger["transactions"][-1]["route_id"], "compare")
+        self.assertEqual(len(world.server.journal), len(ledger["transactions"]))
+        self.assertNotIn("no request has completed yet", " ".join(evidence["collection"]["notes"]))
 
     def test_refused_pr_creation_preserves_the_charged_failure_and_is_never_accepted(self):
         world, process, evidence = self.collected({"refuse_pr_create": True})
