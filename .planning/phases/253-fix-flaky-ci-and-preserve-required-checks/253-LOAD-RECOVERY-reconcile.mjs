@@ -2117,6 +2117,7 @@ function buildContractR12({ repoRoot = REPO_ROOT } = {}) {
 }
 
 // R13 is additive. Earlier builders and their frozen contracts retain their behavior.
+export const SDK_PINS_R13 = Object.freeze({"packageName":"@opengsd/gsd-core","version":"1.18.0","files":[{"path":"bin/gsd-tools.cjs","sha256":"e9320c26f7052b888bd020a6148d7fc167b24f2ca3b6132c832bf320fd9fe2cb"},{"path":"bin/lib/plan-scan.cjs","sha256":"11731a44cf7b1f3d8a7e0fa469425b3b4317598cf9118a97f976243a96f61d8e"},{"path":"bin/lib/plan-dependency-graph.cjs","sha256":"d0b053bdbe4fad0010b4adb95e2f55af786cb7c1bf3da036ed6302db5f7e5cbc"},{"path":"bin/lib/phase.cjs","sha256":"393c6d06fb5bee62148e9488d8f566439fa723c6b6a6f34c3dad9d1586bfac74"},{"path":"bin/lib/phase-locator.cjs","sha256":"ba9c2ec24dbd5aaab115ce3406224ad75640b0093ab2e484ec2272892fbcf77f"},{"path":"bin/lib/init.cjs","sha256":"7c4e31d31d0bacee4df638bfe00fd841a3bad304c9f2dfa2b79630e24545a97d"},{"path":"workflows/execute-phase.md","sha256":"93728abeaf3b26b741705b04bbc411020731edf757f3b9d6a0d92787da96115e"}]});
 export const CONTRACT_NAME_R13 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R13.json";
 export const CONTRACT_SCHEMA_R13 = "sigra.phase253.load-recovery-reconciliation-contract/r13";
 export const COMPLETED_IDS_R13 = Object.freeze([...COMPLETED_IDS_R12, ...ids(136,142), ...ids(164,166)].sort(comparePlanIds));
@@ -2215,7 +2216,7 @@ function buildContractR13({repoRoot=REPO_ROOT}={}) {
     if(sha256(readFileSync(join(repoRoot,path)))!==expected)throw new Error(`historical recovery input differs: ${path}`);
   }
   const summaryIds=[...new Set([...previous.summary_pins.map((pin)=>pin.plan.slice(4)),...ids(142,143),"146","155",...ids(164,168),...ids(173,175),"178","179","180",...ids(181,183)])].sort(comparePlanIds);
-  return {...previous,schema:CONTRACT_SCHEMA_R13,revision:"r13",r12_contract:{path:`${PHASE_DIR_REL}/${CONTRACT_NAME_R12}`,sha256:pinFile(repoRoot,`${PHASE_DIR_REL}/${CONTRACT_NAME_R12}`,"R12 contract")},
+  return {...previous,schema:CONTRACT_SCHEMA_R13,revision:"r13",sdk:SDK_PINS_R13,r12_contract:{path:`${PHASE_DIR_REL}/${CONTRACT_NAME_R12}`,sha256:pinFile(repoRoot,`${PHASE_DIR_REL}/${CONTRACT_NAME_R12}`,"R12 contract")},
     originals,completed_plans:completed.sort((a,b)=>comparePlanIds(a.plan,b.plan)),halted_plans:halted.sort((a,b)=>comparePlanIds(a.plan,b.plan)),responsibilities,halted_proof_map:haltedProof,
     successor_completed_plans:successorCompleted,recovery_proof:{receipt:{path:receiptPath,sha256:sha256(receiptBytes)},permission_preflight:receipt.permission_preflight,regression_log:receipt.regression_log,review:receipt.review,hosted_completion_links:false,attempt_count:1},
     historical_receipt_origins:historicalPins,delivered_historical_commits:{"253-146":["ee7c53765","b3a201c64","5a23a264a","7b653d6ad"],"253-155":["42516baf4","fe0730aa5","e38c74aac","89b8c8618"]},
@@ -2491,7 +2492,7 @@ export function applyBundle({ root = REPO_ROOT, contract, contractSha256, bundle
 // Real-SDK index check after application
 // ---------------------------------------------------------------------------------------------
 export function checkIndex({ root = REPO_ROOT, contract, phase = PHASE }) {
-  const pins = verifySdkPins();
+  const pins = verifySdkPins(contract.sdk ?? SDK_PINS);
   const index = sdkQuery(root, ["phase-plan-index", String(phase)]);
   const init = sdkQuery(root, ["init.execute-phase", String(phase)]);
   const verification = sdkQuery(root, ["verification", "status", init.phase_dir]);
