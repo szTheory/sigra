@@ -153,16 +153,17 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed.",
-    "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json",
+    "reason": "Plan 170 completed on actual GitHub CI: six expected outcomes and the independent verifier passed, within 85/117 requests,37/45 jobs,832/3600 seconds. Plans168/169 remain complete. 183plans:80 implementation complete,28 historical halts,75 without summaries. Plan171 is next, requiring separate approval for one main fetch, docs publication and two draft PRs; no progress command or numbered repair plan is needed. Whole-phase verification remains not_started and both requirements remain open.",
     "whole_phase_verification_status": "not_started",
-    "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
-    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
+    "execution_record": ".planning/execution/253-170.json",
+    "latest_execution_record": ".planning/execution/253-170.json",
     "latest_maintenance_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-RESULT.json",
     "recovery_reset": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
     "execution_addendum": ".planning/execution/253-CONTINUATION.json",
     "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json",
-    "next_command_conditional": true
+    "next_command_conditional": true,
+    "historical_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
+    "historical_planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -4862,5 +4863,6 @@
     "approval_received": false,
     "section": "docs_and_prs"
   },
-  "phase253_canary170_execution": ".planning/execution/253-170.json"
+  "phase253_canary170_execution": ".planning/execution/253-170.json",
+  "current_route_prior_commit": "2d81bb30394272a449a63bf53e19ff797b27b5f3"
 }

@@ -142,7 +142,6 @@ phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
 phase253_ready_plans:
-  - 253-170-PLAN.md
   - 253-171-PLAN.md
   - 253-172-PLAN.md
 phase253_load_recovery_plan_count: 12
@@ -151,7 +150,7 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-last_activity_desc: Completed168/169 and actual downstream receipt check;CI approval required
+last_activity_desc: Actual hosted170 complete; separate draft PR approval needed for171
 ---
 
 # Project State
@@ -165,13 +164,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Local Plans168 and169 are complete: both R13 offline gates and66-test audit passed;169 full verification passed183/183 twice and its final contract check passed. Actual172 receipt handoff and3 mutation tests pass. 183plans:79implementation complete,28halted,76without summaries. The next existing plan170 needs Jon to approve its prepared CI actions; the prior no-CI restriction remains in force. Both CI requirements and whole-phase verification remain open. No status command or new repair plan is needed.
+Plan 170 completed on actual GitHub CI: six expected outcomes and the independent verifier passed, within 85/117 requests,37/45 jobs,832/3600 seconds. Plans168/169 remain complete. 183plans:80 implementation complete,28 historical halts,75 without summaries. Plan171 is next, requiring separate approval for one main fetch, docs publication and two draft PRs; no progress command or numbered repair plan is needed. Whole-phase verification remains not_started and both requirements remain open.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only --wave 6
+$gsd-execute-phase 253 --gaps-only --wave 7
 
-Conditional on Jon approving the exact actions in `.planning/execution/253-CANARY-APPROVAL-REQUEST.json`. The agent continues directly after that reply; no progress command is needed. Earlier status sections are retained historical snapshots, not current routing.
+Conditional on Jon approving `.planning/execution/253-PR-APPROVAL-REQUEST.json`: one main fetch, docs publication and two draft PRs. The canary approval was received and Plan170 completed. Continue directly after the separate PR decision; no progress command is needed. Earlier sections are historical.
 
 ## Known unfinished work
 
