@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 trigger: "Phase 253: fix the five PR338 defects offline; preserve historical evidence and budgets; no CI"
 ---
 
@@ -12,7 +12,7 @@ Errors and reproduction: see ../execution/253-171-diagnosis/diagnosis.json and i
 ## Current Focus
 
 hypothesis: five independent local defects explain the observed failures.
-next_action: repair the five defects together, then test the assembled candidate offline.
+next_action: prepare a source-specific hosted-proof proposal; do not launch CI.
 
 ## Evidence
 
@@ -22,4 +22,4 @@ next_action: repair the five defects together, then test the assembled candidate
 
 ## Resolution
 
-Pending local implementation and verification. Plan171 remains halted and phase verification remains incomplete.
+Five fixes implemented at 16800f4319cdd0e2554938071d4ebc48caa969ac. All scoped local checks passed; see ../execution/253-pr338-repair/repair.json for exact output, candidate parity, limits and the unrelated precommit warning. Plan171 remains halted and phase verification remains incomplete.

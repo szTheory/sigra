@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: PR171 halted; five concrete offline repairs identified
-last_updated: "2026-10-21T18:34:16.502682+00:00"
-state_head: 3e184fc1c862654e24e5c04ac04dd1701eda3591
+stopped_at: PR338 offline repair verified; hosted proof proposal next
+last_updated: "2026-10-21T18:58:46.994484+00:00"
+state_head: 16800f4319cdd0e2554938071d4ebc48caa969ac
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: "2026-10-21T18:34:16.502682+00:00 - Actual PR failure diagnosed; no rerun"
+last_activity: "2026-10-21T18:58:46.994484+00:00 - Five PR338 defects repaired and verified offline; no CI"
 milestone_status: active
-workflow_step: debug
+workflow_step: offline_repair_complete
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI"
-resume_command: $gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI"
+next_command: $gsd-quick "Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI"
+resume_command: $gsd-quick "Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -162,13 +162,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan171 halted after19/120 requests: PR338 run39651372938 failed, then raw-text redaction corrupted the comparison JSON. Five concrete defects are documented from saved failure logs and an offline reproduction. Canary170 remains complete. No docs PR was created, no rerun or budget renewal occurred.183 plans:80 implementation complete,29 halted,74 without summaries.172 is blocked by171. Continue one bounded offline repair directly, without progress or a numbered plan. Whole-phase verification remains not_started.
+All five PR338 defects are repaired and verified offline at 16800f431. The assembled candidate passes library, metrics and docs checks; the local audit browser passes with zero retries. No CI launch, GitHub request, acceptance replay or budget renewal occurred. Plan171 remains halted at19/120 requests; Plan172 is blocked. Phase253 still has80 completed plans,29 historical halts and74 without summaries; whole-phase verification remains not_started. Prepare a source-specific hosted-proof proposal next; no progress loop or old runner replay.
 
 ## Next GSD command
 
-$gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI"
+$gsd-quick "Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI"
 
-Use the saved diagnosis and offline candidate directly. Do not rerun171,179, the completed canary or CI. Plan172 and phase verification remain blocked by failed and missing PR proof. Earlier sections are historical.
+Use `.planning/execution/253-pr338-repair/repair.json` and the committed repaired source directly. Do not rerun171,179, the completed canary or CI. Plan172 and phase verification remain blocked by failed and missing PR proof. Earlier sections are historical.
 
 ## Known unfinished work
 
@@ -215,7 +215,7 @@ Use the saved diagnosis and offline candidate directly. Do not rerun171,179, the
 
 ## Session
 
-Current route: $gsd-debug "Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI". Evidence: `.planning/execution/253-171.json` and `.planning/execution/253-171-diagnosis/diagnosis.json`. Prior shared bytes read back exactly from 3e184fc1c862654e24e5c04ac04dd1701eda3591.
+Current route: $gsd-quick "Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI". Evidence: `.planning/execution/253-pr338-repair/repair.json`. Prior shared bytes read back exactly from 16800f4319cdd0e2554938071d4ebc48caa969ac.
 
 ## Deferred Items
 
@@ -397,3 +397,9 @@ Next: `$gsd-execute-phase 253 --gaps-only --wave 7`, conditional on the separate
 Plan171 halted after19/120 requests: PR338 run39651372938 failed, then raw-text redaction corrupted the comparison JSON. Five concrete defects are documented from saved failure logs and an offline reproduction. Canary170 remains complete. No docs PR was created, no rerun or budget renewal occurred.183 plans:80 implementation complete,29 halted,74 without summaries.172 is blocked by171. Continue one bounded offline repair directly, without progress or a numbered plan. Whole-phase verification remains not_started.
 
 The five read-only connector calls after the halt are diagnostic reads, not measured acceptance requests or a renewed window. Saved excerpts identify missing published evidence dependencies, stale browser branch-count assertions, generated docs drift, a canonical audit URL mismatch, and JSON redaction corruption. The isolated redaction candidate passed four tests; production source remains frozen. Apply these repairs together before requesting any new hosted verification. No new numbered phase plan was created.
+
+## PR338 offline repair verified
+
+All five PR338 defects are repaired and verified offline at 16800f431. The assembled candidate passes library, metrics and docs checks; the local audit browser passes with zero retries. No CI launch, GitHub request, acceptance replay or budget renewal occurred. Plan171 remains halted at19/120 requests; Plan172 is blocked. Phase253 still has80 completed plans,29 historical halts and74 without summaries; whole-phase verification remains not_started. Prepare a source-specific hosted-proof proposal next; no progress loop or old runner replay.
+
+Record: `.planning/execution/253-pr338-repair/repair.json`. Prior shared bytes are recoverable from `16800f4319cdd0e2554938071d4ebc48caa969ac`, with exact read-back identities in the repair record. The detailed earlier diagnoses below remain historical.

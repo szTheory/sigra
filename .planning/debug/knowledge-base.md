@@ -59,3 +59,12 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Recurrence guard:** ci-registration-recovery.test.mjs: "a wall-clock jump past the deadline (host sleep)…", "both clocks jumping across a sleep…", "a group that dies slowly after SIGKILL still receives exactly one SIGKILL", "a host sleep inside the browser command halts the slot…". First diagnostic step for any "hung for N minutes" on a laptop: `pmset -g log | grep -E "Sleep|DarkWake"` around the run.
 
 ---
+
+## pr338-offline-repair — test the assembled candidate before hosted approval
+
+- A clean source checkout can pass while its published tree drops test inputs. Keep a precise immutable-input manifest, reject changed bytes, and run the real library, metrics and generated-doc checks against the assembled tree before asking for hosted approval.
+- Keep bulky historical records intact; use explicitly labeled, hash-bound reduced fixtures for CI regression tests when original evidence cannot fit unchanged upload limits. A fixture is never acceptance evidence.
+- Parse JSON before redacting values. Catch decoding errors and save the current charged ledger; an initial empty placeholder must never be the only collector record after requests complete.
+- Read both Playwright commands: selection (--list) and execution each own the same specs. Normalize the first form submit to canonical URL parameters before testing repeat stability.
+- Fix all known deterministic failures as one bounded offline task. Do not create another numbered plan for each local error, revive closed windows, or route the user through repeated progress scans.
+- Concrete proof and retained limitations: execution/253-pr338-repair/repair.json. Original Plan171 halt, Plan179/180 records and all old budgets are unchanged.

@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T18:34:16.502682+00:00",
+  "timestamp": "2026-10-21T18:58:46.994484+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Plan171 halted after19/120 requests: PR338 run39651372938 failed, then raw-text redaction corrupted the comparison JSON. Five concrete defects are documented from saved failure logs and an offline reproduction. Canary170 remains complete. No docs PR was created, no rerun or budget renewal occurred.183 plans:80 implementation complete,29 halted,74 without summaries.172 is blocked by171. Continue one bounded offline repair directly, without progress or a numbered plan. Whole-phase verification remains not_started.",
-  "next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
-  "resume_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
-  "next_action": "Apply the five diagnosed offline repairs as one scoped task; no CI or new numbered plan.",
+  "current": "All five PR338 defects are repaired and verified offline at 16800f431. The assembled candidate passes library, metrics and docs checks; the local audit browser passes with zero retries. No CI launch, GitHub request, acceptance replay or budget renewal occurred. Plan171 remains halted at19/120 requests; Plan172 is blocked. Phase253 still has80 completed plans,29 historical halts and74 without summaries; whole-phase verification remains not_started. Prepare a source-specific hosted-proof proposal next; no progress loop or old runner replay.",
+  "next_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
+  "resume_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
+  "next_action": "Prepare hosted proof of the repaired source for approval; do not launch CI.",
   "route": {
-    "next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
-    "resume_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
+    "next_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
+    "resume_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
     "conditional": false,
-    "status": "actual_pr_failure_offline_repair_needed",
-    "reason": "Plan171 halted after19/120 requests: PR338 run39651372938 failed, then raw-text redaction corrupted the comparison JSON. Five concrete defects are documented from saved failure logs and an offline reproduction. Canary170 remains complete. No docs PR was created, no rerun or budget renewal occurred.183 plans:80 implementation complete,29 halted,74 without summaries.172 is blocked by171. Continue one bounded offline repair directly, without progress or a numbered plan. Whole-phase verification remains not_started.",
+    "status": "offline_repair_verified_hosted_proposal_next",
+    "reason": "All five PR338 defects are repaired and verified offline at 16800f431. The assembled candidate passes library, metrics and docs checks; the local audit browser passes with zero retries. No CI launch, GitHub request, acceptance replay or budget renewal occurred. Plan171 remains halted at19/120 requests; Plan172 is blocked. Phase253 still has80 completed plans,29 historical halts and74 without summaries; whole-phase verification remains not_started. Prepare a source-specific hosted-proof proposal next; no progress loop or old runner replay.",
     "readiness": {
       "plan_count": 183,
       "completed_implementation_count": 80,
@@ -27,7 +27,7 @@
       ],
       "source": "execution/253-171-diagnosis/sdk-index.json"
     },
-    "evidence": ".planning/execution/253-171.json",
+    "evidence": ".planning/execution/253-pr338-repair/repair.json",
     "diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
     "phase_verification_status": "not_started"
   },
@@ -3662,11 +3662,11 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
-    "resume_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
+    "next_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
+    "resume_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
     "conditional": false,
-    "status": "actual_pr_failure_offline_repair_needed",
-    "reason": "Plan171 halted after19/120 requests: PR338 run39651372938 failed, then raw-text redaction corrupted the comparison JSON. Five concrete defects are documented from saved failure logs and an offline reproduction. Canary170 remains complete. No docs PR was created, no rerun or budget renewal occurred.183 plans:80 implementation complete,29 halted,74 without summaries.172 is blocked by171. Continue one bounded offline repair directly, without progress or a numbered plan. Whole-phase verification remains not_started.",
+    "status": "offline_repair_verified_hosted_proposal_next",
+    "reason": "All five PR338 defects are repaired and verified offline at 16800f431. The assembled candidate passes library, metrics and docs checks; the local audit browser passes with zero retries. No CI launch, GitHub request, acceptance replay or budget renewal occurred. Plan171 remains halted at19/120 requests; Plan172 is blocked. Phase253 still has80 completed plans,29 historical halts and74 without summaries; whole-phase verification remains not_started. Prepare a source-specific hosted-proof proposal next; no progress loop or old runner replay.",
     "readiness": {
       "plan_count": 183,
       "completed_implementation_count": 80,
@@ -3679,11 +3679,11 @@
       ],
       "source": "execution/253-171-diagnosis/sdk-index.json"
     },
-    "evidence": ".planning/execution/253-171.json",
+    "evidence": ".planning/execution/253-pr338-repair/repair.json",
     "diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
     "phase_verification_status": "not_started"
   },
-  "last_updated": "2026-10-21T18:34:16.502682+00:00",
+  "last_updated": "2026-10-21T18:58:46.994484+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4259,7 +4259,7 @@
   },
   "phase253_ready_plans": [],
   "phase253_verification_status": "not_started",
-  "workflow_step": "debug",
+  "workflow_step": "offline_repair_complete",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4532,7 +4532,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
+  "state_head": "16800f4319cdd0e2554938071d4ebc48caa969ac",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4617,7 +4617,7 @@
     "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   },
-  "stopped_at": "PR171 halted; five concrete offline repairs identified",
+  "stopped_at": "PR338 offline repair verified; hosted proof proposal next",
   "phase253_plan168_prerequisite_correction": {
     "status": "corrected_not_executed",
     "summary": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
@@ -4645,8 +4645,8 @@
   },
   "phase253_local_continuation": {
     "schema": "sigra.phase253.current-continuation/v1",
-    "status": "pr171_halted_known_defects_need_offline_repair",
-    "timestamp": "2026-10-21T18:34:16.502682+00:00",
+    "status": "pr338_offline_repair_verified_hosted_proposal_next",
+    "timestamp": "2026-10-21T18:58:46.994484+00:00",
     "completed_local_plans": [
       "253-168",
       "253-169"
@@ -4672,7 +4672,8 @@
         "seconds": 832
       },
       "pr171": "halted: CI failure and compare JSON corruption",
-      "offline_redaction_candidate_tests": 4
+      "offline_redaction_candidate_tests": 4,
+      "pr338_offline_repair": "verified_offline; hosted proof remains incomplete"
     },
     "evidence_ref": "refs/gsd/phase253-local-continuation",
     "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
@@ -4684,7 +4685,7 @@
       "CIREL-02": "unaccepted"
     },
     "next_plan": null,
-    "next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
+    "next_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
     "next_command_conditional": false,
     "required_decision": null,
     "reason_for_decision": null,
@@ -4700,7 +4701,8 @@
     "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
     "read_only_diagnostic_connector_calls": 5,
     "diagnostic_http_request_count": "not exposed by connector; excluded from measured window totals",
-    "historical_halts_before_this_task": 28
+    "historical_halts_before_this_task": 28,
+    "offline_repair": ".planning/execution/253-pr338-repair/repair.json"
   },
   "next_command_conditional": false,
   "phase253_completed_plans": 80,
@@ -4711,35 +4713,61 @@
   "phase253_pr171_execution": ".planning/execution/253-171.json",
   "phase253_pr171_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
   "phase253_current_preservation": {
-    ".planning/STATE.md": {
-      "commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
-      "sha256": "4712fe595fbdab4c9b62221a1681cf763f95780889cd996add397c9a6398ae18",
-      "bytes": 34131,
-      "readback_exact": true
-    },
-    ".planning/state.json": {
-      "commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
-      "sha256": "14c2e0339bc81bcdd5f95dba12c3596d0e7e287c9e4fe6b5497e4eb4ed06c186",
-      "bytes": 118085,
-      "readback_exact": true
-    },
-    ".planning/HANDOFF.json": {
-      "commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
-      "sha256": "84bb7b81d234acd341f06a8e92c9d47c21e9d102863b57c31264f12806fabbf8",
-      "bytes": 187100,
-      "readback_exact": true
-    },
-    ".planning/execution/253-CONTINUATION.json": {
-      "commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
-      "sha256": "2419c29b562c040a4b8e3a4db128574fd97b6ca4ca9cf776cf933edbb9cf0285",
-      "bytes": 2194,
-      "readback_exact": true
-    },
-    ".planning/execution/253-PR-APPROVAL-REQUEST.json": {
-      "commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
-      "sha256": "862554c79432c6921a4c1aa79cd7564287cff72145332da5f824c5cf2c762259",
-      "bytes": 3389,
-      "readback_exact": true
-    }
+    "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+        "sha256": "9d7e1524137891ce79129a806d5e2d9a227e42374b19c2700566e0ac550fd6d7",
+        "bytes": 35610,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+        "sha256": "1a04bdaf6caff94ddf6b233a1c66ff68b5477513f57bcbaecfca934015f168af",
+        "bytes": 120513,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+        "sha256": "41a1c2619df5a8641c71b0a3d6a100a3d5a771b98c3c10746032764ec5f578ae",
+        "bytes": 185379,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/execution/253-CONTINUATION.json",
+        "status": "clean",
+        "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+        "sha256": "f3035cd3f7d55b4b3fae0863aee567f3c054e806a27c1ba6e83bbf05be964573",
+        "bytes": 2600,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/debug/knowledge-base.md",
+        "status": "clean",
+        "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+        "sha256": "c5cc9329f42deeb81b1756c3060f661f9c5d22901f48b4974c68f478150c740c",
+        "bytes": 6664,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/debug/pr338-offline-repair.md",
+        "status": "clean",
+        "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+        "sha256": "0646e45cef8e285ccbd6afc1865076e317fe876b0eb08e949ae5ea2e3cc16397",
+        "bytes": 1372,
+        "readback_verified": true
+      }
+    ]
+  },
+  "phase253_pr338_offline_repair": {
+    "status": "verified_offline",
+    "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "record": ".planning/execution/253-pr338-repair/repair.json"
   }
 }

@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "pr171_halted_known_defects_need_offline_repair",
-  "timestamp": "2026-10-21T18:34:16.502682+00:00",
+  "status": "pr338_offline_repair_verified_hosted_proposal_next",
+  "timestamp": "2026-10-21T18:58:46.994484+00:00",
   "completed_local_plans": [
     "253-168",
     "253-169"
@@ -27,7 +27,8 @@
       "seconds": 832
     },
     "pr171": "halted: CI failure and compare JSON corruption",
-    "offline_redaction_candidate_tests": 4
+    "offline_redaction_candidate_tests": 4,
+    "pr338_offline_repair": "verified_offline; hosted proof remains incomplete"
   },
   "evidence_ref": "refs/gsd/phase253-local-continuation",
   "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
@@ -39,7 +40,7 @@
     "CIREL-02": "unaccepted"
   },
   "next_plan": null,
-  "next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
+  "next_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\"",
   "next_command_conditional": false,
   "required_decision": null,
   "reason_for_decision": null,
@@ -55,5 +56,6 @@
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
   "read_only_diagnostic_connector_calls": 5,
   "diagnostic_http_request_count": "not exposed by connector; excluded from measured window totals",
-  "historical_halts_before_this_task": 28
+  "historical_halts_before_this_task": 28,
+  "offline_repair": ".planning/execution/253-pr338-repair/repair.json"
 }
