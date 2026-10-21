@@ -1,0 +1,10 @@
+test_actual_receipt_and_summary_statuses (__main__.IndependentPrerequisiteTests.test_actual_receipt_and_summary_statuses) ... ok
+test_current_plan_has_real_prerequisites (__main__.IndependentPrerequisiteTests.test_current_plan_has_real_prerequisites) ... ok
+test_mutations_reject_stale_completion_schema_and_consumer (__main__.IndependentPrerequisiteTests.test_mutations_reject_stale_completion_schema_and_consumer) ... ok
+test_original_automated_work_and_budgets_are_unchanged (__main__.IndependentPrerequisiteTests.test_original_automated_work_and_budgets_are_unchanged) ... ok
+test_original_contradiction_is_rejected (__main__.IndependentPrerequisiteTests.test_original_contradiction_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.022s
+
+OK
