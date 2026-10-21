@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:182 total:75 implementation summaries,26 halted summaries,81 without summaries. New182 reviewed and ready;179/180 remain blocked pending preserved amendments during182. Whole-phase verification not_started. Earlier lists below record historical stages.
+**Plans**:183total:75completed implementation plans,28halted,80without summaries;0runnable. Checker maintenance26/26passed under253-RECOVERY-RESET.md;183remains halted. Actual CIREL requirements and phase verification remain open. Historical lists below do not authorize another automatic repair cycle.
 
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
@@ -345,7 +345,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252complete;253has182plans:75completed implementation,26halted,81without summaries. Only182ready. Phase254/255pending.
+**Execution order:**252→253→254→255. Phase252complete;253remains incomplete with183plans,75completed implementation plans,28halted,80without summaries and0runnable. Local checker maintenance26/26passed;recovery reset active. Phase254/255pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -359,3 +359,5 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 Phases 246–251 are archived under `milestones/v1.49-phases/`. Phase 251 implementation is summarized; its verification remains `gaps_found` at 9/10. The strict v1.49 audit remains 8/9. See [the closeout decision](milestones/v1.49-CLOSEOUT-DECISION.json) and [known gaps](milestones/v1.49-CLOSEOUT.md).
 
 **Latest execution — Plan183:** Task1 complete; Task2 halted on6tests/1failure/2errors. Task3unrun;179/180unchanged;0runnable plans. Both requirements and whole-phase verification stay open. The repeated evidence-checker repair loop needs review before another successor. Record:`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json`. Next:`$gsd-plan-phase 253 --gaps`.
+
+**Current recovery route:** User-requested lessons and process reset recorded in`253-LEARNINGS.md` and`253-RECOVERY-RESET.md`. Local checker suite26/26passed;no new numbered plan or acceptance. Original requirements remain open. Read the reset before choosing further work. Immediate status command:`$gsd-progress`;old gap-planning routes above are historical.

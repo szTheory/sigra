@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T00:09:45.015506+00:00",
-  "status": "halted",
+  "timestamp": "2026-10-21T00:35:22.639872+00:00",
+  "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "183plans:75implementation complete,28halted,80without summaries;0runnable.",
-  "next_command": "$gsd-plan-phase 253 --gaps",
-  "resume_command": "$gsd-plan-phase 253 --gaps",
-  "next_action": "Diagnose the retained183 failures and review the repeated checking-script repair loop before authoring another successor.",
+  "current": "Local checker maintenance26/26passed; phase253incomplete;183halted;no new numbered plan.",
+  "next_command": "$gsd-progress",
+  "resume_command": "$gsd-progress",
+  "next_action": "Read253-RECOVERY-RESET.md and report actual original CI gaps. Do not auto-create another repair plan.",
   "route": {
-    "immediate_gsd_command": "$gsd-plan-phase 253 --gaps",
-    "resume_command": "$gsd-plan-phase 253 --gaps",
+    "immediate_gsd_command": "$gsd-progress",
+    "resume_command": "$gsd-progress",
     "next_phase_number": 253,
     "next_roadmap_phase": {
       "number": 254,
@@ -146,11 +146,13 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent repairs are looping on evidence-checking code while original CI requirements stay open.",
+    "reason": "User requested exit from repeated repair loop. Local checker suite26/26passes;183remains halted and actual CI requirements remain open. Read253-RECOVERY-RESET.md before choosing further work; no automatic successor plan.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json",
     "whole_phase_verification_status": "not_started",
     "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
-    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json"
+    "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
+    "latest_maintenance_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-RESULT.json",
+    "recovery_reset": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md"
   },
   "workflow": {
     "scope_confirmed": true,
@@ -173,7 +175,7 @@
       254,
       255
     ],
-    "next_required_gate": "Repair concrete183 failures without repeating the growing count/owner migration blindly",
+    "next_required_gate": "Review remaining original CI requirements under the recovery reset; no automatic successor planning",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -188,7 +190,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "plan",
+    "workflow_step": "review",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -1462,7 +1464,7 @@
       ]
     }
   },
-  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
+  "resume_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3723,7 +3725,7 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "next_command": "$gsd-plan-phase 253 --gaps",
+    "next_command": "$gsd-progress",
     "readiness": {
       "plan_count": 183,
       "completed_implementation_count": 75,
@@ -3736,12 +3738,12 @@
       ]
     },
     "phase_verification_status": "not_started",
-    "resume_command": "$gsd-plan-phase 253 --gaps",
+    "resume_command": "$gsd-progress",
     "status": "halted",
-    "reason": "Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent repairs are looping on evidence-checking code while original CI requirements stay open.",
+    "reason": "User requested exit from repeated repair loop. Local checker suite26/26passes;183remains halted and actual CI requirements remain open. Read253-RECOVERY-RESET.md before choosing further work; no automatic successor plan.",
     "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json"
   },
-  "last_updated": "2026-10-21T00:09:45.015506+00:00",
+  "last_updated": "2026-10-21T00:35:22.639872+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4317,7 +4319,7 @@
   },
   "phase253_ready_plans": [],
   "phase253_verification_status": "not_started",
-  "workflow_step": "plan",
+  "workflow_step": "review",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4560,5 +4562,16 @@
       "Captured test-only source revisions cannot all equal captured HEAD; validate preserved invocation bytes without inventing old commits.",
       "Actual owner invocation suffixes differ; retain captures and distinguish root identity from invocation identity."
     ]
+  },
+  "phase253_maintenance": {
+    "status": "passed_local_maintenance",
+    "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-RESULT.json",
+    "lessons": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LEARNINGS.md",
+    "reset": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
+    "tests": 26,
+    "phase_verification_status": "not_started",
+    "historical183_status": "halted",
+    "no_new_numbered_plan": true,
+    "next_command": "$gsd-progress"
   }
 }

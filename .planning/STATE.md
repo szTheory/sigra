@@ -4,10 +4,10 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-status: "halted"
-stopped_at: "Plan183 halted during Task2; no runnable plans"
-last_updated: "2026-10-21T00:09:45.015506+00:00"
-last_activity: "2026-10-21T00:09:45.015506+00:00 \u2014 Plan183 native terminal errors;1of3tasks complete"
+status: "in_progress"
+stopped_at: "Local maintenance26/26passed; recovery reset active; CI requirements open"
+last_updated: "2026-10-21T00:35:22.639872+00:00"
+last_activity: "2026-10-21T00:35:22.639872+00:00 \u2014 Lessons recorded; checker maintenance26/26passed; no new plan"
 state_head: "7122cc1da61d398bff3254319a4c66ce9db7e8aa"
 progress:
   total_phases: 4
@@ -16,12 +16,12 @@ progress:
   completed_plans: 81
   percent: 25
 milestone_status: active
-workflow_step: "plan"
+workflow_step: "review"
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-plan-phase 253 --gaps"
-resume_command: "$gsd-plan-phase 253 --gaps"
+next_command: "$gsd-progress"
+resume_command: "$gsd-progress"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -152,7 +152,7 @@ phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
 last_activity_desc: "Plan183 ready; requirements and whole-phase verification remain open"
-resume_file: ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json"
+resume_file: ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md"
 ---
 
 # Project State
@@ -166,13 +166,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Phase253 has183plans:75completed implementation plans,28halted and80without summaries. Plan183 completedTask1 and halted duringTask2:6tests,1failure,2errors. No runnable plans;179/180 remain blocked. Both requirements remain open; whole-phase verification not_started.
+Phase253 remains incomplete:183plans,75completed implementation plans,28halted,80without summaries,0runnable. Local checker maintenance passed26/26tests under the user-requested recovery reset. Plan183stays halted;179/180stayblocked. Both original CI requirements remain open; phase verification not_started.
 
 ## Next GSD command
 
-$gsd-plan-phase 253 --gaps
+$gsd-progress
 
-Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent repairs are looping on evidence-checking code while original CI requirements stay open. Evidence:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json. No correction or acceptance run is authorized under the halted183 plan.
+Read`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md` first. The user-requested reset supersedes historical automatic gap-planning routes. Review original CI gaps; do not create another numbered local repair plan or renew acceptance budgets. Maintenance result:`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-RESULT.json`.
 
 ## Known unfinished work
 
@@ -219,9 +219,9 @@ Plan183 halted in Task2:6tests,1failure,2errors; no eligible correction. Recent 
 
 ## Session
 
-**Last session:** 2026-10-20T20:37:20.605148+00:00
-**Stopped at:** Plan182 halted during Task1; no runnable plans
-**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-RECORD.json
+**Last session:** 2026-10-21T00:36:11.648700+00:00
+**Stopped at:** Recovery reset active;local checker maintenance26/26passed;original CI requirements remain open
+**Resume file:** .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md
 
 ## Deferred Items
 
@@ -356,3 +356,7 @@ Prior full history is recoverable at 9a091dd14949ef5afd1f3de8f651c8d381607b84; e
 Task1 completed with3/3passing correction and unchanged-source final; both mandatory baseline failure groups captured directly. Task2 native result:6tests,1failure,2errors,56.120s; no eligible retry. The new checker mishandles uppercase RECONSTRUCTED in unchanged182 logs; one test still expects181instead of183. Source review also found incompatibilities with permitted dirty test captures and per-invocation owner identities. Task3 was not started;179/180 remain unchanged. Two partial source commits and all raw outputs/source manifests preserved; no old outcome changed.
 
 The repeated checking-script repair loop is explicitly recorded, rather than counted as product progress. Next planning should address the concrete failures and review the count/owner migration mechanism. Evidence:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json; diagnostics:refs/gsd/phase253-execution183-terminal-t2-green at387a6d0e685739b16f32a06dee4a8152570e1a93. Current75complete/28halted/80unsummarized/0runnable. Phase254readiness checked:pending,no context/research/plans;after actual253completion default$gsd-discuss-phase254withrecheck. Next:$gsd-plan-phase 253 --gaps.
+
+## Recovery reset after183
+
+The user requested lessons and an end to the repeated loop. Lessons:253-LEARNINGS.md;instructions:253-RECOVERY-RESET.md;local tests and retained failed runs:253-MAINTENANCE-RESULT.json.26/26full-suite tests passed;no new plan,acceptance,browserorGitHubrun.183remains halted. Further work must address the original CIREL gaps under existing limits, rather than another count/owner migration. Historical sections below/above are retained records, not current routing. Immediate command:$gsd-progress. Phase254remains pending;recheck before actualforwardrouting.

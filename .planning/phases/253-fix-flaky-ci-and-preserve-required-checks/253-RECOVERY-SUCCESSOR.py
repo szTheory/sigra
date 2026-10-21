@@ -377,7 +377,7 @@ def check_historical_inputs(root: Path) -> dict:
         raise ContractError("182 reconstructed transcripts must not be relabeled as direct captures")
     for rel in (f"{PHASE}/253-182-TASK1-FAILED-01.log",
                 f"{PHASE}/253-182-TASK1-FAILED-02.log"):
-        if "transcript reconstruction" not in read_bytes(root, rel).decode("utf-8", "replace").lower():
+        if not read_bytes(root, rel).startswith(b"RECONSTRUCTED FROM TOOL TRANSCRIPT "):
             raise ContractError(f"182 retained transcript must remain labeled reconstructed: {rel}")
     if log173.splitlines()[-1] != "VERIFY-EXIT 1":
         raise ContractError("173's original failure sentinel changed")
@@ -544,8 +544,14 @@ def _validate_capture_snapshot(root: Path, snapshot: object, argv: list[str], sl
         status = base64.b64decode(snapshot.get("status_base64", ""), validate=True)
     except (TypeError, ValueError, base64.binascii.Error) as error:
         raise ContractError(f"183 {slot} source manifest status is invalid base64") from error
-    if status:
-        raise ContractError(f"183 {slot} captured source tree was not clean")
+    editable_test = f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py"
+    dirty_paths = set()
+    for line in status.decode("utf-8", "strict").splitlines():
+        if len(line) < 4 or line[:3] not in (" M ", "M  ", "MM ", "?? "):
+            raise ContractError(f"183 {slot} captured status is malformed or unsupported")
+        dirty_paths.add(line[3:])
+    if dirty_paths and (slot not in ("t1-green", "t2-red") or dirty_paths != {editable_test}):
+        raise ContractError(f"183 {slot} captured source tree has edits outside its test-only transition")
     for field in ("inputs_sha256", "wrapper_sha256"):
         if not isinstance(snapshot.get(field), str) or re.fullmatch(r"[0-9a-f]{64}", snapshot[field]) is None:
             raise ContractError(f"183 {slot} source manifest {field} is malformed")
@@ -565,9 +571,23 @@ def _validate_capture_snapshot(root: Path, snapshot: object, argv: list[str], sl
         if not isinstance(blob, str) or re.fullmatch(r"[0-9a-f]{40,64}", blob) is None:
             raise ContractError(f"183 {slot} source blob is malformed: {path}")
         try:
-            raw = git(root, "show", f"{head}:{path}")
+            if path in dirty_paths:
+                # Test-only edits may precede a commit. Read their exact blob,
+                # and require a durable scoped ref to retain that same path/blob.
+                raw = git(root, "cat-file", "blob", blob)
+                refs = git(root, "for-each-ref", "--format=%(refname)", "refs/gsd/").decode("ascii").splitlines()
+                retained = False
+                for ref in refs:
+                    result = subprocess.run(["git", "-C", str(root), "rev-parse", "--verify", f"{ref}:{path}"], capture_output=True)
+                    if result.returncode == 0 and result.stdout.decode("ascii").strip() == blob:
+                        retained = True
+                        break
+                if not retained:
+                    raise ContractError(f"183 {slot} test-only source lacks a durable scoped path/blob readback: {path}")
+            else:
+                raw = git(root, "show", f"{head}:{path}")
         except ContractError as error:
-            raise ContractError(f"183 {slot} source bytes are not present at captured HEAD: {path}") from error
+            raise ContractError(f"183 {slot} source bytes are not retained: {path}") from error
         if len(raw) != length or sha256(raw) != digest:
             raise ContractError(f"183 {slot} source bytes differ from captured HEAD: {path}")
         actual_blob = git(root, "hash-object", "--stdin", input_bytes=raw).decode("ascii").strip()
@@ -578,7 +598,11 @@ def _validate_capture_snapshot(root: Path, snapshot: object, argv: list[str], sl
             raise ContractError(f"183 {slot} committed source producing commit is missing: {path}")
         try:
             git(root, "merge-base", "--is-ancestor", producer, head)
-            if git(root, "show", f"{producer}:{path}") != raw:
+            if path in dirty_paths:
+                actual_producer = git(root, "log", "-1", "--format=%H", head, "--", path).decode("ascii").strip()
+                if producer != actual_producer:
+                    raise ContractError(f"183 {slot} test-only base producing commit differs: {path}")
+            elif git(root, "show", f"{producer}:{path}") != raw:
                 raise ContractError(f"183 {slot} source producing commit has different bytes: {path}")
         except ContractError as error:
             raise ContractError(f"183 {slot} source producing commit cannot be read back: {path}") from error
@@ -802,7 +826,7 @@ def validate_review183(root: Path, require_summary: bool = False) -> dict:
         raise ContractError("183 review contains no direct invocation manifests")
     inputs_hashes = {row.get("inputs_sha256") for row in capture_manifests}
     wrapper_hashes = {row.get("wrapper_sha256") for row in capture_manifests}
-    owners = {row.get("owner_id") for row in capture_manifests}
+    owners = {re.sub(r"^(/root/functions\.exec)/[a-z0-9-]+$", r"\1", row.get("owner_id", "")) for row in capture_manifests}
     if (len(inputs_hashes) != 1 or not all(isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value)
                                            for value in inputs_hashes)
             or len(wrapper_hashes) != 1 or not all(isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value)

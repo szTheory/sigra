@@ -58,3 +58,12 @@ stale verification report.
 - After a run completes, fetch its structured summary once. Fetch failed logs only when the conclusion is a failure.
 - Before a long watch, inspect `gh api rate_limit`. If the REST `core` budget has 250 or fewer requests remaining, make no further CI polling requests until its reported reset time.
 - Treat HTTP 403 or 429 rate-limit responses as a hard stop until GitHub's reported reset or retry time; do not retry them immediately.
+
+## Avoid repeated repair-plan loops
+
+- Read `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md` and `253-LEARNINGS.md` before resuming Phase253. The user's recovery instruction supersedes the old immediate gap-planning route.
+- Do not create a numbered successor plan solely to fix an ordinary development error, fixture, expected message, or capture parser. Under authorized local maintenance, diagnose the cause, make the scoped fix, and run meaningful tests. Keep prior stopped attempts and acceptance budgets unchanged; maintenance results cannot be substituted for their missing results.
+- Before another repair plan after repeated failures, explain why the previous fixes did not work and what smaller independent check will resolve that cause. Do not repeat a count/owner migration merely because the new plan has another number. Historical fixture expectations stay tied to their historical source.
+- Separate unit/development verification from once-only acceptance and hosted collection. Development errors do not imply acceptance permission; acceptance limits do not require a fresh plan for every local assertion repair. Never silently renew a spent acceptance budget.
+- Report progress against the original requirement's observable behavior. Passing plan/schema checks, preservation records and hypothetical routing copies do not establish a CI fix or a successful required gate.
+- Use concise current state with references to preserved history. Do not copy an entire raw-output ledger into every handoff or add new review layers without a demonstrated failure they prevent.

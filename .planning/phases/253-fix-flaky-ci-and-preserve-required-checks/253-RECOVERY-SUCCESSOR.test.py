@@ -70,8 +70,8 @@ def amend_entry_plans(root, original):
     p169 = p169.replace("154 -> 169 and 172;", "154 -> 169 and 172, 176 -> 179, 177 -> 180;")
     p169 = p169.replace("154 -> 169, 172 (all completion links plus load_target_disposition);",
                         "154 -> 169, 172 (all completion links plus load_target_disposition), 176 -> 179, 177 -> 180;")
-    p169 = p169.replace("173 -> 179.", f"173 -> 179; 174 -> [{repair_id}, 179]; 175 -> [{repair_id}, 179]; 178 -> [{repair_id}, 179]." +
-                        (f" 181 -> [{repair_id}, 179]; 182 -> [{repair_id}, 179]." if repair_id == 183 else ""))
+    p169 = p169.replace("173 -> 179.", f"173 -> 179; 174 -> [{repair_id}, 179]; 175 -> [{repair_id}, 179]; 178 -> [{repair_id}, 179]" +
+                        (f"; 181 -> [{repair_id}, 179]; 182 -> [{repair_id}, 179]." if repair_id == 183 else "."))
     p169 = p169.replace("253-174", "253-179")
     bodies = re.findall(r"<automated>(.*?)</automated>", p169, re.S)
     if len(bodies) < 3:
@@ -239,7 +239,7 @@ def synthetic_capture_run(project, slot, argv, native_count=None, red_errors=(),
         producer = subprocess.check_output(["git", "-C", str(project), "log", "-1", "--format=%H", "--", rel], text=True).strip()
         sources.append({"path": rel, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
                         "blob": blob, "last_producing_commit": producer})
-    snapshot = {"argv": argv, "cwd": str(project.resolve()), "owner_id": "synthetic-test-fixture",
+    snapshot = {"argv": argv, "cwd": str(project.resolve()), "owner_id": f"/root/functions.exec/{slot}",
                 "head": head, "sources": sources,
                 "status_base64": base64.b64encode(b"").decode(),
                 "inputs_sha256": "a" * 64, "wrapper_sha256": "b" * 64,
@@ -865,11 +865,12 @@ class SuccessorContractTests(unittest.TestCase):
             alternates = root / ".git/objects/info/alternates"
             alternates.parent.mkdir(parents=True, exist_ok=True)
             alternates.write_text(str((ROOT / ".git/objects").resolve()) + "\n", encoding="utf-8")
-            for rel in successor.HISTORICAL_SHA256:
+            for rel in {**successor.HISTORICAL_SHA256, **successor.HISTORICAL_181_SHA256, **successor.HISTORICAL_182_SHA256}:
                 target = root / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((ROOT / rel).read_bytes())
-            for rel, commit in {**successor.FROZEN_175_COMMITS, **successor.FROZEN_178_COMMITS}.items():
+            for rel, commit in {**successor.FROZEN_175_COMMITS, **successor.FROZEN_178_COMMITS,
+                                **successor.FROZEN_181_COMMITS, **successor.FROZEN_182_COMMITS}.items():
                 self.assertEqual(successor.git(root, "show", f"{commit}:{rel}"), (root / rel).read_bytes())
             self.assertEqual(successor.check_historical_inputs(root)["findings"], 10)
             parsed = json.loads(real)
@@ -977,7 +978,7 @@ class SuccessorContractTests(unittest.TestCase):
             self.assertIsNotNone(script_match)
             valid_script = script_match.group(1)
             attacks = (
-                ("restored174pin", "EXPECTED_PLAN_IDS", "253-181", "253-177", "181-plan-pin set"),
+                ("restored174pin", "EXPECTED_PLAN_IDS", "253-183", "253-177", "183-plan-pin set"),
                 ("omitted176target", "EXPECTED_TARGET_IDS", "253-176", "253-175", "73 target set"),
                 ("omitted177target", "EXPECTED_TARGET_IDS", "253-177", "253-175", "73 target set"),
                 ("omitted175halt", "EXPECTED_HALT_IDS", "253-175", "253-174", "27 halt set"),
@@ -1002,9 +1003,9 @@ class SuccessorContractTests(unittest.TestCase):
                                ("owner158", "158 -> 179", "158 -> 174"),
                                ("owner167", "167 -> 179", "167 -> 174"),
                                ("owner173", "173 -> 179", "173 -> 174"),
-                               ("owner174", "174 -> [181, 179]", "174 -> [178, 179]"),
-                               ("owner175", "175 -> [181, 179]", "175 -> [178, 179]"),
-                               ("owner178", "178 -> [181, 179]", "178 -> [178, 179]"))
+                               ("owner174", "174 -> [183, 179]", "174 -> [178, 179]"),
+                               ("owner175", "175 -> [183, 179]", "175 -> [178, 179]"),
+                               ("owner178", "178 -> [183, 179]", "178 -> [178, 179]"))
             for label, needle, replacement in owner_mutations:
                 with self.subTest(label=label):
                     mutated = good169.replace(needle, replacement, 1)
@@ -1127,7 +1128,7 @@ class SuccessorContractTests(unittest.TestCase):
                 bodies = re.findall(r"<automated>(.*?)</automated>", good169, re.S)
                 script = re.findall(r"(?:node|\"\$N\")\s+-e\s+\'(.*?)\'", bodies[2], re.S)
                 self.assertEqual(len(script), 1)
-                anchor = "c.halted_plans.length!==25"
+                anchor = f"c.halted_plans.length!=={getattr(successor, 'ACTIVE_HALT_COUNT', 25)}"
                 self.assertEqual(script[0].count(anchor), 1)
                 mutated = good169.replace(script[0], script[0].replace(anchor, "c.halted_plans.length!==22", 1), 1)
                 changes.append(("22-halt", f"{PHASE}/253-169-PLAN.md", mutated, "^169 executable reconciliation assertion has a stale count$"))
@@ -1195,6 +1196,14 @@ class SuccessorContractTests(unittest.TestCase):
         (project / ".planning/unrelated-fixture-input.txt").write_text("source-bound\n")
         subprocess.run(["git", "-C", str(project), "add", ".planning"], check=True)
         subprocess.run(["git", "-C", str(project), "commit", "-qm", "committed amended SDK fixture"], check=True)
+        # A real halted183 input must refuse. Only this labeled hypothetical
+        # fixture models a successful repair; the root's failed record is intact.
+        with self.assertRaisesRegex(successor.ContractError, "non-complete existing 183 summary"):
+            successor.run_sdk_copy(project, {}, "unused")
+        fixture_summary = project / PHASE / "253-183-SUMMARY.md"
+        fixture_summary.write_text("---\nstatus: complete\n---\nSynthetic future route fixture; not phase evidence.\n")
+        subprocess.run(["git", "-C", str(project), "add", str(fixture_summary.relative_to(project))], check=True)
+        subprocess.run(["git", "-C", str(project), "commit", "-qm", "labeled hypothetical completed183 fixture"], check=True)
         result = successor.run_sdk_copy(project, {}, "unused")
         self.assertEqual(result["status"], "passed")
         self.assertTrue(result["readiness_168_runnable"])
@@ -1262,7 +1271,7 @@ class SuccessorContractTests(unittest.TestCase):
                 "wrong SDK identity": "identity differs",
                 "self-consistent wrong source digest": "manifest digest differs",
                 "altered manifest with recomputed digest": "manifest differs from Git",
-                "valid JSON with unknown plan ID": "exact 253-01 through253-181 universe",
+                "valid JSON with unknown plan ID": "exact 253-01 through253-183 universe",
                 "valid JSON with false runnable list": "168 as runnable",
                 "invalid UTF-8 stdout text": "invalid UTF-8 text",
                 "non-object SDK output": "stdout root must be an object",
@@ -1656,8 +1665,11 @@ class SuccessorContractTests(unittest.TestCase):
             amended180 = (project / successor.PLAN_180).read_text()
             for text in ("183pins", "27halts", "73targets", "[183,179]"):
                 self.assertIn(text, amended180)
-            self.assertFalse((project / successor.RECEIPT_179).exists())
-            self.assertFalse((project / f"{PHASE}/253-179-SUMMARY.md").exists())
+            # committed_receipt_fixture intentionally creates a synthetic receipt.
+            # The actual checkout must still have no acceptance receipt or summary.
+            self.assertTrue((project / successor.RECEIPT_179).exists())
+            self.assertFalse((ROOT / successor.RECEIPT_179).exists())
+            self.assertFalse((ROOT / f"{PHASE}/253-179-SUMMARY.md").exists())
             self.assertTrue(callable(getattr(successor, "validate_review181", None)))
 
     def test_validate_review183_requires_direct_runs_and_source_commits(self):
@@ -1741,6 +1753,46 @@ class SuccessorContractTests(unittest.TestCase):
         self.assertEqual(successor.REVIEW_SCHEMA,
                          "sigra.phase253.successor-repair-review/v1")
 
+
+    def test_capture_snapshot_retains_test_only_edits_without_inventing_commits(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-253-dirty-capture-") as temp:
+            project = pathlib.Path(temp)
+            rel = f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py"
+            path = project / rel
+            path.parent.mkdir(parents=True)
+            path.write_bytes(b"# committed base\n")
+            def git(*args, data=None):
+                return subprocess.check_output(["git", "-C", str(project), *args], input=data)
+            git("init", "-q")
+            git("config", "user.name", "Fixture")
+            git("config", "user.email", "fixture@example.test")
+            git("add", rel)
+            git("commit", "-qm", "base")
+            head = git("rev-parse", "HEAD").decode().strip()
+            raw = b"# test-only edit captured before a source commit\n"
+            path.write_bytes(raw)
+            status = git("status", "--porcelain", "--untracked-files=all")
+            blob = git("hash-object", "-w", "--stdin", data=raw).decode().strip()
+            argv = ["python3", "-B", rel]
+            snapshot = {"argv": argv, "cwd": str(project.resolve()), "owner_id": "/root/functions.exec/t2-red",
+                        "head": head, "status_base64": base64.b64encode(status).decode(),
+                        "inputs_sha256": "a" * 64, "wrapper_sha256": "b" * 64,
+                        "sources": [{"path": rel, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
+                                     "blob": blob, "last_producing_commit": head}]}
+            # An object alone is insufficient; its path/bytes must survive under a ref.
+            with self.assertRaisesRegex(successor.ContractError, "source bytes are not retained"):
+                successor._validate_capture_snapshot(project, snapshot, argv, "t2-red")
+            git("add", rel)
+            tree = git("write-tree").decode().strip()
+            saved = git("commit-tree", tree, "-p", head, data=b"preserve captured test bytes\n").decode().strip()
+            git("update-ref", "refs/gsd/test-only-capture", saved)
+            self.assertEqual(successor._validate_capture_snapshot(project, snapshot, argv, "t2-red"), snapshot["sources"])
+            with self.assertRaisesRegex(successor.ContractError, "outside its test-only transition"):
+                successor._validate_capture_snapshot(project, snapshot, argv, "t2-green")
+            changed = json.loads(json.dumps(snapshot))
+            changed["sources"][0]["sha256"] = "0" * 64
+            with self.assertRaises(successor.ContractError):
+                successor._validate_capture_snapshot(project, changed, argv, "t2-red")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
