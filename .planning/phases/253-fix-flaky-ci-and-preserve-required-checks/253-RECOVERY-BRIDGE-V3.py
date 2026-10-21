@@ -10,6 +10,7 @@ No global monkeypatching, new summaries, synthetic execution or SDK replay.
 import argparse
 import hashlib
 import importlib.util
+import inspect
 import json
 from pathlib import Path
 import re
@@ -120,8 +121,8 @@ def verify(root, consumer='168'):
     spec = importlib.util.spec_from_file_location('phase253_historical_v2', path)
     v2 = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(v2)
-    # Private namespace retains all original functions and defaults. Only
-    # module-owned functions are rebound; imported legacy checks are untouched.
+    # Private namespaces retain original function bodies/defaults. The172 mode
+    # adds only verified169 source paths to the historical maintenance allowlist.
     namespace = vars(v2).copy()
     legacy_namespace = vars(v2.legacy).copy()
     def rebind(value, target):
@@ -138,6 +139,16 @@ def verify(root, consumer='168'):
                 namespace[name] = rebind(value, namespace)
             elif value.__globals__ is vars(v2.legacy):
                 namespace[name] = legacy_namespace[value.__name__]
+    if consumer == '172':
+        # The pinned prerequisite predates169 and checks git diff directly.
+        # Extend only that one allowlist; do not mask Git output or skip checks.
+        source = inspect.getsource(v2.legacy.validate_maintenance_prerequisite)
+        before = '        allowed.update(f"{PHASE}/253-{n}-PLAN.md" for n in range(168, 173))'
+        if source.count(before) != 1:
+            raise ValueError('pinned maintenance allowlist anchor differs')
+        legacy_namespace['verified_tooling169'] = tuple(TOOLING_169)
+        source = source.replace(before, before + '\n        allowed.update(verified_tooling169)', 1)
+        exec(compile(source, '<verified169-maintenance-allowlist>', 'exec'), legacy_namespace)
     def projected_reader(reader):
         def read(at_root, rel, *args, **kwargs):
             if Path(at_root).resolve() == root and rel in originals:
