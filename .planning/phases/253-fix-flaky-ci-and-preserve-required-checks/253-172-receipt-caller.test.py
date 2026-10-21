@@ -39,6 +39,7 @@ class CallerTests(unittest.TestCase):
         current=(ROOT/rel).read_text()
         old='python3 '+PHASE+'/253-RECOVERY-BRIDGE-V2.py verify-receipt --consumer 168 &&'
         self.assertEqual(original.count(old),1)
-        self.assertEqual(current, original.replace(old,PREFIX,1))
+        without_override=re.sub(r'<current_receipt_contract>.*?</current_receipt_contract>\n', '', current, count=1, flags=re.S)
+        self.assertEqual(without_override, original.replace(old,PREFIX,1))
 
 if __name__=='__main__':unittest.main(verbosity=2)

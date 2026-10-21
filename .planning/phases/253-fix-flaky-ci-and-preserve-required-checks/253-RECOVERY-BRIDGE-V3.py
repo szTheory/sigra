@@ -37,12 +37,17 @@ def corrected_plan(original):
         text = text.replace(before, after)
     return text.encode('utf-8')
 
+PLAN172_CONTINUATION = "<current_receipt_contract>\nCurrent instructions (quick261021-he7): this section supersedes every later reference in this plan to completed174, its absent success receipt, its Task2 verifier, 22/twenty-two halts, 71 disposition targets or PLAN pins 01-174. Those paragraphs remain historical context. 174 remains halted; use completed179 local acceptance and completed180 local bridge, checked by the V3 receipt command. Reopen 179's permission preflight, original log and successor receipt with the unchanged173 review only as explanatory recovery fields, never hosted completion links. Do not rerun174 or179 or create a success record for174.\nThe current R13 contract and exact executable predicate in169 govern: 73 disposition targets (including unexecuted176/177), 28 halted plans, PLAN pins 01-183, final owner172; recovery proof owners179/180 replace174. Historical halted summaries never receive a disposition. In the older successor mappings, proof ownership references to174 mean179; literal historical plan identities and hashes stay unchanged. Preserve all eight hosted/native completion links and every request, retry, time, size and page budget; attempt_jobs7/7 remains a stop. No local receipt proves a hosted result or closes CIREL-01/CIREL-02. No acceptance replay or CI is authorized by this correction.\n</current_receipt_contract>\n"
+
 def corrected_plan172(original):
     before = 'python3 ' + PHASE + '/253-RECOVERY-BRIDGE-V2.py verify-receipt --consumer 168 &&'
     after = 'python3 -B ' + PHASE + '/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168 || exit $?;'
     text = original.decode('utf-8')
     if text.count(before) != 1:
         raise ValueError('ambiguous Plan172 receipt prefix')
+    if text.count('<execution_contract>\n') != 1:
+        raise ValueError('ambiguous Plan172 execution contract')
+    text = text.replace('<execution_contract>\n', '<execution_contract>\n' + PLAN172_CONTINUATION, 1)
     return text.replace(before, after, 1).encode('utf-8')
 
 def validate_current(root):
