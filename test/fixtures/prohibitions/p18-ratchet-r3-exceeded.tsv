@@ -1,0 +1,5 @@
+# Known-bad: only R3 is lowered below the real execution-HEAD measurement.
+counter	baseline	surface
+R1	337	lib-doc-ranges-narrow-phase-237-vocabulary
+R2	220	lib-comment-lines-wide-phase-239-v3-vocabulary
+R3	57	packaged-docs-literal-planning-directory-occurrences
