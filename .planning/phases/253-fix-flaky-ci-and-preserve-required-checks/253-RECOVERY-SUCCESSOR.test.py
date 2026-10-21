@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import base64
 import importlib.util
 import json
 import os
@@ -28,6 +29,8 @@ ORIGINAL_FROZEN_178_COMMITS = dict(successor.FROZEN_178_COMMITS)
 
 
 def amend_entry_plans(root, original):
+    repair_id = getattr(successor, "ACTIVE_REPAIR_ID", 181)
+    halt_count = getattr(successor, "ACTIVE_HALT_COUNT", 25)
     rel168 = f"{PHASE}/253-168-PLAN.md"
     (root / rel168).parent.mkdir(parents=True, exist_ok=True)
     p168 = original[rel168].decode("utf-8")
@@ -53,8 +56,8 @@ def amend_entry_plans(root, original):
     p169 = original[rel169].decode("utf-8")
     p169 = re.sub(r"(?m)^wave: 3$", "wave: 5", p169, count=1)
     p169 = p169.replace('depends_on: ["253-174"]', 'depends_on: ["253-168"]', 1)
-    p169 = p169.replace("22 halted", "25 halted").replace("22) and", "25) and")
-    p169 = p169.replace("23 halted", "25 halted").replace("23) and", "25) and")
+    p169 = p169.replace("22 halted", f"{halt_count} halted").replace("22) and", f"{halt_count}) and")
+    p169 = p169.replace("23 halted", f"{halt_count} halted").replace("23) and", f"{halt_count}) and")
     p169 = p169.replace("71 unstarted", "73 unstarted").replace("71-target", "73-target")
     p169 = p169.replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
     p169 = p169.replace("253-174", "253-179")
@@ -67,7 +70,8 @@ def amend_entry_plans(root, original):
     p169 = p169.replace("154 -> 169 and 172;", "154 -> 169 and 172, 176 -> 179, 177 -> 180;")
     p169 = p169.replace("154 -> 169, 172 (all completion links plus load_target_disposition);",
                         "154 -> 169, 172 (all completion links plus load_target_disposition), 176 -> 179, 177 -> 180;")
-    p169 = p169.replace("173 -> 179.", "173 -> 179; 174 -> [181, 179]; 175 -> [181, 179]; 178 -> [181, 179].")
+    p169 = p169.replace("173 -> 179.", f"173 -> 179; 174 -> [{repair_id}, 179]; 175 -> [{repair_id}, 179]; 178 -> [{repair_id}, 179]." +
+                        (f" 181 -> [{repair_id}, 179]; 182 -> [{repair_id}, 179]." if repair_id == 183 else ""))
     p169 = p169.replace("253-174", "253-179")
     bodies = re.findall(r"<automated>(.*?)</automated>", p169, re.S)
     if len(bodies) < 3:
@@ -79,7 +83,7 @@ def amend_entry_plans(root, original):
     target_ids = [int(row["plan"].removeprefix("253-")) for row in r12["responsibilities"]]
     target_ids.extend(successor.NEVER_RAN_IDS + (176, 177))
     halt_ids = list(successor.HISTORICAL_HALT_IDS)
-    plan_ids = list(range(1, 182))
+    plan_ids = list(range(1, repair_id + 1))
     new_script = (
         'const c=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); '
         'const t=JSON.stringify(c); '
@@ -90,7 +94,7 @@ def amend_entry_plans(root, original):
         'const targets=c.responsibilities.map(r=>r.plan); '
         'const halts=c.halted_plans.map(r=>r.plan); '
         'const pins=c.plan_pins.map(r=>r.plan); '
-        'if(c.responsibilities.length!==73||c.plan_pins.length!==181||c.halted_plans.length!==25||'
+        f'if(c.responsibilities.length!==73||c.plan_pins.length!=={repair_id}||c.halted_plans.length!=={halt_count}||'
         'c.application.bundle_requires_final_summary_of!=="253-172"||'
         'c.application.accepted_only_predicate!=="scripts/ci/ci-hosted-gate-verify.py --mode completion --require-dispositioned"||'
         'JSON.stringify(sort(targets))!==JSON.stringify(sort(EXPECTED_TARGET_IDS))||'
@@ -115,8 +119,8 @@ def amend_complete_plans(root, original):
         (root / rel).write_text(changed, encoding="utf-8")
     rel = f"{PHASE}/253-172-PLAN.md"
     plan = original[rel].decode("utf-8")
-    plan = (plan.replace("Twenty-two halted", "Twenty-five halted")
-                .replace("22 halted", "25 halted")
+    plan = (plan.replace("Twenty-two halted", "Twenty-seven halted")
+                .replace("22 halted", "27 halted")
                 .replace("71 targets", "73 targets")
                 .replace("253-174-RECOVERY-RECEIPT.json", "253-179-RECOVERY-RECEIPT.json")
                 .replace("253-174-RECOVERY-SUCCESSOR.py", "253-RECOVERY-SUCCESSOR.py"))
@@ -128,7 +132,7 @@ def amend_complete_plans(root, original):
     targets = [row["plan"] for row in r12["responsibilities"]]
     targets.extend(f"253-{n:02d}" for n in successor.NEVER_RAN_IDS + (176, 177))
     forbidden = sorted({f"253-{n:02d}-SUMMARY.md" for n in
-                        (*successor.HISTORICAL_HALT_IDS, *(number for number in range(168, 182)
+                        (*successor.HISTORICAL_HALT_IDS, *(number for number in range(168, 184)
                                                           if number not in (176, 177)))})
     bodies = re.findall(r"<automated>(.*?)</automated>", plan, re.S)
     matches = list(re.finditer(r'"?\$N"?\s+-e\s+\'(const b=JSON\.parse\(require\("fs"\).*?process\.exit\(1\))\' \$P/253-LOAD-RECOVERY-SUPERSESSION-SUMMARIES-R13\.json', bodies[1], re.S))
@@ -146,6 +150,25 @@ def amend_complete_plans(root, original):
     )
     plan = plan.replace(matches[0].group(1), code, 1)
     (root / rel).write_text(plan, encoding="utf-8")
+
+
+def amend_repair_183_route(root):
+    """Independent temporary routing edit; the production renderer is not the oracle."""
+    rel179 = f"{PHASE}/253-179-PLAN.md"
+    path179 = root / rel179
+    text179 = path179.read_text(encoding="utf-8")
+    if 'depends_on: ["253-181"]' in text179:
+        text179 = text179.replace('depends_on: ["253-181"]', 'depends_on: ["253-183"]', 1)
+    else:
+        text179 = text179.replace('depends_on: ["253-178"]', 'depends_on: ["253-183"]', 1)
+    text179 = text179.replace("253-181-REPAIR-REVIEW.json", "253-183-REPAIR-REVIEW.json")
+    path179.write_text(text179, encoding="utf-8")
+    rel180 = f"{PHASE}/253-180-PLAN.md"
+    path180 = root / rel180
+    text180 = path180.read_text(encoding="utf-8")
+    text180 = (text180.replace("181pins", "183pins").replace("25halts", "27halts")
+                    .replace("[181,179]", "[183,179]"))
+    path180.write_text(text180, encoding="utf-8")
 
 
 def canonical(value):
@@ -204,6 +227,93 @@ def valid_preflight(source="a" * 40, plan_hash="d" * 64, generated_hash="e" * 64
                        "generated_script_sha256": generated_hash}}
 
 
+def synthetic_capture_run(project, slot, argv, native_count=None, red_errors=(), previous_slot=None, previous_hash=None):
+    head = subprocess.check_output(["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
+    paths = [f"{PHASE}/253-RECOVERY-SUCCESSOR.py", f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
+             f"{PHASE}/253-179-PLAN.md", f"{PHASE}/253-180-PLAN.md", f"{PHASE}/253-183-PLAN.md"]
+    sources = []
+    for rel in paths:
+        raw = subprocess.check_output(["git", "-C", str(project), "show", f"{head}:{rel}"])
+        blob = subprocess.check_output(["git", "-C", str(project), "hash-object", "--stdin"], input=raw,
+                                       text=False).decode().strip()
+        producer = subprocess.check_output(["git", "-C", str(project), "log", "-1", "--format=%H", "--", rel], text=True).strip()
+        sources.append({"path": rel, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
+                        "blob": blob, "last_producing_commit": producer})
+    snapshot = {"argv": argv, "cwd": str(project.resolve()), "owner_id": "synthetic-test-fixture",
+                "head": head, "sources": sources,
+                "status_base64": base64.b64encode(b"").decode(),
+                "inputs_sha256": "a" * 64, "wrapper_sha256": "b" * 64,
+                "utc": "2026-10-20T00:00:00+00:00"}
+    if native_count is None:
+        stderr = b"validator records captured\n"
+        exit_code = 0
+    else:
+        if red_errors:
+            stderr_lines = []
+            for item in red_errors:
+                if item == "EXPECTED_25":
+                    name = "test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits"
+                    failure_name = name + " (__main__.SuccessorContractTests." + name + ") (label='22-halt')"
+                    assertion = '"25 halt set" does not match "169 executable reconciliation assertion has a stale count"'
+                elif item == "ACTIVE_REPAIR_183_MISSING":
+                    name = "test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180"
+                    failure_name = name + " (__main__.SuccessorContractTests." + name + ")"
+                    assertion = item
+                elif item == "DIRECT_RUN_REVIEW_183_MISSING":
+                    name = "test_validate_review183_requires_direct_runs_and_source_commits"
+                    failure_name = name + " (__main__.SuccessorContractTests." + name + ")"
+                    assertion = item
+                else:
+                    raise AssertionError("unknown synthetic designated RED assertion")
+                stderr_lines.extend(("======================================================================",
+                                     "FAIL: " + failure_name, "----------------------------------------------------------------------",
+                                     "Traceback (most recent call last):", f"AssertionError: {assertion}", ""))
+            stderr_lines.extend(("----------------------------------------------------------------------", f"Ran {native_count} tests in 0.001s", "",
+                                 f"FAILED (failures={len(red_errors)})"))
+            exit_code = 1
+        else:
+            stderr_lines = [f"Ran {native_count} tests in 0.001s", "", "OK"]
+            exit_code = 0
+        stderr = ("\n".join(stderr_lines) + "\n").encode()
+    record = {"slot": slot, "argv": argv, "native_exit_code": exit_code,
+              "launch_guard": {"slot": slot, "argv": argv, "previous_slot": previous_slot,
+                               "previous_result_sha256": previous_hash}, "signal": None, "timeout": False,
+              "duration_seconds": 0.001, "before": snapshot, "after": json.loads(json.dumps(snapshot)),
+              "direct_process_capture": True,
+              "stdout_base64": "", "stdout_bytes": 0,
+              "stdout_sha256": hashlib.sha256(b"").hexdigest(),
+              "stderr_base64": base64.b64encode(stderr).decode(), "stderr_bytes": len(stderr),
+              "stderr_sha256": hashlib.sha256(stderr).hexdigest(),
+              "verification_exit_code": 0, "recoverable_assertion_failure": False}
+    if slot == "t1-red":
+        stderr = stderr.replace(b"AssertionError: EXPECTED_25", b'AssertionError: "25 halt set" does not match "169 executable reconciliation assertion has a stale count"')
+    if slot == "t2-red":
+        record["native_exit_code"] = 1
+    if slot in ("t1-red", "t2-red"):
+        record["stderr_base64"] = base64.b64encode(stderr).decode()
+        record["stderr_bytes"] = len(stderr)
+        record["stderr_sha256"] = hashlib.sha256(stderr).hexdigest()
+    return record
+
+
+def commit_capture_result(project, slot, record):
+    raw = json.dumps(record, sort_keys=True).encode()
+    rel = f".planning/diagnostics/phase253-execution183/synthetic/{slot}/result.json"
+    path = project / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(raw)
+    subprocess.run(["git", "-C", str(project), "add", rel], check=True)
+    subprocess.run(["git", "-C", str(project), "commit", "-qm", f"capture original {slot} result"], check=True)
+    commit = subprocess.check_output(["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
+    ref = f"refs/gsd/synthetic-phase253-t2/{slot}"
+    subprocess.run(["git", "-C", str(project), "update-ref", ref, commit], check=True)
+    blob = subprocess.check_output(["git", "-C", str(project), "hash-object", "--stdin"], input=raw).decode().strip()
+    record["capture_result"] = {"base64": base64.b64encode(raw).decode(), "bytes": len(raw),
+                                "sha256": hashlib.sha256(raw).hexdigest(), "path": rel,
+                                "blob": blob, "commit": commit, "ref": ref}
+    return record
+
+
 def committed_receipt_fixture(parent):
     project = pathlib.Path(parent) / "receipt-repo"
     project.mkdir()
@@ -213,14 +323,19 @@ def committed_receipt_fixture(parent):
         target = project / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / rel, target)
-    reviewed = {"scripts/ci/ci-git-publication.test.py", f"{PHASE}/253-181-PLAN.md",
+    amend_repair_183_route(project)
+    (project / f"{PHASE}/253-183-SUMMARY.md").write_text(
+        "---\nphase: 253-fix-flaky-ci-and-preserve-required-checks\nplan: \"183\"\nstatus: complete\n---\n",
+        encoding="utf-8")
+    reviewed = {"scripts/ci/ci-git-publication.test.py", f"{PHASE}/253-183-PLAN.md",
                 successor.PLAN_179, successor.PLAN_180,
                 f"{PHASE}/253-RECOVERY-SUCCESSOR.py",
                 f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
                 "scripts/ci/ci-git-publication.py", "scripts/ci/ci-gate-canary-dryrun.py"}
-    (project / f"{PHASE}/253-181-SUMMARY.md").write_text(
-        "---\nphase: 253-fix-flaky-ci-and-preserve-required-checks\nplan: \"181\"\nstatus: complete\n---\n", encoding="utf-8")
     subprocess.run(["git", "-C", str(project), "init", "-q"], check=True)
+    alternates = project / ".git/objects/info/alternates"
+    alternates.parent.mkdir(parents=True, exist_ok=True)
+    alternates.write_text(str((ROOT / ".git/objects").resolve()) + "\n", encoding="utf-8")
     subprocess.run(["git", "-C", str(project), "config", "user.name", "Receipt Fixture"], check=True)
     subprocess.run(["git", "-C", str(project), "config", "user.email", "receipt-fixture@example.test"], check=True)
     subprocess.run(["git", "-C", str(project), "add", ".planning", "scripts"], check=True)
@@ -229,7 +344,7 @@ def committed_receipt_fixture(parent):
     successor.FROZEN_175_COMMITS.update({rel: reviewed_commit for rel in successor.FROZEN_175_COMMITS})
     successor.FROZEN_178_COMMITS.update({rel: reviewed_commit for rel in successor.FROZEN_178_COMMITS})
     review = {"schema": successor.REVIEW_SCHEMA, "status": "reviewed_for_new_acceptance",
-              "repair_plan": "253-181", "acceptance_plan": "253-179", "bridge_plan": "253-180",
+              "repair_plan": "253-183", "acceptance_plan": "253-179", "bridge_plan": "253-180",
               "source_files": {rel: hashlib.sha256((project / rel).read_bytes()).hexdigest() for rel in reviewed},
               "source_commits": {rel: reviewed_commit for rel in reviewed},
               "unresolved_implementation_findings": [],
@@ -242,10 +357,20 @@ def committed_receipt_fixture(parent):
                                   "sha256": {rel: successor.HISTORICAL_SHA256[rel]
                                              for rel in successor.FROZEN_178_COMMITS}},
               "amended_plan_validation": {},
+              "historical": {
+                  "181": {"status": "halted", "sha256": successor.HISTORICAL_181_SHA256,
+                          "commits": successor.FROZEN_181_COMMITS},
+                  "182": {"status": "halted", "sha256": successor.HISTORICAL_182_SHA256,
+                          "commits": successor.FROZEN_182_COMMITS,
+                          "direct_process_capture": False,
+                          "transcripts": {f"{PHASE}/253-182-TASK1-FAILED-01.log": "reconstructed",
+                                          f"{PHASE}/253-182-TASK1-FAILED-02.log": "reconstructed"}}},
+              "direct_runs": {},
               "scope": {"product_changes": ["scripts/ci/ci-git-publication.test.py"],
-                        "product_changes_during_181": []}}
+                        "product_changes_during_183": []}}
     node = pathlib.Path.home() / ".asdf/installs/nodejs/20.18.1/bin/node"
     sdk = pathlib.Path.home() / ".codex/gsd-core/bin/gsd-tools.cjs"
+    validator_output = []
     for plan_id in ("253-179", "253-180"):
         rel = f"{PHASE}/{plan_id}-PLAN.md"
         plan_raw = (project / rel).read_bytes()
@@ -253,17 +378,51 @@ def committed_receipt_fixture(parent):
         for key, verb, extra in (("frontmatter", "frontmatter.validate", ["--schema", "plan-gap-closure"]),
                                  ("structure", "verify.plan-structure", [])):
             argv = [str(node), str(sdk), "query", verb, rel, *extra]
-            result = subprocess.run(argv, cwd=project, capture_output=True, check=False)
-            if result.returncode:
-                raise AssertionError(result.stderr.decode("utf-8", "replace"))
-            records[key] = {"argv": argv, "exit_code": result.returncode,
-                            "stdout": result.stdout.decode("utf-8", "strict"),
-                            "stdout_sha256": hashlib.sha256(result.stdout).hexdigest()}
+            result = ({"valid": True, "schema": "plan-gap-closure"} if key == "frontmatter" else
+                      {"valid": True, "errors": [], "tasks": [{"name": "first"}, {"name": "second"}]})
+            stdout_raw, stderr_raw = (json.dumps(result, sort_keys=True) + "\n").encode(), b""
+            record = {"argv": argv, "exit_code": 0,
+                      "stdout": stdout_raw.decode("utf-8"),
+                      "stdout_sha256": hashlib.sha256(stdout_raw).hexdigest(),
+                      "stderr": "", "stderr_sha256": hashlib.sha256(stderr_raw).hexdigest()}
+            records[key] = record
+            validator_output.append({"plan_path": rel, "plan_sha256": hashlib.sha256(plan_raw).hexdigest(),
+                                     "argv": argv, "exit_code": 0,
+                                     "stdout": record["stdout"], "stderr": "",
+                                     "stdout_sha256": record["stdout_sha256"],
+                                     "stderr_sha256": record["stderr_sha256"]})
         review["amended_plan_validation"][plan_id] = {
             "plan_path": rel, "plan_sha256": hashlib.sha256(plan_raw).hexdigest(), **records}
-    (project / successor.REVIEW_181).write_text(json.dumps(review, sort_keys=True, indent=2) + "\n")
-    subprocess.run(["git", "-C", str(project), "add", successor.REVIEW_181], check=True)
-    subprocess.run(["git", "-C", str(project), "commit", "-qm", "repair review input"], check=True)
+    run_specs = {
+        "t1-red": (1, ["EXPECTED_25"]), "t1-green": (3, []),
+        "t2-red": (2, ["ACTIVE_REPAIR_183_MISSING", "DIRECT_RUN_REVIEW_183_MISSING"]),
+        "t2-green": (6, []), "t3-full": (25, []),
+    }
+    previous_slot, previous_digest = None, None
+    for slot, (count, failures) in run_specs.items():
+        argv = successor._expected_183_test_argv(slot)
+        run = synthetic_capture_run(project, slot, argv, count, failures,
+                                    previous_slot=previous_slot, previous_hash=previous_digest)
+        run = commit_capture_result(project, slot, run)
+        review["direct_runs"][slot] = run
+        previous_slot, previous_digest = slot, run["capture_result"]["sha256"]
+    validator_argv = ["python3", "-B", "-c",
+                      "frontmatter.validate verify.plan-structure for number in (179,180) Node 20.18.1"]
+    validator_run = synthetic_capture_run(project, "t3-validators", validator_argv,
+                                         previous_slot=previous_slot, previous_hash=previous_digest)
+    validator_bytes = b"".join((json.dumps(row, sort_keys=True) + "\n").encode() for row in validator_output)
+    validator_run["stdout_base64"] = base64.b64encode(validator_bytes).decode()
+    validator_run["stdout_bytes"] = len(validator_bytes)
+    validator_run["stdout_sha256"] = hashlib.sha256(validator_bytes).hexdigest()
+    review["direct_runs"]["t3-validators"] = commit_capture_result(project, "t3-validators", validator_run)
+    for unused_slot, predecessor in (("t1-correction", "t1-green"), ("t1-final", "t1-green"),
+                                     ("t2-correction", "t2-green"), ("t2-final", "t2-green"),
+                                     ("t3-recovery", "t3-full"), ("t3-full-final", "t3-full")):
+        review["direct_runs"][unused_slot] = {"disposition": "not_used", "because_slot": predecessor,
+                                               "result_sha256": review["direct_runs"][predecessor]["capture_result"]["sha256"]}
+    (project / successor.REVIEW_183).write_text(json.dumps(review, sort_keys=True, indent=2) + "\n")
+    subprocess.run(["git", "-C", str(project), "add", successor.REVIEW_183], check=True)
+    subprocess.run(["git", "-C", str(project), "commit", "-qm", "commit direct-capture review fixture"], check=True)
     source = subprocess.check_output(["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
     generated, _ = successor.expected_acceptance_body(
         successor.command_body((project / successor.PLAN_174).read_bytes(), successor.PLAN_174))
@@ -341,7 +500,7 @@ class SuccessorContractTests(unittest.TestCase):
     def test_sdk_indexes_require_exact_unique_plan_universe(self):
         validator = getattr(successor, "validate_sdk_index_rows", None)
         self.assertTrue(callable(validator), "missing raw SDK index validator")
-        expected_ids = [f"253-{number:02d}" for number in range(1, 182)]
+        expected_ids = [f"253-{number:02d}" for number in range(1, 184)]
         expected_halted = {f"253-{number:02d}" for number in successor.HISTORICAL_HALT_IDS}
 
         def rows(final):
@@ -357,23 +516,23 @@ class SuccessorContractTests(unittest.TestCase):
             return result
 
         ready_rows = rows(False)
-        ready_init = {"plan_count": 181, "incomplete_count": 1,
+        ready_init = {"plan_count": 183, "incomplete_count": 1,
                       "incomplete_plans": ["253-168-PLAN.md"],
                       "runnable_plans": ["253-168-PLAN.md"]}
         final_rows = rows(True)
-        final_init = {"plan_count": 181, "incomplete_count": 0,
+        final_init = {"plan_count": 183, "incomplete_count": 0,
                       "incomplete_plans": [], "runnable_plans": []}
-        self.assertEqual(len(validator(ready_rows, ready_init, "readiness")), 181)
-        self.assertEqual(len(validator(final_rows, final_init, "final")), 181)
+        self.assertEqual(len(validator(ready_rows, ready_init, "readiness")), 183)
+        self.assertEqual(len(validator(final_rows, final_init, "final")), 183)
 
         attacks = {
             "duplicate": lambda values: values[:-1] + [dict(values[0])],
             "missing": lambda values: values[:-1],
-            "extra": lambda values: values + [{"id": "253-182", "has_summary": True,
+            "extra": lambda values: values + [{"id": "253-184", "has_summary": True,
                                                  "halted": False, "blocked_by": []}],
             "replaced": lambda values: values[:-1] + [{**values[-1], "id": "253-999"}],
-            "malformed": lambda values: values[:-1] + [{**values[-1], "id": "253-0181"}],
-            "non-object": lambda values: values[:-1] + ["253-181"],
+            "malformed": lambda values: values[:-1] + [{**values[-1], "id": "253-0183"}],
+            "non-object": lambda values: values[:-1] + ["253-183"],
         }
         for stage, base, init in (("readiness", ready_rows, ready_init), ("final", final_rows, final_init)):
             for label, mutate in attacks.items():
@@ -403,7 +562,7 @@ class SuccessorContractTests(unittest.TestCase):
             validator(summarized168, bad_ready_init, "readiness")
         blocked_final = [dict(row) for row in final_rows]
         blocked_final[175]["blocked_by"] = ["253-175"]
-        self.assertEqual(len(validator(blocked_final, final_init, "final")), 181)
+        self.assertEqual(len(validator(blocked_final, final_init, "final")), 183)
 
     def test_168_requires_receipt_before_each_automated_body(self):
         original = {
@@ -821,10 +980,10 @@ class SuccessorContractTests(unittest.TestCase):
                 ("restored174pin", "EXPECTED_PLAN_IDS", "253-181", "253-177", "181-plan-pin set"),
                 ("omitted176target", "EXPECTED_TARGET_IDS", "253-176", "253-175", "73 target set"),
                 ("omitted177target", "EXPECTED_TARGET_IDS", "253-177", "253-175", "73 target set"),
-                ("omitted175halt", "EXPECTED_HALT_IDS", "253-175", "253-174", "25 halt set"),
-                ("omitted178halt", "EXPECTED_HALT_IDS", "253-178", "253-177", "25 halt set"),
-                ("old174pinCount", "c.plan_pins.length!==181", "c.plan_pins.length!==181", "c.plan_pins.length!==174", "stale count"),
-                ("old22haltCount", "c.halted_plans.length!==25", "c.halted_plans.length!==25", "c.halted_plans.length!==22", "stale count"),
+                ("omitted175halt", "EXPECTED_HALT_IDS", "253-175", "253-174", "27 halt set"),
+                ("omitted178halt", "EXPECTED_HALT_IDS", "253-178", "253-177", "27 halt set"),
+                ("old181pinCount", "c.plan_pins.length!==183", "c.plan_pins.length!==183", "c.plan_pins.length!==181", "stale count"),
+                ("old25haltCount", "c.halted_plans.length!==27", "c.halted_plans.length!==27", "c.halted_plans.length!==25", "stale count"),
                 ("old71targetCount", "c.responsibilities.length!==73", "c.responsibilities.length!==73", "c.responsibilities.length!==71", "stale count"),
             )
             for label, name, needle, replacement, reason in attacks:
@@ -1025,14 +1184,11 @@ class SuccessorContractTests(unittest.TestCase):
         originals = {f"{PHASE}/253-{n}-PLAN.md": (ROOT / f"{PHASE}/253-{n}-PLAN.md").read_bytes()
                      for n in (*range(168, 173), 176, 177)}
         amend_complete_plans(project, originals)
-        # This independent routing fixture models Task 3's prescribed repair:
-        # 179 moves off halted178 and depends on the completed preparation plan181.
-        # Keep the real root plans untouched; run_sdk_copy binds these fixture bytes
-        # to this temporary repository's commit before querying the installed SDK.
+        # A disposable plan copy models the future183 repair route. The actual
+        # installed SDK must show168 runnable only after the completed183 fixture.
+        amend_repair_183_route(project)
         plan179 = project / PHASE / "253-179-PLAN.md"
-        text179 = plan179.read_text(encoding="utf-8")
-        self.assertIn('depends_on: ["253-181"]', text179,
-                      "independent SDK route fixture must consume completed181")
+        self.assertIn('depends_on: ["253-183"]', plan179.read_text(encoding="utf-8"))
         subprocess.run(["git", "-C", str(project), "init", "-q"], check=True, capture_output=True)
         subprocess.run(["git", "-C", str(project), "config", "user.name", "SDK Fixture"], check=True)
         subprocess.run(["git", "-C", str(project), "config", "user.email", "sdk-fixture@example.test"], check=True)
@@ -1044,7 +1200,7 @@ class SuccessorContractTests(unittest.TestCase):
         self.assertTrue(result["readiness_168_runnable"])
         self.assertTrue(result["readiness_175_halted"])
         self.assertEqual(result["post_chain_incomplete"], 0)
-        self.assertEqual(result["post_chain_halted"], 25)
+        self.assertEqual(result["post_chain_halted"], 27)
         self.assertEqual(len(result["disposition_ids"]), 73)
         self.assertTrue(result["source_copy_commit"])
         self.assertEqual(set(result["sdk_queries"]), {"readiness_init", "readiness_index", "post_init", "post_index"})
@@ -1263,7 +1419,8 @@ class SuccessorContractTests(unittest.TestCase):
         for rel in (successor.PLAN_179, successor.PLAN_180):
             original_plans[rel] = subprocess.check_output(["git", "show", f"{original_ref}:{rel}"], cwd=ROOT)
         original179 = original_plans[successor.PLAN_179].decode("utf-8")
-        current179 = (ROOT / successor.PLAN_179).read_text(encoding="utf-8")
+        historical_ref = "refs/gsd/phase253-execution183-t1-first-green"
+        current179 = subprocess.check_output(["git", "show", f"{historical_ref}:{successor.PLAN_179}"], cwd=ROOT).decode("utf-8")
         self.assertIn('depends_on: ["253-178"]', original179)
         self.assertIn('depends_on: ["253-181"]', current179)
         self.assertRegex(current179, r"(?m)^wave: 2$")
@@ -1276,7 +1433,7 @@ class SuccessorContractTests(unittest.TestCase):
             "179 command bodies must remain byte-identical",
         )
         original180 = original_plans[successor.PLAN_180].decode("utf-8")
-        current180 = (ROOT / successor.PLAN_180).read_text(encoding="utf-8")
+        current180 = subprocess.check_output(["git", "show", f"{historical_ref}:{successor.PLAN_180}"], cwd=ROOT).decode("utf-8")
         self.assertIn('depends_on: ["253-179"]', current180)
         self.assertRegex(current180, r"(?m)^wave: 3$")
         self.assertIn("181pins", current180)
@@ -1303,6 +1460,9 @@ class SuccessorContractTests(unittest.TestCase):
         self.assertTrue(callable(validator), "missing source-bound validate_review181 lifecycle gate")
 
     def test_validate_review181_requires_real_source_commits_and_rejects_forgery(self):
+        frozen_commit = "c88c3f8d96b490abe49cd2812c491fc7dd04b400"
+        frozen_helper = subprocess.check_output(
+            ["git", "show", f"{frozen_commit}:{PHASE}/253-RECOVERY-SUCCESSOR.py"], cwd=ROOT)
         required = {
             f"{PHASE}/253-RECOVERY-SUCCESSOR.py",
             f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py",
@@ -1319,11 +1479,15 @@ class SuccessorContractTests(unittest.TestCase):
             subprocess.run(["git", "init", "-q", str(project)], check=True)
             subprocess.run(["git", "-C", str(project), "config", "user.name", "GSD fixture"], check=True)
             subprocess.run(["git", "-C", str(project), "config", "user.email", "gsd-fixture@example.invalid"], check=True)
+            alternates = project / ".git/objects/info/alternates"
+            alternates.parent.mkdir(parents=True, exist_ok=True)
+            alternates.write_text(str((ROOT / ".git/objects").resolve()) + "\n", encoding="utf-8")
             source_files = {}
             for rel in sorted(required):
                 target = project / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
-                raw = (ROOT / rel).read_bytes()
+                raw = (frozen_helper if rel.endswith("253-RECOVERY-SUCCESSOR.py") else
+                       subprocess.check_output(["git", "show", f"{frozen_commit}:{rel}"], cwd=ROOT))
                 target.write_bytes(raw)
                 source_files[rel] = hashlib.sha256(raw).hexdigest()
             summary = project / f"{PHASE}/253-181-SUMMARY.md"
@@ -1332,14 +1496,19 @@ class SuccessorContractTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(project), "add", *sorted(required), summary.relative_to(project).as_posix()], check=True)
             subprocess.run(["git", "-C", str(project), "commit", "-qm", "committed review source fixture"], check=True)
             source_commit = subprocess.check_output(["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
+            frozen_path = pathlib.Path(temp) / "frozen181.py"
+            frozen_path.write_bytes(frozen_helper)
+            frozen_spec = importlib.util.spec_from_file_location("successor181_frozen", frozen_path)
+            legacy181 = importlib.util.module_from_spec(frozen_spec)
+            frozen_spec.loader.exec_module(legacy181)
             base_review = {
-                "schema": successor.REVIEW_SCHEMA,
+                "schema": legacy181.REVIEW_SCHEMA,
                 "status": "reviewed_for_new_acceptance",
                 "repair_plan": "253-181",
                 "acceptance_plan": "253-179",
                 "bridge_plan": "253-180",
                 "unresolved_implementation_findings": [],
-                "finding_dispositions": {finding: "closed" for finding in successor.EXPECTED_178_FINDING_IDS},
+                "finding_dispositions": {finding: "closed" for finding in legacy181.EXPECTED_178_FINDING_IDS},
                 "acceptance_attempts": 0,
                 "github_requests": 0,
                 "native_browser_launches": 0,
@@ -1351,9 +1520,9 @@ class SuccessorContractTests(unittest.TestCase):
                 "source_commits": {rel: source_commit for rel in required},
                 "historical_178": {
                     "status": "halted",
-                    "finding_ids": list(successor.EXPECTED_178_FINDING_IDS),
-                    "sha256": {rel: successor.HISTORICAL_SHA256[rel]
-                               for rel in successor.FROZEN_178_COMMITS},
+                    "finding_ids": list(legacy181.EXPECTED_178_FINDING_IDS),
+                    "sha256": {rel: legacy181.HISTORICAL_SHA256[rel]
+                               for rel in legacy181.FROZEN_178_COMMITS},
                 },
                 "amended_plan_validation": {"253-179": {}, "253-180": {}},
             }
@@ -1381,7 +1550,7 @@ class SuccessorContractTests(unittest.TestCase):
                 review_path.write_text(json.dumps(value, sort_keys=True), encoding="utf-8")
 
             write_review(base_review)
-            accepted = successor.validate_review181(project, require_summary=True)
+            accepted = legacy181.validate_review181(project, require_summary=True)
             self.assertEqual(accepted["repair_plan"], "253-181")
 
             attacks = (
@@ -1404,8 +1573,8 @@ class SuccessorContractTests(unittest.TestCase):
                     candidate = json.loads(json.dumps(base_review))
                     mutate(candidate)
                     write_review(candidate)
-                    with self.assertRaisesRegex(successor.ContractError, reason):
-                        successor.validate_review181(project, require_summary=True)
+                    with self.assertRaisesRegex(legacy181.ContractError, reason):
+                        legacy181.validate_review181(project, require_summary=True)
 
     def test_consumer168_uses_entry_bridge_without_repeating_sdk_queries(self):
         with tempfile.TemporaryDirectory(prefix="sigra-253-consumer-bridge-") as temp:
@@ -1466,6 +1635,111 @@ class SuccessorContractTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(project), "commit", "-qm", "retain actual SDK copy result"], check=True)
             with mock.patch.object(successor, "run_sdk_copy", side_effect=AssertionError("consumer must not rerun SDK")):
                 self.assertEqual(successor.verify_receipt(project, consumer="168")["status"], "verified")
+
+    def test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180(self):
+        validator = getattr(successor, "validate_review183", None)
+        if not callable(validator):
+            self.fail("ACTIVE_REPAIR_183_MISSING")
+        with tempfile.TemporaryDirectory(prefix="sigra-253-lifecycle183-") as temp:
+            project = committed_receipt_fixture(temp)
+            review = validator(project, require_summary=True)
+            self.assertEqual(review["repair_plan"], "253-183")
+            self.assertEqual(review["acceptance_plan"], "253-179")
+            self.assertEqual(review["bridge_plan"], "253-180")
+            self.assertEqual(review["historical"]["181"]["status"], "halted")
+            self.assertEqual(review["historical"]["182"]["status"], "halted")
+            for number in (181, 182):
+                summary = (project / f"{PHASE}/253-{number}-SUMMARY.md").read_text(encoding="utf-8")
+                self.assertRegex(summary, r"(?m)^status: halted$")
+            self.assertIn('depends_on: ["253-183"]', (project / successor.PLAN_179).read_text())
+            self.assertIn("253-183-REPAIR-REVIEW.json", (project / successor.PLAN_179).read_text())
+            amended180 = (project / successor.PLAN_180).read_text()
+            for text in ("183pins", "27halts", "73targets", "[183,179]"):
+                self.assertIn(text, amended180)
+            self.assertFalse((project / successor.RECEIPT_179).exists())
+            self.assertFalse((project / f"{PHASE}/253-179-SUMMARY.md").exists())
+            self.assertTrue(callable(getattr(successor, "validate_review181", None)))
+
+    def test_validate_review183_requires_direct_runs_and_source_commits(self):
+        validator = getattr(successor, "validate_review183", None)
+        if not callable(validator):
+            self.fail("DIRECT_RUN_REVIEW_183_MISSING")
+
+        review_rel = getattr(successor, "REVIEW_183", None)
+        self.assertIsInstance(review_rel, str)
+        self.assertTrue(review_rel.endswith("253-183-REPAIR-REVIEW.json"))
+        with tempfile.TemporaryDirectory(prefix="sigra-253-review183-") as temp:
+            project = committed_receipt_fixture(temp)
+            review_path = project / review_rel
+            original = json.loads(review_path.read_bytes())
+            accepted = validator(project, require_summary=True)
+            self.assertEqual(accepted["direct_runs"]["t2-red"]["native_exit_code"], 1)
+            self.assertTrue(accepted["direct_runs"]["t2-red"]["direct_process_capture"])
+            self.assertEqual(len(accepted["amended_plan_validation"]), 2)
+
+            def reject(mutator, message=None):
+                review = json.loads(json.dumps(original))
+                mutator(review)
+                review_path.write_text(json.dumps(review, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+                with self.assertRaises(successor.ContractError, msg=message):
+                    validator(project, require_summary=True)
+
+            reject(lambda review: review["direct_runs"].pop("t2-red"))
+            reject(lambda review: review["direct_runs"]["t2-red"].update(argv=["python3", "-c", "wrong test"]))
+            reject(lambda review: review["direct_runs"]["t2-red"]["capture_result"].update(base64="%%"))
+            reject(lambda review: review["direct_runs"]["t2-red"]["before"]["sources"][0].update(sha256="0" * 64))
+            reject(lambda review: review["direct_runs"]["t2-red"]["before"]["sources"][0].update(
+                last_producing_commit=review["direct_runs"]["t2-red"]["capture_result"]["commit"]))
+
+            def invalid_utf8(review):
+                row = review["direct_runs"]["t2-red"]
+                raw = b"\xff"
+                row.update(stdout_base64=base64.b64encode(raw).decode(), stdout_bytes=1,
+                           stdout_sha256=hashlib.sha256(raw).hexdigest())
+            reject(invalid_utf8)
+
+            def bad_capture_commit(review):
+                run = review["direct_runs"]["t2-green"]
+                run["capture_result"]["commit"] = "0" * 40
+            reject(bad_capture_commit)
+
+            def corrupt_validator(review):
+                review["amended_plan_validation"]["253-179"]["frontmatter"]["stdout"] = "{}\n"
+            reject(corrupt_validator)
+
+            # Canonically equivalent source text with a fresh outer hash and
+            # committed replacement still disagrees with the captured bytes.
+            rel = f"{PHASE}/253-RECOVERY-SUCCESSOR.test.py"
+            prior = (project / rel).read_bytes()
+            changed = prior + b"\n"
+            (project / rel).write_bytes(changed)
+            subprocess.run(["git", "-C", str(project), "add", rel], check=True)
+            subprocess.run(["git", "-C", str(project), "commit", "-qm", "alternate UTF-8 source bytes"], check=True)
+            replacement_commit = subprocess.check_output(["git", "-C", str(project), "rev-parse", "HEAD"], text=True).strip()
+            replacement = json.loads(json.dumps(original))
+            replacement["source_files"][rel] = hashlib.sha256(changed).hexdigest()
+            replacement["source_commits"][rel] = replacement_commit
+            review_path.write_text(json.dumps(replacement, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(successor.ContractError, "final validator capture does not bind"):
+                validator(project, require_summary=True)
+
+            # Missing, empty, null, nonobject and invalid-UTF-8 review bytes
+            # are independently refused before any lifecycle can be approved.
+            malformed = (b"", b"null", b"[]", b"{}", b"{\xff}")
+            for raw in malformed:
+                with self.subTest(raw=raw):
+                    review_path.write_bytes(raw)
+                    with self.assertRaises(successor.ContractError):
+                        validator(project, require_summary=False)
+            review_path.unlink()
+            with self.assertRaises(successor.ContractError):
+                validator(project, require_summary=False)
+
+        # The legacy validator remains a separate historical check; its
+        # halted review cannot stand in for committed direct-run evidence.
+        self.assertTrue(callable(getattr(successor, "validate_review181", None)))
+        self.assertEqual(successor.REVIEW_SCHEMA,
+                         "sigra.phase253.successor-repair-review/v1")
 
 
 if __name__ == "__main__":
