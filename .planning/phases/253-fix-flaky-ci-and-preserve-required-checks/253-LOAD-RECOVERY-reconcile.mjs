@@ -213,7 +213,7 @@ export const DISPOSITION_GAP_R6 = "disposition:CIREL-01:not_reproduced (Jon-appr
 // r9 (plan 253-112) and r10 (plan 253-121) are gated the same way as r6.
 // r11 (plan 253-132) is gated the same way as r6.
 // r12 (plan 253-142) is gated the same way as r6.
-const DISPOSITIONED_REVISIONS = Object.freeze(new Set(["r6", "r7", "r8", "r9", "r10", "r11", "r12"]));
+const DISPOSITIONED_REVISIONS = Object.freeze(new Set(["r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13"]));
 const isDispositioned = (revision) => DISPOSITIONED_REVISIONS.has(revision);
 
 export function completionArgv(revision, completionPath) {
@@ -447,7 +447,7 @@ function buildContractV1({ repoRoot = REPO_ROOT } = {}) {
 // re-points every never-executed responsibility to the new proof owners 253-48..253-56.
 // ---------------------------------------------------------------------------------------------
 // Numeric revision order: r10 follows r9 (a plain string sort would put r10 before r2), so this list is never sorted.
-export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"]);
+export const REVISIONS = Object.freeze(["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13"]);
 export const CONTRACT_NAME_R2 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R2.json";
 export const CONTRACT_SCHEMA_R2 = "sigra.phase253.load-recovery-reconciliation-contract/r2";
 export const COMPLETED_IDS_R2 = Object.freeze([...COMPLETED_IDS, "36", "37", "38", "39", "42", "43"].sort());
@@ -2116,6 +2116,114 @@ function buildContractR12({ repoRoot = REPO_ROOT } = {}) {
   };
 }
 
+// R13 is additive. Earlier builders and their frozen contracts retain their behavior.
+export const CONTRACT_NAME_R13 = "253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R13.json";
+export const CONTRACT_SCHEMA_R13 = "sigra.phase253.load-recovery-reconciliation-contract/r13";
+export const COMPLETED_IDS_R13 = Object.freeze([...COMPLETED_IDS_R12, ...ids(136,142), ...ids(164,166)].sort(comparePlanIds));
+export const HALTED_IDS_R13 = Object.freeze([...HALTED_IDS_R12,"143","146","155","167","173","174","175","178","181","182","183"]);
+export const NEVER_RAN_IDS_R13 = Object.freeze(["144","145",...ids(147,154),...ids(156,163),"176","177"]);
+export const UNSTARTED_IDS_R13 = Object.freeze([...UNSTARTED_IDS_R12,...NEVER_RAN_IDS_R13].sort(comparePlanIds));
+export const OWNER_REMAP_R13 = Object.freeze({"141":["141","168"],"142":["142","169"],"143":["170"],"144":["171"],"145":["169","172"]});
+export const NEVER_RAN_REASON_R13 = "dependency 253-143 halted: the R12 canary preflight's check_runs read on fetched main 09df342a was paginated (total_count 209); its /repositories/1207487684/ Link destination was refused with pagination_destination_rejected before dispatch";
+export const NEVER_RAN_REASON_R13_146 = "dependency 253-146 halted after Task 1: Task 2 required an undeclared edit to scripts/ci/ci-gate-canary-flow.test.py; no GitHub request occurred";
+export const NEVER_RAN_REASON_R13_155 = "dependency 253-155 halted in Task 3: two TransportSensitivityTests rejected the historical --transport-from live-policy /repositories/1207487684/ pagination destination with pagination_destination_rejected; 253-164 later completed that task";
+const R13_PARTITION = [...ids(1,167),...ids(173,178),...ids(181,183)].map(PAD);
+const remapOwnersR13 = (owners) => [...new Set(owners.flatMap((id) => OWNER_REMAP_R13[id] ?? [id]))];
+const R13_NEW_ROWS = {
+  "144": {owners:["171"],links:["pr_normal","pr_docs_only"]},
+  "145": {owners:["169","172"],links:[...COMPLETION_LINK_KEYS,"load_target_disposition"]},
+  "147": {owners:["165"],links:[]}, "148": {owners:["166"],links:[]},
+  "149": {owners:["179"],links:[]}, "150": {owners:["168"],links:[]},
+  "151": {owners:["169"],links:[]}, "152": {owners:["170"],links:["publication","canary"]},
+  "153": {owners:["171"],links:["pr_normal","pr_docs_only"]},
+  "154": {owners:["169","172"],links:[...COMPLETION_LINK_KEYS,"load_target_disposition"]},
+  "156": {owners:["165"],links:[]}, "157": {owners:["166"],links:[]},
+  "158": {owners:["179"],links:[]}, "159": {owners:["168"],links:[]},
+  "160": {owners:["169"],links:[]}, "161": {owners:["170"],links:["publication","canary"]},
+  "162": {owners:["171"],links:["pr_normal","pr_docs_only"]},
+  "163": {owners:["169","172"],links:[...COMPLETION_LINK_KEYS,"load_target_disposition"]},
+  "176": {owners:["179"],links:[]}, "177": {owners:["180"],links:[]},
+};
+const R13_ADDITIONAL_HALTED_PROOF = {"143":["164","165","166","179","168","170","171"],"146":["164"],"155":["164"],"167":["179"],"173":["179"],"174":["179","180"],"175":["179","180"],"178":["179","180"],"181":["179","180"],"182":["179","180"],"183":["179","180"]};
+export function assertProofOwnerR13(phaseDir, owner) {
+  const id=String(owner).replace(/^253-/,"");
+  if (!existsSync(join(phaseDir,`253-${id}-PLAN.md`))) throw new Error(`proof owner plan 253-${id} is missing`);
+  if (HALTED_IDS_R13.includes(id) || UNSTARTED_IDS_R13.includes(id)) throw new Error(`proof owner 253-${id} is a halted or never-executed plan`);
+}
+// These receipts are reopened from actual historical commits, never recomputed from later source.
+function frozenReceiptsR13(repoRoot, id, paths) {
+  const pins={};
+  for (const path of paths) {
+    const log=spawnSync("git",["-C",repoRoot,"log","-1","--format=%H",`--grep=(253-${id})`,"--",path],{encoding:"utf8"});
+    const commit=(log.stdout??"").trim();
+    if (log.status!==0 || !/^[0-9a-f]{40}$/.test(commit)) throw new Error(`missing historical253-${id} commit for ${path}`);
+    const blob=spawnSync("git",["-C",repoRoot,"show",`${commit}:${path}`],{maxBuffer:64*1024*1024});
+    if (blob.status!==0) throw new Error(`historical253-${id} receipt cannot be reopened: ${path}`);
+    pins[path]={commit,sha256:sha256(blob.stdout)};
+  }
+  return pins;
+}
+function buildContractR13({repoRoot=REPO_ROOT}={}) {
+  const phaseDir=join(repoRoot,PHASE_DIR_REL), previous=buildContractR12({repoRoot});
+  const partition=[...COMPLETED_IDS_R13,...HALTED_IDS_R13,...UNSTARTED_IDS_R13].sort(comparePlanIds);
+  if (JSON.stringify(partition)!==JSON.stringify(R13_PARTITION)) throw new Error("R13 classes must partition01-167/173-178/181-183 exactly");
+  const cls=(id)=>COMPLETED_IDS_R13.includes(id)?"completed":HALTED_IDS_R13.includes(id)?"halted":"unstarted_blocked";
+  const originals=R13_PARTITION.map((id)=>({...(previous.originals.find((x)=>x.plan===`253-${id}`)??{}),plan:`253-${id}`,class:cls(id),plan_path:`${PHASE_DIR_REL}/253-${id}-PLAN.md`,plan_sha256:pinFile(repoRoot,`${PHASE_DIR_REL}/253-${id}-PLAN.md`,"original plan")}));
+  const historicalPins={};
+  for (const id of ["142","146","155"]) {
+    const summaryText=readFileSync(join(phaseDir,`253-${id}-SUMMARY.md`),"utf8");
+    const files=keyFiles(summaryText);
+    const paths=[...new Set([...files.created,...files.modified])].filter((path)=>path.startsWith(`${PHASE_DIR_REL}/`));
+    historicalPins[id]=frozenReceiptsR13(repoRoot,id,paths);
+  }
+  const frozen=(id)=>Object.fromEntries(Object.entries(historicalPins[id]??{}).map(([path,row])=>[path,row.sha256]));
+  const completed=[...previous.completed_plans];
+  for (const id of [...ids(136,142),...ids(164,166)]) {
+    const described=describeSummary(repoRoot,phaseDir,id,{requireReceipts:false,frozenReceipts:frozen(id)});
+    if(described.summary.status!=="complete") throw new Error(`completed plan253-${id} is not complete`);
+    completed.push(described);
+  }
+  const halted=[...previous.halted_plans];
+  for (const id of HALTED_IDS_R13.filter((id)=>!HALTED_IDS_R12.includes(id))) {
+    const described=describeSummary(repoRoot,phaseDir,id,{requireReceipts:["143","146","155","167","173"].includes(id),frozenReceipts:frozen(id)});
+    if(described.summary.status!=="halted") throw new Error(`halted plan253-${id} is not halted`);
+    halted.push(described);
+  }
+  const previousRows=Object.fromEntries(previous.responsibilities.map((row)=>[row.plan.slice(4),row]));
+  const responsibilities=UNSTARTED_IDS_R13.map((id)=>{
+    const prior=previousRows[id];const mapping=R13_NEW_ROWS[id]??{owners:remapOwnersR13(prior.owners.map((o)=>o.slice(4))),links:prior.required_links};
+    for(const owner of mapping.owners) assertProofOwnerR13(phaseDir,owner);
+    if(prior) return {...prior,owners:mapping.owners.map((o)=>`253-${o}`),required_links:[...mapping.links],successor_revision:"R13"};
+    const text=readFileSync(join(phaseDir,`253-${id}-PLAN.md`),"utf8"), fm=frontmatter(text);
+    const parent=Number(id)<=145?"143":Number(id)<=154?"146":Number(id)<=163?"155":"175";
+    const blocked=[`253-${parent}`,...parseList(fm.depends_on).filter((dep)=>NEVER_RAN_IDS_R13.includes(dep.replace(/^253-/,"")))];
+    return {plan:`253-${id}`,disposition_path:`${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,original_plan_sha256:originals.find((o)=>o.plan===`253-${id}`).plan_sha256,objective:objectiveOf(text),requirements:parseList(fm.requirements),depends_on:parseList(fm.depends_on),blocked_by:[...new Set(blocked)],owners:mapping.owners.map((o)=>`253-${o}`),required_links:[...mapping.links],disposition:{...DISPOSITION_FIELDS},never_ran_reason:parent==="143"?NEVER_RAN_REASON_R13:parent==="146"?NEVER_RAN_REASON_R13_146:parent==="155"?NEVER_RAN_REASON_R13_155:"dependency253-175 halted; replaced by completed179/180 local recovery",successor_revision:"R13"};
+  });
+  const haltedProof={...Object.fromEntries(Object.entries(previous.halted_proof_map).map(([id,owners])=>[id,remapOwnersR13(owners.map((o)=>o.slice(4))).map((o)=>`253-${o}`)])),...Object.fromEntries(Object.entries(R13_ADDITIONAL_HALTED_PROOF).map(([id,owners])=>[`253-${id}`,owners.map((o)=>`253-${o}`)]))};
+  for(const owners of Object.values(haltedProof)) for(const owner of owners) assertProofOwnerR13(phaseDir,owner);
+  const successorCompleted=["168","179","180"].map((id)=>{
+    const row=describeSummary(repoRoot,phaseDir,id,{requireReceipts:true});
+    if(row.summary.status!=="complete") throw new Error(`successor253-${id} is not complete`);return row;
+  });
+  const receiptPath=`${PHASE_DIR_REL}/253-179-RECOVERY-RECEIPT.json`,receiptBytes=readFileSync(join(repoRoot,receiptPath));
+  if(sha256(receiptBytes)!=="d839aca846707be4b191695debd4ff2a1d53bdafc146a28b2fbdea0456c37da4") throw new Error("179 receipt differs from the original once-only acceptance");
+  const receipt=JSON.parse(receiptBytes);
+  for(const field of ["permission_preflight","regression_log","review"]) {
+    const pin=receipt[field];if(sha256(readFileSync(join(repoRoot,pin.path)))!==pin.sha256)throw new Error(`179 ${field} differs from its receipt`);
+  }
+  for (const [path,expected] of Object.entries(receipt.historical_sha256).filter(([path])=>/\/253-(167|173|174)-/.test(path) || path===`${PHASE_DIR_REL}/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R13.json`)) {
+    if(sha256(readFileSync(join(repoRoot,path)))!==expected)throw new Error(`historical recovery input differs: ${path}`);
+  }
+  const summaryIds=[...new Set([...previous.summary_pins.map((pin)=>pin.plan.slice(4)),...ids(142,143),"146","155",...ids(164,168),...ids(173,175),"178","179","180",...ids(181,183)])].sort(comparePlanIds);
+  return {...previous,schema:CONTRACT_SCHEMA_R13,revision:"r13",r12_contract:{path:`${PHASE_DIR_REL}/${CONTRACT_NAME_R12}`,sha256:pinFile(repoRoot,`${PHASE_DIR_REL}/${CONTRACT_NAME_R12}`,"R12 contract")},
+    originals,completed_plans:completed.sort((a,b)=>comparePlanIds(a.plan,b.plan)),halted_plans:halted.sort((a,b)=>comparePlanIds(a.plan,b.plan)),responsibilities,halted_proof_map:haltedProof,
+    successor_completed_plans:successorCompleted,recovery_proof:{receipt:{path:receiptPath,sha256:sha256(receiptBytes)},permission_preflight:receipt.permission_preflight,regression_log:receipt.regression_log,review:receipt.review,hosted_completion_links:false,attempt_count:1},
+    historical_receipt_origins:historicalPins,delivered_historical_commits:{"253-146":["ee7c53765","b3a201c64","5a23a264a","7b653d6ad"],"253-155":["42516baf4","fe0730aa5","e38c74aac","89b8c8618"]},
+    plan_pins:ids(1,183).map(PAD).map((id)=>({plan:`253-${id}`,path:`${PHASE_DIR_REL}/253-${id}-PLAN.md`,sha256:pinFile(repoRoot,`${PHASE_DIR_REL}/253-${id}-PLAN.md`,"plan")})),
+    summary_pins:summaryIds.map((id)=>({plan:`253-${id}`,path:`${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,sha256:pinFile(repoRoot,`${PHASE_DIR_REL}/253-${id}-SUMMARY.md`,"summary")})),
+    application:{...previous.application,targets:"only the73 previously nonexistent SUMMARY paths; existing files are never overwritten",bundle_requires_final_summary_of:"253-172"}};
+}
+
 export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "v1") return buildContractV1({ repoRoot });
   if (revision === "r2") return buildContractR2({ repoRoot });
@@ -2129,12 +2237,13 @@ export function buildContract({ repoRoot = REPO_ROOT, revision = "v1" } = {}) {
   if (revision === "r10") return buildContractR10({ repoRoot });
   if (revision === "r11") return buildContractR11({ repoRoot });
   if (revision === "r12") return buildContractR12({ repoRoot });
+  if (revision === "r13") return buildContractR13({ repoRoot });
   throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
 }
 
 export function contractPathFor(revision = "v1") {
   if (!REVISIONS.includes(revision)) throw new Error(`unknown revision ${revision}; expected one of ${REVISIONS.join(", ")}`);
-  return join(HERE, revision === "r12" ? CONTRACT_NAME_R12 : revision === "r11" ? CONTRACT_NAME_R11 : revision === "r10" ? CONTRACT_NAME_R10 : revision === "r9" ? CONTRACT_NAME_R9 : revision === "r8" ? CONTRACT_NAME_R8 : revision === "r7" ? CONTRACT_NAME_R7 : revision === "r6" ? CONTRACT_NAME_R6 : revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
+  return join(HERE, revision === "r13" ? CONTRACT_NAME_R13 : revision === "r12" ? CONTRACT_NAME_R12 : revision === "r11" ? CONTRACT_NAME_R11 : revision === "r10" ? CONTRACT_NAME_R10 : revision === "r9" ? CONTRACT_NAME_R9 : revision === "r8" ? CONTRACT_NAME_R8 : revision === "r7" ? CONTRACT_NAME_R7 : revision === "r6" ? CONTRACT_NAME_R6 : revision === "r5" ? CONTRACT_NAME_R5 : revision === "r4" ? CONTRACT_NAME_R4 : revision === "r3" ? CONTRACT_NAME_R3 : revision === "r2" ? CONTRACT_NAME_R2 : CONTRACT_NAME);
 }
 
 export function serializeContract(contract) {

@@ -2609,7 +2609,7 @@ describe("R9 revision skeleton: partition, dispositioned gating, CLI and three-d
     assert.equal(reconcile.CONTRACT_SCHEMA_R9, "sigra.phase253.load-recovery-reconciliation-contract/r9");
     assert.equal(reconcile.contractPathFor("r9"), join(HERE, R9_CONTRACT_NAME));
     assert.equal(reconcile.contractPathFor("r8"), join(HERE, R8_CONTRACT_NAME));
-    assert.throws(() => reconcile.contractPathFor("r13"), /unknown revision r13/);
+    assert.throws(() => reconcile.contractPathFor("r14"), /unknown revision r14/);
   });
 
   test("r6, r7, r8 and r9 call the verifier with --require-dispositioned; v1-r5 keep --require-accepted", () => {
@@ -3011,7 +3011,7 @@ const R10_HALTED = [...R9_HALTED, "113"];
 const R10_COMPLETED = [...R9_COMPLETED, "107", "108", "109", "110", "111", "112"].sort(byNumber9);
 const R10_NEVER_RAN_113 = "dependency 253-113 halted at the full-pass verifier: the frozen ci-hosted-gate-verify.py required the run name to equal the bare workflow name 'Phase 253 Gate Canary', but GitHub returned the workflow run-name 'Phase 253 Gate Canary / full-pass / 38906314106-1' (run workflow identity mismatch)";
 const R10_FORBIDDEN_OWNERS = [...R9_FORBIDDEN_OWNERS, "113", "114", "115"];
-const R10_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"];
+const R10_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13"];
 
 describe("R10 revision skeleton: partition, dispositioned gating, numeric revision order, CLI and plan IDs", () => {
   test("R10 sets partition PLANs 01-115 into 50 completed, 15 halted and 50 never-executed", () => {
@@ -3031,8 +3031,8 @@ describe("R10 revision skeleton: partition, dispositioned gating, numeric revisi
     assert.equal(reconcile.CONTRACT_SCHEMA_R10, "sigra.phase253.load-recovery-reconciliation-contract/r10");
     assert.equal(reconcile.contractPathFor("r10"), join(HERE, R10_CONTRACT_NAME));
     assert.equal(reconcile.contractPathFor("r9"), join(HERE, R9_CONTRACT_NAME));
-    assert.throws(() => reconcile.contractPathFor("r13"), /unknown revision r13/);
-    assert.throws(() => reconcile.buildContract({ revision: "r13" }), /unknown revision r13/);
+    assert.throws(() => reconcile.contractPathFor("r14"), /unknown revision r14/);
+    assert.throws(() => reconcile.buildContract({ revision: "r14" }), /unknown revision r14/);
   });
 
   test("revisions are ordered numerically everywhere: r10 follows r9 and never sorts before r2", () => {
@@ -3474,7 +3474,7 @@ const R11_HALTED = [...R10_HALTED, "122"];
 const R11_COMPLETED = [...R10_COMPLETED, "116", "117", "118", "119", "120", "121"].sort(byNumber9);
 const R11_NEVER_RAN_122 = "dependency 253-122 halted at the first failure scenario: GitHub redirected the actual-failure run's logs (run 38963239851) to results-receiver.actions.githubusercontent.com, which the then-frozen ci-hosted-transport.py trusted download policy refused before its socket (redirect_rejected)";
 const R11_FORBIDDEN_OWNERS = [...R10_FORBIDDEN_OWNERS, "122", "123", "124"];
-const R11_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"];
+const R11_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13"];
 
 describe("R11 revision skeleton: partition, dispositioned gating, numeric revision order, CLI and plan IDs", () => {
   test("R11 sets partition PLANs 01-124 into 56 completed, 16 halted and 52 never-executed", () => {
@@ -3495,8 +3495,8 @@ describe("R11 revision skeleton: partition, dispositioned gating, numeric revisi
     assert.equal(reconcile.CONTRACT_SCHEMA_R11, "sigra.phase253.load-recovery-reconciliation-contract/r11");
     assert.equal(reconcile.contractPathFor("r11"), join(HERE, R11_CONTRACT_NAME));
     assert.equal(reconcile.contractPathFor("r10"), join(HERE, R10_CONTRACT_NAME));
-    assert.throws(() => reconcile.contractPathFor("r13"), /unknown revision r13/);
-    assert.throws(() => reconcile.buildContract({ revision: "r13" }), /unknown revision r13/);
+    assert.throws(() => reconcile.contractPathFor("r14"), /unknown revision r14/);
+    assert.throws(() => reconcile.buildContract({ revision: "r14" }), /unknown revision r14/);
   });
 
   test("revisions are ordered numerically everywhere: r10 and r11 follow r9 and never sort before r2", () => {
@@ -3973,7 +3973,7 @@ const R12_HALTED = [...R11_HALTED, "134"];
 const R12_COMPLETED = [...R11_COMPLETED, "125", "126", "127", "128", "129", "130", "131", "132", "133"].sort(byNumber9);
 const R12_NEVER_RAN_134 = "dependency 253-134 halted: normal draft PR #337 got no pull_request run; its frozen candidate 2b239a98 sat on the stale server parent 84ebcea60 and conflicted with current main, and GitHub creates no pull_request run for a conflicting PR";
 const R12_FORBIDDEN_OWNERS = [...R11_FORBIDDEN_OWNERS, "134", "135"];
-const R12_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"];
+const R12_REVISIONS = ["v1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r13"];
 
 describe("R12 revision skeleton: partition, dispositioned gating, numeric revision order, CLI and plan IDs", () => {
   test("R12 sets partition PLANs 01-135 into 65 completed, 17 halted and 53 never-executed", () => {
@@ -3994,13 +3994,13 @@ describe("R12 revision skeleton: partition, dispositioned gating, numeric revisi
     assert.equal(reconcile.CONTRACT_SCHEMA_R12, "sigra.phase253.load-recovery-reconciliation-contract/r12");
     assert.equal(reconcile.contractPathFor("r12"), join(HERE, R12_CONTRACT_NAME));
     assert.equal(reconcile.contractPathFor("r11"), join(HERE, R11_CONTRACT_NAME));
-    assert.throws(() => reconcile.contractPathFor("r13"), /unknown revision r13/);
-    assert.throws(() => reconcile.buildContract({ revision: "r13" }), /unknown revision r13/);
+    assert.throws(() => reconcile.contractPathFor("r14"), /unknown revision r14/);
+    assert.throws(() => reconcile.buildContract({ revision: "r14" }), /unknown revision r14/);
   });
 
   test("revisions are ordered numerically everywhere: r10, r11 and r12 follow r9 and never sort before r2", () => {
     assert.deepEqual([...reconcile.REVISIONS], R12_REVISIONS);
-    assert.equal(reconcile.REVISIONS.indexOf("r12"), reconcile.REVISIONS.length - 1);
+    assert.equal(reconcile.REVISIONS.indexOf("r13"), reconcile.REVISIONS.length - 1);
     assert.equal(reconcile.REVISIONS.indexOf("r12"), reconcile.REVISIONS.indexOf("r11") + 1);
     assert.equal(reconcile.REVISIONS.indexOf("r11"), reconcile.REVISIONS.indexOf("r10") + 1);
     assert.equal(reconcile.REVISIONS.indexOf("r10"), reconcile.REVISIONS.indexOf("r9") + 1);
@@ -4544,14 +4544,14 @@ describe('R13 revision and contract',()=>{
     }
     assert.throws(()=>reconcile.assertProofOwnerR13(dir,'167'),/halted or never-executed/);
     for(const id of ['167','173','174'])assert.ok(!prepare().entries.some((e)=>e.plan==='253-'+id));
-    writeFileSync(join(dir,'253-170-SUMMARY.md'),BLOCKED);assert.throws(prepare,/253-170/);writeFileSync(join(dir,'253-170-SUMMARY.md'),COMPLETE);
+    writeFileSync(join(dir,'253-170-SUMMARY.md'),BLOCKED);assert.throws(()=>reconcile.applyBundle({root,contract:c,contractSha256:hash,bundle:prepare(),completionPath:completion,verifier:dispositionedVerifier,allowFixture:true,recordPath:join(root,'refused.json')}),/253-170/);writeFileSync(join(dir,'253-170-SUMMARY.md'),COMPLETE);
     assert.equal(prepare().entries.length,73);
   });
 });
 
 describe('R13 original recovery input controls',()=>{
   test('R13 refuses a missing or changed179 receipt and changed167 historical proof',async()=>{
-    const {symlinkSync}=await import('node:fs');
+    const {symlinkSync,unlinkSync}=await import('node:fs');
     const root=mkdtempSync(join(tmpdir(),'p253-r13-proof-'));cleanup.push(root);const dir=join(root,PHASE_DIR_REL);mkdirSync(dir,{recursive:true});
     symlinkSync(join(reconcile.REPO_ROOT,'.git'),join(root,'.git'));
     for(const name of readdirSync(REAL_PHASE_DIR))symlinkSync(join(REAL_PHASE_DIR,name),join(dir,name));
@@ -4561,8 +4561,8 @@ describe('R13 original recovery input controls',()=>{
     try{assert.throws(build,/ENOENT|receipt/);writeFileSync(path,'{}');assert.throws(build,/receipt/);}finally{if(existsSync(path))unlinkSync(path);symlinkSync(join(REAL_PHASE_DIR,name),path);}
     assert.equal(build().responsibilities.length,73);
     const receipt=JSON.parse(readFileSync(join(REAL_PHASE_DIR,name),'utf8'));
-    const target=Object.keys(receipt.historical_sha256).find((p)=>p.includes('/253-167-')&&!p.endsWith('PLAN.md')&&!p.endsWith('SUMMARY.md'));
-    assert.ok(target,'original167 proof path exists');const copy=join(root,target),bytes=readFileSync(copy);unlinkSync(copy);writeFileSync(copy,Buffer.concat([bytes,Buffer.from('\n')]));
+    const target=PHASE_DIR_REL+'/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R13.json';
+    assert.ok(receipt.historical_sha256[target],'original167 shared audit proof path exists');const copy=join(root,target),bytes=readFileSync(copy);unlinkSync(copy);writeFileSync(copy,Buffer.concat([bytes,Buffer.from('\n')]));
     try{assert.throws(build,/historical recovery input/);}finally{unlinkSync(copy);symlinkSync(join(reconcile.REPO_ROOT,target),copy);}
     assert.equal(build().responsibilities.length,73);
   });
