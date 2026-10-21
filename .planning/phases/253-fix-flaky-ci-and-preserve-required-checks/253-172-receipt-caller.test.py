@@ -6,8 +6,7 @@ import subprocess
 import unittest
 ROOT = Path(__file__).resolve().parents[2].parent
 PHASE = '.planning/phases/253-fix-flaky-ci-and-preserve-required-checks'
-BASE = '17d79ca4c8'  # full pre-task identity is obtained from CAPTURE below
-BASE = '17d79ca4c'  # immutable commit abbreviation, checked by git
+BASE = '17d79ca4ca7270b78510e67e40f0e3bfdb5de2d5'
 PREFIX = 'python3 -B ' + PHASE + '/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168 || exit $?;'
 
 def receipt_bodies():

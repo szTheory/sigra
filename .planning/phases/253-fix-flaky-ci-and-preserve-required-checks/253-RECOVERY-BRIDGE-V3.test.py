@@ -30,6 +30,7 @@ class ConsumerTests(unittest.TestCase):
                 target.symlink_to(ROOT / rel)
             v3.validate_current(root)
             mutations = [(v3.PLAN, b'wrong receipt schema'),
+                         (v3.PLAN_172, b'wrong receipt prefix'),
                          (PHASE + '/253-179-RECOVERY-RECEIPT.json', b'{}'),
                          (PHASE + '/253-180-BRIDGE-V2-RECORD.json', b'{}'),
                          (PHASE + '/253-174-SUMMARY.md', b'status: complete\n'),
