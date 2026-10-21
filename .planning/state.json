@@ -36,9 +36,9 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": true,
-    "label": "Continue existing Plan172 after corrected-bundle approval",
-    "reason": "The approved second attempt spent41 requests and launched one full-pass workflow39684755372, which succeeded. Collection stopped because both the local and pinned candidate checkers reject the proposed253-proof branch prefix. All old attempts remain closed. The compatible bundle uses fresh253-replan-proof refs supported by both unchanged checkers.33 offline tests pass, including all six cases and the exact hosted verifier step on explicitly synthetic data. Five remaining hosted cases, separate verifier and both PR families still need actual results. Plan172 remains unfinished at the new exact-bundle approval checkpoint; no quick or progress scan is needed. Phase253 is not verified."
+    "conditional": false,
+    "label": "Continue Plan172 offline from PR339 repairs",
+    "reason": "The approved compatible bundle closed after93 canary and34 PR requests. All six hosted gate cases and separate verifier passed. Actual PR339 CI failed; docs-only PR never ran. Three defects were reproduced and repaired offline in4734916ee with156 passing checks. Plan172 remains unfinished. Continue172 offline by preparing a new-source bundle incorporating the verified operator request-label fix; no quick/progress scan, old window restart, or hosted action under the old approval. Phase253 remains unverified."
   },
   "updated_at": "2026-10-21T22:19:14.575991Z",
   "phase253_execution": {
@@ -1726,9 +1726,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-21T22:19:14.575991Z",
-  "stopped_at": "Plan172 second attempt stopped after successful full-pass;compatible bundle awaits new explicit approval",
-  "state_head": "a41c8a5ee846d59c4ca4c0a810030d3a1962d00e",
+  "last_updated": "2026-10-21T23:54:15.512906+00:00",
+  "stopped_at": "Plan172 actual hosted halt preserved;offline fixes committed;new-source bundle preparation next",
+  "state_head": "4734916eeca6ce4b5726c740ac468264338cb300",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2634,7 +2634,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "execute172_corrected_bundle_approval_checkpoint",
+  "workflow_step": "execute172_offline_repair_followup",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3146,14 +3146,14 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "normal_execute172_corrected_bundle_approval_checkpoint",
+    "status": "normal_execute172_offline_repair_followup",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": true,
-    "reason": "The approved second attempt spent41 requests and launched one full-pass workflow39684755372, which succeeded. Collection stopped because both the local and pinned candidate checkers reject the proposed253-proof branch prefix. All old attempts remain closed. The compatible bundle uses fresh253-replan-proof refs supported by both unchanged checkers.33 offline tests pass, including all six cases and the exact hosted verifier step on explicitly synthetic data. Five remaining hosted cases, separate verifier and both PR families still need actual results. Plan172 remains unfinished at the new exact-bundle approval checkpoint; no quick or progress scan is needed. Phase253 is not verified.",
+    "conditional": false,
+    "reason": "The approved compatible bundle closed after93 canary and34 PR requests. All six hosted gate cases and separate verifier passed. Actual PR339 CI failed; docs-only PR never ran. Three defects were reproduced and repaired offline in4734916ee with156 passing checks. Plan172 remains unfinished. Continue172 offline by preparing a new-source bundle incorporating the verified operator request-label fix; no quick/progress scan, old window restart, or hosted action under the old approval. Phase253 remains unverified.",
     "evidence": ".planning/execution/253-172-EXECUTION.json",
     "readiness": {
-      "source": ".planning/execution/253-proof-bundle-16800f431-compatible/sdk-readiness.json",
+      "source": "/tmp/253-pr339-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
@@ -3161,7 +3161,8 @@
       "operationally_ready_plans": [
         "253-172"
       ],
-      "approval_still_required": true
+      "approval_still_required": false,
+      "hosted_approval_required_after_new_bundle": true
     },
     "phase_verification_status": "not_started"
   },
@@ -3240,58 +3241,24 @@
     "historical_halts_before_this_task": 28,
     "offline_repair": ".planning/execution/253-pr338-repair/repair.json"
   },
-  "next_command_conditional": true,
+  "next_command_conditional": false,
   "phase253_completed_plans": 80,
   "phase253_unsummarized_plans": 74,
   "phase253_pending_decision": {
-    "status": "awaiting_explicit_approval",
-    "request": ".planning/execution/253-proof-bundle-16800f431-compatible/approval-request.json",
+    "status": "approved_and_consumed_closed",
+    "approval_commit": "0814726d0",
+    "decision_text": "yes i approve",
     "bundle_sha256": "3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c",
-    "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
-    "scope": "Corrected fresh canary117 requests/60minutes/45jobs, then normal/docs draft PRs120 requests/60minutes;zero reruns;new create-only compatible refs;all closed windows preserved",
-    "reason": "The approved attempt stopped and its window is closed. APPROVAL.md forbids restarting it or reusing its approval for another bundle; fresh approval is required for the committed compatible-prefix bundle."
+    "no_pending_approval_request": true,
+    "next_hosted_approval": "Only after a separate concrete new-source bundle is prepared; no approval implied."
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "phase253_external_mutations_performed": true,
   "phase253_pr171_execution": ".planning/execution/253-171.json",
   "phase253_pr171_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
   "phase253_current_preservation": {
-    "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
-    "paths": [
-      {
-        "path": ".planning/STATE.md",
-        "status": "clean_at_capture",
-        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
-        "sha256": "c28f470db7e5b8c87e326104af7a70fcc561492cfe185e0b82c2c560ee41ca9e",
-        "bytes": 37692,
-        "readback_verified": true
-      },
-      {
-        "path": ".planning/state.json",
-        "status": "clean_at_capture",
-        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
-        "sha256": "469c191fea7d3864cfeabb5740caf75f63aade9a9364a0e396d4d851c1f65cdf",
-        "bytes": 121695,
-        "readback_verified": true
-      },
-      {
-        "path": ".planning/HANDOFF.json",
-        "status": "clean_at_capture",
-        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
-        "sha256": "32f3866112b7a1196918fe2b180f9d20be3b4e0f959354c446b3ba6a9bca3870",
-        "bytes": 186526,
-        "readback_verified": true
-      },
-      {
-        "path": ".planning/execution/253-CONTINUATION.json",
-        "status": "clean_at_capture",
-        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
-        "sha256": "e2ca95074ed1fd8c297cc6312e8f77a90f13575280e65b274c9c72c81577b6fd",
-        "bytes": 3409,
-        "readback_verified": true
-      }
-    ],
-    "pending_plan_prior": ".planning/execution/253-proof-bundle-16800f431/plan172-prior.json"
+    "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+    "record": ".planning/execution/253-172-pr339-maintenance/state-preservation.json"
   },
   "phase253_pr338_offline_repair": {
     "status": "verified_offline",
@@ -3310,29 +3277,32 @@
     "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
   },
   "phase253_hosted_execution_bundle": {
-    "status": "offline_verified_awaiting_new_hosted_approval",
+    "status": "closed_actual_hosted_attempt",
     "record": ".planning/execution/253-proof-bundle-16800f431-compatible/bundle.json",
     "bundle_sha256": "3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c",
-    "commit": "a41c8a5ee846d59c4ca4c0a810030d3a1962d00e",
-    "approval_request": ".planning/execution/253-proof-bundle-16800f431-compatible/approval-request.json",
     "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
-    "tests": 33,
-    "ci_launches": 0,
-    "github_requests": 0,
-    "allocations": 0,
+    "approval_commit": "0814726d0",
+    "attempt_commit": "a4ad7101f",
+    "ci_launches": 8,
+    "github_requests": 127,
+    "allocations": 2,
+    "window_closed": true,
     "next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "phase253_plan172_hosted_attempt": {
-    "status": "halted_after_successful_full_pass_run",
+    "status": "pr339_halted_offline_repairs_verified",
     "record": ".planning/execution/253-172-EXECUTION.json",
-    "attempt": ".planning/execution/253-proof-bundle-16800f431-next/attempt-result.json",
-    "commit": "0da925d9f",
-    "approval_commit": "328df94ac",
-    "github_requests": 41,
-    "workflow_dispatches": 1,
-    "pr_creations": 0,
+    "attempt": ".planning/execution/253-proof-bundle-16800f431-compatible/attempt-result.json",
+    "commit": "a4ad7101f",
+    "repair_commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+    "github_requests": 127,
+    "workflow_dispatches": 7,
+    "pr_creations": 1,
     "window_closed": true,
-    "run_id": 39684755372,
-    "run_conclusion": "success"
-  }
+    "canary_verified": true,
+    "pr_number": 339,
+    "run_id": 39694840276,
+    "run_conclusion": "failure"
+  },
+  "prior_shared_state_commit": "4734916eeca6ce4b5726c740ac468264338cb300"
 }

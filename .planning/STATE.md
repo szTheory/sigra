@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-21T22:19:14.575991Z"
-state_head: a41c8a5ee846d59c4ca4c0a810030d3a1962d00e
+last_updated: "2026-10-21T23:54:15.512906+00:00"
+state_head: 4734916eeca6ce4b5726c740ac468264338cb300
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: 2026-10-21 - Plan172 second attempt preserved;namespace compatibility tested;fresh approval pending
+last_activity: 2026-10-21 - Plan172 canary passed;PR339 failed;offline repairs committed
 milestone_status: active
-workflow_step: execute172_corrected_bundle_approval_checkpoint
+workflow_step: execute172_offline_repair_followup
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -428,3 +428,9 @@ Execution: `.planning/execution/253-172-EXECUTION.json`; original attempt commit
 The approved second attempt spent41 requests and launched one full-pass workflow39684755372, which succeeded. Collection stopped because both the local and pinned candidate checkers reject the proposed253-proof branch prefix. All old attempts remain closed. The compatible bundle uses fresh253-replan-proof refs supported by both unchanged checkers.33 offline tests pass, including all six cases and the exact hosted verifier step on explicitly synthetic data. Five remaining hosted cases, separate verifier and both PR families still need actual results. Plan172 remains unfinished at the new exact-bundle approval checkpoint; no quick or progress scan is needed. Phase253 is not verified.
 
 Execution: `.planning/execution/253-172-EXECUTION.json`; second attempt commit `0da925d9f`; repair/bundle commit `a41c8a5ee846d59c4ca4c0a810030d3a1962d00e`. Prior shared bytes remain recoverable at `0da925d9fe27ac61c969b5d79e3e793054eebf2d`, read-back identities in the corrected bundle preservation.json. No original evidence, halted plan, acceptance receipt or closed budget was rewritten.
+
+## Current Plan172 continuation after PR339
+
+The approved compatible bundle closed after93 canary and34 PR requests. All six hosted gate cases and separate verifier passed. Actual PR339 CI failed; docs-only PR never ran. Three defects were reproduced and repaired offline in4734916ee with156 passing checks. Plan172 remains unfinished. Continue172 offline by preparing a new-source bundle incorporating the verified operator request-label fix; no quick/progress scan, old window restart, or hosted action under the old approval. Phase253 remains unverified.
+
+Product repair: `4734916eeca6ce4b5726c740ac468264338cb300`. Current execution record: `.planning/execution/253-172-EXECUTION.json`; exact actual attempt preserved at `a4ad7101f`. Shared state before this refresh is recoverable at `4734916eeca6ce4b5726c740ac468264338cb300`, with read-back hashes in `.planning/execution/253-172-pr339-maintenance/state-preservation.json`. The approval was consumed by the closed attempt; there is no pending approval question for the user. Next: `$gsd-execute-phase 253 --gaps-only`, continuing offline within172. Implementation fixes are locally verified; Plan172 and phase verification remain unfinished.
