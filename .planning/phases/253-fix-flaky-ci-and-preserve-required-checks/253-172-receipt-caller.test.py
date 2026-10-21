@@ -24,6 +24,15 @@ class CallerTests(unittest.TestCase):
         for n,b in bodies:
             with self.subTest(plan=n):self.assertTrue(b.startswith(PREFIX), b[:200])
 
+    def test_current_instructions_override_old_174_and_inventory_assumptions(self):
+        text=(ROOT/PHASE/'253-172-PLAN.md').read_text()
+        match=re.search(r'<execution_contract>\n<current_receipt_contract>(.*?)</current_receipt_contract>',text,re.S)
+        self.assertIsNotNone(match, 'missing current receipt instruction override')
+        for required in ['174 remains halted', '179 local acceptance', '180 local bridge',
+                         '73 disposition targets', '28 halted plans', 'PLAN pins 01-183',
+                         'supersedes every later reference', 'never hosted completion links']:
+            self.assertIn(required,match.group(1))
+
     def test_plan172_other_work_is_unchanged(self):
         rel=PHASE+'/253-172-PLAN.md'
         original=subprocess.check_output(['git','show',BASE+':'+rel],cwd=ROOT,text=True)
