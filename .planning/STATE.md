@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Plan168 prerequisite correction verified locally;tasks unexecuted;phase incomplete
-last_updated: "2026-10-21T14:55:41.145830+00:00"
-state_head: 697c0a1da3879e1b1adc141e1b89d04020c9f2d0
+stopped_at: Plan172 receipt connection verified locally;phase tasks unexecuted;phase incomplete
+last_updated: "2026-10-21T16:38:03.880769+00:00"
+state_head: 3725eaf12fe690c47ac8bed9d2c64f8358b3ec93
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 83
   percent: 25
-last_activity: "2026-10-21T14:55:41.145830+00:00 - Completed quick261021-ezk: Plan168 prerequisite correction"
+last_activity: "2026-10-21T16:38:03.880769+00:00 - Completed quick261021-he7: Plan172 receipt connection"
 milestone_status: active
 workflow_step: execute
 verification_status: not_started
@@ -152,11 +152,11 @@ phase253_ready_plans:
   - 253-172-PLAN.md
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: .planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json
+resume_file: .planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json
 phase253_current_execution_addendum: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-last_activity_desc: Plan168 prerequisite correction verified;no acceptance or CI;phase incomplete
+last_activity_desc: Plan172 receipt connection verified;no acceptance or CI;phase incomplete
 ---
 
 # Project State
@@ -170,13 +170,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.
+Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.
 
 ## Next GSD command
 
 $gsd-progress
 
-Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.
+Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.
 
 ## Known unfinished work
 
@@ -223,9 +223,9 @@ Plan 168 now requires completed 179 local acceptance and completed 180 local bri
 
 ## Session
 
-**Last session:** 2026-10-21T14:55:41.145830+00:00
-**Stopped at:** Plan168 prerequisite correction verified locally; tasks unexecuted; phase incomplete
-**Resume file:** .planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json
+**Last session:** 2026-10-21T16:38:03.880769+00:00
+**Stopped at:** Plan172 receipt connection verified locally; phase incomplete
+**Resume file:** .planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json
 
 ## Deferred Items
 
@@ -378,6 +378,7 @@ Original maintenance record and historical halts are unchanged. Fresh local resu
 | 261020-swa | Phase 253: reconnect acceptance prerequisites to the verified maintenance result; preserve historical halts and budgets; do not launch CI | 2026-10-20 | 8e18d8a05 | complete | [261020-swa-phase-253-reconnect-acceptance-prerequis](./quick/261020-swa-phase-253-reconnect-acceptance-prerequis/) |
 | 261021-drl | Phase253: additive28-halt consumer; preserve179 receipt/pins/halts/budgets; no179 replay orCI | 2026-10-21 | f35479819 | complete | [261021-drl-phase-253-resolve-plan-180-28-halt-incom](./quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/) |
 | 261021-ezk | Phase 253: correct Plan 168 completed-174 prerequisite and receipt schema; independent regression; no acceptance rerun or CI | 2026-10-21 | 697c0a1da | complete | [261021-ezk-phase-253-fix-plan-168-stale-prerequisit](./quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/) |
+| 261021-he7 | Phase253: connect Plan172 receipt command to corrected consumer; current instruction override; no acceptance replay or CI | 2026-10-21 | 3725eaf12 | complete | [261021-he7-phase-253-connect-plan-172-receipt-check](./quick/261021-he7-phase-253-connect-plan-172-receipt-check/) |
 
 ## Plan180 local closeout
 
@@ -386,3 +387,7 @@ Plan180 local bridge checks passed and summary committed. Stop before168: its in
 ## Current Plan168 prerequisite correction
 
 Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress. Evidence: `.planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json`. Earlier Plan180 closeout remains historical.
+
+## Current Plan172 receipt connection
+
+Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress. Evidence: `.planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json`. Previous quick-task sections remain historical.

@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T14:55:41.145830+00:00",
+  "timestamp": "2026-10-21T16:38:03.880769+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
+  "current": "Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.",
   "next_command": "$gsd-progress",
   "resume_command": "$gsd-progress",
-  "next_action": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
+  "next_action": "Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.",
   "route": {
     "immediate_gsd_command": "$gsd-progress",
     "resume_command": "$gsd-progress",
@@ -154,7 +154,7 @@
       "253-98",
       "253-99"
     ],
-    "reason": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
+    "reason": "Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.",
     "planning_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-PLANNING-RECORD.json",
     "whole_phase_verification_status": "not_started",
     "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json",
@@ -1478,7 +1478,7 @@
       ]
     }
   },
-  "resume_file": ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json",
+  "resume_file": ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json",
   "phase252_external_actions": {
     "draft_pr": "https://github.com/szTheory/sigra/pull/331",
     "measured_run": 38317383419,
@@ -3734,8 +3734,8 @@
   "current_routing": {
     "next_command": "$gsd-progress",
     "resume_command": "$gsd-progress",
-    "status": "local_prerequisite_correction_complete",
-    "reason": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
+    "status": "local_receipt_connection_complete",
+    "reason": "Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.",
     "readiness": {
       "plan_count": 183,
       "completed_implementation_count": 77,
@@ -3757,9 +3757,9 @@
     "phase_verification_status": "not_started",
     "execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-BRIDGE-V2-RECORD.json",
     "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
-    "evidence": ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CHECKS.json"
+    "evidence": ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json"
   },
-  "last_updated": "2026-10-21T14:55:41.145830+00:00",
+  "last_updated": "2026-10-21T16:38:03.880769+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4614,7 +4614,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0",
+  "state_head": "3725eaf12fe690c47ac8bed9d2c64f8358b3ec93",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4699,7 +4699,7 @@
     "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   },
-  "stopped_at": "Plan168 prerequisite correction verified locally; tasks unexecuted; phase incomplete",
+  "stopped_at": "Plan172 receipt connection verified locally; phase tasks unexecuted; phase incomplete",
   "phase253_plan168_prerequisite_correction": {
     "status": "corrected_not_executed",
     "summary": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
@@ -4710,5 +4710,19 @@
     "acceptance_reruns": 0,
     "ci_launches": 0,
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
+  },
+  "phase253_plan172_receipt_connection": {
+    "status": "verified_local_receipt_connection",
+    "summary": "Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.",
+    "checks": ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json",
+    "consumer": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py",
+    "next_command": "$gsd-progress",
+    "phase_verification_status": "not_started",
+    "phase_tasks_executed": 0,
+    "acceptance_reruns": 0,
+    "ci_launches": 0,
+    "prior_shared_state_commit": "3725eaf12fe690c47ac8bed9d2c64f8358b3ec93",
+    "state_row_preservation_ref": "refs/gsd/phase253-quick-261021-he7-state-row",
+    "state_row_preservation_commit": "569db38a0df6a5a50dbbcb02040f1f91fb0f212e"
   }
 }
