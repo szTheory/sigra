@@ -1,0 +1,5 @@
+subject	expected_total_hits	reference
+p18-doc-range-leak.ex	1	237-docs-attribute-scan.py
+p18-doc-range-lowercase-sigil.ex	0	237-docs-attribute-scan.py
+p18-doc-range-delimited-sigils.ex	0	237-docs-attribute-scan.py
+p18-doc-range-python-language.ex	4	237-docs-attribute-scan.py
