@@ -123,20 +123,30 @@ def verify(root, consumer='168'):
     # Private namespace retains all original functions and defaults. Only
     # module-owned functions are rebound; imported legacy checks are untouched.
     namespace = vars(v2).copy()
+    legacy_namespace = vars(v2.legacy).copy()
+    def rebind(value, target):
+        clone = types.FunctionType(value.__code__, target, value.__name__,
+                                   value.__defaults__, value.__closure__)
+        clone.__kwdefaults__ = value.__kwdefaults__
+        return clone
+    for name, value in vars(v2.legacy).items():
+        if isinstance(value, types.FunctionType) and value.__globals__ is vars(v2.legacy):
+            legacy_namespace[name] = rebind(value, legacy_namespace)
     for name, value in vars(v2).items():
-        if isinstance(value, types.FunctionType) and value.__globals__ is vars(v2):
-            clone = types.FunctionType(value.__code__, namespace, value.__name__,
-                                       value.__defaults__, value.__closure__)
-            clone.__kwdefaults__ = value.__kwdefaults__
-            namespace[name] = clone
+        if isinstance(value, types.FunctionType):
+            if value.__globals__ is vars(v2):
+                namespace[name] = rebind(value, namespace)
+            elif value.__globals__ is vars(v2.legacy):
+                namespace[name] = legacy_namespace[value.__name__]
     def projected_reader(reader):
         def read(at_root, rel, *args, **kwargs):
             if Path(at_root).resolve() == root and rel in originals:
                 return originals[rel]
             return reader(at_root, rel, *args, **kwargs)
         return read
-    namespace['read_bytes'] = projected_reader(v2.read_bytes)
-    namespace['read_source_bytes'] = projected_reader(v2.read_source_bytes)
+    for target in (namespace, legacy_namespace):
+        target['read_bytes'] = projected_reader(target['read_bytes'])
+        target['read_source_bytes'] = projected_reader(target['read_source_bytes'])
     result = namespace['verify_receipt'](root, '168')
     return {**result, 'consumer': consumer + '-v3', 'protected_phase_files': protected,
             'correction_base': BASE, 'historical_plan180_unchanged': True,
