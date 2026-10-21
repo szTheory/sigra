@@ -39,9 +39,9 @@
     }
   ],
   "next": {
-    "command": "$gsd-progress",
-    "label": "Review remaining original CI requirements",
-    "reason": "Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress."
+    "command": "$gsd-execute-phase 253 --gaps-only --wave 5",
+    "label": "Continue existing local Plan169",
+    "reason": "Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset."
   },
   "updated_at": "2026-10-21T14:30:00.278571+00:00",
   "phase253_execution": {
@@ -1151,8 +1151,8 @@
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "status": "in_progress",
-  "next_command": "$gsd-progress",
-  "resume_command": "$gsd-progress",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -1650,9 +1650,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-21T16:38:03.880769+00:00",
-  "stopped_at": "Plan172 receipt connection verified locally; phase tasks unexecuted; phase incomplete",
-  "state_head": "3725eaf12fe690c47ac8bed9d2c64f8358b3ec93",
+  "last_updated": "2026-10-21T17:03:21.061613+00:00",
+  "stopped_at": "Plan168 complete; continuing local169; hosted CI prohibited",
+  "state_head": "1110a182ea540f87283903ce894621c044f86f33",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -3074,12 +3074,11 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "next_command": "$gsd-progress",
-    "resume_command": "$gsd-progress",
-    "status": "local_receipt_connection_complete",
-    "reason": "Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.",
-    "phase_verification_status": "not_started",
-    "evidence": ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json"
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
+    "status": "continuing_local169",
+    "reason": "Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.",
+    "phase_verification_status": "not_started"
   },
   "phase253_plan172_receipt_connection": {
     "status": "verified_local_receipt_connection",
@@ -3094,5 +3093,15 @@
     "prior_shared_state_commit": "3725eaf12fe690c47ac8bed9d2c64f8358b3ec93",
     "state_row_preservation_ref": "refs/gsd/phase253-quick-261021-he7-state-row",
     "state_row_preservation_commit": "569db38a0df6a5a50dbbcb02040f1f91fb0f212e"
+  },
+  "phase253_local_continuation": {
+    "current_plan": "253-169",
+    "plan168_status": "complete",
+    "plan168_summary": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-SUMMARY.md",
+    "evidence_ref": "refs/gsd/phase253-168-local-execution",
+    "evidence_commit": "a85f1e19f34b13d5ca7fd4eb7dffc0aeea282a7c",
+    "next_command": "$gsd-execute-phase 253 --gaps-only --wave 5",
+    "policy": "Continue ready authorized local work without asking the user to run progress; preserve original halts and budgets; no179 replay or CI.",
+    "phase_verification_status": "not_started"
   }
 }

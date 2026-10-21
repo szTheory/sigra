@@ -3,9 +3,9 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Plan172 receipt connection verified locally;phase tasks unexecuted;phase incomplete
-last_updated: "2026-10-21T16:38:03.880769+00:00"
-state_head: 3725eaf12fe690c47ac8bed9d2c64f8358b3ec93
+stopped_at: Plan168 complete;continuing Plan169 locally;hosted CI prohibited
+last_updated: "2026-10-21T17:03:21.061613+00:00"
+state_head: 1110a182ea540f87283903ce894621c044f86f33
 progress:
   total_phases: 4
   completed_phases: 1
@@ -18,8 +18,8 @@ workflow_step: execute
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-progress
-resume_command: $gsd-progress
+next_command: $gsd-execute-phase 253 --gaps-only --wave 5
+resume_command: $gsd-execute-phase 253 --gaps-only --wave 5
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -29,7 +29,7 @@ phase253_plan_count: 183
 phase253_wave_count: 8
 phase253_task_count: 479
 phase253_implementation_status: partial
-phase253_completed_plans: 77
+phase253_completed_plans: 78
 phase253_halted_plans:
   - 253-02
   - 253-07
@@ -156,7 +156,7 @@ resume_file: .planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check
 phase253_current_execution_addendum: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-last_activity_desc: Plan172 receipt connection verified;no acceptance or CI;phase incomplete
+last_activity_desc: Plan168 completed actual local freeze and gates;continue169
 ---
 
 # Project State
@@ -170,13 +170,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.
+Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.
 
 ## Next GSD command
 
-$gsd-progress
+$gsd-execute-phase 253 --gaps-only --wave 5
 
-Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress.
+Plan168 complete: local R13 freeze and both offline gates verified; audit66/66. Continue existing local Plan169 directly. Plans170/171 require hosted CI and remain forbidden. Both CI requirements remain open; no179 acceptance replay or budget reset.
 
 ## Known unfinished work
 
@@ -391,3 +391,7 @@ Plan 168 now requires completed 179 local acceptance and completed 180 local bri
 ## Current Plan172 receipt connection
 
 Plan172 now uses the corrected V3 receipt consumer and explicit current instructions;174 remains halted. The actual receipt command and all10 focused tests passed. All three live receipt blocks in168/172 use the same command. Phase tasks remain unexecuted, both CI requirements remain open and phase verification has not started. No acceptance replay, CI or budget change. Next: $gsd-progress. Evidence: `.planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CHECKS.json`. Previous quick-task sections remain historical.
+
+## Resume rule after local repairs
+
+The user requested direct continuation: after a scoped repair passes, execute the next already-authorized local task in this turn. Use a status command only when the next action is genuinely uncertain. Stop for an actual failed limit, missing evidence or prohibited external action; name it. Do not create another numbered repair plan, replay179, renew a budget or launch CI. Current proof: refs/gsd/phase253-168-local-execution at a85f1e19f34b13d5ca7fd4eb7dffc0aeea282a7c.
