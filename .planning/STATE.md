@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-21T19:32:32.740Z"
-state_head: 6075f985ec0834f6df94f2d2f5616b9b04edfa81
+last_updated: "2026-10-21T20:00:18.124Z"
+state_head: ef3c2dd5946868459e2804d13e0a3728b4b3801b
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: 2026-10-21 - Hosted-proof proposal prepared offline; no CI
+last_activity: 2026-10-21 - Offline execution bundle verified; normal172 approval checkpoint next
 milestone_status: active
-workflow_step: hosted_proof_proposal_prepared
+workflow_step: execute172_hosted_approval_checkpoint
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
-resume_command: "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
-next_command_conditional: false
+next_command: $gsd-execute-phase 253 --gaps-only
+resume_command: $gsd-execute-phase 253 --gaps-only
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -140,15 +140,15 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: []
+phase253_ready_plans: [253-172-PLAN.md]
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
 resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Offline hosted-proof proposal prepared; fresh execution bundle required
-last_activity_desc: Hosted-proof proposal prepared; fresh offline execution bundle next
+stopped_at: Offline bundle verified; normal Plan172 awaits explicit hosted approval
+last_activity_desc: Normal Phase253 execution restored; hosted approval is the remaining pause
 ---
 
 # Project State
@@ -162,13 +162,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Hosted-proof proposal for source16800f431 is committed offline. The exact candidate tree matches the locally tested repair. Existing runners accept only old ref pairs; prepare and test a fresh execution bundle before requesting hosted approval. No CI, API request, new allocation or budget renewal. PR338 remains halted; Plan172 and whole-phase verification remain incomplete. No new numbered phase plan or progress scan.
+Offline execution bundle for source16800f431 is committed and23 tests pass. The installed GSD tools select unfinished172 as the sole runnable plan; its first task requires explicit approval of this concrete new hosted attempt. Continue normal execute-phase after that approval. No further quick/progress selection is needed. PR338 and171 remain halted, every old window remains closed, and phase verification is not_started. No CI or GitHub request occurred in this preparation.
 
 ## Next GSD command
 
-$gsd-quick "Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI"
+$gsd-execute-phase 253 --gaps-only
 
-Proposal: `.planning/execution/253-hosted-proof-16800f431/proposal.json`. Fresh ref support and fail-closed guards must be verified offline before an approval request. Do not execute old runners or renew closed windows. Phase253 remains incomplete;254 remains pending. Earlier sections are historical.
+Conditional only on explicit approval of `.planning/execution/253-proof-bundle-16800f431/approval-request.json`. Plan172 is schedulable but its approval checkpoint grants no CI permission. No active allocation or approval exists. Preserve171/PR338 and all closed windows; do not run old R13 scripts. Whole-phase verification remains incomplete. Earlier sections are historical.
 
 ## Known unfinished work
 
@@ -370,6 +370,7 @@ Original maintenance record and historical halts are unchanged. Fresh local resu
 | 261021-ezk | Phase 253: correct Plan 168 completed-174 prerequisite and receipt schema; independent regression; no acceptance rerun or CI | 2026-10-21 | 697c0a1da | complete | [261021-ezk-phase-253-fix-plan-168-stale-prerequisit](./quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/) |
 | 261021-he7 | Phase253: connect Plan172 receipt command to corrected consumer; current instruction override; no acceptance replay or CI | 2026-10-21 | 3725eaf12 | complete | [261021-he7-phase-253-connect-plan-172-receipt-check](./quick/261021-he7-phase-253-connect-plan-172-receipt-check/) |
 | 261021-lhg | Phase253: hosted-proof proposal for repaired source16800f431; preserve PR338 and closed budgets; no CI | 2026-10-21 | 6075f985e | complete | [261021-lhg-phase-253-prepare-a-hosted-proof-proposa](./quick/261021-lhg-phase-253-prepare-a-hosted-proof-proposa/) |
+| 261021-ltc | Phase253: offline execution bundle for source16800f431; restore normal172 execution; preserve all closed windows; no CI | 2026-10-21 | ef3c2dd59 | complete | [261021-ltc-phase-253-prepare-and-verify-the-offline](./quick/261021-ltc-phase-253-prepare-and-verify-the-offline/) |
 
 ## Plan180 local closeout
 
@@ -410,3 +411,9 @@ Record: `.planning/execution/253-pr338-repair/repair.json`. Prior shared bytes a
 Hosted-proof proposal for source16800f431 is committed offline. The exact candidate tree matches the locally tested repair. Existing runners accept only old ref pairs; prepare and test a fresh execution bundle before requesting hosted approval. No CI, API request, new allocation or budget renewal. PR338 remains halted; Plan172 and whole-phase verification remain incomplete. No new numbered phase plan or progress scan.
 
 Proposal commit: `6075f985ec0834f6df94f2d2f5616b9b04edfa81`. Prior shared bytes recoverable at `647fdbc01481c6bafc63831891873113c45a806e`; hashes and read-back identities are in the proposal. Next: $gsd-quick "Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI"
+
+## Normal execution restored after offline bundle preparation
+
+Offline execution bundle for source16800f431 is committed and23 tests pass. The installed GSD tools select unfinished172 as the sole runnable plan; its first task requires explicit approval of this concrete new hosted attempt. Continue normal execute-phase after that approval. No further quick/progress selection is needed. PR338 and171 remain halted, every old window remains closed, and phase verification is not_started. No CI or GitHub request occurred in this preparation.
+
+Bundle commit: `ef3c2dd5946868459e2804d13e0a3728b4b3801b`; exact bundle SHA256 `d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa`. All23 tests and the actual canary check-only contract pass. Prior shared bytes are recoverable at `a96a80bda6af01ecb69fd8f96a4fa13cd30288cb`; unfinished172 prior bytes have their own read-back record. Next: `$gsd-execute-phase 253 --gaps-only`, after explicit hosted approval. No further gsd-quick is needed merely to continue.

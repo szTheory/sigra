@@ -5,30 +5,28 @@
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Hosted-proof proposal for source16800f431 is committed offline. The exact candidate tree matches the locally tested repair. Existing runners accept only old ref pairs; prepare and test a fresh execution bundle before requesting hosted approval. No CI, API request, new allocation or budget renewal. PR338 remains halted; Plan172 and whole-phase verification remain incomplete. No new numbered phase plan or progress scan.",
-  "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
-  "resume_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
-  "next_action": "Prepare and verify the fresh offline bundle; no hosted approval or launch yet.",
+  "current": "Offline execution bundle for source16800f431 is committed and23 tests pass. The installed GSD tools select unfinished172 as the sole runnable plan; its first task requires explicit approval of this concrete new hosted attempt. Continue normal execute-phase after that approval. No further quick/progress selection is needed. PR338 and171 remain halted, every old window remains closed, and phase verification is not_started. No CI or GitHub request occurred in this preparation.",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Receive explicit approval of the committed bundle, then execute172 directly under normal GSD; no more quick selection.",
   "route": {
-    "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
-    "resume_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
-    "conditional": false,
-    "status": "proposal_prepared_execution_bundle_next",
-    "reason": "Hosted-proof proposal for source16800f431 is committed offline. The exact candidate tree matches the locally tested repair. Existing runners accept only old ref pairs; prepare and test a fresh execution bundle before requesting hosted approval. No CI, API request, new allocation or budget renewal. PR338 remains halted; Plan172 and whole-phase verification remain incomplete. No new numbered phase plan or progress scan.",
+    "status": "normal_execute172_approval_checkpoint",
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "conditional": true,
+    "reason": "Offline execution bundle for source16800f431 is committed and23 tests pass. The installed GSD tools select unfinished172 as the sole runnable plan; its first task requires explicit approval of this concrete new hosted attempt. Continue normal execute-phase after that approval. No further quick/progress selection is needed. PR338 and171 remain halted, every old window remains closed, and phase verification is not_started. No CI or GitHub request occurred in this preparation.",
+    "evidence": ".planning/execution/253-proof-bundle-16800f431/bundle.json",
     "readiness": {
+      "source": ".planning/execution/253-proof-bundle-16800f431/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
       "without_summary": 74,
-      "incomplete_count": 74,
-      "operationally_ready_plans": [],
-      "blocked_plan172_by": [
-        "253-171"
+      "operationally_ready_plans": [
+        "253-172"
       ],
-      "source": "execution/253-171-diagnosis/sdk-index.json"
+      "approval_still_required": true
     },
-    "evidence": ".planning/execution/253-hosted-proof-16800f431/proposal.json",
-    "diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
     "phase_verification_status": "not_started"
   },
   "workflow": {
@@ -52,7 +50,7 @@
       254,
       255
     ],
-    "next_required_gate": "Resolve168 completed174 contradiction;no179 rerun orCI",
+    "next_required_gate": "Explicit hosted approval for repaired source16800f431 and exact bundle hash",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -67,7 +65,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute",
+    "workflow_step": "execute172_hosted_approval_checkpoint",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -88,7 +86,7 @@
     "phase253_plan_count": 183,
     "phase253_wave_count": 8,
     "phase253_task_count": 476,
-    "phase253_completed_plans": 77,
+    "phase253_completed_plans": 80,
     "phase253_halted_plans": [
       "253-02",
       "253-07",
@@ -103,6 +101,7 @@
       "253-155",
       "253-16",
       "253-167",
+      "253-171",
       "253-173",
       "253-174",
       "253-175",
@@ -204,24 +203,29 @@
     "phase253_recovery_task_count": 13,
     "phase253_replan_count": 11,
     "phase253_replan_task_count": 24,
-    "phase253_remaining_plans": 78,
+    "phase253_remaining_plans": 74,
     "phase253_control_recovery_plan_count": 10,
     "phase253_control_recovery_task_count": 22,
     "phase253_ready_plans": [
-      "253-168-PLAN.md",
-      "253-169-PLAN.md",
-      "253-170-PLAN.md",
-      "253-171-PLAN.md",
       "253-172-PLAN.md"
     ],
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
-    "phase253_execution_status": "blocked_before168",
-    "phase253_halted_plan_count": 28,
-    "phase253_unsummarized_plan_count": 78
+    "phase253_execution_status": "awaiting_hosted_approval172",
+    "phase253_halted_plan_count": 29,
+    "phase253_unsummarized_plan_count": 74
   },
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    {
+      "status": "awaiting_explicit_approval",
+      "request": ".planning/execution/253-proof-bundle-16800f431/approval-request.json",
+      "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa",
+      "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+      "scope": "New canary117 requests/60minutes/45jobs, then normal/docs draft PRs120 requests/60minutes; zero reruns; create-only fresh refs; all closed windows preserved",
+      "reason": "Current task explicitly forbids CI; earlier approvals bind another source and closed windows."
+    }
+  ],
   "async_jobs": [],
   "previous_milestone": {
     "version": "v1.49",
@@ -3662,28 +3666,26 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
-    "resume_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
-    "conditional": false,
-    "status": "proposal_prepared_execution_bundle_next",
-    "reason": "Hosted-proof proposal for source16800f431 is committed offline. The exact candidate tree matches the locally tested repair. Existing runners accept only old ref pairs; prepare and test a fresh execution bundle before requesting hosted approval. No CI, API request, new allocation or budget renewal. PR338 remains halted; Plan172 and whole-phase verification remain incomplete. No new numbered phase plan or progress scan.",
+    "status": "normal_execute172_approval_checkpoint",
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only",
+    "conditional": true,
+    "reason": "Offline execution bundle for source16800f431 is committed and23 tests pass. The installed GSD tools select unfinished172 as the sole runnable plan; its first task requires explicit approval of this concrete new hosted attempt. Continue normal execute-phase after that approval. No further quick/progress selection is needed. PR338 and171 remain halted, every old window remains closed, and phase verification is not_started. No CI or GitHub request occurred in this preparation.",
+    "evidence": ".planning/execution/253-proof-bundle-16800f431/bundle.json",
     "readiness": {
+      "source": ".planning/execution/253-proof-bundle-16800f431/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
       "without_summary": 74,
-      "incomplete_count": 74,
-      "operationally_ready_plans": [],
-      "blocked_plan172_by": [
-        "253-171"
+      "operationally_ready_plans": [
+        "253-172"
       ],
-      "source": "execution/253-171-diagnosis/sdk-index.json"
+      "approval_still_required": true
     },
-    "evidence": ".planning/execution/253-hosted-proof-16800f431/proposal.json",
-    "diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
     "phase_verification_status": "not_started"
   },
-  "last_updated": "2026-10-21T19:32:32.269086+00:00",
+  "last_updated": "2026-10-21T20:00:17.672766+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4257,9 +4259,11 @@
     },
     "recorded_at": "2026-10-20T23:11:22.112438+00:00"
   },
-  "phase253_ready_plans": [],
+  "phase253_ready_plans": [
+    "253-172-PLAN.md"
+  ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "hosted_proof_proposal_prepared",
+  "workflow_step": "execute172_hosted_approval_checkpoint",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4532,7 +4536,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "6075f985ec0834f6df94f2d2f5616b9b04edfa81",
+  "state_head": "ef3c2dd5946868459e2804d13e0a3728b4b3801b",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4617,7 +4621,7 @@
     "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   },
-  "stopped_at": "Offline hosted-proof proposal prepared; fresh execution bundle required",
+  "stopped_at": "Offline bundle verified; normal Plan172 awaits explicit hosted approval",
   "phase253_plan168_prerequisite_correction": {
     "status": "corrected_not_executed",
     "summary": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
@@ -4704,50 +4708,58 @@
     "historical_halts_before_this_task": 28,
     "offline_repair": ".planning/execution/253-pr338-repair/repair.json"
   },
-  "next_command_conditional": false,
+  "next_command_conditional": true,
   "phase253_completed_plans": 80,
   "phase253_unsummarized_plans": 74,
-  "phase253_pending_decision": null,
+  "phase253_pending_decision": {
+    "status": "awaiting_explicit_approval",
+    "request": ".planning/execution/253-proof-bundle-16800f431/approval-request.json",
+    "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa",
+    "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "scope": "New canary117 requests/60minutes/45jobs, then normal/docs draft PRs120 requests/60minutes; zero reruns; create-only fresh refs; all closed windows preserved",
+    "reason": "Current task explicitly forbids CI; earlier approvals bind another source and closed windows."
+  },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "current_route_prior_commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
   "phase253_pr171_execution": ".planning/execution/253-171.json",
   "phase253_pr171_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
   "phase253_current_preservation": {
-    "commit": "647fdbc01481c6bafc63831891873113c45a806e",
+    "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
     "paths": [
       {
         "path": ".planning/STATE.md",
         "status": "clean_at_capture",
-        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
-        "sha256": "74daf60906567fd41728de47ad43f193a96f9cd3a96c8a28e02ca134427fd00a",
-        "bytes": 36447,
+        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
+        "sha256": "c28f470db7e5b8c87e326104af7a70fcc561492cfe185e0b82c2c560ee41ca9e",
+        "bytes": 37692,
         "readback_verified": true
       },
       {
         "path": ".planning/state.json",
         "status": "clean_at_capture",
-        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
-        "sha256": "c5b29e4537cecadf91cd735a8f48621eeb122f03c66d309861430aca87d87066",
-        "bytes": 121524,
+        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
+        "sha256": "469c191fea7d3864cfeabb5740caf75f63aade9a9364a0e396d4d851c1f65cdf",
+        "bytes": 121695,
         "readback_verified": true
       },
       {
         "path": ".planning/HANDOFF.json",
         "status": "clean_at_capture",
-        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
-        "sha256": "72f7d2bec36755dd763592d9ffc4db49e20e4e8fcda864e6be2fd2ae9e7cd37c",
-        "bytes": 186420,
+        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
+        "sha256": "32f3866112b7a1196918fe2b180f9d20be3b4e0f959354c446b3ba6a9bca3870",
+        "bytes": 186526,
         "readback_verified": true
       },
       {
         "path": ".planning/execution/253-CONTINUATION.json",
         "status": "clean_at_capture",
-        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
-        "sha256": "bc1d4d9b3930b5f9901faafb177250c9a5faacfdfc5ab99f263c4819f24b7ee8",
-        "bytes": 2741,
+        "commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
+        "sha256": "e2ca95074ed1fd8c297cc6312e8f77a90f13575280e65b274c9c72c81577b6fd",
+        "bytes": 3409,
         "readback_verified": true
       }
-    ]
+    ],
+    "pending_plan_prior": ".planning/execution/253-proof-bundle-16800f431/plan172-prior.json"
   },
   "phase253_pr338_offline_repair": {
     "status": "verified_offline",
@@ -4764,5 +4776,18 @@
     "allocations": 0,
     "budget_renewals": 0,
     "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
+  },
+  "phase253_hosted_execution_bundle": {
+    "status": "offline_verified_awaiting_hosted_approval",
+    "record": ".planning/execution/253-proof-bundle-16800f431/bundle.json",
+    "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa",
+    "commit": "ef3c2dd5946868459e2804d13e0a3728b4b3801b",
+    "approval_request": ".planning/execution/253-proof-bundle-16800f431/approval-request.json",
+    "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "tests": 23,
+    "ci_launches": 0,
+    "github_requests": 0,
+    "allocations": 0,
+    "next_command": "$gsd-execute-phase 253 --gaps-only"
   }
 }

@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "proposal_prepared_execution_bundle_next",
-  "timestamp": "2026-10-21T19:32:32.269086+00:00",
+  "status": "normal_execute172_approval_checkpoint",
+  "timestamp": "2026-10-21T20:00:17.672766+00:00",
   "completed_local_plans": [
     "253-168",
     "253-169"
@@ -39,18 +39,25 @@
     "CIREL-01": "partial_not_reproduced",
     "CIREL-02": "unaccepted"
   },
-  "next_plan": null,
-  "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\"",
-  "next_command_conditional": false,
-  "required_decision": null,
-  "reason_for_decision": null,
+  "next_plan": "253-172",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_command_conditional": true,
+  "required_decision": {
+    "status": "awaiting_explicit_approval",
+    "request": ".planning/execution/253-proof-bundle-16800f431/approval-request.json",
+    "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa",
+    "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "scope": "New canary117 requests/60minutes/45jobs, then normal/docs draft PRs120 requests/60minutes; zero reruns; create-only fresh refs; all closed windows preserved",
+    "reason": "Current task explicitly forbids CI; earlier approvals bind another source and closed windows."
+  },
+  "reason_for_decision": "Current task explicitly forbids CI; earlier approvals bind another source and closed windows.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
   "github_requests": 104,
   "ci_launches": 8,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
+  "prior_shared_state_commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -68,5 +75,18 @@
     "allocations": 0,
     "budget_renewals": 0,
     "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
+  },
+  "hosted_execution_bundle": {
+    "status": "offline_verified_awaiting_hosted_approval",
+    "record": ".planning/execution/253-proof-bundle-16800f431/bundle.json",
+    "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa",
+    "commit": "ef3c2dd5946868459e2804d13e0a3728b4b3801b",
+    "approval_request": ".planning/execution/253-proof-bundle-16800f431/approval-request.json",
+    "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "tests": 23,
+    "ci_launches": 0,
+    "github_requests": 0,
+    "allocations": 0,
+    "next_command": "$gsd-execute-phase 253 --gaps-only"
   }
 }
