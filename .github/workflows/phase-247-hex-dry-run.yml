@@ -70,7 +70,7 @@ jobs:
           test "${GITHUB_REF}" = refs/heads/main
           test "${GITHUB_REPOSITORY}" = szTheory/sigra
           test "$(git -C trusted rev-parse HEAD)" = "${GITHUB_SHA}"
-          test "$(git -C candidate rev-parse HEAD)" = 0e773d3614a242e4fbcdd34c418ecb8a307703d6
+          test "$(git -C candidate rev-parse HEAD)" = 563f411bc2659bb9ac1652d552ce58ffb0c876b1
           bash trusted/scripts/ci/phase-247-hex-dry-run.sh verify-baseline trusted/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json
 
       - name: Install pinned Beam toolchain and exact candidate dependencies
@@ -93,12 +93,12 @@ jobs:
         run: |
           set -euo pipefail
           pr="$(gh api repos/szTheory/sigra/pulls/224)"
-          test "$(jq -r '.head.sha' <<<"$pr")" = 0e773d3614a242e4fbcdd34c418ecb8a307703d6
+          test "$(jq -r '.head.sha' <<<"$pr")" = 563f411bc2659bb9ac1652d552ce58ffb0c876b1
           pr_base="$(jq -r '.base.sha' <<<"$pr")"
           live_main="$(gh api repos/szTheory/sigra/branches/main --jq '.commit.sha')"
-          test "$pr_base" = d135cbce343947499a0810736c500ef5f1cb5c32 || test "$pr_base" = "$live_main"
+          test "$pr_base" = 590eb4ed3323db11dd74326cbee00c9c7973e529 || test "$pr_base" = "$live_main"
           test "$(jq -r '.state' <<<"$pr")" = open
-          test "$(git -C candidate rev-parse HEAD)" = 0e773d3614a242e4fbcdd34c418ecb8a307703d6
+          test "$(git -C candidate rev-parse HEAD)" = 563f411bc2659bb9ac1652d552ce58ffb0c876b1
 
       - name: Confirm Hex 1.6.0 is absent before dry-run
         id: hex_before
@@ -115,10 +115,6 @@ jobs:
           HEX_API_KEY: ${{ secrets.HEX_DRY_RUN_API_KEY }}
         run: mix hex.publish --dry-run --yes
 
-      - name: Restore the generated ExDoc artifact
-        if: always()
-        run: bash trusted/scripts/ci/phase-247-hex-dry-run.sh restore-generated-docs candidate
-
       - name: Write safe dry-run receipt
         if: always()
         env:
@@ -129,7 +125,6 @@ jobs:
           EVIDENCE_PR_HEAD_SHA: ${{ inputs.evidence_pr_head_sha }}
           EVIDENCE_MANIFEST_BLOB_ID: ${{ inputs.manifest_blob_id }}
           DRY_RUN_OUTCOME: ${{ steps.hex_dry_run.outcome }}
-          DRY_RUN_KEY_PRESENT: ${{ secrets.HEX_DRY_RUN_API_KEY != '' }}
           HEX_RELEASE_BEFORE_STATUS: ${{ steps.hex_before.outputs.http_status }}
           GITHUB_WORKFLOW_REF: ${{ github.workflow_ref }}
           GITHUB_RUN_STARTED_AT: ${{ steps.run_started.outputs.started_at }}
@@ -145,17 +140,8 @@ jobs:
           REQUESTED_SHA: ${{ inputs.candidate_sha }}
         run: |
           if [ ! -f phase-247-hex-dry-run-receipt.json ]; then
-            trusted_dirty_paths='[]'
-            candidate_dirty_paths='[]'
-            if [ -d trusted/.git ]; then
-              trusted_dirty_paths="$(git -C trusted status --porcelain --untracked-files=all | jq -Rsc 'split("\\n") | map(select(length > 0))')"
-            fi
-            if [ -d candidate/.git ]; then
-              candidate_dirty_paths="$(git -C candidate status --porcelain --untracked-files=all | jq -Rsc 'split("\\n") | map(select(length > 0))')"
-            fi
             jq -n --arg run_id "$RUN_ID" --arg attempt "$RUN_ATTEMPT" --arg sha "$REQUESTED_SHA" \
-              --argjson trusted_dirty_paths "$trusted_dirty_paths" --argjson candidate_dirty_paths "$candidate_dirty_paths" \
-              '{schema_version:1,run_id:$run_id,run_attempt:($attempt|tonumber),requested_sha:$sha,verdict:"blocked",diagnostic:"preflight_or_receipt_generation_failed",trusted_dirty_paths:$trusted_dirty_paths,candidate_dirty_paths:$candidate_dirty_paths}' \
+              '{schema_version:1,run_id:$run_id,run_attempt:($attempt|tonumber),requested_sha:$sha,verdict:"blocked",diagnostic:"preflight_or_receipt_generation_failed"}' \
               > phase-247-hex-dry-run-receipt.json
           fi
 

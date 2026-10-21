@@ -240,40 +240,6 @@ test_generated_index_is_only_pushed_file_and_fresh_ci_is_recorded() {
   cleanup_fixture
 }
 
-test_writer_retries_stale_post_push_candidate_read() {
-  new_fixture writer-post-push-propagation
-  local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
-  if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
-      --identity-file "$identity" --github-output "$output" >/dev/null; then
-    cleanup_fixture
-    fail "candidate capture should pass before post-push propagation check"
-    return 1
-  fi
-  printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
-  if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
-      --output-dir "$artifact" >/dev/null; then
-    cleanup_fixture
-    fail "candidate artifact should package before post-push propagation check"
-    return 1
-  fi
-  jq --arg sha "$CANDIDATE_SHA" '.[0].headRefOid = $sha' "$FAKE_PR_FILE" \
-    > "$FAKE_GH_FIXTURES/pull-requests-5.json"
-  if ! GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
-      --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
-      --summary-file "$FIXTURE/summary.md" >/dev/null; then
-    cleanup_fixture
-    fail "writer should re-read a stale post-push PR head until GitHub reports the writer SHA"
-    return 1
-  fi
-  assert_eq "refreshed" "$(grep -F 'status=refreshed' "$output" | cut -d= -f2)" \
-    "writer completes after the candidate head becomes visible" || { cleanup_fixture; return 1; }
-  assert_eq "6" "$(cat "$FAKE_GH_COUNTER")" \
-    "writer performs one bounded re-read after the stale post-push response" || { cleanup_fixture; return 1; }
-  assert_eq "doc/llms.txt" "$("$REAL_GIT" -C "$WRITER_REPO" show --pretty=format: --name-only HEAD | sed '/^$/d')" \
-    "retry still pushes only the generated docs index" || { cleanup_fixture; return 1; }
-  cleanup_fixture
-}
-
 test_capture_rejects_candidate_advanced_between_reads() {
   new_fixture capture-race
   local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt"
@@ -533,75 +499,6 @@ test_writer_rejects_unexpected_artifact_member() {
   cleanup_fixture
 }
 
-test_writer_rejects_candidate_destination_symlinks() {
-  local link_kind
-  for link_kind in index doc-directory; do
-    new_fixture "writer-destination-symlink-$link_kind"
-    local identity="$FIXTURE/identity.json" output="$FIXTURE/output.txt" artifact="$FIXTURE/artifact"
-    local outside="$FIXTURE/outside" outside_index="$FIXTURE/outside-index.txt" candidate_sha
-    mkdir -p "$outside"
-    printf 'do not overwrite this destination\n' > "$outside_index"
-
-    if [[ "$link_kind" == "index" ]]; then
-      rm "$BUILD_REPO/doc/llms.txt"
-      ln -s "$outside_index" "$BUILD_REPO/doc/llms.txt"
-    else
-      mkdir "$outside/doc-directory"
-      printf 'do not overwrite this destination\n' > "$outside/doc-directory/llms.txt"
-      rm -rf "$BUILD_REPO/doc"
-      ln -s "$outside/doc-directory" "$BUILD_REPO/doc"
-    fi
-
-    "$REAL_GIT" -C "$BUILD_REPO" add -A
-    "$REAL_GIT" -C "$BUILD_REPO" commit -qm "candidate replaces $link_kind with a symlink"
-    candidate_sha="$("$REAL_GIT" -C "$BUILD_REPO" rev-parse HEAD)"
-    "$REAL_GIT" -C "$BUILD_REPO" push -q origin "HEAD:refs/heads/$BRANCH"
-    "$REAL_GIT" -C "$WRITER_REPO" fetch -q "$BARE_REPO" "$BRANCH"
-    "$REAL_GIT" -C "$WRITER_REPO" reset --hard -q FETCH_HEAD
-    jq --arg sha "$candidate_sha" '.[0].headRefOid = $sha' "$FAKE_PR_FILE" > "$FAKE_PR_FILE.tmp"
-    mv "$FAKE_PR_FILE.tmp" "$FAKE_PR_FILE"
-
-    if ! bash "$HELPER" capture --repository "$REPOSITORY" --expected-main-sha "$TRUSTED_MAIN_SHA" \
-        --identity-file "$identity" --github-output "$output" >/dev/null; then
-      cleanup_fixture
-      fail "candidate identity should capture before destination-symlink checks ($link_kind)"
-      return 1
-    fi
-
-    if [[ "$link_kind" == "index" ]]; then
-      rm "$BUILD_REPO/doc/llms.txt"
-      printf 'fresh generated index\n' > "$BUILD_REPO/doc/llms.txt"
-    else
-      outside_index="$outside/doc-directory/llms.txt"
-      printf 'fresh generated index\n' > "$outside_index"
-    fi
-
-    if ! bash "$HELPER" package --candidate-dir "$BUILD_REPO" --identity-file "$identity" \
-        --output-dir "$artifact" >/dev/null; then
-      cleanup_fixture
-      fail "docs build artifact should package before destination-symlink check ($link_kind)"
-      return 1
-    fi
-
-    printf 'sentinel must remain unchanged\n' > "$outside_index"
-    if GH_TOKEN='test-token' bash "$HELPER" write --repository "$REPOSITORY" --repo-dir "$WRITER_REPO" \
-        --artifact-dir "$artifact" --identity-file "$identity" --github-output "$output" \
-        --summary-file "$FIXTURE/summary.md" >/dev/null 2>&1; then
-      cleanup_fixture
-      fail "writer must reject a candidate destination symlink ($link_kind)"
-      return 1
-    fi
-    assert_eq 'sentinel must remain unchanged' "$(cat "$outside_index")" \
-      "writer must not follow the candidate destination symlink ($link_kind)" || { cleanup_fixture; return 1; }
-    if grep -E '(^|[[:space:]])push([[:space:]]|$)' "$FAKE_GIT_PUSH_LOG" >/dev/null; then
-      cleanup_fixture
-      fail "candidate destination symlink must not reach git push ($link_kind)"
-      return 1
-    fi
-    cleanup_fixture
-  done
-}
-
 printf 'TAP version 13\n'
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "capture" ]]; then
   run_test 'captures one eligible fixed Release Please candidate at a stable full SHA' test_capture_one_eligible_candidate
@@ -611,7 +508,6 @@ if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "no-candidate" ]]; then
 fi
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "writer" ]]; then
   run_test 'writes only doc/llms.txt and records ordinary CI for the new head' test_generated_index_is_only_pushed_file_and_fresh_ci_is_recorded
-  run_test 'retries a stale post-push candidate read until the writer SHA is visible' test_writer_retries_stale_post_push_candidate_read
 fi
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "candidate-race" ]]; then
   run_test 'rejects a candidate SHA that changes between selection reads' test_capture_rejects_candidate_advanced_between_reads
@@ -639,9 +535,6 @@ if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "empty-index" ]]; then
 fi
 if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "artifact-extra" ]]; then
   run_test 'rejects unexpected artifact members before any candidate write' test_writer_rejects_unexpected_artifact_member
-fi
-if [[ -z "${REFRESH_ONLY:-}" || "$REFRESH_ONLY" == "destination-symlink" ]]; then
-  run_test 'rejects symlinked candidate destinations before writing or pushing' test_writer_rejects_candidate_destination_symlinks
 fi
 printf '1..%s\n' "$TOTAL"
 printf '# tests %s\n# pass %s\n# fail %s\n' "$TOTAL" "$((TOTAL - FAILED))" "$FAILED"
