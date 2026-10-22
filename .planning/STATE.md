@@ -3,22 +3,22 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T19:39:38.999003+00:00"
-state_head: 0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729
+last_updated: "2026-10-22T20:12:26.468968+00:00"
+state_head: a97c08fa4e92d2cad256c228e02c735a126ce530
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Direct requirement review completed; unnecessary progress handoff removed
+last_activity: 2026-10-22 - Original order log recovered; bounded diagnostic prepared
 milestone_status: active
-workflow_step: direct_requirement_review_complete_registration_blocked
+workflow_step: registration_order_recovered_diagnostic_prepared
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-verify-work 253
-resume_command: $gsd-verify-work 253
+next_command: $gsd-execute-phase 253 --gaps-only
+resume_command: $gsd-execute-phase 253 --gaps-only
 next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.
+Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.
 
 ## Conditional future GSD recheck
 
-$gsd-verify-work 253
+$gsd-execute-phase 253 --gaps-only
 
-Only after the original registration blocker changes. No command is needed from the user now. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
+Continue directly after the pending bounded-diagnostic decision. The agent runs the command; no status scan is needed. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
 
 ## Known unfinished work
 
@@ -491,3 +491,9 @@ Bundle SHA-256 `723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a
 ## PR343 successful run recovered
 
 PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation. Actual outputs are committed at 678b8f5a095fb81451c9c0db9dedd96b72fcf76d. Prior shared-state bytes are recoverable there, with exact hashes in .planning/execution/253-pr343-recovery-CLOSEOUT.json.
+
+## Current registration recovery
+
+Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.
+
+Evidence: `.planning/execution/253-registration-order-recovery/README.md`. Prior shared bytes are recoverable at `a97c08fa4e92d2cad256c228e02c735a126ce530`; read-back recorded in `prior-state.json`. Next: `$gsd-execute-phase 253 --gaps-only` after the new diagnostic decision. Future Phase254 route remains `$gsd-discuss-phase 254`, after253 completion.

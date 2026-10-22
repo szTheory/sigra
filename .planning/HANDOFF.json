@@ -5,22 +5,22 @@
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.",
-  "next_command": "$gsd-verify-work 253",
-  "resume_command": "$gsd-verify-work 253",
-  "next_action": "The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.",
+  "current": "Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.",
   "route": {
-    "status": "direct_requirement_review_complete_registration_blocked",
-    "next_command": "$gsd-verify-work 253",
-    "resume_command": "$gsd-verify-work 253",
+    "status": "registration_order_recovered_diagnostic_prepared",
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.",
-    "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md",
+    "reason": "Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.",
+    "evidence": ".planning/execution/253-registration-order-recovery/README.md",
     "phase_verification_status": "not_started",
-    "immediate_user_action": "none",
+    "immediate_user_action": "decision on one new bounded local diagnostic",
     "readiness": {
       "operationally_ready_plans": [],
-      "approval_still_required": false,
+      "approval_still_required": true,
       "new_ci_authorized": false
     }
   },
@@ -60,7 +60,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "direct_requirement_review_complete_registration_blocked",
+    "workflow_step": "registration_order_recovered_diagnostic_prepared",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -4247,7 +4247,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "direct_requirement_review_complete_registration_blocked",
+  "workflow_step": "registration_order_recovered_diagnostic_prepared",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4848,8 +4848,8 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
-  "updated_at": "2026-10-22T19:39:38.999003+00:00",
+  "prior_shared_state_commit": "a97c08fa4e92d2cad256c228e02c735a126ce530",
+  "updated_at": "2026-10-22T20:11:04.657990+00:00",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -5049,18 +5049,26 @@
   },
   "phase253_requirement_review_status": "complete_blocker_confirmed",
   "phase253_current_blocker": {
-    "status": "blocked_original_registration_evidence",
+    "status": "registration_cause_unknown_diagnostic_prepared",
     "requirement": "CIREL-01",
-    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md",
-    "record": ".planning/execution/253-direct-requirement-review/review.json",
+    "record": ".planning/execution/253-registration-order-recovery/recovered-order.json",
     "missing": [
-      "original preceding-order log (archived original log absent; rejected as a native receipt)",
-      "original control/DB state for the selected registration collision",
-      "any red-before counterexample on preserved exact source tied to a registration harness seam"
+      "original database/control state",
+      "failing counterexample tied to a registration-harness cause"
     ],
-    "strict_checker_exit": 3,
+    "original_order_log_recovered": true,
     "post_fix_slots_expired": 9,
-    "immediate_user_action": "none",
-    "conditional_recheck": "$gsd-verify-work 253"
+    "approval_pending": true,
+    "next_command": "$gsd-execute-phase 253 --gaps-only"
+  },
+  "phase253_registration_order_recovery": {
+    "status": "registration_order_recovered_diagnostic_prepared",
+    "record": ".planning/execution/253-registration-order-recovery/preparation.json",
+    "review": ".planning/execution/253-registration-order-recovery/README.md",
+    "browser_launches": 0,
+    "github_requests": 0,
+    "acceptance": false,
+    "approval_pending": true,
+    "old_slots_reopened": 0
   }
 }

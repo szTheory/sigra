@@ -1,0 +1,24 @@
+{
+  "status": "offline_preparation_verified",
+  "tests": 9,
+  "tests_log": "tests.log",
+  "compile_exit": 0,
+  "compile_log": "compile.log",
+  "collection_exit": 0,
+  "selection_log": "selection-list.stdout",
+  "selected_tests": 33,
+  "native_browser_launches": 0,
+  "github_requests": 0,
+  "old_slots_reopened": 0,
+  "acceptance": false,
+  "tracked_prior_revision": "a97c08fa4e92d2cad256c228e02c735a126ce530",
+  "sha256": {
+    "extract.py": "c26059436628a6532ffb45fce2cf09f80938d9a75b332aaf51c28134767c75a1",
+    "recovered-order.json": "a2d42204aea02140028fda6040c7909b6da64349e3c950a2a8d21f3513a5f700",
+    "preparation.json": "89027aef8636767328d1608153a181b91bbfe52b6eb51c05e48acdf5639558fb",
+    "replay.mjs": "477eeea121cdaa64d91762469e7e8992c8207fd9c241a8a6e7da8a5d4222ac20",
+    "tests.log": "f9b6c0fea2e12d891e42e331eaee3fdcca8c2eb4d1c2014b7b15d4bf9ce1d07b",
+    "compile.log": "a52dbaec16abe10f8bfc70d918f550159f402879e17f908216a60c79eefea5ed",
+    "selection-list.stdout": "259538a81468ad4fd76e64e948a3767d697fdc03b0e9e7e3164ce670d2e5040f"
+  }
+}
