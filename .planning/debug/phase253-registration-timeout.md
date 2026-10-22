@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: fixing
 trigger: "Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run"
 created: 2026-10-22
 updated: 2026-10-22
-goal: offline_diagnosis_only
+goal: find_and_fix_offline
 ---
 
 ## Symptoms
@@ -16,6 +16,20 @@ goal: offline_diagnosis_only
 - Source of symptoms: the user's current request and already retained original CI/replay records; no new user interview is needed.
 
 ## Current Focus
+
+reasoning_checkpoint:
+  hypothesis: CI's enabled development reloader can delete Ecto.Queryable between OTP's successful loaded check and export check,raising the same UndefinedFunctionError seen during the original save.
+  confirming_evidence:
+    - Original save161crashed on exactly Ecto.Queryable.to_query/1 before the user insert/POST;the original CI endpoint enables code_reloader.
+    - The controlled test uses the unchanged OTP28.5 handler algorithm with only its module name changed and a debugger scheduling pause. The actual Phoenix1.8.5 reloader then deletes Queryable;the resumed handler raises the identical error and stack head.
+    - The control follows the same loader steps without the intervening reload and succeeds. Trace confirms three real reloader deletions and two successful ensure_loaded returns.
+  falsification_test: A query failure in the same controlled test without an intervening reload rejects this explanation;the original module error recurring in a CI server with reloading disabled would show another cause remains.
+  fix_rationale: CI serves fixed checked-out source and needs no hot reloading. Disabling its reloader removes this protocol-deletion actor while preserving local development reloads and the remaining dev configuration.
+  blind_spots: Original CI has no module-lifecycle trace,so this exact historical interleaving remains inferred. The deterministic test enters a renamed copy of OTP's handler directly to avoid debugger-dispatch interference. No new browser run or post-fix CI proof is authorized.
+  candidate_causes:
+    - configuration/code: enabled development reloader plus the demonstrated loader/reloader interleaving
+    - environment: another actor or a missing/corrupt BEAM/code-path problem could also make the original module unavailable
+  and_gate: yes — the loader must be in its loaded-check/export-check window while another request runs the protocol purger;reloader enablement alone does not fail.
 
 bug_class: intermittent server module-availability failure; immediate failure established,upstream mechanism unconfirmed
 hypothesis: development protocol reloading may make Ecto.Queryable unavailable during a LiveView save; source supports this possibility but neither local probe reproduced it.
