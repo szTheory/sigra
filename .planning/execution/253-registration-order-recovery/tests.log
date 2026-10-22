@@ -2,13 +2,18 @@ test_authenticate_and_recover_original (__main__.RecoveryTests.test_authenticate
 test_collected_selection_matches_historical_project_prefix (__main__.RecoveryTests.test_collected_selection_matches_historical_project_prefix) ... ok
 test_duplicate_row_rejected (__main__.RecoveryTests.test_duplicate_row_rejected) ... ok
 test_failure_must_be_selected_target (__main__.RecoveryTests.test_failure_must_be_selected_target) ... ok
+test_full_global_order_is_collected_without_execution (__main__.RecoveryTests.test_full_global_order_is_collected_without_execution) ... ok
+test_full_prefix_rejects_wrong_approval_identity (__main__.RecoveryTests.test_full_prefix_rejects_wrong_approval_identity) ... ok
+test_full_prefix_requires_separate_approval (__main__.RecoveryTests.test_full_prefix_requires_separate_approval) ... ok
 test_missing_row_rejected (__main__.RecoveryTests.test_missing_row_rejected) ... ok
+test_native_replay_completed_exactly_once_per_case (__main__.RecoveryTests.test_native_replay_completed_exactly_once_per_case) ... ok
 test_preview_has_no_launch (__main__.RecoveryTests.test_preview_has_no_launch) ... ok
+test_real_utf8_setup_and_app_ready (__main__.RecoveryTests.test_real_utf8_setup_and_app_ready) ... ok
 test_run_without_new_approval_stops_before_reservation (__main__.RecoveryTests.test_run_without_new_approval_stops_before_reservation) ... ok
 test_unknown_argument_rejected (__main__.RecoveryTests.test_unknown_argument_rejected) ... ok
 test_wrong_project_rejected (__main__.RecoveryTests.test_wrong_project_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 9 tests in 0.294s
+Ran 14 tests in 0.391s
 
 OK

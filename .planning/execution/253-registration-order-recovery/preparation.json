@@ -36,9 +36,11 @@
     "original database state unavailable; uses owned fresh PostgreSQL cluster",
     "a passing diagnostic does not close CIREL-01 or count as an acceptance repeat"
   ],
-  "replay_sha256": "477eeea121cdaa64d91762469e7e8992c8207fd9c241a8a6e7da8a5d4222ac20",
+  "replay_sha256": "6631a25b37a541b341a805f4d61b3f9b11b299a6d02c3f12666314320039393d",
   "browser_executables_available_without_launch": [
     "chromium-1217",
     "webkit-2272"
-  ]
+  ],
+  "prior_attempt_commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+  "setup_repair": "Explicit UTF8 cluster; --setup-check runs initdb, ecto.setup and app readiness without browser or reservation"
 }

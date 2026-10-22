@@ -14,7 +14,7 @@ Preview (no browser, database or application launch):
 node .planning/execution/253-registration-order-recovery/replay.mjs
 ```
 
-After explicit approval of the new diagnostic limit, the agent runs once:
+Historical initial command (already used; its reservation remains closed):
 
 ```sh
 node .planning/execution/253-registration-order-recovery/replay.mjs --run --approved-new-diagnostic
@@ -26,6 +26,12 @@ Offline verification:
 python3 .planning/execution/253-registration-order-recovery/test_recovery.py
 ```
 
-Current result:9 recovery tests pass; original application compile exit0; collection exit0; zero browser launches and zero GitHub requests. A default npm install initially stopped at the unwritable global cache; the isolated-cache install succeeded. Both were preparation, with no browser or database. The former dependency-cache mismatch was resolved before collection. Tool/package downloads occurred; this was not a network-free task.
+Preparation result:9 recovery tests pass; original application compile exit0; collection exit0; zero browser launches during preparation and zero GitHub requests. A default npm install initially stopped at the unwritable global cache; the isolated-cache install succeeded. Both were preparation, with no browser or database. The former dependency-cache mismatch was resolved before collection. Tool/package downloads occurred; this was not a network-free task.
 
-Next GSD command: `$gsd-execute-phase 253 --gaps-only`, to continue this recovery after the scoped diagnostic decision. No new numbered plan. Phase253 verification remains incomplete. Phase254 readiness was checked directly: pending, no context, research or plans. Its forward route after actual253 completion is `$gsd-discuss-phase 254`; it has not been started.
+Current native result: `native-result-review.json`.33/33 tests passed; zero retries/skips; one browser invocation. The original deadline was20:33:36.246UTC and cleanup finished20:29:32.326UTC,356080ms after the approved start. No GitHub/CI actions. The SQL_ASCII setup failure remains preserved at b543a41f8. Explicit `--encoding=UTF8` and app readiness passed in the separate development `--setup-check`; `--continue-approved-diagnostic` then used the still-unused browser invocation without resetting the original deadline. The approved native scope is now complete; the exclusive browser reservation prevents another use. Both old acceptance ledgers and all9 expired slots are unchanged. The earlier stopped command and its approval receipt remain historical records; no stopped result was changed to a pass.
+
+No registration cause was demonstrated. The33-test result covers only the dark-project prefix.128 earlier desktop/mobile cases remain a distinct, untested order dependency; original DB state and redacted page-state fields remain unavailable.
+
+Next GSD command: `$gsd-execute-phase 253 --gaps-only`, after separate approval of the prepared full161-test preceding sequence. No further native invocation is currently authorized. No new numbered plan. Phase253 verification remains incomplete. Phase254 readiness was checked directly: pending, no context, research or plans. Its forward route after actual253 completion is `$gsd-discuss-phase 254`; it has not been started.
+
+The next diagnostic is fully prepared in `full-prefix-replay.mjs` and `full-prefix-proposal.json`. `full-prefix-list.json` matches all161 original native rows in exact project/test order; this is collection only. The proposed new limit is one invocation,1200 seconds including setup/cleanup, zero retries, first-failure stop and no GitHub/CI. It requires a separate `full-prefix-approval.json` bound to the proposal hash before any allocation. Fourteen recovery checks pass, including absent/mismatched approval refusals in isolated copies. Preview: `node .planning/execution/253-registration-order-recovery/full-prefix-replay.mjs`. After that separate approval the agent runs `node .planning/execution/253-registration-order-recovery/full-prefix-replay.mjs --run --approved-new-diagnostic` once. The completed33-test approval cannot authorize it.

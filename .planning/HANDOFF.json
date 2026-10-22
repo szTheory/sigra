@@ -5,19 +5,19 @@
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.",
+  "current": "The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.",
+  "next_action": "The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.",
   "route": {
-    "status": "registration_order_recovered_diagnostic_prepared",
+    "status": "registration_prefix_diagnostic_complete_not_reproduced",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.",
-    "evidence": ".planning/execution/253-registration-order-recovery/README.md",
+    "reason": "The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.",
+    "evidence": ".planning/execution/253-registration-order-recovery/native-result-review.json",
     "phase_verification_status": "not_started",
-    "immediate_user_action": "decision on one new bounded local diagnostic",
+    "immediate_user_action": "decide whether to run the complete161-test sequence",
     "readiness": {
       "operationally_ready_plans": [],
       "approval_still_required": true,
@@ -60,7 +60,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "registration_order_recovered_diagnostic_prepared",
+    "workflow_step": "registration_prefix_diagnostic_complete_not_reproduced",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -4247,7 +4247,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "registration_order_recovered_diagnostic_prepared",
+  "workflow_step": "registration_prefix_diagnostic_complete_not_reproduced",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4848,8 +4848,8 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "a97c08fa4e92d2cad256c228e02c735a126ce530",
-  "updated_at": "2026-10-22T20:11:04.657990+00:00",
+  "prior_shared_state_commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+  "updated_at": "2026-10-22T20:31:51.325124+00:00",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -5049,26 +5049,45 @@
   },
   "phase253_requirement_review_status": "complete_blocker_confirmed",
   "phase253_current_blocker": {
-    "status": "registration_cause_unknown_diagnostic_prepared",
+    "status": "original_registration_cause_still_unknown",
     "requirement": "CIREL-01",
-    "record": ".planning/execution/253-registration-order-recovery/recovered-order.json",
-    "missing": [
-      "original database/control state",
-      "failing counterexample tied to a registration-harness cause"
-    ],
+    "record": ".planning/execution/253-registration-order-recovery/native-result-review.json",
     "original_order_log_recovered": true,
+    "same_project_prefix_passed": 33,
+    "missing": [
+      "failing counterexample tied to a demonstrated registration cause",
+      "original database/control snapshot; full128 earlier desktop/mobile cases were not included"
+    ],
     "post_fix_slots_expired": 9,
     "approval_pending": true,
-    "next_command": "$gsd-execute-phase 253 --gaps-only"
+    "additional_native_authorized": false,
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "next_action": "Run the prepared full161-test diagnostic only after its separate finite-scope approval"
   },
   "phase253_registration_order_recovery": {
-    "status": "registration_order_recovered_diagnostic_prepared",
-    "record": ".planning/execution/253-registration-order-recovery/preparation.json",
+    "status": "registration_prefix_diagnostic_complete_not_reproduced",
+    "record": ".planning/execution/253-registration-order-recovery/native-result-review.json",
     "review": ".planning/execution/253-registration-order-recovery/README.md",
-    "browser_launches": 0,
+    "browser_launches": 1,
     "github_requests": 0,
     "acceptance": false,
+    "approval_pending": false,
+    "old_slots_reopened": 0,
+    "approval_scope_completed": true,
+    "deadline_met": true,
+    "selected_tests_passed": 33,
+    "next_action": "Full161-test diagnostic prepared; pending new finite-scope approval. Completed33-test scope remains spent."
+  },
+  "phase253_full_order_proposal": {
+    "status": "prepared_awaiting_explicit_approval",
+    "proposal": ".planning/execution/253-registration-order-recovery/full-prefix-proposal.json",
+    "proposal_sha256": "7b37613b8fefd3cc048f5efa4636d45f9b1698378832e5a1233baeb0e6e4be15",
+    "selection_count": 161,
+    "max_browser_invocations": 1,
+    "max_seconds_including_cleanup": 1200,
+    "ci_launches": 0,
+    "github_requests": 0,
     "approval_pending": true,
-    "old_slots_reopened": 0
+    "executed": false
   }
 }

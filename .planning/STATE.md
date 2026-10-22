@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T20:12:26.468968+00:00"
-state_head: a97c08fa4e92d2cad256c228e02c735a126ce530
+last_updated: "2026-10-22T20:31:51.325124+00:00"
+state_head: b543a41f841c4cc0b04b5c6747e7970a6d863a52
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Original order log recovered; bounded diagnostic prepared
+last_activity: 2026-10-22 - Approved registration diagnostic completed,33/33 passed; original failure not reproduced
 milestone_status: active
-workflow_step: registration_order_recovered_diagnostic_prepared
+workflow_step: registration_prefix_diagnostic_complete_not_reproduced
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.
+The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.
 
 ## Conditional future GSD recheck
 
 $gsd-execute-phase 253 --gaps-only
 
-Continue directly after the pending bounded-diagnostic decision. The agent runs the command; no status scan is needed. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
+The full161-test diagnostic is prepared and awaits its separate finite-scope approval. No additional native run is authorized and no user status scan is needed. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
 
 ## Known unfinished work
 
@@ -494,6 +494,6 @@ PR343 run39815188159 attempt1 completed successfully. The approved seven-GET rec
 
 ## Current registration recovery
 
-Original failed-job order recovered and authenticated from the Phase252 archive; the previous missing-log claim was incorrect. Original source and Node20.20.2 are prepared; the original app compiles and collection matches the33-test dark-project prefix. No browser was launched. A new one-invocation,600-second local diagnostic is prepared and awaits its specific limit approval; old attempts and all9 expired post-fix slots stay closed. Original database state and a demonstrated registration cause remain missing. Plan172 implementation is complete; Phase253 verification and both requirement checkboxes remain incomplete. Continue directly within253, without gsd-progress or another numbered repair plan.
+The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.
 
-Evidence: `.planning/execution/253-registration-order-recovery/README.md`. Prior shared bytes are recoverable at `a97c08fa4e92d2cad256c228e02c735a126ce530`; read-back recorded in `prior-state.json`. Next: `$gsd-execute-phase 253 --gaps-only` after the new diagnostic decision. Future Phase254 route remains `$gsd-discuss-phase 254`, after253 completion.
+Evidence: `.planning/execution/253-registration-order-recovery/README.md`. Prior shared bytes are recoverable at `a97c08fa4e92d2cad256c228e02c735a126ce530`; read-back recorded in `prior-state.json`. Next: `$gsd-execute-phase 253 --gaps-only` for offline preparation only. Future Phase254 route remains `$gsd-discuss-phase 254`, after253 completion.
