@@ -11,14 +11,14 @@ progress:
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Linux registration diagnostic prepared; database/app readiness verified; new browser run awaits approval
+last_activity: 2026-10-22 - Explicitly approved single Linux diagnostic running; no additional run authorized
 milestone_status: active
-workflow_step: phase253_linux_diagnostic_prepared_awaiting_new_run_approval
+workflow_step: phase253_approved_linux_diagnostic_running
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: python3 .planning/execution/253-registration-linux/diagnostic.py --run
-resume_command: python3 .planning/execution/253-registration-linux/diagnostic.py --run
+next_command: python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json
+resume_command: python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json
 next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -165,7 +165,7 @@ A local Linux x64 registration diagnostic is prepared and verified through datab
 
 ## Prepared next action
 
-`python3 .planning/execution/253-registration-linux/diagnostic.py --run`
+`python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json`
 
 Run only after explicit approval bound to `.planning/execution/253-registration-linux/proposal.json`. The runner refuses missing approval and a used reservation. See that directory’s README and CHECKS.json. Do not repeat an empty gap-plan scan or add a numbered repair plan. Phase254 remains pending; readiness confirms no context, research or plans. Recheck after actual253 completion before `$gsd-discuss-phase 254`.
 

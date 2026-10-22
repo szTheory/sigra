@@ -40,7 +40,7 @@
     "label": "Prepared Linux registration diagnostic; approval required",
     "reason": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM."
   },
-  "updated_at": "2026-10-22T20:56:17.754859+00:00",
+  "updated_at": "2026-10-22T21:36:40.515111+00:00",
   "phase253_execution": {
     "status": "direct_requirement_review_complete_registration_blocked",
     "implementation_status": "partial",
@@ -1228,8 +1228,8 @@
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "status": "in_progress",
-  "next_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
-  "resume_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+  "next_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+  "resume_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "phase253_linux_diagnostic_prepared_awaiting_new_run_approval",
+  "workflow_step": "phase253_approved_linux_diagnostic_running",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3147,20 +3147,18 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "plan172_remaining_evidence_offline_preparation",
-    "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "resume_command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": false,
-    "reason": "PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.",
-    "evidence": ".planning/execution/253-pr343-recovery/result.json",
-    "phase_verification_status": "not_started",
+    "status": "approved_linux_diagnostic_running",
+    "next_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+    "resume_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+    "conditional": true,
+    "reason": "Approved Linux registration diagnostic is running once. Await its saved host-result.json; do not invoke --run again. Maximum2400seconds including cleanup,161tests,zero retries,first-failure stop. No GitHub or CI. Original registration cause and fix remain unproved;CIREL-02 complete;Phase253 incomplete.",
+    "evidence": ".planning/execution/253-registration-linux/reservation.json",
+    "phase_verification_status": "incomplete",
+    "immediate_user_action": "None; approved run is active",
     "readiness": {
-      "operationally_ready_plans": [
-        "253-172"
-      ],
-      "ready_scope": "offline remaining evidence preparation",
       "approval_still_required": false,
-      "new_ci_authorized": false
+      "new_ci_authorized": false,
+      "run_again_authorized": false
     }
   },
   "phase253_plan172_receipt_connection": {
@@ -3456,7 +3454,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "next_action": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
+  "next_action": "Approved Linux registration diagnostic is running once. Await its saved host-result.json; do not invoke --run again. Maximum2400seconds including cleanup,161tests,zero retries,first-failure stop. No GitHub or CI. Original registration cause and fix remain unproved;CIREL-02 complete;Phase253 incomplete.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3662,7 +3660,7 @@
     "phase_complete": false
   },
   "phase253_linux_diagnostic": {
-    "status": "prepared_awaiting_explicit_new_diagnostic_approval",
+    "status": "approved_running",
     "proposal": ".planning/execution/253-registration-linux/proposal.json",
     "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
     "readme": ".planning/execution/253-registration-linux/README.md",
@@ -3679,13 +3677,17 @@
       "acceptance": false
     },
     "preparation_verified": true,
-    "approval_pending": true,
-    "approval_received": false,
-    "browser_invocations": 0,
+    "approval_pending": false,
+    "approval_received": true,
+    "browser_invocations": 1,
     "ci_launches": 0,
     "github_api_requests": 0,
     "budgets_renewed": false,
     "phase_verified": false,
-    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7"
+    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7",
+    "approval_commit": "8acf6e3ef32d86688f0508878e521de9c3f26080",
+    "approval": ".planning/execution/253-registration-linux/approval.json",
+    "reservation": ".planning/execution/253-registration-linux/reservation.json",
+    "additional_runs_authorized": false
   }
 }

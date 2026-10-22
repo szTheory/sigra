@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "prepared_awaiting_explicit_new_diagnostic_approval",
+  "status": "approved_linux_diagnostic_running",
   "timestamp": "2026-10-22T16:20:40.850304+00:00",
   "completed_local_plans": [
     "253-168",
@@ -50,7 +50,7 @@
     "CIREL-02": "verified_requirement_complete"
   },
   "next_plan": null,
-  "next_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+  "next_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
   "next_command_conditional": true,
   "required_decision": "Approve or decline proposal 56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
   "reason_for_decision": "Previous browser allowances are spent; this separate new diagnostic has not been approved.",
@@ -131,7 +131,7 @@
     "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
   },
-  "next_action": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
+  "next_action": "Approved Linux registration diagnostic is running once. Await its saved host-result.json; do not invoke --run again. Maximum2400seconds including cleanup,161tests,zero retries,first-failure stop. No GitHub or CI. Original registration cause and fix remain unproved;CIREL-02 complete;Phase253 incomplete.",
   "docs_attempt_history": [
     {
       "status": "halted_before_publication_import_failure",
@@ -168,7 +168,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "updated_at": "2026-10-22T19:39:38.999003+00:00",
+  "updated_at": "2026-10-22T21:36:40.515111+00:00",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -262,8 +262,8 @@
       "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
     }
   ],
-  "resume_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
-  "workflow_step": "phase253_linux_diagnostic_prepared_awaiting_new_run_approval",
+  "resume_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+  "workflow_step": "phase253_approved_linux_diagnostic_running",
   "phase253_remaining_evidence": {
     "status": "closed_collected_and_independently_verified",
     "implementation_commit": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
@@ -310,7 +310,7 @@
     "post_fix_slots_expired": 9
   },
   "phase253_linux_diagnostic": {
-    "status": "prepared_awaiting_explicit_new_diagnostic_approval",
+    "status": "approved_running",
     "proposal": ".planning/execution/253-registration-linux/proposal.json",
     "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
     "readme": ".planning/execution/253-registration-linux/README.md",
@@ -327,13 +327,17 @@
       "acceptance": false
     },
     "preparation_verified": true,
-    "approval_pending": true,
-    "approval_received": false,
-    "browser_invocations": 0,
+    "approval_pending": false,
+    "approval_received": true,
+    "browser_invocations": 1,
     "ci_launches": 0,
     "github_api_requests": 0,
     "budgets_renewed": false,
     "phase_verified": false,
-    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7"
+    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7",
+    "approval_commit": "8acf6e3ef32d86688f0508878e521de9c3f26080",
+    "approval": ".planning/execution/253-registration-linux/approval.json",
+    "reservation": ".planning/execution/253-registration-linux/reservation.json",
+    "additional_runs_authorized": false
   }
 }

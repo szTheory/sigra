@@ -6,23 +6,22 @@
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
   "current": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
-  "next_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
-  "resume_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
-  "next_action": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
+  "next_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+  "resume_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+  "next_action": "Approved Linux registration diagnostic is running once. Await its saved host-result.json; do not invoke --run again. Maximum2400seconds including cleanup,161tests,zero retries,first-failure stop. No GitHub or CI. Original registration cause and fix remain unproved;CIREL-02 complete;Phase253 incomplete.",
   "route": {
-    "status": "prepared_awaiting_explicit_new_diagnostic_approval",
-    "next_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
-    "resume_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+    "status": "approved_linux_diagnostic_running",
+    "next_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+    "resume_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
     "conditional": true,
-    "reason": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
-    "evidence": ".planning/execution/253-registration-linux/proposal.json",
-    "phase_verification_status": "not_started",
-    "immediate_user_action": "Approve or decline the separately scoped one-run Linux diagnostic",
+    "reason": "Approved Linux registration diagnostic is running once. Await its saved host-result.json; do not invoke --run again. Maximum2400seconds including cleanup,161tests,zero retries,first-failure stop. No GitHub or CI. Original registration cause and fix remain unproved;CIREL-02 complete;Phase253 incomplete.",
+    "evidence": ".planning/execution/253-registration-linux/reservation.json",
+    "phase_verification_status": "incomplete",
+    "immediate_user_action": "None; approved run is active",
     "readiness": {
-      "operationally_ready_plans": [],
-      "prepared_scope": "new local Linux diagnostic; no new numbered plan",
-      "approval_still_required": true,
-      "new_ci_authorized": false
+      "approval_still_required": false,
+      "new_ci_authorized": false,
+      "run_again_authorized": false
     }
   },
   "workflow": {
@@ -213,9 +212,7 @@
     "phase253_requirement_review_status": "partial_cirel02_verified_cirel01_blocked",
     "phase253_uat_status": "partial"
   },
-  "human_actions_pending": [
-    "Approve the new local Linux diagnostic: one161-test invocation, at most2400seconds including cleanup, zero retries, no GitHub/CI."
-  ],
+  "human_actions_pending": [],
   "async_jobs": [],
   "previous_milestone": {
     "version": "v1.49",
@@ -3657,19 +3654,18 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "status": "prepared_awaiting_explicit_new_diagnostic_approval",
-    "next_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
-    "resume_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+    "status": "approved_linux_diagnostic_running",
+    "next_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
+    "resume_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
     "conditional": true,
-    "reason": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
-    "evidence": ".planning/execution/253-registration-linux/proposal.json",
-    "phase_verification_status": "not_started",
-    "immediate_user_action": "Approve or decline the separately scoped one-run Linux diagnostic",
+    "reason": "Approved Linux registration diagnostic is running once. Await its saved host-result.json; do not invoke --run again. Maximum2400seconds including cleanup,161tests,zero retries,first-failure stop. No GitHub or CI. Original registration cause and fix remain unproved;CIREL-02 complete;Phase253 incomplete.",
+    "evidence": ".planning/execution/253-registration-linux/reservation.json",
+    "phase_verification_status": "incomplete",
+    "immediate_user_action": "None; approved run is active",
     "readiness": {
-      "operationally_ready_plans": [],
-      "prepared_scope": "new local Linux diagnostic; no new numbered plan",
-      "approval_still_required": true,
-      "new_ci_authorized": false
+      "approval_still_required": false,
+      "new_ci_authorized": false,
+      "run_again_authorized": false
     }
   },
   "last_updated": "2026-10-22T21:31:09.632731+00:00",
@@ -4250,7 +4246,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "phase253_linux_diagnostic_prepared_awaiting_new_run_approval",
+  "workflow_step": "phase253_approved_linux_diagnostic_running",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4852,7 +4848,7 @@
     "docs_pr_created": false
   },
   "prior_shared_state_commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
-  "updated_at": "2026-10-22T20:56:17.754859+00:00",
+  "updated_at": "2026-10-22T21:36:40.515111+00:00",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -5119,7 +5115,7 @@
     "phase_complete": false
   },
   "phase253_linux_diagnostic": {
-    "status": "prepared_awaiting_explicit_new_diagnostic_approval",
+    "status": "approved_running",
     "proposal": ".planning/execution/253-registration-linux/proposal.json",
     "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
     "readme": ".planning/execution/253-registration-linux/README.md",
@@ -5136,13 +5132,17 @@
       "acceptance": false
     },
     "preparation_verified": true,
-    "approval_pending": true,
-    "approval_received": false,
-    "browser_invocations": 0,
+    "approval_pending": false,
+    "approval_received": true,
+    "browser_invocations": 1,
     "ci_launches": 0,
     "github_api_requests": 0,
     "budgets_renewed": false,
     "phase_verified": false,
-    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7"
+    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7",
+    "approval_commit": "8acf6e3ef32d86688f0508878e521de9c3f26080",
+    "approval": ".planning/execution/253-registration-linux/approval.json",
+    "reservation": ".planning/execution/253-registration-linux/reservation.json",
+    "additional_runs_authorized": false
   }
 }
