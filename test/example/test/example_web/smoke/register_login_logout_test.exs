@@ -29,9 +29,7 @@ defmodule Example.RegisterLoginLogoutTest do
   test "register_user rejects duplicate email" do
     attrs = valid_user_attributes()
     assert {:ok, _} = Accounts.register_user(attrs)
-    assert {:error, changeset} = Accounts.register_user(attrs)
-    assert %Ecto.Changeset{valid?: false} = changeset
-    assert [{:email, {_msg, _meta}} | _] = changeset.errors
+    assert {:error, :email_taken} = Accounts.register_user(attrs)
   end
 
   test "get_user_by_email_and_password returns user with valid credentials" do

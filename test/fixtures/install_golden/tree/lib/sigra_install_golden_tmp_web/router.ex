@@ -100,6 +100,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     live "/confirm", ConfirmationLive
     live "/confirm/:token", ConfirmationLive, :confirm
+
       end
     end
 
