@@ -1,0 +1,13 @@
+{
+  "method": "GET",
+  "route_id": "check_runs",
+  "category": "discovery_checks",
+  "family": "normal",
+  "params": {
+    "commit_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd"
+  },
+  "query": {
+    "per_page": 100,
+    "page": 1
+  }
+}
