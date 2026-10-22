@@ -39,7 +39,7 @@
     "command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": false,
     "label": "Continue Plan172 offline from PR342 repairs",
-    "reason": "PR342/run39711884498 failed generated-admin acceptance and the library shard. Exact53-request/761-second attempt is closed at72103017d. Repairs5e13621e5 pass10native contracts, actual docs-workflow checks and full local generated-host smoke. Hosted docs proof remains unaccepted; the precise hosted socket failure is not proven. Continue Plan172 offline; do not restart its operator, request the consumed approval, create a quick task, rerun179, or launch CI. Any future external proof needs a concrete reviewed proposal and fresh scoped approval; none is pending now."
+    "reason": "Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs objects and rejects pairing them with PR341. Four source-scope tests,10native tests and4actual generated-docs workflow tests pass. Retained canaries verify read-only and their gate inputs are unchanged. Finish the executable paired-proof operator/guards/collector and independent consumer offline inside Plan172; validate real shell startup before requesting approval. No quick, new numbered plan, CI, new approval or budget renewal. CIREL-01 remains not reproduced; Phase253 is not verified."
   },
   "updated_at": "2026-10-22T03:00:16.124264+00:00",
   "phase253_execution": {
@@ -1729,7 +1729,7 @@
   },
   "last_updated": "2026-10-22T03:00:16.124264+00:00",
   "stopped_at": "PR342 failed; local repairs verified; offline Plan172 continuation",
-  "state_head": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "state_head": "12f29553b",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "execute172_pr342_offline_repairs_verified",
+  "workflow_step": "execute172_repaired_source_proposal_verified",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3147,11 +3147,11 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "execute172_pr342_offline_repairs_verified",
+    "status": "execute172_repaired_source_proposal_verified",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": false,
-    "reason": "PR342/run39711884498 failed generated-admin acceptance and the library shard. Exact53-request/761-second attempt is closed at72103017d. Repairs5e13621e5 pass10native contracts, actual docs-workflow checks and full local generated-host smoke. Hosted docs proof remains unaccepted; the precise hosted socket failure is not proven. Continue Plan172 offline; do not restart its operator, request the consumed approval, create a quick task, rerun179, or launch CI. Any future external proof needs a concrete reviewed proposal and fresh scoped approval; none is pending now.",
+    "reason": "Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs objects and rejects pairing them with PR341. Four source-scope tests,10native tests and4actual generated-docs workflow tests pass. Retained canaries verify read-only and their gate inputs are unchanged. Finish the executable paired-proof operator/guards/collector and independent consumer offline inside Plan172; validate real shell startup before requesting approval. No quick, new numbered plan, CI, new approval or budget renewal. CIREL-01 remains not reproduced; Phase253 is not verified.",
     "evidence": ".planning/execution/253-pr342-diagnosis/diagnosis.json",
     "phase_verification_status": "not_started",
     "readiness": {
@@ -3311,7 +3311,7 @@
       "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
       "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
     },
-    "next_action": "PR342/run39711884498 failed generated-admin acceptance and the library shard. Exact53-request/761-second attempt is closed at72103017d. Repairs5e13621e5 pass10native contracts, actual docs-workflow checks and full local generated-host smoke. Hosted docs proof remains unaccepted; the precise hosted socket failure is not proven. Continue Plan172 offline; do not restart its operator, request the consumed approval, create a quick task, rerun179, or launch CI. Any future external proof needs a concrete reviewed proposal and fresh scoped approval; none is pending now.",
+    "next_action": "Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs objects and rejects pairing them with PR341. Four source-scope tests,10native tests and4actual generated-docs workflow tests pass. Retained canaries verify read-only and their gate inputs are unchanged. Finish the executable paired-proof operator/guards/collector and independent consumer offline inside Plan172; validate real shell startup before requesting approval. No quick, new numbered plan, CI, new approval or budget renewal. CIREL-01 remains not reproduced; Phase253 is not verified.",
     "docs_attempt_history": [
       {
         "status": "halted_before_publication_import_failure",
@@ -3426,5 +3426,19 @@
     "commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "record": ".planning/execution/253-pr342-diagnosis/diagnosis.json",
     "hosted_success": false
+  },
+  "phase253_repaired_source_preparation": {
+    "status": "offline_proposal_verified_execution_bundle_pending",
+    "commit": "12f29553b",
+    "proposal": ".planning/execution/253-plan172-repaired-source/proposal.json",
+    "checks": ".planning/execution/253-plan172-repaired-source/CHECKS.json",
+    "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+    "execution_ready": false,
+    "approval_pending": false,
+    "new_ci_authorized": false,
+    "requests": 0,
+    "ci_launches": 0,
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "next_action": "Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs objects and rejects pairing them with PR341. Four source-scope tests,10native tests and4actual generated-docs workflow tests pass. Retained canaries verify read-only and their gate inputs are unchanged. Finish the executable paired-proof operator/guards/collector and independent consumer offline inside Plan172; validate real shell startup before requesting approval. No quick, new numbered plan, CI, new approval or budget renewal. CIREL-01 remains not reproduced; Phase253 is not verified."
   }
 }
