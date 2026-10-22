@@ -70,4 +70,33 @@ defmodule ExampleWeb.RegistrationLiveTest do
       assert "?enroll_passkey=1"
     end
   end
+
+  describe "duplicate email registration" do
+    test "shows the generic enumeration-safe message and never 'has already been taken'", %{
+      conn: conn
+    } do
+      email = "dup-#{System.unique_integer([:positive])}@example.com"
+
+      {:ok, _user} =
+        Example.Accounts.register_user(%{"email" => email, "password" => "hello world!!"})
+
+      {:ok, view, _html} = live(conn, "/users/register")
+
+      html =
+        view
+        |> form("#registration_form", user: %{email: email, password: "hello world!!"})
+        |> render_submit()
+
+      assert html =~
+               "If this email is available, your account has been created. Please check your email."
+
+      refute html =~ "has already been taken"
+    end
+
+    test "registration page renders the flash container", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/users/register")
+
+      assert html =~ ~s(id="flash-group")
+    end
+  end
 end

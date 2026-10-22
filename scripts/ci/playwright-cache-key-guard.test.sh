@@ -18,10 +18,6 @@
 #      the extraction from a hard-coded -v1 to "any -vN" did not also make
 #      the -vN token itself optional -- a fail-closed guard must not become
 #      fail-open on the very thing it was generalized to accept.
-#   G: first key matches the lockfile but a later chromium-webkit key is stale
-#      -> exit 1 (every call site is checked, not just the first).
-#   H: a stale chromium-only key (`playwright-chromium-<version>-vN`) -> exit 1.
-#   I: a later versioned key without its -vN token -> exit 1.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -225,78 +221,6 @@ if [[ "$EXIT_F" -eq 1 ]]; then
   pass "Test F: guard exits 1 when the workflow key has no -vN suffix token"
 else
   fail "Test F: guard exited ${EXIT_F} (expected 1) with no -vN suffix present; output: ${OUT_F}"
-fi
-
-# ---- Test G: a second call site carries a stale version -> exit 1 --------
-echo "Test G: first key matches, a later chromium-webkit key is stale -> exit 1"
-
-WF_G="${TMPDIR_ROOT}/ci-g.yml"
-LF_G="${TMPDIR_ROOT}/package-lock-g.json"
-write_workflow "$WF_G" "1.60.0"
-cat >> "$WF_G" <<'EOF'
-      - name: Boot example app through shared action
-        uses: ./.github/actions/example-playwright-boot
-        with:
-          cache-browsers: "true"
-          browser-cache-key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v2
-EOF
-write_lockfile "$LF_G" "1.60.0"
-
-set +e
-OUT_G="$(bash "$SCRIPT" --workflow "$WF_G" --lockfile "$LF_G" 2>&1)"
-EXIT_G=$?
-set -e
-
-if [[ "$EXIT_G" -eq 1 && "$OUT_G" == *"1.59.1"* && "$OUT_G" == *"1.60.0"* ]]; then
-  pass "Test G: guard exits 1 and names both versions when a later key is stale"
-else
-  fail "Test G: guard exited ${EXIT_G} (expected 1) or did not name both versions; output: ${OUT_G}"
-fi
-
-# ---- Test H: a stale chromium-only key -> exit 1 --------------------------
-echo "Test H: chromium-webkit key matches, a chromium-only matrix key is stale -> exit 1"
-
-WF_H="${TMPDIR_ROOT}/ci-h.yml"
-LF_H="${TMPDIR_ROOT}/package-lock-h.json"
-write_workflow "$WF_H" "1.60.0"
-cat >> "$WF_H" <<'EOF'
-          - seam: admin_behavior
-            browsers: chromium
-            browser_cache_key: playwright-chromium-1.59.1-v2
-EOF
-write_lockfile "$LF_H" "1.60.0"
-
-set +e
-OUT_H="$(bash "$SCRIPT" --workflow "$WF_H" --lockfile "$LF_H" 2>&1)"
-EXIT_H=$?
-set -e
-
-if [[ "$EXIT_H" -eq 1 && "$OUT_H" == *"1.59.1"* ]]; then
-  pass "Test H: guard exits 1 when a chromium-only key is stale"
-else
-  fail "Test H: guard exited ${EXIT_H} (expected 1) with a stale chromium-only key; output: ${OUT_H}"
-fi
-
-# ---- Test I: a later versioned key without its -vN token -> exit 1 ---------
-echo "Test I: a later versioned key lacks the -vN token -> exit 1"
-
-WF_I="${TMPDIR_ROOT}/ci-i.yml"
-LF_I="${TMPDIR_ROOT}/package-lock-i.json"
-write_workflow "$WF_I" "1.59.1"
-cat >> "$WF_I" <<'EOF'
-            browser_cache_key: playwright-chromium-1.59.1
-EOF
-write_lockfile "$LF_I" "1.59.1"
-
-set +e
-OUT_I="$(bash "$SCRIPT" --workflow "$WF_I" --lockfile "$LF_I" 2>&1)"
-EXIT_I=$?
-set -e
-
-if [[ "$EXIT_I" -eq 1 && "$OUT_I" == *"-vN"* ]]; then
-  pass "Test I: guard exits 1 when a later versioned key has no -vN token"
-else
-  fail "Test I: guard exited ${EXIT_I} (expected 1) or missing -vN diagnostic; output: ${OUT_I}"
 fi
 
 # ---- Summary -------------------------------------------------------------

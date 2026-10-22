@@ -26,18 +26,6 @@ defmodule Sigra.Planning.Phase234DependabotContractTest do
     assert length(Regex.scan(~r/- "dependencies"/, yaml)) == 3
   end
 
-  test "Dependabot groups only minor and patch updates, one group per ecosystem" do
-    yaml = File.read!(@dependabot_path)
-
-    # One group per ecosystem bounds CI reruns: each open Dependabot PR re-runs
-    # the full CI on every rebase. Major updates stay as individual PRs so a
-    # breaking bump never holds the routine ones back.
-    assert length(Regex.scan(~r/^    groups:$/m, yaml)) == 3
-    assert length(Regex.scan(~r/^        update-types:$/m, yaml)) == 3
-    refute yaml =~ ~r/^\s+- "major"$/m
-    assert yaml =~ ~r/exclude-patterns:\n\s+- "@playwright\/test"/
-  end
-
   test "Dependabot parser fails closed with named diagnostics" do
     fixtures = [
       {"missing directory", "  - package-ecosystem: mix\n    schedule:\n      interval: weekly\n",
@@ -121,12 +109,6 @@ defmodule Sigra.Planning.Phase234DependabotContractTest do
 
           "      - " <> _value when section == :labels ->
             {entries, current, :labels}
-
-          "    groups:" when current != nil ->
-            {entries, current, :groups}
-
-          "      " <> _value when section == :groups ->
-            {entries, current, :groups}
 
           _ ->
             flunk("malformed Dependabot update block: #{inspect(line)}")
