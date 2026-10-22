@@ -20,7 +20,8 @@
       "unsummarized_plan_count": 73,
       "ready_plans": [],
       "verification_status": "not_started",
-      "current_status": "Plan172 implementation is complete. The approved continuation downloaded and checked all five PR343 browser archives and created draft PR344; run39837182521 attempt1 succeeded and the independent docs verifier accepted it. Used56/70 requests in341seconds, one PR/CI run, no retries/reruns/dispatches/merges. Approval is consumed and this window is closed. No runnable Phase253 plans remain;73 historical plans depend on stopped attempts. The original selected registration failure remains unproven. CIREL-02 hosted components are collected, pending whole-phase review. Phase253 verification is not started; both requirement checkboxes stay unchanged. Next: inspect these original gaps with $gsd-progress; do not create an ordinary repair successor or restart any collection."
+      "current_status": "The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.",
+      "requirement_review_status": "complete_blocker_confirmed"
     },
     {
       "number": "254",
@@ -34,14 +35,14 @@
     }
   ],
   "next": {
-    "command": "$gsd-progress",
-    "conditional": false,
-    "label": "Review original remaining requirement",
-    "reason": "Plan172 implementation is complete. The approved continuation downloaded and checked all five PR343 browser archives and created draft PR344; run39837182521 attempt1 succeeded and the independent docs verifier accepted it. Used56/70 requests in341seconds, one PR/CI run, no retries/reruns/dispatches/merges. Approval is consumed and this window is closed. No runnable Phase253 plans remain;73 historical plans depend on stopped attempts. The original selected registration failure remains unproven. CIREL-02 hosted components are collected, pending whole-phase review. Phase253 verification is not started; both requirement checkboxes stay unchanged. Next: inspect these original gaps with $gsd-progress; do not create an ordinary repair successor or restart any collection."
+    "command": "$gsd-verify-work 253",
+    "conditional": true,
+    "label": "Recheck only after original registration blocker changes",
+    "reason": "The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor."
   },
-  "updated_at": "2026-10-22T19:19:00.119221+00:00",
+  "updated_at": "2026-10-22T19:39:38.999003+00:00",
   "phase253_execution": {
-    "status": "plan172_complete_original_requirement_review",
+    "status": "direct_requirement_review_complete_registration_blocked",
     "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "plans": {
@@ -179,7 +180,7 @@
       "253-179": "ready_offline_acceptance",
       "253-180": "waiting_for_253-179"
     },
-    "current_next_command": "$gsd-progress",
+    "current_next_command": "$gsd-verify-work 253",
     "total_phase_plans": 183,
     "current_ready_plans": [],
     "completed_plan_count": 81,
@@ -323,11 +324,12 @@
       "recorded_at": "2026-10-21T04:02:14.336344+00:00"
     },
     "latest_execution_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-EXECUTION-RECORD.json",
-    "next_command": "$gsd-progress",
+    "next_command": "$gsd-verify-work 253",
     "execution_addendum": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
     "versioned_consumer_authority": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-CONSUMER-V2.json",
     "unsummarized_plan_count": 73,
-    "current_execution_record": ".planning/execution/253-pr344-CLOSEOUT.json"
+    "current_execution_record": ".planning/execution/253-pr344-CLOSEOUT.json",
+    "requirement_review": ".planning/execution/253-direct-requirement-review/review.json"
   },
   "phase253_registration_startup_debug": {
     "status": "resolved_startup_only",
@@ -1226,8 +1228,8 @@
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "status": "in_progress",
-  "next_command": "$gsd-progress",
-  "resume_command": "$gsd-progress",
+  "next_command": "$gsd-verify-work 253",
+  "resume_command": "$gsd-verify-work 253",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -1725,9 +1727,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-22T19:19:00.119221+00:00",
+  "last_updated": "2026-10-22T19:39:38.999003+00:00",
   "stopped_at": "PR343 success saved; offline remaining-evidence preparation ready",
-  "state_head": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
+  "state_head": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2633,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "plan172_complete_original_requirement_review",
+  "workflow_step": "direct_requirement_review_complete_registration_blocked",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3321,7 +3323,7 @@
       }
     ]
   },
-  "next_command_conditional": false,
+  "next_command_conditional": true,
   "phase253_completed_plans": 81,
   "phase253_unsummarized_plans": 73,
   "phase253_pending_decision": {
@@ -3392,7 +3394,7 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
+  "prior_shared_state_commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -3454,7 +3456,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "next_action": "Plan172 implementation is complete. The approved continuation downloaded and checked all five PR343 browser archives and created draft PR344; run39837182521 attempt1 succeeded and the independent docs verifier accepted it. Used56/70 requests in341seconds, one PR/CI run, no retries/reruns/dispatches/merges. Approval is consumed and this window is closed. No runnable Phase253 plans remain;73 historical plans depend on stopped attempts. The original selected registration failure remains unproven. CIREL-02 hosted components are collected, pending whole-phase review. Phase253 verification is not started; both requirement checkboxes stay unchanged. Next: inspect these original gaps with $gsd-progress; do not create an ordinary repair successor or restart any collection.",
+  "next_action": "The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3590,5 +3592,21 @@
     "docs_accepted_live": true,
     "phase_verified": false,
     "plan_implementation_complete": true
+  },
+  "phase253_requirement_review_status": "complete_blocker_confirmed",
+  "phase253_current_blocker": {
+    "status": "blocked_original_registration_evidence",
+    "requirement": "CIREL-01",
+    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md",
+    "record": ".planning/execution/253-direct-requirement-review/review.json",
+    "missing": [
+      "original preceding-order log (archived original log absent; rejected as a native receipt)",
+      "original control/DB state for the selected registration collision",
+      "any red-before counterexample on preserved exact source tied to a registration harness seam"
+    ],
+    "strict_checker_exit": 3,
+    "post_fix_slots_expired": 9,
+    "immediate_user_action": "none",
+    "conditional_recheck": "$gsd-verify-work 253"
   }
 }

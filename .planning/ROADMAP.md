@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:183total:75completed implementation plans,28halted,80without summaries;0runnable. Checker maintenance26/26passed under253-RECOVERY-RESET.md;183remains halted. Actual CIREL requirements and phase verification remain open. Historical lists below do not authorize another automatic repair cycle.
+**Plans**:183 total:81 completed implementation plans,29 historical halts,73 without summaries;0 runnable. Current required-gate evidence and local contracts verify. Original registration failure remains not_reproduced; the strict checker rejects acceptance. Direct review:253-CURRENT-REQUIREMENT-REVIEW.md. No status detour, automatic repair successor or spent-budget restart.
 
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis

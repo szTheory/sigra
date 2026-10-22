@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T19:19:00.119221+00:00"
-state_head: 2f202c8c5a52462f4c2212d9697be2a6c9824904
+last_updated: "2026-10-22T19:39:38.999003+00:00"
+state_head: 0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Plan172 approved collection completed; PR344 passed
+last_activity: 2026-10-22 - Direct requirement review completed; unnecessary progress handoff removed
 milestone_status: active
-workflow_step: plan172_complete_original_requirement_review
+workflow_step: direct_requirement_review_complete_registration_blocked
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-progress
-resume_command: $gsd-progress
-next_command_conditional: false
+next_command: $gsd-verify-work 253
+resume_command: $gsd-verify-work 253
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: No runnable Phase253 plans; original requirement review remains
-last_activity_desc: 56requests; five browser groups and docs-only CI verified; phase unfinished
+stopped_at: Original registration evidence missing; no immediate user command
+last_activity_desc: Gate evidence checked; strict registration checker rejects; slots remain closed
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan172 implementation is complete. The approved continuation downloaded and checked all five PR343 browser archives and created draft PR344; run39837182521 attempt1 succeeded and the independent docs verifier accepted it. Used56/70 requests in341seconds, one PR/CI run, no retries/reruns/dispatches/merges. Approval is consumed and this window is closed. No runnable Phase253 plans remain;73 historical plans depend on stopped attempts. The original selected registration failure remains unproven. CIREL-02 hosted components are collected, pending whole-phase review. Phase253 verification is not started; both requirement checkboxes stay unchanged. Next: inspect these original gaps with $gsd-progress; do not create an ordinary repair successor or restart any collection.
+The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.
 
-## Next GSD command
+## Conditional future GSD recheck
 
-$gsd-progress
+$gsd-verify-work 253
 
-No approval is pending. Result: `.planning/execution/253-pr344-CLOSEOUT.json`. Plan172 implementation is complete; whole-phase verification is unfinished.
+Only after the original registration blocker changes. No command is needed from the user now. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
 
 ## Known unfinished work
 
