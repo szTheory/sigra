@@ -3,8 +3,8 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T02:15:06.146683+00:00"
-state_head: 63feb218d603b3192402fb6698e4b3713566f0ac
+last_updated: "2026-10-22T02:25:11.807485+00:00"
+state_head: 43b661d2b79aecaf81670abfc1df485100073b80
 progress:
   total_phases: 4
   completed_phases: 1
@@ -13,7 +13,7 @@ progress:
   percent: 25
 last_activity: 2026-10-22 - PR341 normal proof verified; only docs-only proof missing
 milestone_status: active
-workflow_step: execute172_docs_only_approval_checkpoint
+workflow_step: execute172_docs_startup_approval_checkpoint
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
@@ -146,7 +146,7 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Plan172 missing docs-only PR; prepared scoped continuation awaits new approval
+stopped_at: Docs-only attempt closed; repaired startup bundle needs new approval
 last_activity_desc: PR341 CI passed; comparison consumer repaired offline; no repeat normal/canary run
 ---
 
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.
+The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Conditional on explicit new approval of `.planning/execution/253-docs-continuation-pr341/approval-request.json`. The approval recorded ate4eeb9c9b was consumed by the closed PR341 attempt. Its successful canary and normal PR evidence is retained. Phase253 verification has not started.
+Conditional on explicit new approval of `.planning/execution/253-docs-continuation-pr341-fixed/approval-request.json`. The `yeah i approve` decision at8b95471e1 was consumed by the closed docs-only window. Normal and canary results remain retained. Phase253 verification has not started.
 
 ## Known unfinished work
 
@@ -452,3 +452,9 @@ Actual attempt: `dc1e552aa`; offline repairs: `a6838a8f9`; checks: `.planning/ex
 PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.
 
 Exact prior state bytes are recoverable at`63feb218d603b3192402fb6698e4b3713566f0ac`; read-back identities are in`.planning/execution/253-docs-continuation-pr341-checks/state-preservation.json`.
+
+## Current docs-only startup correction
+
+The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.
+
+Prior state bytes: `43b661d2b79aecaf81670abfc1df485100073b80`; exact read-back hashes: `.planning/execution/253-docs-startup-maintenance/state-preservation.json`.

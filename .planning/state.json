@@ -38,12 +38,12 @@
   "next": {
     "command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "label": "Finish Plan172 with the missing docs-only PR after new approval",
-    "reason": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed."
+    "label": "Finish Plan172 docs-only proof after repaired-bundle approval",
+    "reason": "The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started."
   },
-  "updated_at": "2026-10-22T02:15:06.146683+00:00",
+  "updated_at": "2026-10-22T02:25:11.807485+00:00",
   "phase253_execution": {
-    "status": "pr341_normal_verified_docs_only_missing",
+    "status": "normal_verified_docs_startup_repaired",
     "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "plans": {
@@ -77,7 +77,7 @@
       "253-169": "complete",
       "253-170": "complete",
       "253-171": "halted",
-      "253-172": "awaiting_docs_only_approval",
+      "253-172": "awaiting_repaired_docs_startup_approval",
       "253-175": "halted",
       "253-176": "blocked",
       "253-177": "blocked",
@@ -1728,7 +1728,7 @@
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
   "last_updated": "2026-10-22T01:17:18.873825+00:00",
-  "stopped_at": "Plan172 PR340 closed; corrected-source bundle verified offline; new exact approval pending",
+  "stopped_at": "Plan172 docs-only startup repaired offline; exact replacement approval pending",
   "state_head": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "execute172_docs_only_approval_checkpoint",
+  "workflow_step": "execute172_docs_startup_approval_checkpoint",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3082,7 +3082,7 @@
     },
     "recorded_at": "2026-10-21T04:02:14.336344+00:00"
   },
-  "phase253_current_execution_addendum": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
+  "phase253_current_execution_addendum": "The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.",
   "phase253_versioned_consumer": {
     "task": "quick-261021-drl",
     "status": "verified_local_consumer",
@@ -3147,15 +3147,14 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "normal_execute172_docs_only_approval_checkpoint",
+    "status": "execute172_repaired_docs_startup_approval_checkpoint",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
-    "evidence": ".planning/execution/253-172-pr341-maintenance/CHECKS.json",
+    "reason": "The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.",
+    "evidence": ".planning/execution/253-docs-startup-maintenance/CHECKS.json",
     "phase_verification_status": "not_started",
     "readiness": {
-      "source": ".planning/execution/253-docs-continuation-pr341-checks/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
@@ -3245,25 +3244,20 @@
   "phase253_completed_plans": 80,
   "phase253_unsummarized_plans": 74,
   "phase253_pending_decision": {
-    "status": "awaiting_explicit_new_source_bundle_approval",
-    "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
-    "bundle_path": ".planning/execution/253-proof-bundle-a6838a8f9/bundle.json",
-    "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
-    "request": ".planning/execution/253-proof-bundle-a6838a8f9/approval-request.json",
-    "sections": {
-      "canary": "4a6e26bf4f02a0808cfdda9c411b98894f19053c39bbf67c42b9d3e269ff876b",
-      "docs_and_prs": "34bf9bd67ffbbf9bc4ac48dcc4e60f7ee57f29ac334777bd2cf120e80723e15a"
-    },
-    "previous_approval_consumed": true,
-    "no_approval_implied_by_execute_phase": true
+    "status": "awaiting_explicit_docs_only_approval",
+    "request": ".planning/execution/253-docs-continuation-pr341-fixed/approval-request.json",
+    "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
+    "candidate_source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
+    "previous_approval_consumed": true
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "phase253_external_mutations_performed": true,
   "phase253_pr171_execution": ".planning/execution/253-171.json",
   "phase253_pr171_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
   "phase253_current_preservation": {
-    "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
-    "record": ".planning/execution/253-docs-continuation-pr341-checks/state-preservation.json"
+    "commit": "43b661d2b79aecaf81670abfc1df485100073b80",
+    "record": ".planning/execution/253-docs-startup-maintenance/state-preservation.json"
   },
   "phase253_pr338_offline_repair": {
     "status": "verified_offline",
@@ -3283,8 +3277,8 @@
   },
   "phase253_hosted_execution_bundle": {
     "status": "prepared_docs_only_requires_explicit_approval",
-    "record": ".planning/execution/253-docs-continuation-pr341/bundle.json",
-    "bundle_sha256": "477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b",
+    "record": ".planning/execution/253-docs-continuation-pr341-fixed/bundle.json",
+    "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
     "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
     "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
     "ci_launches": 0,
@@ -3310,5 +3304,17 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0"
+  "prior_shared_state_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "phase253_docs_continuation_attempt": {
+    "status": "halted_before_publication_import_failure",
+    "commit": "43b661d2b79aecaf81670abfc1df485100073b80",
+    "approval_commit": "8b95471e1",
+    "decision_text": "yeah i approve",
+    "attempt": ".planning/execution/253-docs-continuation-pr341/attempt-result.json",
+    "github_requests": 1,
+    "pr_creations": 0,
+    "ci_launches": 0,
+    "window_closed": true,
+    "old_approval_consumed": true
+  }
 }

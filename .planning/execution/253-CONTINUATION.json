@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "plan172_pr341_normal_verified_docs_only_approval_pending",
-  "timestamp": "2026-10-22T02:15:06.146683+00:00",
+  "status": "plan172_docs_startup_repaired_approval_pending",
+  "timestamp": "2026-10-22T02:25:11.807485+00:00",
   "completed_local_plans": [
     "253-168",
     "253-169"
@@ -49,20 +49,20 @@
   "next_command_conditional": true,
   "required_decision": {
     "status": "awaiting_explicit_docs_only_approval",
-    "request": ".planning/execution/253-docs-continuation-pr341/approval-request.json",
-    "bundle_sha256": "477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b",
+    "request": ".planning/execution/253-docs-continuation-pr341-fixed/approval-request.json",
+    "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
     "candidate_source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
     "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
     "previous_approval_consumed": true
   },
-  "reason_for_decision": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
+  "reason_for_decision": "The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
-  "github_requests": 554,
+  "github_requests": 555,
   "ci_launches": 33,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+  "prior_shared_state_commit": "43b661d2b79aecaf81670abfc1df485100073b80",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -83,8 +83,8 @@
   },
   "hosted_execution_bundle": {
     "status": "prepared_docs_only_requires_explicit_approval",
-    "record": ".planning/execution/253-docs-continuation-pr341/bundle.json",
-    "bundle_sha256": "477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b",
+    "record": ".planning/execution/253-docs-continuation-pr341-fixed/bundle.json",
+    "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
     "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
     "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
     "ci_launches": 0,
@@ -109,5 +109,17 @@
     "run_conclusion": "success",
     "normal_independently_verified": true,
     "docs_pr_created": false
+  },
+  "docs_continuation_attempt": {
+    "status": "halted_before_publication_import_failure",
+    "commit": "43b661d2b79aecaf81670abfc1df485100073b80",
+    "approval_commit": "8b95471e1",
+    "decision_text": "yeah i approve",
+    "attempt": ".planning/execution/253-docs-continuation-pr341/attempt-result.json",
+    "github_requests": 1,
+    "pr_creations": 0,
+    "ci_launches": 0,
+    "window_closed": true,
+    "old_approval_consumed": true
   }
 }
