@@ -5,19 +5,19 @@
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "The new source4734916ee bundle is prepared and verified offline inside the existing Plan172. All41 bundle tests pass, including the exact candidate suites with118 prohibition and35 browser/report checks, generated PR startup, prior receipt handoff, all six synthetic canary cases through both checkers and the actual separate verifier step. No network, allocation or CI was started. PR339 remains failed and every previous attempt/window stays closed. New exact approval of bundle 774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0 and both sections is required before hosted execution. Plan172 remains unfinished and Phase253 is unverified. No quick or progress scan is needed.",
+  "current": "PR340 failed in the library suite; all six canaries, the independent verifier, Fast checks and the full browser aggregate passed. The independent PR verifier also rejected the missing complete preflight. Both defects were reproduced and repaired offline at a6838a8f9. All113 local collector tests and the exact candidate library suite (2656 tests,33 doctests,3 properties,0 failures) pass. The new bundle has37 passing local checks, including generated startup through the actual generated collector preflight. All four prior attempts remain closed; no hosted action followed the halt. New exact approval of bundle e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a and both sections is required. Plan172 is unfinished and Phase253 is unverified; continue the same plan without a quick or progress scan.",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Record new exact approval, then execute this prepared bundle once inside Plan172.",
+  "next_action": "Record approval of this concrete new-source bundle, then execute it once within Plan172.",
   "route": {
-    "status": "normal_execute172_repaired_source_approval_checkpoint",
+    "status": "normal_execute172_corrected_handoff_approval_checkpoint",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "The new source4734916ee bundle is prepared and verified offline inside the existing Plan172. All41 bundle tests pass, including the exact candidate suites with118 prohibition and35 browser/report checks, generated PR startup, prior receipt handoff, all six synthetic canary cases through both checkers and the actual separate verifier step. No network, allocation or CI was started. PR339 remains failed and every previous attempt/window stays closed. New exact approval of bundle 774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0 and both sections is required before hosted execution. Plan172 remains unfinished and Phase253 is unverified. No quick or progress scan is needed.",
-    "evidence": ".planning/execution/253-proof-bundle-4734916ee-checks/CHECKS.json",
+    "reason": "PR340 failed in the library suite; all six canaries, the independent verifier, Fast checks and the full browser aggregate passed. The independent PR verifier also rejected the missing complete preflight. Both defects were reproduced and repaired offline at a6838a8f9. All113 local collector tests and the exact candidate library suite (2656 tests,33 doctests,3 properties,0 failures) pass. The new bundle has37 passing local checks, including generated startup through the actual generated collector preflight. All four prior attempts remain closed; no hosted action followed the halt. New exact approval of bundle e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a and both sections is required. Plan172 is unfinished and Phase253 is unverified; continue the same plan without a quick or progress scan.",
+    "evidence": ".planning/execution/253-proof-bundle-a6838a8f9-checks/CHECKS.json",
     "readiness": {
-      "source": ".planning/execution/253-proof-bundle-4734916ee-checks/sdk-readiness.json",
+      "source": ".planning/execution/253-proof-bundle-a6838a8f9-checks/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
@@ -50,7 +50,7 @@
       254,
       255
     ],
-    "next_required_gate": "Explicit approval of the new source4734916ee bundle and both action sections",
+    "next_required_gate": "Explicit approval of corrected sourcea6838a8f9 bundle and both action sections",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -65,7 +65,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute172_repaired_source_approval_checkpoint",
+    "workflow_step": "execute172_corrected_handoff_approval_checkpoint",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -197,7 +197,7 @@
       "253-98",
       "253-99"
     ],
-    "phase253_execution_dispatch": "Inline Plan172;actual canary verified, PR339 failed, three boundary defects repaired offline",
+    "phase253_execution_dispatch": "Inline Plan172; all canaries verified, PR340 failed, operator/collector handoff and Elixir consumer repaired offline",
     "phase253_recovery_plan_count": 6,
     "phase253_recovery_task_count": 13,
     "phase253_replan_count": 11,
@@ -211,20 +211,20 @@
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
-    "phase253_execution_status": "offline_repairs_verified_bundle_preparation_next",
+    "phase253_execution_status": "corrected_source_bundle_approval_checkpoint",
     "phase253_halted_plan_count": 29,
     "phase253_unsummarized_plan_count": 74
   },
   "human_actions_pending": [
     {
       "status": "awaiting_explicit_new_source_bundle_approval",
-      "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
-      "bundle_path": ".planning/execution/253-proof-bundle-4734916ee/bundle.json",
-      "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
-      "request": ".planning/execution/253-proof-bundle-4734916ee/approval-request.json",
+      "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "bundle_path": ".planning/execution/253-proof-bundle-a6838a8f9/bundle.json",
+      "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+      "request": ".planning/execution/253-proof-bundle-a6838a8f9/approval-request.json",
       "sections": {
-        "canary": "fb742e3179f5cffacc26975b47c4c58266195d7d30ba4346eebb068c1c30d080",
-        "docs_and_prs": "b2c4bae82d2e0e6ffafaa8797282181e55a9f76edcd615d2d7cf6df36b1a695c"
+        "canary": "4a6e26bf4f02a0808cfdda9c411b98894f19053c39bbf67c42b9d3e269ff876b",
+        "docs_and_prs": "34bf9bd67ffbbf9bc4ac48dcc4e60f7ee57f29ac334777bd2cf120e80723e15a"
       },
       "previous_approval_consumed": true,
       "no_approval_implied_by_execute_phase": true
@@ -3670,14 +3670,14 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "status": "normal_execute172_repaired_source_approval_checkpoint",
+    "status": "normal_execute172_corrected_handoff_approval_checkpoint",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "The new source4734916ee bundle is prepared and verified offline inside the existing Plan172. All41 bundle tests pass, including the exact candidate suites with118 prohibition and35 browser/report checks, generated PR startup, prior receipt handoff, all six synthetic canary cases through both checkers and the actual separate verifier step. No network, allocation or CI was started. PR339 remains failed and every previous attempt/window stays closed. New exact approval of bundle 774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0 and both sections is required before hosted execution. Plan172 remains unfinished and Phase253 is unverified. No quick or progress scan is needed.",
-    "evidence": ".planning/execution/253-proof-bundle-4734916ee-checks/CHECKS.json",
+    "reason": "PR340 failed in the library suite; all six canaries, the independent verifier, Fast checks and the full browser aggregate passed. The independent PR verifier also rejected the missing complete preflight. Both defects were reproduced and repaired offline at a6838a8f9. All113 local collector tests and the exact candidate library suite (2656 tests,33 doctests,3 properties,0 failures) pass. The new bundle has37 passing local checks, including generated startup through the actual generated collector preflight. All four prior attempts remain closed; no hosted action followed the halt. New exact approval of bundle e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a and both sections is required. Plan172 is unfinished and Phase253 is unverified; continue the same plan without a quick or progress scan.",
+    "evidence": ".planning/execution/253-proof-bundle-a6838a8f9-checks/CHECKS.json",
     "readiness": {
-      "source": ".planning/execution/253-proof-bundle-4734916ee-checks/sdk-readiness.json",
+      "source": ".planning/execution/253-proof-bundle-a6838a8f9-checks/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
@@ -3689,7 +3689,7 @@
     },
     "phase_verification_status": "not_started"
   },
-  "last_updated": "2026-10-22T00:18:28.341059+00:00",
+  "last_updated": "2026-10-22T01:17:18.873825+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4267,7 +4267,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "execute172_repaired_source_approval_checkpoint",
+  "workflow_step": "execute172_corrected_handoff_approval_checkpoint",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4540,7 +4540,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "8437d4bc9",
+  "state_head": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4625,7 +4625,7 @@
     "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   },
-  "stopped_at": "Plan172 repaired-source bundle verified offline; exact approval pending",
+  "stopped_at": "Plan172 PR340 closed; corrected-source bundle verified offline; new exact approval pending",
   "phase253_plan168_prerequisite_correction": {
     "status": "corrected_not_executed",
     "summary": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
@@ -4717,13 +4717,13 @@
   "phase253_unsummarized_plans": 74,
   "phase253_pending_decision": {
     "status": "awaiting_explicit_new_source_bundle_approval",
-    "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
-    "bundle_path": ".planning/execution/253-proof-bundle-4734916ee/bundle.json",
-    "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
-    "request": ".planning/execution/253-proof-bundle-4734916ee/approval-request.json",
+    "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "bundle_path": ".planning/execution/253-proof-bundle-a6838a8f9/bundle.json",
+    "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+    "request": ".planning/execution/253-proof-bundle-a6838a8f9/approval-request.json",
     "sections": {
-      "canary": "fb742e3179f5cffacc26975b47c4c58266195d7d30ba4346eebb068c1c30d080",
-      "docs_and_prs": "b2c4bae82d2e0e6ffafaa8797282181e55a9f76edcd615d2d7cf6df36b1a695c"
+      "canary": "4a6e26bf4f02a0808cfdda9c411b98894f19053c39bbf67c42b9d3e269ff876b",
+      "docs_and_prs": "34bf9bd67ffbbf9bc4ac48dcc4e60f7ee57f29ac334777bd2cf120e80723e15a"
     },
     "previous_approval_consumed": true,
     "no_approval_implied_by_execute_phase": true
@@ -4754,9 +4754,9 @@
   },
   "phase253_hosted_execution_bundle": {
     "status": "prepared_offline_requires_explicit_hosted_approval",
-    "record": ".planning/execution/253-proof-bundle-4734916ee/bundle.json",
-    "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
-    "source": "4734916eeca6ce4b5726c740ac468264338cb300",
+    "record": ".planning/execution/253-proof-bundle-a6838a8f9/bundle.json",
+    "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+    "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
     "ci_launches": 0,
     "github_requests": 0,
     "allocations": 0,
@@ -4764,19 +4764,19 @@
     "next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "phase253_plan172_hosted_attempt": {
-    "status": "pr339_halted_offline_repairs_verified",
+    "status": "pr340_halted_offline_repairs_verified",
     "record": ".planning/execution/253-172-EXECUTION.json",
-    "attempt": ".planning/execution/253-proof-bundle-16800f431-compatible/attempt-result.json",
-    "commit": "a4ad7101f",
-    "repair_commit": "4734916eeca6ce4b5726c740ac468264338cb300",
-    "github_requests": 127,
+    "attempt": ".planning/execution/253-proof-bundle-4734916ee/attempt-result.json",
+    "commit": "dc1e552aa",
+    "repair_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "github_requests": 123,
     "workflow_dispatches": 7,
     "pr_creations": 1,
     "window_closed": true,
     "canary_verified": true,
-    "pr_number": 339,
-    "run_id": 39694840276,
+    "pr_number": 340,
+    "run_id": 39702539995,
     "run_conclusion": "failure"
   },
-  "prior_shared_state_commit": "8437d4bc9"
+  "prior_shared_state_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0"
 }
