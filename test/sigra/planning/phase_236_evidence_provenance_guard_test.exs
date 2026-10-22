@@ -3,8 +3,8 @@ defmodule Sigra.Planning.Phase236EvidenceProvenanceGuardTest do
 
   @p12 "scripts/ci/prohibitions/p12-run-id-provenance.test.mjs"
   @phase_230_ledger ".planning/phases/230-tier-1-critical-path-reclamation/230-EVIDENCE.md"
-  @phase_236_ledger ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md"
-  @phase_236_archived_ledger ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md"
+  @phase_236_ledger "test/fixtures/prohibitions/retained-236-evidence.md"
+  @phase_236_origin "test/fixtures/prohibitions/retained-236-evidence.json"
   @phase_236_fixture "test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md"
   @workflow ".github/workflows/ci.yml"
   @prohibitions_glob "scripts/ci/prohibitions/*.test.mjs"
@@ -16,7 +16,7 @@ defmodule Sigra.Planning.Phase236EvidenceProvenanceGuardTest do
            "p12 must retain the exact Phase 230 evidence path so the original provenance guard stays covered"
 
     assert source =~ @phase_236_ledger,
-           "p12 must name the exact Phase 236 evidence path so its RED/GREEN claims run in Fast checks"
+           "p12 must use the source-pinned Phase 236 fixture in Fast checks"
   end
 
   test "p12 retains asymmetric positive floors and the Phase 236 known-bad fixture" do
@@ -50,7 +50,15 @@ defmodule Sigra.Planning.Phase236EvidenceProvenanceGuardTest do
   end
 
   test "Phase 236 retains exactly three run-backed evidence slots" do
-    evidence = File.read!(@phase_236_archived_ledger)
+    evidence = File.read!(@phase_236_ledger)
+    origin = @phase_236_origin |> File.read!() |> JSON.decode!()
+
+    assert origin["source_commit"] == "16800f4319cdd0e2554938071d4ebc48caa969ac"
+
+    assert origin["source_path"] ==
+             ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md"
+
+    assert origin["sha256"] == Base.encode16(:crypto.hash(:sha256, evidence), case: :lower)
 
     headings =
       Regex.scan(~r/^##\s+((?:BEFORE|AFTER)-[A-Z0-9-]+)\s*$/m, evidence)

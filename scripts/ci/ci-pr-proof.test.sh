@@ -3486,6 +3486,62 @@ class PrPaginatedListingsTests(unittest.TestCase):
         self.assertEqual(result["status"], "synthetic_pr_family_verified")
 
 
+class OperatorPreflightHandoffTests(unittest.TestCase):
+    def test_partial_duplicate_or_failed_shared_snapshot_stops_before_requests(self):
+        import ast
+        import types
+        embedded = PROOF.read_text().split("<<'PYEOF'\n", 1)[1].rsplit("\nPYEOF", 1)[0]
+        collector = next(node for node in ast.parse(embedded).body if isinstance(node, ast.ClassDef) and node.name == "Collector")
+        preflight = next(node for node in collector.body if isinstance(node, ast.FunctionDef) and node.name == "preflight")
+        class Refused(Exception):
+            pass
+        scope = {"Stop": Refused}
+        exec(compile(ast.Module(body=[preflight], type_ignores=[]), str(PROOF), "exec"), scope)
+        row = lambda route, status=200: {"family": "shared", "category": "preflight", "route_id": route, "actual_status": status}
+        complete = [row(route) for route in ("rate_limit", "rules_main", "branch_protection", "workflow")]
+        invalid = [complete[:-1], complete + [row("branch_protection")],
+                   [*complete[:1], row("rules_main", 403), *complete[2:]], complete[1:]]
+        for rows in invalid:
+            with self.subTest(rows=rows):
+                calls = []
+                subject = types.SimpleNamespace(ledger=lambda: {"transactions": rows}, jcall=lambda *a, **k: calls.append(a))
+                with self.assertRaisesRegex(Refused, "snapshot is incomplete"):
+                    scope["preflight"](subject)
+                self.assertEqual(calls, [])
+        for rows in (complete, [*complete[:2], row("rules_main"), *complete[2:]],
+                     [*complete[:2], row("branch_protection", 404), *complete[3:]]):
+            calls = []
+            scope["preflight"](types.SimpleNamespace(ledger=lambda: {"transactions": rows}, jcall=lambda *a, **k: calls.append(a)))
+            self.assertEqual(calls, [], "complete snapshot must be reused without another request")
+
+    def test_shared_operator_reads_do_not_replace_the_full_preflight(self):
+        # Exercise the actual transport, collector and independent verifier together.
+        # The operator reads rate_limit and main before invoking the collector.
+        w = World(self, tag="operator-preflight-handoff")
+        for index, (route, params) in enumerate((("rate_limit", None), ("get_ref", {"branch": "main"}))):
+            request = w.dir / f"operator-{index}.request.json"
+            request.write_text(json.dumps({"method": "GET", "route_id": route, "category": "preflight",
+                                           "family": "shared", **({"params": params} if params else {})}))
+            process = run("python3", ROOT / "scripts/ci/ci-hosted-transport.py", "--allocation", w.allocation_path,
+                          "--ledger", w.ledger, "--request", request, "--output", w.dir / f"operator-{index}.receipt.json",
+                          "--body-output", w.dir / f"operator-{index}.body.json", cwd=ROOT, env=w.subprocess_env())
+            self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        _, normal_path = w.collect("normal", "operator-normal.json")
+        normal_journal = list(w.server.journal)
+        _, docs_path = w.collect("docs-only", "operator-docs.json")
+        normal = attach_journal(normal_path, normal_journal)
+        docs = attach_journal(docs_path, list(w.server.journal))
+        result = verifier.verify_pr_pair(normal, docs)
+        self.assertEqual(result["status"], "synthetic_pr_pair_verified")
+        self.assertFalse(result["accepted_live"])
+        rows = docs["transport_ledger"]["transactions"]
+        shared = [row for row in rows if row["family"] == "shared"]
+        self.assertEqual(sum(row["route_id"] == "branch_protection" for row in shared), 1)
+        self.assertEqual(sum(row["route_id"] == "rules_main" for row in shared), 1)
+        self.assertEqual(sum(row["route_id"] == "workflow" for row in shared), 1)
+        self.assertEqual(sum(row["category"] == "preflight" for row in rows), 6)
+
+
 if __name__ == "__main__":
     outcome = unittest.main(verbosity=2, exit=False).result
     if outcome.testsRun < 20:

@@ -481,7 +481,22 @@ class Collector:
             raise Stop(f"{args[1]} returned malformed JSON ({type(error).__name__}); charged response remains in the ledger") from error
 
     def preflight(self):
-        if any(tx.get("family") == "shared" for tx in self.ledger()["transactions"]):
+        shared = [tx for tx in self.ledger()["transactions"] if tx.get("family") == "shared"]
+        routes = ("rules_main", "branch_protection", "workflow")
+        snapshot = [tx for tx in shared if tx.get("route_id") in routes]
+        # Operator rate/main reads are not the required-check and workflow snapshot.
+        # Reuse only the complete snapshot collected for the earlier PR family.
+        if snapshot:
+            counts = {route: sum(tx.get("route_id") == route for tx in snapshot) for route in routes}
+            valid = (1 <= counts["rules_main"] <= 2 and counts["branch_protection"] == 1
+                     and counts["workflow"] == 1
+                     and any(tx.get("route_id") == "rate_limit" and tx.get("actual_status") == 200
+                             and tx.get("category") == "preflight" for tx in shared)
+                     and all(tx.get("category") == "preflight" and tx.get("actual_status") in
+                             ((200, 404) if tx.get("route_id") == "branch_protection" else (200,))
+                             for tx in snapshot))
+            if not valid:
+                raise Stop("shared preflight snapshot is incomplete, duplicated or failed; do not reuse or refill it")
             return
         self.jcall("one", "rate_limit", "preflight", family="shared")
         self.jcall("pages", "rules_main", "preflight", query={"per_page": 100}, family="shared")
