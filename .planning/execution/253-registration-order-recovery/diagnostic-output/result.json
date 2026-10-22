@@ -1,0 +1,86 @@
+{
+  "kind": "development_diagnostic",
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "started_at": "2026-10-22T20:23:36.247Z",
+  "output": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-cfaqFG",
+  "steps": [
+    {
+      "name": "initdb",
+      "args": [
+        "-D",
+        "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-cfaqFG/pg",
+        "-U",
+        "postgres",
+        "-A",
+        "trust",
+        "--no-locale"
+      ],
+      "pid": 96428,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "timed_out": false,
+      "aborted": false,
+      "duration_ms": 642,
+      "wall_duration_ms": 642,
+      "suspended": false,
+      "max_tick_gap_ms": 3,
+      "group_signals": [],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 0
+    },
+    {
+      "name": "setup",
+      "args": [
+        "ecto.setup"
+      ],
+      "pid": 96496,
+      "exit_code": 1,
+      "signal": null,
+      "error": null,
+      "timed_out": false,
+      "aborted": false,
+      "duration_ms": 17599,
+      "wall_duration_ms": 17599,
+      "suspended": false,
+      "max_tick_gap_ms": 2,
+      "group_signals": [],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 0
+    },
+    {
+      "name": "postgres",
+      "pid": 96455,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "timed_out": false,
+      "aborted": true,
+      "duration_ms": 17884,
+      "wall_duration_ms": 17883,
+      "suspended": false,
+      "max_tick_gap_ms": 2,
+      "group_signals": [
+        "SIGTERM"
+      ],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 0
+    }
+  ],
+  "browser_invocations": 0,
+  "github_requests": 0,
+  "old_slots_reopened": 0,
+  "acceptance": false,
+  "limitations": [
+    "macOS arm64, original CI was Ubuntu Linux x64",
+    "same-project prefix only; 128 earlier desktop/mobile tests omitted",
+    "original database state unavailable; uses owned fresh PostgreSQL cluster",
+    "a passing diagnostic does not close CIREL-01 or count as an acceptance repeat"
+  ],
+  "outcome": "stopped",
+  "error": "command failed: setup",
+  "duration_ms": 18526
+}
