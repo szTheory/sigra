@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "plan172_remaining_evidence_offline_preparation",
+  "status": "plan172_remaining_evidence_approval_checkpoint",
   "timestamp": "2026-10-22T16:20:40.850304+00:00",
   "completed_local_plans": [
     "253-168",
@@ -49,16 +49,25 @@
   },
   "next_plan": "253-172",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_command_conditional": false,
-  "required_decision": null,
-  "reason_for_decision": null,
+  "next_command_conditional": true,
+  "required_decision": {
+    "status": "pending_exact_proposal_approval",
+    "approval_received": false,
+    "proposal": ".planning/execution/253-pr343-remaining-evidence/proposal.json",
+    "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+    "manifest_sha256": "6c87fc47f711885b85a121ba137ef7606c0392f20c31d5097f01d7d8524186fe",
+    "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
+    "question": "Approve collecting the five PR343 artifacts and creating one frozen docs-only draft PR/CI run, within 70 HTTP requests and 60 minutes?",
+    "new_ci_authorized": false
+  },
+  "reason_for_decision": "Plan172 permits offline preparation only; fresh exact-proposal approval must precede external collection.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
   "github_requests": 641,
   "ci_launches": 35,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
+  "prior_shared_state_commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -129,7 +138,7 @@
     "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
   },
-  "next_action": "PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.",
+  "next_action": "Plan172 offline continuation is committed at f75e6a88b026b2c5a26f829a8a0bfce1c244eb47. All 20 offline tests pass. Fresh approval is required to download the five pinned PR343 browser archives and create the frozen docs-only refs and one draft PR/automatic CI run. Maximum 70 measured HTTP requests within 60 minutes, shared 20 download-request cap, no retries/reruns/dispatches/merges. Proposal SHA-256 88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d. No live action was performed. Original registration reproduction and Phase253 verification remain unfinished.",
   "docs_attempt_history": [
     {
       "status": "halted_before_publication_import_failure",
@@ -166,7 +175,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "updated_at": "2026-10-22T17:30:28.526518+00:00",
+  "updated_at": "2026-10-22T19:02:23.288100+00:00",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -187,7 +196,7 @@
     "run_status": "queued",
     "diagnosis": ".planning/execution/253-pr343-diagnosis/diagnosis.json"
   },
-  "state_head": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
+  "state_head": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
   "phase253_paired_attempt_history": [
     {
       "status": "closed_before_publication_permanent_ledger_ref_failure",
@@ -206,7 +215,7 @@
       "approval_consumed": true
     }
   ],
-  "last_updated": "2026-10-22T17:30:28.526518+00:00",
+  "last_updated": "2026-10-22T19:02:23.288100+00:00",
   "diagnostic_gets_this_continuation": 4,
   "diagnostic_watcher_http_request_count": "unknown",
   "phase253_existing_pr_recovery": {
@@ -260,5 +269,16 @@
       "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
     }
   ],
-  "resume_command": "$gsd-execute-phase 253 --gaps-only"
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "workflow_step": "plan172_remaining_evidence_approval_checkpoint",
+  "phase253_remaining_evidence": {
+    "status": "awaiting_exact_approval",
+    "implementation_commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+    "checkpoint": ".planning/execution/253-pr343-remaining-evidence-CHECKPOINT.json",
+    "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+    "tests_passed": 20,
+    "network_requests": 0,
+    "ci_launches": 0,
+    "phase_verified": false
+  }
 }
