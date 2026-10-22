@@ -46,11 +46,7 @@ run_capture() {
     package_version="$(node -p "require('./node_modules/@playwright/test/package.json').version")"
     [[ "$package_version" == 1.59.1 ]] || fail "expected locked Playwright 1.59.1, got $package_version"
     printf '%s\n' "$package_version" > "$ARTIFACT_DIR/logs/${label}-package-version.txt"
-    if [[ "$SCOPE" == full ]]; then
-      PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright install --with-deps chromium webkit
-    else
-      PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright install chromium
-    fi
+    PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright install chromium
     if [[ "$SCOPE" == tracer ]]; then
       SIGRA_EXAMPLE_URL="$base_url" PLAYWRIGHT_BROWSERS_PATH="$browser_root" npx playwright test tests/admin-checkpoints.spec.ts \
         --project=admin-checkpoints-chromium --update-snapshots=all --retries=0
@@ -72,9 +68,9 @@ run_capture() {
 capture_a="$WORK_ROOT/render-a"
 capture_b="$WORK_ROOT/render-b"
 set +e
-run_capture render-a "$capture_a" "$WORK_ROOT/browsers" http://localhost:4001
+run_capture render-a "$capture_a" "$WORK_ROOT/browsers-a" http://localhost:4001
 capture_a_status=$?
-run_capture render-b "$capture_b" "$WORK_ROOT/browsers" http://localhost:4002
+run_capture render-b "$capture_b" "$WORK_ROOT/browsers-b" http://localhost:4002
 capture_b_status=$?
 set -e
 

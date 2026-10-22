@@ -23,9 +23,7 @@ restore() {
   mv -f "${restore_path}" "${LOCKFILE}" || restore_status=1
 
   # Each bare `mix` command starts a fresh Mix VM, so no mutated dependency cache
-  # survives from the deliberately destructive guard commands above. Recompile
-  # the whole project after restoring the optional dep: the dep-off compile may
-  # have omitted Sigra modules conditionally defined behind Code.ensure_compiled/1.
+  # survives from the deliberately destructive guard commands above.
   (
     cd "${ROOT}"
     MIX_ENV=test mix deps.get --check-locked
@@ -60,7 +58,19 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 cd "${ROOT}"
+TIMING_DIR=""
+THREADLINE_TIMING_JSON=""
+if [[ -n "${SIGRA_EXUNIT_TIMING_JSON:-}" ]]; then
+  TIMING_DIR="$(dirname "${SIGRA_EXUNIT_TIMING_JSON}")"
+  THREADLINE_TIMING_JSON="${SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON:-${TIMING_DIR}/ci-exunit-timing-threadline-guard.json}"
+fi
 mix deps.unlock threadline || exit $?
 mix deps.clean threadline --build || exit $?
 mix compile --warnings-as-errors --no-deps-check || exit $?
-mix test --only threadline_guard --no-deps-check
+if [[ -n "${THREADLINE_TIMING_JSON}" ]]; then
+  SIGRA_EXUNIT_TIMING_INVOCATION=threadline_guard \
+    SIGRA_EXUNIT_TIMING_JSON="${THREADLINE_TIMING_JSON}" \
+    mix test --only threadline_guard --no-deps-check
+else
+  mix test --only threadline_guard --no-deps-check
+fi

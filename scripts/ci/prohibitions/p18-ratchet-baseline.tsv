@@ -1,0 +1,22 @@
+# P18 bookkeeping ratchet baselines — measured at execution HEAD f1a95dee.
+#
+# Pass condition: each counter may decrease or remain equal; an increase is a
+# regression. Zero is explicitly NOT the target. These are independent counters:
+# a decrease in R3 must never license an increase in R1 or R2.
+#
+# R1 | @moduledoc/@doc/@shortdoc/@typedoc ranges in lib/ | narrower Phase-237
+#      scanner vocabulary | python3 .planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-docs-attribute-scan.py lib
+#      and node -e 'import("./scripts/ci/prohibitions/_p18-lib.mjs").then(m => console.log(m.docRangeTotal("lib")))'
+# R2 | comment-only lines in tracked lib/ Elixir sources | wide committed Phase-239
+#      V3 vocabulary | node --test --test-name-pattern='R2' scripts/ci/prohibitions/p18-bookkeeping-ratchet.test.mjs
+# R3 | packaged-docs files selected by Hex (docs/, README.md, CHANGELOG.md) | literal
+#      .planning/ only | node --test --test-name-pattern='R3' scripts/ci/prohibitions/p18-bookkeeping-ratchet.test.mjs
+#
+# Standing security constraint: if a commit lowers R2, re-run the separate,
+# non-overlapping lib security-rationale comment count and confirm it did not
+# fall. At research HEAD it was 52; lowering bookkeeping must not silently
+# delete security rationale.
+counter	baseline	surface
+R1	337	lib-doc-ranges-narrow-phase-237-vocabulary
+R2	220	lib-comment-lines-wide-phase-239-v3-vocabulary
+R3	58	packaged-docs-literal-planning-directory-occurrences

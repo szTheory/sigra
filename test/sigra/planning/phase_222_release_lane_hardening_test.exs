@@ -61,7 +61,7 @@ defmodule Sigra.Planning.Phase222ReleaseLaneHardeningTest do
     assert release_please =~ "bash scripts/ci/notify-failure-issue.sh"
   end
 
-  test "222-03: notify-release-failure is guarded and receives job-level issue-write permission" do
+  test "222-03: notify-release-failure (release-please.yml) aggregates gate-ci-green/publish-hex failure under the release_created guard with job-scoped write permission" do
     release_please = read!(".github/workflows/release-please.yml")
 
     assert release_please =~ ~r/^  notify-release-failure:$/m
@@ -77,9 +77,11 @@ defmodule Sigra.Planning.Phase222ReleaseLaneHardeningTest do
       |> String.split(~r/^  [a-zA-Z_][a-zA-Z0-9_-]*:$/m)
       |> Enum.at(0)
 
-    assert notify_job =~ "permissions:\n      contents: read\n      issues: write"
+    # The workflow default is read-only; only the issue notifier receives write access.
+    assert release_please =~ ~r/^permissions:$/m
     assert release_please =~ ~r/^  issues: read$/m
-    refute release_please =~ ~r/^  issues: write$/m
+    assert notify_job =~ "contents: read"
+    assert notify_job =~ "issues: write"
   end
 
   test "222-04: MAINTAINING.md documents the release-lane rot signals & recovery runbook (HARD-01/HARD-02)" do
