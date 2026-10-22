@@ -19,3 +19,7 @@ The user asked to unblock diagnosis. `.planning/execution/253-registration-linux
 ## Approved Linux replay completed
 
 All161original-order tests passed once,including the original failing dark board-mg-9/populated case. Zero retries/skips;1622.2seconds including cleanup;owned containers removed. Result:`.planning/execution/253-registration-linux/RESULT.json`. The CI timeout remains unreproduced;no demonstrated cause or fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged. The new one-run approval is consumed. Next:$gsd-debug "Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run";no additional browser/CI execution authorized.
+
+## Original registration server failure identified
+
+The authenticated original log shows save161crashing on Ecto.Queryable.to_query/1 during email uniqueness validation, before any account insert or login POST. Its generated account sequence and time match the selected browser failure. This identifies the immediate failure;why the module was unavailable is still unproved. The Linux comparison and two passing local purge probes are retained in `.planning/debug/phase253-registration-timeout/evidence.json`. No product fix or browser/CI execution occurred. CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged. Next:`$gsd-debug continue phase253-registration-timeout`,for a traced offline reloader unit experiment.

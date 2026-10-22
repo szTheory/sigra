@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T22:04:00.465570+00:00"
+last_updated: "2026-10-22T22:48:31.867147+00:00"
 state_head: d100e74fad52a95fe526b4fc9edbf17f429a5c55
 progress:
   total_phases: 4
@@ -11,14 +11,14 @@ progress:
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Approved Linux replay completed;161passed;original registration failure not reproduced
+last_activity: 2026-10-22 - Original registration timeout linked to Ecto.Queryable server crash; upstream loader cause unconfirmed
 milestone_status: active
-workflow_step: phase253_linux_replay_completed_offline_cause_diagnosis
+workflow_step: phase253_registration_loader_cause_diagnosis
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\""
-resume_command: "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\""
+next_command: "$gsd-debug continue phase253-registration-timeout"
+resume_command: "$gsd-debug continue phase253-registration-timeout"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -146,7 +146,7 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Approved Linux replay complete; registration cause still unknown; offline diagnosis next
+stopped_at: Original server crash identified; loader trace and tested fix still missing
 last_activity_desc: Exact PostgreSQL image and original tools prepared; no browser test launched
 ---
 
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-The approved Linux replay completed:161/161 original-order cases passed,including the original dark board-mg-9/populated case;zero retries/skips;1622.2seconds including cleanup;both containers removed. It did not reproduce the CI timeout or demonstrate a cause/fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 stays complete. The single-run approval is consumed;no additional browser,GitHub or CI execution is authorized. Continue focused offline diagnosis of the original registration save path;do not repeat an empty gap-plan scan or add a numbered repair plan.
+Original CI failure is linked to a server crash:save161 raised UndefinedFunctionError because Ecto.Queryable.to_query/1 was unavailable during email uniqueness validation;no user insert or login POST followed. Test/account sequence and timestamp independently match the failing dark case. The Linux replay saved all161accounts successfully. Two isolated module-purge probes passed40000and400000calls,so the suspected reloader race is not proven. Next:trace the actual Phoenix reloader/module loading in an isolated offline unit experiment. No product fix,app listener,browser,CI or external request was made or newly authorized. CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged.
 
 ## Prepared next action
 
-`$gsd-debug "Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run"`
+`$gsd-debug continue phase253-registration-timeout`
 
-The run cannot be invoked again. Read `.planning/execution/253-registration-linux/RESULT.json` for native results and output hashes. Phase254 readiness was rechecked:pending,no context,research or plans. After actual253completion,recheck before `$gsd-discuss-phase 254`.
+See `.planning/debug/phase253-registration-timeout/REPORT.md` and `evidence.json`. Prior state is recoverable at855897c1c28cc47e72a93a46bf9d78442af66608;exact read-back identities are in `state-record.json`. Phase254 readiness was rechecked:pending,no context,research or plans. Recheck after actual253completion before `$gsd-discuss-phase 254`.
 
 ## Known unfinished work
 

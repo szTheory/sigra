@@ -40,7 +40,7 @@
     "label": "Prepared Linux registration diagnostic; approval required",
     "reason": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM."
   },
-  "updated_at": "2026-10-22T22:04:00.465570+00:00",
+  "updated_at": "2026-10-22T22:48:31.867147+00:00",
   "phase253_execution": {
     "status": "direct_requirement_review_complete_registration_blocked",
     "implementation_status": "partial",
@@ -1228,8 +1228,8 @@
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "status": "in_progress",
-  "next_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
-  "resume_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+  "next_command": "$gsd-debug continue phase253-registration-timeout",
+  "resume_command": "$gsd-debug continue phase253-registration-timeout",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "phase253_linux_replay_completed_offline_cause_diagnosis",
+  "workflow_step": "phase253_registration_loader_cause_diagnosis",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3147,17 +3147,16 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "linux_replay_completed_registration_cause_unknown",
-    "next_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
-    "resume_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+    "status": "registration_server_crash_identified_loader_cause_unconfirmed",
+    "next_command": "$gsd-debug continue phase253-registration-timeout",
+    "resume_command": "$gsd-debug continue phase253-registration-timeout",
     "conditional": false,
-    "reason": "The approved Linux replay completed:161/161 original-order cases passed,including the original dark board-mg-9/populated case;zero retries/skips;1622.2seconds including cleanup;both containers removed. It did not reproduce the CI timeout or demonstrate a cause/fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 stays complete. The single-run approval is consumed;no additional browser,GitHub or CI execution is authorized. Continue focused offline diagnosis of the original registration save path;do not repeat an empty gap-plan scan or add a numbered repair plan.",
-    "evidence": ".planning/execution/253-registration-linux/RESULT.json",
+    "reason": "Original CI failure is linked to a server crash:save161 raised UndefinedFunctionError because Ecto.Queryable.to_query/1 was unavailable during email uniqueness validation;no user insert or login POST followed. Test/account sequence and timestamp independently match the failing dark case. The Linux replay saved all161accounts successfully. Two isolated module-purge probes passed40000and400000calls,so the suspected reloader race is not proven. Next:trace the actual Phoenix reloader/module loading in an isolated offline unit experiment. No product fix,app listener,browser,CI or external request was made or newly authorized. CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged.",
+    "evidence": ".planning/debug/phase253-registration-timeout/evidence.json",
     "phase_verification_status": "incomplete",
     "immediate_user_action": "None for offline diagnosis",
     "readiness": {
-      "operationally_ready_plans": [],
-      "ready_scope": "focused offline registration diagnosis",
+      "ready_scope": "traced offline reloader unit experiment",
       "approval_still_required": false,
       "additional_browser_authorized": false,
       "new_ci_authorized": false
@@ -3456,7 +3455,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "next_action": "The approved Linux replay completed:161/161 original-order cases passed,including the original dark board-mg-9/populated case;zero retries/skips;1622.2seconds including cleanup;both containers removed. It did not reproduce the CI timeout or demonstrate a cause/fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 stays complete. The single-run approval is consumed;no additional browser,GitHub or CI execution is authorized. Continue focused offline diagnosis of the original registration save path;do not repeat an empty gap-plan scan or add a numbered repair plan.",
+  "next_action": "Original CI failure is linked to a server crash:save161 raised UndefinedFunctionError because Ecto.Queryable.to_query/1 was unavailable during email uniqueness validation;no user insert or login POST followed. Test/account sequence and timestamp independently match the failing dark case. The Linux replay saved all161accounts successfully. Two isolated module-purge probes passed40000and400000calls,so the suspected reloader race is not proven. Next:trace the actual Phoenix reloader/module loading in an isolated offline unit experiment. No product fix,app listener,browser,CI or external request was made or newly authorized. CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3595,14 +3594,15 @@
   },
   "phase253_requirement_review_status": "partial_cirel02_verified_cirel01_blocked",
   "phase253_current_blocker": {
-    "status": "original_registration_cause_still_unknown",
+    "status": "registration_server_crash_identified_loader_cause_unconfirmed",
     "requirement": "CIREL-01",
     "original_order_log_recovered": true,
     "full_original_prefix_passed": 161,
-    "record": ".planning/execution/253-registration-linux/RESULT.json",
+    "record": ".planning/debug/phase253-registration-timeout/evidence.json",
     "missing": [
-      "a failing registration counterexample tied to a demonstrated cause",
-      "tested fix and required fresh post-fix repeats"
+      "why Ecto.Queryable was unavailable during the original save",
+      "a deterministic cause-specific reproduction and tested fix",
+      "separately scoped post-fix repeats"
     ],
     "environment_differences": [
       "x64 emulation on ARM Mac; diagnostic-only Erlang +JMsingle true flag",
@@ -3612,8 +3612,8 @@
     "post_fix_slots_expired": 9,
     "approval_pending": false,
     "additional_native_authorized": false,
-    "next_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
-    "next_action": "Inspect original save-event path offline;do not repeat unchanged replay or create another numbered plan.",
+    "next_command": "$gsd-debug continue phase253-registration-timeout",
+    "next_action": "Trace actual reloader/module lifecycle in an isolated offline unit experiment;do not repeat uninstrumented probes or browser runs.",
     "linux_replay_passed": 161,
     "new_diagnostic_approval_pending": false
   },
@@ -3699,5 +3699,20 @@
     "selected_cases_passed": 161,
     "duration_seconds": 1622.1794726669905,
     "cleanup_complete": true
+  },
+  "phase253_registration_diagnosis": {
+    "status": "immediate_server_failure_identified_upstream_cause_unconfirmed",
+    "session": ".planning/debug/phase253-registration-timeout.md",
+    "report": ".planning/debug/phase253-registration-timeout/REPORT.md",
+    "evidence": ".planning/debug/phase253-registration-timeout/evidence.json",
+    "original_failed_ordinal": 161,
+    "exception": "UndefinedFunctionError: Ecto.Queryable.to_query/1 unavailable",
+    "next_command": "$gsd-debug continue phase253-registration-timeout",
+    "root_loader_cause_proved": false,
+    "product_fix_applied": false,
+    "browser_invocations": 0,
+    "ci_launches": 0,
+    "network_requests": 0,
+    "prior_state_commit": "855897c1c28cc47e72a93a46bf9d78442af66608"
   }
 }
