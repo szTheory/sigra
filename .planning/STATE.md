@@ -3,8 +3,8 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T15:40:10.572873+00:00"
-state_head: 12f29553b
+last_updated: "2026-10-22T15:59:14.444135+00:00"
+state_head: f953000064248e75625f1721a376251ffeda3763
 progress:
   total_phases: 4
   completed_phases: 1
@@ -13,13 +13,13 @@ progress:
   percent: 25
 last_activity: 2026-10-22 - repaired-source proof objects and source-scope checks verified offline
 milestone_status: active
-workflow_step: execute172_repaired_source_proposal_verified
+workflow_step: execute172_repaired_pair_approval_checkpoint
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: false
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: PR342 failed; repairs verified locally; continue Plan172 offline
-last_activity_desc: 53requests and1automaticCI run preserved; no reruns; no pending approval
+stopped_at: completed offline paired bundle; fresh exact-bundle approval required
+last_activity_desc: 20 offline tests and real startup checks pass; no GitHub requests or CI this turn
 ---
 
 # Project State
@@ -473,3 +473,11 @@ Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs obj
 Evidence: `.planning/execution/253-plan172-repaired-source/{proposal.json,CHECKS.json}`. Prior shared bytes are recoverable at `a6aa46180` with exact read-back recorded in `state-preservation.json`. Historical608requests/34CIlaunches remain unchanged; this preparation used zero.
 
 Next command: `$gsd-execute-phase 253 --gaps-only` (offline bundle construction only). No pending approval; the proposal is not executable yet.
+
+## Plan172 paired execution checkpoint
+
+Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4 source-scope tests,real shell/transport startup and local merge preflight. Fresh explicit approval is required for this exact repaired-source5e13621e5 bundle:three create-only refs,two draft PRs,two automatic CI runs;new24-request publication and120-request shared PR ceilings,60 minutes each;zero dispatches/reruns/merges. No GitHub requests,CI or allocations were activated during preparation. Preserve all prior windows,29 halts,179 receipt and180 history. CIREL-01 remains not reproduced;Phase253 is not verified. After approval,continue the same Plan172 once;no quick or new plan.
+
+Bundle: `.planning/execution/253-plan172-repaired-source/bundle.json`; SHA-256 `7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524`. Approval details: `.planning/execution/253-plan172-repaired-source/approval-request.json`. Prior shared state is recoverable at `6ed143795fd3ff9d1fcee96126766f316dc60921`; exact readback is recorded in `.planning/execution/253-plan172-repaired-source/bundle-state-preservation.json`.
+
+Next: `$gsd-execute-phase 253 --gaps-only`, after approval. Offline implementation is complete; hosted and phase verification remain pending. Historical totals stay608 requests and34 CI launches.

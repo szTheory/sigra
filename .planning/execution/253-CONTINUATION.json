@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "plan172_pr342_offline_repairs_verified",
+  "status": "plan172_paired_bundle_approval_checkpoint",
   "timestamp": "2026-10-22T03:00:16.124264+00:00",
   "completed_local_plans": [
     "253-168",
@@ -48,16 +48,23 @@
   },
   "next_plan": "253-172",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_command_conditional": false,
-  "required_decision": null,
-  "reason_for_decision": null,
+  "next_command_conditional": true,
+  "required_decision": {
+    "status": "pending",
+    "scope": "normal-and-docs-only",
+    "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
+    "request": ".planning/execution/253-plan172-repaired-source/approval-request.json",
+    "question": "Approve this exact two-PR run on repaired source5e13621e5,with24 publication requests and120 shared PR requests,60 minutes per window,and no dispatches/reruns/merges?",
+    "approval_received": false
+  },
+  "reason_for_decision": "New exact-source pair and new windows; all prior approvals and windows are closed.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
   "github_requests": 608,
   "ci_launches": 34,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "72103017d",
+  "prior_shared_state_commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -128,7 +135,7 @@
     "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
   },
-  "next_action": "Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs objects and rejects pairing them with PR341. Four source-scope tests,10native tests and4actual generated-docs workflow tests pass. Retained canaries verify read-only and their gate inputs are unchanged. Finish the executable paired-proof operator/guards/collector and independent consumer offline inside Plan172; validate real shell startup before requesting approval. No quick, new numbered plan, CI, new approval or budget renewal. CIREL-01 remains not reproduced; Phase253 is not verified.",
+  "next_action": "Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4 source-scope tests,real shell/transport startup and local merge preflight. Fresh explicit approval is required for this exact repaired-source5e13621e5 bundle:three create-only refs,two draft PRs,two automatic CI runs;new24-request publication and120-request shared PR ceilings,60 minutes each;zero dispatches/reruns/merges. No GitHub requests,CI or allocations were activated during preparation. Preserve all prior windows,29 halts,179 receipt and180 history. CIREL-01 remains not reproduced;Phase253 is not verified. After approval,continue the same Plan172 once;no quick or new plan.",
   "docs_attempt_history": [
     {
       "status": "halted_before_publication_import_failure",
@@ -144,17 +151,21 @@
     }
   ],
   "phase253_repaired_source_preparation": {
-    "status": "offline_proposal_verified_execution_bundle_pending",
-    "commit": "12f29553b",
-    "proposal": ".planning/execution/253-plan172-repaired-source/proposal.json",
-    "checks": ".planning/execution/253-plan172-repaired-source/CHECKS.json",
+    "status": "offline_execution_bundle_verified_approval_pending",
+    "commit": "f953000064248e75625f1721a376251ffeda3763",
+    "bundle": ".planning/execution/253-plan172-repaired-source/bundle.json",
+    "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
+    "approval_request": ".planning/execution/253-plan172-repaired-source/approval-request.json",
+    "checks": ".planning/execution/253-plan172-repaired-source/BUNDLE-CHECKS.json",
     "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
-    "execution_ready": false,
-    "approval_pending": false,
+    "execution_ready": true,
+    "approval_pending": true,
     "new_ci_authorized": false,
     "requests": 0,
     "ci_launches": 0,
+    "active_allocations": 0,
     "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "next_action": "Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs objects and rejects pairing them with PR341. Four source-scope tests,10native tests and4actual generated-docs workflow tests pass. Retained canaries verify read-only and their gate inputs are unchanged. Finish the executable paired-proof operator/guards/collector and independent consumer offline inside Plan172; validate real shell startup before requesting approval. No quick, new numbered plan, CI, new approval or budget renewal. CIREL-01 remains not reproduced; Phase253 is not verified."
-  }
+    "next_action": "Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4 source-scope tests,real shell/transport startup and local merge preflight. Fresh explicit approval is required for this exact repaired-source5e13621e5 bundle:three create-only refs,two draft PRs,two automatic CI runs;new24-request publication and120-request shared PR ceilings,60 minutes each;zero dispatches/reruns/merges. No GitHub requests,CI or allocations were activated during preparation. Preserve all prior windows,29 halts,179 receipt and180 history. CIREL-01 remains not reproduced;Phase253 is not verified. After approval,continue the same Plan172 once;no quick or new plan."
+  },
+  "updated_at": "2026-10-22T15:59:14.444135+00:00"
 }
