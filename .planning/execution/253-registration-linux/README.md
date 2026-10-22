@@ -1,3 +1,5 @@
+**Run completed:** all161cases passed once in27minutes2seconds. The original CI failure was not reproduced. Approval is consumed;do not run again. See [RESULT.md](RESULT.md) and [RESULT.json](RESULT.json). The preparation/approval instructions below are retained history.
+
 # Registration diagnostic ready to run
 
 The failed CI test was `admin-eval-dark` / `board-mg-9/populated`, test161 overall. It timed out waiting for navigation after registration, with no registration request, response or request failure captured. The Mac replay passed all161 cases, so it did not demonstrate a cause or a fix.

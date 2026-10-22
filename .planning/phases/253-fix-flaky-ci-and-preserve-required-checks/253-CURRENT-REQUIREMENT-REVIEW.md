@@ -15,3 +15,7 @@ Evidence: `.planning/execution/253-registration-order-recovery/full-prefix-resul
 ## Prepared Linux reproduction path
 
 The user asked to unblock diagnosis. `.planning/execution/253-registration-linux/README.md` and `proposal.json` now provide a concrete, locally prepared Linux x64 diagnostic using the exact archived PostgreSQL image digest, original tools, hostname, warmup and161-test order. Database setup/app readiness passed in11.4seconds and cleanup completed; zero browser tests ran. This replaces the empty gap-plan scan as the immediate action. After explicit approval of the new one-run/2400-second limit, execute `python3 .planning/execution/253-registration-linux/diagnostic.py --run` once. The old limits remain closed. Emulation/JIT and original snapshot limits are explicit. No cause, fix or phase verification has been claimed.
+
+## Approved Linux replay completed
+
+All161original-order tests passed once,including the original failing dark board-mg-9/populated case. Zero retries/skips;1622.2seconds including cleanup;owned containers removed. Result:`.planning/execution/253-registration-linux/RESULT.json`. The CI timeout remains unreproduced;no demonstrated cause or fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged. The new one-run approval is consumed. Next:$gsd-debug "Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run";no additional browser/CI execution authorized.

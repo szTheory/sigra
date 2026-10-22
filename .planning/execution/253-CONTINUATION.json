@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "approved_linux_diagnostic_running",
+  "status": "linux_replay_completed_not_reproduced",
   "timestamp": "2026-10-22T16:20:40.850304+00:00",
   "completed_local_plans": [
     "253-168",
@@ -50,10 +50,10 @@
     "CIREL-02": "verified_requirement_complete"
   },
   "next_plan": null,
-  "next_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
-  "next_command_conditional": true,
-  "required_decision": "Approve or decline proposal 56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
-  "reason_for_decision": "Previous browser allowances are spent; this separate new diagnostic has not been approved.",
+  "next_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+  "next_command_conditional": false,
+  "required_decision": "None for offline diagnosis",
+  "reason_for_decision": "Approved run completed;its one-run allowance is consumed. No repeat is authorized.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
   "github_requests": 697,
   "ci_launches": 36,
@@ -131,7 +131,7 @@
     "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
   },
-  "next_action": "Approved Linux registration diagnostic is running once. Await its saved host-result.json; do not invoke --run again. Maximum2400seconds including cleanup,161tests,zero retries,first-failure stop. No GitHub or CI. Original registration cause and fix remain unproved;CIREL-02 complete;Phase253 incomplete.",
+  "next_action": "The approved Linux replay completed:161/161 original-order cases passed,including the original dark board-mg-9/populated case;zero retries/skips;1622.2seconds including cleanup;both containers removed. It did not reproduce the CI timeout or demonstrate a cause/fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 stays complete. The single-run approval is consumed;no additional browser,GitHub or CI execution is authorized. Continue focused offline diagnosis of the original registration save path;do not repeat an empty gap-plan scan or add a numbered repair plan.",
   "docs_attempt_history": [
     {
       "status": "halted_before_publication_import_failure",
@@ -168,7 +168,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "updated_at": "2026-10-22T21:36:40.515111+00:00",
+  "updated_at": "2026-10-22T22:04:00.465570+00:00",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -262,8 +262,8 @@
       "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
     }
   ],
-  "resume_command": "python3 -m json.tool .planning/execution/253-registration-linux/diagnostic-output/host-result.json",
-  "workflow_step": "phase253_approved_linux_diagnostic_running",
+  "resume_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+  "workflow_step": "phase253_linux_replay_completed_offline_cause_diagnosis",
   "phase253_remaining_evidence": {
     "status": "closed_collected_and_independently_verified",
     "implementation_commit": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
@@ -298,7 +298,7 @@
   },
   "phase253_requirement_review_status": "complete_blocker_confirmed",
   "phase253_current_blocker": {
-    "status": "registration_not_reproduced_new_diagnostic_prepared",
+    "status": "original_registration_cause_still_unknown",
     "requirement": "CIREL-01",
     "original_order": "recovered and authenticated",
     "missing": [
@@ -306,11 +306,22 @@
       "tested fix and separately scoped repeats"
     ],
     "prepared_proposal": ".planning/execution/253-registration-linux/proposal.json",
-    "new_diagnostic_approval_pending": true,
-    "post_fix_slots_expired": 9
+    "new_diagnostic_approval_pending": false,
+    "post_fix_slots_expired": 9,
+    "record": ".planning/execution/253-registration-linux/RESULT.json",
+    "linux_replay_passed": 161,
+    "approval_pending": false,
+    "additional_native_authorized": false,
+    "next_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+    "next_action": "Inspect original save-event path offline;do not repeat unchanged replay or create another numbered plan.",
+    "environment_differences": [
+      "x64 emulation on ARM Mac; diagnostic-only Erlang +JMsingle true flag",
+      "different kernel/full runner software image and scheduling",
+      "fresh seeded database; original snapshot and redacted page state unavailable"
+    ]
   },
   "phase253_linux_diagnostic": {
-    "status": "approved_running",
+    "status": "completed_not_reproduced",
     "proposal": ".planning/execution/253-registration-linux/proposal.json",
     "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
     "readme": ".planning/execution/253-registration-linux/README.md",
@@ -338,6 +349,29 @@
     "approval_commit": "8acf6e3ef32d86688f0508878e521de9c3f26080",
     "approval": ".planning/execution/253-registration-linux/approval.json",
     "reservation": ".planning/execution/253-registration-linux/reservation.json",
-    "additional_runs_authorized": false
+    "additional_runs_authorized": false,
+    "approval_consumed": true,
+    "approval_scope_completed": true,
+    "result": ".planning/execution/253-registration-linux/RESULT.json",
+    "selected_cases_passed": 161,
+    "duration_seconds": 1622.1794726669905,
+    "cleanup_complete": true
+  },
+  "current_routing": {
+    "status": "linux_replay_completed_registration_cause_unknown",
+    "next_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+    "resume_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+    "conditional": false,
+    "reason": "The approved Linux replay completed:161/161 original-order cases passed,including the original dark board-mg-9/populated case;zero retries/skips;1622.2seconds including cleanup;both containers removed. It did not reproduce the CI timeout or demonstrate a cause/fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 stays complete. The single-run approval is consumed;no additional browser,GitHub or CI execution is authorized. Continue focused offline diagnosis of the original registration save path;do not repeat an empty gap-plan scan or add a numbered repair plan.",
+    "evidence": ".planning/execution/253-registration-linux/RESULT.json",
+    "phase_verification_status": "incomplete",
+    "immediate_user_action": "None for offline diagnosis",
+    "readiness": {
+      "operationally_ready_plans": [],
+      "ready_scope": "focused offline registration diagnosis",
+      "approval_still_required": false,
+      "additional_browser_authorized": false,
+      "new_ci_authorized": false
+    }
   }
 }
