@@ -3,8 +3,8 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T15:59:14.444135+00:00"
-state_head: f953000064248e75625f1721a376251ffeda3763
+last_updated: "2026-10-22T16:20:40.850304+00:00"
+state_head: cc4c7f226235ba1c83c878c3e5a959bb4b79352b
 progress:
   total_phases: 4
   completed_phases: 1
@@ -13,7 +13,7 @@ progress:
   percent: 25
 last_activity: 2026-10-22 - repaired-source proof objects and source-scope checks verified offline
 milestone_status: active
-workflow_step: execute172_repaired_pair_approval_checkpoint
+workflow_step: execute172_permanent_ledger_approval_checkpoint
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: completed offline paired bundle; fresh exact-bundle approval required
-last_activity_desc: 20 offline tests and real startup checks pass; no GitHub requests or CI this turn
+stopped_at: permanent ledger repair verified; corrected exact-bundle approval pending
+last_activity_desc: approved attempt used1 read-only request and0 CI;26 offline repair tests pass
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Offline proposal12f29553b freezes exact repaired-source5e13621e5 normal/docs objects and rejects pairing them with PR341. Four source-scope tests,10native tests and4actual generated-docs workflow tests pass. Retained canaries verify read-only and their gate inputs are unchanged. Finish the executable paired-proof operator/guards/collector and independent consumer offline inside Plan172; validate real shell startup before requesting approval. No quick, new numbered plan, CI, new approval or budget renewal. CIREL-01 remains not reproduced; Phase253 is not verified.
+Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Continue offline from `.planning/execution/253-pr342-diagnosis/diagnosis.json`. Approval8e765edc1 was used; its window is closed. No approval question is pending. Phase253 verification has not started.
+After fresh approval of `.planning/execution/253-plan172-persistent-ledger/approval-request.json`, run the corrected operator once with Git metadata write permission. Do not restart the closed repaired-source attempt. Offline implementation is verified; hosted and phase verification remain unfinished.
 
 ## Known unfinished work
 
@@ -481,3 +481,9 @@ Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4
 Bundle: `.planning/execution/253-plan172-repaired-source/bundle.json`; SHA-256 `7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524`. Approval details: `.planning/execution/253-plan172-repaired-source/approval-request.json`. Prior shared state is recoverable at `6ed143795fd3ff9d1fcee96126766f316dc60921`; exact readback is recorded in `.planning/execution/253-plan172-repaired-source/bundle-state-preservation.json`.
 
 Next: `$gsd-execute-phase 253 --gaps-only`, after approval. Offline implementation is complete; hosted and phase verification remain pending. Historical totals stay608 requests and34 CI launches.
+
+## Permanent ledger repair checkpoint
+
+Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.
+
+Bundle SHA-256 `723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a`; checks `.planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json`. Shared state before this update is recoverable at `afe01a308303ce09c6adceea4f657b66da4790d6`; exact readback is in `state-preservation.json`. Measured totals609 requests/34 CI launches;8 separately recorded diagnostic connector calls unchanged.

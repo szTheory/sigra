@@ -22,7 +22,7 @@
         "253-172-PLAN.md"
       ],
       "verification_status": "not_started",
-      "current_status": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed."
+      "current_status": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan."
     },
     {
       "number": "254",
@@ -38,12 +38,12 @@
   "next": {
     "command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "label": "Approve and execute the completed Plan172 paired bundle",
-    "reason": "Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4 source-scope tests,real shell/transport startup and local merge preflight. Fresh explicit approval is required for this exact repaired-source5e13621e5 bundle:three create-only refs,two draft PRs,two automatic CI runs;new24-request publication and120-request shared PR ceilings,60 minutes each;zero dispatches/reruns/merges. No GitHub requests,CI or allocations were activated during preparation. Preserve all prior windows,29 halts,179 receipt and180 history. CIREL-01 remains not reproduced;Phase253 is not verified. After approval,continue the same Plan172 once;no quick or new plan."
+    "label": "Approve corrected Plan172 permanent ledger bundle",
+    "reason": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan."
   },
-  "updated_at": "2026-10-22T15:59:14.444135+00:00",
+  "updated_at": "2026-10-22T16:20:40.850304+00:00",
   "phase253_execution": {
-    "status": "docs_ci_failed_offline_repairs_verified",
+    "status": "execute172_permanent_ledger_approval_checkpoint",
     "implementation_status": "partial",
     "phase_verification_status": "not_started",
     "plans": {
@@ -77,7 +77,7 @@
       "253-169": "complete",
       "253-170": "complete",
       "253-171": "halted",
-      "253-172": "offline_repairs_verified_hosted_docs_incomplete",
+      "253-172": "offline_permanent_ledger_repair_verified_approval_pending",
       "253-175": "halted",
       "253-176": "blocked",
       "253-177": "blocked",
@@ -1727,9 +1727,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-22T15:59:14.444135+00:00",
-  "stopped_at": "PR342 failed; local repairs verified; offline Plan172 continuation",
-  "state_head": "f953000064248e75625f1721a376251ffeda3763",
+  "last_updated": "2026-10-22T16:20:40.850304+00:00",
+  "stopped_at": "permanent ledger repair verified; corrected exact-bundle approval pending",
+  "state_head": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "execute172_repaired_pair_approval_checkpoint",
+  "workflow_step": "execute172_permanent_ledger_approval_checkpoint",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3147,12 +3147,12 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "execute172_repaired_pair_approval_checkpoint",
+    "status": "execute172_permanent_ledger_approval_checkpoint",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4 source-scope tests,real shell/transport startup and local merge preflight. Fresh explicit approval is required for this exact repaired-source5e13621e5 bundle:three create-only refs,two draft PRs,two automatic CI runs;new24-request publication and120-request shared PR ceilings,60 minutes each;zero dispatches/reruns/merges. No GitHub requests,CI or allocations were activated during preparation. Preserve all prior windows,29 halts,179 receipt and180 history. CIREL-01 remains not reproduced;Phase253 is not verified. After approval,continue the same Plan172 once;no quick or new plan.",
-    "evidence": ".planning/execution/253-plan172-repaired-source/BUNDLE-CHECKS.json",
+    "reason": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
+    "evidence": ".planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json",
     "phase_verification_status": "not_started",
     "readiness": {
       "plan_count": 183,
@@ -3162,7 +3162,7 @@
       "operationally_ready_plans": [
         "253-172"
       ],
-      "ready_scope": "exact paired bundle after new approval",
+      "ready_scope": "once-only paired run after exact-bundle approval",
       "approval_still_required": true,
       "new_ci_authorized": false
     }
@@ -3333,9 +3333,9 @@
   "phase253_pending_decision": {
     "status": "pending",
     "scope": "normal-and-docs-only",
-    "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
-    "request": ".planning/execution/253-plan172-repaired-source/approval-request.json",
-    "question": "Approve this exact two-PR run on repaired source5e13621e5,with24 publication requests and120 shared PR requests,60 minutes per window,and no dispatches/reruns/merges?",
+    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+    "request": ".planning/execution/253-plan172-persistent-ledger/approval-request.json",
+    "question": "Approve the corrected exact bundle:three refs,two draft PRs,two automatic CI runs;23 publication plus120 shared PR requests,60 minutes each;no dispatches,reruns or merges?",
     "approval_received": false
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
@@ -3394,7 +3394,7 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+  "prior_shared_state_commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -3435,12 +3435,12 @@
     "hosted_success": false
   },
   "phase253_repaired_source_preparation": {
-    "status": "offline_execution_bundle_verified_approval_pending",
-    "commit": "f953000064248e75625f1721a376251ffeda3763",
-    "bundle": ".planning/execution/253-plan172-repaired-source/bundle.json",
-    "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
-    "approval_request": ".planning/execution/253-plan172-repaired-source/approval-request.json",
-    "checks": ".planning/execution/253-plan172-repaired-source/BUNDLE-CHECKS.json",
+    "status": "offline_permanent_ledger_repair_verified_approval_pending",
+    "bundle": ".planning/execution/253-plan172-persistent-ledger/bundle.json",
+    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+    "approval_request": ".planning/execution/253-plan172-persistent-ledger/approval-request.json",
+    "checks": ".planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json",
+    "diagnosis": ".planning/execution/253-plan172-persistent-ledger/diagnosis.json",
     "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "execution_ready": true,
     "approval_pending": true,
@@ -3449,7 +3449,25 @@
     "ci_launches": 0,
     "active_allocations": 0,
     "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "next_action": "Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4 source-scope tests,real shell/transport startup and local merge preflight. Fresh explicit approval is required for this exact repaired-source5e13621e5 bundle:three create-only refs,two draft PRs,two automatic CI runs;new24-request publication and120-request shared PR ceilings,60 minutes each;zero dispatches/reruns/merges. No GitHub requests,CI or allocations were activated during preparation. Preserve all prior windows,29 halts,179 receipt and180 history. CIREL-01 remains not reproduced;Phase253 is not verified. After approval,continue the same Plan172 once;no quick or new plan."
+    "next_action": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
+    "execution_permission": "require_escalated: permanent Git recovery refs/objects must be writable",
+    "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
   },
-  "next_action": "Executable paired-proof bundle f95300006 is verified offline:16 protocol tests,4 source-scope tests,real shell/transport startup and local merge preflight. Fresh explicit approval is required for this exact repaired-source5e13621e5 bundle:three create-only refs,two draft PRs,two automatic CI runs;new24-request publication and120-request shared PR ceilings,60 minutes each;zero dispatches/reruns/merges. No GitHub requests,CI or allocations were activated during preparation. Preserve all prior windows,29 halts,179 receipt and180 history. CIREL-01 remains not reproduced;Phase253 is not verified. After approval,continue the same Plan172 once;no quick or new plan."
+  "next_action": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
+  "phase253_paired_attempt": {
+    "status": "closed_before_publication_permanent_ledger_ref_failure",
+    "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+    "approval_commit": "2687b7ad8",
+    "decision_text": "i approve",
+    "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
+    "attempt": ".planning/execution/253-plan172-repaired-source/attempt-result.json",
+    "github_requests": 1,
+    "refs_created": 0,
+    "pr_creations": 0,
+    "ci_launches": 0,
+    "workflow_dispatches": 0,
+    "reruns": 0,
+    "window_closed": true,
+    "approval_consumed": true
+  }
 }
