@@ -241,7 +241,7 @@ Cross-cutting constraints: preserve all failed records and spent allocations; fi
 - [ ] 253-169-PLAN.md — R13 responsibility and disposition contract.
 - [ ] 253-170-PLAN.md — Real canary and separate verifier.
 - [ ] 253-171-PLAN.md — Real normal and docs-only PR proof.
-- [ ] 253-172-PLAN.md — Completion records and full-verification route.
+- [x] 253-172-PLAN.md — Completion records and full-verification route.
 
 Cross-cutting constraints: preserve every historical halt and spent allocation; keep original Plan 167 bytes; keep CIREL-01 partial under the existing not-reproduced disposition; require actual hosted proof before CIREL-02 acceptance; retain existing approval, request, retry and 2,097,152-byte tree limits. Planning review is complete; execution and whole-phase verification remain incomplete. Current records: `253-173-PLANNING-RECORD.json`, `253-173-CHECK-02.md`, `253-173-PLANNING-CHECKS.json`, `253-173-ROUTING-CHECKS.json`.
 
@@ -350,7 +350,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 75/183 | Partial implementation; 183 halted; no runnable plans; phase verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81/183 | Partial implementation; 29 historical halts; no runnable plans; phase verification not started | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

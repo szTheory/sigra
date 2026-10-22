@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "plan172_remaining_evidence_approval_checkpoint",
+  "status": "plan172_complete_original_requirement_review",
   "timestamp": "2026-10-22T16:20:40.850304+00:00",
   "completed_local_plans": [
     "253-168",
@@ -8,9 +8,9 @@
   ],
   "phase_counts": {
     "plans": 183,
-    "implementation_complete": 80,
+    "implementation_complete": 81,
     "halted": 29,
-    "without_summary": 74
+    "without_summary": 73
   },
   "verification": {
     "plan168_tasks": "passed",
@@ -36,7 +36,9 @@
     "pr341_offline_collector_tests": 116,
     "current_pr342": "CI failed; independent verifier correctly refused; exact evidence retained",
     "pr342_offline_repairs": "10native tests; actual docs workflow4pass;2negative variants rejected; full browser smoke8admin+confirmation+revocation passed",
-    "current_pr343": "run completed successfully; browser artifacts not downloaded or accepted"
+    "current_pr343": "run completed successfully; browser artifacts not downloaded or accepted",
+    "current_pr344": "CI success; actual docs-only evidence independently accepted",
+    "pr343_browser_records": "five pinned archives downloaded and policy passed"
   },
   "evidence_ref": "refs/gsd/phase253-local-continuation",
   "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
@@ -45,29 +47,20 @@
   "phase_verification_status": "not_started",
   "requirements": {
     "CIREL-01": "partial_not_reproduced",
-    "CIREL-02": "unaccepted_docs_ci_failed"
+    "CIREL-02": "hosted_components_verified_pending_phase_verification"
   },
   "next_plan": "253-172",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_command_conditional": true,
-  "required_decision": {
-    "status": "pending_exact_proposal_approval",
-    "approval_received": false,
-    "proposal": ".planning/execution/253-pr343-remaining-evidence/proposal.json",
-    "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
-    "manifest_sha256": "6c87fc47f711885b85a121ba137ef7606c0392f20c31d5097f01d7d8524186fe",
-    "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
-    "question": "Approve collecting the five PR343 artifacts and creating one frozen docs-only draft PR/CI run, within 70 HTTP requests and 60 minutes?",
-    "new_ci_authorized": false
-  },
-  "reason_for_decision": "Plan172 permits offline preparation only; fresh exact-proposal approval must precede external collection.",
+  "next_command": "$gsd-progress",
+  "next_command_conditional": false,
+  "required_decision": null,
+  "reason_for_decision": null,
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
-  "github_requests": 641,
-  "ci_launches": 35,
+  "github_requests": 697,
+  "ci_launches": 36,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+  "prior_shared_state_commit": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -138,7 +131,7 @@
     "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
   },
-  "next_action": "Plan172 offline continuation is committed at f75e6a88b026b2c5a26f829a8a0bfce1c244eb47. All 20 offline tests pass. Fresh approval is required to download the five pinned PR343 browser archives and create the frozen docs-only refs and one draft PR/automatic CI run. Maximum 70 measured HTTP requests within 60 minutes, shared 20 download-request cap, no retries/reruns/dispatches/merges. Proposal SHA-256 88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d. No live action was performed. Original registration reproduction and Phase253 verification remain unfinished.",
+  "next_action": "Plan172 implementation is complete. The approved continuation downloaded and checked all five PR343 browser archives and created draft PR344; run39837182521 attempt1 succeeded and the independent docs verifier accepted it. Used56/70 requests in341seconds, one PR/CI run, no retries/reruns/dispatches/merges. Approval is consumed and this window is closed. No runnable Phase253 plans remain;73 historical plans depend on stopped attempts. The original selected registration failure remains unproven. CIREL-02 hosted components are collected, pending whole-phase review. Phase253 verification is not started; both requirement checkboxes stay unchanged. Next: inspect these original gaps with $gsd-progress; do not create an ordinary repair successor or restart any collection.",
   "docs_attempt_history": [
     {
       "status": "halted_before_publication_import_failure",
@@ -175,7 +168,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "updated_at": "2026-10-22T19:02:23.288100+00:00",
+  "updated_at": "2026-10-22T19:19:00.119221+00:00",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -196,7 +189,7 @@
     "run_status": "queued",
     "diagnosis": ".planning/execution/253-pr343-diagnosis/diagnosis.json"
   },
-  "state_head": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+  "state_head": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
   "phase253_paired_attempt_history": [
     {
       "status": "closed_before_publication_permanent_ledger_ref_failure",
@@ -215,7 +208,7 @@
       "approval_consumed": true
     }
   ],
-  "last_updated": "2026-10-22T19:02:23.288100+00:00",
+  "last_updated": "2026-10-22T19:19:00.119221+00:00",
   "diagnostic_gets_this_continuation": 4,
   "diagnostic_watcher_http_request_count": "unknown",
   "phase253_existing_pr_recovery": {
@@ -269,16 +262,38 @@
       "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
     }
   ],
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "workflow_step": "plan172_remaining_evidence_approval_checkpoint",
+  "resume_command": "$gsd-progress",
+  "workflow_step": "plan172_complete_original_requirement_review",
   "phase253_remaining_evidence": {
-    "status": "awaiting_exact_approval",
-    "implementation_commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
-    "checkpoint": ".planning/execution/253-pr343-remaining-evidence-CHECKPOINT.json",
-    "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
-    "tests_passed": 20,
-    "network_requests": 0,
-    "ci_launches": 0,
-    "phase_verified": false
+    "status": "closed_collected_and_independently_verified",
+    "implementation_commit": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
+    "attempt_commit": "bc989be0f",
+    "closeout": ".planning/execution/253-pr344-CLOSEOUT.json",
+    "result": ".planning/execution/253-pr344-closeout/result.json",
+    "approval": {
+      "status": "approved_and_consumed",
+      "approval_received": true,
+      "approval_pending": false,
+      "approval_commit": "c67cbeac7",
+      "decision_text": "i approve",
+      "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+      "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
+      "window_closed": true,
+      "new_approval_requested": false,
+      "new_ci_authorized": false
+    },
+    "requests": 56,
+    "request_limit": 70,
+    "elapsed_seconds": 341,
+    "docs_pr_number": 344,
+    "docs_run_id": 39837182521,
+    "run_attempt": 1,
+    "run_conclusion": "success",
+    "normal_pr_number": 343,
+    "normal_run_id": 39815188159,
+    "normal_browser_groups_passed": 5,
+    "docs_accepted_live": true,
+    "phase_verified": false,
+    "plan_implementation_complete": true
   }
 }

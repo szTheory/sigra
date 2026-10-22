@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T19:02:23.288100+00:00"
-state_head: f75e6a88b026b2c5a26f829a8a0bfce1c244eb47
+last_updated: "2026-10-22T19:19:00.119221+00:00"
+state_head: 2f202c8c5a52462f4c2212d9697be2a6c9824904
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
-  completed_plans: 86
+  completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Plan172 offline continuation verified; exact approval checkpoint
+last_activity: 2026-10-22 - Plan172 approved collection completed; PR344 passed
 milestone_status: active
-workflow_step: plan172_remaining_evidence_approval_checkpoint
+workflow_step: plan172_complete_original_requirement_review
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only
-resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: true
+next_command: $gsd-progress
+resume_command: $gsd-progress
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -28,7 +28,7 @@ phase253_plan_count: 183
 phase253_wave_count: 8
 phase253_task_count: 479
 phase253_implementation_status: partial
-phase253_completed_plans: 80
+phase253_completed_plans: 81
 phase253_halted_plans:
   - 253-02
   - 253-07
@@ -139,15 +139,15 @@ phase253_additional_recovery_plan_count: 11
 phase253_additional_recovery_task_count: 24
 phase253_control_recovery_plan_count: 10
 phase253_control_recovery_task_count: 22
-phase253_ready_plans: [253-172-PLAN.md]
+phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
 resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Plan172 external collection requires exact-proposal approval
-last_activity_desc: 20 offline tests passed; zero network requests; phase unfinished
+stopped_at: No runnable Phase253 plans; original requirement review remains
+last_activity_desc: 56requests; five browser groups and docs-only CI verified; phase unfinished
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan172 offline continuation is committed at f75e6a88b026b2c5a26f829a8a0bfce1c244eb47. All 20 offline tests pass. Fresh approval is required to download the five pinned PR343 browser archives and create the frozen docs-only refs and one draft PR/automatic CI run. Maximum 70 measured HTTP requests within 60 minutes, shared 20 download-request cap, no retries/reruns/dispatches/merges. Proposal SHA-256 88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d. No live action was performed. Original registration reproduction and Phase253 verification remain unfinished.
+Plan172 implementation is complete. The approved continuation downloaded and checked all five PR343 browser archives and created draft PR344; run39837182521 attempt1 succeeded and the independent docs verifier accepted it. Used56/70 requests in341seconds, one PR/CI run, no retries/reruns/dispatches/merges. Approval is consumed and this window is closed. No runnable Phase253 plans remain;73 historical plans depend on stopped attempts. The original selected registration failure remains unproven. CIREL-02 hosted components are collected, pending whole-phase review. Phase253 verification is not started; both requirement checkboxes stay unchanged. Next: inspect these original gaps with $gsd-progress; do not create an ordinary repair successor or restart any collection.
 
 ## Next GSD command
 
-$gsd-execute-phase 253 --gaps-only
+$gsd-progress
 
-Conditional on exact-proposal approval. Review: `.planning/execution/253-pr343-remaining-evidence/README.md`. Checkpoint: `.planning/execution/253-pr343-remaining-evidence-CHECKPOINT.json`. The normal PR and closed attempts stay closed.
+No approval is pending. Result: `.planning/execution/253-pr344-CLOSEOUT.json`. Plan172 implementation is complete; whole-phase verification is unfinished.
 
 ## Known unfinished work
 
