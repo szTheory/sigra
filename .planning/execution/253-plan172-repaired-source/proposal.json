@@ -1,11 +1,11 @@
 {
   "schema": "sigra.phase253.repaired-source-proposal/v1",
-  "status": "offline_objects_and_source_scope_verified",
+  "status": "executable_bundle_verified_offline_approval_pending",
   "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
   "object_record": "objects.json",
   "checks": "CHECKS.json",
-  "decision_requested": false,
-  "execution_ready": false,
+  "decision_requested": true,
+  "execution_ready": true,
   "recommendation": "Prepare one new paired normal/docs proof on the exact repaired source; retain the old canary results only for unchanged gate code, with their original source and run identities. Do not repeat the full canary matrix.",
   "retained_canaries": {
     "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
@@ -56,12 +56,7 @@
     "approved": false,
     "old_limits_changed": false
   },
-  "prerequisites_before_approval": [
-    "Build and test the source-specific operator, transport guards and frozen paired PR collector; no runtime bundle exists in this directory.",
-    "The independent consumer must verify each actual PR, require one identical new source freeze for the pair, and bind unchanged gate inputs before retaining old canaries.",
-    "Test actual shell startup with networking disabled; reject old approvals, existing ledgers, changed refs/source, malformed evidence and source mismatch.",
-    "Bind the exact objects, commands, scope, request ceilings and runtime hashes in the final approval request. Do not ask the user to approve this proposal as if that executable bundle already existed."
-  ],
+  "prerequisites_before_approval": [],
   "activation_requirements": [
     "Fresh explicit approval of the completed executable bundle, not an earlier yes.",
     "Read current main before publication. If it differs from the known parent, halt before writes and rebuild offline; this proposal does not establish parent freshness.",
@@ -81,5 +76,7 @@
   "requests_this_preparation": 0,
   "ci_launches_this_preparation": 0,
   "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_scope": "Finish the executable paired-proof bundle offline inside Plan172; no quick task, new numbered plan, CI run or approval request yet."
+  "next_scope": "Approve the exact completed two-PR bundle; then continue Plan172 once. No CI has been authorized or launched by preparation.",
+  "bundle": "bundle.json",
+  "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524"
 }
