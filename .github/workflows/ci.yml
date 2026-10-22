@@ -32,7 +32,7 @@ on:
   push:
     branches: [main, release-please--branches--main]
   pull_request:
-    branches: [main]
+    branches: [main, gsd/253-replan-proof-5e13621e5-docs-*]
 
 # Least-privilege default for GITHUB_TOKEN: CI only reads the repo and
 # uploads artifacts (via actions/upload-artifact, which does not require
