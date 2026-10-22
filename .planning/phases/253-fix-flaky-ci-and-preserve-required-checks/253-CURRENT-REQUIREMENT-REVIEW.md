@@ -11,3 +11,7 @@ Automated UAT is partial:5 passed,1 blocked. GSD's own completion predicate refu
 Fresh local checks passed:21 shell cases plus5 unit-owner checks,57 Node contracts,151 verifier tests and14 recovery checks. Read-only checks re-opened the actual retained hosted evidence; no GitHub requests or CI launches were made.
 
 Evidence: `.planning/execution/253-registration-order-recovery/full-prefix-result-review.json`, `requirement-review/result.json`, and `253-UAT.md`. Actual native evidence commit:3626e9abb. Next command: `$gsd-execute-phase 253 --gaps-only` for offline diagnosis of the CI environment differences, with no further native invocation authorized. Phase254 remains pending with no context/research/plans; after actual253 completion, recheck readiness and use `$gsd-discuss-phase 254`.
+
+## Prepared Linux reproduction path
+
+The user asked to unblock diagnosis. `.planning/execution/253-registration-linux/README.md` and `proposal.json` now provide a concrete, locally prepared Linux x64 diagnostic using the exact archived PostgreSQL image digest, original tools, hostname, warmup and161-test order. Database setup/app readiness passed in11.4seconds and cleanup completed; zero browser tests ran. This replaces the empty gap-plan scan as the immediate action. After explicit approval of the new one-run/2400-second limit, execute `python3 .planning/execution/253-registration-linux/diagnostic.py --run` once. The old limits remain closed. Emulation/JIT and original snapshot limits are explicit. No cause, fix or phase verification has been claimed.

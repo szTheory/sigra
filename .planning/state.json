@@ -20,7 +20,7 @@
       "unsummarized_plan_count": 73,
       "ready_plans": [],
       "verification_status": "not_started",
-      "current_status": "The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized.",
+      "current_status": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
       "requirement_review_status": "complete_blocker_confirmed"
     },
     {
@@ -35,10 +35,10 @@
     }
   ],
   "next": {
-    "command": "$gsd-verify-work 253",
+    "command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
     "conditional": true,
-    "label": "Recheck only after original registration blocker changes",
-    "reason": "The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized."
+    "label": "Prepared Linux registration diagnostic; approval required",
+    "reason": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM."
   },
   "updated_at": "2026-10-22T20:56:17.754859+00:00",
   "phase253_execution": {
@@ -1228,8 +1228,8 @@
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "status": "in_progress",
-  "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+  "resume_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
     "created_at": "2026-10-13T18:32:03.629347+00:00",
@@ -1727,7 +1727,7 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-22T19:39:38.999003+00:00",
+  "last_updated": "2026-10-22T21:31:09.632731+00:00",
   "stopped_at": "PR343 success saved; offline remaining-evidence preparation ready",
   "state_head": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
   "phase253_control_recovery_execution": {
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "phase253_partial_uat_cirel02_verified_registration_unresolved",
+  "workflow_step": "phase253_linux_diagnostic_prepared_awaiting_new_run_approval",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3323,7 +3323,7 @@
       }
     ]
   },
-  "next_command_conditional": false,
+  "next_command_conditional": true,
   "phase253_completed_plans": 81,
   "phase253_unsummarized_plans": 73,
   "phase253_pending_decision": {
@@ -3456,7 +3456,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "next_action": "The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized.",
+  "next_action": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3660,5 +3660,32 @@
     "requirements_review": ".planning/execution/253-registration-order-recovery/requirement-review/result.json",
     "canonical_verification": "missing",
     "phase_complete": false
+  },
+  "phase253_linux_diagnostic": {
+    "status": "prepared_awaiting_explicit_new_diagnostic_approval",
+    "proposal": ".planning/execution/253-registration-linux/proposal.json",
+    "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
+    "readme": ".planning/execution/253-registration-linux/README.md",
+    "command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+    "limits": {
+      "browser_test_invocations": 1,
+      "selected_tests": 161,
+      "seconds_including_cleanup": 2400,
+      "retries": 0,
+      "stop_at_first_failure": true,
+      "github_api_requests": 0,
+      "ci_launches": 0,
+      "old_slots_reopened": 0,
+      "acceptance": false
+    },
+    "preparation_verified": true,
+    "approval_pending": true,
+    "approval_received": false,
+    "browser_invocations": 0,
+    "ci_launches": 0,
+    "github_api_requests": 0,
+    "budgets_renewed": false,
+    "phase_verified": false,
+    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7"
   }
 }

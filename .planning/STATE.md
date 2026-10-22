@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T20:56:17.754859+00:00"
+last_updated: "2026-10-22T21:31:09.632731+00:00"
 state_head: d100e74fad52a95fe526b4fc9edbf17f429a5c55
 progress:
   total_phases: 4
@@ -11,15 +11,15 @@ progress:
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Full161-test diagnostic passed; CIREL-02 verified; CIREL-01 remains unresolved
+last_activity: 2026-10-22 - Linux registration diagnostic prepared; database/app readiness verified; new browser run awaits approval
 milestone_status: active
-workflow_step: phase253_partial_uat_cirel02_verified_registration_unresolved
+workflow_step: phase253_linux_diagnostic_prepared_awaiting_new_run_approval
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
-next_command: $gsd-execute-phase 253 --gaps-only
-resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: false
+next_command: python3 .planning/execution/253-registration-linux/diagnostic.py --run
+resume_command: python3 .planning/execution/253-registration-linux/diagnostic.py --run
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Original registration evidence missing; no immediate user command
-last_activity_desc: Gate evidence checked; strict registration checker rejects; slots remain closed
+stopped_at: Linux diagnostic is ready; separate one-run approval pending
+last_activity_desc: Exact PostgreSQL image and original tools prepared; no browser test launched
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized.
+A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.
 
-## Conditional future GSD recheck
+## Prepared next action
 
-$gsd-execute-phase 253 --gaps-only
+`python3 .planning/execution/253-registration-linux/diagnostic.py --run`
 
-The full161-test diagnostic and automated requirement review are complete. Continue offline diagnosis of the CI environment differences; no additional native run is authorized and no user status scan is needed. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
+Run only after explicit approval bound to `.planning/execution/253-registration-linux/proposal.json`. The runner refuses missing approval and a used reservation. See that directory’s README and CHECKS.json. Do not repeat an empty gap-plan scan or add a numbered repair plan. Phase254 remains pending; readiness confirms no context, research or plans. Recheck after actual253 completion before `$gsd-discuss-phase 254`.
 
 ## Known unfinished work
 

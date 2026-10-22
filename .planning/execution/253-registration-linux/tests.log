@@ -1,0 +1,39 @@
+test_changed_approved_file_rejected (__main__.ExecutionBoundaryTests.test_changed_approved_file_rejected) ... ok
+test_consumed_marker_prevents_second_allocation (__main__.ExecutionBoundaryTests.test_consumed_marker_prevents_second_allocation) ... ok
+test_no_new_approval_means_no_allocation (__main__.ExecutionBoundaryTests.test_no_new_approval_means_no_allocation) ... ok
+test_old_or_wrong_approval_rejected_before_allocation (__main__.ExecutionBoundaryTests.test_old_or_wrong_approval_rejected_before_allocation) ... ok
+test_python_optimization_cannot_disable_the_guards (__main__.ExecutionBoundaryTests.test_python_optimization_cannot_disable_the_guards) ... ok
+test_timeout_removes_owned_app_and_database_and_keeps_reservation (__main__.ExecutionBoundaryTests.test_timeout_removes_owned_app_and_database_and_keeps_reservation) ... ok
+test_earlier_failure_is_not_target_reproduction (__main__.NativeResultTests.test_earlier_failure_is_not_target_reproduction) ... ok
+test_report_errors_cannot_be_accepted (__main__.NativeResultTests.test_report_errors_cannot_be_accepted) ... ok
+test_retained_real_mac_report_does_not_claim_reproduction (__main__.NativeResultTests.test_retained_real_mac_report_does_not_claim_reproduction) ... ok
+test_retry_cannot_be_accepted (__main__.NativeResultTests.test_retry_cannot_be_accepted) ... ok
+test_same_target_with_different_error_is_not_registration_reproduction (__main__.NativeResultTests.test_same_target_with_different_error_is_not_registration_reproduction) ... ok
+test_skipped_target_is_not_reproduction (__main__.NativeResultTests.test_skipped_target_is_not_reproduction) ... ok
+test_target_failure_is_a_reproduction_not_a_fixed_cause (__main__.NativeResultTests.test_target_failure_is_a_reproduction_not_a_fixed_cause) ... ok
+test_wrong_project_order_rejected (__main__.NativeResultTests.test_wrong_project_order_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.050s
+
+OK
+{
+  "kind": "diagnostic",
+  "acceptance": false,
+  "browser_invocations": 0,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "old_slots_reopened": 0,
+  "status": "stopped",
+  "container_names": [
+    "sigra253-linux-1792704713228559000-pg",
+    "sigra253-linux-1792704713228559000-app"
+  ],
+  "cleanup_complete": true,
+  "image_id": "immutable-image",
+  "postgres_image": "pinned-postgres",
+  "postgres_version": "postgres (PostgreSQL) 15.19 (Debian)",
+  "error": "Command '['docker', 'run', '--name', 'sigra253-linux-1792704713228559000-app', '--init', '--platform=linux/amd64', '--network=container:sigra253-linux-1792704713228559000-pg', '--cpuset-cpus=0-3', '--cpus=4', '--shm-size=1g', '--label', 'sigra.phase253=registration-linux-diagnostic', '--mount', 'type=bind,src=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmpio93wxdd/diagnostic-output,dst=/evidence', 'immutable-image', '--run']' timed out after 2360 seconds",
+  "duration_seconds": 0.00018458397244103253,
+  "within_limit": true
+}

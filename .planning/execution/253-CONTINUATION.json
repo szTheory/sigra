@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "direct_requirement_review_complete_registration_blocked",
+  "status": "prepared_awaiting_explicit_new_diagnostic_approval",
   "timestamp": "2026-10-22T16:20:40.850304+00:00",
   "completed_local_plans": [
     "253-168",
@@ -47,13 +47,13 @@
   "phase_verification_status": "not_started",
   "requirements": {
     "CIREL-01": "partial_not_reproduced",
-    "CIREL-02": "hosted_components_verified_pending_phase_verification"
+    "CIREL-02": "verified_requirement_complete"
   },
   "next_plan": null,
-  "next_command": "$gsd-verify-work 253",
+  "next_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
   "next_command_conditional": true,
-  "required_decision": null,
-  "reason_for_decision": null,
+  "required_decision": "Approve or decline proposal 56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
+  "reason_for_decision": "Previous browser allowances are spent; this separate new diagnostic has not been approved.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
   "github_requests": 697,
   "ci_launches": 36,
@@ -131,7 +131,7 @@
     "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
   },
-  "next_action": "The direct original-requirement review is complete; gsd-progress was an unnecessary handoff and no user status command is needed. Plan172 remains implementation-complete, with normal/docs and retained canary evidence verified. The real blocker is CIREL-01: no original preceding-order log or database/control state, and no failing reproduction on the preserved affected source.22 readiness/isolation controls passed, but the strict target checker returns3 and all9 post-fix slots are expired. No new acceptance, GitHub request or browser launch occurred. Formal whole-phase signoff remains blocked; both requirement checkboxes are unchanged. Recheck Phase253 only after the missing proof or a specifically authorized valid reproduction path changes this blocker; do not restart old budgets or create an ordinary repair successor.",
+  "next_action": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
   "docs_attempt_history": [
     {
       "status": "halted_before_publication_import_failure",
@@ -208,7 +208,7 @@
       "approval_consumed": true
     }
   ],
-  "last_updated": "2026-10-22T19:39:38.999003+00:00",
+  "last_updated": "2026-10-22T21:31:09.632731+00:00",
   "diagnostic_gets_this_continuation": 4,
   "diagnostic_watcher_http_request_count": "unknown",
   "phase253_existing_pr_recovery": {
@@ -262,8 +262,8 @@
       "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
     }
   ],
-  "resume_command": "$gsd-verify-work 253",
-  "workflow_step": "direct_requirement_review_complete_registration_blocked",
+  "resume_command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+  "workflow_step": "phase253_linux_diagnostic_prepared_awaiting_new_run_approval",
   "phase253_remaining_evidence": {
     "status": "closed_collected_and_independently_verified",
     "implementation_commit": "2f202c8c5a52462f4c2212d9697be2a6c9824904",
@@ -298,18 +298,42 @@
   },
   "phase253_requirement_review_status": "complete_blocker_confirmed",
   "phase253_current_blocker": {
-    "status": "blocked_original_registration_evidence",
+    "status": "registration_not_reproduced_new_diagnostic_prepared",
     "requirement": "CIREL-01",
-    "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md",
-    "record": ".planning/execution/253-direct-requirement-review/review.json",
+    "original_order": "recovered and authenticated",
     "missing": [
-      "original preceding-order log (archived original log absent; rejected as a native receipt)",
-      "original control/DB state for the selected registration collision",
-      "any red-before counterexample on preserved exact source tied to a registration harness seam"
+      "demonstrated registration failure and cause",
+      "tested fix and separately scoped repeats"
     ],
-    "strict_checker_exit": 3,
-    "post_fix_slots_expired": 9,
-    "immediate_user_action": "none",
-    "conditional_recheck": "$gsd-verify-work 253"
+    "prepared_proposal": ".planning/execution/253-registration-linux/proposal.json",
+    "new_diagnostic_approval_pending": true,
+    "post_fix_slots_expired": 9
+  },
+  "phase253_linux_diagnostic": {
+    "status": "prepared_awaiting_explicit_new_diagnostic_approval",
+    "proposal": ".planning/execution/253-registration-linux/proposal.json",
+    "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
+    "readme": ".planning/execution/253-registration-linux/README.md",
+    "command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+    "limits": {
+      "browser_test_invocations": 1,
+      "selected_tests": 161,
+      "seconds_including_cleanup": 2400,
+      "retries": 0,
+      "stop_at_first_failure": true,
+      "github_api_requests": 0,
+      "ci_launches": 0,
+      "old_slots_reopened": 0,
+      "acceptance": false
+    },
+    "preparation_verified": true,
+    "approval_pending": true,
+    "approval_received": false,
+    "browser_invocations": 0,
+    "ci_launches": 0,
+    "github_api_requests": 0,
+    "budgets_renewed": false,
+    "phase_verified": false,
+    "prior_shared_state_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7"
   }
 }
