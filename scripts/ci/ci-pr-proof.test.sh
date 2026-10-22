@@ -3486,6 +3486,27 @@ class PrPaginatedListingsTests(unittest.TestCase):
         self.assertEqual(result["status"], "synthetic_pr_family_verified")
 
 
+class CompareInventoryTests(unittest.TestCase):
+    def test_compare_file_limit_is_independent_of_commit_page_size(self):
+        for count in (1, 99, 100, 212, 299):
+            with self.subTest(count=count):
+                paths = [f"lib/file-{index}.ex" for index in range(count)]
+                self.assertEqual(verifier.compare_file_paths({"files": [{"filename": p} for p in paths]}), paths)
+
+    def test_saturated_and_malformed_inventories_are_rejected(self):
+        for value in (None, {}, {"files": []}, {"files": "files"}, {"files": [None]},
+                      {"files": [{"filename": ""}]}, {"files": [{"filename": 42}]},
+                      {"files": [{"filename": str(i)} for i in range(300)]},
+                      {"files": [{"filename": str(i)} for i in range(301)]}):
+            with self.subTest(value=str(value)[:80]):
+                with self.assertRaisesRegex(verifier.VerificationError, "inventory is empty, malformed or incomplete"):
+                    verifier.compare_file_paths(value)
+
+    def test_duplicate_paths_are_rejected(self):
+        with self.assertRaisesRegex(verifier.VerificationError, "inventory has duplicates"):
+            verifier.compare_file_paths({"files": [{"filename": "mix.exs"}] * 2})
+
+
 class OperatorPreflightHandoffTests(unittest.TestCase):
     def test_partial_duplicate_or_failed_shared_snapshot_stops_before_requests(self):
         import ast
