@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T20:31:51.325124+00:00"
-state_head: b543a41f841c4cc0b04b5c6747e7970a6d863a52
+last_updated: "2026-10-22T20:56:17.754859+00:00"
+state_head: d100e74fad52a95fe526b4fc9edbf17f429a5c55
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Approved registration diagnostic completed,33/33 passed; original failure not reproduced
+last_activity: 2026-10-22 - Full161-test diagnostic passed; CIREL-02 verified; CIREL-01 remains unresolved
 milestone_status: active
-workflow_step: registration_prefix_diagnostic_complete_not_reproduced
+workflow_step: phase253_partial_uat_cirel02_verified_registration_unresolved
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.
+The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized.
 
 ## Conditional future GSD recheck
 
 $gsd-execute-phase 253 --gaps-only
 
-The full161-test diagnostic is prepared and awaits its separate finite-scope approval. No additional native run is authorized and no user status scan is needed. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
+The full161-test diagnostic and automated requirement review are complete. Continue offline diagnosis of the CI environment differences; no additional native run is authorized and no user status scan is needed. Review: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md`. Scope and spent limits are unchanged.
 
 ## Known unfinished work
 
@@ -494,6 +494,10 @@ PR343 run39815188159 attempt1 completed successfully. The approved seven-GET rec
 
 ## Current registration recovery
 
-The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.
+The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized.
 
-Evidence: `.planning/execution/253-registration-order-recovery/README.md`. Prior shared bytes are recoverable at `a97c08fa4e92d2cad256c228e02c735a126ce530`; read-back recorded in `prior-state.json`. Next: `$gsd-execute-phase 253 --gaps-only` for offline preparation only. Future Phase254 route remains `$gsd-discuss-phase 254`, after253 completion.
+Evidence: `.planning/execution/253-registration-order-recovery/README.md`. Prior shared bytes are recoverable at `a97c08fa4e92d2cad256c228e02c735a126ce530`; read-back recorded in `prior-state.json`. Next: `$gsd-execute-phase 253 --gaps-only` for offline CI-environment diagnosis only. Future Phase254 route remains `$gsd-discuss-phase 254`, after253 completion.
+
+## Current requirement result
+
+CIREL-02 is verified and checked complete in REQUIREMENTS.md. Automated UAT:5 passed,1 blocked. CIREL-01 still lacks a reproduced failure, cause and tested fix;161 passing diagnostic cases do not close it. Actual run evidence is committed at3626e9abb; partial UAT atd100e74fad52a95fe526b4fc9edbf17f429a5c55. Read `.planning/execution/253-registration-order-recovery/requirement-review/result.json`. No new native/CI approval is pending. Next: `$gsd-execute-phase 253 --gaps-only` for offline CI-environment diagnosis.

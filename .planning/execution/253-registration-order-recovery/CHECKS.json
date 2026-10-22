@@ -1,5 +1,5 @@
 {
-  "status": "native33_passed_and_full161_operator_prepared",
+  "status": "native161_passed_cirel02_verified_phase_partial",
   "tests": 14,
   "tests_log": "tests.log",
   "native_result": "native-result-review.json",
@@ -7,7 +7,7 @@
   "native_browser_invocations": 1,
   "native_scope_complete": true,
   "full_prefix_collection_count": 161,
-  "full_prefix_native_executed": false,
+  "full_prefix_native_executed": true,
   "full_prefix_proposal_sha256": "7b37613b8fefd3cc048f5efa4636d45f9b1698378832e5a1233baeb0e6e4be15",
   "github_requests": 0,
   "ci_launches": 0,
@@ -25,6 +25,15 @@
     "full-prefix-proposal.json": "7b37613b8fefd3cc048f5efa4636d45f9b1698378832e5a1233baeb0e6e4be15",
     "full-prefix-replay.mjs": "56dd3291bc9ec4a5d6e4fe75ad175e9e4312c1a6d4df6a89316fdbcea5e87c2b",
     "full-prefix-list.json": "b5d6717df7100c81096ababde2aa10c205fa4b2ae46296804cc6c1f3fa47fd57",
-    "full-prefix.config.ts": "1f5d0e7cf25bfb2e482d2d368d5af016b2a1b80aacf13ac3b1b4c9c791cc9b5a"
-  }
+    "full-prefix.config.ts": "1f5d0e7cf25bfb2e482d2d368d5af016b2a1b80aacf13ac3b1b4c9c791cc9b5a",
+    "full-prefix-result-review.json": "734c05bb02452a0be77ebc60bad03e728eb755e11e980d8d98245cd4a7170f0e"
+  },
+  "full_prefix_native_cases_passed": 161,
+  "full_prefix_browser_invocations": 1,
+  "full_prefix_total_duration_ms": 553256,
+  "full_prefix_result": "full-prefix-result-review.json",
+  "requirement_review": "requirement-review/result.json",
+  "CIREL_02_verified": true,
+  "CIREL_01_verified": false,
+  "approval_pending": false
 }

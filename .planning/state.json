@@ -20,7 +20,7 @@
       "unsummarized_plan_count": 73,
       "ready_plans": [],
       "verification_status": "not_started",
-      "current_status": "The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.",
+      "current_status": "The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized.",
       "requirement_review_status": "complete_blocker_confirmed"
     },
     {
@@ -38,9 +38,9 @@
     "command": "$gsd-verify-work 253",
     "conditional": true,
     "label": "Recheck only after original registration blocker changes",
-    "reason": "The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened."
+    "reason": "The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized."
   },
-  "updated_at": "2026-10-22T20:31:51.325124+00:00",
+  "updated_at": "2026-10-22T20:56:17.754859+00:00",
   "phase253_execution": {
     "status": "direct_requirement_review_complete_registration_blocked",
     "implementation_status": "partial",
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "registration_prefix_diagnostic_complete_not_reproduced",
+  "workflow_step": "phase253_partial_uat_cirel02_verified_registration_unresolved",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3323,7 +3323,7 @@
       }
     ]
   },
-  "next_command_conditional": true,
+  "next_command_conditional": false,
   "phase253_completed_plans": 81,
   "phase253_unsummarized_plans": 73,
   "phase253_pending_decision": {
@@ -3394,7 +3394,7 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+  "prior_shared_state_commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -3456,7 +3456,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "next_action": "The approved33-test diagnostic completed with33 passes, zero retries/skips, one browser invocation and cleanup before the original600-second deadline. The original registration failure remains not reproduced; CIREL-01 and phase verification stay incomplete. The exact full161-test preceding sequence is now collected, with a bounded native operator and approval guards tested offline. It adds the128 earlier desktop/mobile cases. A separate one-invocation,1200-second scope is pending approval; no additional browser or CI is authorized and no old attempt is reopened.",
+  "next_action": "The full original161-test prefix passed:64 desktop,64 mobile,33 dark; zero retries/skips, one browser invocation and553256ms including setup/cleanup. CIREL-02 is now verified and its requirement is complete: current gate inputs match the real hosted failure/cancel/missing/skip proof, normal PR343 and docs PR344. Automated UAT is partial:5 passed,1 blocked. CIREL-01 remains not reproduced: no demonstrated registration cause, tested fix or post-fix repeats; macOS/PostgreSQL14 differs from original Ubuntu/PostgreSQL15.19. Phase253 is incomplete and canonical phase verification remains missing. The approved native scope is complete; no further browser/CI action or budget renewal is authorized.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3593,28 +3593,33 @@
     "phase_verified": false,
     "plan_implementation_complete": true
   },
-  "phase253_requirement_review_status": "complete_blocker_confirmed",
+  "phase253_requirement_review_status": "partial_cirel02_verified_cirel01_blocked",
   "phase253_current_blocker": {
     "status": "original_registration_cause_still_unknown",
     "requirement": "CIREL-01",
-    "record": ".planning/execution/253-registration-order-recovery/native-result-review.json",
     "original_order_log_recovered": true,
-    "same_project_prefix_passed": 33,
+    "full_original_prefix_passed": 161,
+    "record": ".planning/execution/253-registration-order-recovery/full-prefix-result-review.json",
     "missing": [
-      "failing counterexample tied to a demonstrated registration cause",
-      "original database/control snapshot; full128 earlier desktop/mobile cases were not included"
+      "a failing registration counterexample tied to a demonstrated cause",
+      "tested fix and required fresh post-fix repeats"
+    ],
+    "environment_differences": [
+      "macOS arm64 versus original Ubuntu Linux x64",
+      "PostgreSQL14.17 versus original15.19",
+      "fresh seeded database versus unavailable original snapshot"
     ],
     "post_fix_slots_expired": 9,
-    "approval_pending": true,
+    "approval_pending": false,
     "additional_native_authorized": false,
     "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "next_action": "Run the prepared full161-test diagnostic only after its separate finite-scope approval"
+    "next_action": "Continue offline CI-environment diagnosis; preserve all completed and stopped scopes; no blind repeat, status detour or new numbered repair plan"
   },
   "phase253_registration_order_recovery": {
-    "status": "registration_prefix_diagnostic_complete_not_reproduced",
-    "record": ".planning/execution/253-registration-order-recovery/native-result-review.json",
+    "status": "full_original_prefix_complete_not_reproduced",
+    "record": ".planning/execution/253-registration-order-recovery/full-prefix-result-review.json",
     "review": ".planning/execution/253-registration-order-recovery/README.md",
-    "browser_launches": 1,
+    "browser_launches": 2,
     "github_requests": 0,
     "acceptance": false,
     "approval_pending": false,
@@ -3622,10 +3627,10 @@
     "approval_scope_completed": true,
     "deadline_met": true,
     "selected_tests_passed": 33,
-    "next_action": "Full161-test diagnostic prepared; pending new finite-scope approval. Completed33-test scope remains spent."
+    "next_action": "Offline diagnosis of Linux/PostgreSQL15.19 differences; another local repeat under unchanged conditions is not the next step"
   },
   "phase253_full_order_proposal": {
-    "status": "prepared_awaiting_explicit_approval",
+    "status": "completed_not_reproduced",
     "proposal": ".planning/execution/253-registration-order-recovery/full-prefix-proposal.json",
     "proposal_sha256": "7b37613b8fefd3cc048f5efa4636d45f9b1698378832e5a1233baeb0e6e4be15",
     "selection_count": 161,
@@ -3633,7 +3638,27 @@
     "max_seconds_including_cleanup": 1200,
     "ci_launches": 0,
     "github_requests": 0,
-    "approval_pending": true,
-    "executed": false
+    "approval_pending": false,
+    "executed": true,
+    "approval_scope_completed": true,
+    "result": ".planning/execution/253-registration-order-recovery/full-prefix-result-review.json",
+    "evidence_commit": "3626e9abb",
+    "selected_cases_passed": 161,
+    "browser_invocations_used": 1,
+    "additional_native_authorized": false
+  },
+  "phase253_uat_status": "partial",
+  "phase253_requirements_completed": [
+    "CIREL-02"
+  ],
+  "phase253_automated_uat": {
+    "status": "partial",
+    "passed": 5,
+    "blocked": 1,
+    "report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-UAT.md",
+    "commit": "d100e74fad52a95fe526b4fc9edbf17f429a5c55",
+    "requirements_review": ".planning/execution/253-registration-order-recovery/requirement-review/result.json",
+    "canonical_verification": "missing",
+    "phase_complete": false
   }
 }
