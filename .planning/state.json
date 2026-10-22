@@ -37,11 +37,11 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": false,
-    "label": "Continue existing PR343 recovery in Plan172",
-    "reason": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request."
+    "conditional": true,
+    "label": "Approve bounded read of existing PR343",
+    "reason": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan."
   },
-  "updated_at": "2026-10-22T16:42:05.939937+00:00",
+  "updated_at": "2026-10-22T17:06:24.347951+00:00",
   "phase253_execution": {
     "status": "execute172_existing_pr_recovery",
     "implementation_status": "partial",
@@ -1727,9 +1727,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-22T16:42:05.939937+00:00",
+  "last_updated": "2026-10-22T17:06:24.347951+00:00",
   "stopped_at": "permanent ledger repair verified; corrected exact-bundle approval pending",
-  "state_head": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+  "state_head": "0373494c0d5501f4b08bc993fb786490dcc41a8a",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "execute172_existing_pr_recovery",
+  "workflow_step": "checkpoint172_existing_pr_read_approval",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3147,19 +3147,19 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "execute172_existing_pr_recovery",
+    "status": "checkpoint172_existing_pr_read_approval",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": false,
-    "reason": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
-    "evidence": ".planning/execution/253-pr343-diagnosis/diagnosis.json",
+    "conditional": true,
+    "reason": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.",
+    "evidence": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
     "phase_verification_status": "not_started",
     "readiness": {
       "operationally_ready_plans": [
         "253-172"
       ],
-      "ready_scope": "offline integration and existing-PR recovery preparation only",
-      "approval_still_required": false,
+      "ready_scope": "exact read-only recovery checkpoint",
+      "approval_still_required": true,
       "new_ci_authorized": false
     }
   },
@@ -3323,16 +3323,21 @@
       }
     ]
   },
-  "next_command_conditional": false,
+  "next_command_conditional": true,
   "phase253_completed_plans": 80,
   "phase253_unsummarized_plans": 74,
   "phase253_pending_decision": {
-    "status": "approved_and_consumed",
-    "approval_received": true,
-    "decision_text": "yes i approve",
-    "approval_commit": "edc94032af9b8c95a3d63f5bd5df10a93c4931cc",
-    "pending": false,
-    "new_approval_requested": false
+    "status": "pending_exact_read_only_recovery",
+    "pending": true,
+    "approval_received": false,
+    "new_approval_requested": true,
+    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+    "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+    "scope": "pr343-read-only-7-gets",
+    "max_requests": 7,
+    "github_writes": 0,
+    "ci_launches": 0,
+    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json"
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "phase253_external_mutations_performed": true,
@@ -3431,25 +3436,27 @@
     "hosted_success": false
   },
   "phase253_repaired_source_preparation": {
-    "status": "executed_once_closed_discovery_false_negative",
-    "bundle": ".planning/execution/253-plan172-persistent-ledger/bundle.json",
-    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
-    "approval_request": ".planning/execution/253-plan172-persistent-ledger/approval-request.json",
-    "checks": ".planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json",
-    "diagnosis": ".planning/execution/253-plan172-persistent-ledger/diagnosis.json",
-    "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
-    "execution_ready": false,
-    "approval_pending": false,
-    "new_ci_authorized": false,
-    "requests": 25,
-    "ci_launches": 1,
+    "status": "prepared_offline_pending_exact_action_checkpoint",
+    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+    "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+    "implementation_commit": "cc7cc2749",
+    "summary": ".planning/execution/253-pr343-recovery-SUMMARY.md",
+    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
+    "recovery_tests": 19,
+    "discovery_tests": 6,
+    "requests_this_continuation": 0,
+    "ci_launches_this_continuation": 0,
     "active_allocations": 0,
-    "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "next_action": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
-    "execution_permission": "require_escalated: permanent Git recovery refs/objects must be writable",
-    "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
+    "closed_windows_reopened": 0,
+    "approval_pending": true,
+    "new_ci_authorized": false,
+    "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+    "pr_number": 343,
+    "run_id": 39815188159,
+    "run_conclusion": null,
+    "phase_verified": false
   },
-  "next_action": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
+  "next_action": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3486,6 +3493,58 @@
       "reruns": 0,
       "window_closed": true,
       "approval_consumed": true
+    }
+  ],
+  "phase253_existing_pr_recovery": {
+    "status": "prepared_offline_pending_exact_action_checkpoint",
+    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+    "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+    "implementation_commit": "cc7cc2749",
+    "summary": ".planning/execution/253-pr343-recovery-SUMMARY.md",
+    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
+    "recovery_tests": 19,
+    "discovery_tests": 6,
+    "requests_this_continuation": 0,
+    "ci_launches_this_continuation": 0,
+    "active_allocations": 0,
+    "closed_windows_reopened": 0,
+    "approval_pending": true,
+    "new_ci_authorized": false,
+    "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+    "pr_number": 343,
+    "run_id": 39815188159,
+    "run_conclusion": null,
+    "phase_verified": false
+  },
+  "phase253_pending_decision_history": [
+    {
+      "status": "approved_and_consumed",
+      "approval_received": true,
+      "decision_text": "yes i approve",
+      "approval_commit": "edc94032af9b8c95a3d63f5bd5df10a93c4931cc",
+      "pending": false,
+      "new_approval_requested": false
+    }
+  ],
+  "phase253_repaired_source_preparation_history": [
+    {
+      "status": "executed_once_closed_discovery_false_negative",
+      "bundle": ".planning/execution/253-plan172-persistent-ledger/bundle.json",
+      "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+      "approval_request": ".planning/execution/253-plan172-persistent-ledger/approval-request.json",
+      "checks": ".planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json",
+      "diagnosis": ".planning/execution/253-plan172-persistent-ledger/diagnosis.json",
+      "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+      "execution_ready": false,
+      "approval_pending": false,
+      "new_ci_authorized": false,
+      "requests": 25,
+      "ci_launches": 1,
+      "active_allocations": 0,
+      "next_command": "$gsd-execute-phase 253 --gaps-only",
+      "next_action": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
+      "execution_permission": "require_escalated: permanent Git recovery refs/objects must be writable",
+      "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
     }
   ]
 }

@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T16:42:05.939937+00:00"
-state_head: 9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb
+last_updated: "2026-10-22T17:06:24.347951+00:00"
+state_head: 0373494c0d5501f4b08bc993fb786490dcc41a8a
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: 2026-10-22 - repaired-source proof objects and source-scope checks verified offline
+last_activity: 2026-10-22 - existing PR343 recovery implemented and25 offline regressions passed
 milestone_status: active
-workflow_step: execute172_existing_pr_recovery
+workflow_step: checkpoint172_existing_pr_read_approval
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: false
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.
+Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Continue Plan172 offline from the existing PR343 and run39815188159. The old approval is consumed; no fresh approval is pending. The local preservation fix is implemented. The discovery fallback has six passing offline tests but is not integrated into an executable continuation. Neither hosted requirements nor the phase are verified. The diagnostic watcher stopped locally; GitHub CI was not cancelled.
+Conditional on approval of proposal fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3. The exact scope is at most7 read-only GETs for existing PR343/run39815188159, with zero GitHub writes and zero CI launches. Checkpoint: .planning/execution/253-pr343-recovery-CHECKPOINT.json. Implementation is complete for this offline task; hosted acceptance and phase verification are unfinished. No old window may restart.
 
 ## Known unfinished work
 
