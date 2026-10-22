@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-22T23:50:53.614326+00:00",
+  "prior_files": {
+    ".planning/STATE.md": {
+      "commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
+      "sha256": "e086cd9b39463157881c40709b122f1e387d6ae73aa3f7493c2534c16c41c8d0",
+      "readback_verified": true
+    },
+    ".planning/state.json": {
+      "commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
+      "sha256": "4621affa739ab6757b00678bdce56bd5e4b3b0fc77292eafe228490016540a5c",
+      "readback_verified": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
+      "sha256": "666c85371f5a045a2114f95baec52269f6d06c9dc5458e7062d527767e88fc54",
+      "readback_verified": true
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
+      "sha256": "19cd30609c699110ce53d3b2e1407a0b92663c3faa899c5d8a146bfeadb5ff42",
+      "readback_verified": true
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+      "commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
+      "sha256": "25890e6a15416db16a811088f36d9199fd83e56fc477a2b6e7e6223a34f7e93c",
+      "readback_verified": true
+    },
+    ".planning/debug/phase253-registration-timeout.md": {
+      "commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
+      "sha256": "6b0766b6d92afe90f9dac2896828496ee45c99adf7251fdf3e552226b35f58bb",
+      "readback_verified": true
+    },
+    ".planning/debug/phase253-registration-timeout/REPORT.md": {
+      "commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
+      "sha256": "cb0c88a504ba412b1aaa7d62ea4562a9bcd8a9c7459c7064c21d7beeb6b47b81",
+      "readback_verified": true
+    }
+  },
+  "next_roadmap_readiness": {
+    "phase_number": "254",
+    "phase_status": "Pending",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0
+  },
+  "phase254_started": false,
+  "forward_after_actual_253_completion": "Recheck readiness, then $gsd-discuss-phase 254"
+}

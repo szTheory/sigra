@@ -1,39 +1,35 @@
-# What caused the registration timeout
+# CI registration failure: candidate fix implemented
 
-The original server crashed while handling the same account as failing test 161. It raised:
+Commit `a87664733` disables hot code reloading for the example server when `CI=true` or `CI=1`. Local development retains hot reloading. The remaining development configuration, including development routes and the LiveView socket, stays available. No retry, timeout, test selection or required-gate logic changed.
 
-```text
-UndefinedFunctionError: function Ecto.Queryable.to_query/1 is undefined
-(module Ecto.Queryable is not available)
-```
+## Original failure
 
-The stack runs through Ecto's email uniqueness check, `Example.Accounts.User.registration_changeset`, and `RegistrationLive.handle_event/3`. The user insert never happened, so the LiveView never enabled the form's login POST. The browser subsequently timed out waiting to leave the registration page.
+The original CI server crashed during registration 161 with `Ecto.Queryable.to_query/1` unavailable. It failed in email uniqueness validation before inserting an account or enabling the login POST. That explains the browser navigation timeout. The original account's dark-project sequence and timestamp independently match the failing test. The authenticated original-log analysis remains in `evidence.json`.
 
-This finding is supported by the original archived log, not inferred from a passing replay. The sole crash follows save 161; the generated account identifies dark registration 33 and was created between test 160 finishing and test 161 failing. Registrations 160 and 162 each inserted an account and sent a login POST. Across all 192 original registrations, the only missing insert/POST belongs to 161. The authenticated extraction and safe stack excerpt are in [evidence.json](evidence.json).
+## Demonstrated mechanism
 
-The original server log was printed after the tests failed. Its 05:19:23 timestamp is the log-dump time. It must not be treated as proof that the crash happened after the browser failure.
+The real Phoenix reloader purges consolidated protocols. OTP's error handler first ensures a module is loaded, then checks its exports. A reload between those steps can delete the module before the export check.
 
-The saved Linux run contrasts with that failure: 161 saves, 161 user inserts and 161 login POSTs; no Queryable exception. The selected 161st case also created both confirmation tokens and passed. This remains a passing diagnostic, not a demonstrated fix.
+The controlled test pauses at that exact point in OTP 28.5's source. Only the source module name is changed for debugger isolation; its algorithm is unchanged. The actual Phoenix 1.8.5 reloader then deletes Ecto.Queryable. Resuming produces the exact original exception and stack head. The control without that intervening reload passes.
 
-## What is still unknown
+The final test reads the real development configuration: development mode reproduces the scheduled error; the patched CI setting passes. This proves a component failure mechanism and checks the candidate fix. The original job did not record module lifecycle, so its exact historical interleaving remains inferred. The test enters a renamed OTP handler directly; it is not an original-job or full-browser reproduction.
 
-Why the module was unavailable at that instant is not established. The original development endpoint enables Phoenix's code reloader. Its locked source purges consolidated protocols, including Ecto.Queryable; LiveView event processing runs outside the HTTP reloader sequence. That is a specific candidate cause. The original log does not record a purge or failed module load, so it does not prove this candidate.
+Ordinary traced reload/rebuild probes passed on both Mac and Linux. Their successful automatic reloads explain why uninstrumented bulk query runs did not reliably exercise the narrow schedule. Failed fixture/debugger setup attempts remain separately retained and are not counted as reproductions.
 
-Two isolated local probes used Elixir 1.19.5, OTP 28 and Ecto 3.13.5 without starting the application, database, browser, container or network. The first passed 40,000 query calls during purge/delete; the refined probe passed 400,000 schema query calls with 5,000 reload/purge cycles. Both controls passed 2,000 calls, and all worker processes exited normally. These probes did not reproduce the module error. Their scripts and actual logs are retained alongside this report.
+## Local checks
 
-The next useful check is an isolated test of the actual Phoenix reloader with module deletion, code-path changes and OTP load results traced alongside a query. A failing module load would identify where the module disappeared. Another full browser replay or longer timeout would not answer that question.
+- Three configuration regression tests pass. The baseline produced two assertion failures before the patch.
+- The example app compiled with warnings treated as errors, without starting the server or database.
+- The compiled CI endpoint has no reloader calls or live-reload socket and retains its LiveView socket.
+- The controlled failure/control is bound to the actual patched configuration hash.
 
-## Scope and status
+Raw scripts, outcomes and hashes are in `CONTINUATION-RESULT.json`, committed at `b6a607da3`. One isolated Linux unit container used `--network=none` and was removed. No browser, CI workflow or GitHub request ran. All earlier approvals and expired post-fix slots remain closed.
 
-No product fix was applied. No browser or CI ran, no external request was made, and no old allowance was reopened. CIREL-01 and Phase 253 remain incomplete; CIREL-02 stays complete. No numbered plan was added.
+## Remaining work
 
-Recheck this analysis without running the app:
+Implementation and local checks are complete for this candidate. Fresh source-pinned post-fix browser/CI results are still missing, so CIREL-01 and Phase 253 remain incomplete. Required-gate implementation is unchanged; CIREL-02 remains complete.
 
-```sh
-python3 -B .planning/debug/phase253-registration-timeout/analyze.py
-```
-
-Continue the focused investigation:
+Prepare and verify the exact validation bundle offline before requesting a separately scoped new runtime decision. No existing allowance authorizes those runs. Phase 254 has no context, research or plans and has not started; recheck readiness after actual Phase 253 completion.
 
 ```text
 $gsd-debug continue phase253-registration-timeout
