@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T02:25:11.807485+00:00"
-state_head: 43b661d2b79aecaf81670abfc1df485100073b80
+last_updated: "2026-10-22T03:00:16.124264+00:00"
+state_head: 5e13621e50e646c63e135035080d2e6e46fbc955
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: 2026-10-22 - PR341 normal proof verified; only docs-only proof missing
+last_activity: 2026-10-22 - PR342 failed; local harness and contract repairs verified
 milestone_status: active
-workflow_step: execute172_docs_startup_approval_checkpoint
+workflow_step: execute172_pr342_offline_repairs_verified
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Docs-only attempt closed; repaired startup bundle needs new approval
-last_activity_desc: PR341 CI passed; comparison consumer repaired offline; no repeat normal/canary run
+stopped_at: PR342 failed; repairs verified locally; continue Plan172 offline
+last_activity_desc: 53requests and1automaticCI run preserved; no reruns; no pending approval
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.
+PR342/run39711884498 failed generated-admin acceptance and the library shard. Exact53-request/761-second attempt is closed at72103017d. Repairs5e13621e5 pass10native contracts, actual docs-workflow checks and full local generated-host smoke. Hosted docs proof remains unaccepted; the precise hosted socket failure is not proven. Continue Plan172 offline; do not restart its operator, request the consumed approval, create a quick task, rerun179, or launch CI. Any future external proof needs a concrete reviewed proposal and fresh scoped approval; none is pending now.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Conditional on explicit new approval of `.planning/execution/253-docs-continuation-pr341-fixed/approval-request.json`. The `yeah i approve` decision at8b95471e1 was consumed by the closed docs-only window. Normal and canary results remain retained. Phase253 verification has not started.
+Continue offline from `.planning/execution/253-pr342-diagnosis/diagnosis.json`. Approval8e765edc1 was used; its window is closed. No approval question is pending. Phase253 verification has not started.
 
 ## Known unfinished work
 
@@ -458,3 +458,10 @@ Exact prior state bytes are recoverable at`63feb218d603b3192402fb6698e4b3713566f
 The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.
 
 Prior state bytes: `43b661d2b79aecaf81670abfc1df485100073b80`; exact read-back hashes: `.planning/execution/253-docs-startup-maintenance/state-preservation.json`.
+
+
+## PR342 actual failure and verified local repairs
+
+PR342/run39711884498 failed generated-admin acceptance and the library shard. Exact53-request/761-second attempt is closed at72103017d. Repairs5e13621e5 pass10native contracts, actual docs-workflow checks and full local generated-host smoke. Hosted docs proof remains unaccepted; the precise hosted socket failure is not proven. Continue Plan172 offline; do not restart its operator, request the consumed approval, create a quick task, rerun179, or launch CI. Any future external proof needs a concrete reviewed proposal and fresh scoped approval; none is pending now.
+
+Evidence: `.planning/execution/253-pr342-diagnosis/diagnosis.json`; exact actual attempt72103017d; product repairs5e13621e5. Cumulative recorded608requests/34workflow launches, plus8separately recorded read-only diagnostic connector calls whose HTTP counts are not exposed. No closed window, historical halt,179receipt or180history changed. The original selected flaky failure remains unreproduced. Next: `$gsd-execute-phase 253 --gaps-only`.

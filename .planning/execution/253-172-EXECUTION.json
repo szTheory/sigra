@@ -1,12 +1,12 @@
 {
   "schema": "sigra.phase253.plan172-execution/v1",
-  "status": "normal_verified_docs_startup_repaired_approval_pending",
+  "status": "docs_ci_failed_offline_repairs_verified",
   "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
-  "repair_source_sha": "63feb218d603b3192402fb6698e4b3713566f0ac",
+  "repair_source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
   "prior_execution_record": {
     "path": ".planning/execution/253-172-EXECUTION.json",
-    "commit": "43b661d2b79aecaf81670abfc1df485100073b80",
-    "sha256": "435e71e978d2c87f37062eadaade16b22e0481debf5eeaa9f378fb43fed9ff1f",
+    "commit": "72103017d",
+    "sha256": "1b4458ddbfad3450267b6874e56eae09f6159a8eba456dfb8436df0a88b7d572",
     "exact_readback_verified": true
   },
   "approval_decision_text": "yes i approve",
@@ -30,45 +30,78 @@
     "independently_verified": true,
     "corrected_consumer": ".planning/execution/253-172-pr341-maintenance/offline-verifier/ci-hosted-gate-verify.py"
   },
-  "docs_pr_created": false,
+  "docs_pr_created": true,
   "reruns": 0,
   "closed_windows_reopened": 0,
   "selected_failure_reproduced": false,
   "requirements": {
     "CIREL-01": "partial_not_reproduced",
-    "CIREL-02": "unaccepted_missing_docs_only"
+    "CIREL-02": "unaccepted_docs_ci_failed"
   },
   "diagnosis": ".planning/execution/253-172-pr341-maintenance/diagnosis.json",
   "offline_checks": ".planning/execution/253-172-pr341-maintenance/CHECKS.json",
   "new_bundle": {
-    "status": "prepared_docs_only_requires_explicit_approval",
+    "status": "closed_ci_failed",
     "record": ".planning/execution/253-docs-continuation-pr341-fixed/bundle.json",
     "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
     "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
     "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
-    "ci_launches": 0,
-    "github_requests": 0,
-    "allocations": 0,
-    "approval_received": false,
-    "next_command": "$gsd-execute-phase 253 --gaps-only"
+    "ci_launches": 1,
+    "github_requests": 53,
+    "allocations": 1,
+    "approval_received": true,
+    "next_command": "$gsd-execute-phase 253 --gaps-only",
+    "approval_consumed": true,
+    "active": false,
+    "attempt": ".planning/execution/253-docs-continuation-pr341-fixed/attempt-result.json"
   },
-  "new_bundle_checks": ".planning/execution/253-docs-startup-maintenance/CHECKS.json",
+  "new_bundle_checks": ".planning/execution/253-pr342-diagnosis/diagnosis.json",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "The approved docs-only attempt stopped before publication: its stdin-launched collector could not import execution_guard. Exact result preserved at43b661d2b: one read-only API request, zero PRs, zero CI launches. The replacement loads its exact sibling guard by file path. Seven offline tests pass, including the actual shell command reproducing the old failure and reaching the new request guard with zero requests. This startup regression now runs before any new allocation in both self-check and --run. PR341 and all six canary successes remain retained. Only the docs-only hosted proof is missing. The repaired bundle needs new approval; all prior windows remain closed. Plan172 remains unfinished; Phase253 verification has not started.",
-  "plan_status": "unfinished_missing_docs_only",
+  "next_action": "PR342/run39711884498 failed generated-admin acceptance and the library shard. Exact53-request/761-second attempt is closed at72103017d. Repairs5e13621e5 pass10native contracts, actual docs-workflow checks and full local generated-host smoke. Hosted docs proof remains unaccepted; the precise hosted socket failure is not proven. Continue Plan172 offline; do not restart its operator, request the consumed approval, create a quick task, rerun179, or launch CI. Any future external proof needs a concrete reviewed proposal and fresh scoped approval; none is pending now.",
+  "plan_status": "unfinished_docs_ci_failed",
   "phase_verification_status": "not_started",
   "historical_halts_unchanged": 29,
   "plan179_replayed": false,
   "docs_continuation_attempt": {
-    "status": "halted_before_publication_import_failure",
-    "commit": "43b661d2b79aecaf81670abfc1df485100073b80",
-    "approval_commit": "8b95471e1",
-    "decision_text": "yeah i approve",
-    "attempt": ".planning/execution/253-docs-continuation-pr341/attempt-result.json",
-    "github_requests": 1,
-    "pr_creations": 0,
-    "ci_launches": 0,
+    "status": "closed_docs_ci_failed_offline_repairs_verified",
+    "commit": "72103017d",
+    "approval_commit": "8e765edc1",
+    "decision_text": "what do u rec? do that i approve",
+    "attempt": ".planning/execution/253-docs-continuation-pr341-fixed/attempt-result.json",
+    "github_requests": 53,
+    "pr_creations": 1,
+    "ci_launches": 1,
+    "workflow_dispatches": 0,
+    "reruns": 0,
+    "seconds": 761,
     "window_closed": true,
-    "old_approval_consumed": true
-  }
+    "old_approval_consumed": true,
+    "pr_number": 342,
+    "run_id": 39711884498,
+    "run_conclusion": "failure",
+    "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
+    "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
+  },
+  "docs_attempt_history": [
+    {
+      "status": "halted_before_publication_import_failure",
+      "commit": "43b661d2b79aecaf81670abfc1df485100073b80",
+      "approval_commit": "8b95471e1",
+      "decision_text": "yeah i approve",
+      "attempt": ".planning/execution/253-docs-continuation-pr341/attempt-result.json",
+      "github_requests": 1,
+      "pr_creations": 0,
+      "ci_launches": 0,
+      "window_closed": true,
+      "old_approval_consumed": true
+    }
+  ],
+  "docs_pr": {
+    "number": 342,
+    "run_id": 39711884498,
+    "conclusion": "failure",
+    "independently_verified": false
+  },
+  "latest_approval_decision_text": "what do u rec? do that i approve",
+  "latest_approval_commit": "8e765edc1"
 }
