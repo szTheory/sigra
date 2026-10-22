@@ -6,6 +6,7 @@ defmodule ExampleWeb.RegistrationLive do
   def render(assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">
+      <Layouts.flash_group flash={@flash} />
       <.header>
         Register
         <:subtitle>
