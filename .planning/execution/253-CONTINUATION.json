@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "plan172_corrected_handoff_bundle_awaiting_approval",
-  "timestamp": "2026-10-22T01:17:18.873825+00:00",
+  "status": "plan172_pr341_normal_verified_docs_only_approval_pending",
+  "timestamp": "2026-10-22T02:15:06.146683+00:00",
   "completed_local_plans": [
     "253-168",
     "253-169"
@@ -29,9 +29,11 @@
     "pr171": "halted: CI failure and compare JSON corruption",
     "offline_redaction_candidate_tests": 4,
     "pr338_offline_repair": "verified_offline; hosted proof remains incomplete",
-    "current_hosted_canary": "Six cases and separate verifier passed for16800f431;93 requests,37jobs",
+    "current_hosted_canary": "six expected outcomes and separate hosted verifier passed for a6838a8f9;93 requests,37jobs",
     "current_pr339": "failure;retained actual browser records lack selection JSON; local PR verifier rejects unlabeled operator preflight",
-    "pr339_offline_repairs": "156 passing checks; product repair4734916ee; no new hosted result"
+    "pr339_offline_repairs": "156 passing checks; product repair4734916ee; no new hosted result",
+    "current_pr341": "CI success; unchanged saved normal evidence accepted by corrected independent checker",
+    "pr341_offline_collector_tests": 116
   },
   "evidence_ref": "refs/gsd/phase253-local-continuation",
   "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
@@ -46,26 +48,21 @@
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "next_command_conditional": true,
   "required_decision": {
-    "status": "awaiting_explicit_new_source_bundle_approval",
-    "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
-    "bundle_path": ".planning/execution/253-proof-bundle-a6838a8f9/bundle.json",
-    "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
-    "request": ".planning/execution/253-proof-bundle-a6838a8f9/approval-request.json",
-    "sections": {
-      "canary": "4a6e26bf4f02a0808cfdda9c411b98894f19053c39bbf67c42b9d3e269ff876b",
-      "docs_and_prs": "34bf9bd67ffbbf9bc4ac48dcc4e60f7ee57f29ac334777bd2cf120e80723e15a"
-    },
-    "previous_approval_consumed": true,
-    "no_approval_implied_by_execute_phase": true
+    "status": "awaiting_explicit_docs_only_approval",
+    "request": ".planning/execution/253-docs-continuation-pr341/approval-request.json",
+    "bundle_sha256": "477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b",
+    "candidate_source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
+    "previous_approval_consumed": true
   },
-  "reason_for_decision": "PR340 failed in the library suite; all six canaries, the independent verifier, Fast checks and the full browser aggregate passed. The independent PR verifier also rejected the missing complete preflight. Both defects were reproduced and repaired offline at a6838a8f9. All113 local collector tests and the exact candidate library suite (2656 tests,33 doctests,3 properties,0 failures) pass. The new bundle has37 passing local checks, including generated startup through the actual generated collector preflight. All four prior attempts remain closed; no hosted action followed the halt. New exact approval of bundle e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a and both sections is required. Plan172 is unfinished and Phase253 is unverified; continue the same plan without a quick or progress scan.",
+  "reason_for_decision": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
-  "github_requests": 427,
-  "ci_launches": 25,
+  "github_requests": 554,
+  "ci_launches": 33,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "prior_shared_state_commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -85,10 +82,11 @@
     "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
   },
   "hosted_execution_bundle": {
-    "status": "prepared_offline_requires_explicit_hosted_approval",
-    "record": ".planning/execution/253-proof-bundle-a6838a8f9/bundle.json",
-    "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+    "status": "prepared_docs_only_requires_explicit_approval",
+    "record": ".planning/execution/253-docs-continuation-pr341/bundle.json",
+    "bundle_sha256": "477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b",
     "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
     "ci_launches": 0,
     "github_requests": 0,
     "allocations": 0,
@@ -96,18 +94,20 @@
     "next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "plan172_hosted_attempt": {
-    "status": "pr340_halted_offline_repairs_verified",
+    "status": "pr341_ci_success_original_verifier_halted_corrected_offline",
     "record": ".planning/execution/253-172-EXECUTION.json",
-    "attempt": ".planning/execution/253-proof-bundle-4734916ee/attempt-result.json",
-    "commit": "dc1e552aa",
-    "repair_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
-    "github_requests": 123,
+    "attempt": ".planning/execution/253-proof-bundle-a6838a8f9/attempt-result.json",
+    "commit": "28895b6c2",
+    "repair_commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+    "github_requests": 127,
     "workflow_dispatches": 7,
     "pr_creations": 1,
     "window_closed": true,
     "canary_verified": true,
-    "pr_number": 340,
-    "run_id": 39702539995,
-    "run_conclusion": "failure"
+    "pr_number": 341,
+    "run_id": 39706873401,
+    "run_conclusion": "success",
+    "normal_independently_verified": true,
+    "docs_pr_created": false
   }
 }

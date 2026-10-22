@@ -1,23 +1,24 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-21T23:54:15.512906+00:00",
+  "timestamp": "2026-10-22T02:15:06.146683+00:00",
   "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "PR340 failed in the library suite; all six canaries, the independent verifier, Fast checks and the full browser aggregate passed. The independent PR verifier also rejected the missing complete preflight. Both defects were reproduced and repaired offline at a6838a8f9. All113 local collector tests and the exact candidate library suite (2656 tests,33 doctests,3 properties,0 failures) pass. The new bundle has37 passing local checks, including generated startup through the actual generated collector preflight. All four prior attempts remain closed; no hosted action followed the halt. New exact approval of bundle e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a and both sections is required. Plan172 is unfinished and Phase253 is unverified; continue the same plan without a quick or progress scan.",
+  "current": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Record approval of this concrete new-source bundle, then execute it once within Plan172.",
+  "next_action": "After exact docs-only approval, run its new operator once and finish the same Plan172.",
   "route": {
-    "status": "normal_execute172_corrected_handoff_approval_checkpoint",
+    "status": "normal_execute172_docs_only_approval_checkpoint",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "PR340 failed in the library suite; all six canaries, the independent verifier, Fast checks and the full browser aggregate passed. The independent PR verifier also rejected the missing complete preflight. Both defects were reproduced and repaired offline at a6838a8f9. All113 local collector tests and the exact candidate library suite (2656 tests,33 doctests,3 properties,0 failures) pass. The new bundle has37 passing local checks, including generated startup through the actual generated collector preflight. All four prior attempts remain closed; no hosted action followed the halt. New exact approval of bundle e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a and both sections is required. Plan172 is unfinished and Phase253 is unverified; continue the same plan without a quick or progress scan.",
-    "evidence": ".planning/execution/253-proof-bundle-a6838a8f9-checks/CHECKS.json",
+    "reason": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
+    "evidence": ".planning/execution/253-172-pr341-maintenance/CHECKS.json",
+    "phase_verification_status": "not_started",
     "readiness": {
-      "source": ".planning/execution/253-proof-bundle-a6838a8f9-checks/sdk-readiness.json",
+      "source": ".planning/execution/253-docs-continuation-pr341-checks/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
@@ -26,8 +27,7 @@
         "253-172"
       ],
       "approval_still_required": true
-    },
-    "phase_verification_status": "not_started"
+    }
   },
   "workflow": {
     "scope_confirmed": true,
@@ -50,7 +50,7 @@
       254,
       255
     ],
-    "next_required_gate": "Explicit approval of corrected sourcea6838a8f9 bundle and both action sections",
+    "next_required_gate": "New exact approval for one fresh docs-only window; successful normal/canary evidence is retained",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -65,7 +65,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute172_corrected_handoff_approval_checkpoint",
+    "workflow_step": "execute172_docs_only_approval_checkpoint",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -1530,7 +1530,7 @@
       "253-109": "complete",
       "253-90": "complete",
       "253-171": "halted",
-      "253-172": "blocked_by_253-171"
+      "253-172": "awaiting_docs_only_approval"
     },
     "blockers": [
       {
@@ -1611,7 +1611,7 @@
         "remaining": "No08SUMMARY and no253VERIFICATION exist; do not reconcile or mark phase complete."
       }
     ],
-    "status": "pr171_halted_offline_repair_needed",
+    "status": "pr341_normal_verified_docs_only_missing",
     "completed_plan_count": 80,
     "total_phase_plans": 183,
     "current_next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
@@ -3670,14 +3670,15 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "status": "normal_execute172_corrected_handoff_approval_checkpoint",
+    "status": "normal_execute172_docs_only_approval_checkpoint",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "conditional": true,
-    "reason": "PR340 failed in the library suite; all six canaries, the independent verifier, Fast checks and the full browser aggregate passed. The independent PR verifier also rejected the missing complete preflight. Both defects were reproduced and repaired offline at a6838a8f9. All113 local collector tests and the exact candidate library suite (2656 tests,33 doctests,3 properties,0 failures) pass. The new bundle has37 passing local checks, including generated startup through the actual generated collector preflight. All four prior attempts remain closed; no hosted action followed the halt. New exact approval of bundle e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a and both sections is required. Plan172 is unfinished and Phase253 is unverified; continue the same plan without a quick or progress scan.",
-    "evidence": ".planning/execution/253-proof-bundle-a6838a8f9-checks/CHECKS.json",
+    "reason": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
+    "evidence": ".planning/execution/253-172-pr341-maintenance/CHECKS.json",
+    "phase_verification_status": "not_started",
     "readiness": {
-      "source": ".planning/execution/253-proof-bundle-a6838a8f9-checks/sdk-readiness.json",
+      "source": ".planning/execution/253-docs-continuation-pr341-checks/sdk-readiness.json",
       "plan_count": 183,
       "completed_implementation_count": 80,
       "halted_count": 29,
@@ -3686,8 +3687,7 @@
         "253-172"
       ],
       "approval_still_required": true
-    },
-    "phase_verification_status": "not_started"
+    }
   },
   "last_updated": "2026-10-22T01:17:18.873825+00:00",
   "phase253_bridge_repair_execution": {
@@ -4267,7 +4267,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "execute172_corrected_handoff_approval_checkpoint",
+  "workflow_step": "execute172_docs_only_approval_checkpoint",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4573,7 +4573,7 @@
     },
     "recorded_at": "2026-10-21T04:02:14.336344+00:00"
   },
-  "phase253_current_execution_addendum": ".planning/execution/253-172-EXECUTION.json",
+  "phase253_current_execution_addendum": "PR341 normal CI succeeded. All six canary cases and independent hosted verifier passed. The frozen verifier stopped at its incorrect100-file cap; the actual212-file comparison exactly matches the frozen local paths. Comparison consumer repaired offline at63feb218d;116 collector tests pass and the unchanged normal evidence independently verifies. The original attempt remains closed at28895b6c2. Only the docs-only PR is missing. A separate docs-only continuation is prepared; it needs new exact approval of bundle 477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b. It cannot dispatch canaries, create a normal PR or reopen old windows. Plan172 remains unfinished and Phase253 unverified; no quick/progress scan is needed.",
   "phase253_versioned_consumer": {
     "task": "quick-261021-drl",
     "status": "verified_local_consumer",
@@ -4733,8 +4733,8 @@
   "phase253_pr171_execution": ".planning/execution/253-171.json",
   "phase253_pr171_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
   "phase253_current_preservation": {
-    "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
-    "record": ".planning/execution/253-172-pr339-maintenance/state-preservation.json"
+    "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+    "record": ".planning/execution/253-docs-continuation-pr341-checks/state-preservation.json"
   },
   "phase253_pr338_offline_repair": {
     "status": "verified_offline",
@@ -4753,10 +4753,11 @@
     "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
   },
   "phase253_hosted_execution_bundle": {
-    "status": "prepared_offline_requires_explicit_hosted_approval",
-    "record": ".planning/execution/253-proof-bundle-a6838a8f9/bundle.json",
-    "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+    "status": "prepared_docs_only_requires_explicit_approval",
+    "record": ".planning/execution/253-docs-continuation-pr341/bundle.json",
+    "bundle_sha256": "477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b",
     "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
     "ci_launches": 0,
     "github_requests": 0,
     "allocations": 0,
@@ -4764,19 +4765,22 @@
     "next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "phase253_plan172_hosted_attempt": {
-    "status": "pr340_halted_offline_repairs_verified",
+    "status": "pr341_ci_success_original_verifier_halted_corrected_offline",
     "record": ".planning/execution/253-172-EXECUTION.json",
-    "attempt": ".planning/execution/253-proof-bundle-4734916ee/attempt-result.json",
-    "commit": "dc1e552aa",
-    "repair_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
-    "github_requests": 123,
+    "attempt": ".planning/execution/253-proof-bundle-a6838a8f9/attempt-result.json",
+    "commit": "28895b6c2",
+    "repair_commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+    "github_requests": 127,
     "workflow_dispatches": 7,
     "pr_creations": 1,
     "window_closed": true,
     "canary_verified": true,
-    "pr_number": 340,
-    "run_id": 39702539995,
-    "run_conclusion": "failure"
+    "pr_number": 341,
+    "run_id": 39706873401,
+    "run_conclusion": "success",
+    "normal_independently_verified": true,
+    "docs_pr_created": false
   },
-  "prior_shared_state_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0"
+  "prior_shared_state_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "updated_at": "2026-10-22T02:15:06.146683+00:00"
 }
