@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-21T23:54:15.512906+00:00"
-state_head: 4734916eeca6ce4b5726c740ac468264338cb300
+last_updated: "2026-10-22T00:18:28.341059+00:00"
+state_head: 8437d4bc9
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: 2026-10-21 - Plan172 canary passed;PR339 failed;offline repairs committed
+last_activity: 2026-10-21 - Plan172 repaired-source bundle verified offline
 milestone_status: active
-workflow_step: execute172_offline_repair_followup
+workflow_step: execute172_repaired_source_approval_checkpoint
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: false
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Plan172 second attempt closed after full-pass;compatible bundle awaits fresh approval
-last_activity_desc: 33 offline tests pass;continue existing Plan172 after new bundle approval
+stopped_at: Plan172 repaired-source bundle verified offline; exact approval pending
+last_activity_desc: 41 bundle tests pass; new source4734916ee awaits exact hosted approval
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-The approved second attempt spent41 requests and launched one full-pass workflow39684755372, which succeeded. Collection stopped because both the local and pinned candidate checkers reject the proposed253-proof branch prefix. All old attempts remain closed. The compatible bundle uses fresh253-replan-proof refs supported by both unchanged checkers.33 offline tests pass, including all six cases and the exact hosted verifier step on explicitly synthetic data. Five remaining hosted cases, separate verifier and both PR families still need actual results. Plan172 remains unfinished at the new exact-bundle approval checkpoint; no quick or progress scan is needed. Phase253 is not verified.
+The new source4734916ee bundle is prepared and verified offline inside the existing Plan172. All41 bundle tests pass, including the exact candidate suites with118 prohibition and35 browser/report checks, generated PR startup, prior receipt handoff, all six synthetic canary cases through both checkers and the actual separate verifier step. No network, allocation or CI was started. PR339 remains failed and every previous attempt/window stays closed. New exact approval of bundle 774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0 and both sections is required before hosted execution. Plan172 remains unfinished and Phase253 is unverified. No quick or progress scan is needed.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Conditional on new approval of `.planning/execution/253-proof-bundle-16800f431-compatible/approval-request.json` (bundle SHA256 `3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c`). The previous approval was used for the stopped attempt and cannot restart its window. Plan172 remains unfinished;no success summary or phase-completion claim. Earlier sections are historical.
+Conditional on explicit approval of `.planning/execution/253-proof-bundle-4734916ee/approval-request.json`. The previous approval was consumed; it cannot authorize this changed source. No hosted approval is recorded yet. Plan172 remains unfinished; Phase253 verification has not started.
 
 ## Known unfinished work
 
@@ -214,7 +214,7 @@ Conditional on new approval of `.planning/execution/253-proof-bundle-16800f431-c
 
 ## Session
 
-Current route: $gsd-quick "Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI". Evidence: `.planning/execution/253-pr338-repair/repair.json`. Prior shared bytes read back exactly from 16800f4319cdd0e2554938071d4ebc48caa969ac.
+Historical route (superseded): $gsd-quick "Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI". Evidence: `.planning/execution/253-pr338-repair/repair.json`. Prior shared bytes read back exactly from 16800f4319cdd0e2554938071d4ebc48caa969ac.
 
 ## Deferred Items
 
@@ -434,3 +434,9 @@ Execution: `.planning/execution/253-172-EXECUTION.json`; second attempt commit `
 The approved compatible bundle closed after93 canary and34 PR requests. All six hosted gate cases and separate verifier passed. Actual PR339 CI failed; docs-only PR never ran. Three defects were reproduced and repaired offline in4734916ee with156 passing checks. Plan172 remains unfinished. Continue172 offline by preparing a new-source bundle incorporating the verified operator request-label fix; no quick/progress scan, old window restart, or hosted action under the old approval. Phase253 remains unverified.
 
 Product repair: `4734916eeca6ce4b5726c740ac468264338cb300`. Current execution record: `.planning/execution/253-172-EXECUTION.json`; exact actual attempt preserved at `a4ad7101f`. Shared state before this refresh is recoverable at `4734916eeca6ce4b5726c740ac468264338cb300`, with read-back hashes in `.planning/execution/253-172-pr339-maintenance/state-preservation.json`. The approval was consumed by the closed attempt; there is no pending approval question for the user. Next: `$gsd-execute-phase 253 --gaps-only`, continuing offline within172. Implementation fixes are locally verified; Plan172 and phase verification remain unfinished.
+
+## Current Plan172 repaired-source bundle
+
+The new source4734916ee bundle is prepared and verified offline inside the existing Plan172. All41 bundle tests pass, including the exact candidate suites with118 prohibition and35 browser/report checks, generated PR startup, prior receipt handoff, all six synthetic canary cases through both checkers and the actual separate verifier step. No network, allocation or CI was started. PR339 remains failed and every previous attempt/window stays closed. New exact approval of bundle 774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0 and both sections is required before hosted execution. Plan172 remains unfinished and Phase253 is unverified. No quick or progress scan is needed.
+
+Checks: `.planning/execution/253-proof-bundle-4734916ee-checks/CHECKS.json`. Prior shared bytes are recoverable at8437d4bc9, verified before replacement in this task. Historical records above are retained; only the current position and next-command sections define the active route.

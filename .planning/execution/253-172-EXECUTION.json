@@ -1,15 +1,12 @@
 {
   "schema": "sigra.phase253.plan172-execution/v1",
-  "status": "pr339_halted_offline_repairs_verified",
+  "status": "pr339_closed_new_source_bundle_verified_offline",
   "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
   "repair_source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
   "prior_execution_record": {
+    "commit": "8437d4bc9",
     "path": ".planning/execution/253-172-EXECUTION.json",
-    "status": "clean_before_update",
-    "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
-    "sha256": "b5742a722d72d08d1c1a443acf638940546887e5f0c5bcb90dbd5b7ce9a2085e",
-    "bytes": 5020,
-    "readback_verified": true
+    "sha256": "58add60d8cafbfce7779d4d6158b9cfab1b03d79755a4cbc41bc3a6eede77231"
   },
   "approval_decision_text": "yes i approve",
   "approval_commit": "0814726d0",
@@ -42,12 +39,24 @@
   "offline_checks": ".planning/execution/253-172-pr339-maintenance/CHECKS.json",
   "tests_total": 156,
   "tests_failures": 0,
-  "new_bundle_prepared": false,
+  "new_bundle_prepared": true,
   "new_bundle_approved": false,
   "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Prepare new-source execution bundle offline inside Plan172; never run the closed compatible operator again.",
+  "next_action": "Obtain the new exact approval, then execute the prepared4734916ee bundle once. All previous windows remain closed.",
   "plan_status": "unfinished_after_honest_hosted_halt",
   "phase_verification_status": "not_started",
   "historical_halts_unchanged": 29,
-  "plan179_replayed": false
+  "plan179_replayed": false,
+  "new_bundle": {
+    "status": "prepared_offline_requires_explicit_hosted_approval",
+    "record": ".planning/execution/253-proof-bundle-4734916ee/bundle.json",
+    "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
+    "source": "4734916eeca6ce4b5726c740ac468264338cb300",
+    "ci_launches": 0,
+    "github_requests": 0,
+    "allocations": 0,
+    "approval_received": false,
+    "next_command": "$gsd-execute-phase 253 --gaps-only"
+  },
+  "new_bundle_checks": ".planning/execution/253-proof-bundle-4734916ee-checks/CHECKS.json"
 }

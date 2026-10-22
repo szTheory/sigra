@@ -1,7 +1,7 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "plan172_pr339_offline_repairs_verified",
-  "timestamp": "2026-10-21T23:54:15.512906+00:00",
+  "status": "plan172_repaired_source_bundle_awaiting_approval",
+  "timestamp": "2026-10-22T00:18:28.341059+00:00",
   "completed_local_plans": [
     "253-168",
     "253-169"
@@ -44,16 +44,28 @@
   },
   "next_plan": "253-172",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_command_conditional": false,
-  "required_decision": null,
-  "reason_for_decision": null,
+  "next_command_conditional": true,
+  "required_decision": {
+    "status": "awaiting_explicit_new_source_bundle_approval",
+    "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
+    "bundle_path": ".planning/execution/253-proof-bundle-4734916ee/bundle.json",
+    "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
+    "request": ".planning/execution/253-proof-bundle-4734916ee/approval-request.json",
+    "sections": {
+      "canary": "fb742e3179f5cffacc26975b47c4c58266195d7d30ba4346eebb068c1c30d080",
+      "docs_and_prs": "b2c4bae82d2e0e6ffafaa8797282181e55a9f76edcd615d2d7cf6df36b1a695c"
+    },
+    "previous_approval_consumed": true,
+    "no_approval_implied_by_execute_phase": true
+  },
+  "reason_for_decision": "The new source4734916ee bundle is prepared and verified offline inside the existing Plan172. All41 bundle tests pass, including the exact candidate suites with118 prohibition and35 browser/report checks, generated PR startup, prior receipt handoff, all six synthetic canary cases through both checkers and the actual separate verifier step. No network, allocation or CI was started. PR339 remains failed and every previous attempt/window stays closed. New exact approval of bundle 774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0 and both sections is required before hosted execution. Plan172 remains unfinished and Phase253 is unverified. No quick or progress scan is needed.",
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
   "github_requests": 304,
   "ci_launches": 17,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+  "prior_shared_state_commit": "8437d4bc9",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -73,16 +85,14 @@
     "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
   },
   "hosted_execution_bundle": {
-    "status": "closed_actual_hosted_attempt",
-    "record": ".planning/execution/253-proof-bundle-16800f431-compatible/bundle.json",
-    "bundle_sha256": "3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c",
-    "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
-    "approval_commit": "0814726d0",
-    "attempt_commit": "a4ad7101f",
-    "ci_launches": 8,
-    "github_requests": 127,
-    "allocations": 2,
-    "window_closed": true,
+    "status": "prepared_offline_requires_explicit_hosted_approval",
+    "record": ".planning/execution/253-proof-bundle-4734916ee/bundle.json",
+    "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
+    "source": "4734916eeca6ce4b5726c740ac468264338cb300",
+    "ci_launches": 0,
+    "github_requests": 0,
+    "allocations": 0,
+    "approval_received": false,
     "next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "plan172_hosted_attempt": {
