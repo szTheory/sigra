@@ -1,6 +1,6 @@
 {
   "schema": "sigra.phase253.current-continuation/v1",
-  "status": "checkpoint172_existing_pr_read_approval",
+  "status": "plan172_remaining_evidence_offline_preparation",
   "timestamp": "2026-10-22T16:20:40.850304+00:00",
   "completed_local_plans": [
     "253-168",
@@ -35,7 +35,8 @@
     "current_pr341": "CI success; unchanged saved normal evidence accepted by corrected independent checker",
     "pr341_offline_collector_tests": 116,
     "current_pr342": "CI failed; independent verifier correctly refused; exact evidence retained",
-    "pr342_offline_repairs": "10native tests; actual docs workflow4pass;2negative variants rejected; full browser smoke8admin+confirmation+revocation passed"
+    "pr342_offline_repairs": "10native tests; actual docs workflow4pass;2negative variants rejected; full browser smoke8admin+confirmation+revocation passed",
+    "current_pr343": "run completed successfully; browser artifacts not downloaded or accepted"
   },
   "evidence_ref": "refs/gsd/phase253-local-continuation",
   "evidence_commit": "493ff352c3488176aa9cde965adf18392b7eaa99",
@@ -48,28 +49,16 @@
   },
   "next_plan": "253-172",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_command_conditional": true,
-  "required_decision": {
-    "status": "pending_exact_read_only_recovery",
-    "pending": true,
-    "approval_received": false,
-    "new_approval_requested": true,
-    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
-    "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
-    "scope": "pr343-read-only-7-gets",
-    "max_requests": 7,
-    "github_writes": 0,
-    "ci_launches": 0,
-    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json"
-  },
-  "reason_for_decision": "The offline Plan172 task is finished. The plan requires exact approval before new external requests; this proposal allows only7 GETs, zero writes and zero CI launches.",
+  "next_command_conditional": false,
+  "required_decision": null,
+  "reason_for_decision": null,
   "policy": "After a scoped repair passes, continue already-authorized ready local work directly. Do not return to progress merely to select an obvious next task. Stop for an actual failed limit, missing evidence or prohibited external action. Ordinary development failures are repaired inline with retained original outputs; never create a numbered plan or reset an acceptance budget for them.",
-  "github_requests": 634,
+  "github_requests": 641,
   "ci_launches": 35,
   "acceptance179_reruns": 0,
   "budgets_renewed": false,
   "historical_outcomes_modified": false,
-  "prior_shared_state_commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+  "prior_shared_state_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
   "canary_execution": ".planning/execution/253-170.json",
   "pr_execution": ".planning/execution/253-171.json",
   "pr_diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
@@ -140,7 +129,7 @@
     "repair_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "diagnosis": ".planning/execution/253-pr342-diagnosis/diagnosis.json"
   },
-  "next_action": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.",
+  "next_action": "PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.",
   "docs_attempt_history": [
     {
       "status": "halted_before_publication_import_failure",
@@ -156,27 +145,28 @@
     }
   ],
   "phase253_repaired_source_preparation": {
-    "status": "prepared_offline_pending_exact_action_checkpoint",
-    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+    "status": "closed_successful_run_snapshot",
     "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
-    "implementation_commit": "cc7cc2749",
-    "summary": ".planning/execution/253-pr343-recovery-SUMMARY.md",
-    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
-    "recovery_tests": 19,
-    "discovery_tests": 6,
-    "requests_this_continuation": 0,
+    "approval_commit": "212f4ac46",
+    "attempt_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
+    "result": ".planning/execution/253-pr343-recovery/result.json",
+    "attempt": ".planning/execution/253-pr343-recovery/attempt-result.json",
+    "requests_this_continuation": 7,
     "ci_launches_this_continuation": 0,
+    "github_writes": 0,
     "active_allocations": 0,
     "closed_windows_reopened": 0,
-    "approval_pending": true,
+    "approval_pending": false,
+    "approval_consumed": true,
     "new_ci_authorized": false,
     "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "pr_number": 343,
     "run_id": 39815188159,
-    "run_conclusion": null,
+    "run_status": "completed",
+    "run_conclusion": "success",
     "phase_verified": false
   },
-  "updated_at": "2026-10-22T17:06:24.347951+00:00",
+  "updated_at": "2026-10-22T17:30:28.526518+00:00",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -197,7 +187,7 @@
     "run_status": "queued",
     "diagnosis": ".planning/execution/253-pr343-diagnosis/diagnosis.json"
   },
-  "state_head": "0373494c0d5501f4b08bc993fb786490dcc41a8a",
+  "state_head": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
   "phase253_paired_attempt_history": [
     {
       "status": "closed_before_publication_permanent_ledger_ref_failure",
@@ -216,28 +206,29 @@
       "approval_consumed": true
     }
   ],
-  "last_updated": "2026-10-22T17:06:24.347951+00:00",
+  "last_updated": "2026-10-22T17:30:28.526518+00:00",
   "diagnostic_gets_this_continuation": 4,
   "diagnostic_watcher_http_request_count": "unknown",
   "phase253_existing_pr_recovery": {
-    "status": "prepared_offline_pending_exact_action_checkpoint",
-    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+    "status": "closed_successful_run_snapshot",
     "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
-    "implementation_commit": "cc7cc2749",
-    "summary": ".planning/execution/253-pr343-recovery-SUMMARY.md",
-    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
-    "recovery_tests": 19,
-    "discovery_tests": 6,
-    "requests_this_continuation": 0,
+    "approval_commit": "212f4ac46",
+    "attempt_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
+    "result": ".planning/execution/253-pr343-recovery/result.json",
+    "attempt": ".planning/execution/253-pr343-recovery/attempt-result.json",
+    "requests_this_continuation": 7,
     "ci_launches_this_continuation": 0,
+    "github_writes": 0,
     "active_allocations": 0,
     "closed_windows_reopened": 0,
-    "approval_pending": true,
+    "approval_pending": false,
+    "approval_consumed": true,
     "new_ci_authorized": false,
     "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "pr_number": 343,
     "run_id": 39815188159,
-    "run_conclusion": null,
+    "run_status": "completed",
+    "run_conclusion": "success",
     "phase_verified": false
   },
   "prior_required_decision": {
@@ -268,5 +259,6 @@
       "execution_permission": "require_escalated: permanent Git recovery refs/objects must be writable",
       "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
     }
-  ]
+  ],
+  "resume_command": "$gsd-execute-phase 253 --gaps-only"
 }

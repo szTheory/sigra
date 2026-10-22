@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T17:06:24.347951+00:00"
-state_head: 0373494c0d5501f4b08bc993fb786490dcc41a8a
+last_updated: "2026-10-22T17:30:28.526518+00:00"
+state_head: 678b8f5a095fb81451c9c0db9dedd96b72fcf76d
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 86
   percent: 25
-last_activity: 2026-10-22 - existing PR343 recovery implemented and25 offline regressions passed
+last_activity: 2026-10-22 - PR343 existing run passed; seven-GET recovery closed
 milestone_status: active
-workflow_step: checkpoint172_existing_pr_read_approval
+workflow_step: plan172_remaining_evidence_offline_preparation
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: PR343 run discovered; offline existing-PR recovery next
-last_activity_desc: approved run closed after25 requests; actual CI found through commit checks
+stopped_at: PR343 success saved; offline remaining-evidence preparation ready
+last_activity_desc: seven actual GETs; existing CI success confirmed; no CI launched
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.
+PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-Conditional on approval of proposal fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3. The exact scope is at most7 read-only GETs for existing PR343/run39815188159, with zero GitHub writes and zero CI launches. Checkpoint: .planning/execution/253-pr343-recovery-CHECKPOINT.json. Implementation is complete for this offline task; hosted acceptance and phase verification are unfinished. No old window may restart.
+Offline preparation is ready with no pending approval. Result: .planning/execution/253-pr343-recovery/result.json, committed at 678b8f5a095fb81451c9c0db9dedd96b72fcf76d. The read-only window is closed. Browser evidence and the docs-only PR result remain missing; no old window may restart.
 
 ## Known unfinished work
 
@@ -487,3 +487,7 @@ Next: `$gsd-execute-phase 253 --gaps-only`, after approval. Offline implementati
 Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.
 
 Bundle SHA-256 `723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a`; checks `.planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json`. Shared state before this update is recoverable at `afe01a308303ce09c6adceea4f657b66da4790d6`; exact readback is in `state-preservation.json`. Measured totals609 requests/34 CI launches;8 separately recorded diagnostic connector calls unchanged.
+
+## PR343 successful run recovered
+
+PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation. Actual outputs are committed at 678b8f5a095fb81451c9c0db9dedd96b72fcf76d. Prior shared-state bytes are recoverable there, with exact hashes in .planning/execution/253-pr343-recovery-CLOSEOUT.json.

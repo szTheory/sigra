@@ -5,24 +5,24 @@
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.",
+  "current": "PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.",
+  "next_action": "PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.",
   "route": {
-    "status": "checkpoint172_existing_pr_read_approval",
+    "status": "plan172_remaining_evidence_offline_preparation",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": true,
-    "reason": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.",
-    "evidence": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
+    "conditional": false,
+    "reason": "PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.",
+    "evidence": ".planning/execution/253-pr343-recovery/result.json",
     "phase_verification_status": "not_started",
     "readiness": {
       "operationally_ready_plans": [
         "253-172"
       ],
-      "ready_scope": "exact read-only recovery checkpoint",
-      "approval_still_required": true,
+      "ready_scope": "offline remaining evidence preparation",
+      "approval_still_required": false,
       "new_ci_authorized": false
     }
   },
@@ -47,7 +47,7 @@
       254,
       255
     ],
-    "next_required_gate": "Exact seven-GET existing-PR recovery approval",
+    "next_required_gate": "Prepare and test remaining evidence continuation offline before any external proposal",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -62,7 +62,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "checkpoint172_existing_pr_read_approval",
+    "workflow_step": "plan172_remaining_evidence_offline_preparation",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -208,25 +208,11 @@
     "phase253_load_recovery_plan_count": 12,
     "phase253_load_recovery_task_count": 26,
     "phase253_active_wave_count": 8,
-    "phase253_execution_status": "repaired_pair_approval_checkpoint",
+    "phase253_execution_status": "plan172_remaining_evidence_offline_preparation",
     "phase253_halted_plan_count": 29,
     "phase253_unsummarized_plan_count": 74
   },
-  "human_actions_pending": [
-    {
-      "status": "pending_exact_read_only_recovery",
-      "pending": true,
-      "approval_received": false,
-      "new_approval_requested": true,
-      "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
-      "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
-      "scope": "pr343-read-only-7-gets",
-      "max_requests": 7,
-      "github_writes": 0,
-      "ci_launches": 0,
-      "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json"
-    }
-  ],
+  "human_actions_pending": [],
   "async_jobs": [],
   "previous_milestone": {
     "version": "v1.49",
@@ -3667,23 +3653,23 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "status": "checkpoint172_existing_pr_read_approval",
+    "status": "plan172_remaining_evidence_offline_preparation",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": true,
-    "reason": "Plan172 existing-PR recovery is implemented and tested offline (19 recovery tests plus6 discovery tests). Exact read-only proposal is ready: at most7 GETs against PR343/run39815188159, no GitHub writes or CI launch. Fresh exact-action approval is pending under Plan172; old approval and windows stay consumed. Actual run conclusion, browser record downloads and docs-only PR remain missing. Phase253 is unverified. Continue this same Plan172 after approval; no quick task or new plan.",
-    "evidence": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
+    "conditional": false,
+    "reason": "PR343 run39815188159 attempt1 completed successfully. The approved seven-GET recovery is closed with zero GitHub writes and zero CI launches. Continue Plan172 offline: prepare collection of the five named browser artifacts and the missing docs-only PR check using source5e13621e5. Do not rerun the normal PR or any closed bundle. Hosted acceptance and Phase253 verification remain unfinished. No approval is pending for offline preparation.",
+    "evidence": ".planning/execution/253-pr343-recovery/result.json",
     "phase_verification_status": "not_started",
     "readiness": {
       "operationally_ready_plans": [
         "253-172"
       ],
-      "ready_scope": "exact read-only recovery checkpoint",
-      "approval_still_required": true,
+      "ready_scope": "offline remaining evidence preparation",
+      "approval_still_required": false,
       "new_ci_authorized": false
     }
   },
-  "last_updated": "2026-10-22T17:06:24.347951+00:00",
+  "last_updated": "2026-10-22T17:30:28.526518+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4261,7 +4247,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "checkpoint172_existing_pr_read_approval",
+  "workflow_step": "plan172_remaining_evidence_offline_preparation",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4534,7 +4520,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "0373494c0d5501f4b08bc993fb786490dcc41a8a",
+  "state_head": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4619,7 +4605,7 @@
     "prior_shared_state_commit": "e1061ce82b2492c4b40571e77ed8a1072bf27c58",
     "readiness_diagnostics": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-ROUTING-CHECKS-V2.json"
   },
-  "stopped_at": "corrected exact-bundle approval pending",
+  "stopped_at": "PR343 success saved; offline remaining-evidence preparation ready",
   "phase253_plan168_prerequisite_correction": {
     "status": "corrected_not_executed",
     "summary": "Plan 168 now requires completed 179 local acceptance and completed 180 local bridge; 174 remains halted. Seven focused tests and the additive receipt check pass. Plan 168 has not been executed. Both CI requirements and whole-phase verification remain open. No acceptance rerun, CI or budget change. Next: $gsd-progress.",
@@ -4791,21 +4777,19 @@
       }
     ]
   },
-  "next_command_conditional": true,
+  "next_command_conditional": false,
   "phase253_completed_plans": 80,
   "phase253_unsummarized_plans": 74,
   "phase253_pending_decision": {
-    "status": "pending_exact_read_only_recovery",
-    "pending": true,
-    "approval_received": false,
-    "new_approval_requested": true,
-    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
-    "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+    "status": "approved_and_consumed",
+    "pending": false,
+    "approval_received": true,
+    "new_approval_requested": false,
+    "approval_commit": "212f4ac46",
+    "decision_text": "yes i approve i compacted convo so u can do it here",
     "scope": "pr343-read-only-7-gets",
-    "max_requests": 7,
-    "github_writes": 0,
-    "ci_launches": 0,
-    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json"
+    "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+    "attempt_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d"
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "current_route_prior_commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
@@ -4863,8 +4847,8 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
-  "updated_at": "2026-10-22T17:06:24.347951+00:00",
+  "prior_shared_state_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
+  "updated_at": "2026-10-22T17:30:28.526518+00:00",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -4905,24 +4889,25 @@
     "hosted_success": false
   },
   "phase253_repaired_source_preparation": {
-    "status": "prepared_offline_pending_exact_action_checkpoint",
-    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+    "status": "closed_successful_run_snapshot",
     "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
-    "implementation_commit": "cc7cc2749",
-    "summary": ".planning/execution/253-pr343-recovery-SUMMARY.md",
-    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
-    "recovery_tests": 19,
-    "discovery_tests": 6,
-    "requests_this_continuation": 0,
+    "approval_commit": "212f4ac46",
+    "attempt_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
+    "result": ".planning/execution/253-pr343-recovery/result.json",
+    "attempt": ".planning/execution/253-pr343-recovery/attempt-result.json",
+    "requests_this_continuation": 7,
     "ci_launches_this_continuation": 0,
+    "github_writes": 0,
     "active_allocations": 0,
     "closed_windows_reopened": 0,
-    "approval_pending": true,
+    "approval_pending": false,
+    "approval_consumed": true,
     "new_ci_authorized": false,
     "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "pr_number": 343,
     "run_id": 39815188159,
-    "run_conclusion": null,
+    "run_status": "completed",
+    "run_conclusion": "success",
     "phase_verified": false
   },
   "phase253_paired_attempt": {
@@ -4964,24 +4949,25 @@
     }
   ],
   "phase253_existing_pr_recovery": {
-    "status": "prepared_offline_pending_exact_action_checkpoint",
-    "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+    "status": "closed_successful_run_snapshot",
     "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
-    "implementation_commit": "cc7cc2749",
-    "summary": ".planning/execution/253-pr343-recovery-SUMMARY.md",
-    "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json",
-    "recovery_tests": 19,
-    "discovery_tests": 6,
-    "requests_this_continuation": 0,
+    "approval_commit": "212f4ac46",
+    "attempt_commit": "678b8f5a095fb81451c9c0db9dedd96b72fcf76d",
+    "result": ".planning/execution/253-pr343-recovery/result.json",
+    "attempt": ".planning/execution/253-pr343-recovery/attempt-result.json",
+    "requests_this_continuation": 7,
     "ci_launches_this_continuation": 0,
+    "github_writes": 0,
     "active_allocations": 0,
     "closed_windows_reopened": 0,
-    "approval_pending": true,
+    "approval_pending": false,
+    "approval_consumed": true,
     "new_ci_authorized": false,
     "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
     "pr_number": 343,
     "run_id": 39815188159,
-    "run_conclusion": null,
+    "run_status": "completed",
+    "run_conclusion": "success",
     "phase_verified": false
   },
   "phase253_pending_decision_history": [
@@ -4992,6 +4978,19 @@
       "approval_commit": "edc94032af9b8c95a3d63f5bd5df10a93c4931cc",
       "pending": false,
       "new_approval_requested": false
+    },
+    {
+      "status": "pending_exact_read_only_recovery",
+      "pending": true,
+      "approval_received": false,
+      "new_approval_requested": true,
+      "proposal": ".planning/execution/253-pr343-recovery/proposal.json",
+      "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+      "scope": "pr343-read-only-7-gets",
+      "max_requests": 7,
+      "github_writes": 0,
+      "ci_launches": 0,
+      "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json"
     }
   ],
   "phase253_repaired_source_preparation_history": [
