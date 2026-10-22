@@ -3,8 +3,8 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-22T16:20:40.850304+00:00"
-state_head: cc4c7f226235ba1c83c878c3e5a959bb4b79352b
+last_updated: "2026-10-22T16:42:05.939937+00:00"
+state_head: 9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb
 progress:
   total_phases: 4
   completed_phases: 1
@@ -13,13 +13,13 @@ progress:
   percent: 25
 last_activity: 2026-10-22 - repaired-source proof objects and source-scope checks verified offline
 milestone_status: active
-workflow_step: execute172_permanent_ledger_approval_checkpoint
+workflow_step: execute172_existing_pr_recovery
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: $gsd-execute-phase 253 --gaps-only
 resume_command: $gsd-execute-phase 253 --gaps-only
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,8 +146,8 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: permanent ledger repair verified; corrected exact-bundle approval pending
-last_activity_desc: approved attempt used1 read-only request and0 CI;26 offline repair tests pass
+stopped_at: PR343 run discovered; offline existing-PR recovery next
+last_activity_desc: approved run closed after25 requests; actual CI found through commit checks
 ---
 
 # Project State
@@ -161,13 +161,13 @@ See: `.planning/PROJECT.md` (updated 2026-10-12).
 
 ## Current position
 
-Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.
+Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.
 
 ## Next GSD command
 
 $gsd-execute-phase 253 --gaps-only
 
-After fresh approval of `.planning/execution/253-plan172-persistent-ledger/approval-request.json`, run the corrected operator once with Git metadata write permission. Do not restart the closed repaired-source attempt. Offline implementation is verified; hosted and phase verification remain unfinished.
+Continue Plan172 offline from the existing PR343 and run39815188159. The old approval is consumed; no fresh approval is pending. The local preservation fix is implemented. The discovery fallback has six passing offline tests but is not integrated into an executable continuation. Neither hosted requirements nor the phase are verified. The diagnostic watcher stopped locally; GitHub CI was not cancelled.
 
 ## Known unfinished work
 

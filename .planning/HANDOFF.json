@@ -5,28 +5,24 @@
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "last_milestone": "v1.49",
-  "current": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
+  "current": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
   "next_command": "$gsd-execute-phase 253 --gaps-only",
   "resume_command": "$gsd-execute-phase 253 --gaps-only",
-  "next_action": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
+  "next_action": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
   "route": {
-    "status": "execute172_permanent_ledger_approval_checkpoint",
+    "status": "execute172_existing_pr_recovery",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": true,
-    "reason": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
-    "evidence": ".planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json",
+    "conditional": false,
+    "reason": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
+    "evidence": ".planning/execution/253-pr343-diagnosis/diagnosis.json",
     "phase_verification_status": "not_started",
     "readiness": {
-      "plan_count": 183,
-      "completed_implementation_count": 80,
-      "halted_count": 29,
-      "without_summary": 74,
       "operationally_ready_plans": [
         "253-172"
       ],
-      "ready_scope": "once-only paired run after exact-bundle approval",
-      "approval_still_required": true,
+      "ready_scope": "offline integration and existing-PR recovery preparation only",
+      "approval_still_required": false,
       "new_ci_authorized": false
     }
   },
@@ -51,7 +47,7 @@
       254,
       255
     ],
-    "next_required_gate": "Fresh approval of corrected permanent-ledger bundle",
+    "next_required_gate": "Offline discovery fallback and existing-PR recovery checks",
     "approved_phase_count": 4,
     "approved_phase_numbers": [
       252,
@@ -66,7 +62,7 @@
     "phase252_discussion_confirmed": true,
     "phase252_context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
     "phase252_context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
-    "workflow_step": "execute172_permanent_ledger_approval_checkpoint",
+    "workflow_step": "execute172_existing_pr_recovery",
     "phase252_discussion_dispatch": "Four explicitly user-requested typed research subagents returned terminal results; context captured by parent.",
     "phase252_planning_status": "passed",
     "phase252_plan_count": 6,
@@ -216,16 +212,7 @@
     "phase253_halted_plan_count": 29,
     "phase253_unsummarized_plan_count": 74
   },
-  "human_actions_pending": [
-    {
-      "status": "pending",
-      "scope": "normal-and-docs-only",
-      "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
-      "request": ".planning/execution/253-plan172-persistent-ledger/approval-request.json",
-      "question": "Approve the corrected exact bundle:three refs,two draft PRs,two automatic CI runs;23 publication plus120 shared PR requests,60 minutes each;no dispatches,reruns or merges?",
-      "approval_received": false
-    }
-  ],
+  "human_actions_pending": [],
   "async_jobs": [],
   "previous_milestone": {
     "version": "v1.49",
@@ -1526,7 +1513,7 @@
       "253-109": "complete",
       "253-90": "complete",
       "253-171": "halted",
-      "253-172": "offline_repairs_verified_hosted_docs_incomplete"
+      "253-172": "in_progress_existing_pr_recovery"
     },
     "blockers": [
       {
@@ -1607,7 +1594,7 @@
         "remaining": "No08SUMMARY and no253VERIFICATION exist; do not reconcile or mark phase complete."
       }
     ],
-    "status": "docs_ci_failed_offline_repairs_verified",
+    "status": "execute172_existing_pr_recovery",
     "completed_plan_count": 80,
     "total_phase_plans": 183,
     "current_next_command": "$gsd-debug \"Phase 253: fix the five PR338 defects in .planning/execution/253-171-diagnosis/diagnosis.json offline; preserve historical evidence and budgets; no CI\"",
@@ -3666,27 +3653,23 @@
     "acceptance_attempts": 0
   },
   "current_routing": {
-    "status": "execute172_permanent_ledger_approval_checkpoint",
+    "status": "execute172_existing_pr_recovery",
     "next_command": "$gsd-execute-phase 253 --gaps-only",
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
-    "conditional": true,
-    "reason": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
-    "evidence": ".planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json",
+    "conditional": false,
+    "reason": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
+    "evidence": ".planning/execution/253-pr343-diagnosis/diagnosis.json",
     "phase_verification_status": "not_started",
     "readiness": {
-      "plan_count": 183,
-      "completed_implementation_count": 80,
-      "halted_count": 29,
-      "without_summary": 74,
       "operationally_ready_plans": [
         "253-172"
       ],
-      "ready_scope": "once-only paired run after exact-bundle approval",
-      "approval_still_required": true,
+      "ready_scope": "offline integration and existing-PR recovery preparation only",
+      "approval_still_required": false,
       "new_ci_authorized": false
     }
   },
-  "last_updated": "2026-10-22T16:20:40.850304+00:00",
+  "last_updated": "2026-10-22T16:42:05.939937+00:00",
   "phase253_bridge_repair_execution": {
     "status": "halted",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
@@ -4264,7 +4247,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "execute172_permanent_ledger_approval_checkpoint",
+  "workflow_step": "execute172_existing_pr_recovery",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4537,7 +4520,7 @@
       "Registration reproduction/fix and hosted required-gate proof still missing"
     ]
   },
-  "state_head": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b",
+  "state_head": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
   "phase253_plan_count": 183,
   "phase253_offline_acceptance179": {
     "plan": "253-179",
@@ -4794,16 +4777,16 @@
       }
     ]
   },
-  "next_command_conditional": true,
+  "next_command_conditional": false,
   "phase253_completed_plans": 80,
   "phase253_unsummarized_plans": 74,
   "phase253_pending_decision": {
-    "status": "pending",
-    "scope": "normal-and-docs-only",
-    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
-    "request": ".planning/execution/253-plan172-persistent-ledger/approval-request.json",
-    "question": "Approve the corrected exact bundle:three refs,two draft PRs,two automatic CI runs;23 publication plus120 shared PR requests,60 minutes each;no dispatches,reruns or merges?",
-    "approval_received": false
+    "status": "approved_and_consumed",
+    "approval_received": true,
+    "decision_text": "yes i approve",
+    "approval_commit": "edc94032af9b8c95a3d63f5bd5df10a93c4931cc",
+    "pending": false,
+    "new_approval_requested": false
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "current_route_prior_commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
@@ -4861,8 +4844,8 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
-  "updated_at": "2026-10-22T16:20:40.850304+00:00",
+  "prior_shared_state_commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+  "updated_at": "2026-10-22T16:42:05.939937+00:00",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -4903,38 +4886,60 @@
     "hosted_success": false
   },
   "phase253_repaired_source_preparation": {
-    "status": "offline_permanent_ledger_repair_verified_approval_pending",
+    "status": "executed_once_closed_discovery_false_negative",
     "bundle": ".planning/execution/253-plan172-persistent-ledger/bundle.json",
     "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
     "approval_request": ".planning/execution/253-plan172-persistent-ledger/approval-request.json",
     "checks": ".planning/execution/253-plan172-persistent-ledger/BUNDLE-CHECKS.json",
     "diagnosis": ".planning/execution/253-plan172-persistent-ledger/diagnosis.json",
     "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
-    "execution_ready": true,
-    "approval_pending": true,
+    "execution_ready": false,
+    "approval_pending": false,
     "new_ci_authorized": false,
-    "requests": 0,
-    "ci_launches": 0,
+    "requests": 25,
+    "ci_launches": 1,
     "active_allocations": 0,
     "next_command": "$gsd-execute-phase 253 --gaps-only",
-    "next_action": "Approved paired attempt stopped after one read-only GitHub rate-limit request; no refs, PRs or CI were created. Exact result is preserved at afe01a308. The local writer lacked permission to create its recovery ref and inherited a temporary object store. The replacement saves recovery bytes in the permanent Git store and checks an actual dirty-ledger write/read-back before any allocation or HTTP. All26 offline tests pass. Product source5e13621e5 and proposed refs are unchanged. New exact-bundle approval is required for23 publication requests and120 shared PR requests,60 minutes each; three refs,two draft PRs,two automatic CI runs; zero dispatches,reruns or merges. Including the1 spent request,the ceiling stays144. All prior windows remain closed. CIREL-01 remains not reproduced; Phase253 is unverified. Continue the same Plan172 after approval,using Git metadata write permission; no quick or progress scan.",
+    "next_action": "Approved Plan172 attempt created candidate ref and draft PR343, then closed after25 requests when workflow listings returned no CI run. Read-only diagnosis found actual automatic run39815188159 for the exact candidate and PR; last observed queued, no conclusion. Permanent Git preservation worked. Six offline tests verify a strict commit-check discovery fallback; it is a candidate, not integrated into a live bundle. Docs PR is absent and phase verification remains unfinished. Continue the same Plan172 with offline existing-PR recovery; no duplicate PR, acceptance rerun, CI dispatch, closed-window reuse, new quick task or approval request.",
     "execution_permission": "require_escalated: permanent Git recovery refs/objects must be writable",
     "commit": "cc4c7f226235ba1c83c878c3e5a959bb4b79352b"
   },
   "phase253_paired_attempt": {
-    "status": "closed_before_publication_permanent_ledger_ref_failure",
-    "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
-    "approval_commit": "2687b7ad8",
-    "decision_text": "i approve",
-    "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
-    "attempt": ".planning/execution/253-plan172-repaired-source/attempt-result.json",
-    "github_requests": 1,
-    "refs_created": 0,
-    "pr_creations": 0,
-    "ci_launches": 0,
+    "status": "closed_discovery_false_negative",
+    "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+    "approval_commit": "edc94032af9b8c95a3d63f5bd5df10a93c4931cc",
+    "decision_text": "yes i approve",
+    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+    "attempt": ".planning/execution/253-plan172-persistent-ledger/attempt-result.json",
+    "github_requests": 25,
+    "refs_created": 1,
+    "pr_creations": 1,
+    "ci_launches": 1,
     "workflow_dispatches": 0,
     "reruns": 0,
     "window_closed": true,
-    "approval_consumed": true
-  }
+    "approval_consumed": true,
+    "pr_number": 343,
+    "run_id": 39815188159,
+    "run_status": "queued",
+    "diagnosis": ".planning/execution/253-pr343-diagnosis/diagnosis.json"
+  },
+  "phase253_paired_attempt_history": [
+    {
+      "status": "closed_before_publication_permanent_ledger_ref_failure",
+      "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+      "approval_commit": "2687b7ad8",
+      "decision_text": "i approve",
+      "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
+      "attempt": ".planning/execution/253-plan172-repaired-source/attempt-result.json",
+      "github_requests": 1,
+      "refs_created": 0,
+      "pr_creations": 0,
+      "ci_launches": 0,
+      "workflow_dispatches": 0,
+      "reruns": 0,
+      "window_closed": true,
+      "approval_consumed": true
+    }
+  ]
 }
