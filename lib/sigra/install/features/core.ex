@@ -393,13 +393,14 @@ defmodule Sigra.Install.Features.Core do
 
               live_session :sigra_confirmation,
                 on_mount: [{#{web_module}.UserAuth, :mount_current_scope}] do
-        #{String.trim_trailing(confirmation_routes)}
+          #{confirmation_routes}
               end
             end
         """
       else
         ""
       end
+      |> String.replace(~r/^[ \t]+$/m, "")
 
     redirect_scope_confirmation_routes = if live?, do: "", else: confirmation_routes
 
