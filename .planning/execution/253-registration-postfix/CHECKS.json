@@ -1,0 +1,64 @@
+{
+  "status": "offline_preparation_verified_runtime_not_approved",
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+  "proposal_sha256": "f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06",
+  "checks": {
+    "protocol_tests_passed": 15,
+    "linux_configuration_tests_per_seed": 3,
+    "linux_configuration_seeds": [
+      101,
+      202,
+      303
+    ],
+    "candidate_git_export_recreated_and_hash_matched": true,
+    "current_product_matches_candidate": true,
+    "compiled_endpoint_reloader_absent": true,
+    "liveview_socket_retained": true,
+    "collection_projects": [
+      "admin-eval",
+      "admin-eval-mobile",
+      "admin-eval-dark"
+    ],
+    "one_selected_board_per_project": true,
+    "actual_unapproved_run_exit": 1,
+    "unapproved_run_allocated_nothing": true,
+    "owned_containers_remaining": 0,
+    "git_diff_check_exit": 0
+  },
+  "runtime": {
+    "approval_received": false,
+    "approval_pending": true,
+    "browser_invocations": 0,
+    "app_starts": 0,
+    "database_starts": 0,
+    "ci_launches": 0,
+    "github_requests": 0,
+    "old_slots_reopened": 0,
+    "phase_complete": false
+  },
+  "raw_sha256": {
+    "source-manifest.json": "82821b1c710c7fc5ef6506bd0be643a95ee37e1f1f6c2ee2f6ca15428da55e54",
+    "preparation.json": "53b3f3eb1ad3253ab5cf5851c833be96c57aca8bd4d4b71bd2193f5fec9004db",
+    "config-seed-202.log": "a3cae03d7bae3ded7bbd33cc71f3dac62b2836b7aae9c64fba3926e02c5fcfc8",
+    "inspect_compiled_endpoint.exs": "486a6ec0466ee032d34234fef880b4ed49f5dfe38df0f6776bf7dc02524ab720",
+    "phase254-readiness.json": "ad27159febac02e5590e0b573ed1d7b814e45c943eb402f41bd7013dab497473",
+    "preflight.log": "34eccd4229cf66ea25ae9ad2e1c8b10f59d93059a4537281e5d4bf7d6a36139e",
+    "Dockerfile": "0e4b301c94c271dfc4cc6df90f7274158c112af10a508ef0a4d53e2a6a14f7a9",
+    "config-seed-101.log": "08eab7b97b0613b77caa969173a5f0e20881026d8fd760afe24da1336438a97b",
+    "config-seed-303.log": "0e5e0cbc745238b28dcb4b2476d369674697f4573012cec7c4f3bd0380fff1c5",
+    "in_container.py": "dd4c09aa895880b6e75d70f73c9f1d9db394901dba1c65d83091c06efe545f37",
+    "README.md": "219fc271a5e5984beec23256a7467ab64b20706499713272d2c49c6c1ea7c252",
+    "validate.py": "a3084530022ffc6a88991179f31409b5554ccebc13eda16ddc20da2996ba7ab0",
+    "tests.log": "ba94d178800206803172b26f14a07f06dc731980572da814ba8c530a099f3094",
+    "inspect.json": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+    "test_validate.py": "c651053ac7da91a403b99cec41729d43f838d05f3b9f13787027443af44edc98",
+    "unapproved-run-refusal.log": "d2e510675ea045fc5fad529de7951977287d3a9080d5bb501fe5a35caf873a4b",
+    "prior-state.json": "db7882401d1dca4cc6987776e2d9a2b16ca4c487fff1e698ae283c553fc71fe4",
+    "proposal.json": "f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06",
+    "prepare.py": "51abfc73f6515981c5d628518da2ac29585864d9517ea91af195451623d58bf9",
+    "build.log": "666b125948274092432b5d5492974a5dab17493be69ec0d9723ff4c403b371e4",
+    "stopped-build-1/prepare.py": "f991c0d6bc0e49230fc8e78fc099c64b3e5246a2c53b8c2159f14c385c028d11",
+    "stopped-build-1/build.log": "07f10d0850b458de5586a27f5554fa92deb246e4ebcb747c62c21121ec849352"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "capture_head": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+  "capture_worktree_clean": true,
+  "prior_files": {
+    ".planning/STATE.md": {
+      "commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+      "sha256": "df88528ff21d4b1ecf09ebafe13ade5ac541769784a18e2f22fe0f33163cd1c7",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/state.json": {
+      "commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+      "sha256": "a0bc7d7e02f3884ae42fdbada3404374a25e78f2685e413ec375e224e6e96eef",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+      "sha256": "e36d6d05b69cd0279742556f1d3e66a8be7cecdb607a2743cdd5d4ba361597ca",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+      "sha256": "2296f0913ddc3bfa93cd3740f92f6348ab338c0d948bef4de566a0f28d68cfbc",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+      "commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+      "sha256": "e7f3113f23a2d7ac753906767c0d857e431e610932cea19a08cd231026349177",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/debug/phase253-registration-timeout.md": {
+      "commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+      "sha256": "eda3e75f134b26d02855f18d6e6f215defd864438d7ae783ad335710e7ffc4e3",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/debug/phase253-registration-timeout/REPORT.md": {
+      "commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
+      "sha256": "b62c0b6c772b0c80cc7aad7cf41c1eba7ba08a68c699ff2170c81cf0255b1b68",
+      "status": "",
+      "readback_verified": true
+    }
+  }
+}
