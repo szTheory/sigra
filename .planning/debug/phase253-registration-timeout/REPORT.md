@@ -31,11 +31,17 @@ All nine approved fresh Linux invocations passed on product `a87664733`: three d
 
 Independent native/server review: `.planning/execution/253-registration-postfix/RESULT.json`. Actual evidence commit: `eb2e23a14cc079a6539d8c037810e543e97c4658`. Authentication values were redacted before logs were committed; native browser reports and registration-flow counts remain unchanged. Approval61d24b90e and reservation2473ecfa7 are consumed; no additional runtime scope exists.
 
+## Integration results
+
+All108tests passed across the five existing PR browser groups on product a87664733:43admin behavior,3checkpoints,42design gallery including setup,16non-admin smoke,4demo showcase. Zero retries/skips;640.7seconds including setup/cleanup;all10distinct containers removed. Every group used a fresh PostgreSQL15.19 instance and seeded app. The original module error did not recur. No CI launch or GitHub request.
+
+Independent result:`.planning/execution/253-registration-integration/RESULT.json`;actual evidence:b42a8ad89816a8f81c21d067fa8c66a0ddc26c34. Approval55324020c and reservation26ed7517c are consumed. Native reports are unchanged after server-log redaction;all27 referenced path attachments are retained.
+
 ## Remaining work
 
-The fix and targeted validation are complete. Normal integration coverage on this source, review of remaining CIREL-01 controls and canonical phase verification remain. CIREL-02 stays complete. These emulated runs do not reconstruct the original hosted scheduling or database snapshot.
+The fix,targeted validation and ordinary browser integration are complete. Delayed/missing readiness,broken-wait,collision/fresh-state and failure/pass trace browser controls still need passing proof/review,followed by canonical phase verification. Original stopped control attempts remain stopped;no new runtime permission exists. CIREL-02 remains complete.
 
-The five ordinary PR browser groups are now frozen in `.planning/execution/253-registration-integration/proposal.json`:108tests including setup,one invocation per group,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Thirteen runner tests and43 existing unit contracts pass;configuration tests pass with each seed101/202/303. No browser/app/database ran. A new explicit runtime decision is required;the prior nine-run approval is consumed. Readiness/isolation/trace browser controls remain incomplete,as do canonical phase verification. After approval of the exact proposal,continue this debug session to execute it. Phase254 is pending without context/research/plans and has not started; readiness was rechecked.
+Next:review stopped controls and prepare the smallest missing browser-control check offline. No human action is needed for preparation. These x64-emulated local runs do not establish the original hosted schedule or database snapshot. Phase254 readiness remains pending without context/research/plans;it has not started.
 
 ```text
 $gsd-debug continue phase253-registration-timeout

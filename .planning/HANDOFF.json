@@ -8,13 +8,13 @@
   "current": "All nine approved fresh Linux registration runs passed on product a87664733: three desktop,three mobile,three dark;zero retries/skips;226.5seconds including cleanup. Every run saved registration,inserted an account and submitted login;the original Ecto.Queryable error did not recur. All18containers were removed. This new allowance is consumed;no extra browser/CI run is authorized. CIREL-01 still needs normal integration coverage and review of remaining controls/phase verification;CIREL-02 is complete and unchanged. Next:review existing integration evidence and prepare the smallest missing source-pinned integration check offline,without reopening old runs or adding a numbered repair plan.",
   "next_command": "$gsd-debug continue phase253-registration-timeout",
   "resume_command": "$gsd-debug continue phase253-registration-timeout",
-  "next_action": "Offline integration preparation is complete:108 tests frozen across the five current PR browser groups on product a87664733. Thirteen runner tests and43 existing unit contracts pass;three configuration tests pass with each seed101/202/303. No browser,app,database,CI or GitHub request ran. New proposal requires an explicit decision:five fresh local Linux groups,once each,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Prior nine-run approval is consumed. Readiness/isolation/trace browser controls and canonical phase verification remain after integration;CIREL-02 stays complete.",
+  "next_action": "Approved integration scope is complete:108/108 passed across five fresh local Linux groups on product a87664733;zero retries/skips;640.7seconds including cleanup;all10containers removed;no original Ecto.Queryable error,CI launch or GitHub request. Approval55324020c and reservation26ed7517c are consumed. The fix,targeted repeats and ordinary browser integration are complete. CIREL-01 still needs readiness/isolation/trace browser-control proof and canonical phase verification;CIREL-02 stays complete. Next:review stopped controls and prepare the smallest remaining browser-control check offline. No extra runtime action is authorized and no new decision is needed for that preparation.",
   "route": {
-    "status": "integration_bundle_ready_new_decision_required",
+    "status": "integration_passed_controls_preparation_next",
     "next_command": "$gsd-debug continue phase253-registration-timeout",
     "resume_command": "$gsd-debug continue phase253-registration-timeout",
-    "conditional": true,
-    "reason": "Offline integration preparation is complete:108 tests frozen across the five current PR browser groups on product a87664733. Thirteen runner tests and43 existing unit contracts pass;three configuration tests pass with each seed101/202/303. No browser,app,database,CI or GitHub request ran. New proposal requires an explicit decision:five fresh local Linux groups,once each,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Prior nine-run approval is consumed. Readiness/isolation/trace browser controls and canonical phase verification remain after integration;CIREL-02 stays complete.",
+    "conditional": false,
+    "reason": "Approved integration scope is complete:108/108 passed across five fresh local Linux groups on product a87664733;zero retries/skips;640.7seconds including cleanup;all10containers removed;no original Ecto.Queryable error,CI launch or GitHub request. Approval55324020c and reservation26ed7517c are consumed. The fix,targeted repeats and ordinary browser integration are complete. CIREL-01 still needs readiness/isolation/trace browser-control proof and canonical phase verification;CIREL-02 stays complete. Next:review stopped controls and prepare the smallest remaining browser-control check offline. No extra runtime action is authorized and no new decision is needed for that preparation.",
     "evidence": ".planning/execution/253-registration-postfix/RESULT.json",
     "phase_verification_status": "incomplete",
     "immediate_user_action": "None for offline integration evidence review and preparation",
@@ -213,9 +213,7 @@
     "phase253_requirement_review_status": "partial_cirel02_verified_cirel01_blocked",
     "phase253_uat_status": "partial"
   },
-  "human_actions_pending": [
-    "Approve or decline the frozen five-group local integration proposal; no CI/GitHub action is included."
-  ],
+  "human_actions_pending": [],
   "async_jobs": [],
   "previous_milestone": {
     "version": "v1.49",
@@ -4250,7 +4248,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "phase253_integration_bundle_ready_new_decision_required",
+  "workflow_step": "phase253_postfix_integration_passed_controls_preparation_next",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4780,15 +4778,17 @@
       }
     ]
   },
-  "next_command_conditional": true,
+  "next_command_conditional": false,
   "phase253_completed_plans": 81,
   "phase253_unsummarized_plans": 73,
   "phase253_pending_decision": {
-    "status": "new_integration_scope_decision_required",
-    "pending": true,
+    "status": "approved_integration_scope_consumed",
+    "pending": false,
     "proposal": ".planning/execution/253-registration-integration/proposal.json",
     "proposal_sha256": "221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889",
-    "previous_nine_run_approval_consumed": true
+    "approval_received": true,
+    "approval_consumed": true,
+    "additional_native_authorized": false
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "current_route_prior_commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
@@ -4847,7 +4847,7 @@
     "docs_pr_created": false
   },
   "prior_shared_state_commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
-  "updated_at": "2026-10-23T01:21:59.408906+00:00",
+  "updated_at": "2026-10-23T01:38:16.450224+00:00",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -5169,7 +5169,7 @@
     "cleanup_complete": true
   },
   "phase253_registration_diagnosis": {
-    "status": "nine_targeted_postfix_runs_passed_integration_pending",
+    "status": "targeted_and_integration_passed_controls_pending",
     "product_commit": "a876647338095b6d280608cb75bcf886ab1da953",
     "evidence_commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
     "session": ".planning/debug/phase253-registration-timeout.md",
@@ -5188,7 +5188,9 @@
     "additional_native_authorized": false,
     "next_command": "$gsd-debug continue phase253-registration-timeout",
     "postfix_validation_bundle": ".planning/execution/253-registration-postfix/CHECKS.json",
-    "postfix_validation_result": ".planning/execution/253-registration-postfix/RESULT.json"
+    "postfix_validation_result": ".planning/execution/253-registration-postfix/RESULT.json",
+    "integration_result": ".planning/execution/253-registration-integration/RESULT.json",
+    "integration_tests_passed": 108
   },
   "phase253_postfix_validation": {
     "status": "nine_targeted_runs_passed_scope_complete",
@@ -5230,16 +5232,18 @@
     "reservation_commit": "2473ecfa7"
   },
   "phase253_integration_validation": {
-    "status": "prepared_not_approved",
+    "status": "five_integration_groups_passed_scope_complete",
     "proposal": ".planning/execution/253-registration-integration/proposal.json",
     "proposal_sha256": "221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889",
     "source": "a876647338095b6d280608cb75bcf886ab1da953",
-    "readme": ".planning/execution/253-registration-integration/README.md",
-    "checks": ".planning/execution/253-registration-integration/CHECKS.json",
-    "selected_tests": 108,
+    "readme": ".planning/execution/253-registration-integration/RESULT.md",
+    "checks": ".planning/execution/253-registration-integration/EXECUTION-CHECKS.json",
+    "selected_tests_passed": 108,
     "groups": 5,
-    "approval_received": false,
-    "approval_pending": true,
+    "approval_received": true,
+    "approval_pending": false,
+    "approval_consumed": true,
+    "approval_scope_complete": true,
     "additional_native_authorized": false,
     "limits": {
       "browser_invocations": 5,
@@ -5251,15 +5255,24 @@
       "ci_launches": 0,
       "old_slots_reopened": 0
     },
-    "browser_invocations": 0,
+    "browser_invocations": 5,
+    "retries": 0,
+    "skips": 0,
+    "duration_seconds": 640.673505542014,
+    "cleanup_complete": true,
+    "containers_removed": 10,
     "ci_launches": 0,
     "github_requests": 0,
-    "phase_complete": false
+    "phase_complete": false,
+    "result": ".planning/execution/253-registration-integration/RESULT.json",
+    "evidence_commit": "b42a8ad89816a8f81c21d067fa8c66a0ddc26c34",
+    "approval_commit": "55324020c",
+    "reservation_commit": "26ed7517c"
   },
   "phase253_prior_shared_state": {
-    "record": ".planning/execution/253-registration-integration/prior-state.json",
-    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
-    "sha256": "93b3778c5a21855dd448d4b5601cdf90705ae6e5ab384af995c07d038cd2e2b5",
+    "record": ".planning/execution/253-registration-integration/CLOSEOUT-STATE.json",
+    "commit": "68b032d42152c22e22e8cb6edac482c9099ab904",
+    "sha256": "78b4cad5fd0ac53d0b80a9d703fc4684dc05c7c845d1ce5ad63e766b0b88dbf9",
     "readback_verified": true
   }
 }

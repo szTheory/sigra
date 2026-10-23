@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-23T01:21:59.408906+00:00"
-state_head: 6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5
+last_updated: "2026-10-23T01:38:16.450224+00:00"
+state_head: b42a8ad89816a8f81c21d067fa8c66a0ddc26c34
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Prepared108-test integration bundle offline; new runtime decision required
+last_activity: 2026-10-22 - All108 fixed-source integration tests passed;browser-control preparation next
 milestone_status: active
-workflow_step: phase253_integration_bundle_ready_new_decision_required
+workflow_step: phase253_postfix_integration_passed_controls_preparation_next
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: "$gsd-debug continue phase253-registration-timeout"
 resume_command: "$gsd-debug continue phase253-registration-timeout"
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -146,29 +146,28 @@ resume_file: .planning/execution/253-CONTINUATION.json
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 current_phase: 253
 current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: Integration runner prepared and checked; five-group runtime scope awaits explicit decision
-last_activity_desc: No new browser/app/database/CI execution;108 tests collected list-only
+stopped_at: Approved integration complete;remaining browser controls need offline preparation
+last_activity_desc: 108passed;zero retries/skips;640.7seconds including cleanup;all10containers removed
 ---
 
 # Current position
 
-The registration fix `a87664733` and nine targeted post-fix executions are complete. All9passed with zero retries/skips;226.5seconds including cleanup. CIREL-01 and Phase253 remain incomplete. CIREL-02 is complete and unchanged.
+The registration fix `a87664733`,nine fresh targeted repeats and all five ordinary PR browser selections are complete. Integration:108/108passed;zero retries/skips;640.7seconds including cleanup;all10containers removed. No original Ecto.Queryable error,CI launch or GitHub request.
 
-The remaining normal PR browser selections are now frozen:43admin behavior,3checkpoints,42design gallery including setup,16non-admin smoke,4demo showcase;108total. Native list-only collection started no browser,app or database. Thirteen runner tests,43 existing unit contracts and the configuration checks with seeds101/202/303 pass.
+CIREL-01 and Phase253 remain incomplete:delayed/missing readiness,broken-wait,collision/fresh-state and failure/pass trace browser controls still need passing proof/review,followed by canonical phase verification. Earlier control attempts remain halted. CIREL-02 stays complete and unchanged.
 
 ## Next action
 
-A new explicit decision is required for the concrete proposal in `.planning/execution/253-registration-integration/proposal.json` (SHA256 `221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889`). Scope:five fresh local Linux groups,once each,zero retries,first-failure stop,3600seconds total including cleanup;1800seconds per group. No CI/GitHub requests. Prior nine-run approval is consumed;no current extra runtime permission.
+`$gsd-debug continue phase253-registration-timeout` — review stopped controls and prepare the smallest remaining browser-control check offline. No human action is needed for that preparation. Do not run additional browsers,apps/databases or CI;do not create a numbered repair plan.
 
-After approval: `$gsd-debug continue phase253-registration-timeout`. Without approval,do not allocate a database/app or launch browsers. The real unapproved command refuses before allocation/reservation.
-
-Passing those groups would supply missing browser integration only. Delayed/missing readiness,broken-wait,collision/fresh-state and failure/pass trace controls still need browser proof/review;their historical stopped attempts remain stopped. Canonical phase verification is also missing.
+The five-group approval55324020c and reservation26ed7517c are consumed. Prior nine-run approval and all older expired slots/stopped attempts remain closed. Do not request another runtime decision until its concrete bundle is checked.
 
 ## Evidence and recovery
 
-- Prepared bundle and checks:`.planning/execution/253-registration-integration/README.md` and `CHECKS.json`.
-- Targeted result:`.planning/execution/253-registration-postfix/RESULT.json`;actual evidence `eb2e23a14cc079a6539d8c037810e543e97c4658`.
-- Prior exact shared bytes:`6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5`;read-back identities:`.planning/execution/253-registration-integration/prior-state.json`. Every source hash was rechecked immediately before replacement.
-- Counts stay183plans,81completed implementation plans,29stopped,73without summaries. No successor plan added.
+- Integration result:`.planning/execution/253-registration-integration/RESULT.json`;actual evidence `b42a8ad89816a8f81c21d067fa8c66a0ddc26c34`.
+- Independent review confirmed exact43/3/42/16/4 selections,zero retries/skips,ten distinct removed containers and unchanged native reports after authentication-value redaction. All27 native path attachments are retained.
+- Targeted result:`.planning/execution/253-registration-postfix/RESULT.json`;actual evidence eb2e23a14.
+- Prior shared bytes:`68b032d42152c22e22e8cb6edac482c9099ab904`;read-back identities:`.planning/execution/253-registration-integration/CLOSEOUT-STATE.json`. Sources were rechecked immediately before replacement.
+- Counts remain183plans,81completed implementation plans,29stopped,73without summaries. No successor plan added.
 
 Phase254 readiness rechecked:`init.plan-phase 254` reports pending,no context/research/plans. After actual253completion,recheck before `$gsd-discuss-phase 254`. Phase254 has not started.

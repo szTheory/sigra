@@ -34,8 +34,8 @@ reasoning_checkpoint:
 bug_class: concurrency — loader/reloader race demonstrated under a controlled schedule; original historical interleaving remains untraced
 hypothesis: CI's development reloader is an unnecessary module-deletion actor and can cause the original module error when it overlaps OTP's loader checks.
 test: the controlled schedule reproduces the exact error with the development configuration and passes with the actual CI configuration after the patch. Three configuration tests pass;CI compilation and compiled endpoint inspection pass.
-expecting: nine targeted post-fix passes are established. The frozen108-test integration bundle still needs an explicit runtime decision;browser controls and canonical phase verification remain afterward.
-next_action: offline integration bundle is prepared and checked;await explicit approval or refusal of proposal 221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889. After approval,run five fresh local Linux groups once each within3600seconds including cleanup;no CI/GitHub scope. Prior approvals are consumed;controls and canonical verification remain.
+expecting: targeted repeats and all108ordinary PR integration tests passed. Remaining readiness/isolation/trace browser-control proof and canonical phase verification still prevent completing CIREL-01/Phase253.
+next_action: approved five-group integration is complete:108passed,zero retries/skips,640.7seconds including cleanup. Review stopped controls and prepare the smallest remaining browser-control check offline. All approvals are consumed;no extra browser/CI action is authorized and no user action is needed for preparation.
 
 ## Evidence
 
@@ -67,7 +67,7 @@ next_action: offline integration bundle is prepared and checked;await explicit a
 root_cause: confirmed immediate failure — RegistrationLive.save crashed in email uniqueness validation because Ecto.Queryable.to_query/1 was unavailable;the account was not inserted and trigger_submit was never set.
 upstream_cause: a real loader/reloader interleaving produces the exact error;its occurrence in the historical CI run remains inferred because that job lacks module lifecycle tracing.
 fix: a87664733 — CI example servers disable hot code reloading;local development retains it. No retry,timeout,required-check or test-selection change.
-verification: controlled component failure/control;three passing configuration tests with each fixed seed;successful compilation and endpoint inspection;nine fresh targeted Linux browser runs passed in226.5seconds. Normal integration and phase review remain;no further runtime scope is authorized.
+verification: controlled component failure/control;configuration regression seeds101/202/303;compilation/endpoint inspection;nine fresh targeted passes;108passing integration tests across five fresh groups. Readiness/isolation/trace browser controls and canonical phase verification remain.
 files_changed: test/example/config/dev.exs;test/sigra/planning/phase_253_ci_static_runtime_test.exs;scoped debug and handoff records.
 phase_status: CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged.
 
@@ -82,3 +82,7 @@ The user approved proposal f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a
 ## Offline integration preparation
 
 Offline integration preparation is complete:108 tests frozen across the five current PR browser groups on product a87664733. Thirteen runner tests and43 existing unit contracts pass;three configuration tests pass with each seed101/202/303. No browser,app,database,CI or GitHub request ran. New proposal requires an explicit decision:five fresh local Linux groups,once each,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Prior nine-run approval is consumed. Readiness/isolation/trace browser controls and canonical phase verification remain after integration;CIREL-02 stays complete. Proposal SHA256:221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889. Review:`.planning/execution/253-registration-integration/README.md`;checks:`CHECKS.json` in that directory. Original Plan16 and control-recovery browser receipts remain halted;their slots are not reopened. Prior exact session bytes:6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5;read-back:`.planning/execution/253-registration-integration/prior-state.json`.
+
+## Approved integration result
+
+Approved integration scope is complete:108/108 passed across five fresh local Linux groups on product a87664733;zero retries/skips;640.7seconds including cleanup;all10containers removed;no original Ecto.Queryable error,CI launch or GitHub request. Approval55324020c and reservation26ed7517c are consumed. The fix,targeted repeats and ordinary browser integration are complete. CIREL-01 still needs readiness/isolation/trace browser-control proof and canonical phase verification;CIREL-02 stays complete. Next:review stopped controls and prepare the smallest remaining browser-control check offline. No extra runtime action is authorized and no new decision is needed for that preparation. Actual evidence:b42a8ad89816a8f81c21d067fa8c66a0ddc26c34;independent result:`.planning/execution/253-registration-integration/RESULT.json`. Native reports are unchanged;server logs omit authentication values with before/after hashes. All27 native path attachments are present. Prior exact session:68b032d42152c22e22e8cb6edac482c9099ab904;read-back:`.planning/execution/253-registration-integration/CLOSEOUT-STATE.json`.
