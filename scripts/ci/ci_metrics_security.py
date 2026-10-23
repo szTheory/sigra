@@ -499,6 +499,75 @@ def comparison_contract_sha256(contract: dict) -> str:
     return hashlib.sha256(json.dumps(frozen, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+def validate_comparison_plan(contract: dict) -> list[str]:
+    """Validate the immutable Phase 254 execution copy before runs are registered."""
+    diagnostics = []
+    schedule = contract.get("comparison_schedule")
+    reservations = contract.get("family_reservations") or []
+    if contract.get("status") != "ready" or contract.get("pair_count") != 20 or contract.get("primary_family_count") != 40:
+        diagnostics.append("comparison_plan_contract_invalid")
+    if not isinstance(schedule, list) or len(schedule) != 40:
+        diagnostics.append("comparison_schedule_incomplete")
+        schedule = []
+    expected = []
+    for pair in range(1, 21):
+        first = "before" if pair % 2 else "after"
+        second = "after" if first == "before" else "before"
+        expected.extend(((f"pair-{pair:02d}", first), (f"pair-{pair:02d}", second)))
+    actual = [(row.get("pair_id"), row.get("family_role")) for row in schedule if isinstance(row, dict)]
+    if actual != expected:
+        diagnostics.append("comparison_schedule_order_invalid")
+    if len([role for _, role in actual if role == "before"]) != 20 or len([role for _, role in actual if role == "after"]) != 20:
+        diagnostics.append("comparison_schedule_balance_invalid")
+    reservation_keys = [(row.get("pair_id"), row.get("family_role")) for row in reservations if isinstance(row, dict)]
+    if reservation_keys != expected or len({row.get("reservation_id") for row in reservations if isinstance(row, dict)}) != 40:
+        diagnostics.append("comparison_reservations_do_not_match_schedule")
+    if contract.get("maximum_pair_start_gap_seconds") != 1800:
+        diagnostics.append("comparison_pair_start_bound_invalid")
+    prep = contract.get("preparation_compatibility")
+    if not isinstance(prep, dict) or not prep.get("baseline_cache_stratum") or not prep.get("candidate_cache_stratum") or not prep.get("runner_image_policy"):
+        diagnostics.append("comparison_preparation_not_predeclared")
+    candidate = contract.get("candidate_identity") or {}
+    if not all(candidate.get(key) for key in ("application_sha", "workflow_revision", "workload_revision_sha256", "workflow_file_sha256")):
+        diagnostics.append("comparison_candidate_identity_incomplete")
+    window = contract.get("window") or {}
+    try:
+        if _utc(window["end_utc"]) - _utc(window["start_utc"]) != __import__("datetime").timedelta(hours=48):
+            diagnostics.append("comparison_window_duration_invalid")
+    except (KeyError, TypeError, ValueError):
+        diagnostics.append("comparison_window_not_predeclared")
+    return sorted(set(diagnostics))
+
+
+def validate_comparison_schedule(contract: dict, registrations: list[dict]) -> list[str]:
+    """Check append order and pair proximity using authenticated registered starts."""
+    diagnostics = []
+    schedule = contract.get("comparison_schedule") or []
+    reservations = {row.get("reservation_id"): row for row in contract.get("family_reservations") or []}
+    if len(registrations) > len(schedule):
+        return ["comparison_registration_late_or_extra"]
+    for index, row in enumerate(registrations):
+        expected = schedule[index] if index < len(schedule) else {}
+        reservation = reservations.get(row.get("reservation_id"), {})
+        key = (row.get("pair_id"), row.get("family_role"))
+        if key != (expected.get("pair_id"), expected.get("family_role")) or key != (reservation.get("pair_id"), reservation.get("family_role")):
+            diagnostics.append("comparison_registration_order_invalid")
+        if row.get("reservation_id") != reservation.get("reservation_id"):
+            diagnostics.append("comparison_registration_reservation_invalid")
+    starts = {}
+    for row in registrations:
+        try:
+            starts.setdefault(row.get("pair_id"), []).append(_utc(row.get("created_at")))
+        except (TypeError, ValueError):
+            diagnostics.append("comparison_registration_created_at_invalid")
+    for pair_id, values in starts.items():
+        if len(values) > 2 or (len(values) == 2 and values[1] <= values[0]):
+            diagnostics.append("comparison_pair_start_not_ordered")
+        if len(values) == 2 and (values[1] - values[0]).total_seconds() > 1800:
+            diagnostics.append("comparison_pair_start_gap_exceeded")
+    return sorted(set(diagnostics))
+
+
 def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, ledger: dict | None = None, api_run_sha256: str | None = None, api_run_response_bytes: bytes | None = None) -> dict:
     """Create an append-only identity record without reading the API outcome fields."""
     reservations = [x for x in contract.get("family_reservations", []) if x.get("reservation_id") == reservation_id]
@@ -523,6 +592,13 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
     if pr.get("head", {}).get("sha") != expected_sha:
         raise ValueError("comparison_run_pull_request_head_mismatch")
     previous_rows = (ledger or {}).get("records", [])
+    if contract.get("comparison_schedule"):
+        plan_errors = validate_comparison_plan(contract)
+        if plan_errors:
+            raise ValueError(plan_errors[0])
+        schedule_errors = validate_comparison_schedule(contract, previous_rows + [{"reservation_id": reservation_id, "pair_id": reservation.get("pair_id"), "family_role": reservation.get("family_role"), "created_at": api_run.get("created_at")}])
+        if schedule_errors:
+            raise ValueError(schedule_errors[0])
     if (ledger and ledger.get("contract_sha256") != comparison_contract_sha256(contract)):
         raise ValueError("comparison_registration_contract_hash_mismatch")
     if any(x.get("reservation_id") == reservation_id or str(x.get("run_id")) == str(api_run["id"]) for x in previous_rows):
@@ -562,6 +638,9 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
     reserved = {(x.get("pair_id"), x.get("family_role")): x for x in reservations}
     runs = {str(x.get("id")): x for x in source_runs if x.get("event") == "pull_request"}
     diagnostics = []
+    if contract.get("comparison_schedule"):
+        diagnostics.extend(validate_comparison_plan(contract))
+        diagnostics.extend(validate_comparison_schedule(contract, registrations))
     if registration_ledger.get("contract_sha256") != comparison_contract_sha256(contract):
         diagnostics.append("comparison_registration_contract_hash_mismatch")
     if len(reservations) != 40 or len(reserved) != 40 or len({x.get("reservation_id") for x in reservations}) != 40:

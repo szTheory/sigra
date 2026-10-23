@@ -46,7 +46,9 @@ class SecurityContractsTest(unittest.TestCase):
                   "window":{"start_utc":"2026-10-12T00:00:00Z","end_utc":"2026-10-14T00:00:00Z"}}
         self.assertEqual([],validate_comparison_plan(contract))
         rows=[{"reservation_id":reservations[i]["reservation_id"],"pair_id":reservations[i]["pair_id"],
-               "family_role":reservations[i]["family_role"],"created_at":"2026-10-13T00:00:00Z"} for i in range(2)]
+               "family_role":reservations[i]["family_role"],"created_at":stamp} for i,stamp in enumerate(("2026-10-13T00:00:00Z","2026-10-13T00:00:10Z"))]
+        self.assertEqual([],validate_comparison_schedule(contract,rows))
+        rows[1]["created_at"]=rows[0]["created_at"]
         self.assertIn("comparison_pair_start_not_ordered",validate_comparison_schedule(contract,rows))
 
     def test_snapshot_hashes_cover_manual_release_and_family_sources(self):

@@ -64,6 +64,7 @@ THRESHOLD=720
 COLLECT=false
 REPLAY=false
 EVALUATE_COMPARISON=false
+VALIDATE_COMPARISON_PLAN=false
 REGISTER_COMPARISON_RUN=false
 COLLECT_PRODUCER_SOURCE=false
 PRODUCER_SOURCE_SHA=""
@@ -133,6 +134,7 @@ while [[ $# -gt 0 ]]; do
     --collect) COLLECT=true; shift;;
     --replay) REPLAY=true; shift;;
     --evaluate-comparison) EVALUATE_COMPARISON=true; shift;;
+    --validate-comparison-plan) VALIDATE_COMPARISON_PLAN=true; shift;;
     --register-comparison-run) REGISTER_COMPARISON_RUN=true; shift;;
     --collect-producer-source) COLLECT_PRODUCER_SOURCE=true; shift;;
     --producer-source-sha) PRODUCER_SOURCE_SHA="$2"; shift 2;;
@@ -1819,6 +1821,21 @@ PY
   rm -f "$replay_file"
   [[ -z "$verify_tmp" ]] || rm -rf "$verify_tmp"
   exit "$verify_rc"
+fi
+if [[ "$VALIDATE_COMPARISON_PLAN" == true ]]; then
+  [[ -s "$CONTRACT_FILE" ]] || fail "--validate-comparison-plan requires --contract"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" <<'PY'
+import json, pathlib, sys
+from ci_metrics_security import validate_comparison_plan, validate_comparison_schedule
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
+issues=validate_comparison_plan(contract)
+if sys.argv[2]:
+    ledger=json.loads(pathlib.Path(sys.argv[2]).read_text())
+    issues.extend(validate_comparison_schedule(contract,ledger.get('records') or []))
+print(json.dumps({'status':'valid' if not issues else 'invalid','diagnostics':sorted(set(issues))},sort_keys=True))
+raise SystemExit(0 if not issues else 1)
+PY
+  exit $?
 fi
 if [[ "$EVALUATE_COMPARISON" == true ]]; then
   [[ -s "$CONTRACT_FILE" && -d "$BEFORE_BUNDLE" && -d "$AFTER_BUNDLE" ]] || fail "--evaluate-comparison requires --contract and extracted --before-bundle/--after-bundle directories"
