@@ -1,14 +1,36 @@
 {
-  "command": "PATH=<asdf-node-20.18.1>/bin:$PATH node --test --test-reporter=tap scripts/ci/ci-org-prep.test.mjs",
-  "exitCode": 1,
-  "output": "TAP version 13\n# Subtest: registered owner helper proves authenticated zero-organization state without browser navigation\nnot ok 1 - registered owner helper proves authenticated zero-organization state without browser navigation\n  ---\n  duration_ms: 0.75225\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:18:1'\n  failureType: 'testCodeFailure'\n  error: 'missing helper-return authentication assertion'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  operator: '=='\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:20:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    node:internal/test_runner/harness:255:12\n    node:internal/process/task_queues:140:7\n    AsyncResource.runInAsyncScope (node:async_hooks:206:9)\n    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)\n  ...\n# Subtest: new-user owner starts organization creation directly after the authenticated helper\nnot ok 2 - new-user owner starts organization creation directly after the authenticated helper\n  ---\n  duration_ms: 0.624084\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:29:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /await registerAndConfirmUser\\(page, ownerEmail, ownerPassword\\);\\s*await assertAuthenticatedZeroOrganizationState\\(page\\);\\s*await createOrganizationFromZeroState/. Input:\n    \n    \"test('organization invitations: new user accepts through the mailbox signup path', async ({\\n\" +\n      '  page,\\n' +\n      '  browser,\\n' +\n      '}) => {\\n' +\n      '  const suffix = Date.now();\\n' +\n      '  const ownerEmail = `org-owner-${suffix}@example.test`;\\n' +\n      \"  const ownerPassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const inviteeEmail = `org-invitee-${suffix}@example.test`;\\n' +\n      \"  const inviteePassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const orgName = `Invite Org ${suffix}`;\\n' +\n      '  const orgSlug = `invite-org-${suffix}`;\\n' +\n      '\\n' +\n      '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\\n' +\n      '  await logInIfNeeded(page, ownerEmail, ownerPassword);\\n' +\n      '  await createOrganizationFromZeroState(page, orgName, orgSlug);\\n' +\n      '  await sendInvitation(page, inviteeEmail);\\n' +\n      '  const invitationHref = await extractInvitationLink(page, inviteeEmail);\\n' +\n      '\\n' +\n      '  const inviteeContext = await browser.newContext({\\n' +\n      '    baseURL: EXAMPLE_BASE_URL,\\n' +\n      '  });\\n' +\n      '  const inviteePage = await inviteeContext.newPage();\\n' +\n      '\\n' +\n      '  try {\\n' +\n      '    await inviteePage.goto(invitationHref);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();\\n\" +\n      \"    await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.getByLabel('Email')).toBeDisabled();\\n\" +\n      \"    await inviteePage.getByLabel('Password').fill(inviteePassword);\\n\" +\n      '    await inviteePage\\n' +\n      \"      .getByRole('button', { name: `Create account & join ${orgName}` })\\n\" +\n      '      .click();\\n' +\n      '\\n' +\n      '    await expect(inviteePage).toHaveURL(/\\\\/users\\\\/log_in/);\\n' +\n      `    await inviteePage.fill('#login_form input[name=\"user[email]\"]', inviteeEmail);\\n` +\n      `    await inviteePage.fill('#login_form input[name=\"user[password]\"]', inviteePassword);\\n` +\n      `    await inviteePage.click('#login_form button:has-text(\"Log in\")');\\n` +\n      '    await expect(inviteePage).not.toHaveURL(/\\\\/users\\\\/log_in(\\\\?|$)/);\\n' +\n      '\\n' +\n      '    await inviteePage.goto(`/organizations/${orgSlug}/members`);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\\n\" +\n      '      inviteeEmail,\\n' +\n      '    );\\n' +\n      '  } finally {\\n' +\n      '    await inviteeContext.close();\\n' +\n      '  }\\n' +\n      '});\\n'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual: |-\n    test('organization invitations: new user accepts through the mailbox signup path', async ({\n      page,\n      browser,\n    }) => {\n      const suffix = Date.now();\n      const ownerEmail = `org-owner-${suffix}@example.test`;\n      const ownerPassword = 'CorrectHorseBatteryStaple123!';\n      const inviteeEmail = `org-invitee-${suffix}@example.test`;\n      const inviteePassword = 'CorrectHorseBatteryStaple123!';\n      const orgName = `Invite Org ${suffix}`;\n      const orgSlug = `invite-org-${suffix}`;\n    \n      await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n      await logInIfNeeded(page, ownerEmail, ownerPassword);\n      await createOrganizationFromZeroState(page, orgName, orgSlug);\n      await sendInvitation(page, inviteeEmail);\n      const invitationHref = await extractInvitationLink(page, inviteeEmail);\n    \n      const inviteeContext = await browser.newContext({\n        baseURL: EXAMPLE_BASE_URL,\n      });\n      const inviteePage = await inviteeContext.newPage();\n    \n      try {\n        await inviteePage.goto(invitationHref);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();\n        await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);\n        await expect(inviteePage.getByLabel('Email')).toBeDisabled();\n        await inviteePage.getByLabel('Password').fill(inviteePassword);\n        await inviteePage\n          .getByRole('button', { name: `Create account & join ${orgName}` })\n          .click();\n    \n        await expect(inviteePage).toHaveURL(/\\/users\\/log_in/);\n        await inviteePage.fill('#login_form input[name=\"user[email]\"]', inviteeEmail);\n        await inviteePage.fill('#login_form input[name=\"user[password]\"]', inviteePassword);\n        await inviteePage.click('#login_form button:has-text(\"Log in\")');\n        await expect(inviteePage).not.toHaveURL(/\\/users\\/log_in(\\?|$)/);\n    \n        await inviteePage.goto(`/organizations/${orgSlug}/members`);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\n        await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\n          inviteeEmail,\n        );\n      } finally {\n        await inviteeContext.close();\n      }\n    });\n    \n  operator: 'match'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:31:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    Test.postRun (node:internal/test_runner/test:889:19)\n    Test.run (node:internal/test_runner/test:835:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:527:7)\n  ...\n# Subtest: matching-user owner uses the same proven return while invitee authentication and acceptance remain\nnot ok 3 - matching-user owner uses the same proven return while invitee authentication and acceptance remain\n  ---\n  duration_ms: 0.415\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:38:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /await registerAndConfirmUser\\(page, ownerEmail, ownerPassword\\);\\s*await assertAuthenticatedZeroOrganizationState\\(page\\);\\s*await createOrganizationFromZeroState/. Input:\n    \n    \"test('organization invitations: signed-in matching user accepts through the mailbox link', async ({\\n\" +\n      '  page,\\n' +\n      '  browser,\\n' +\n      '}) => {\\n' +\n      '  const suffix = Date.now();\\n' +\n      '  const ownerEmail = `org-owner-match-${suffix}@example.test`;\\n' +\n      \"  const ownerPassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const inviteeEmail = `org-member-match-${suffix}@example.test`;\\n' +\n      \"  const inviteePassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const orgName = `Match Org ${suffix}`;\\n' +\n      '  const orgSlug = `match-org-${suffix}`;\\n' +\n      '\\n' +\n      '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\\n' +\n      '  await logInIfNeeded(page, ownerEmail, ownerPassword);\\n' +\n      '  await createOrganizationFromZeroState(page, orgName, orgSlug);\\n' +\n      '  await sendInvitation(page, inviteeEmail);\\n' +\n      '  const invitationHref = await extractInvitationLink(page, inviteeEmail);\\n' +\n      '\\n' +\n      '  const inviteeContext = await browser.newContext({\\n' +\n      '    baseURL: EXAMPLE_BASE_URL,\\n' +\n      '  });\\n' +\n      '  const inviteePage = await inviteeContext.newPage();\\n' +\n      '\\n' +\n      '  try {\\n' +\n      '    await registerAndConfirmUser(inviteePage, inviteeEmail, inviteePassword);\\n' +\n      '    await logInIfNeeded(inviteePage, inviteeEmail, inviteePassword);\\n' +\n      '\\n' +\n      '    await inviteePage.goto(invitationHref);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#invitation-accept-accept')).toBeVisible();\\n\" +\n      '    await inviteePage\\n' +\n      \"      .getByRole('button', { name: `Accept & join ${orgName}` })\\n\" +\n      '      .click();\\n' +\n      '\\n' +\n      '    await expect(inviteePage).toHaveURL(new RegExp(`/organizations/${orgSlug}/members$`));\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\\n\" +\n      '      inviteeEmail,\\n' +\n      '    );\\n' +\n      '  } finally {\\n' +\n      '    await inviteeContext.close();\\n' +\n      '  }\\n' +\n      '});\\n'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual: |-\n    test('organization invitations: signed-in matching user accepts through the mailbox link', async ({\n      page,\n      browser,\n    }) => {\n      const suffix = Date.now();\n      const ownerEmail = `org-owner-match-${suffix}@example.test`;\n      const ownerPassword = 'CorrectHorseBatteryStaple123!';\n      const inviteeEmail = `org-member-match-${suffix}@example.test`;\n      const inviteePassword = 'CorrectHorseBatteryStaple123!';\n      const orgName = `Match Org ${suffix}`;\n      const orgSlug = `match-org-${suffix}`;\n    \n      await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n      await logInIfNeeded(page, ownerEmail, ownerPassword);\n      await createOrganizationFromZeroState(page, orgName, orgSlug);\n      await sendInvitation(page, inviteeEmail);\n      const invitationHref = await extractInvitationLink(page, inviteeEmail);\n    \n      const inviteeContext = await browser.newContext({\n        baseURL: EXAMPLE_BASE_URL,\n      });\n      const inviteePage = await inviteeContext.newPage();\n    \n      try {\n        await registerAndConfirmUser(inviteePage, inviteeEmail, inviteePassword);\n        await logInIfNeeded(inviteePage, inviteeEmail, inviteePassword);\n    \n        await inviteePage.goto(invitationHref);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#invitation-accept-accept')).toBeVisible();\n        await inviteePage\n          .getByRole('button', { name: `Accept & join ${orgName}` })\n          .click();\n    \n        await expect(inviteePage).toHaveURL(new RegExp(`/organizations/${orgSlug}/members$`));\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\n        await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\n          inviteeEmail,\n        );\n      } finally {\n        await inviteeContext.close();\n      }\n    });\n    \n  operator: 'match'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:40:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    Test.postRun (node:internal/test_runner/test:889:19)\n    Test.run (node:internal/test_runner/test:835:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:527:7)\n  ...\n# Subtest: organization registration, confirmation, zero-org creation, and first-org lifecycle remain unchanged\nok 4 - organization registration, confirmation, zero-org creation, and first-org lifecycle remain unchanged\n  ---\n  duration_ms: 0.100833\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 1\n# fail 3\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 38.036583\n",
-  "targetTest": "registered owner helper proves authenticated zero-organization state without browser navigation",
-  "targetFile": "scripts/ci/ci-org-prep.test.mjs",
-  "expected": "A helper-return assertion proves the registered owner is authenticated and still has zero organizations.",
-  "actual": "The target assertion failed because assertAuthenticatedZeroOrganizationState does not exist yet.",
-  "semanticAssessment": "Valid RED: the named target test executed and failed on the planned missing helper-return authentication behavior; other current owner-login removal assertions also fail because the duplicate calls remain.",
-  "baseline": {
-    "status": "passed",
+  "schema_version": "sigra.phase254.organization-check/v1",
+  "status": "passed",
+  "source": {
+    "baseline_commit": "6b13592092e7cd3b9eaefbb07cffd67ff4ac496e",
+    "implementation_commit": "61ae68be4dfc1a45f609ae44a1bfc8d4e30cbab3",
+    "current_head": "61ae68be4dfc1a45f609ae44a1bfc8d4e30cbab3",
+    "digests": {
+      "test/example/priv/playwright/tests/organizations.spec.ts": "d3b9516b0811ac6cb126863007a1f01d5e01b585f952048bd1bfeea1314482ad",
+      "scripts/ci/ci-org-prep.test.mjs": "7298bec389495bbfdbae1d91bbf70e215b91950772aadc710c51b44ee88458b4",
+      "test/example/priv/playwright/playwright.config.ts": "e20b8cc4e2e4496aadaca8545054f3d30c7143a4488bbab1ccb49a3107a5ed56",
+      "test/example/priv/playwright/package-lock.json": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5"
+    }
+  },
+  "limits": {
+    "node": "v20.18.1",
+    "playwright": "1.59.1",
+    "max_workers": 1,
+    "retries": 0,
+    "hosted_runs": 0
+  },
+  "tdd_red_evidence": {
+    "command": "PATH=<asdf-node-20.18.1>/bin:$PATH node --test --test-reporter=tap scripts/ci/ci-org-prep.test.mjs",
+    "exit_code": 1,
+    "target_test": "registered owner helper proves authenticated zero-organization state without browser navigation",
+    "target_file": "scripts/ci/ci-org-prep.test.mjs",
+    "expected": "A helper-return assertion proves the registered owner is authenticated and still has zero organizations.",
+    "actual": "The target assertion failed because assertAuthenticatedZeroOrganizationState does not exist yet.",
+    "semantic_assessment": "Valid RED: the named target test executed and failed on the planned missing helper-return authentication behavior; other current owner-login removal assertions also fail because the duplicate calls remain.",
+    "tap_report": "TAP version 13\n# Subtest: registered owner helper proves authenticated zero-organization state without browser navigation\nnot ok 1 - registered owner helper proves authenticated zero-organization state without browser navigation\n  ---\n  duration_ms: 0.75225\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:18:1'\n  failureType: 'testCodeFailure'\n  error: 'missing helper-return authentication assertion'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  operator: '=='\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:20:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    node:internal/test_runner/harness:255:12\n    node:internal/process/task_queues:140:7\n    AsyncResource.runInAsyncScope (node:async_hooks:206:9)\n    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)\n  ...\n# Subtest: new-user owner starts organization creation directly after the authenticated helper\nnot ok 2 - new-user owner starts organization creation directly after the authenticated helper\n  ---\n  duration_ms: 0.624084\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:29:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /await registerAndConfirmUser\\(page, ownerEmail, ownerPassword\\);\\s*await assertAuthenticatedZeroOrganizationState\\(page\\);\\s*await createOrganizationFromZeroState/. Input:\n    \n    \"test('organization invitations: new user accepts through the mailbox signup path', async ({\\n\" +\n      '  page,\\n' +\n      '  browser,\\n' +\n      '}) => {\\n' +\n      '  const suffix = Date.now();\\n' +\n      '  const ownerEmail = `org-owner-${suffix}@example.test`;\\n' +\n      \"  const ownerPassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const inviteeEmail = `org-invitee-${suffix}@example.test`;\\n' +\n      \"  const inviteePassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const orgName = `Invite Org ${suffix}`;\\n' +\n      '  const orgSlug = `invite-org-${suffix}`;\\n' +\n      '\\n' +\n      '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\\n' +\n      '  await logInIfNeeded(page, ownerEmail, ownerPassword);\\n' +\n      '  await createOrganizationFromZeroState(page, orgName, orgSlug);\\n' +\n      '  await sendInvitation(page, inviteeEmail);\\n' +\n      '  const invitationHref = await extractInvitationLink(page, inviteeEmail);\\n' +\n      '\\n' +\n      '  const inviteeContext = await browser.newContext({\\n' +\n      '    baseURL: EXAMPLE_BASE_URL,\\n' +\n      '  });\\n' +\n      '  const inviteePage = await inviteeContext.newPage();\\n' +\n      '\\n' +\n      '  try {\\n' +\n      '    await inviteePage.goto(invitationHref);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();\\n\" +\n      \"    await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.getByLabel('Email')).toBeDisabled();\\n\" +\n      \"    await inviteePage.getByLabel('Password').fill(inviteePassword);\\n\" +\n      '    await inviteePage\\n' +\n      \"      .getByRole('button', { name: `Create account & join ${orgName}` })\\n\" +\n      '      .click();\\n' +\n      '\\n' +\n      '    await expect(inviteePage).toHaveURL(/\\\\/users\\\\/log_in/);\\n' +\n      `    await inviteePage.fill('#login_form input[name=\"user[email]\"]', inviteeEmail);\\n` +\n      `    await inviteePage.fill('#login_form input[name=\"user[password]\"]', inviteePassword);\\n` +\n      `    await inviteePage.click('#login_form button:has-text(\"Log in\")');\\n` +\n      '    await expect(inviteePage).not.toHaveURL(/\\\\/users\\\\/log_in(\\\\?|$)/);\\n' +\n      '\\n' +\n      '    await inviteePage.goto(`/organizations/${orgSlug}/members`);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\\n\" +\n      '      inviteeEmail,\\n' +\n      '    );\\n' +\n      '  } finally {\\n' +\n      '    await inviteeContext.close();\\n' +\n      '  }\\n' +\n      '});\\n'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual: |-\n    test('organization invitations: new user accepts through the mailbox signup path', async ({\n      page,\n      browser,\n    }) => {\n      const suffix = Date.now();\n      const ownerEmail = `org-owner-${suffix}@example.test`;\n      const ownerPassword = 'CorrectHorseBatteryStaple123!';\n      const inviteeEmail = `org-invitee-${suffix}@example.test`;\n      const inviteePassword = 'CorrectHorseBatteryStaple123!';\n      const orgName = `Invite Org ${suffix}`;\n      const orgSlug = `invite-org-${suffix}`;\n    \n      await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n      await logInIfNeeded(page, ownerEmail, ownerPassword);\n      await createOrganizationFromZeroState(page, orgName, orgSlug);\n      await sendInvitation(page, inviteeEmail);\n      const invitationHref = await extractInvitationLink(page, inviteeEmail);\n    \n      const inviteeContext = await browser.newContext({\n        baseURL: EXAMPLE_BASE_URL,\n      });\n      const inviteePage = await inviteeContext.newPage();\n    \n      try {\n        await inviteePage.goto(invitationHref);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();\n        await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);\n        await expect(inviteePage.getByLabel('Email')).toBeDisabled();\n        await inviteePage.getByLabel('Password').fill(inviteePassword);\n        await inviteePage\n          .getByRole('button', { name: `Create account & join ${orgName}` })\n          .click();\n    \n        await expect(inviteePage).toHaveURL(/\\/users\\/log_in/);\n        await inviteePage.fill('#login_form input[name=\"user[email]\"]', inviteeEmail);\n        await inviteePage.fill('#login_form input[name=\"user[password]\"]', inviteePassword);\n        await inviteePage.click('#login_form button:has-text(\"Log in\")');\n        await expect(inviteePage).not.toHaveURL(/\\/users\\/log_in(\\?|$)/);\n    \n        await inviteePage.goto(`/organizations/${orgSlug}/members`);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\n        await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\n          inviteeEmail,\n        );\n      } finally {\n        await inviteeContext.close();\n      }\n    });\n    \n  operator: 'match'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:31:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    Test.postRun (node:internal/test_runner/test:889:19)\n    Test.run (node:internal/test_runner/test:835:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:527:7)\n  ...\n# Subtest: matching-user owner uses the same proven return while invitee authentication and acceptance remain\nnot ok 3 - matching-user owner uses the same proven return while invitee authentication and acceptance remain\n  ---\n  duration_ms: 0.415\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:38:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /await registerAndConfirmUser\\(page, ownerEmail, ownerPassword\\);\\s*await assertAuthenticatedZeroOrganizationState\\(page\\);\\s*await createOrganizationFromZeroState/. Input:\n    \n    \"test('organization invitations: signed-in matching user accepts through the mailbox link', async ({\\n\" +\n      '  page,\\n' +\n      '  browser,\\n' +\n      '}) => {\\n' +\n      '  const suffix = Date.now();\\n' +\n      '  const ownerEmail = `org-owner-match-${suffix}@example.test`;\\n' +\n      \"  const ownerPassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const inviteeEmail = `org-member-match-${suffix}@example.test`;\\n' +\n      \"  const inviteePassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const orgName = `Match Org ${suffix}`;\\n' +\n      '  const orgSlug = `match-org-${suffix}`;\\n' +\n      '\\n' +\n      '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\\n' +\n      '  await logInIfNeeded(page, ownerEmail, ownerPassword);\\n' +\n      '  await createOrganizationFromZeroState(page, orgName, orgSlug);\\n' +\n      '  await sendInvitation(page, inviteeEmail);\\n' +\n      '  const invitationHref = await extractInvitationLink(page, inviteeEmail);\\n' +\n      '\\n' +\n      '  const inviteeContext = await browser.newContext({\\n' +\n      '    baseURL: EXAMPLE_BASE_URL,\\n' +\n      '  });\\n' +\n      '  const inviteePage = await inviteeContext.newPage();\\n' +\n      '\\n' +\n      '  try {\\n' +\n      '    await registerAndConfirmUser(inviteePage, inviteeEmail, inviteePassword);\\n' +\n      '    await logInIfNeeded(inviteePage, inviteeEmail, inviteePassword);\\n' +\n      '\\n' +\n      '    await inviteePage.goto(invitationHref);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#invitation-accept-accept')).toBeVisible();\\n\" +\n      '    await inviteePage\\n' +\n      \"      .getByRole('button', { name: `Accept & join ${orgName}` })\\n\" +\n      '      .click();\\n' +\n      '\\n' +\n      '    await expect(inviteePage).toHaveURL(new RegExp(`/organizations/${orgSlug}/members$`));\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\\n\" +\n      '      inviteeEmail,\\n' +\n      '    );\\n' +\n      '  } finally {\\n' +\n      '    await inviteeContext.close();\\n' +\n      '  }\\n' +\n      '});\\n'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual: |-\n    test('organization invitations: signed-in matching user accepts through the mailbox link', async ({\n      page,\n      browser,\n    }) => {\n      const suffix = Date.now();\n      const ownerEmail = `org-owner-match-${suffix}@example.test`;\n      const ownerPassword = 'CorrectHorseBatteryStaple123!';\n      const inviteeEmail = `org-member-match-${suffix}@example.test`;\n      const inviteePassword = 'CorrectHorseBatteryStaple123!';\n      const orgName = `Match Org ${suffix}`;\n      const orgSlug = `match-org-${suffix}`;\n    \n      await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n      await logInIfNeeded(page, ownerEmail, ownerPassword);\n      await createOrganizationFromZeroState(page, orgName, orgSlug);\n      await sendInvitation(page, inviteeEmail);\n      const invitationHref = await extractInvitationLink(page, inviteeEmail);\n    \n      const inviteeContext = await browser.newContext({\n        baseURL: EXAMPLE_BASE_URL,\n      });\n      const inviteePage = await inviteeContext.newPage();\n    \n      try {\n        await registerAndConfirmUser(inviteePage, inviteeEmail, inviteePassword);\n        await logInIfNeeded(inviteePage, inviteeEmail, inviteePassword);\n    \n        await inviteePage.goto(invitationHref);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#invitation-accept-accept')).toBeVisible();\n        await inviteePage\n          .getByRole('button', { name: `Accept & join ${orgName}` })\n          .click();\n    \n        await expect(inviteePage).toHaveURL(new RegExp(`/organizations/${orgSlug}/members$`));\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\n        await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\n          inviteeEmail,\n        );\n      } finally {\n        await inviteeContext.close();\n      }\n    });\n    \n  operator: 'match'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:40:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    Test.postRun (node:internal/test_runner/test:889:19)\n    Test.run (node:internal/test_runner/test:835:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:527:7)\n  ...\n# Subtest: organization registration, confirmation, zero-org creation, and first-org lifecycle remain unchanged\nok 4 - organization registration, confirmation, zero-org creation, and first-org lifecycle remain unchanged\n  ---\n  duration_ms: 0.100833\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 1\n# fail 3\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 38.036583\n",
+    "classifier": "RED_EVIDENCE_OK"
+  },
+  "pre_change": {
     "source_sha": "6b13592092e7cd3b9eaefbb07cffd67ff4ac496e",
     "source_digests": {
       "test/example/priv/playwright/tests/organizations.spec.ts": "e7e75a767bf221531c29da8d6df3f073229a79e992efa937699cf3ab605f62f4",
@@ -26,8 +48,8 @@
       "server_stopped": true,
       "database_dropped": true
     },
-    "invocation": {
-      "command": "node node_modules/@playwright/test/cli.js test tests/organizations.spec.ts --grep \\\"organization invitations: new user accepts through the mailbox signup path\\\" --project=chromium --project=mobile --workers=1 --retries=0",
+    "focused_case": {
+      "status": "passed",
       "projects": [
         "chromium",
         "mobile"
@@ -35,8 +57,14 @@
       "workers": 1,
       "retries": 0,
       "exit_code": 0,
-      "log_path": "/tmp/sigra-254-organization-baseline-escalated/playwright.log",
-      "log_sha256": "e30654c8a7e9b79ccb205fdf9fed22959c2dfb7d9efac907c42b874977ae7a18",
+      "native_stats": {
+        "startTime": "2026-10-23T17:48:21.747Z",
+        "duration": 3961.371,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
       "native_report_path": "/tmp/sigra-254-organization-baseline-escalated/native.json",
       "native_report_sha256": "324028b5f9da98944f389cd0764be8234fee0d970ed17bb62280fcfaa69b44fd",
       "native_report": {
@@ -465,12 +493,387 @@
           "unexpected": 0,
           "flaky": 0
         }
-      }
+      },
+      "browser_log_path": "/tmp/sigra-254-organization-baseline-escalated/playwright.log",
+      "browser_log_sha256": "e30654c8a7e9b79ccb205fdf9fed22959c2dfb7d9efac907c42b874977ae7a18"
     },
     "sandbox_attempt": {
       "exit_code": 1,
       "native_report_path": "/tmp/sigra-254-organization-baseline/native.json",
       "note": "Both projects failed during browser launch under sandbox restrictions before product assertions; rerun with authorized escalation passed."
     }
-  }
+  },
+  "tracer": {
+    "label": "sigra-254-organization-tracer",
+    "status": "passed",
+    "database": "sigra_254_org_tracer_93303",
+    "database_absent_after_cleanup": true,
+    "command": [
+      "node",
+      "node_modules/@playwright/test/cli.js",
+      "test",
+      "tests/organizations.spec.ts",
+      "--grep",
+      "organization invitations: new user accepts through the mailbox signup path",
+      "--project=chromium",
+      "--project=mobile",
+      "--workers=1",
+      "--retries=0"
+    ],
+    "exit_code": 0,
+    "workers": 1,
+    "retries": 0,
+    "project_outcomes": [
+      {
+        "title": "organization invitations: new user accepts through the mailbox signup path",
+        "project": "chromium",
+        "status": "passed",
+        "duration_ms": 1207,
+        "retry": 0
+      },
+      {
+        "title": "organization invitations: new user accepts through the mailbox signup path",
+        "project": "mobile",
+        "status": "passed",
+        "duration_ms": 1545,
+        "retry": 0
+      }
+    ],
+    "native_stats": {
+      "startTime": "2026-10-23T17:50:45.278Z",
+      "duration": 3776.3700000000003,
+      "expected": 2,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "native_report_path": "/tmp/sigra-254-organization-tracer/native.json",
+    "native_report_sha256": "510d61fe87ee33598b92eeca2abb6a86dee4081079eaee1ffbfa9cc52f61cce0",
+    "browser_log_path": "/tmp/sigra-254-organization-tracer/playwright.log",
+    "browser_log_sha256": "abb71d9a18ef8c7dd499002ae341b38afa3f81b8a6b6b41aa31b9a0893de8659",
+    "browser_duration_ms": 3776.3700000000003,
+    "source_sha": "61ae68be4dfc1a45f609ae44a1bfc8d4e30cbab3"
+  },
+  "selection": {
+    "status": "selection_only",
+    "command": "node node_modules/@playwright/test/cli.js test tests/organizations.spec.ts --project=chromium --project=mobile --retries=0 --list",
+    "output_path": "/tmp/sigra-254-organization-post/selection.log",
+    "output_sha256": "8c295b95dc4c9683a7cddf94e541f70b6715b5f8069f8f2d22a4c19be4044026",
+    "native_report_path": "/tmp/sigra-254-organization-post/selection.json",
+    "native_report_sha256": "0793f7633d9c264ae5feec8c7027cf48161d3b1e434fb3238d77a711f11c3633",
+    "native_stats": {
+      "startTime": "2026-10-23T17:52:27.879Z",
+      "duration": 10.60499999999999,
+      "expected": 0,
+      "skipped": 6,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "selected_titles_by_project": [
+      {
+        "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+        "project": "chromium"
+      },
+      {
+        "title": "organization invitations: new user accepts through the mailbox signup path",
+        "project": "chromium"
+      },
+      {
+        "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+        "project": "chromium"
+      },
+      {
+        "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+        "project": "mobile"
+      },
+      {
+        "title": "organization invitations: new user accepts through the mailbox signup path",
+        "project": "mobile"
+      },
+      {
+        "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+        "project": "mobile"
+      }
+    ]
+  },
+  "individual_runs": [
+    {
+      "label": "individual-first",
+      "status": "passed",
+      "database": "sigra_254_org_individual-first_96122",
+      "database_absent_after_cleanup": true,
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "tests/organizations.spec.ts",
+        "--grep",
+        "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+        "--project=chromium",
+        "--project=mobile",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "workers": 1,
+      "retries": 0,
+      "project_outcomes": [
+        {
+          "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+          "project": "chromium",
+          "status": "passed",
+          "duration_ms": 3107,
+          "retry": 0
+        },
+        {
+          "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+          "project": "mobile",
+          "status": "passed",
+          "duration_ms": 3000,
+          "retry": 0
+        }
+      ],
+      "native_stats": {
+        "startTime": "2026-10-23T17:51:31.263Z",
+        "duration": 6782.9710000000005,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "native_report_path": "/tmp/sigra-254-organization-post/individual-first/native.json",
+      "native_report_sha256": "d1a9c681980e55eaf9f1d268980674457823142d3908319067c6c1e2f2b1b7eb",
+      "browser_log_path": "/tmp/sigra-254-organization-post/individual-first/playwright.log",
+      "browser_log_sha256": "931da148c042f30edbe533726be452c982d09f190d28fc1d0a25ca1864adada1",
+      "browser_duration_ms": 6782.9710000000005
+    },
+    {
+      "label": "individual-new-user",
+      "status": "passed",
+      "database": "sigra_254_org_individual-new-user_96122",
+      "database_absent_after_cleanup": true,
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "tests/organizations.spec.ts",
+        "--grep",
+        "organization invitations: new user accepts through the mailbox signup path",
+        "--project=chromium",
+        "--project=mobile",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "workers": 1,
+      "retries": 0,
+      "project_outcomes": [
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "project": "chromium",
+          "status": "passed",
+          "duration_ms": 1012,
+          "retry": 0
+        },
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "project": "mobile",
+          "status": "passed",
+          "duration_ms": 1334,
+          "retry": 0
+        }
+      ],
+      "native_stats": {
+        "startTime": "2026-10-23T17:51:42.801Z",
+        "duration": 2991.5890000000004,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "native_report_path": "/tmp/sigra-254-organization-post/individual-new-user/native.json",
+      "native_report_sha256": "70456828b3b483fa80531280ee171bf9aadb94b351f371e2903c5397cf7ef863",
+      "browser_log_path": "/tmp/sigra-254-organization-post/individual-new-user/playwright.log",
+      "browser_log_sha256": "152c137027f6636d0ef5eee2804ce00dfd63dc29de8ae12fe25c07440d63bccb",
+      "browser_duration_ms": 2991.5890000000004
+    },
+    {
+      "label": "individual-matching-user",
+      "status": "passed",
+      "database": "sigra_254_org_individual-matching-user_96122",
+      "database_absent_after_cleanup": true,
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "tests/organizations.spec.ts",
+        "--grep",
+        "organization invitations: signed-in matching user accepts through the mailbox link",
+        "--project=chromium",
+        "--project=mobile",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "workers": 1,
+      "retries": 0,
+      "project_outcomes": [
+        {
+          "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+          "project": "chromium",
+          "status": "passed",
+          "duration_ms": 1079,
+          "retry": 0
+        },
+        {
+          "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+          "project": "mobile",
+          "status": "passed",
+          "duration_ms": 1444,
+          "retry": 0
+        }
+      ],
+      "native_stats": {
+        "startTime": "2026-10-23T17:51:50.532Z",
+        "duration": 3179.006,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "native_report_path": "/tmp/sigra-254-organization-post/individual-matching-user/native.json",
+      "native_report_sha256": "50f56d658fd90b3bdc25ad9f44c105e5707fe802c7a4f725ffa087d7ebacab21",
+      "browser_log_path": "/tmp/sigra-254-organization-post/individual-matching-user/playwright.log",
+      "browser_log_sha256": "d1269f2fd22c7fb54b8159da8d2b1ce90118c4dc21331b363a1ef80cfdfebd9c",
+      "browser_duration_ms": 3179.006
+    }
+  ],
+  "full_file_run": {
+    "label": "full-file",
+    "status": "passed",
+    "database": "sigra_254_org_full-file_96122",
+    "database_absent_after_cleanup": true,
+    "command": [
+      "node",
+      "node_modules/@playwright/test/cli.js",
+      "test",
+      "tests/organizations.spec.ts",
+      "--project=chromium",
+      "--project=mobile",
+      "--workers=1",
+      "--retries=0"
+    ],
+    "exit_code": 0,
+    "workers": 1,
+    "retries": 0,
+    "project_outcomes": [
+      {
+        "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+        "project": "chromium",
+        "status": "passed",
+        "duration_ms": 3294,
+        "retry": 0
+      },
+      {
+        "title": "organization invitations: new user accepts through the mailbox signup path",
+        "project": "chromium",
+        "status": "passed",
+        "duration_ms": 918,
+        "retry": 0
+      },
+      {
+        "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+        "project": "chromium",
+        "status": "passed",
+        "duration_ms": 966,
+        "retry": 0
+      },
+      {
+        "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+        "project": "mobile",
+        "status": "passed",
+        "duration_ms": 3057,
+        "retry": 0
+      },
+      {
+        "title": "organization invitations: new user accepts through the mailbox signup path",
+        "project": "mobile",
+        "status": "passed",
+        "duration_ms": 1469,
+        "retry": 0
+      },
+      {
+        "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+        "project": "mobile",
+        "status": "passed",
+        "duration_ms": 1261,
+        "retry": 0
+      }
+    ],
+    "native_stats": {
+      "startTime": "2026-10-23T17:51:58.875Z",
+      "duration": 11664.339,
+      "expected": 6,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "native_report_path": "/tmp/sigra-254-organization-post/full-file/native.json",
+    "native_report_sha256": "ae984bc0b96c8ccca429b345b5a95e3648f7ad848379ba474d2128e1f8bea7c8",
+    "browser_log_path": "/tmp/sigra-254-organization-post/full-file/playwright.log",
+    "browser_log_sha256": "2c139fbcf661bf7ec3c8ab7c3e11463637389b2d18137777fe873028a8e8876f",
+    "browser_duration_ms": 11664.339
+  },
+  "diagnostics": {
+    "focused_new_user_case_duration_ms": {
+      "pre_change": [
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "project": "chromium",
+          "status": "passed",
+          "duration_ms": 1213,
+          "retry": 0
+        },
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "project": "mobile",
+          "status": "passed",
+          "duration_ms": 1936,
+          "retry": 0
+        }
+      ],
+      "post_change_tracer": [
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "project": "chromium",
+          "status": "passed",
+          "duration_ms": 1207,
+          "retry": 0
+        },
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "project": "mobile",
+          "status": "passed",
+          "duration_ms": 1545,
+          "retry": 0
+        }
+      ]
+    },
+    "interpretation": "Observed per-test browser duration is noisy and diagnostic only. One owner logInIfNeeded page navigation was removed and one authenticated /organizations API response check was added. Preparation command component timings were not separately measured in these executions; no whole-family speed or hosted acceptance claim is made."
+  },
+  "checks": {
+    "node --test scripts/ci/ci-org-prep.test.mjs": {
+      "exit_code": 0,
+      "tests": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs": {
+      "exit_code": 0,
+      "tests": 5,
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "interpretation": "Local browser and contract evidence only. CISPEED-01 / CISPEED-02 hosted median, p95, and runner-cost acceptance remain unproven."
 }
