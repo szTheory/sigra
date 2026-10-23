@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { jobBlock, readRepoFile, stripYamlComments } from './prohibitions/_lib.mjs';
+import { assertPreparationCacheContract, buildPreparationCommands } from './ci-prep-profile.mjs';
 
 const workflowPath = '.github/workflows/ci.yml';
 const mixPath = 'mix.exs';
 const workflow = stripYamlComments(readRepoFile(workflowPath));
 const libraryJob = jobBlock(workflow, 'library_tests_shard');
 const mixProject = readRepoFile(mixPath);
+const action = readRepoFile('.github/actions/example-playwright-boot/action.yml');
+const devConfig = readRepoFile('test/example/config/dev.exs');
 const setupBeamPin = 'erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124';
 
 function assertLibrarySetupContract(source, mixSource = mixProject) {
@@ -42,4 +45,29 @@ test('library setup contract rejects unique source mutations regardless of step 
   variants.forEach((variant, index) => assert.throws(() => assertLibrarySetupContract(variant), `invalid source mutation ${index + 1} must fail`));
   assert.throws(() => assertLibrarySetupContract(workflow, mixProject.replace('"deps.get --check-locked"', '"deps.get"')));
   assert.throws(() => assertLibrarySetupContract(workflow, mixProject.replace('"deps.unlock --check-unused"', '"compile"')));
+});
+
+test('preparation comparison preserves cache partitions, dependencies, readiness, and separate server boot', () => {
+  assert.doesNotThrow(() => assertPreparationCacheContract(action));
+  const plan = buildPreparationCommands(action);
+  assert.deepEqual(plan.current, ['mix deps.get', 'mix compile --warnings-as-errors', 'mix ecto.create', 'mix ecto.migrate', 'mix run priv/repo/seeds.exs']);
+  assert.equal(plan.combined, 'mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs');
+  assert.ok(action.indexOf('run priv/repo/seeds.exs') < action.indexOf('- name: Boot example app'));
+  assert.doesNotMatch(plan.combined, /mix phx\.server/);
+  assert.match(devConfig, /dev_code_reloading\? = System\.get_env\("CI"\) not in \["true", "1"\]/);
+  assert.match(devConfig, /code_reloader: dev_code_reloading\?/);
+});
+
+test('preparation comparison rejects source mutations that drop cache or cold-path safety', () => {
+  const mutations = [
+    action.replaceAll('inputs.app-port', 'inputs.default-port'),
+    action.replace('restore-keys:', 'fallback-keys:'),
+    action.replace('run: npm ci', 'run: npm install'),
+    action.replace('npx playwright install-deps $BROWSERS', 'echo skip cached OS dependencies'),
+    action.replace('npx playwright install --with-deps $BROWSERS', 'npx playwright install $BROWSERS'),
+    action.replace('run priv/repo/seeds.exs', 'echo skip seeds'),
+    action.replace('ecto.migrate', 'echo skip migrations'),
+    action.replace('curl -sf "$BASE_URL/"', 'true'),
+  ];
+  mutations.forEach((mutated, index) => assert.throws(() => assertPreparationCacheContract(mutated), `cache/setup mutation ${index + 1} must fail`));
 });

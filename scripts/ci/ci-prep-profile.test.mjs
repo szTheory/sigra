@@ -3,7 +3,13 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProfileRecord, mergeProfileRecords, parseActionSteps, parseBrowserMatrix, runMeasuredCommand, sanitizeLog, versionFromOutput } from './ci-prep-profile.mjs';
+import { buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, runMeasuredCommand, sanitizeLog, versionFromOutput } from './ci-prep-profile.mjs';
+
+test('profile CLI accepts source-bound preparation comparison mode', () => {
+  assert.deepEqual(parseArgs(['--root', '.', '--scope', 'admin_behavior', '--mode', 'compare-preparation', '--output', 'setup.json']), {
+    root: '.', scope: 'admin_behavior', mode: 'compare-preparation', output: 'setup.json', checkOnly: false,
+  });
+});
 
 test('profile command extraction follows the checked action source', () => {
   const action = `runs:\n  steps:\n    - name: Fetch and compile example\n      run: |\n        set -euo pipefail\n        mix deps.get\n        mix compile --warnings-as-errors\n    - name: Install Playwright dependencies\n      run: npm ci\n`;
