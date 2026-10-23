@@ -1,0 +1,18 @@
+{
+  "kind": "setup",
+  "acceptance": false,
+  "browser_invocations": 0,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "old_slots_reopened": 0,
+  "status": "container_finished",
+  "container_names": [
+    "sigra253-linux-1792704403568452000-pg",
+    "sigra253-linux-1792704403568452000-app"
+  ],
+  "cleanup_complete": true,
+  "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+  "container_exit": 0,
+  "duration_seconds": 11.433288000000175,
+  "within_limit": true
+}

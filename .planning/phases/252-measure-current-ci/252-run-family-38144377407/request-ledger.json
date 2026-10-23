@@ -1,0 +1,17 @@
+{
+  "status": "incomplete",
+  "request_count": 3,
+  "stop_reason": "branch_protection_unavailable",
+  "reset_or_retry_at": "1791829643",
+  "unknown_inputs": [
+    {
+      "reason": "branch_protection_unavailable",
+      "endpoint": "branch protection"
+    }
+  ],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/rules/branches/main",
+    "/repos/szTheory/sigra/branches/main/protection/required_status_checks"
+  ]
+}

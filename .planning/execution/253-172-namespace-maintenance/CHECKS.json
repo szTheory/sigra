@@ -1,0 +1,21 @@
+{
+  "schema": "sigra.phase253.namespace-regression/v1",
+  "status": "passed_offline_only",
+  "tests": 33,
+  "failures": 0,
+  "network_requests": 0,
+  "workflow_dispatches": 0,
+  "bundle_sha256": "3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c",
+  "logs": {
+    "test_receipt_boundary.py.log": "32f0c12ea5560dad6d32376f42d131d91cdc56d7dbbab6531b24e2d7000fa819",
+    "before.log": "a4cf9dbb676f51b3f391c800720b32ff878d48eb62aaabc8a75ff6dfd3ce02ec",
+    "test_namespace_boundary.py.log": "b88b0a3c3d47f82522a3b37a21d4a0a5948e42dc85d99e5c152ad1403fbe8744",
+    "test_bundle.py.log": "002c9470eb555f28c086cf607193cd82c83a6d8668a231b13a9cbc17312ede75",
+    "after.log": "2c7828c1697bfa61962d2b8cf14ac680778502382d90b48d2a9eadf2e6267d87"
+  },
+  "original_attempt_commit": "0da925d9f",
+  "pinned_candidate": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+  "candidate_checker_modified": false,
+  "synthetic_cases": 6,
+  "actual_fixture_verifier_step_executed_offline": true
+}

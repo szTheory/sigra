@@ -1,0 +1,43 @@
+{
+  "schema_version": "sigra.phase254.rerun-preparation/v1",
+  "purpose": "preparation_only_not_measured_acceptance",
+  "authorization_path": ".planning/execution/254-RERUN-AUTHORIZATION.json",
+  "authorization_sha256": "56a903b76dfcc29eb9e419697961a1139c6194be80869a55955d98f991e08828",
+  "request_budget_ledger_id": "444bb572aac5a7cb9171726be2cfe1ca8d5e3129504a0ae822e953d3e93ae323",
+  "maximum_mutations": 2,
+  "authorized_mutations": [
+    "/repos/szTheory/sigra/actions/runs/38317383419/rerun",
+    "/repos/szTheory/sigra/pulls"
+  ],
+  "maximum_invocations": 2,
+  "invocation_retries": 0,
+  "maximum_elapsed_minutes": 60,
+  "maximum_total_http_requests": 600,
+  "baseline_application_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "baseline_identity": {
+    "run_id": 38317383419,
+    "preparation_attempt": 2,
+    "producer_source_sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17"
+  },
+  "candidate_identity": {
+    "application_sha": "536645d98a8b4ca18dce2cc2ea083fe0c7b75793",
+    "branch": "evidence/phase254-rerun-candidate-20261023",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "tree_sha": "d0c0d243839c1c8e7120d0dc916b89deac80d24b"
+  },
+  "required_contexts": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "measured_samples": 0,
+  "measurement_window_started_at": null,
+  "stop_rules": [
+    "No trigger retries, replacements, budget reset or source repair",
+    "Capture complete raw attempt bytes and verify durable read-back before any next attempt",
+    "Stop at core<=250 or any HTTP403/429",
+    "Stop if frozen source, attempt-specific origin, native parity, warm cache or compatible images cannot be proven"
+  ]
+}

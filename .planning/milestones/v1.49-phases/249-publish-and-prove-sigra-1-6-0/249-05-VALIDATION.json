@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "phase": 249,
+  "plan": "05",
+  "captured_at": "2026-10-09T14:42:14.000Z",
+  "focused_suites": {
+    "source_commit": "62f77c6bb570b0560b8f94e19e6d138c3d21eb38",
+    "release_public_proof": { "command": "bash scripts/ci/release-public-proof.test.sh", "exit_code": 0, "passed": 44, "failed": 0 },
+    "docs_index_contract": { "command": "bash scripts/ci/check-docs-index.test.sh", "exit_code": 0, "passed": 6, "failed": 0 },
+    "release_candidate_docs_refresh": { "command": "bash scripts/ci/refresh-release-docs.test.sh", "exit_code": 0, "passed": 12, "failed": 0 },
+    "closeout_validators": { "command": "node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs", "exit_code": 0, "passed": 27, "failed": 0 }
+  },
+  "release_source_docs": {
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "mix_docs_command": "mix docs --warnings-as-errors",
+    "mix_docs_exit_code": 0,
+    "project_version": "1.6.0",
+    "generated_index_sha256": "c6c633065f21b635e5806f4bd0e35f3a1adfdec1d8a27d8657e5661a84cc9e36",
+    "generated_index_title": "# Sigra v1.6.0 - Table of Contents",
+    "comparison_command": "bash scripts/ci/check-docs-index.sh --generated-file /private/tmp/sigra-phase249-release-source/doc/llms.txt",
+    "comparison_exit_code": 0,
+    "compared_to": "Git-indexed doc/llms.txt in the Phase 249 source tree",
+    "indexed_sha256": "c6c633065f21b635e5806f4bd0e35f3a1adfdec1d8a27d8657e5661a84cc9e36",
+    "result": "exact_match",
+    "note": "The immutable v1.6.0 commit itself contains an older v1.5.0 index blob; Phase 249's tracked index is the generated v1.6.0 output and matches the exact-source build."
+  },
+  "release_source_full_ci": {
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "command": "scripts/db/up.sh; source tmp/db.env; MIX_ENV=test mix ci",
+    "exit_code": 0,
+    "execution_note": "The sandbox denied two nested sandbox-exec fixture tests on the first attempt. Both passed when run directly, and the full gate passed in the isolated source clone with the required nested-sandbox permission.",
+    "library_suite": { "doctests": 33, "properties": 3, "tests": 2631, "failures": 0, "skipped": 12, "excluded": 22 },
+    "dependency_off_suite": { "tests": 65, "failures": 0, "excluded": 2624 },
+    "receipt_run_id": "37875238741",
+    "receipt_ci_gate_job_id": "113654406257"
+  },
+  "phase_branch_full_ci_diagnostic": {
+    "tested_commit": "62f77c6bb570b0560b8f94e19e6d138c3d21eb38",
+    "protected_main_sha_at_capture": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "formatter_overlay_commit": "221338f50560860b312d39a4bbeb1222b99771a3",
+    "command": "scripts/db/up.sh; source tmp/db.env; MIX_ENV=test mix ci",
+    "exit_code": 2,
+    "library_suite": { "doctests": 33, "properties": 3, "tests": 2641, "failures": 16, "skipped": 12, "excluded": 22 },
+    "failure_areas": ["Phase 58 CI contract", "Phase 198 contributor contract", "Phase 233 library economics contract", "Phase 235 closeout/source-complete contracts", "optional Threadline forwarder tests"],
+    "disposition": "Diagnostic only: this phase branch differs from the current protected-main source and its unrelated contracts were not edited. Promotion remains blocked before a PR by unresolved inherited-work preservation."
+  },
+  "ephemeral_database_cleanup": {
+    "phase_branch_compose_project": "sigra-db-jon-phase-244-playwright-measurement-d6d808cb",
+    "release_source_compose_project": "sigra-db-jon-head-7eb4d49d",
+    "both_removed": true
+  }
+}

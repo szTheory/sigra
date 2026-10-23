@@ -1,0 +1,7 @@
+{
+  "ref": "refs/gsd/phase253-http-ledger/9e79f91e25a041c24b33174e0ddd2c4465b63242ec446f85c19661c5b7ad97a5",
+  "sha256": "9e79f91e25a041c24b33174e0ddd2c4465b63242ec446f85c19661c5b7ad97a5",
+  "exact_readback_verified": true,
+  "git_metadata_permission": "require_escalated",
+  "network_requests": 0
+}

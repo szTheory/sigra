@@ -1,0 +1,63 @@
+{
+  "schema": "sigra.phase253.direct-route-preservation/v1",
+  "prior_commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "345465efa171d74af60fbf2ee26cf1e3f9d3f1db4d4a271c101961159084a7c7",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "d36976fc41bb593f5c860e37764e5c18535625731d823e89c43ed390d5507991",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "d9fca4cd3a8e70bc089455ab1811b9639bc3a6e0a100c275da0554d62e77a100",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "a12ad28bcf7d2b9081ad4a2c904d8b8898c3cddf2e7145154a75a31c5623ae14",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "c4ea80b14441d450d5fe35587d1f85c8bcc63d0396fb594116501b14f775fa26",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "fd41359f536b9dc0f33ace59893676872f4b71560a6d606da2d1cfd951bc77ea",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "c8cceb842d56fef9154c1c01475f1de82667ff1c914f5da0b9c467ec215302a9",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-SUMMARY.md",
+      "commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+      "status": "clean",
+      "sha256": "c226eeabf3e5949bc50f812a3135b1351710fd5b7c96b2ab6efb3637c5fa2188",
+      "readback_verified": true
+    }
+  ],
+  "rule": "Clean committed source bytes read back before replacement; new review artifacts are outside capture-boundary dirty state."
+}

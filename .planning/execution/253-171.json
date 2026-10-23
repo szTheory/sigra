@@ -1,0 +1,181 @@
+{
+  "schema": "sigra.phase253.hosted-pr-execution/v1",
+  "plan": "253-171",
+  "status": "halted",
+  "entry": {
+    "head": "7b9f1aaf55f5db145b726ea81443e3ae18a56199",
+    "inputs": {
+      ".planning/config.json": {
+        "sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+        "bytes": 1821
+      },
+      ".planning/state.json": {
+        "sha256": "14c2e0339bc81bcdd5f95dba12c3596d0e7e287c9e4fe6b5497e4eb4ed06c186",
+        "bytes": 118085
+      },
+      ".planning/STATE.md": {
+        "sha256": "4712fe595fbdab4c9b62221a1681cf763f95780889cd996add397c9a6398ae18",
+        "bytes": 34131
+      },
+      ".planning/HANDOFF.json": {
+        "sha256": "84bb7b81d234acd341f06a8e92c9d47c21e9d102863b57c31264f12806fabbf8",
+        "bytes": 187100
+      }
+    }
+  },
+  "approval_text": "yes",
+  "operator": "Codex, explicitly authorized by Jon",
+  "pr": {
+    "number": 338,
+    "url": "https://github.com/szTheory/sigra/pull/338",
+    "draft": true
+  },
+  "run": {
+    "id": 39651372938,
+    "html_url": "https://github.com/szTheory/sigra/actions/runs/39651372938",
+    "head_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+    "event": "pull_request",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "failure"
+  },
+  "step0": {
+    "ancestor": true,
+    "current_main": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "freeze_sha256": "1b49aa3a7e9c4f4b98443e7eef524038ded18db48e14c6a17fbd1c0a91d7370d",
+    "frozen_main": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "head_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+    "merge_preflight": {
+      "base": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "clean": true,
+      "conflicts": [],
+      "exit": 0,
+      "head": "d38f647ce573653a242fb42d0c5826aab92e5ed0"
+    },
+    "moved": false,
+    "schema": "sigra.phase253.pr-main-preflight/r12",
+    "status": "clean"
+  },
+  "requests": 19,
+  "caps": {
+    "requests": 120,
+    "seconds": 3600,
+    "reruns": 0
+  },
+  "elapsed_seconds": 552.816712,
+  "categories": {
+    "artifact_downloads": {
+      "used": 0,
+      "limit": 20
+    },
+    "artifact_metadata": {
+      "used": 0,
+      "limit": 4
+    },
+    "attempt_jobs": {
+      "used": 0,
+      "limit": 4
+    },
+    "docs_publication": {
+      "used": 0,
+      "limit": 14
+    },
+    "failure_logs": {
+      "used": 0,
+      "limit": 2
+    },
+    "infrastructure_rerun": {
+      "used": 0,
+      "limit": 21
+    },
+    "native_checks": {
+      "used": 0,
+      "limit": 4
+    },
+    "pr_create": {
+      "used": 1,
+      "limit": 2
+    },
+    "pr_identity": {
+      "used": 2,
+      "limit": 8
+    },
+    "pre_watch_rate": {
+      "used": 1,
+      "limit": 2
+    },
+    "preflight": {
+      "used": 4,
+      "limit": 8
+    },
+    "run_discovery": {
+      "used": 2,
+      "limit": 4
+    },
+    "terminal_polls": {
+      "used": 9,
+      "limit": 27
+    }
+  },
+  "halt": {
+    "runner": "STOP: normal family exit 1",
+    "exception": "json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 595496 (char 595495)",
+    "transaction": 19,
+    "route": "compare",
+    "http_status": 200,
+    "raw_response_bytes": 1239711,
+    "scrubbed_response_bytes": 1232709,
+    "scrubbed_sha256": "b7b81093e333f38a4fbd144b32cc3b09e11c2f58a48db89a3baf3059b002bff2",
+    "cause": "Raw-text URL redaction consumes an escaped closing quote backslash inside the JSON compare patch, making the saved JSON invalid. Independently reproduced against unchanged transport.",
+    "separate_ci_failure": "The saved terminal run response reports failure. Failed jobs and logs were not fetched before the collector crashed, so their cause is not yet known.",
+    "evidence_staleness": "The evidence file retains its initial placeholder (zero transactions, collection started); the committed ledger contains all 19 real requests. Neither was rewritten."
+  },
+  "offline_checks": {
+    "task2": 0,
+    "task3": 0,
+    "task4": 1,
+    "original_regression": {
+      "tests": 3,
+      "errors": 1,
+      "exit": 1
+    },
+    "candidate_regression": {
+      "tests": 4,
+      "exit": 0
+    },
+    "receipt172": "Deferred: requires a clean tree; attempted during active collection and correctly refused. No acceptance replay."
+  },
+  "docs_family_started": false,
+  "docs_refs_created": false,
+  "ci_reruns": 0,
+  "acceptance179_reruns": 0,
+  "budgets_renewed": false,
+  "phase_verification_status": "not_started",
+  "next_plan172": "blocked by failed normal PR proof and absent docs-only PR proof",
+  "next_action": "Inspect existing failed run logs and review/integrate JSON-aware redaction repair under a separately scoped decision. No CI dispatch, retry, new window or numbered repair plan.",
+  "sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-ACTION-APPROVAL-R13.json": "4c2fe5aa64aa07f689fef602a4b656121e7d6ec54e9c7120aff62065e5758013",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R13.json": "aaa2b78911729dad83e111812f9f726296ed40c8f65d32b641937de9b0af0882",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-ALLOCATION-R13.json": "c6d96c7bdea185e26cfd898fbed106e26c95ae1693e611e4fb2618d471dfde5e",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-NORMAL-EVIDENCE-R13.json": "8496feae769ff0cd6140d725b78c35c39fa591ec3ce6f0cd14ff0385016fa2d4",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-MAIN-PREFLIGHT-R13.json": "9e94e05ae424ade8ee156754e9ea516a763fb925682acd2b7443c8f0322f7145",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-FREEZE-R13.json": "193d65a712de432b0dd453989b2e8caa05828f1fa199c0e419719708ce364ea2"
+  },
+  "raw_evidence": {
+    ".planning/execution/253-171/entry.json": "1075f1cc7a9df5a0b84a115086ac7e9bf7a038c67798bf23090994a8b027ff53",
+    ".planning/execution/253-171/json-candidate.py": "4136d2dc5cb2a7d309502c6fdfedb2dc55f19ba11935e3fefacb7fd03c227cec",
+    ".planning/execution/253-171/reproduce.py": "cb8051a816da8b2e3113a214f9c27dcd6999882b6507d2dff8c216f495aa0da7",
+    ".planning/execution/253-171/reproduce.log": "c477bfd98342f34a955ef04eeb07e7914ed503c4a2825d3754bb417f7ddafde0",
+    ".planning/execution/253-171/candidate-check.log": "feabb4add9e2ca3374e538560634d1ec97dc4f4ce89aab12f3d726e36ea9b2f6",
+    ".planning/execution/253-171/task3.log": "4b3f3735f7a4c0430192875a2d813059bc448c8a5a79997db061fad17134cfb0",
+    ".planning/execution/253-171/task4-verify.sh": "feac13f7f20eab74e7559ff7369e1954556bea70fec9f7b0e383491f21186076",
+    ".planning/execution/253-171/task2.log": "4b3f3735f7a4c0430192875a2d813059bc448c8a5a79997db061fad17134cfb0",
+    ".planning/execution/253-171/self-check.log": "02bf42684e299f96d386576dc15657a1a33cbb2f6711732079cd224904cf986a",
+    ".planning/execution/253-171/task4.log": "6cd5e8d552d9f45399b7d4c4f9e7857540578625567d5b87f996d5756c902eb9",
+    ".planning/execution/253-171/task2-verify.sh": "338900969cc019f9d1cf43588f095ac7a39daf6199aa8d2341870a094490bad6",
+    ".planning/execution/253-171/candidate-check.py": "c7379e1d61cf302f9c9b8ac0bebd5cc1042941d6dbd4eba5c136973bcd59ac1a",
+    ".planning/execution/253-171/receipt-check-deferred.log": "016b7664b814906b913448b003a7368569171493fafbbd02f952aabb1346131e",
+    ".planning/execution/253-171/live-step1.log": "28c352e0d0f390dd3252b391c42dd50c4c65240392d393fdec1234aad5c79aec",
+    ".planning/execution/253-171/task3-verify.sh": "fea83ec667b3e097cf5cf14651e7e92319562a40788c920ccad2852816c83597"
+  }
+}

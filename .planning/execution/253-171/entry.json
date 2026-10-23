@@ -1,0 +1,21 @@
+{
+  "head": "7b9f1aaf55f5db145b726ea81443e3ae18a56199",
+  "inputs": {
+    ".planning/config.json": {
+      "sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+      "bytes": 1821
+    },
+    ".planning/state.json": {
+      "sha256": "14c2e0339bc81bcdd5f95dba12c3596d0e7e287c9e4fe6b5497e4eb4ed06c186",
+      "bytes": 118085
+    },
+    ".planning/STATE.md": {
+      "sha256": "4712fe595fbdab4c9b62221a1681cf763f95780889cd996add397c9a6398ae18",
+      "bytes": 34131
+    },
+    ".planning/HANDOFF.json": {
+      "sha256": "84bb7b81d234acd341f06a8e92c9d47c21e9d102863b57c31264f12806fabbf8",
+      "bytes": 187100
+    }
+  }
+}

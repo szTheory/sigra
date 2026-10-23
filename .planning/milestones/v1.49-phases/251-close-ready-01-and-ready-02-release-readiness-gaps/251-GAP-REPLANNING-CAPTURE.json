@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "phase": "251",
+  "invocation": "$gsd-plan-phase 251 --gaps",
+  "captured_at": "2026-10-12T02:25:51.386829+00:00",
+  "head_sha": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+  "branch": "phase-244-playwright-measurement",
+  "worktree_status": "",
+  "existing_plans": 7,
+  "existing_summaries": 7,
+  "verification_status": "gaps_found",
+  "verified_truths": "9/10",
+  "sources": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "d3bd32fff1c9ed25ea74bf3c726313459f8a8d18d39352d5178b516f9d3e4128",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "00ec9a2d85eb87c071cf48a4fddc7859702b2c07c9589f5121b21f700ed17957",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "398ddd30e18d56046683852a854723e6fcf18d98483291b842d6382ad79140a5",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "77e0fdbb69b943e22aff90f0191a9b1b06fcbfc58defa5f8c67c73ca4edabf49",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "status": "clean",
+      "sha256": "3ee6a298db8e120326d351967ca4c689b13ebf631445ef4c37ffaf81425908c9",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md",
+      "status": "clean",
+      "sha256": "ff2830f3366511fdbdbb773225dcef3251af6bef8b5323f3c1dbc95f473296f5",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "status": "clean",
+      "sha256": "cd199f0d917f8ca1f1e734177c7bffb93c40f99971fcff5b9562652b614e7d8f",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    }
+  ],
+  "planning_mode": "gap_closure",
+  "research": "skipped_by_gaps",
+  "auto_advance": false,
+  "durable_edge_coverage_path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-EDGE-COVERAGE.json",
+  "prewrite_recheck": {
+    "head": "8168b76c33bdeb70a34c42827f08eec1a5fde71c",
+    "clean": true,
+    "source_hashes_unchanged": true,
+    "read_back_verified": true,
+    "timestamp": "2026-10-12T02:35:28.790315+00:00"
+  }
+}

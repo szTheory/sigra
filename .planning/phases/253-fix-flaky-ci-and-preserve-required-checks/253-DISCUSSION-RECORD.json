@@ -1,0 +1,1836 @@
+{
+  "schema_version": 1,
+  "phase": 253,
+  "phase_name": "Fix Flaky CI and Preserve Required Checks",
+  "milestone": "v1.50",
+  "recorded_at": "2026-10-13T02:05:49.770664+00:00",
+  "status": "discussion_context_ready_for_planning",
+  "capture": {
+    "captured_at": "2026-10-13T01:56:02.659645+00:00",
+    "capture_head": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+    "status_hex": "",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "bytes": 8131,
+        "sha256": "ecdfb7b60fcbee46e93b8b30a8fa4a83237546d3b5bba04050a73887f1c0fd63",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "bytes": 1080,
+        "sha256": "76b290f489559f844238f708c4ceb3f43b41dbbe6a8fd7ed7e0fbab83f4fe526",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "bytes": 27664,
+        "sha256": "2aaf3e3f61c089aa122686be4b412c348256903db88cb81d4f2918676cffb96f",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "bytes": 10593,
+        "sha256": "68f9f18e69158f20490e6743fedef12b55facbc25f79f1fc6a0bcf701b330053",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "status": "clean",
+        "bytes": 197951,
+        "sha256": "43ddf6c10a2e468ccc59ef33a01a68a99e89c430b08df2de01fa64d87d8fcb21",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "status": "clean",
+        "bytes": 19375,
+        "sha256": "f8b2d206f6d288fd07cdf3c178d7bee24f78647f757fc6c1ccdb28227d84d4c8",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/config.json",
+        "status": "clean",
+        "bytes": 1797,
+        "sha256": "c4edd866d9ca58f698740210c77b7064b29e955b0c165a3f0461cdc9788aa386",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/REQUIREMENTS.md",
+        "status": "clean",
+        "bytes": 5876,
+        "sha256": "5f3c20567c4c59ecb451a8d6b9f00139d96112e085314c6d184e7df6d58fd863",
+        "recoverable_ref": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+        "git_readback_exact": true
+      }
+    ],
+    "phase252_immutable_paths": [
+      {
+        "path": ".planning/phases/252-measure-current-ci/.gitkeep",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "sha256": "286b0b0035fdf16458113d21181ad068be18ffd4c1dd865c8ac16818cd86c7c6"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-01-SUMMARY.md",
+        "sha256": "66dc223490c5074039a1739026ca18c61b6b1453735d9153f00da2050cfc0eef"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-02-PLAN.md",
+        "sha256": "1d801f7c6f953d121c78bbbc5f54c03f69bd87b2b3d8058e3feb0731c2817015"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-02-SUMMARY.md",
+        "sha256": "7842b825ca2310c7790534b7944dde6c70342b82ce5b511f760e0552199491ad"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
+        "sha256": "235a38c6b144a5ad2d6b7de2a0ab2ece5d945a9d82fd12e09188cdb5274ca7e4"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "sha256": "3c155bf5eb6d79f67420621efd8b819447a4b2ad21f88ba9f41079b165fda367"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-SUMMARY.md",
+        "sha256": "6b84b5e78f029db45264afbedc124cd6feae04ee5b901a85706cc50f6f1ebecb"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        "sha256": "f7a8d1c5b4a5a86f206b53d4117d03119787b42b04b0b959e888f69efe5de76d"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-04-SUMMARY.md",
+        "sha256": "3ed465ab78e8b8f787225be691994da87135e4dfd9870bdcfc89c2ef5a3e17e2"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-INTEGRATION-RECHECK.json",
+        "sha256": "eb1f60c72320bd1adcb870878c4ec9b7d2daa6ad6bc34b8b6d8afd2785df2168"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-MIX-CI-DIAGNOSTIC.json",
+        "sha256": "d6ad0e6a9b955c9edaac85fe6b5144357896e952e9bf277ba0b65410797cad36"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        "sha256": "93558bdf70ef52be1eaeeac4c7610ba7e9f7417c410c5eddc51fafa64075d00f"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-STATE-PRESERVATION.json",
+        "sha256": "0a0e1a7eb470ffaa303f595a4ffd6c61428998d4ffd251b400ba2d122e3818dc"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-SUMMARY.md",
+        "sha256": "21269cb122f58d1cc88787a2543b00e29b87788115bb2fadfbb23d300d74b09b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task1-red-evidence.json",
+        "sha256": "c38fbe231ecffa56ca73ebfc11b75ec39c766502c3d5e0052eb52fb263924e15"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task2-red-evidence.json",
+        "sha256": "16b79b472f0380c29bfa88d74f4c345d3807a710ae8ae5f06975159722367b89"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task2-single-red-evidence.json",
+        "sha256": "ce14448b045221757f1ddde99df85ec265fe3bcc1f887473a818b93b53f36544"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task3-red-evidence.json",
+        "sha256": "528c20082e0cd105d3fcf0f8ab0647a45bfeb671d36b739b7699a88ce0d9707c"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-ACQUISITION-ATTEMPTS.json",
+        "sha256": "c928a3950e780d680cc22453f0d3489d3148109bfff9098ee495547d3aa5ac08"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "sha256": "b3652a1ec0aad31b583e0b38b15353b58697783a61e1ff786032d3177ae223ff"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-REPAIR-PRESERVATION.json",
+        "sha256": "9b50221b5628150bae90303674cf99b601edc8b0802a73f15dc584a892b78e6b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION-72c71eb.json",
+        "sha256": "b50d73a9b1b9bac73d13304991bff418d2aee98c8e462755e8534c562713588e"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION.json",
+        "sha256": "838d0e0e59fa342aa52a14f15acf9f4cf3f25d32bb5401b269c1276fc6ba9c89"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-STATE-PRESERVATION.json",
+        "sha256": "10308170bd226c8dd55da958915d66bb64916ceb26c3b53d675e9f45b91f843b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+        "sha256": "4bec33374d0b3441f591c42e2584c09afb3a2e839714a7fb7be937e2fba1913c"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+        "sha256": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-BASELINE.md",
+        "sha256": "7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+        "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CLOSEOUT-CHECKS.json",
+        "sha256": "a4103b3c1f63488c5355e9623e284691bca5a27532120e92ef1557405e80b4d5"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CLOSEOUT-PRESERVATION.json",
+        "sha256": "48cc86cecfc87d6f6e60036b8ba694f0a679a9e5a90f279c95555cc1abf1c804"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+        "sha256": "8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-COMPLETION-RECORD.json",
+        "sha256": "f58eac216b9cf677d3ff91cc364796acf64d1a4b6acbf9fcfb6cbe76fa98ecc8"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+        "sha256": "892880d07c89ee496d8e193d9df3aed38bd78cabd7de87b94a62694674ed155f"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-CHECKS.json",
+        "sha256": "5fd2c553163320d68c2485dfe270420f6afa5229e9a1635fa3ea32a432b02d37"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-LOG.md",
+        "sha256": "9d78d6f019f5bf1b28212f42eda392f65d1f1e4c16851114a6989c4b7b06712d"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+        "sha256": "7f2b58a7f6d584b1a01bb977994c4f678c8b217d849b8de24e840e5c2266fa27"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-active-rulesets.json",
+        "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-branch-protection.json",
+        "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-effective-rules.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-request-ledger.json",
+        "sha256": "9a90c55787767e6a0f8bc7858ba2e5363d99ed77a1bc68c2711c26198364e06c"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json",
+        "sha256": "541e264604dcff484c569cb6f41b5dbf7fcd2fa3f2325057f7142730f1155a7b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EXECUTION-RECORD.json",
+        "sha256": "8a62370f4f97fa5de97e8e1a4beed3a782e39290d9e83d67ae050471d1ab9349"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PATTERNS.md",
+        "sha256": "6ea28c8da6cd5cab236f374dfacf8cb76c91744ce01b888aa77cc425d20193f7"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-02.md",
+        "sha256": "2bf1dca265bd6c2eb9eed14d876ebc6446af0cccaaf4e004e4787168a75897bd"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
+        "sha256": "ed35576b146817b306cabe201def46acbfff9efd40941243eff2cb0482825e87"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK.md",
+        "sha256": "9edd544e535fa0f13e433203b33d062858ce1fc49d24a2e7cfbbc8870a88d2be"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLANNING-CHECKS.json",
+        "sha256": "b2eec370ff616c2f17280b5fd4073de99f43b6919cbce7e69382ce4c09b0b2c5"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+        "sha256": "f25c84c0a8a6808400c49dbf6017420ae22cfd848651070aa004efd54d32de0c"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLANNING-ROUTING-CHECKS.json",
+        "sha256": "0da00230f6c8c666ded2f95ea77d7f3a45c825a073ec81533f7bce0bb25a1d1e"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-RESEARCH.md",
+        "sha256": "aad630f613f7add6f81bb1c3fa5bc54a76442ccbb711fdf8b788e41aa29842a0"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-DISPOSITION.md",
+        "sha256": "1493284fb1c771ce6cbfdf91d68279173293efd1a8bf5ac1c286e749cc46adaa"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-FINAL-RECHECK.md",
+        "sha256": "ebe52fb92c03451007d2ae89e6d2363aadc9a5afa97d6af9880747490eb43a16"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-RECHECK.md",
+        "sha256": "08f7fffc1b6e6ce55998f915fe6450f90c1bcac76d4d88e94420266c019de618"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-REPAIR-FAMILY.json",
+        "sha256": "319706f701da86b1f8cc57f4e696c334ebbe29528e9492ca186cf47d80d51242"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-REPAIR.json",
+        "sha256": "3baaaeba5cea58d097fe4be06b8ef685a5a880446fe2df2273d4e0f521ec3aff"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-SCOPE.json",
+        "sha256": "ed943f1868b1effa76edeb13b1c6da2b4532a91b638d13e0f7a7eb992d539b63"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW.md",
+        "sha256": "d2f38050092cbdb2233adc01c4780af238f681d2102a595f6601232aa978351d"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-ROUTING-CHECKS.json",
+        "sha256": "a300c39b622e0a263d8d2163a01ed6c80169f8f075641f411ef34cbbe0cbd719"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-SECURITY-AUDIT.json",
+        "sha256": "635c3b8896817a2bc03d825bf0cece75db543009170ccf2fcd9b3df077a35956"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-SECURITY.md",
+        "sha256": "435daad1854c8896add2de3a9ceaddfcaf2d47931cfa952ac4a42ceba5bf24ef"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-UI-APPLICABILITY.json",
+        "sha256": "5e1d34f76ea19847cec73243960a0a1c850d2aab3f367d12e11dde5510e1ff2f"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-VALIDATION-AUDIT.json",
+        "sha256": "fc71eb893fd36d7d672112480b3883b1831c56031dd246f6ce3002d1ab6f4a13"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+        "sha256": "872d483b3caf5b9a40e49f4963db3f8e7aa8eaf000e191157628ed67268854f4"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-VERIFICATION.md",
+        "sha256": "970b6a274dfe8f2fdd266a8bc7806ffae655c009c35d15a7a6fa04090b16cee3"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407/raw/effective-rules.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407/request-ledger.json",
+        "sha256": "6721aab0d696fe4ab85a9b3f9fc8d4090a0c40539f6cfebbe812eb7057b82a02"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/manifest.json",
+        "sha256": "d0447ae4d0a4c48e9fd4b1c5be9e0bb67dc767c224513f2be553b6383b268995"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/branch-protection.json",
+        "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/check-runs.json",
+        "sha256": "7bbf5c9dec96f3f70847802a083b8d905bf1cb50e36c9853b2d383e587b7f46b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/effective-rules.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
+        "sha256": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs.json",
+        "sha256": "ccd25de7f5dca21a51db5743ff0e72934b0dd2baa20a8b147861bfe4607f2bbf"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rate-limit.json",
+        "sha256": "dde1f90cf8f3a55ed41ea1a49ae760fae33f250e0c52e3472c271f8b9b510fa3"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rulesets.json",
+        "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/run.json",
+        "sha256": "2898f2f5bcb03fab05ffc6908619ce97e0d42399367673acb84c7c1afa9f2a60"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/request-ledger.json",
+        "sha256": "2da3b1533e0bc6f1a734d6efa80c61e151096c0ea279d519a1620f751203d3c7"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/COVERAGE.md",
+        "sha256": "31f421f3419cf5261adceeb16e9f2d2e664422fa2612933dadb6c9c34ff19644"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/producer-source-run-38317383419.json",
+        "sha256": "da7aebbcc6ff75518bf5f76097d77230d09ba2133b810516f59994752c3d061e"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/security-window-20261012-01.json",
+        "sha256": "e71e1c18c611eafa2e8defa8646e50c46e62cddbd2bee51fcae0f2ba9e13cb54"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/security-window-20261012-02.json",
+        "sha256": "04a70bc53d0ca09c0b65319fed83afd78aef450d2508125b5a72796b098b7d46"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/deferred-items.md",
+        "sha256": "65c3a922ef485b788a0a4c940cbaff045cd15a8b1940a34d8a769c3af3cfbd4e"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/API-ACCESS-NOTES.txt",
+        "sha256": "10499444f2c80269c79966efd92658de5ac09c35c48b00eb853bba1ef61efc65"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/DECISION-PACKET.md",
+        "sha256": "2bba79ffc62fee94dd106f57ad37fc2474d942a62b91c9112f45fb6e439ea356"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request-get.json",
+        "sha256": "8d819d8067067041e3ea58f57ca19dbf93afe3befb0b5cbcbe2567c9ddd9c7f7"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request.json",
+        "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/effective-rules-main.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/manifest.json",
+        "sha256": "295e6ac6eb25f94b5318b1dadb5836931ad12cf71048e049eba5ca5a27804f1b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/representative-pr-jobs.json",
+        "sha256": "041335638f31ebacf709c51b5b45c0de72c694bbb6f1872aab931c52966b98d4"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-pull_request.json",
+        "sha256": "075899712dced9c6c3115cd6dc4f70481cc2d32557ce00f611143c6adb52fb1e"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-push-main.json",
+        "sha256": "ee90cda380016de86d28bb82711c2aac3b6f129f84d07bbea44b84145789454b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-schedule.json",
+        "sha256": "3ddd9defd398479cc30f9b5e4b26291437bb1055cc3ee2726bb1161616c73acf"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/workflows.json",
+        "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/edge-coverage-resolved.json",
+        "sha256": "2a1a958d91cdb31583779689616461c92ea342fe8cab405603dbb357c923f3c6"
+      }
+    ],
+    "prior_context_inventory": [
+      {
+        "path": ".planning/milestones/v1.2-phases/27-admin-access-foundation/27-CONTEXT.md",
+        "bytes": 11205,
+        "sha256": "71a82f846b831d52ca8a7cd7d915abc0de0d151067f7b1eae96184b71635e210"
+      },
+      {
+        "path": ".planning/milestones/v1.2-phases/28-user-operations-surface/28-CONTEXT.md",
+        "bytes": 14762,
+        "sha256": "64bbf4aca9fdd4acfb29932dd0eee98e61338797fd846f76a03778d89af4cd78"
+      },
+      {
+        "path": ".planning/milestones/v1.2-phases/29-secure-impersonation/29-CONTEXT.md",
+        "bytes": 13983,
+        "sha256": "8821a548eb12b2878f2eb3679e2beaa276b71f8df6f60b38e178e413d8965019"
+      },
+      {
+        "path": ".planning/milestones/v1.2-phases/31-automation-first-verification/31-CONTEXT.md",
+        "bytes": 16457,
+        "sha256": "01deb6d6a1c1a6904ea810daa405240564eb7a61ebeb55258d78b860c338b9ff"
+      },
+      {
+        "path": ".planning/milestones/v1.2-phases/33-admin-shell-navigation-and-audit-preview-polish/33-CONTEXT.md",
+        "bytes": 17178,
+        "sha256": "babfd22227107b3b1b9374589bb12cc8e9517da90f481d7ef52e2cc59ca20a54"
+      },
+      {
+        "path": ".planning/milestones/v1.2-phases/34-generated-host-e2e-coverage-and-phase-28-retroactive-verification/34-CONTEXT.md",
+        "bytes": 15440,
+        "sha256": "e9e80a14a5669ae9c3b4bfa854f0ab19c82140f5c526ed3ab7f255ebb7d67221"
+      },
+      {
+        "path": ".planning/milestones/v1.2-phases/35-shift-left-verification-automation/35-CONTEXT.md",
+        "bytes": 5096,
+        "sha256": "072642550aead6a0e22257999b074b464d21997589a655e43dfdc187fc91b5fe"
+      },
+      {
+        "path": ".planning/milestones/v1.28-phases/127-versioned-auth-data-export/127-CONTEXT.md",
+        "bytes": 7968,
+        "sha256": "4e28dd43da1d012cc72275dad9ef642b64d74abc9735a6972816ad9fc395bfcf"
+      },
+      {
+        "path": ".planning/milestones/v1.28-phases/128-account-deletion-lifecycle-truth/128-CONTEXT.md",
+        "bytes": 8977,
+        "sha256": "3eed8bc6e94d9b212aa151e241c1c816307e2a590c095a7dc979ae57b134c9cb"
+      },
+      {
+        "path": ".planning/milestones/v1.28-phases/129-generated-host-parity-and-docs/129-CONTEXT.md",
+        "bytes": 10516,
+        "sha256": "06eae5aaa6e1564c3a3ede7d46d435e724031e6e26711890a201140ae489ed3f"
+      },
+      {
+        "path": ".planning/milestones/v1.32-phases/145-1-0-contract-and-release-truth/145-CONTEXT.md",
+        "bytes": 8918,
+        "sha256": "ce8faeb0c11c87e71d353e59aa6c2c5b6d98c7ea2150f115211163330c2bacec"
+      },
+      {
+        "path": ".planning/milestones/v1.32-phases/146-release-gate-and-maintainer-runbook/146-CONTEXT.md",
+        "bytes": 9411,
+        "sha256": "364ad90ce803d89e377ffb59d9cb706d142099212e4b901a3065caf13572cf09"
+      },
+      {
+        "path": ".planning/milestones/v1.32-phases/147-upgrade-and-migration-lanes/147-CONTEXT.md",
+        "bytes": 8835,
+        "sha256": "366c2195ec807d8ff96f46f53b30225938acea331d5b8e7662e94f04c7eec104"
+      },
+      {
+        "path": ".planning/milestones/v1.32-phases/148-evaluator-funnel-and-first-run-dx/148-CONTEXT.md",
+        "bytes": 7877,
+        "sha256": "4b3172e86a05e7fa2fa396178fa03ab5ab7e06b447332a7ed48b2ad3751a4554"
+      },
+      {
+        "path": ".planning/milestones/v1.32-phases/149-launch-evidence-and-announcement-pack/149-CONTEXT.md",
+        "bytes": 13284,
+        "sha256": "d6a9062cab8066c5b5bc533545b9b25ba0ce2c931662fe10d0a9ec162d790b22"
+      },
+      {
+        "path": ".planning/milestones/v1.33-phases/151-ecosystem-sync-hex-dependency-management/151-CONTEXT.md",
+        "bytes": 2124,
+        "sha256": "3345ec9857505921a548d102c72c321d7bb5d1d17c924c3615a0dda27f32c123"
+      },
+      {
+        "path": ".planning/milestones/v1.33-phases/152-strategic-bet-evaluation-gate/152-CONTEXT.md",
+        "bytes": 2163,
+        "sha256": "091fad08a6d04c8f59c5df72c0356aaf802d449b93eb953d7d705fb107498ad6"
+      },
+      {
+        "path": ".planning/milestones/v1.33-phases/153-infra-stability/153-CONTEXT.md",
+        "bytes": 8880,
+        "sha256": "23a9fb32e0fe7502bfa6b6e36bb7b40b5acf0352d72236246a76d8690c682996"
+      },
+      {
+        "path": ".planning/milestones/v1.34-phases/154-design-contract-sg-notice/154-CONTEXT.md",
+        "bytes": 9731,
+        "sha256": "6c204739a5b8eb23c2281f0fe0f0d1bbe84c933a1af3dcb4a532a503b6789825"
+      },
+      {
+        "path": ".planning/milestones/v1.34-phases/155-shared-component-foundation-keystone/155-CONTEXT.md",
+        "bytes": 15593,
+        "sha256": "05fab306d606baab9cb5197fda1f1ac56d23eb66ea0407f7cb4086d003991023"
+      },
+      {
+        "path": ".planning/milestones/v1.34-phases/156-adopt-shared-components-on-baselined-screens/156-CONTEXT.md",
+        "bytes": 14759,
+        "sha256": "8e353bd6e27d96e9bac4056789e2f86d11600c2c8a4e2564f9f06a36080190d9"
+      },
+      {
+        "path": ".planning/milestones/v1.34-phases/157-overview-landings-highest-effort/157-CONTEXT.md",
+        "bytes": 15970,
+        "sha256": "d1cea7ff10dac990363e6b38e68ef43aba3246148605783f2b017fb84fc58081"
+      },
+      {
+        "path": ".planning/milestones/v1.34-phases/158-audit-mobile-per-user-audit-high-effort/158-CONTEXT.md",
+        "bytes": 16276,
+        "sha256": "99df8330b3ec2b755c7dde58c05ae6e49c8bb2101cc1c7e2589255d37803d35f"
+      },
+      {
+        "path": ".planning/milestones/v1.34-phases/159-cross-journey-coherence-sweep-seed-enrichment/159-CONTEXT.md",
+        "bytes": 13864,
+        "sha256": "b2dc5f081a172d24ec90f4a159e0f9f128d5474eee4e68301d545a5b08202949"
+      },
+      {
+        "path": ".planning/milestones/v1.34-phases/160-regression-hardening-baseline-ratification/160-CONTEXT.md",
+        "bytes": 11366,
+        "sha256": "5a65e015a204e6fd56d5c0fe1be0a346fc73be826b8ee6fc9d495cf96e6d17e5"
+      },
+      {
+        "path": ".planning/milestones/v1.35-phases/167-logo-options-brand-direction-review/167-CONTEXT.md",
+        "bytes": 1323,
+        "sha256": "84062ce04dccb554cc4946e6afc8424a15046dbc2fb52f6dda18b386e029f4d6"
+      },
+      {
+        "path": ".planning/milestones/v1.38-phases/178-brand-v2-pressure-test-audit/178-CONTEXT.md",
+        "bytes": 6283,
+        "sha256": "ce9a4e40111a98c157536e3813297a4148857a7b95c2147a8475f7a7e09a3f39"
+      },
+      {
+        "path": ".planning/milestones/v1.38-phases/179-outlining-toolchain-logo-concept-exploration/179-CONTEXT.md",
+        "bytes": 4624,
+        "sha256": "d9e7c5a854670aadb8ce6885239fd1b6106ab68e26ab9806bd1cb06d7402372e"
+      },
+      {
+        "path": ".planning/milestones/v1.38-phases/181-ratified-logo-system-buildout/181-CONTEXT.md",
+        "bytes": 6268,
+        "sha256": "dd933b95c95da1599ee36e61c9bc45f4cafd5aa4faf45711e46e59e40779913a"
+      },
+      {
+        "path": ".planning/milestones/v1.38-phases/182-brand-book-v2-tokens/182-CONTEXT.md",
+        "bytes": 7343,
+        "sha256": "4c17f2a3c96cb8d85bab1c8b0ee2e359a272543dd39e84cf423bab1b90dbacc0"
+      },
+      {
+        "path": ".planning/milestones/v1.38-phases/183-propagation-parity-verification/183-CONTEXT.md",
+        "bytes": 8969,
+        "sha256": "ffc9d204de2d7af655d064ddb523d9b7909bccf42fcbdf9f17f5c5821ee6a3cd"
+      },
+      {
+        "path": ".planning/milestones/v1.41-phases/199-foundation-tier-2-scorecard-stress-fixtures/199-CONTEXT.md",
+        "bytes": 12953,
+        "sha256": "59e036c57758d098d526f28f559dae896b13a278be42c0db597cb225931b3cca"
+      },
+      {
+        "path": ".planning/milestones/v1.41-phases/200-user-detail-elevation/200-CONTEXT.md",
+        "bytes": 16842,
+        "sha256": "942f2a44f1d050cb39a50e9b7c4a7297cba633bccf79105e0b5d75862bce7462"
+      },
+      {
+        "path": ".planning/milestones/v1.41-phases/201-users-index-elevation/201-CONTEXT.md",
+        "bytes": 20167,
+        "sha256": "bace7fe04298e6a851350918d03f41a170acc803b670472129ef6c22ca8b29b0"
+      },
+      {
+        "path": ".planning/milestones/v1.41-phases/202-audit-surfaces-elevation/202-CONTEXT.md",
+        "bytes": 22269,
+        "sha256": "75d425f1f3df723d26aaa8bcae50135f36b911938ede3eef36e877136c049d3e"
+      },
+      {
+        "path": ".planning/milestones/v1.41-phases/203-consistency-propagation/203-CONTEXT.md",
+        "bytes": 19057,
+        "sha256": "7df052b139c938221bd1f082dbb17f7c034cd274a914b233006ed92ab8193246"
+      },
+      {
+        "path": ".planning/milestones/v1.41-phases/204-terminal-ratification/204-CONTEXT.md",
+        "bytes": 12909,
+        "sha256": "257d7b85140c9876cbb846aa2478217571f206ca68222b874bfd11d585b2e19f"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/205-foundation/205-CONTEXT.md",
+        "bytes": 23954,
+        "sha256": "2cce01e7832d4cc8a648d3be1c4bf83b64bd9fa6b4568452839d5121246a27c8"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/206-l1-component-elevation-wave-a/206-CONTEXT.md",
+        "bytes": 11213,
+        "sha256": "2641a884b6156ea9a68ab222802bfb8f96f6c35ca2481e0cabb65582593a7dbb"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/207-l1-component-elevation-wave-b-l0-token-layer/207-CONTEXT.md",
+        "bytes": 14575,
+        "sha256": "322955fb44110d1b4bd5e8fd16c0c405717115b084ed18853cfadd3096a56710"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/208-l2-meta-component-group-elevation/208-CONTEXT.md",
+        "bytes": 15161,
+        "sha256": "ab26628917f8833f4404bdd5e4af534961b8c3421b14807eb9229a5c78280d36"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/209-judgment-level-page-pass/209-CONTEXT.md",
+        "bytes": 19050,
+        "sha256": "1fe6b25bab162b530c7f517fb06cc17d1fb36d3730314805e6bb1d08fa80996d"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/210-remaining-cell-elevation/210-CONTEXT.md",
+        "bytes": 13224,
+        "sha256": "b9eb70117e0907faa7e6d34d8413664b81a4f614cbd45e4ff7d77ef7feb04b51"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/211-terminal-ratification/211-CONTEXT.md",
+        "bytes": 15929,
+        "sha256": "0119de1ddf7797feb6f1c1c3113aa9aa6b32b23b2870a8d86c28cfaa4effdc51"
+      },
+      {
+        "path": ".planning/milestones/v1.42-phases/212-v1-42-integration-merge-canary-reconciliation-gate-the-perso/212-CONTEXT.md",
+        "bytes": 16352,
+        "sha256": "fc0e83bae0ff1708a0eb00591ebb50f729ca510b5bb88f3c42c9fef3ef34ab5d"
+      },
+      {
+        "path": ".planning/milestones/v1.43-phases/213-latest-phoenix-compatibility/213-CONTEXT.md",
+        "bytes": 9599,
+        "sha256": "b27a52684ab8f58e8096afdd83206a2dd7958bb5296950d342057cff447216ff"
+      },
+      {
+        "path": ".planning/milestones/v1.43-phases/214-debt-robustness-clear/214-CONTEXT.md",
+        "bytes": 15516,
+        "sha256": "8c9b1ba37f153438d96a7dda854c00f11e937195405e6d02ddc2f74c0e2b54bc"
+      },
+      {
+        "path": ".planning/milestones/v1.43-phases/215-terminal-ratification/215-CONTEXT.md",
+        "bytes": 9640,
+        "sha256": "55b77ca9b250b9e00a51db30de1a55bd4875413b8fbebe941003eb48aa77f119"
+      },
+      {
+        "path": ".planning/milestones/v1.44-phases/216-harness-foundation-award-gradient/216-CONTEXT.md",
+        "bytes": 24865,
+        "sha256": "28dafc7f7eadd90a24f222f5383041ee669fa011d56bea5d727c94664bf87a67"
+      },
+      {
+        "path": ".planning/milestones/v1.44-phases/217-adversarial-panel-auto-fix-safety-rails/217-CONTEXT.md",
+        "bytes": 31632,
+        "sha256": "813e16f2c49f27247db879cf17c80eedd544b0789f3cc9079f16e90357beb955"
+      },
+      {
+        "path": ".planning/milestones/v1.44-phases/218-elevation-wave-nit-cleanup/218-CONTEXT.md",
+        "bytes": 15757,
+        "sha256": "878762e3d90cad574987ce83564396e81a25c3d35629577a6ae4fef341120755"
+      },
+      {
+        "path": ".planning/milestones/v1.44-phases/219-baseline-recapture-canary-reconciliation/219-CONTEXT.md",
+        "bytes": 14508,
+        "sha256": "fa1c3e5635666c49689f5992df607c1697920e0dc7ef3501934ad69d81b02f19"
+      },
+      {
+        "path": ".planning/milestones/v1.44-phases/220-terminal-ratification/220-CONTEXT.md",
+        "bytes": 15966,
+        "sha256": "d9fe4dcbcb444182bdef26bcb8803be6d6d3e10fa5ba69bbb93ddf7bc4d4a65b"
+      },
+      {
+        "path": ".planning/milestones/v1.45-phases/221-unblock-the-gate-ship-honest-generated-host-debt/221-CONTEXT.md",
+        "bytes": 14090,
+        "sha256": "3ee2471613c5be30bcc2703b142d8dce5c102067dffc63f3b940fd89b7b8ded6"
+      },
+      {
+        "path": ".planning/milestones/v1.45-phases/222-release-lane-hardening-no-silent-rot/222-CONTEXT.md",
+        "bytes": 13385,
+        "sha256": "d6a82f01f489cbfa7f60c7d530ec41cdf94bdc349506d40e9a2a516c6db70a93"
+      },
+      {
+        "path": ".planning/milestones/v1.45-phases/223-get-current-on-hex-terminal-currency-proof/223-CONTEXT.md",
+        "bytes": 9563,
+        "sha256": "839796c538ee41d0ffb951784ec85ca04b03c46e7907e30d0f423f631897d41c"
+      },
+      {
+        "path": ".planning/milestones/v1.46-phases/224-experience-contract-representative-slice/224-CONTEXT.md",
+        "bytes": 4684,
+        "sha256": "ed872a4b6e7dd4eabf4d1d0e437d7559b174c9d7c106b50b2b7f3b47c5501ddb"
+      },
+      {
+        "path": ".planning/milestones/v1.46-phases/225-secure-first-admin-generated-host-security-parity/225-CONTEXT.md",
+        "bytes": 1049,
+        "sha256": "2a1310dc9ae56542530f9a95d8e2ce2d7e9d9d24cfad3b4d07bfb610ce8e9379"
+      },
+      {
+        "path": ".planning/milestones/v1.46-phases/226-auth-entry-recovery/226-CONTEXT.md",
+        "bytes": 532,
+        "sha256": "3f3d60fd73d3d2ebbf90fd883cb6b9a92f964337f133f97233ad9a74b24a50ec"
+      },
+      {
+        "path": ".planning/milestones/v1.46-phases/227-account-security-coherence/227-CONTEXT.md",
+        "bytes": 514,
+        "sha256": "4eef79d7ca715a939120246e50ee9eade6b0f532b7324d97b16e275c58e8db9f"
+      },
+      {
+        "path": ".planning/milestones/v1.46-phases/228-admin-audit-precision-boundary-pass/228-CONTEXT.md",
+        "bytes": 499,
+        "sha256": "bd5917156e769c4c704f75f016f33902bdb4c0c3d82fd8a239e52c551f657af2"
+      },
+      {
+        "path": ".planning/milestones/v1.46-phases/229-adoption-handoff-terminal-ratification/229-CONTEXT.md",
+        "bytes": 528,
+        "sha256": "5283a8606d8cd5776476cece0b83369aa893bfc80dc764c46f92c725927133e5"
+      },
+      {
+        "path": ".planning/milestones/v1.47-phases/230-tier-1-critical-path-reclamation/230-CONTEXT.md",
+        "bytes": 23964,
+        "sha256": "d19c29ddeb467a44e8a1e90fe20ed3126ad49fc45b5c1f89b69521b255e892d8"
+      },
+      {
+        "path": ".planning/milestones/v1.47-phases/231-gate-honesty-nightly-revival/231-CONTEXT.md",
+        "bytes": 29541,
+        "sha256": "ff1443e836cf5e9109b63d76d2ae9fa403732d3177b72e17af5138ea17699f95"
+      },
+      {
+        "path": ".planning/milestones/v1.47-phases/232-playwright-economics-authenticate-once-then-shard/232-CONTEXT.md",
+        "bytes": 9558,
+        "sha256": "fbb557234c1dde6fa03ac7c679ce3f4ad34c93c784de5e7faf3fa6e20f09e53d"
+      },
+      {
+        "path": ".planning/milestones/v1.47-phases/233-library-suite-economics/233-CONTEXT.md",
+        "bytes": 9207,
+        "sha256": "82c58a4d0eb4e19e0e10c1d0d2e73dcb4756de7547f726bc5864cb72dad656be"
+      },
+      {
+        "path": ".planning/milestones/v1.47-phases/234-hygiene-supply-chain-and-contributor-dx/234-CONTEXT.md",
+        "bytes": 11104,
+        "sha256": "3c9f201fe98b9d3de333c215f4651ebdc1c619d7ec6d37067604cbf591c22133"
+      },
+      {
+        "path": ".planning/milestones/v1.47-phases/235-terminal-ratification-measured-not-read/235-CONTEXT.md",
+        "bytes": 9784,
+        "sha256": "3169de9bb5b93058ff97d4c494977e4d37dcbc964a5fc219c58f9d1bd940914a"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-CONTEXT.md",
+        "bytes": 25633,
+        "sha256": "5cf3e6859382503cf3bc089590e3791f545e3d99ea673b61233cb8df572d728a"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-CONTEXT.md",
+        "bytes": 17037,
+        "sha256": "08da8af5ddfa1cee37ef736f169c4776204982ca424b1f6a94300061fd6fa69b"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/238-tag-guard-then-tag-deletion/238-CONTEXT.md",
+        "bytes": 23657,
+        "sha256": "d762571eb432ae81c54a338d27265aaba7b4107a66dbb08636b4b0d316552d09"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/239-priv-templates-sweep-one-batched-re-bless/239-CONTEXT.md",
+        "bytes": 59468,
+        "sha256": "098602cded7c578d4123866f2874b1e4f4cc5bcbd0c5bafa2db6757c588cdc92"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/240-green-main-evidence-honest-pages-script/240-CONTEXT.md",
+        "bytes": 23841,
+        "sha256": "b257508cf41c0420ffa7c2181d76a30722fc3b7938c3a2c35f8f7c01e52a4268"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-CONTEXT.md",
+        "bytes": 21758,
+        "sha256": "fe9a9ded0ee631dca1543d9a8c9268da6fa86c15067f640e20275e0410566227"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-CONTEXT.md",
+        "bytes": 9842,
+        "sha256": "66bcdd9c56e780235abd9b081b4b2a4e92da91174fc04a226c029dec24ec98e9"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-CONTEXT.md",
+        "bytes": 10680,
+        "sha256": "90111871be54a525fc8be078a18cee0d1e0eb2555ca01c79098cff401d80f263"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/244-playwright-test-1-59-1-1-62-1-alone/244-CONTEXT.md",
+        "bytes": 10521,
+        "sha256": "99af511e76124d582783f7c4eae13512e1695fb4b3d67fab044043d829a9324b"
+      },
+      {
+        "path": ".planning/milestones/v1.48-phases/245-branch-prune-local-and-remote/245-CONTEXT.md",
+        "bytes": 10157,
+        "sha256": "4ba1146bf0f3650b86d85bfb5b62e6ae049c6864712b3449e13a0867451f1ba5"
+      },
+      {
+        "path": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-CONTEXT.md",
+        "bytes": 14107,
+        "sha256": "a7e5df9b3eca404a3bac88a10268b0a883413ed0a90b1e7968790a2df39dc1c9"
+      },
+      {
+        "path": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
+        "bytes": 14366,
+        "sha256": "159ef3dbe48ab4b7ee66a7c8b32cba2e04502fad6af478b3fa3d4a5490690233"
+      },
+      {
+        "path": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-CONTEXT.md",
+        "bytes": 14655,
+        "sha256": "186c79c42a4e07dc1994b5d4d9a9cd156fb678530bc50ab5883cae746ffab611"
+      },
+      {
+        "path": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md",
+        "bytes": 14810,
+        "sha256": "82c3446744b8cf3a2323c1014a67fc6b2b233dd754be79b8aec4bfd930bd79be"
+      },
+      {
+        "path": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CONTEXT.md",
+        "bytes": 14684,
+        "sha256": "dfda7a8f4bb6fefff6681cb6d6f0dd20d906a50c73de434431dbb01f16887efd"
+      },
+      {
+        "path": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md",
+        "bytes": 16069,
+        "sha256": "3b6d2e3b202106907f06a71aca30ed40e5eba45666322b163c561ecf4254c410"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+        "bytes": 17961,
+        "sha256": "892880d07c89ee496d8e193d9df3aed38bd78cabd7de87b94a62694674ed155f"
+      }
+    ]
+  },
+  "decision_authority": {
+    "kind": "explicit_user_delegation",
+    "quoted_instruction": "find set of recommendations that are coherent auto follow those",
+    "source": "verbatim substring of current phase253 invocation",
+    "confirmation_menu_answer": null,
+    "defaults_adopted_by_delegation": true,
+    "scope_expansion_authorized": false
+  },
+  "workflow": {
+    "mode": "assumptions",
+    "explicit_subagent_request": true,
+    "subagents": [
+      "phase253_assumptions",
+      "phase253_gate_research",
+      "phase253_browser_research",
+      "phase253_diagnosis_research"
+    ],
+    "all_research_subagents_terminal": true,
+    "analyzer_model": "gpt-6-sol",
+    "analyzer_effort": "xhigh",
+    "calibration": "standard",
+    "auto_advance": false,
+    "auto_chain_active": false
+  },
+  "todo_review": {
+    "query": "todo.match-phase 253",
+    "match_count": 66,
+    "matches": [
+      {
+        "file": "2026-06-20-playwright-parallelization-per-shard-db.md",
+        "title": "Make Playwright way faster \u2014 per-shard DB isolation to unlock true parallelism",
+        "area": "ci",
+        "score": 0.9,
+        "reasons": [
+          "keywords: isolation, test, phase",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-07-28-admin-eval-render-burns-17m-per-pr-for-an-unread-red.md",
+        "title": "\"admin_eval_render burns ~17m on every PR to produce a red artifact that nothing reads, and its first-phase failure means the harness guards b1-b6 have never executed in CI\"",
+        "area": "ci",
+        "score": 0.9,
+        "reasons": [
+          "keywords: its, phase, failure, harness, test",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md",
+        "title": "\"FUT-03: example_unit_smoke is ruleset-required but absent from ci-gate.needs\"",
+        "area": "ci",
+        "score": 0.9,
+        "reasons": [
+          "keywords: required, gate, phase",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-15-gap-closure-verifier-exit-trap-flaw.md",
+        "title": "Gap-closure attestation verifier can still fail a passing run from its EXIT trap",
+        "area": "ci",
+        "score": 0.9,
+        "reasons": [
+          "keywords: still, passing, its, found, while",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-17-p19-bypass-actors-literal-is-constructed-at-runtime-to-route-around-its-own-grep-gate.md",
+        "title": "p19 constructs the `bypass_actors` field name at runtime to route around the grep gate that polices it",
+        "area": "ci",
+        "score": 0.9,
+        "reasons": [
+          "keywords: gate, phase, test",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-17-p19-known-bad-fixture-short-circuits-before-its-second-declared-violation.md",
+        "title": "The p19 known-bad fixture short-circuits at `enforcement`, so its second declared violation is never asserted",
+        "area": "ci",
+        "score": 0.9,
+        "reasons": [
+          "keywords: its, asserted, phase, test",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-25-fut-04-launch-pack-contract-caller.md",
+        "title": "\"FUT-04: launch-pack-contract exists without a workflow caller\"",
+        "area": "ci",
+        "score": 0.9,
+        "reasons": [
+          "keywords: without, phase",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-07-30-recapture-job-transient-hexpm-mirror-failure.md",
+        "title": "\"Recapture jobs intermittently fail on a transient hex.pm mirror fetch (the Postgres FATAL line in the log is a red herring)\"",
+        "area": "ci",
+        "score": 0.7,
+        "reasons": [
+          "keywords: jobs, phase",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-17-bookkeeping-leak-guard-on-distribution-boundary.md",
+        "title": "\"No CI gate stops planning bookkeeping from leaking back into the generated app or the Hex tarball\"",
+        "area": "ci",
+        "score": 0.7,
+        "reasons": [
+          "keywords: gate, phase",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-17-ci-change-detector-omits-sigra-upgrade-and-gen-oauth.md",
+        "title": "\"install-smoke change detector never exercises mix sigra.upgrade or mix sigra.gen.oauth\"",
+        "area": "ci",
+        "score": 0.7,
+        "reasons": [
+          "keywords: phase, while",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-06-20-mix-sigra-migrate-schema-helper.md",
+        "title": "mix sigra.migrate_schema helper to relocate existing tables between Postgres schemas",
+        "area": "installer",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, isolation"
+        ]
+      },
+      {
+        "file": "2026-06-20-runtime-auth-prefix-override.md",
+        "title": "runtime/boot-time auth-schema prefix override (currently baked at install time)",
+        "area": "config",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, isolation"
+        ]
+      },
+      {
+        "file": "2026-07-28-release-lane-rot-label-missing-breaks-hard-02-signal.md",
+        "title": "\"HARD-02's loud-failure signal never worked \u2014 notify-failure-issue.sh died because the release-lane-rot GitHub label did not exist, so zero tracking issues were ever created\"",
+        "area": "release",
+        "score": 0.6,
+        "reasons": [
+          "keywords: failure"
+        ]
+      },
+      {
+        "file": "2026-07-28-release-please-orphans-unreleased-block.md",
+        "title": "Release Please orphans the hand-written `## Unreleased` block at every release \u2014 notes ship inside a released Hex package still labelled \"Unreleased\"",
+        "area": "release",
+        "score": 0.6,
+        "reasons": [
+          "keywords: still, found, while"
+        ]
+      },
+      {
+        "file": "2026-07-28-w2-example-sigra-auth-css-stale-no-parity-gate.md",
+        "title": "Example sigra_auth.css never received the v1.46 stylesheet, and no parity gate exists",
+        "area": "auth-ui",
+        "score": 0.6,
+        "reasons": [
+          "keywords: gate, requirements, test"
+        ]
+      },
+      {
+        "file": "2026-07-28-w3-generated-auth-runtime-coverage-is-login-only.md",
+        "title": "Generated auth has browser coverage on exactly one surface \u2014 login, no-passkeys",
+        "area": "auth-ui",
+        "score": 0.6,
+        "reasons": [
+          "keywords: browser, coverage, requirements, test"
+        ]
+      },
+      {
+        "file": "2026-07-28-w4-no-axe-run-covers-generated-auth.md",
+        "title": "No axe accessibility run touches any sigra-auth-* surface",
+        "area": "auth-ui",
+        "score": 0.6,
+        "reasons": [
+          "keywords: requirements, test, tests"
+        ]
+      },
+      {
+        "file": "2026-07-28-w6-generated-policy-test-outside-golden-coverage.md",
+        "title": "Generated sigra_admin_policy_test.exs is outside install-golden fixture coverage",
+        "area": "installer",
+        "score": 0.6,
+        "reasons": [
+          "keywords: test, coverage, requirements"
+        ]
+      },
+      {
+        "file": "2026-08-01-phase-234-pr-evidence-blocked.md",
+        "title": "\"Phase 234 PR parity receipt blocked by failed aggregate and GitHub API rate limit\"",
+        "area": "general",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-09-15-admin-eval-render-isolated-red-has-no-consumer.md",
+        "title": "Untitled",
+        "area": "general",
+        "score": 0.6,
+        "reasons": [
+          "keywords: requirements, gate, isolated, failure"
+        ]
+      },
+      {
+        "file": "2026-09-15-admin-eval-webkit-registration-flake-recurrence.md",
+        "title": "admin-eval WebKit registration flake \u2014 the 2026-07-04 \"resolved\" fix outlived its premise and now reds main",
+        "area": "testing",
+        "score": 0.6,
+        "reasons": [
+          "keywords: flake, fix, its, phase, 253"
+        ]
+      },
+      {
+        "file": "2026-09-15-composite-action-outside-supply-chain-guards.md",
+        "title": "Untitled",
+        "area": "general",
+        "score": 0.6,
+        "reasons": [
+          "keywords: requirements, phase"
+        ]
+      },
+      {
+        "file": "2026-09-15-demo-brand-presets-split-only-for-logo.md",
+        "title": "Demo brand presets are split into light/dark pairs only because one profile could not carry two logos",
+        "area": "demo",
+        "score": 0.6,
+        "reasons": [
+          "keywords: test, found, while"
+        ]
+      },
+      {
+        "file": "2026-09-15-gate-05-ledger-scope-and-manifest-contradiction.md",
+        "title": "Untitled",
+        "area": "general",
+        "score": 0.6,
+        "reasons": [
+          "keywords: requirements, gate, ownership, missing"
+        ]
+      },
+      {
+        "file": "2026-09-15-get-form-in-liveview-race-on-users-index-and-user-audit.md",
+        "title": "\"The GET-form-in-a-connected-LiveView race Phase 236 fixed on /admin/audit is still live on /admin/users and the per-user audit view \u2014 and /admin/audit itself has two unconverted anchor pairs left over\"",
+        "area": "admin-ui",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, fixed, still, flake, root"
+        ]
+      },
+      {
+        "file": "2026-09-15-honest-skip-parity-guard-does-not-exist.md",
+        "title": "Untitled",
+        "area": "general",
+        "score": 0.6,
+        "reasons": [
+          "keywords: requirements, gate, phase"
+        ]
+      },
+      {
+        "file": "2026-09-15-p12-evidence-guard-is-pinned-to-phase-230.md",
+        "title": "p12 evidence-ledger guard is hardcoded to phase 230 \u2014 no standing guard on any other phase",
+        "area": "tooling",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, check, test"
+        ]
+      },
+      {
+        "file": "2026-09-15-test-01-02-timing-machinery-orphaned.md",
+        "title": "Untitled",
+        "area": "general",
+        "score": 0.6,
+        "reasons": [
+          "keywords: requirements, test, phase"
+        ]
+      },
+      {
+        "file": "2026-09-16-docs-index-goes-stale-on-every-version-bump.md",
+        "title": "The committed doc/llms.txt documentation index goes stale on every version bump and every new public module",
+        "area": "release",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, check, its"
+        ]
+      },
+      {
+        "file": "2026-09-16-phase-239-sc5-names-a-comment-marker-that-does-not-exist.md",
+        "title": "Phase 239's SC-5 names the literal `# SECURITY:` comment marker, which occurs zero times in this repository",
+        "area": "planning",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, names, check"
+        ]
+      },
+      {
+        "file": "2026-09-16-phase-241-ratchet-baseline-scans-lib-only-but-guides-render-on-hexdocs-too.md",
+        "title": "The Phase 241 p18 ratchet baseline scans `lib/` only, but published `guides/` extras render on HexDocs too",
+        "area": "planning",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, baseline, green"
+        ]
+      },
+      {
+        "file": "2026-09-16-repo-03-requirement-text-still-asserts-the-stash-push-that-d-09-abandoned.md",
+        "title": "REPO-03 is marked Complete but its text still asserts the stash push that D-09 deliberately abandoned",
+        "area": "planning",
+        "score": 0.6,
+        "reasons": [
+          "keywords: its, still, phase, requirements"
+        ]
+      },
+      {
+        "file": "2026-09-16-upgrade-test-never-runs-anywhere-wrong-mix-task-name.md",
+        "title": "Sigra.UpgradeIntegrationTest never runs anywhere \u2014 test_helper.exs calls the non-existent mix task \"archive.list\"",
+        "area": "testing",
+        "score": 0.6,
+        "reasons": [
+          "keywords: test, phase, gate"
+        ]
+      },
+      {
+        "file": "2026-09-17-example-settings-live-dev-mailbox-verified-route-test-env.md",
+        "title": "\"test/example SettingsLive ~p\\\"/dev/mailbox\\\" fails compile --warnings-as-errors under MIX_ENV=test\"",
+        "area": "example-app",
+        "score": 0.6,
+        "reasons": [
+          "keywords: test, under, phase"
+        ]
+      },
+      {
+        "file": "2026-09-17-fut-01-template-example-parity-guard.md",
+        "title": "\"FUT-01: no guard keeps priv/templates and test/example from silently drifting apart\"",
+        "area": "testing",
+        "score": 0.6,
+        "reasons": [
+          "keywords: test, phase"
+        ]
+      },
+      {
+        "file": "2026-09-17-home-directory-paths-are-already-public-in-ten-committed-planning-files.md",
+        "title": "Home-directory paths are already public in ten committed planning files",
+        "area": "public-repo hygiene",
+        "score": 0.6,
+        "reasons": [
+          "keywords: phase, gate, check"
+        ]
+      },
+      {
+        "file": "2026-09-17-security-comment-classifier-token-set-omits-half-the-union.md",
+        "title": "\"237 security-comment classifier's tolerated-token set omits IN-NN, ORG-UX-NN, GATE-NN and friends, so bookkeeping sweeps trip it\"",
+        "area": "planning-tooling",
+        "score": 0.6,
+        "reasons": [
+          "keywords: gate, green, check, phase"
+        ]
+      },
+      {
+        "file": "2026-09-17-surf-02-marked-complete-but-does-not-hold-at-head.md",
+        "title": "\"SURF-02 is marked Complete in REQUIREMENTS.md but does not hold at HEAD \u2014 three @moduledoc blocks still carry bookkeeping onto HexDocs\"",
+        "area": "docs",
+        "score": 0.6,
+        "reasons": [
+          "keywords: requirements, still, phase"
+        ]
+      },
+      {
+        "file": "2026-09-18-test-example-remainder-outside-the-sc-4-counterpart-scope.md",
+        "title": "\"The unswept test/example/ remainder \u2014 482 V3-matching bookkeeping lines across 157 files, outside the SC-4 counterpart scope Phase 239 cleans\"",
+        "area": "docs",
+        "score": 0.6,
+        "reasons": [
+          "keywords: test, phase"
+        ]
+      },
+      {
+        "file": "2026-09-18-wr-04-login-route-rationale-deleted-at-the-core-ex-source.md",
+        "title": "\"WR-04: the login-route rationale was collapsed to a single fact, leaving a project constraint unguarded by prose\"",
+        "area": "installer",
+        "score": 0.6,
+        "reasons": [
+          "keywords: test, phase"
+        ]
+      },
+      {
+        "file": "2026-09-25-fut-02-dependabot-groups-policy.md",
+        "title": "\"FUT-02: define a durable Dependabot groups policy after the current dependency queue is drained\"",
+        "area": "dependencies",
+        "score": 0.6,
+        "reasons": [
+          "keywords: current, requirements, phase"
+        ]
+      },
+      {
+        "file": "2026-10-01-investigate-node-git-stdin-stall.md",
+        "title": "Investigate local Node and Git pipe EOF stalls across runtimes",
+        "area": "testing",
+        "score": 0.6,
+        "reasons": [
+          "keywords: readiness, regression"
+        ]
+      },
+      {
+        "file": "2026-09-17-tag-ruleset-drift-observer-has-never-run-and-has-two-latent-defects.md",
+        "title": "The `tag_ruleset_drift` observer carries an unreachable error branch, an unpaginated list, and no assertion that it ran",
+        "area": "ci",
+        "score": 0.5,
+        "reasons": [
+          "keywords: phase",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-17-widened-bookkeeping-definition-for-surf-04-p18.md",
+        "title": "\"Phase 241's SURF-04 p18 guard must be built on the twice-widened bookkeeping definition (V3 \u2014 vocabulary class), not on V2 and not on the frozen V1 union regex\"",
+        "area": "ci",
+        "score": 0.5,
+        "reasons": [
+          "keywords: phase",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-09-19-example-playwright-smoke-manifest-step-gate-inaccuracy.md",
+        "title": "Untitled",
+        "area": "ci",
+        "score": 0.5,
+        "reasons": [
+          "keywords: test",
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-07-02-app-css-corruption-guard-blind-spot.md",
+        "title": "Harden app.css corruption guard against mid-block orphan values",
+        "area": "general",
+        "score": 0.4,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-07-09-218-rereview-followups.md",
+        "title": "Untitled",
+        "area": "general",
+        "score": 0.4,
+        "reasons": [
+          "keywords: phase, harness"
+        ]
+      },
+      {
+        "file": "2026-07-10-installer-context-impersonation-guard-gap.md",
+        "title": "Port impersonation defense-in-depth to all sensitive ops in the installer context template",
+        "area": "security",
+        "score": 0.4,
+        "reasons": [
+          "keywords: phase, test"
+        ]
+      },
+      {
+        "file": "2026-07-28-gate-ci-green-timeout-too-tight-for-push-to-main.md",
+        "title": "\"gate-ci-green's 30-minute polling ceiling is shorter than the push-to-main CI run it waits for, so it times out on a green release and blocks the automated Hex publish\"",
+        "area": "release",
+        "score": 0.4,
+        "reasons": [
+          "keywords: gate, green"
+        ]
+      },
+      {
+        "file": "2026-07-28-w5-export-auth-data-deny-path-orphaned.md",
+        "title": "export_auth_data/2 impersonation deny path is unreachable in a generated host",
+        "area": "security",
+        "score": 0.4,
+        "reasons": [
+          "keywords: requirements, test"
+        ]
+      },
+      {
+        "file": "2026-07-28-w8-per-user-audit-presets-have-no-e2e-assertion.md",
+        "title": "Per-user audit view has presets and Active filters, but no E2E assertion covers them",
+        "area": "admin-audit",
+        "score": 0.4,
+        "reasons": [
+          "keywords: requirements, test"
+        ]
+      },
+      {
+        "file": "2026-09-15-generated-confirm-routes-unreachable-both-session-states.md",
+        "title": "Generated confirmation route cannot confirm in EITHER session state",
+        "area": "auth",
+        "score": 0.4,
+        "reasons": [
+          "keywords: state, baseline"
+        ]
+      },
+      {
+        "file": "2026-09-16-dep-off-restore-leaves-threadline-forwarder-a-noop-until-forced-recompile.md",
+        "title": "sigra-dep-off.sh's restore step leaves Sigra.Audit.Forwarders.Threadline compiled as a no-op until the next forced recompile",
+        "area": "testing",
+        "score": 0.4,
+        "reasons": [
+          "keywords: phase, gate"
+        ]
+      },
+      {
+        "file": "2026-09-16-installer-template-ships-a-dead-planning-link-to-every-adopter.md",
+        "title": "The organizations installer template ships a dead `.planning/` reference into every adopter's repo",
+        "area": "installer",
+        "score": 0.4,
+        "reasons": [
+          "keywords: phase, test"
+        ]
+      },
+      {
+        "file": "2026-09-16-walkthrough-excerpt-diverges-from-the-template-it-quotes.md",
+        "title": "The code-walkthrough excerpt no longer matches the template it claims to quote, and nothing guards the pair",
+        "area": "docs",
+        "score": 0.4,
+        "reasons": [
+          "keywords: phase, test"
+        ]
+      },
+      {
+        "file": "2026-09-18-in-05-mfa-challenge-auto-submit-contradicts-the-strengthened-settings-comment.md",
+        "title": "\"IN-05: mfa_challenge_live.ex does exactly what the strengthened mfa_settings_live.ex comment names as a defect\"",
+        "area": "installer",
+        "score": 0.4,
+        "reasons": [
+          "keywords: names, phase"
+        ]
+      },
+      {
+        "file": "2026-07-10-canary-recapture-lane-excludes-canary.md",
+        "title": "Exclude the impersonation-banner canary from the auto-recapture PR lane (recurring noise)",
+        "area": "ci",
+        "score": 0.3,
+        "reasons": [
+          "area: ci"
+        ]
+      },
+      {
+        "file": "2026-07-03-hex-retire-stray-1-20-0.md",
+        "title": "\"FUT-05: retire stray Hex 1.20.0 so the GA is the resolved latest_stable\"",
+        "area": "release",
+        "score": 0.2,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-07-10-upgrade-smoke-button-type-hex-publish.md",
+        "title": "Publish v1.2.0/v1.3.0 to Hex \u2014 one-time break of the upgrade-smoke chicken-and-egg (self-heals)",
+        "area": "release",
+        "score": 0.2,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-07-27-login-wordmark-midword-break-at-320.md",
+        "title": "Generated login brand row breaks the product name mid-word at 320px/200%",
+        "area": "auth-ui",
+        "score": 0.2,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-07-28-w1-passkey-primary-duplicate-email-label-and-id.md",
+        "title": "Passkey-primary login renders two identically-labelled email fields, and four inputs share id=\"user_email\"",
+        "area": "auth-ui",
+        "score": 0.2,
+        "reasons": [
+          "keywords: requirements"
+        ]
+      },
+      {
+        "file": "2026-07-28-w7-admin-lib-sigra-auth-classes-and-one-dead-class.md",
+        "title": "Admin lib reaches into sigra-auth-* classes, and sigra-auth-preview-form is dead",
+        "area": "admin-ui",
+        "score": 0.2,
+        "reasons": [
+          "keywords: requirements"
+        ]
+      },
+      {
+        "file": "2026-08-01-phase-234-github-evidence-residual.md",
+        "title": "Untitled",
+        "area": "general",
+        "score": 0.2,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-09-16-upgrade-guide-link-removal-was-lossy-where-a-lossless-fix-existed.md",
+        "title": "Three upgrade-guide sentences lost their referent instead of gaining a working link",
+        "area": "docs",
+        "score": 0.2,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-09-18-packaged-docs-surface-carries-planning-paths-into-the-hex-tarball.md",
+        "title": "\"The packaged docs/ + README.md + CHANGELOG.md surface ships 58 `.planning/` references inside the Hex tarball\"",
+        "area": "docs",
+        "score": 0.2,
+        "reasons": [
+          "keywords: phase"
+        ]
+      },
+      {
+        "file": "2026-10-12-add-missing-v16-upgrade-guidance.md",
+        "title": "Untitled",
+        "area": "docs",
+        "score": 0.2,
+        "reasons": [
+          "keywords: missing"
+        ]
+      }
+    ],
+    "already_linked": [
+      "2026-09-15-admin-eval-webkit-registration-flake-recurrence.md"
+    ],
+    "direct_requirement_leads": [
+      "2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md",
+      "2026-09-19-example-playwright-smoke-manifest-step-gate-inaccuracy.md"
+    ],
+    "new_unrelated_promotions": 0,
+    "closed_todos": 0
+  },
+  "context_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+  "discussion_log_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+  "discovery_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+  "decision_ids": [
+    "D-01",
+    "D-02",
+    "D-03",
+    "D-04",
+    "D-05",
+    "D-06",
+    "D-07",
+    "D-08",
+    "D-09",
+    "D-10",
+    "D-11",
+    "D-12",
+    "D-13",
+    "D-14",
+    "D-15",
+    "D-16",
+    "D-17",
+    "D-18",
+    "D-19",
+    "D-20",
+    "D-21",
+    "D-22",
+    "D-23",
+    "D-24"
+  ],
+  "implementation_started": false,
+  "phase_verification_status": "not_started",
+  "requirements_marked_complete": 0,
+  "app_tests_run": false,
+  "ci_dispatched": false,
+  "external_mutations": false,
+  "new_dependencies": 0,
+  "historical_verification_is_forward_blocker": false,
+  "next_command": "$gsd-plan-phase 253",
+  "refinement_preservation": {
+    "ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+    "paths": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+        "sha256": "642c2c180fa8139fe537b2701230928fc587d09c862c2f6ae96f2461d11bdd7a",
+        "bytes": 25311,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+        "sha256": "504341d94cfb3aea7122e08b9e5dbd8421f444421f7fd2d8eed67e3e5370269f",
+        "bytes": 13290,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+        "sha256": "07e24cd5e01b5869054d577d675b2ddced97be2e677aae6d7c91965282874067",
+        "bytes": 4194,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-RECORD.json",
+        "sha256": "c2a94bcec80d875ce4f0a64f3d4159bbe6e2a97fd8b85af35b5d6b5114961e68",
+        "bytes": 64966,
+        "status": "clean",
+        "recoverable_ref": "87177118c66f6f1041a7c1727568ac19aeb3d990",
+        "git_readback_exact": true
+      }
+    ]
+  },
+  "synthesis_review": {
+    "reviewer": "phase253_assumptions",
+    "terminal_result_received": true,
+    "initial_material_findings": 2,
+    "material_findings_applied": 2,
+    "remaining_material_findings": 0,
+    "clarified_decisions": [
+      "D-14",
+      "D-23"
+    ],
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SYNTHESIS-REVIEW.md",
+    "phase_acceptance": false
+  },
+  "artifacts": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+      "sha256": "bee3668bc9a7bac5f93b9a695c99af26212178fa2fceeecfb982e58d4684389e",
+      "bytes": 25723
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+      "sha256": "07e24cd5e01b5869054d577d675b2ddced97be2e677aae6d7c91965282874067",
+      "bytes": 4194
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-CHECKS.json",
+      "sha256": "90e655f4904e1106ec158b731857439fda4c8ecd28f3f6be1f19ecdfe37deb1a",
+      "bytes": 7934
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+      "sha256": "b69d1525a8c8eeafe4602a2da6e166a3132939e5790308e5b5e4184c8402a4b3",
+      "bytes": 14199
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SYNTHESIS-REVIEW.md",
+      "sha256": "b9c9f2360ecde74ef640da83401376b504e55e87fff40eb3cf84269b9e476658",
+      "bytes": 1096
+    }
+  ],
+  "routing": {
+    "updated_at": "2026-10-13T02:12:51.125214+00:00",
+    "next_command": "$gsd-plan-phase 253",
+    "readiness": {
+      "researcher_model": "gpt-6-luna",
+      "planner_model": "gpt-6-sol",
+      "checker_model": "gpt-6-luna",
+      "tdd_mode": false,
+      "granularity": "fine",
+      "research_enabled": true,
+      "plan_checker_enabled": true,
+      "nyquist_validation_enabled": true,
+      "commit_docs": true,
+      "text_mode": false,
+      "auto_advance": false,
+      "auto_chain_active": false,
+      "mode": "yolo",
+      "phase_found": true,
+      "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+      "expected_phase_dir": null,
+      "phase_number": "253",
+      "phase_name": "fix-flaky-ci-and-preserve-required-checks",
+      "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+      "padded_phase": "253",
+      "phase_req_ids": "CIREL-01, CIREL-02",
+      "phase_status": "Pending",
+      "has_research": false,
+      "has_context": true,
+      "context_scope": "complete",
+      "has_reviews": false,
+      "has_plans": false,
+      "plan_count": 0,
+      "threat_id_duplicates": [],
+      "threat_id_duplicate_count": 0,
+      "planning_exists": true,
+      "roadmap_exists": true,
+      "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+      "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+      "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+      "patterns_path": null,
+      "context_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+      "section_manifest": {
+        "workflow": "plan-phase",
+        "included": [],
+        "excluded": [
+          "reviews-prerequisite",
+          "prd-express-gate",
+          "adr-ingest-express-path",
+          "research-only-modifiers",
+          "research-only-early-exit",
+          "chunked-planning-mode"
+        ],
+        "read": []
+      },
+      "prior_verify_commands": [
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+          "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint",
+          "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+          "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records",
+          "command": "bash scripts/ci/ci-run-metrics.test.sh"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+          "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter",
+          "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+          "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics",
+          "command": "bash scripts/ci/ci-exunit-timing.test.sh"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-04-PLAN.md",
+          "task": "Task 1: Produce one JSON report per existing Playwright invocation",
+          "command": "node --test scripts/ci/ci-playwright-report.test.mjs"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-05-PLAN.md",
+          "task": "Task 1: Retain timing and cache provenance from the existing CI owners",
+          "command": "node --test scripts/ci/ci-measure-workflow.test.mjs"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+          "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay",
+          "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json"
+        },
+        {
+          "phase": "252",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+          "task": "Task 3: Publish a concise source-linked baseline and reproducible commands",
+          "command": "bash scripts/ci/ci-measure-report.test.sh"
+        }
+      ],
+      "project_root": "/Users/jon/projects/sigra",
+      "agents_installed": true,
+      "missing_agents": [],
+      "agents_dir": "/Users/jon/.codex/agents",
+      "agent_runtime": "codex",
+      "project_title": "Sigra"
+    },
+    "before_route_write": {
+      "ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "status": "clean",
+          "bytes": 8242,
+          "sha256": "2ccd69ec6bbd7d6dcf22de6bde49f850fdd2b8c65da4ceecd34c6cef9936b8c8",
+          "recoverable_ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "status": "clean",
+          "bytes": 1080,
+          "sha256": "76b290f489559f844238f708c4ceb3f43b41dbbe6a8fd7ed7e0fbab83f4fe526",
+          "recoverable_ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "clean",
+          "bytes": 27664,
+          "sha256": "2aaf3e3f61c089aa122686be4b412c348256903db88cb81d4f2918676cffb96f",
+          "recoverable_ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "status": "clean",
+          "bytes": 10593,
+          "sha256": "68f9f18e69158f20490e6743fedef12b55facbc25f79f1fc6a0bcf701b330053",
+          "recoverable_ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/PROJECT.md",
+          "status": "clean",
+          "bytes": 197951,
+          "sha256": "43ddf6c10a2e468ccc59ef33a01a68a99e89c430b08df2de01fa64d87d8fcb21",
+          "recoverable_ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/v1.50-START.json",
+          "status": "clean",
+          "bytes": 19375,
+          "sha256": "f8b2d206f6d288fd07cdf3c178d7bee24f78647f757fc6c1ccdb28227d84d4c8",
+          "recoverable_ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-RECORD.json",
+          "status": "clean",
+          "bytes": 68032,
+          "sha256": "27c3d906d9d47f61f049181774dec449f8e32cdadc5e148d3bd214402106f595",
+          "recoverable_ref": "42c558cd77386b7e92ec142fefe95064c39efec5",
+          "git_readback_exact": true
+        }
+      ],
+      "read_back_verified": true,
+      "source_status_and_hashes_rechecked": true
+    },
+    "context_commit": "ba4b9e5eea403b892efe2fb02172a25caa55e10b",
+    "sdk_session_commit": "42c558cd77386b7e92ec142fefe95064c39efec5",
+    "sdk_session_source": {
+      "path": ".planning/STATE.md",
+      "status": " M",
+      "sha256": "2ccd69ec6bbd7d6dcf22de6bde49f850fdd2b8c65da4ceecd34c6cef9936b8c8",
+      "bytes": 8242
+    },
+    "phase_verification_status": "not_started",
+    "implementation_started": false
+  },
+  "routing_checks_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ROUTING-CHECKS.json"
+}

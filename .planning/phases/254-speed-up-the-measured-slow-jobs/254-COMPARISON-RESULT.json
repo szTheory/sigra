@@ -1,0 +1,22 @@
+{
+  "schema_version": "sigra.ci-comparison-result/v1",
+  "status": "not_started",
+  "comparison_outcome": "blocked_before_collection",
+  "implementation_complete": true,
+  "phase_verification_status": "pending",
+  "contract_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-RUN-CONTRACT.json",
+  "readiness_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-READINESS.json",
+  "valid_pairs": 0,
+  "required_pairs": 20,
+  "families_started": 0,
+  "metrics": {
+    "median_ratio": null,
+    "nearest_rank_p95_ratio": null,
+    "all_attempt_runner_cost_ratio": null
+  },
+  "requirements": {
+    "CISPEED-01": "open",
+    "CISPEED-02": "open"
+  },
+  "reason": "No comparison sample was collected because exact real-PR baseline execution could not be proven. This is not a pass, miss, or insufficient-data result from a sample."
+}

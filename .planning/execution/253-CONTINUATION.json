@@ -1,0 +1,46 @@
+{
+  "schema": "sigra.phase253.completed-continuation/v1",
+  "status": "complete",
+  "updated_at": "2026-10-23T15:17:23.454208+00:00",
+  "summary": "Phase 253 implementation and final verification complete:6/6 outcomes; CIREL-01 and CIREL-02 satisfied. Existing evidence includes9 targeted registration passes,108 integration passes,22 native controls and6 hosted gate scenarios. No new browser or CI run was started for final review.",
+  "next_command": "$gsd-discuss-phase 254",
+  "resume_command": "$gsd-discuss-phase 254",
+  "current_routing": {
+    "status": "ready_to_discuss_next_phase",
+    "next_command": "$gsd-discuss-phase 254",
+    "resume_command": "$gsd-discuss-phase 254",
+    "conditional": false,
+    "reason": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker.",
+    "readiness": ".planning/execution/253-final-gates/phase254-readiness.json",
+    "historical_verification_is_forward_blocker": false
+  },
+  "phase253_canonical_verification": {
+    "status": "passed",
+    "score": "6/6",
+    "report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md",
+    "phase_complete": true,
+    "verified_at": "2026-10-23T15:17:23.454208+00:00",
+    "requirements_completed": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "gates_commit": "70729a937a74ca11fe9b84f733563e738209d452",
+    "gate_evidence": ".planning/execution/253-final-gates",
+    "known_limit": "Original hosted loader/reloader timing remains inferred; controlled pinned-component reproduction matches the observed exception."
+  },
+  "prior_history": {
+    "prior_commit": "70729a937a74ca11fe9b84f733563e738209d452",
+    "identity_record": ".planning/execution/253-final-gates/completion-prior-state.json",
+    "historical_plan_count": 183,
+    "completed_implementation_count": 81,
+    "halted_count": 29,
+    "retired_never_executed": 73,
+    "retirements": ".planning/execution/253-final-review/RETIREMENTS.json",
+    "original_failed_results_unchanged": true,
+    "old_allowances_remain_consumed": true
+  },
+  "budgets_reset": false,
+  "new_browser_invocations": 0,
+  "new_ci_launches": 0,
+  "new_github_requests": 0
+}

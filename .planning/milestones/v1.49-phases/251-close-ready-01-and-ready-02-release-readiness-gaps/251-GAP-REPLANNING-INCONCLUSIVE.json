@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "invocation": "$gsd-plan-phase 251 --gaps",
+  "captured_at": "2026-10-12T02:28:50Z",
+  "capture_head": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+  "status": "planning_inconclusive",
+  "new_plans": [],
+  "reason": "No materially new finite read-only task can close or advance READY-01 under its locked original acceptance bar. Plan 251-06 already performed bounded historical owner-source, complete approval-window, exact-tuple, and immutable published-tag recovery; Plans 251-01 through 251-07 are implemented and automatically checked. A diagnostic-only Plan 08 would repeat completed work and could not change the original owner verdict.",
+  "phase_state": {
+    "plans_implemented": "7/7",
+    "gap_tasks_implemented": "12/12",
+    "verification_status": "gaps_found",
+    "verified_truths": "9/10",
+    "owner_phase": 247,
+    "owner_verdicts": {
+      "READY-01": "authorization_pending_unsatisfied",
+      "READY-02": "satisfied"
+    },
+    "milestone": "v1.49 incomplete at 8/9",
+    "node_regressions_passed": 213,
+    "elixir_regressions_passed": 250,
+    "validation_rows_passed": "12/12",
+    "security_threats_closed": "22/22"
+  },
+  "immutable_identities": {
+    "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+    "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+    "protected_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+    "published_tag": "v1.6.0",
+    "published_tag_commit": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "historical_owner_report_commit": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+    "historical_owner_report_blob": "da60a96544dcb1dff301e416930e183e021f0b6e",
+    "historical_owner_report_sha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39"
+  },
+  "gap_missing_audit": [
+    {
+      "missing": "Independently trusted immutable bytes for the historical Phase 247 owner report",
+      "finding": "The local Git object is readable, but the authoritative GitHub commit lookup returned HTTP 422 and the exact-ref report lookup returned HTTP 404. Plan 251-06 already performed the bounded recovery. Local-only bytes cannot establish independent trust.",
+      "next_plan_delta": "none without a separately authenticated contemporaneous archive of this exact commit/path/blob"
+    },
+    {
+      "missing": "Contemporaneous approval for the exact candidate/source/CI/readiness/dry-run tuple",
+      "finding": "The complete 2026-10-08T17:41:43Z to 2026-10-09T00:56:51Z PR 224 review/timeline interval has zero reviews and zero qualifying approvals. A later or newly requested approval is forbidden by D-02.",
+      "next_plan_delta": "none without an independently trusted pre-existing approval record from the original interval that binds every required identity"
+    },
+    {
+      "missing": "Matching readiness and authenticated non-publishing dry-run evidence for the exact candidate tuple",
+      "finding": "Exact-head CI run 37819712610 attempt 1 names the candidate, but the saved readiness record and dry-run receipt name d76d7f2306f6099063a80a420d2d8a4e04c7785f. D-01 forbids joining them across candidates.",
+      "next_plan_delta": "none without independently trusted original matching records; a new run cannot become contemporaneous historical evidence"
+    },
+    {
+      "missing": "Published v1.6.0 upgrade guide and README link, or an explicitly approved alternative meeting the original bar",
+      "finding": "The published tag resolves to 9e80cb78d6374b1ed4074d5fef6b613fee879dca. The exact-commit guide read returned a trusted HTTP 404; local git ls-tree lists README.md but no guide, and that README has no v1.6 guide link. Candidate-only guide bytes do not satisfy the published-source check.",
+      "next_plan_delta": "none within Phase 251 read-only scope and the immutable published identity; an alternative requires an explicit acceptance/scope decision and must not be reported as satisfying unchanged historical bytes"
+    }
+  ],
+  "source_audit": [
+    {
+      "source": "GOAL",
+      "item": "Phase 251 reconciliation and original-owner verdict refresh",
+      "existing_coverage": "251-01 through 251-07",
+      "status": "implemented; final READY-01 truth remains failed"
+    },
+    {
+      "source": "REQ",
+      "item": "READY-01",
+      "existing_coverage": "251-01, 251-04, 251-06, 251-07",
+      "status": "original acceptance bar unmet; no new in-scope recovery task"
+    },
+    {
+      "source": "REQ",
+      "item": "READY-02",
+      "existing_coverage": "251-01, 251-03, 251-05, 251-07",
+      "status": "satisfied by Phase 247 owner proof"
+    },
+    {
+      "source": "RESEARCH",
+      "item": "Exact immutable tuple, complete source windows, original owner, fail-closed inventory and preservation",
+      "existing_coverage": "251-01 through 251-07",
+      "status": "implemented and checked; no new library or API surface"
+    },
+    {
+      "source": "CONTEXT",
+      "item": "D-01 through D-06",
+      "existing_coverage": "251-01 through 251-07",
+      "status": "locked constraints enforced; D-01 and D-02 prevent false READY-01 closure"
+    }
+  ],
+  "specless_edge_fallback": {
+    "source": "/private/tmp/sigra-251-plan-gaps-2/edge-coverage.json",
+    "unresolved": [
+      "READY-01 idempotency",
+      "READY-01 concurrency",
+      "READY-02 adjacency",
+      "READY-02 empty/null population",
+      "READY-02 ordering"
+    ],
+    "disposition": "Visible unresolved fallback report. Existing Plans 251-03, 251-05, and 251-06 and the passing scoped regressions exercise these boundaries, but this invocation does not silently promote the descriptor-less fallback to independently resolved proof or create a duplicate plan."
+  },
+  "locked_decisions": {
+    "D-01": "Keep one exact complete candidate tuple; no cross-candidate evidence join.",
+    "D-02": "No later or replacement approval for missing original contemporaneous approval.",
+    "D-03": "READY-02 fresh population and preservation remain independently satisfied.",
+    "D-04": "Phase 247 retains both READY requirements; v1.49 stays incomplete.",
+    "D-05": "Read-only observations and automated checks only; no release mutation.",
+    "D-06": "CI/CD optimization remains deferred outside Phase 251."
+  },
+  "specific_input_or_scope_decision_needed": [
+    "If an independently authenticated archive actually contains the original owner-report bytes, exact contemporaneous approval, and matching candidate readiness/dry-run receipts, identify the archive and immutable record IDs for a new bounded verification plan; do not manufacture or solicit a replacement approval.",
+    "The published tag's guide/link absence cannot be changed by read-only verification. Decide whether to keep v1.49 explicitly incomplete or authorize a separate, explicitly revised release/acceptance scope. Such a revision cannot retroactively satisfy the unchanged Phase 247 historical bar."
+  ],
+  "preservation": {
+    "capture_worktree_clean": true,
+    "capture_recovery_commit": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+    "existing_plans_or_evidence_overwritten": false,
+    "new_artifact_only": true
+  },
+  "source_artifacts": [
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md",
+      "sha256": "ff2830f3366511fdbdbb773225dcef3251af6bef8b5323f3c1dbc95f473296f5"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+      "sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json",
+      "sha256": "0e482a6b372e5e144d11f6b9be59296a83ec663a8d0d7a94b74d5977b946f56d"
+    },
+    {
+      "path": ".planning/v1.49-MILESTONE-AUDIT.md",
+      "sha256": "e074f01d1974753cb0705f7163730b427d397c0c5806f67d177e44de0ca3722c"
+    }
+  ]
+}

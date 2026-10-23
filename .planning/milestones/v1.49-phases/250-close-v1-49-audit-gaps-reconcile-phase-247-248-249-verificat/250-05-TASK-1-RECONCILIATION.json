@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "phase": "250",
+  "plan": "05",
+  "task": "1",
+  "captured_at": "2026-10-10T16:36:17Z",
+  "precondition": "not_met",
+  "decision": "no_promotion",
+  "owner_rows_changed": false,
+  "requirements_file_changed": false,
+  "canonical_checks": {
+    "247": {
+      "integrity": "valid",
+      "status": "gaps_found",
+      "unsatisfied": ["READY-01", "READY-02"],
+      "blockers": [
+        "authorization_pending",
+        "candidate_diff_digest_missing",
+        "dry_run_tuple_mismatch",
+        "exact_head_ci_source_missing",
+        "fresh_inherited_dispositions_missing",
+        "fresh_pr_dispositions_incomplete",
+        "live_candidate_tuple_changed",
+        "readiness_tuple_mismatch"
+      ]
+    },
+    "248": {
+      "integrity": "valid",
+      "status": "gaps_found",
+      "satisfied": ["AUTO-01"],
+      "unsatisfied": ["AUTO-02"],
+      "source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+      "canary_proof": "blocked",
+      "failure_artifact": "missing",
+      "cancellation_artifact": "missing"
+    },
+    "249": {
+      "integrity": "valid",
+      "status": "gaps_found",
+      "satisfied": ["REL-01"],
+      "unsatisfied": ["REL-02"],
+      "current_main_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+      "current_main_workflow_conclusion": "failure",
+      "ci_gate_conclusion": "success",
+      "missing_dispositions": [302, 306, 307, 308, 309],
+      "accepted_handoff_loss": "unrecovered_and_unpreserved"
+    }
+  },
+  "result": "Precondition not met. Preserve original owner completion rows and requirement statuses; strict milestone audit must retain gaps_found."
+}

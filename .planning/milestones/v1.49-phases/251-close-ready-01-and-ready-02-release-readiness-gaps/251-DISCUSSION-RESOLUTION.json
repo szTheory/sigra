@@ -1,0 +1,456 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "invocation": "$gsd-discuss-phase 251",
+  "mode": "assumptions_text",
+  "status": "discussion_confirmed_implementation_complete_verification_incomplete",
+  "captured_at": "2026-10-12T12:56:18.946087+00:00",
+  "user_choices": [
+    {
+      "question": "Existing context",
+      "answer": "1: Update it"
+    },
+    {
+      "question": "Assumptions and recommended direction",
+      "answer": "1: Yes, save this direction"
+    }
+  ],
+  "assumptions_confirmed": [
+    "Preserve original exact-source and contemporaneous approval bar",
+    "Keep READY-02 satisfied, READY-01 unsatisfied, and v1.49 incomplete at 8/9",
+    "No automatic retry without newly identified independently trusted historical evidence",
+    "Prospective corrections require separate explicit scope"
+  ],
+  "prior_locked_decisions_unchanged": true,
+  "new_decisions": [
+    "D-07",
+    "D-08",
+    "D-09",
+    "D-10"
+  ],
+  "new_trusted_source_supplied": false,
+  "prospective_work_authorized": false,
+  "release_actions_authorized": false,
+  "phase_complete": false,
+  "milestone_complete": false,
+  "phase_verification": "gaps_found",
+  "phase_score": "9/10",
+  "implementation_plans": "7/7",
+  "gap_tasks": "12/12",
+  "owner_phase": 247,
+  "requirement_verdicts": {
+    "READY-01": "authorization_pending_unsatisfied",
+    "READY-02": "satisfied"
+  },
+  "milestone_score": "8/9",
+  "route": {
+    "command": "$gsd-plan-phase 251 --gaps",
+    "label": "Conditional recovery after new trusted evidence",
+    "reason": "User confirmed exhausted recovery: implementation complete, verification incomplete. No new trusted historical source or separately authorized prospective scope exists.",
+    "conditional": true,
+    "condition": "Only after a newly identified independently trusted pre-existing original evidence source is supplied; a finite source-ready delta is required. No automatic retry.",
+    "automatic_command": null,
+    "route_status": "waiting_for_new_evidence_or_explicit_separate_scope"
+  },
+  "automatic_retry_allowed": false,
+  "capture": {
+    "capture_head": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+    "capture_worktree_clean": true,
+    "records": [
+      {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md",
+        "status": "clean",
+        "bytes": 11609,
+        "sha256": "7dd35840c3f5729fad8f161443dae089d94726e5f25127aa427aab6788c1315b",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": false
+      },
+      {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-LOG.md",
+        "status": "clean",
+        "bytes": 3343,
+        "sha256": "3ce591bc3ba60cc273f6470db1acc34a2e8b57d0e7125f5f1f1f515617aadedd",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": false
+      },
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "bytes": 6353,
+        "sha256": "744180f7afa083681b65a4f6b907d327bbf7457ee1b660358cb4a7c5552fd189",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": false
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "bytes": 1793,
+        "sha256": "2fdb37b875d5cd0c1ef9a1750e9375710b64451c4ea6da1ed7553272abd8c392",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": false
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "bytes": 96745,
+        "sha256": "dc4b376beec79e1c39fd8bb8821092abc861c1f0ef32d8d9efc137d7e158739a",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": false
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "bytes": 21836,
+        "sha256": "1c3cad90f190375eff48ca78286ccf722c4fa6e122db0886b722f5c3a9800d1b",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": false
+      },
+      {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+        "status": "clean",
+        "bytes": 4451491,
+        "sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": true
+      },
+      {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md",
+        "status": "clean",
+        "bytes": 20751,
+        "sha256": "ff2830f3366511fdbdbb773225dcef3251af6bef8b5323f3c1dbc95f473296f5",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": true
+      },
+      {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json",
+        "status": "clean",
+        "bytes": 7968,
+        "sha256": "e0c97cb7a357928b6013d4d35e3598c5312795e31e9e47b2a62fa93355c17413",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": true
+      },
+      {
+        "path": ".planning/REQUIREMENTS.md",
+        "status": "clean",
+        "bytes": 7437,
+        "sha256": "3ee6a298db8e120326d351967ca4c689b13ebf631445ef4c37ffaf81425908c9",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": true
+      },
+      {
+        "path": ".planning/v1.49-MILESTONE-AUDIT.md",
+        "status": "clean",
+        "bytes": 27826,
+        "sha256": "e074f01d1974753cb0705f7163730b427d397c0c5806f67d177e44de0ca3722c",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": true
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+        "status": "clean",
+        "bytes": 2058,
+        "sha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c",
+        "recovery_ref": "5d4b2638d1ff42a3228953cede17f8aed1bd4046",
+        "read_back_verified": true,
+        "protected_from_change": true
+      }
+    ]
+  },
+  "analyzer": {
+    "agent_type": "gsd-assumptions-analyzer",
+    "task_name": "/root/phase251_discussion_assumptions",
+    "model": "gpt-6-sol",
+    "effort": "xhigh",
+    "terminal_result_received": true,
+    "analysis_only": true
+  },
+  "test_suites_rerun": false,
+  "todo_matches": 69,
+  "todos_folded": 0,
+  "external_research_required": false,
+  "checks": {
+    "status": "discussion_contract_checks_passed",
+    "prior_exact_readbacks": 12,
+    "protected_sources_unchanged": true,
+    "prior_D01_D06_unchanged": true,
+    "D07_D10_present": true,
+    "six_context_sections_present": true,
+    "prior_log_prefix_unchanged": true,
+    "all_live_routes_conditional": true,
+    "automatic_next_command": null,
+    "history_and_four_blockers_unchanged": true,
+    "new_plans": 0,
+    "requirements_acceptance_passed": false,
+    "fresh_commands": {
+      "packet": {
+        "command": [
+          "node",
+          ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs",
+          "--check-251"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "71b50c530b83de38641a42985a0531c6c820a58b79b29a8ca070f6bbc7d3a8af",
+        "result": {
+          "valid": true,
+          "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+          "capture_id": "phase251-939607ff3f17e03b22aa",
+          "capture_id_matches": true,
+          "verdicts_match": true
+        }
+      },
+      "sources": {
+        "command": [
+          "node",
+          ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs",
+          "--check-sources"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "8a0736b87da9c7a6e51fdb600132fb897b182e6e2af46a1864a5c7853dfc2175",
+        "result": {
+          "status": "gaps_found",
+          "milestoneStatus": "incomplete",
+          "score": {
+            "requirements": "8/9",
+            "phases": "4/6",
+            "integration": "4/5",
+            "flows": "3/4"
+          },
+          "currentReadiness": {
+            "packetPath": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+            "packetSha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+            "ownerPhase": 247,
+            "ready01": "unsatisfied",
+            "ready02": "satisfied",
+            "blockers": [
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: Historical owner report commit 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1 is locally readable (blob da60a96544dcb1dff301e416930e183e021f0b6e, SHA-256 d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39), but the GitHub commit endpoint returns 422 and exact-ref contents lookup returns 404; local bytes are not independently trusted.",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: READY01_preflight_source_blocked",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: approval_candidate_tuple_mismatch",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: approval_dry_run_receipt_mismatch",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: approval_event_not_exact_or_contemporaneous",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: approval_exact_head_ci_mismatch",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: approval_readiness_record_mismatch",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: authorization_pending",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: authorization_pending: complete review/timeline history has zero reviews and no exact-candidate approval.",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: historical_owner_source_untrusted",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: mismatch: published README omits the guide link.",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: missing: published tag lacks the v1.6 guide.",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: package_check_mismatch:readme_guide_link",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01: package_check_missing:published_tag_guide",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Phase 251 READY-01 is authorization_pending: no recoverable contemporaneous approval binds the exact candidate/source/CI/readiness/dry-run record.",
+                "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+              },
+              {
+                "id": "READY-01",
+                "message": "Canonical owner Phase 247 verifier is gaps_found; requirement verdict is unsatisfied.",
+                "identity": {
+                  "report": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+                  "reportSha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c"
+                }
+              }
+            ]
+          },
+          "acceptedExceptionCount": 0,
+          "historicalExceptionCount": 2,
+          "unacceptedBlockerCount": 16
+        }
+      },
+      "audit": {
+        "command": [
+          "node",
+          ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs",
+          "--check-audit",
+          ".planning/v1.49-MILESTONE-AUDIT.md"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "83e0584cc8a2cb55c72242364facb5cb0d6a82488c05a9b880c39de4a5b55f2b",
+        "result": {
+          "valid": true,
+          "errors": [],
+          "status": "gaps_found",
+          "score": {
+            "requirements": "8/9",
+            "phases": "4/6",
+            "integration": "4/5",
+            "flows": "3/4"
+          },
+          "blockerCount": 16
+        }
+      },
+      "phase_verification_status": {
+        "command": [
+          "node",
+          "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+          "query",
+          "verification.status",
+          ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "92ae87cd390bca5a886f80133b788ecbec5212fc8e84df392ac854c3d7995497",
+        "result": {
+          "status": "gaps_found",
+          "next_action": "Gaps found. Plan the fixes, then re-run execute-phase before shipping.",
+          "next_command": "$gsd-plan-phase 251 --gaps",
+          "route": "plan-phase"
+        }
+      },
+      "diff_check": {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": {
+          "valid": true
+        }
+      }
+    },
+    "route_frontmatter_review_issue": "Inherited next_command still named discuss-phase; corrected before final closeout and covered by the strengthened route assertion.",
+    "next_command_and_resume_command_asserted": true,
+    "session_state_exact_readback": true,
+    "context_commit_exact_readback": true,
+    "phase_progress_is_not_implementation_progress": true
+  },
+  "readiness": {
+    "phase": 251,
+    "phase_found": true,
+    "phase_status": "Executed",
+    "plan_count": 7,
+    "context_scope": "complete",
+    "has_context": true,
+    "has_research": true,
+    "auto_advance": false,
+    "next_roadmap_phase": null,
+    "qualification": "Orchestration readiness does not establish a new historical source; no automatic plan or execution is enabled."
+  },
+  "context_commit": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+  "session_record": {
+    "command": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "state.record-session",
+      "--stopped-at",
+      "Phase 251 context confirmed; implementation complete, verification incomplete; no automatic retry",
+      "--resume-file",
+      ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md"
+    ],
+    "recorded": true,
+    "session_state_commit": "513c70bb69689ad0ca26d620c0a4a532c279b183",
+    "prewrite_records": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "c0dd996a7ffe082d70d08bf712ef94c5b62cae25d2be55edd2aa95676b2a0b5c",
+        "bytes": 7063,
+        "read_back_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "2b0bf69f3b94ca5ea4ec9ace680b36efc8099f7e2dbd441ef94b6e0e77e16136",
+        "bytes": 2391,
+        "read_back_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "13a0cdfc9b8bca33d6e1679272def59a337f5bab23a36a6363de8cacc0e03132",
+        "bytes": 103879,
+        "read_back_verified": true
+      },
+      {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json",
+        "status": "clean",
+        "recovery_ref": "a531bc469f92ea973b6f7dca9eb8633c6a7a1df7",
+        "sha256": "4148f270c873bec152bae25c1501c92f18e5ed3440d01b32c6d6ebf673b84d6c",
+        "bytes": 16525,
+        "read_back_verified": true
+      }
+    ],
+    "session_state_preserved_before_route_repair": {
+      "path": ".planning/STATE.md",
+      "status": " M",
+      "sha256": "e78a30930d7ac6a18804708ee8b47902f6c5c8f4f0d9155f9f50b29df96bd7f1",
+      "bytes": 7014,
+      "recovery_ref": "513c70bb69689ad0ca26d620c0a4a532c279b183",
+      "read_back_verified": true,
+      "pre_repair_status_and_hash_verified": true
+    },
+    "route_repair": "Corrected inherited next_command frontmatter to the same conditional command as resume_command, state.json, and HANDOFF.json. Session writer phase-progress calculation (67%) is retained; implementation counts remain 47/47 overall and 7/7 in Phase251."
+  },
+  "context_sha256": "3b6d2e3b202106907f06a71aca30ed40e5eba45666322b163c561ecf4254c410"
+}

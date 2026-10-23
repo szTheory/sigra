@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-11T03:00:26Z",
+  "source_head": "f56e36cac849c7c7baf974403ca871230a4eda3e",
+  "phase": "250",
+  "planner_command": "$gsd-plan-phase 250 --gaps",
+  "planner_result": "PLANNING INCONCLUSIVE",
+  "reason": "No distinct executable gap plan is justified. Existing Plans 250-07–12 cover all six verification gaps and four source types. Plan 07 remains halted on a stale, unapproved packet; Plan 08 has zero eligible READY tuples; Plans 09–12 depend on those missing proofs. init.execute-phase 250 reports zero runnable plans.",
+  "planning_artifacts": {
+    "plans_created": [],
+    "plans_modified": [],
+    "coverage_matrix": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/COVERAGE.md",
+      "sha256": "f43d19a4a51f7fc4cc84caef5dcccb136eaa6723dfe4d6c255772376c7595224",
+      "gate": "passed",
+      "capabilities": 17,
+      "integrate": 12,
+      "opt_out": 5
+    },
+    "gap_plan_coverage": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLAN-COVERAGE.md",
+      "sha256": "6a71eb6fa5082fc568f074eba4d0130e640c4a370f6aa2a37831b20f1645270c",
+      "api_coverage_detection": "detected:true; recorded in audit"
+    }
+  },
+  "readiness": {
+    "phase_status": "In Progress",
+    "context_present": true,
+    "research_present": true,
+    "plan_count": 12,
+    "summary_count": 8,
+    "completed_plans": [
+      "250-01",
+      "250-02",
+      "250-03",
+      "250-04",
+      "250-05",
+      "250-06"
+    ],
+    "halted_plans": [
+      "250-07",
+      "250-08"
+    ],
+    "dependency_blocked_plans": [
+      "250-09",
+      "250-10",
+      "250-11",
+      "250-12"
+    ],
+    "runnable_plans": [],
+    "phase_verification": {
+      "status": "gaps_found",
+      "score": "8/14"
+    },
+    "milestone_audit": {
+      "status": "gaps_found",
+      "score": "5/9"
+    }
+  },
+  "verification": {
+    "api_coverage_gate": "passed (17 capabilities; 12 INTEGRATE; 5 OPT-OUT)",
+    "plan_checker": "not run: planner returned PLANNING INCONCLUSIVE and created no PLAN.md",
+    "execute_readiness": "zero runnable plans",
+    "local_tests": "not rerun; planning-artifact gate only"
+  },
+  "external_actions": {
+    "workflow_dispatch": false,
+    "canary_dispatch": false,
+    "cancellation": false,
+    "observer_dispatch": false,
+    "ci_dispatch_or_poll": false,
+    "merge_or_publish": false
+  },
+  "state_before_write_sha256": {
+    ".planning/STATE.md": "5be004b06f1298645961f28731dfd208208d553868facce3f4d7d59ab6e243e1",
+    ".planning/state.json": "be081e78648c38b1d684215ca992da0564bae8a236f7791f2682a8d4e5a3ede6",
+    ".planning/HANDOFF.json": "e0e745f41a172f3a1ba7750419be93a4f1c0b15b962e47cbe8fbb8e5c0c11a0c",
+    ".planning/ROADMAP.md": "a18674f61e98fc4537973377b53b0bc0aef10d0ca234e119d1c3cdca411fde31"
+  },
+  "routing": {
+    "immediate_gsd_command": null,
+    "resume_when": "New immutable source-bound READY/AUTO/REL evidence exists, or the user changes the acceptance decision.",
+    "resume_command": "$gsd-plan-phase 250 --gaps",
+    "phase_250_complete": false,
+    "requirements_completed_by_this_run": [],
+    "next_roadmap_phase": null
+  }
+}

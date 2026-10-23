@@ -1,0 +1,135 @@
+{
+  "schema_version": "sigra.phase253.replan-budget-arithmetic/v1",
+  "recorded_at": "2026-10-13T18:19:56.189296+00:00",
+  "source_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-BUDGETS.md",
+  "source_sha256": "af2d0bb9b4d1da4d9a6669c215f1a2f03d85acedddab4bb857f0a47b111331aa",
+  "results": {
+    "canary": {
+      "rows": [
+        {
+          "category": "Preflight",
+          "max_requests": 8
+        },
+        {
+          "category": "Git object/ref publication",
+          "max_requests": 24
+        },
+        {
+          "category": "Dispatches",
+          "max_requests": 7
+        },
+        {
+          "category": "Run discovery",
+          "max_requests": 7
+        },
+        {
+          "category": "Rate pre-watch",
+          "max_requests": 7
+        },
+        {
+          "category": "Terminal polls",
+          "max_requests": 18
+        },
+        {
+          "category": "Attempt-job pages",
+          "max_requests": 7
+        },
+        {
+          "category": "Artifact pages",
+          "max_requests": 7
+        },
+        {
+          "category": "Result ZIP hops",
+          "max_requests": 12
+        },
+        {
+          "category": "Failed-log hops",
+          "max_requests": 6
+        },
+        {
+          "category": "Positively identified cancel",
+          "max_requests": 1
+        },
+        {
+          "category": "Sole infrastructure retry",
+          "max_requests": 13
+        }
+      ],
+      "sum": 117,
+      "expected": 117,
+      "passed": true
+    },
+    "production": {
+      "rows": [
+        {
+          "category": "Fresh preflight",
+          "max_requests": 8
+        },
+        {
+          "category": "Docs base/head object/ref publication",
+          "max_requests": 14
+        },
+        {
+          "category": "Two draft PR creations",
+          "max_requests": 2
+        },
+        {
+          "category": "PR/head/merge/workflow/diff identity",
+          "max_requests": 8
+        },
+        {
+          "category": "Run discovery",
+          "max_requests": 4
+        },
+        {
+          "category": "Pre-watch rate reads",
+          "max_requests": 2
+        },
+        {
+          "category": "Terminal polls: normal15, docs12",
+          "max_requests": 27
+        },
+        {
+          "category": "Attempt jobs pages",
+          "max_requests": 4
+        },
+        {
+          "category": "Native check pages",
+          "max_requests": 4
+        },
+        {
+          "category": "Artifact metadata pages",
+          "max_requests": 4
+        },
+        {
+          "category": "Five normal + five docs record/report ZIPs, two hops each",
+          "max_requests": 20
+        },
+        {
+          "category": "Failed-log hops",
+          "max_requests": 2
+        },
+        {
+          "category": "One infrastructure rerun: rerun1, discovery1, rate1, polls3, jobs2, checks1, artifacts2, native ZIP hops10",
+          "max_requests": 21
+        }
+      ],
+      "sum": 120,
+      "expected": 120,
+      "passed": true
+    }
+  },
+  "first_checker_finding": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PLAN-CHECK-01.md",
+    "preserved_unchanged": true,
+    "quoted_expression": "8+14+2+8+4+2+27+4+4+20+2+21",
+    "expression_sum": 116,
+    "omitted_category": "Artifact metadata pages",
+    "omitted_count": 4,
+    "correct_full_sum": 120,
+    "property": "Every production HTTP operation is included in a correctly summed named reservation within the shared 120-request ceiling",
+    "resolved_by": "Deterministic full-table calculation proves the stated property already holds; fresh independent review required, no numeric override or plan edits"
+  },
+  "plan_files_changed": false,
+  "execution_acceptance": false
+}

@@ -1,0 +1,28 @@
+STEP 0 FETCH 2026-10-21T18:17:14Z
+From https://github.com/szTheory/sigra
+ * branch                main       -> FETCH_HEAD
+{"conflicts": [], "current_main": "09df342a82e03c3d5d40173c912b70e827f7eadc", "moved": false, "network_requests": 0, "output": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-MAIN-PREFLIGHT-R13.json", "status": "clean"}
+c1d7547dd docs(253-171): R13 PR step-0 main preflight (runner, Jon)
+== commit the PR allocation alone
+8d9266b44 docs(253-171): declare the R13 PR production allocation
+== pre-clock asserts (offline)
+CLOCK STARTS 2026-10-21T18:17:16Z (normal family)
+{"allocation_valid": true, "category_limits": {"artifact_downloads": 20, "artifact_metadata": 4, "attempt_jobs": 4, "docs_publication": 14, "failure_logs": 2, "infrastructure_rerun": 21, "native_checks": 4, "pr_create": 2, "pr_identity": 8, "pre_watch_rate": 2, "preflight": 8, "run_discovery": 4, "terminal_polls": 27}, "network_requests": 0, "status": "freeze_valid"}
+Traceback (most recent call last):
+  File "<stdin>", line 781, in <module>
+  File "<stdin>", line 778, in main
+  File "<stdin>", line 688, in run_family
+  File "<stdin>", line 608, in collect
+  File "<stdin>", line 449, in jcall
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 595496 (char 595495)
+416b70f9b docs(253-171): halted R13 PR records (normal family exit 1)
+STOP: normal family exit 1

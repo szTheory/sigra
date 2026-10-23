@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "purpose": "Preserve dirty draft validation and Plan 07 before addressing independent checker round 1",
+  "recorded_at": "2026-10-11T21:55:40.975871+00:00",
+  "capture_head": "650f39331a0a2a76dbaef0f73e1eafabe964e8b3",
+  "files": [
+    {
+      "source_path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "source_status": " M",
+      "sha256": "65fa3105a90363cfe00f6e2788e8a08895b2eaa236a1d2fd4ce979cb0ef888a6",
+      "backup_path": ".planning/recovery/phase251-gap-checker-prewrite-20261011T215540Z/files/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "size": 21982
+    },
+    {
+      "source_path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-PLAN.md",
+      "source_status": "??",
+      "sha256": "89143b31589bf03e34132f367d701c5265fe08674a3e9762b5acf3fa497c0b42",
+      "backup_path": ".planning/recovery/phase251-gap-checker-prewrite-20261011T215540Z/files/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-PLAN.md",
+      "size": 13744
+    }
+  ],
+  "readback_verified_on_disk": true,
+  "required_post_commit_readback": true
+}

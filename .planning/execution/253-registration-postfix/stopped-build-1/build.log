@@ -1,0 +1,1 @@
+ERROR: failed to build: failed to update builder last activity time: open /Users/jon/.docker/buildx/activity/.tmp-desktop-linux151569653: operation not permitted

@@ -1,0 +1,43 @@
+{
+  "created_at": "2026-10-13T19:46:16.665552+00:00",
+  "results": [
+    {
+      "query": "verify.schema-drift",
+      "exit": 69,
+      "result": {
+        "block": false,
+        "drift_detected": false,
+        "blocking": false,
+        "message": "Phase directory not found: --phase"
+      },
+      "stderr": ""
+    },
+    {
+      "query": "verify.codebase-drift",
+      "exit": 0,
+      "result": {
+        "block": false,
+        "skipped": true,
+        "reason": "no-structure-md",
+        "action_required": false,
+        "directive": "none",
+        "elements": []
+      },
+      "stderr": ""
+    },
+    {
+      "query": "ui.safety-gate",
+      "exit": 69,
+      "result": {
+        "frontend": false,
+        "hasUiFiles": false,
+        "hasUiSpec": false,
+        "block": false,
+        "phaseLookupFailed": true,
+        "scopeStatus": "unresolvable",
+        "scopeReason": "phase-dir-not-found"
+      },
+      "stderr": ""
+    }
+  ]
+}

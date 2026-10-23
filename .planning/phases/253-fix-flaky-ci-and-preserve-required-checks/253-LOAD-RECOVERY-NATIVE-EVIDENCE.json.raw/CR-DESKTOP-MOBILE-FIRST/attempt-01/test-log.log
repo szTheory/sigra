@@ -1,0 +1,11 @@
+
+Running 16 tests using 1 worker
+
+  ✘   1 [admin-eval] › tests/admin-eval.spec.ts:271:7 › registration waits for explicitly released LiveView readiness (12.6m)
+  ✘   2 [admin-eval] › tests/admin-eval.spec.ts:359:7 › registration stops when LiveView readiness is never released (1.9s)
+  ✘   3 [admin-eval] › tests/admin-eval.spec.ts:372:7 › registration fails when the readiness wait is deliberately broken (1.8s)
+  ✘   4 [admin-eval] › tests/admin-eval.spec.ts:382:7 › registration detects a deliberate same-account collision (17.8s)
+  ✘   5 [admin-eval] › tests/admin-eval.spec.ts:404:7 › registration retains the first forced assertion failure trace (2.8s)
+  ✘   6 [admin-eval-mobile] › tests/admin-eval.spec.ts:271:7 › registration waits for explicitly released LiveView readiness (16.7s)
+  ✘   7 [admin-eval-mobile] › tests/admin-eval.spec.ts:359:7 › registration stops when LiveView readiness is never released (2.2s)
+  ✘   8 [admin-eval-mobile] › tests/admin-eval.spec.ts:372:7 › registration fails when the readiness wait is deliberately broken (15.4m)

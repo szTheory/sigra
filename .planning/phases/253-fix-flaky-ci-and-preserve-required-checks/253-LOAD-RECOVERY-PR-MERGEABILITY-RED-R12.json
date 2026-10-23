@@ -1,0 +1,134 @@
+{
+ "schema": "sigra.phase253.red-receipt/r12",
+ "plan": "253-139",
+ "task": "Task 1 (conflicted head and moving main in the fake, the step-0 preflight and the diagnostic verdict)",
+ "produced_on_head": "be0aa9661e1f24f244916ffca1457fd934423802",
+ "working_tree": "test edits uncommitted on top of produced_on_head (the 253-139 fake model: the real R11 sequence-5 create key set, base.sha = the fake's current main, mergeability on pr_read, no run under conflicted_head / mergeability_unknown / no_run_while_mergeable, three-dot compare; World.set_current_main, World.main_preflight, collect(main_preflight=...); the PrMainPreflightTests and PrMergeabilityCollectionTests classes). Entry 1 ran against ci-pr-proof.sh unchanged from produced_on_head: every --main-preflight invocation is rejected by argparse (exit 2), which is a refusal for the wrong reason for the replay, but the moved-main family without --main-preflight is ACCEPTED (the unchecked moved main). Entry 2 ran against a working-tree ci-pr-proof.sh carrying ONLY parser.add_argument(\"--main-preflight\") (parsed, never read), reverted with git checkout immediately after the run and never committed, so the unfixed collector logic is what stops: the conflicted-head replay stops with the generic no-run message after 7 requests (253-125 / 253-138 entry-2 precedent).",
+ "silent_no_run": {
+  "test": "test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests",
+  "entry": 2,
+  "observed": "253-139 conflicted-head-replay: {\"exit\": 1, \"requests\": 7, \"stderr_tail\": [], \"stop\": \"no pull_request workflow run was discovered for the published head\"}"
+ },
+ "unchecked_moved_main": {
+  "test": "test_a_moved_main_without_a_main_preflight_is_refused_before_any_request",
+  "entries": [
+   1,
+   2
+  ],
+  "observed": "AssertionError: 0 == 0 : no-preflight: accepted: {\"allocation_valid\": true, \"category_limits\": {\"artifact_downloads\": 20, \"artifact_metadata\": 4, \"attempt_jobs\": 4, \"docs_publication\": 14, \"failure_logs\": 2, \"infrastructure_rerun\": 21, \"native_checks\": 4, \"pr_create\": 2, \"pr_identity\": 8, \"pre_watch_rate\": 2, \"preflight\": 8, \"run_discovery\": 4, \"terminal_polls\": 27}, \"network_requests\": 0, \"status"
+ },
+ "unrelated_failure_in_entry_2": "LivePolicyPRTests.test_live_policy_token_and_host_rules_hold_across_both_families: sleep log [60, 60, 60, 60, 60, 60, 0.001], the known 253-130 load-dependent flake (CPython Popen._wait busy loop calling the patched time.sleep(0.001)); it passed in entry 1 on the same test edits",
+ "entries": [
+  {
+   "suite": "scripts/ci/ci-pr-proof.test.sh",
+   "collector_source": "unfixed (produced_on_head)",
+   "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; caffeinate -i -s bash scripts/ci/ci-pr-proof.test.sh",
+   "exit_code": 1,
+   "summary": "Ran 94 tests in 208.546s, FAILED (failures=22, errors=1)",
+   "failing_tests": [
+    "setUpClass (__main__.LivePolicyR12PRTests)",
+    "test_a_clean_advance_is_clean_and_moved (__main__.PrMainPreflightTests.test_a_clean_advance_is_clean_and_moved)",
+    "test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1 (__main__.PrMainPreflightTests.test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1)",
+    "test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing (__main__.PrMainPreflightTests.test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing)",
+    "test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1 (__main__.PrMainPreflightTests.test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1)",
+    "test_a_moved_main_without_a_main_preflight_is_refused_before_any_request (__main__.PrMainPreflightTests.test_a_moved_main_without_a_main_preflight_is_refused_before_any_request)",
+    "test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document (__main__.PrMainPreflightTests.test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document)",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='conflicted')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='rewritten')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='another freeze')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='another head')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='current main absent locally')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='claims clean, conflicts')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='wrong schema')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='docs-only with a main preflight')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='missing file')",
+    "test_the_output_is_exclusive_create (__main__.PrMainPreflightTests.test_the_output_is_exclusive_create)",
+    "test_a_clean_moved_main_collects_both_families_inside_the_production_budget (__main__.PrMergeabilityCollectionTests.test_a_clean_moved_main_collects_both_families_inside_the_production_budget)",
+    "test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests (__main__.PrMergeabilityCollectionTests.test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests)",
+    "test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict (__main__.PrMergeabilityCollectionTests.test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict)",
+    "test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict (__main__.PrMergeabilityCollectionTests.test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict)",
+    "test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create (__main__.PrMergeabilityCollectionTests.test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create)",
+    "test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs (__main__.R12RefPairTests.test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs)"
+   ],
+   "observed_records": [
+    "253-139 conflicted-head-replay: {\"exit\": 2, \"requests\": 0, \"stderr_tail\": [\"ci-pr-proof.sh: error: unrecognized arguments: --main-preflight /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-pr-proof-conflicted-head-replay-qlk8z6oz/conflicted-head-replay.preflight.json\"], \"stop\": null}",
+    "253-139 no-run-while-mergeable: {\"exit\": 2, \"requests\": 0, \"stderr_tail\": [\"ci-pr-proof.sh: error: unrecognized arguments: --main-preflight /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-pr-proof-no-run-while-mergeable-hdle014v/no-run-while-mergeable.preflight.json\"], \"stop\": null}",
+    "253-139 mergeability-unknown: {\"exit\": 2, \"requests\": 0, \"stderr_tail\": [\"ci-pr-proof.sh: error: unrecognized arguments: --main-preflight /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-pr-proof-mergeability-unknown-r99ga2t_/mergeability-unknown.preflight.json\"], \"stop\": null}"
+   ],
+   "first_assertion_per_test": {
+    "setUpClass": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_clean_advance_is_clean_and_moved": "AssertionError: 2 != 0 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1": "AssertionError: 2 != 1 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing": "AssertionError: 'not a commit in the local object store' not found in 'usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]\\n                      [--family {normal,docs-only}]\\n                      [--publication PUBLICATION] [--manifest MANIFEST]\\n                      [--output OUTPUT] [--freeze FREEZE]\\n                      [--allocation ALLOCATION] [--evidence EVIDENCE]\\n",
+    "test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1": "AssertionError: 2 != 1 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_moved_main_without_a_main_preflight_is_refused_before_any_request": "AssertionError: 0 == 0 : no-preflight: accepted: {\"allocation_valid\": true, \"category_limits\": {\"artifact_downloads\": 20, \"artifact_metadata\": 4, \"attempt_jobs\": 4, \"docs_publication\": 14, \"failure_logs\": 2, \"infrastructure_rerun\": 21, \"native_checks\": 4, \"pr_create\": 2, \"pr_identity\": 8, \"pre_watch_rate\": 2, \"preflight\": 8, \"run_discovery\": 4, \"terminal_polls\": 27}, \"network_requests\": 0, \"status",
+    "test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document": "AssertionError: 2 != 0 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request": "AssertionError: 'is not clean' not found in 'usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]\\n                      [--family {normal,docs-only}]\\n                      [--publication PUBLICATION] [--manifest MANIFEST]\\n                      [--output OUTPUT] [--freeze FREEZE]\\n                      [--allocation ALLOCATION] [--evidence EVIDENCE]\\n                      [--r",
+    "test_the_output_is_exclusive_create": "AssertionError: 2 != 0 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_clean_moved_main_collects_both_families_inside_the_production_budget": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests": "AssertionError: 2 != 1 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict": "AssertionError: 2 != 1 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict": "AssertionError: 2 != 1 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]"
+   }
+  },
+  {
+   "suite": "scripts/ci/ci-pr-proof.test.sh",
+   "collector_source": "unfixed + parsed option only (working-tree shim, reverted, never committed)",
+   "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; caffeinate -i -s bash scripts/ci/ci-pr-proof.test.sh",
+   "exit_code": 1,
+   "summary": "Ran 94 tests in 213.147s, FAILED (failures=23, errors=1)",
+   "failing_tests": [
+    "setUpClass (__main__.LivePolicyR12PRTests)",
+    "test_live_policy_token_and_host_rules_hold_across_both_families (__main__.LivePolicyPRTests.test_live_policy_token_and_host_rules_hold_across_both_families)",
+    "test_a_clean_advance_is_clean_and_moved (__main__.PrMainPreflightTests.test_a_clean_advance_is_clean_and_moved)",
+    "test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1 (__main__.PrMainPreflightTests.test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1)",
+    "test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing (__main__.PrMainPreflightTests.test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing)",
+    "test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1 (__main__.PrMainPreflightTests.test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1)",
+    "test_a_moved_main_without_a_main_preflight_is_refused_before_any_request (__main__.PrMainPreflightTests.test_a_moved_main_without_a_main_preflight_is_refused_before_any_request)",
+    "test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document (__main__.PrMainPreflightTests.test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document)",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='conflicted')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='rewritten')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='another freeze')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='another head')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='current main absent locally')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='claims clean, conflicts')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='wrong schema')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='docs-only with a main preflight')",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) (label='missing file')",
+    "test_the_output_is_exclusive_create (__main__.PrMainPreflightTests.test_the_output_is_exclusive_create)",
+    "test_a_clean_moved_main_collects_both_families_inside_the_production_budget (__main__.PrMergeabilityCollectionTests.test_a_clean_moved_main_collects_both_families_inside_the_production_budget)",
+    "test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests (__main__.PrMergeabilityCollectionTests.test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests)",
+    "test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict (__main__.PrMergeabilityCollectionTests.test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict)",
+    "test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict (__main__.PrMergeabilityCollectionTests.test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict)",
+    "test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create (__main__.PrMergeabilityCollectionTests.test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create)",
+    "test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs (__main__.R12RefPairTests.test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs)"
+   ],
+   "observed_records": [
+    "253-139 conflicted-head-replay: {\"exit\": 1, \"requests\": 7, \"stderr_tail\": [], \"stop\": \"no pull_request workflow run was discovered for the published head\"}",
+    "253-139 no-run-while-mergeable: {\"exit\": 1, \"requests\": 7, \"stderr_tail\": [], \"stop\": \"no pull_request workflow run was discovered for the published head\"}",
+    "253-139 mergeability-unknown: {\"exit\": 1, \"requests\": 7, \"stderr_tail\": [], \"stop\": \"no pull_request workflow run was discovered for the published head\"}"
+   ],
+   "first_assertion_per_test": {
+    "setUpClass": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_live_policy_token_and_host_rules_hold_across_both_families": "AssertionError: Lists differ: [60, 60, 60, 60, 60, 60, 0.001] != [60, 60, 60, 60, 60, 60]",
+    "test_a_clean_advance_is_clean_and_moved": "AssertionError: 2 != 0 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1": "AssertionError: 2 != 1 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing": "AssertionError: 'not a commit in the local object store' not found in 'usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]\\n                      [--family {normal,docs-only}]\\n                      [--publication PUBLICATION] [--manifest MANIFEST]\\n                      [--output OUTPUT] [--freeze FREEZE]\\n                      [--allocation ALLOCATION] [--evidence EVIDENCE]\\n",
+    "test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1": "AssertionError: 2 != 1 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_moved_main_without_a_main_preflight_is_refused_before_any_request": "AssertionError: 0 == 0 : no-preflight: accepted: {\"allocation_valid\": true, \"category_limits\": {\"artifact_downloads\": 20, \"artifact_metadata\": 4, \"attempt_jobs\": 4, \"docs_publication\": 14, \"failure_logs\": 2, \"infrastructure_rerun\": 21, \"native_checks\": 4, \"pr_create\": 2, \"pr_identity\": 8, \"pre_watch_rate\": 2, \"preflight\": 8, \"run_discovery\": 4, \"terminal_polls\": 27}, \"network_requests\": 0, \"status",
+    "test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document": "AssertionError: 2 != 0 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request": "AssertionError: 0 == 0 : bad-conflicted: accepted: {\"allocation_valid\": true, \"category_limits\": {\"artifact_downloads\": 20, \"artifact_metadata\": 4, \"attempt_jobs\": 4, \"docs_publication\": 14, \"failure_logs\": 2, \"infrastructure_rerun\": 21, \"native_checks\": 4, \"pr_create\": 2, \"pr_identity\": 8, \"pre_watch_rate\": 2, \"preflight\": 8, \"run_discovery\": 4, \"terminal_polls\": 27}, \"network_requests\": 0, \"stat",
+    "test_the_output_is_exclusive_create": "AssertionError: 2 != 0 : usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_clean_moved_main_collects_both_families_inside_the_production_budget": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests": "AssertionError: 'no pull_request workflow run was discover[21 chars]head' != 'pull request #101 has merge conflicts wit[90 chars]r it'",
+    "test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict": "AssertionError: 'no pull_request workflow run was discovered for the published head' != 'no pull_request run although pull request #101 is mergeab[22 chars]ean)'",
+    "test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict": "AssertionError: 'no pull_request workflow run was discover[21 chars]head' != 'pull request #101 mergeability is still u[94 chars]r it'",
+    "test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]",
+    "test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs": "AssertionError: usage: ci-pr-proof.sh [-h] [--prepare] [--check-only] [--verify VERIFY]"
+   },
+   "shim_diff": "diff --git a/scripts/ci/ci-pr-proof.sh b/scripts/ci/ci-pr-proof.sh\nindex e17a815b7..704cb4c1f 100755\n--- a/scripts/ci/ci-pr-proof.sh\n+++ b/scripts/ci/ci-pr-proof.sh\n@@ -579,6 +579,7 @@ def main():\n     parser.add_argument(\"--poll-interval\", type=int, default=60)\n     parser.add_argument(\"--main-record\", help=\"--prepare only: the sigra.phase253.main-fetch/r12 record the PR base is checked \"\n                         \"against (required for the r12 normal head)\")\n+    parser.add_argument(\"--main-preflight\")\n     args = parser.parse_args()\n     modes = [bool(args.prepare), bool(args.check_only), bool(args.verify), bool(args.family)]\n     if sum(modes) != 1:\n"
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "sigra.phase254.write-ahead-preservation/v1",
+  "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+  "status_at_capture": "clean",
+  "status_output": "",
+  "git_blob": "d448726eac31fafc53e7411999474b97d6e25ee4",
+  "scoped_ref": "refs/gsd/phase254/254-07-workload-map-before",
+  "sha256": "6f2a1cfbc4edb5bf4326bfbc88ee2b6f40e71f5aea335ca8bd36818f68979c91",
+  "readback": "git cat-file blob refs/gsd/phase254/254-07-workload-map-before matched the original path byte-for-byte before any replacement."
+}

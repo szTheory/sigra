@@ -1,0 +1,10 @@
+{
+  "status": "halted",
+  "stage": "closed",
+  "started_epoch": 1792636289,
+  "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
+  "approval_sha256": "118141e82f3d2436d5a859980ced52982b2febc12f2f6fde6573caae7814fc81",
+  "allocation_sha256": "2e2dd4dfeee5140eed3ca38aa89f0bed9088dd2749da7617a479a865f0616c2e",
+  "stop": "command 3 failed; inspect saved output",
+  "completed_epoch": 1792637050
+}

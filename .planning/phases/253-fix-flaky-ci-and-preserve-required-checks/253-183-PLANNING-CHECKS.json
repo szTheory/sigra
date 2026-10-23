@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "original_tracked_planning_paths": 3643,
+  "unchanged_original_paths": 3639,
+  "changed_original_paths": [
+    ".planning/HANDOFF.json",
+    ".planning/ROADMAP.md",
+    ".planning/STATE.md",
+    ".planning/state.json"
+  ],
+  "all_prior_plans_and_evidence_unchanged": true,
+  "new_plan_tasks": 3,
+  "automated_commands": 13,
+  "schema_valid": true,
+  "structure_valid": true,
+  "embedded_wrapper_syntax_valid": true,
+  "independent_review": "253-183-PLAN-CHECK-04.json",
+  "independent_review_status": "passed",
+  "command_probe_findings": 0,
+  "decisions_covered": 24,
+  "requirements_covered": 2,
+  "sdk_state_prior_bytes_readback_verified": true,
+  "original_state_history_retained": true,
+  "product_tests_executed": false,
+  "acceptance_attempts": 0,
+  "github_requests": 0,
+  "browser_launches": 0,
+  "phase_verification_status": "not_started"
+}

@@ -1,0 +1,26 @@
+{
+  "decision": "approved",
+  "user_message": "yes i approve",
+  "recorded_at": "2026-10-23T01:23:47.451078+00:00",
+  "proposal_sha256": "221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889",
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "scope": "five-fresh-local-linux-integration-groups",
+  "limits": {
+    "browser_invocations": 5,
+    "seconds_including_cleanup": 3600,
+    "per_group_seconds": 1800,
+    "retries": 0,
+    "stop_at_first_failure": true,
+    "github_requests": 0,
+    "ci_launches": 0,
+    "old_slots_reopened": 0
+  },
+  "selected_tests": 108,
+  "proposal_commit": "68b032d42152c22e22e8cb6edac482c9099ab904",
+  "old_approvals_reused": false,
+  "remaining_after_success": [
+    "separate readiness/isolation/trace browser-control proof and review",
+    "canonical whole-phase verification"
+  ],
+  "authorization": "Latest explicit user reply approves the five-group,108-test proposal described immediately before this reply."
+}

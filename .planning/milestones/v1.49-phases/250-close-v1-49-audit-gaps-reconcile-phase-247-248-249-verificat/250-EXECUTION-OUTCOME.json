@@ -1,0 +1,138 @@
+{
+  "phase": 250,
+  "captured_at": "2026-10-10T18:15:09Z",
+  "capture_boundary": {
+    "head": "12ffe5d73",
+    "planning_dirty": false
+  },
+  "source_head": "94bb68d4f98ddf36e7220d4c3a607d166a9003ef",
+  "state_preimages": {
+    ".planning/STATE.md": {
+      "commit": "94bb68d4f98ddf36e7220d4c3a607d166a9003ef",
+      "sha256": "565d20644ba46d158425371f63e4d92b3d9b437a738c8481130f84ecdbd0e4c5",
+      "status": "clean"
+    },
+    ".planning/state.json": {
+      "commit": "94bb68d4f98ddf36e7220d4c3a607d166a9003ef",
+      "sha256": "8a480af2918881225e1d74cdff5518af27fd8974e00ab88dbcaa4374410e7ba0",
+      "status": "clean"
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "94bb68d4f98ddf36e7220d4c3a607d166a9003ef",
+      "sha256": "b4921e821aa05edfb65256932a09814db79f4eafcb4a5b774ab3652792772e75",
+      "status": "clean"
+    },
+    ".planning/ROADMAP.md": {
+      "commit": "94bb68d4f98ddf36e7220d4c3a607d166a9003ef",
+      "sha256": "daea7c44588a67b28cfdab2ecf044dcb45cd4ae260985e1a682e48e0f9f502d3",
+      "status": "clean"
+    }
+  },
+  "plan_reporting": {
+    "summaries": 5,
+    "plans": 5,
+    "complete": true
+  },
+  "goal_verification": {
+    "report": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
+    "status": "gaps_found",
+    "score": "8/14",
+    "covered_digest": "v3:sha256:a3c42bae83d1b4ac5431b7c4fd8080de8815f8eaf9fa2ba3cd4bf764841a16a6",
+    "report_sha256": "d5d2b0bc07d253b63fa9829c7bc9e1870918ce4f740637fd1c83a400588e2094"
+  },
+  "milestone_audit": {
+    "report": ".planning/v1.49-MILESTONE-AUDIT.md",
+    "status": "gaps_found",
+    "satisfied": 5,
+    "total": 9,
+    "blockers": 31,
+    "orphans": 0
+  },
+  "requirements": {
+    "original_owners_unchanged": true,
+    "promoted": false,
+    "phase250_summary_claims": [],
+    "unsatisfied": [
+      "READY-01",
+      "READY-02",
+      "AUTO-02",
+      "REL-02"
+    ]
+  },
+  "review": {
+    "report": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK-3.md",
+    "findings_fixed": 9,
+    "findings_open": 0
+  },
+  "security": {
+    "report": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SECURITY.md",
+    "asvs_level": 1,
+    "threats_open": 0,
+    "status": "verified"
+  },
+  "regression_evidence": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json",
+  "limitations": [
+    {
+      "id": "READY-01/READY-02",
+      "reason": "No approved immutable candidate/base/main tuple joins readiness, exact-head CI, authenticated dry-run, and complete fresh PR/inherited-work dispositions. Original owner remains Phase 247.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json"
+    },
+    {
+      "id": "AUTO-02",
+      "reason": "Controller run 38059620443 produced no retained failure artifact; cancellation was not dispatched. Both hosted source-bound terminal receipts must be retrieved and validated. Original owner remains Phase 248.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json"
+    },
+    {
+      "id": "REL-02",
+      "reason": "Current-main workflow run 38061391571 failed despite ci-gate job success; PRs #302, #306, #307, #308 and #309 lack dispositions matching current identities. Original owner remains Phase 249.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json"
+    },
+    {
+      "id": "TRACEABILITY",
+      "reason": "Strict audit is gaps_found at 5/9 with 31 blockers and 0 orphaned requirements. Original owner summary and requirement-row contradictions remain; no requirement promotion or milestone archive occurred.",
+      "evidence_path": ".planning/v1.49-MILESTONE-AUDIT.md"
+    },
+    {
+      "id": "SECOND-CONTROLLER-AUTHORIZATION",
+      "reason": "The one-retry authorization was consumed. A further controller dispatch/cancellation requires fresh explicit user authorization and a fresh committed preflight.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json"
+    },
+    {
+      "id": "PUBLIC-SOURCE-AVAILABILITY",
+      "reason": "Phase 249 live report check and its single retry returned HTTP 503 for the exact GitHub source URL; version/checksum, docs and tag still matched. Captured source status was 200; no successful freshness revalidation is claimed.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json"
+    },
+    {
+      "id": "LOCAL-MIX-DEPENDENCY",
+      "reason": "Mix TAP wrapper stopped on the existing Phoenix lock mismatch. Its seven underlying dependency-free ExUnit contracts passed standalone; wrapper is not marked passed.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json"
+    }
+  ],
+  "route": {
+    "command": "$gsd-plan-phase 250 --gaps",
+    "owner_status": "gaps_found",
+    "owner_route": "plan-phase",
+    "readiness_250": {
+      "phase_found": true,
+      "has_plans": true,
+      "has_context": true,
+      "has_research": true
+    },
+    "next_roadmap_phase": null,
+    "readiness_251": {
+      "phase_found": false
+    }
+  },
+  "authorization": {
+    "hosted_retry_consumed": true,
+    "new_canary_dispatch_or_cancel": false,
+    "release_publish_or_retag": false
+  },
+  "phase_complete_called": false,
+  "milestone_archived": false,
+  "preservation": {
+    "prior_ref": "refs/codex/preservations/phase-250-checkpoint-20261010",
+    "commit": "1b4df4b4d204bc905d438839887a409e56a81bd0",
+    "manifest": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json"
+  }
+}

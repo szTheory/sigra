@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "phase": "246",
+  "plan": "03",
+  "status": "passed",
+  "tested_source_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+  "tested_at_utc": "2026-10-07T20:37:37Z",
+  "workflow": {
+    "name": "CI",
+    "run_id": 37676348766,
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/37676348766",
+    "dispatch_status": "success",
+    "event": "workflow_dispatch",
+    "head_branch": "gsd/phase-246-generated-confirmation-recovery-ci",
+    "head_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+    "attempt": 2,
+    "dispatch_input": {
+      "phase_246_ci_evidence": "true"
+    },
+    "completed_at_utc": "2026-10-07T20:37:37Z",
+    "reason": "The first attempt exposed a transient Ubuntu Playwright dependency-fetch stall and one admin-eval navigation timeout; the single failed-job rerun on the same exact SHA passed all jobs."
+  },
+  "jobs": {
+    "install_smoke": {
+      "conclusion": "success",
+      "local_equivalent": {
+        "command": "bash scripts/ci/install-smoke.sh",
+        "conclusion": "passed",
+        "tests": 8,
+        "failures": 0,
+        "source_sha": "6f10be8504075d3b8a676f6ef1b064dd2783387b",
+        "source_equivalence": {
+          "compared_to_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+          "identical_generation_and_probe_sources": true,
+          "paths": [
+            "lib/",
+            "priv/",
+            "scripts/ci/generated-confirmation-probe.exs",
+            "scripts/ci/install-smoke.sh"
+          ]
+        },
+        "log": {
+          "local_path": "/private/tmp/sigra-phase-246-final-install.log",
+          "sha256": "bbdfecd605df5cfd80c7bbbad2804f8ed6f1fc051c257e14fe6004627070225e"
+        }
+      },
+      "workflow_conclusion": "success",
+      "job_id": 112995384829,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995384829"
+    },
+    "generated_admin_playwright_smoke": {
+      "workflow_conclusion": "success",
+      "local_equivalent": {
+        "command": "PLAYWRIGHT_BROWSERS_PATH=/tmp/sigra-playwright-browsers bash scripts/ci/admin-acceptance-smoke.sh --test all",
+        "conclusion": "passed",
+        "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+        "playwright_version": "1.59.1",
+        "results": {
+          "admin_generated": {
+            "passed": 8,
+            "planned_skips": 1
+          },
+          "generated_confirmation_chromium": {
+            "passed": 1
+          },
+          "revoked_admin_recheck": {
+            "passed": 1
+          }
+        },
+        "attempts_after_browser_setup": 2,
+        "retry_policy": "One retry of the existing admin LiveView readiness timeout; first failure retained.",
+        "first_attempt": {
+          "conclusion": "failed",
+          "admin_generated": {
+            "passed": 7,
+            "failed": 1,
+            "planned_skips": 1
+          },
+          "diagnostic": "1) [admin-generated] › tests/admin-generated.spec.ts:247:5 › generated host admin shell renders on desktop and mobile \n\n    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\n    Call log:\n    \u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n\n      39 |\n      40 | async function waitForLiveViewReady(page: Page) {\n    > 41 |   await page.waitForSelector(\"[data-phx-session].phx-connected\", {\n         |              ^\n      42 |     state: \"attached\",\n      43 |   });\n      44 | }\n        at waitForLiveViewReady (/private/tmp/sigra-phase-246-03-ci/test/example/priv/playwright/tests/admin-generated.spec.ts:41:14)\n        at /private/tmp/sigra-phase-246-03-ci/test/example/priv/playwright/tests/admin-generated.spec.ts:283:9",
+          "log": {
+            "local_path": "/private/tmp/sigra-phase-246-final-browser-retry.log",
+            "sha256": "ff5450d93855d2db50988d2ebd9b0b825f050e9efcd6be9009a8bece18708b32"
+          }
+        },
+        "log": {
+          "local_path": "/private/tmp/sigra-phase-246-final-browser-last.log",
+          "sha256": "3007903db83bb1d11f8d2246c1322ccc11d2d5e99aca70b074316a163bee73b2"
+        },
+        "preparation": {
+          "matching_browser_installed": true,
+          "initial_launch_without_matching_browser": "failed; no product assertions executed",
+          "log": {
+            "local_path": "/private/tmp/sigra-phase-246-final-browser.log",
+            "sha256": "0230d831c6d0f071a619fb10db0a56fe126aced378b153f946126e0f8ff8af77"
+          }
+        }
+      },
+      "job_id": 112995382756,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995382756"
+    },
+    "ci-gate": {
+      "conclusion": "success",
+      "job_id": 112998047027,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112998047027"
+    },
+    "required_local_mix_ci": {
+      "command": "MIX_ENV=test mix ci",
+      "conclusion": "failed",
+      "exit_code": 2,
+      "result": "33 doctests, 3 properties, 2623 tests, 4 failures, 12 skipped (22 excluded); subsequent threadline guard 65 tests, 0 failures.",
+      "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+      "diagnostics": "246-MIX-CI-FAILURES.json",
+      "log": {
+        "local_path": "/private/tmp/sigra-phase-246-final-ci.log",
+        "sha256": "b9bc0629f1d3b77b1f3b345263428c2decedfcc707d81d808b64dd2ae771c92a"
+      }
+    },
+    "example_playwright_smoke": {
+      "conclusion": "success",
+      "job_id": 112998001983,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112998001983"
+    },
+    "admin_eval_render": {
+      "conclusion": "success",
+      "job_id": 112995383086,
+      "job_url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995383086",
+      "hard_signal": true
+    }
+  },
+  "local_contract": {
+    "command": "MIX_ENV=test mix test test/sigra/install/generated_confirmation_ci_contract_test.exs",
+    "conclusion": "passed",
+    "tests": 3,
+    "failures": 0,
+    "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+    "included_in_final_focused_suite": true
+  },
+  "local_focused_suite": {
+    "command": "MIX_ENV=test mix test test/sigra/auth_test.exs test/sigra/install/generator_email_test.exs test/sigra/install/generator_wiring_test.exs test/sigra/install/features/core_test.exs test/sigra/install/auth_ui_contract_test.exs test/sigra/install/generated_confirmation_ci_contract_test.exs test/sigra/templates/installer_drift_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs",
+    "conclusion": "passed",
+    "tests": 236,
+    "failures": 0,
+    "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+    "log": {
+      "local_path": "/private/tmp/sigra-phase-246-final-focused.log",
+      "sha256": "307c3972e2d100d6a79e26c2c4359f11422eb349ca7fe34e2c81c6159fa74506"
+    }
+  },
+  "example_precommit": {
+    "command": "MIX_ENV=test mix precommit",
+    "conclusion": "failed",
+    "exit_code": 1,
+    "source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+    "stage": "compile --warnings-as-errors",
+    "diagnostic": "Existing test-environment route warning: lib/example_web/live/settings_live.ex:133 references /dev/mailbox, which is absent from ExampleWeb.Router in test.",
+    "log": {
+      "local_path": "/private/tmp/sigra-phase-246-example-precommit.log",
+      "sha256": "e33eaa09e02baab87c7fa21dafc82ef27b1d28dd7f8c2db10202f22e3450982e"
+    }
+  },
+  "code_review": {
+    "source_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+    "files_reviewed": 8,
+    "critical": 0,
+    "warning": 0,
+    "info": 0,
+    "status": "clean",
+    "report": "246-REVIEW-FINAL.md",
+    "disposition": "246-REVIEW-DISPOSITION.md",
+    "note": "Follow-up behavior review was performed at 228b359b8; the only later final-source change is the inspected generated golden fixture refresh."
+  },
+  "wave_post_gates": {
+    "schema_drift": {
+      "block": false,
+      "skipped": false
+    },
+    "codebase_drift": {
+      "block": false,
+      "skipped": true,
+      "reason": "no-structure-md"
+    },
+    "ui_safety": {
+      "block": false,
+      "hasUiSpec": false
+    }
+  },
+  "superseded_run": {
+    "source_sha": "78f973a43e24b0813029b0dec2285dd3f5f54a8b",
+    "local_mix_ci_failures": 17,
+    "note": "The first classification as entirely unrelated was corrected: phase-induced drift and browser inventory failures were repaired. Final current-source diagnostics are authoritative."
+  },
+  "missing_evidence_is_passed": false,
+  "ci_receipt": {
+    "schema_version": 1,
+    "source_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+    "run": {
+      "id": 37676348766,
+      "attempt": 2,
+      "event": "workflow_dispatch",
+      "branch": "gsd/phase-246-generated-confirmation-recovery-ci",
+      "conclusion": "success",
+      "url": "https://github.com/szTheory/sigra/actions/runs/37676348766",
+      "completed_at_utc": "2026-10-07T20:37:37Z"
+    },
+    "required_jobs": {
+      "ci-gate": {
+        "name": "ci-gate",
+        "conclusion": "success",
+        "job_id": 112998047027,
+        "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112998047027"
+      },
+      "install_smoke": {
+        "name": "Install smoke (fresh phx.new + sigra.install)",
+        "conclusion": "success",
+        "job_id": 112995384829,
+        "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995384829"
+      },
+      "generated_admin_playwright_smoke": {
+        "name": "Generated admin Playwright smoke",
+        "conclusion": "success",
+        "job_id": 112995382756,
+        "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995382756"
+      }
+    },
+    "supporting_jobs": {
+      "install_golden_contract": {
+        "name": "Install golden + idempotency contract (subprocess harness)",
+        "conclusion": "success",
+        "job_id": 112995384323,
+        "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995384323"
+      },
+      "example_playwright_aggregate": {
+        "name": "Example Playwright smoke (full lifecycle)",
+        "conclusion": "success",
+        "job_id": 112998001983,
+        "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112998001983"
+      },
+      "example_playwright_shards": [
+        {
+          "name": "Example Playwright shard (admin_behavior)",
+          "conclusion": "success",
+          "job_id": 112995383722,
+          "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995383722"
+        },
+        {
+          "name": "Example Playwright shard (admin_checkpoints)",
+          "conclusion": "success",
+          "job_id": 112995386112,
+          "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995386112"
+        },
+        {
+          "name": "Example Playwright shard (demo_showcase)",
+          "conclusion": "success",
+          "job_id": 112995385492,
+          "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995385492"
+        },
+        {
+          "name": "Example Playwright shard (design_gallery)",
+          "conclusion": "success",
+          "job_id": 112995385290,
+          "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995385290"
+        },
+        {
+          "name": "Example Playwright shard (non_admin_smoke)",
+          "conclusion": "success",
+          "job_id": 112995385145,
+          "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995385145"
+        }
+      ],
+      "admin_eval_render": {
+        "name": "Admin eval render + probe",
+        "conclusion": "success",
+        "job_id": 112995383086,
+        "url": "https://github.com/szTheory/sigra/actions/runs/37676348766/job/112995383086"
+      }
+    },
+    "prior_attempt": {
+      "attempt": 1,
+      "overall_conclusion": "cancelled",
+      "source_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+      "diagnostics": [
+        {
+          "lane": "Generated admin Playwright smoke",
+          "job_id": 112980786584,
+          "result": "cancelled",
+          "cause": "Playwright browser dependency installation stalled while fetching Ubuntu packages."
+        },
+        {
+          "lane": "Admin eval render + probe",
+          "job_id": 112980786762,
+          "result": "failure",
+          "cause": "One registration navigation timed out waiting for load; 191 neighboring cases passed."
+        },
+        {
+          "lane": "Example Playwright shard (admin_behavior)",
+          "job_id": 112980812514,
+          "result": "cancelled",
+          "cause": "Playwright dependency installation stalled until the 30-minute job limit."
+        },
+        {
+          "lane": "ci-gate",
+          "job_id": 112994163940,
+          "result": "failure",
+          "cause": "Honest-skip verdict correctly rejected failed/cancelled dependency lanes."
+        }
+      ],
+      "retry": "Reran only failed/cancelled jobs once on the same source SHA; all rerun jobs and aggregates passed."
+    }
+  },
+  "follow_up_local_verification": {
+    "behavior_source_sha": "228b359b8fd710bafc80a3b2b39e387a79fa1c90",
+    "focused_confirmation_suite": {
+      "conclusion": "passed",
+      "tests": 48,
+      "failures": 0
+    },
+    "fresh_host_install_smoke": {
+      "conclusion": "passed",
+      "tests": 8,
+      "failures": 0
+    },
+    "final_source_sha": "90ec16f72a71d33224c0816ad77762e2e7262c76",
+    "golden_and_idempotency": {
+      "conclusion": "passed",
+      "tests": 4,
+      "failures": 0
+    }
+  }
+}

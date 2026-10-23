@@ -1,0 +1,332 @@
+--- scripts/ci/ci-git-publication.py@16800f4319cdd0e2554938071d4ebc48caa969ac
++++ runtime/ci-git-publication.py
+@@ -20,8 +20,8 @@
+ from pathlib import Path, PurePosixPath
+ 
+ sys.dont_write_bytecode = True  # importing sibling helpers must never leave untracked bytecode in the frozen product tree
+-ROOT = Path(__file__).resolve().parents[2]
+-TRANSPORT = ROOT / "scripts/ci/ci-hosted-transport.py"
++ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
++TRANSPORT = Path(__file__).with_name("ci-hosted-transport.py")
+ REPO = "szTheory/sigra"
+ BODY_LIMIT = 2 * 1024 * 1024
+ REQUEST_LIMIT = 24
+@@ -337,7 +337,7 @@
+     ci_path = ".github/workflows/ci.yml"
+     ci_data = git(repo, "cat-file", "blob", merged[ci_path]["sha"])
+     old_trigger = b"  pull_request:\n    branches: [main]\n"
+-    new_trigger = b"  pull_request:\n    branches: [main, gsd/253-replan-docs-*]\n"
++    new_trigger = b"  pull_request:\n    branches: [main, gsd/253-proof-16800f431-next-docs-*]\n"
+     if ci_data.count(old_trigger) != 1:
+         raise PublicationError("docs base cannot isolate the single CI pull_request branch-filter line")
+     docs_base_entries = dict(merged)
+@@ -1181,9 +1181,9 @@
+         return sha, git(repo, "cat-file", "blob", sha).decode("utf-8", "strict")
+ 
+     stages = [
+-        ("docs-base", "gsd/253-replan-docs-base", manifest["docs_base_commit"], manifest["candidate_tree_sha"],
++        ("docs-base", "gsd/253-proof-16800f431-next-docs-base", manifest["docs_base_commit"], manifest["candidate_tree_sha"],
+          manifest["candidate_helper_commit"], "Phase 253 docs probe base workflow exception\n", ci_path),
+-        ("docs-head", "gsd/253-replan-docs-head", manifest["docs_head_commit"],
++        ("docs-head", "gsd/253-proof-16800f431-next-docs-head", manifest["docs_head_commit"],
+          git(repo, "rev-parse", f"{manifest['docs_base_commit']}^{{tree}}").decode().strip(),
+          manifest["docs_base_commit"], "Phase 253 docs-only probe head\n", DOCS_PATH),
+     ]
+@@ -1321,20 +1321,12 @@
+ WORKFLOW_ID = 259268962
+ # 253-102/253-111/253-119/253-130/253-137/253-166: exactly seven code-pinned scoped ref pairs. The freeze identity selects one;
+ # legacy stays the default so every earlier freeze (253-91, R7-R11) derives byte-identical outward actions. No other is accepted.
+-REF_PAIRS = {
+-    "legacy": {"candidate": "gsd/253-replan-candidate", "fixture": "gsd/253-replan-fixture"},
+-    "r8": {"candidate": "gsd/253-replan-r8-candidate", "fixture": "gsd/253-replan-r8-fixture"},
+-    "r9": {"candidate": "gsd/253-replan-r9-candidate", "fixture": "gsd/253-replan-r9-fixture"},
+-    "r10": {"candidate": "gsd/253-replan-r10-candidate", "fixture": "gsd/253-replan-r10-fixture"},
+-    "r11": {"candidate": "gsd/253-replan-r11-candidate", "fixture": "gsd/253-replan-r11-fixture"},
+-    "r12": {"candidate": "gsd/253-replan-r12-candidate", "fixture": "gsd/253-replan-r12-fixture"},
+-    "r13": {"candidate": "gsd/253-replan-r13-candidate", "fixture": "gsd/253-replan-r13-fixture"},
+-}
+-DEFAULT_REF_PAIR = "legacy"
++REF_PAIRS = {"proof16800f431": {"candidate": "gsd/253-proof-16800f431-next-candidate", "fixture": "gsd/253-proof-16800f431-next-fixture"}}
++DEFAULT_REF_PAIR = "proof16800f431"
+ # 253-138/253-166: pairs whose freeze must sit on the recorded fresh main (one guard, keyed on this set).
+-MAIN_FRESHNESS_PAIRS = ("r12", "r13")
++MAIN_FRESHNESS_PAIRS = ()  # exact fresh parent is mandatory in operator/transport guard
+ # 253-166: the canary category table each pair's freeze carries; pairs not named here carry CANARY_CATEGORIES.
+-PAIR_CANARY_CATEGORIES = {"r13": CANARY_CATEGORIES_R13}
++PAIR_CANARY_CATEGORIES = {"proof16800f431": CANARY_CATEGORIES_R13}
+ 
+ 
+ def canary_categories(pair_name: str) -> dict:
+@@ -1381,11 +1373,11 @@
+     docs = {"max_requests": 120, "reruns": 0, "prohibited": PROHIBITED, "actions": [
+         {"action": "publish_docs_objects", "category": "docs_publication", "max_requests": DOCS_PUBLICATION_LIMIT,
+          "docs_base_commit": identity["docs_base_commit"], "docs_head_commit": identity["docs_head_commit"],
+-         "refs": [{"ref": "refs/heads/gsd/253-replan-docs-base", "sha": identity["docs_base_commit"]},
+-                  {"ref": "refs/heads/gsd/253-replan-docs-head", "sha": identity["docs_head_commit"]}]},
++         "refs": [{"ref": "refs/heads/gsd/253-proof-16800f431-next-docs-base", "sha": identity["docs_base_commit"]},
++                  {"ref": "refs/heads/gsd/253-proof-16800f431-next-docs-head", "sha": identity["docs_head_commit"]}]},
+         {"action": "pr_create", "family": "normal", "head": pair["candidate"], "base": "main", "draft": True},
+-        {"action": "pr_create", "family": "docs-only", "head": "gsd/253-replan-docs-head",
+-         "base": "gsd/253-replan-docs-base", "draft": True},
++        {"action": "pr_create", "family": "docs-only", "head": "gsd/253-proof-16800f431-next-docs-head",
++         "base": "gsd/253-proof-16800f431-next-docs-base", "draft": True},
+     ]}
+     sections = {"canary": canary, "docs_and_prs": docs}
+     return sections, {name: sha256_hex(canonical_bytes(value)) for name, value in sections.items()}
+--- scripts/ci/ci-hosted-transport.py@16800f4319cdd0e2554938071d4ebc48caa969ac
++++ runtime/ci-hosted-transport.py
+@@ -93,9 +93,9 @@
+     "pre_watch_rate": 2, "terminal_polls": 27, "attempt_jobs": 4, "native_checks": 4,
+     "artifact_metadata": 4, "artifact_downloads": 20, "failure_logs": 2, "infrastructure_rerun": 21,
+ }
+-REPO_ROOT = Path(__file__).resolve().parents[2]
+-PR_HEAD_REFS = {"gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate", "gsd/253-replan-r13-candidate", "gsd/253-replan-docs-head"}
+-PR_BASE_REFS = {"main", "gsd/253-replan-docs-base"}
++REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
++PR_HEAD_REFS = {"gsd/253-proof-16800f431-next-candidate", "gsd/253-proof-16800f431-next-docs-head"}
++PR_BASE_REFS = {"main", "gsd/253-proof-16800f431-next-docs-base"}
+ CONTENT_PATHS = {".github/workflows/ci.yml", "guides/reference/phase253-docs-only-proof.md"}
+ PR_CREATE_FIELDS = {"title", "head", "base", "body", "draft"}
+ 
+@@ -399,7 +399,7 @@
+         if route_id == "create_ref":
+             ref, sha = body.get("ref"), body.get("sha")
+             if (not isinstance(ref, str) or not re.fullmatch(
+-                    r"refs/heads/gsd/253-replan-[a-z0-9][a-z0-9-]{0,100}", ref)
++                    r"refs/heads/gsd/253-proof-16800f431-next-(?:candidate|fixture|docs-base|docs-head)", ref)
+                     or not isinstance(sha, str) or not re.fullmatch(r"[a-f0-9]{40}", sha)
+                     or set(body) != {"ref", "sha"}):
+                 raise TransportError("ref_rejected", "reference creation is limited to exact gsd/253-replan-* commit refs")
+@@ -600,6 +600,8 @@
+ def request_one(allocation_path: Path, ledger_path: Path, request_path: Path,
+                 output_path: Path, body_output: Path | None = None,
+                 destination: tuple[str, int, str] | None = None) -> tuple[dict, str | None, bytes, list[tuple[str, str]]]:
++    from execution_guard import authorize_request
++    authorize_request(allocation_path, ledger_path, request_path)
+     allocation, allocation_raw = _json(allocation_path, MAX_ALLOCATION_BYTES)
+     request, _ = _json(request_path, MAX_REQUEST_ENVELOPE_BYTES)
+     _validate_allocation(allocation)
+--- scripts/ci/ci-hosted-gate-verify.py@16800f4319cdd0e2554938071d4ebc48caa969ac
++++ runtime/ci-hosted-gate-verify.py
+@@ -1006,8 +1006,8 @@
+ PR_FAMILIES = ("normal", "docs-only")
+ # 253-102/253-111/253-119/253-130/253-137/253-166: the frozen normal head is the candidate ref the canary freeze selected,
+ # one of exactly these seven names (ci-git-publication.py REF_PAIRS); base main. The docs-only refs never vary.
+-PR_NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate", "gsd/253-replan-r13-candidate")
+-PR_DOCS_REFS = ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")
++PR_NORMAL_HEADS = ("gsd/253-proof-16800f431-next-candidate",)
++PR_DOCS_REFS = ("gsd/253-proof-16800f431-next-docs-head", "gsd/253-proof-16800f431-next-docs-base")
+ 
+ 
+ def require_pr_refs(family, head_ref, base_ref):
+@@ -1025,7 +1025,7 @@
+ TERMINAL_POLL_LIMITS = {"normal": 15, "docs-only": 12}
+ SHA40 = re.compile(r"[a-f0-9]{40}")
+ SHA64 = re.compile(r"[a-f0-9]{64}")
+-REPO_ROOT = Path(__file__).resolve().parents[2]
++REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+ _TRANSPORT = None
+ 
+ 
+@@ -1563,7 +1563,7 @@
+ 
+ 
+ DOCS_OLD_TRIGGER = b"  pull_request:\n    branches: [main]\n"
+-DOCS_NEW_TRIGGER = b"  pull_request:\n    branches: [main, gsd/253-replan-docs-*]\n"
++DOCS_NEW_TRIGGER = b"  pull_request:\n    branches: [main, gsd/253-proof-16800f431-next-docs-*]\n"
+ 
+ 
+ def verify_docs_workflow_relation(candidate, docs):
+--- scripts/ci/ci-gate-canary.sh@16800f4319cdd0e2554938071d4ebc48caa969ac
++++ runtime/ci-gate-canary.sh
+@@ -2,7 +2,7 @@
+ set -euo pipefail
+ export PYTHONDONTWRITEBYTECODE=1
+ 
+-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
++ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
+ SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/$(basename "${BASH_SOURCE[0]}")"
+ INVOKED_FROM="$PWD"
+ PHASE_DIR="$ROOT/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks"
+@@ -39,7 +39,7 @@
+ HTTP_OUTPUT=""
+ HTTP_BODY_OUTPUT=""
+ LIVE_ALLOCATION=""
+-PUBLISHER="$ROOT/scripts/ci/ci-git-publication.py"
++PUBLISHER="$(dirname "${BASH_SOURCE[0]}")/ci-git-publication.py"
+ REVISION_FREEZE=""
+ ACTION_APPROVAL=""
+ PUBLISH_ONLY=false
+@@ -53,7 +53,7 @@
+   status_before="$(git status --porcelain=v1 -- "$path" | tr -d '\n')"
+   sha_before="$(shasum -a 256 "$path" | awk '{print $1}')"
+   blob="$(git hash-object -w "$path")"
+-  ref="refs/gsd/phase253-12-canary-$scope/$sha_before"
++  ref="refs/gsd/253-proof-16800f431-next-canary-$scope/$sha_before"
+   if git show-ref --verify --quiet "$ref"; then
+     [[ "$(git rev-parse "$ref")" == "$blob" ]] || { echo "cannot preserve $path: content-addressed ref conflicts: $ref" >&2; exit 1; }
+   else
+@@ -155,7 +155,7 @@
+   }
+   args=(--allocation "$HTTP_ALLOCATION" --ledger "$HTTP_LEDGER" --request "$HTTP_REQUEST" --output "$HTTP_OUTPUT")
+   [[ -z "$HTTP_BODY_OUTPUT" ]] || args+=(--body-output "$HTTP_BODY_OUTPUT")
+-  exec python3 "$ROOT/scripts/ci/ci-hosted-transport.py" "${args[@]}"
++  exec python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-transport.py" "${args[@]}"
+ fi
+ 
+ # One private (mode 700) per-run directory holds every temporary request/receipt/response file.
+@@ -170,7 +170,7 @@
+   FIXTURE="$ROOT/$FIXTURE_REL"
+   [[ -f "$FIXTURE" ]] || fail "fixture workflow missing: $FIXTURE"
+   [[ -f "$ROOT/scripts/ci/ci-browser-records.mjs" && -f "$ROOT/scripts/ci/honest-skip-verdict.sh" ]] || fail 'candidate shared gate helpers missing'
+-  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --help >/dev/null
++  python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-gate-verify.py" --help >/dev/null
+   grep -Fq 'name: Phase 253 Gate Canary' "$FIXTURE" || fail 'fixture workflow name changed'
+   grep -Fq 'workflow_dispatch:' "$FIXTURE" || fail 'fixture is not manually dispatchable'
+   ! grep -Eq '^  (push|pull_request|schedule|workflow_run):' "$FIXTURE" || fail 'fixture has an unapproved trigger'
+@@ -204,7 +204,7 @@
+   [[ -f "$FIXTURE" ]] || fail "fixture workflow missing: $FIXTURE"
+   [[ -n "$FREEZE_TO_CHECK" && -f "$FREEZE_TO_CHECK" ]] || fail 'a recovery freeze file is required for check-only'
+   [[ -f "$ROOT/scripts/ci/ci-browser-records.mjs" && -f "$ROOT/scripts/ci/honest-skip-verdict.sh" ]] || fail 'candidate shared gate helpers missing'
+-  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --help >/dev/null
++  python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-gate-verify.py" --help >/dev/null
+   grep -Fq 'name: Phase 253 Gate Canary' "$FIXTURE" || fail 'fixture workflow name changed'
+   grep -Fq 'workflow_dispatch:' "$FIXTURE" || fail 'fixture is not manually dispatchable'
+   ! grep -Eq '^  (push|pull_request|schedule|workflow_run):' "$FIXTURE" || fail 'fixture has an unapproved trigger'
+@@ -419,9 +419,9 @@
+   # The publisher's own transport receipts are not retained, so its measured rows are carried into the evidence here,
+   # each checked against the per-transaction digest the publication receipt pinned (253-101: without them the
+   # verifier's receipt/ledger reconciliation can never pass).
+-  python3 - "$PUBLICATION_RECEIPT" "$REQUESTS" "$EVIDENCE" <<'PY' || fail 'publication rows could not be reconciled with the publication receipt'
++  python3 - "$PUBLICATION_RECEIPT" "$REQUESTS" "$EVIDENCE" "$PUBLISHER" <<'PY' || fail 'publication rows could not be reconciled with the publication receipt'
+ import hashlib, json, sys
+-receipt_path, ledger_path, evidence_path = sys.argv[1:]
++receipt_path, ledger_path, evidence_path = sys.argv[1:4]
+ receipt = json.load(open(receipt_path))
+ ledger = json.load(open(ledger_path))
+ evidence = json.load(open(evidence_path))
+@@ -447,6 +447,11 @@
+                        terminal_stop=False, derived_from="publication-receipt-pinned-transaction")
+         receipts[sequence] = derived
+ evidence["transport_receipts"] = [receipts[key] for key in sorted(receipts)]
++from pathlib import Path
++sys.path.insert(0, str(Path(sys.argv[4]).resolve().parent))
++from receipt_bridge import merge_operator_receipts
++operator_receipts = [json.load(open(p)) for p in sorted(Path(evidence_path).parent.glob("canary-operator-receipt-*.json"))]
++evidence = merge_operator_receipts(evidence, ledger, operator_receipts)
+ open(evidence_path + ".tmp", "w").write(json.dumps(evidence))
+ PY
+   mv "$EVIDENCE.tmp" "$EVIDENCE"
+@@ -464,7 +469,7 @@
+ fi
+ startup_request="$(mktemp "$WORK_DIR/startup-request.XXXXXX")"
+ jq -n '{method:"GET",route_id:"rate_limit"}' > "$startup_request"
+-python3 "$ROOT/scripts/ci/ci-hosted-transport.py" --check-only --allocation "$LIVE_ALLOCATION" \
++python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-transport.py" --check-only --allocation "$LIVE_ALLOCATION" \
+   --ledger "$REQUESTS" --request "$startup_request" --output /dev/null || fail 'frozen HTTP allocation failed local transport validation'
+ rm -f "$startup_request"
+ if [[ -f "$EVIDENCE" ]]; then
+@@ -577,7 +582,7 @@
+ PY
+ }
+ 
+-TRANSPORT_MODULE="$ROOT/scripts/ci/ci-hosted-transport.py"
++TRANSPORT_MODULE="$(dirname "${BASH_SOURCE[0]}")/ci-hosted-transport.py"
+ REQUEST_LEDGER="$REQUESTS"
+ HTTP_RECEIPT_DIR="$(mktemp -d "$WORK_DIR/http-receipts.XXXXXX")"
+ 
+@@ -795,7 +800,7 @@
+   '.preflight={initial_rate_limit:$rate[0],effective_rules:$rules[0],legacy_protection:$legacy[0],native_check_runs:$check_runs[0],registered_workflow:$workflow[0]} | .preserved_revisions += [{path:$evidence_path,ref:$ref,sha256:$sha,status:$status}]' \
+   "$EVIDENCE" > "${EVIDENCE}.tmp" && mv "${EVIDENCE}.tmp" "$EVIDENCE"
+ record_budget
+-python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode preflight --evidence "$EVIDENCE" \
++python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-gate-verify.py" --mode preflight --evidence "$EVIDENCE" \
+   || fail 'independent measured transport and effective check-source verification failed'
+ }
+ 
+@@ -817,7 +822,7 @@
+   [[ -f "$RATE_SOURCE" ]] || return 1
+ }
+ if retained_preflight; then
+-  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode preflight --evidence "$EVIDENCE" >/dev/null \
++  python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-gate-verify.py" --mode preflight --evidence "$EVIDENCE" >/dev/null \
+     || fail 'the retained preflight failed offline re-verification'
+   echo "ci-gate-canary: retained preflight re-verified offline (no preflight request)"
+ else
+@@ -948,7 +953,7 @@
+   jq --arg scenario "$case_name" --slurpfile receipt "$receipt_tmp" --argjson count "$REQUEST_COUNT" --argjson jobs "$((current_jobs + new_jobs))" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
+     '.scenarios[$scenario]=$receipt[0] | .budget.request_count=$count | .budget.actual_jobs=$jobs | .run_attempts=((.run_attempts // []) + [{run_id:$receipt[0].run_id,run_attempt:$receipt[0].run_attempt,jobs:[$receipt[0].jobs.jobs[] | {job_id:.id,name:.name,conclusion:.conclusion,executed:(.conclusion != "skipped")}]}]) | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+   mv "${EVIDENCE}.tmp" "$EVIDENCE"
+-  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario "$case_name"
++  python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario "$case_name"
+   record_budget
+   [[ "$conclusion" == success && "$case_name" == actual-failure || "$conclusion" == success && "$case_name" == missing-seam || "$conclusion" == success && "$case_name" == unexpected-skip ]] && fail "negative source unexpectedly concluded success: $case_name"
+   # The guard above is false for every expected outcome; without this the function returned 1 and set -e ended the run.
+@@ -958,7 +963,7 @@
+ for current_scenario in "${SCENARIOS[@]}"; do dispatch_scenario "$current_scenario"; done
+ 
+ if [[ "$ALL_REMAINING" == true ]]; then
+-  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario sources || fail 'source matrix is incomplete before separate verifier dispatch'
++  python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario sources || fail 'source matrix is incomplete before separate verifier dispatch'
+   MATRIX_B64="$(python3 "$PUBLISHER" --compact-matrix "$EVIDENCE")" || fail 'compact verifier matrix exceeds its bounded dispatch input'
+   current_jobs="$(jq -r '.budget.actual_jobs // 0' "$EVIDENCE")"
+   (( current_jobs + 1 <= MAX_JOBS )) || fail "separate verifier would exceed the $MAX_JOBS-job ceiling"
+@@ -987,7 +992,7 @@
+   jq --argjson id "$VERIFY_ID" --slurpfile run "$VERIFY_RUN" --slurpfile jobs "$VERIFY_JOBS" --arg ref "$PRIOR_EVIDENCE_REF" --arg sha "$PRIOR_EVIDENCE_SHA" --arg status "$PRIOR_EVIDENCE_STATUS" --arg path "${EVIDENCE#${ROOT}/}" \
+     '.separate_verifier={status:"passed",run_id:($id|tostring),job_conclusion:$run[0].conclusion,run:$run[0],jobs:$jobs[0]} | .budget.actual_jobs+=([$jobs[0].jobs[] | select(.conclusion != "skipped")] | length) | .budget.request_count+=(0) | .run_attempts=((.run_attempts // []) + [{run_id:($id|tostring),run_attempt:$run[0].run_attempt,jobs:[$jobs[0].jobs[] | {job_id:.id,name:.name,conclusion:.conclusion,executed:(.conclusion != "skipped")}]}]) | .preserved_revisions += [{path:$path,ref:$ref,sha256:$sha,status:$status}]' "$EVIDENCE" > "${EVIDENCE}.tmp"
+   mv "${EVIDENCE}.tmp" "$EVIDENCE"
+-  python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario matrix
++  python3 "$(dirname "${BASH_SOURCE[0]}")/ci-hosted-gate-verify.py" --mode canary --evidence "$EVIDENCE" --scenario matrix
+ fi
+ 
+ record_budget
+--- scripts/ci/ci-pr-proof.sh@16800f4319cdd0e2554938071d4ebc48caa969ac
++++ runtime/ci-pr-proof.sh
+@@ -17,8 +17,9 @@
+ # never trusts collector output: it hands the retained bytes to scripts/ci/ci-hosted-gate-verify.py.
+ set -euo pipefail
+ 
+-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
++ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
+ export SIGRA_PR_PROOF_ROOT="$ROOT"
++export SIGRA_PR_PROOF_RUNTIME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+ export PYTHONDONTWRITEBYTECODE=1
+ 
+ if [[ $# -eq 0 || "$1" == "--help" || "$1" == "-h" ]]; then
+@@ -41,9 +42,9 @@
+ from pathlib import Path
+ 
+ ROOT = Path(os.environ["SIGRA_PR_PROOF_ROOT"])
+-TRANSPORT = ROOT / "scripts/ci/ci-hosted-transport.py"
+-VERIFY = ROOT / "scripts/ci/ci-hosted-gate-verify.py"
+-PUBLICATION = ROOT / "scripts/ci/ci-git-publication.py"
++TRANSPORT = Path(os.environ["SIGRA_PR_PROOF_RUNTIME"]) / "ci-hosted-transport.py"
++VERIFY = Path(os.environ["SIGRA_PR_PROOF_RUNTIME"]) / "ci-hosted-gate-verify.py"
++PUBLICATION = Path(os.environ["SIGRA_PR_PROOF_RUNTIME"]) / "ci-git-publication.py"
+ BUDGETS = ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS.md"
+ BUDGET_NAME = "253-LOAD-RECOVERY-BUDGETS.md"
+ BOUND_DEFAULTS = (".github/workflows/ci.yml", "scripts/ci/ci-browser-records.mjs")
+@@ -57,11 +58,11 @@
+ SEAMS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
+ # 253-102/253-111/253-119/253-130/253-137/253-166: the normal head is the candidate ref the canary freeze selected, one of
+ # exactly these seven names (ci-git-publication.py REF_PAIRS); the docs-only refs never vary.
+-NORMAL_HEADS = ("gsd/253-replan-candidate", "gsd/253-replan-r8-candidate", "gsd/253-replan-r9-candidate", "gsd/253-replan-r10-candidate", "gsd/253-replan-r11-candidate", "gsd/253-replan-r12-candidate", "gsd/253-replan-r13-candidate")
++NORMAL_HEADS = ("gsd/253-proof-16800f431-next-candidate",)
+ # 253-138/253-166: the r12 and r13 normal heads are prepared only against the recorded fresh main (--main-record).
+-MAIN_RECORD_HEADS = {"gsd/253-replan-r12-candidate": "r12", "gsd/253-replan-r13-candidate": "r13"}
++MAIN_RECORD_HEADS = {}  # exact fresh parent guarded before all requests
+ FAMILY_REFS = {"normal": (NORMAL_HEADS, "main"),
+-               "docs-only": ("gsd/253-replan-docs-head", "gsd/253-replan-docs-base")}
++               "docs-only": ("gsd/253-proof-16800f431-next-docs-head", "gsd/253-proof-16800f431-next-docs-base")}
+ TERMINAL_POLLS = {"normal": 15, "docs-only": 12}
+ # 253-139: the offline step-0 preflight. GitHub runs pull_request CI on the test merge of the head into the CURRENT base,
+ # so a main that moved since the freeze is accepted only if the frozen main is its ancestor and the head merges cleanly.
+@@ -72,7 +73,7 @@
+ SHA40 = re.compile(r"[0-9a-f]{40}")
+ DOCS_RECEIPT_SCHEMA = "sigra.phase253.pr-docs-publication-receipt/r12"
+ DOCS_NOT_APPLICABLE = {"status": "not_applicable",
+-                       "reason": "the docs-only base is the scoped ref gsd/253-replan-docs-base created in the same window"}
++                       "reason": "the docs-only base is the scoped ref gsd/253-proof-16800f431-next-docs-base created in the same window"}
+ 
+ 
+ class Stop(Exception):

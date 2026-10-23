@@ -1,0 +1,63 @@
+{
+  "schema_version": "sigra.phase253.postexecution-preservation/v1",
+  "recorded_at": "2026-10-13T04:50:25.696448+00:00",
+  "ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "bytes": 9669,
+      "sha256": "1c0e9e862bf95ec8f50d6b84125074ff41d20bc680d25db2132d744f16ef26cc",
+      "recoverable_ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "bytes": 772,
+      "sha256": "77eba6a7f35243b243afab7125ce5d303b7d31cfaca35da1733c71298325380e",
+      "recoverable_ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "bytes": 33508,
+      "sha256": "a0130080d05034b642f588225907ae46d676d48e4f1b1ca53235cab356ab4cfa",
+      "recoverable_ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "bytes": 11599,
+      "sha256": "61008d99d6381067780c0dea36e18f185effda38b4ae8bc26fad2f939ec1a7b0",
+      "recoverable_ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-SUMMARY.md",
+      "status": "clean",
+      "bytes": 7175,
+      "sha256": "9ad7739401280e0d5fc23e06e7d924eb46090824e5e7186dd4f69bf83b60fef7",
+      "recoverable_ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-SUMMARY.md",
+      "status": "clean",
+      "bytes": 3086,
+      "sha256": "a24707bf635828c74cfca3e863f815daaf49aa2086fea5a9087fabc185c05220",
+      "recoverable_ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-WORKFLOW.yml",
+      "status": "clean",
+      "bytes": 16928,
+      "sha256": "ae7d502de6125ff2ab17fcaa1c0cb6439dcfd223149996e902588dcffba6eece",
+      "recoverable_ref": "59c907378fe66732fb426d68bde83ecaca488ba6",
+      "git_readback_exact": true
+    }
+  ]
+}

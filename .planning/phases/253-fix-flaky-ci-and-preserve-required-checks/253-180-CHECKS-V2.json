@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "checked_commit": "5e6f9f33c6b2b403a0a12251cd071a43b55123e8",
+  "bridge": {
+    "status": "verified",
+    "stage": "complete",
+    "plans": 5,
+    "sdk_post_halted": 28,
+    "sdk_post_incomplete": 0
+  },
+  "receipt": {
+    "count": 90,
+    "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+    "status": "verified"
+  },
+  "raw_preservation": {
+    "ref": "refs/gsd/phase253-180-v2-final-checks",
+    "commit": "a03b4cd73a70e6cbdcf29f216971280b4a79685c",
+    "files": [
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/final-bridge.json",
+        "blob": "d108357bcf46eb3f02af9f5cb0b6b4aa791e3593",
+        "sha256": "b22de441cee88fba2aac9177e8df2f486dda95d4d7b30dba8ec4478bdfebc017",
+        "bytes": 1444561
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/final-bridge.stderr",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/final-receipt.json",
+        "blob": "1a96a12a06f9b429354a853e0bab38b6189c206a",
+        "sha256": "1c269263328fab6fdd5e0727480e9ef2b0653fc247cbee97a1a7105796450a99",
+        "bytes": 97
+      },
+      {
+        "path": ".planning/diagnostics/phase253-180-v2/final-receipt.stderr",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ]
+  },
+  "github_requests": 0,
+  "ci_launches": 0,
+  "acceptance179_rerun": false,
+  "requirements_completed": [],
+  "phase_verification_status": "not_started"
+}

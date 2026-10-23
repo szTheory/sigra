@@ -1,0 +1,54 @@
+{
+  "schema": "sigra.phase253.control-recovery-load-failure/v1",
+  "recorded_at": "2026-10-14T01:30:01.883389+00:00",
+  "source_head": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+  "native_source_commit": "a881094ca250723e26142da6f67e8e9475ba5caa",
+  "native_evidence": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+    "sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0"
+  },
+  "report": {
+    "path": "CR-DARK-FIRST/attempt-01/playwright-report.json",
+    "sha256": "5f70aff4403961f602d55df81cd838148eb74ae511fa532ee3545ec74b1ae7d4",
+    "bytes": 12735
+  },
+  "actual_report_errors": [
+    {
+      "message": "Error: require() of ES Module /Users/jon/projects/sigra/test/example/priv/playwright/node_modules/parse5/dist/index.js from /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts not supported.\nInstead change the require of index.js in /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts to a dynamic import() which is available in all CommonJS modules.",
+      "stack": "Error: require() of ES Module /Users/jon/projects/sigra/test/example/priv/playwright/node_modules/parse5/dist/index.js from /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts not supported.\nInstead change the require of index.js in /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts to a dynamic import() which is available in all CommonJS modules.\n    at Object.<anonymous> (/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts:7:14)\n    at Object.<anonymous> (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:10:21)",
+      "location": {
+        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts",
+        "column": 14,
+        "line": 7
+      },
+      "snippet": "   at ../lib/eval/canonicalize.ts:7\n\n   5 |  *  - Stripping ALL volatile per-request attrs (data-phx-*, phx-*, nonce, integrity, id)\n   6 |  *  - Allowlist-keeping only semantic attrs: type, name, role, aria-label, alt, data-testid\n>  7 |  *  - Keeping href (with ?vsn= and 32-hex digest fingerprints stripped)\n     |              ^\n   8 |  *  - Keeping class (tokens sorted)\n   9 |  *  - Sorting all remaining attrs by name\n  10 |  *  - Normalizing text: collapsing whitespace runs, dropping whitespace-only nodes"
+    },
+    {
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+    }
+  ],
+  "load_failure": {
+    "file": "test/example/priv/playwright/lib/eval/canonicalize.ts",
+    "direct_import": "import { parseFragment } from 'parse5';",
+    "installed_parse5": "8.0.1",
+    "frozen_node": "v20.18.1",
+    "error": "Playwright transforms the importing spec to CommonJS; canonicalize loading tries require() on ESM-only parse5. Spec collection ends before selected tests execute.",
+    "registration_cause": "still unproved; this command never reached registration"
+  },
+  "additional_verifier_findings": [
+    "Saved setup log contains a redaction marker, not plaintext demo credentials. The current checker treats that marker as an unsanitized credential block; this diagnostic does not turn the failed native result into a pass.",
+    "Successful quiet database drop returned exit0 with an empty log. The checker rejects an empty log; independent database-absence proof is not present in this receipt.",
+    "The freeze source blob map omits test/example/priv/playwright/helpers/registrationControls.mjs, despite the repaired spec invoking that shared module. Future source binding must include it.",
+    "Plan27 Task2 portable suite and cumulative counter guards were not implemented/run after the terminal native halt."
+  ],
+  "future_work": [
+    "Plan a Node20-compatible parse5 loading correction and prove module collection offline before spending any remaining native command.",
+    "Plan explicit tests for sanitized markers and quiet successful cleanup; retain source identities and reject actual credentials/missing cleanup proof.",
+    "Complete inherited portable checks and bind all invoked shared helper bytes in any new freeze.",
+    "Use only unused reservations after a separately reviewed plan; no retry/reopened CR-DARK-FIRST, budget reset, or retrospective pass."
+  ],
+  "source_files_changed_during_closeout": false,
+  "native_commands_during_closeout": 0,
+  "github_requests_this_invocation": 0
+}

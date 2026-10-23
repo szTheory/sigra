@@ -1,0 +1,24 @@
+{
+  "capture": "prewrite recovery copy",
+  "captured_at": "2026-10-11T18:42:00Z",
+  "files": [
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs",
+      "status": "modified",
+      "sha256": "4ec9b7739b2955325799c70bbe3e101e5dfbef56a92fbc7c311f1e660f357576",
+      "bytes": 47144
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+      "status": "modified",
+      "sha256": "e8e2b328e2baf36df1159ff506c1e777b0f3fd2848976231ad69596bc3d9b2d1",
+      "bytes": 11191
+    },
+    {
+      "path": ".planning/v1.49-MILESTONE-AUDIT.md",
+      "status": "modified",
+      "sha256": "996c2787c8d1d2bcaddafe5a8ef1c2d086a7c596f00781c0df38314728433f34",
+      "bytes": 15804
+    }
+  ]
+}
