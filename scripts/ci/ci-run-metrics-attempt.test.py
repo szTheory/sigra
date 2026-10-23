@@ -381,6 +381,20 @@ else:
                         artifact["digest"] = "sha256:" + digest(directory / f"{aid}.zip")
                         artifact["expired"] = False
                         retained_artifacts.append(artifact)
+                    if role == 'after':
+                        for owner_index, owner in enumerate(OWNERS, 1):
+                            # The actual candidate adds this known native record
+                            # to its artifact. It must be retained, not rejected
+                            # as an unexpected JSON member.
+                            aid = 9000000000000 + owner_index
+                            output = io.BytesIO()
+                            with zipfile.ZipFile(output, 'w') as zipped:
+                                zipped.writestr('execution-record.json', json.dumps({'schema_version':'sigra.browser-execution-record/v1',
+                                    'run_id':str(rid),'run_attempt':str(attempt),'source_sha':producer,'seam':owner}))
+                            (directory / f'{aid}.zip').write_bytes(output.getvalue())
+                            retained_artifacts.append({**retained_artifacts[0], 'id':aid,
+                                'name':f'browser-execution-{owner}-{rid}-{attempt}',
+                                'digest':'sha256:'+digest(directory / f'{aid}.zip')})
                     routes = {}
                     diagnostic = next(item for item in retained_artifacts if item["name"] == f"example-playwright-admin_behavior-{rid}")
                     self.assertTrue(legacy_playwright_artifact_matches_attempt(diagnostic, run, jobs["jobs"], attempt))
@@ -418,6 +432,11 @@ else:
                     self.assertEqual(manifest["comparison_collection"]["origin_status"], "passed", manifest["comparison_collection"])
                     from ci_metrics_security import verify_snapshot_hashes
                     self.assertEqual(verify_snapshot_hashes(bundle), [])
+                    if role == 'after':
+                        evidence = json.loads((bundle / f'raw/families/{rid}-attempt-{attempt}/artifact-evidence.json').read_text())
+                        records = [row for row in evidence if row['artifact']['name'].startswith('browser-execution-')]
+                        self.assertEqual(len(records), 5)
+                        self.assertTrue(all(row['result']['status']=='accepted' for row in records), records)
                     raw_run = bundle / f"raw/families/{rid}-attempt-{attempt}/run.json"
                     self.assertEqual(json.loads(raw_run.read_text())["run_attempt"], attempt)
                     self.assertEqual(list((bundle / "raw/families").iterdir()), [raw_run.parent])

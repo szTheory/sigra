@@ -168,7 +168,7 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
                 recorded_json_members = {item.get("member") for item in member_records}
                 with zipfile.ZipFile(zip_path) as archive:
                     all_extracted_json = {n for n in zip_members if pathlib.PurePosixPath(n).suffix.lower() == ".json" and (pathlib.PurePosixPath(n).name.lower() in {
-                        "report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json", "coverage-source.json"} or pathlib.PurePosixPath(n).name.lower().endswith(".selection.json"))}
+                        "report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json", "coverage-source.json", "execution-record.json"} or pathlib.PurePosixPath(n).name.lower().endswith(".selection.json"))}
                 if all_extracted_json != recorded_json_members:
                     diagnostics.append(f"artifact_json_member_coverage_mismatch:{family.name}:{artifact_id}")
                 for item in member_records:
