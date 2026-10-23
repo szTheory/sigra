@@ -5,6 +5,7 @@ import hashlib
 import base64
 import json
 import pathlib
+import subprocess
 import tempfile
 import unittest
 import zipfile
@@ -37,6 +38,28 @@ from ci_metrics_security import (
 
 
 class SecurityContractsTest(unittest.TestCase):
+    def test_unset_comparison_window_returns_cli_diagnostic_without_traceback(self):
+        root = pathlib.Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory() as temp:
+            contract_path = pathlib.Path(temp) / "blocked-contract.json"
+            contract_path.write_text(json.dumps({
+                "status": "blocked", "window": {"start_utc": None, "end_utc": None}
+            }))
+            result = subprocess.run([
+                "bash", str(root / "scripts/ci/ci-run-metrics.sh"),
+                "--validate-comparison-plan", "--contract", str(contract_path), "--format", "json"
+            ], cwd=root, capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn("Traceback", result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "invalid")
+            self.assertIn("comparison_window_not_predeclared", report["diagnostics"])
+        for value in (None, 12, True, {}, []):
+            with self.subTest(value=value):
+                self.assertIn("comparison_window_not_predeclared", validate_comparison_plan({
+                    "window": {"start_utc": value, "end_utc": value}
+                }))
+
     def test_collection_selects_only_authenticated_registered_role_ids(self):
         schedule=[]; reservations=[]
         for pair in range(1,21):

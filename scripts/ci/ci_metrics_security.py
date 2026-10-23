@@ -1017,6 +1017,8 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
 
 def _utc(value: str):
     import datetime
+    if not isinstance(value, str):
+        raise ValueError("comparison_timestamp_invalid")
     return datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
