@@ -283,6 +283,9 @@ async function profileScope(options) {
       context.toolchain.node = commandVersion('node', ['--version'], root, env);
     }
     if (Number((context.toolchain.node ?? '').replace(/^v/, '').split('.')[0]) !== 20) throw new Error(`node_20_required_actual_${context.toolchain.node ?? 'unknown'}`);
+    const shellNode = run('shell-node-runtime', 'node --version', root, env);
+    context.toolchain.shell_node = fs.readFileSync(shellNode.log_path, 'utf8').trim().split('\n')[0] ?? null;
+    if (context.toolchain.shell_node !== context.toolchain.node) throw new Error(`shell_node_runtime_mismatch:${context.toolchain.shell_node}/${context.toolchain.node}`);
     if (!await portAvailable(scope.port)) throw new Error(`profile_port_unavailable:${scope.port}`);
 
     if (preparation.isCombined) {
