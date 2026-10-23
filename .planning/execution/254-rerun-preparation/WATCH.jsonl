@@ -1,0 +1,11 @@
+{"at": "2026-10-23T22:10:17.710714+00:00", "kind": "started", "runs": [{"attempt": 2, "role": "before", "run_id": 38317383419}, {"attempt": 1, "role": "after", "run_id": 40031597004}]}
+{"at": "2026-10-23T22:11:18.870659+00:00", "attempt": 2, "conclusion": "failure", "kind": "status", "role": "before", "run_id": 38317383419, "status": "completed"}
+{"at": "2026-10-23T22:11:37.728269+00:00", "collection_exit_code": 1, "kind": "captured", "role": "before", "source_bundle": ".planning/execution/254-rerun-preparation/RAW-before"}
+{"at": "2026-10-23T22:11:38.583486+00:00", "commit": "bab963a563612301def46558a37338ca50b13637", "files": 88, "kind": "preserved", "ref": "refs/evidence/phase254-preparation-before-attempt-2", "role": "before"}
+{"at": "2026-10-23T22:11:39.711794+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40031597004, "status": "in_progress"}
+{"at": "2026-10-23T22:12:40.846066+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40031597004, "status": "in_progress"}
+{"at": "2026-10-23T22:13:42.037939+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40031597004, "status": "in_progress"}
+{"at": "2026-10-23T22:14:43.290645+00:00", "attempt": 1, "conclusion": "failure", "kind": "status", "role": "after", "run_id": 40031597004, "status": "completed"}
+{"at": "2026-10-23T22:15:25.105815+00:00", "collection_exit_code": 1, "kind": "captured", "role": "after", "source_bundle": ".planning/execution/254-rerun-preparation/RAW-after"}
+{"at": "2026-10-23T22:15:27.272314+00:00", "commit": "0ec3968198396bc81eb414a0fadfeb8fead4e1cc", "files": 182, "kind": "preserved", "ref": "refs/evidence/phase254-preparation-after-attempt-1", "role": "after"}
+{"at": "2026-10-23T22:15:27.272453+00:00", "completed": ["after", "before"], "kind": "finished", "measured_samples": 0}

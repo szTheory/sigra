@@ -1,55 +1,59 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-23T19:53:39.202034+00:00",
-  "updated_at": "2026-10-23T21:09:52.686054+00:00",
-  "status": "in_progress",
+  "timestamp": "2026-10-23T22:31:10.936343+00:00",
+  "updated_at": "2026-10-23T22:31:10.936343+00:00",
+  "status": "blocked",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "current_phase": 254,
-  "current": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+  "current": "Plans254-01 through254-07 are implemented. Both approved preparation invocations failed: baseline attempt2 hit missing Git history and an ECR PostgreSQL download cap; candidate PR345 attempt1 failed one stale workflow assertion. Local repairs pass scoped tests. No measured sample or48-hour window started; phase verification is pending.",
   "next_command": "$gsd-execute-phase 254",
   "resume_command": "$gsd-execute-phase 254",
-  "next_command_conditional": false,
+  "next_command_conditional": true,
   "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md",
-  "next_action": "Implement and test attempt-specific registration/acquisition/timing/cost before hosted preparation",
+  "next_action": "Explicitly approve the proposed baseline workflow/image amendment and a separate two-invocation preparation allowance. Both prior preparation runs remain failures and their allowance remains spent. Do not retry or reset it.",
   "route": {
-    "status": "in_progress",
+    "status": "blocked_awaiting_baseline_decision",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
-    "conditional": false,
-    "condition": "User approved the explicit rerun amendment and separate two-invocation preparation allowance; continue same Plan08 under that authorization.",
-    "reason": "Approved rerun continuation; implementation and preparation feasibility checks are in progress.",
+    "conditional": true,
+    "condition": "Explicitly approve the proposed baseline workflow/image amendment and a separate two-invocation preparation allowance. Both prior preparation runs remain failures and their allowance remains spent. Do not retry or reset it.",
+    "reason": "Original frozen baseline cannot execute an equivalent full workload after main advances; both approved preparation runs failed.",
     "resume_plan": "254-08",
     "resume_task": "254-08-01",
-    "checkpoint": "blocked_before_preparation_or_collection",
+    "checkpoint": "preparation_failed_no_retries",
     "continuation": ".planning/execution/254-CONTINUATION.json",
+    "result": ".planning/execution/254-rerun-preparation/RESULT.json",
+    "proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
     "historical_verification_is_forward_blocker": false
   },
   "current_routing": {
-    "status": "in_progress",
+    "status": "blocked_awaiting_baseline_decision",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
-    "conditional": false,
-    "condition": "User approved the explicit rerun amendment and separate two-invocation preparation allowance; continue same Plan08 under that authorization.",
-    "reason": "Approved rerun continuation; implementation and preparation feasibility checks are in progress.",
+    "conditional": true,
+    "condition": "Explicitly approve the proposed baseline workflow/image amendment and a separate two-invocation preparation allowance. Both prior preparation runs remain failures and their allowance remains spent. Do not retry or reset it.",
+    "reason": "Original frozen baseline cannot execute an equivalent full workload after main advances; both approved preparation runs failed.",
     "resume_plan": "254-08",
     "resume_task": "254-08-01",
-    "checkpoint": "blocked_before_preparation_or_collection",
+    "checkpoint": "preparation_failed_no_retries",
     "continuation": ".planning/execution/254-CONTINUATION.json",
+    "result": ".planning/execution/254-rerun-preparation/RESULT.json",
+    "proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
     "historical_verification_is_forward_blocker": false
   },
   "workflow": {
     "phase253_implementation_status": "complete",
     "phase253_verification_status": "passed",
     "phase254_implementation_status": "complete",
-    "phase254_comparison_status": "blocked_not_started",
+    "phase254_comparison_status": "blocked_preparation_failed",
     "phase254_verification_status": "pending",
     "phase254_completed_plans": 7,
     "phase254_halted_plans": [
       "254-08"
     ],
     "phase254_plan_count": 8,
-    "next_required_gate": "Use the approved rerun amendment. Prove exact original baseline workflow/checkout, fixed candidate identity, attempt timing, cache/image compatibility and durable capture before measured collection."
+    "next_required_gate": "Explicitly approve the proposed baseline workflow/image amendment and a separate two-invocation preparation allowance. Both prior preparation runs remain failures and their allowance remains spent. Do not retry or reset it."
   },
   "phase253_canonical_verification": {
     "status": "passed",
@@ -83,11 +87,15 @@
     "halted_summary": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md",
     "continuation": ".planning/execution/254-CONTINUATION.json",
     "validator_maintenance": ".planning/execution/254-validator-maintenance.json",
-    "hosted_runs_started": false,
-    "preparation_runs": 0,
+    "hosted_runs_started": true,
+    "preparation_runs": 2,
     "comparison_families_started": 0,
     "window_started": false,
-    "rerun_authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json"
+    "rerun_authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
+    "preparation_result": ".planning/execution/254-rerun-preparation/RESULT.json",
+    "rebaseline_proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
+    "final_recovery": ".planning/execution/254-rerun-preparation/FINAL-RECOVERY.json",
+    "local_repairs_commit": "dd4e3b437"
   },
   "preservation": {
     "ref": "refs/gsd/phase254/state-before-hosted-halt",
@@ -142,5 +150,6 @@
     "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
     "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
     "notification_created": false
-  }
+  },
+  "prior_state_before_preparation_closeout": ".planning/execution/254-rerun-preparation/STATE-BEFORE-CLOSEOUT.json"
 }

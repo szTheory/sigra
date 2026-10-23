@@ -18,7 +18,7 @@
       "name": "Speed Up the Measured Slow Jobs",
       "status": "in_progress",
       "implementation_status": "complete",
-      "comparison_status": "blocked_not_started",
+      "comparison_status": "blocked_preparation_failed",
       "verification_status": "pending"
     },
     {
@@ -29,12 +29,12 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 254",
-    "label": "Continue the existing hosted checkpoint after baseline proof",
-    "reason": "Continue the approved rerun amendment on existing Plan08.",
-    "conditional": false,
-    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
+    "label": "Resume the existing Plan08 only after the baseline decision",
+    "reason": "Original frozen baseline cannot execute an equivalent full workload after main advances; both approved preparation runs failed.",
+    "conditional": true,
+    "condition": "Explicitly approve the proposed baseline workflow/image amendment and a separate two-invocation preparation allowance. Both prior preparation runs remain failures and their allowance remains spent. Do not retry or reset it."
   },
-  "updated_at": "2026-10-23T21:09:52.686054+00:00",
+  "updated_at": "2026-10-23T22:31:10.936343+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -42,17 +42,25 @@
     ],
     "total_plans": 8,
     "implementation_status": "complete",
-    "comparison_status": "blocked_not_started",
+    "comparison_status": "blocked_preparation_failed",
     "verification_status": "pending",
     "resume_plan": "254-08",
     "resume_task": "254-08-01",
     "continuation": ".planning/execution/254-CONTINUATION.json",
-    "state_preservation": "f2cd83578701b4d212c7b4fc955d50179e867880"
+    "state_preservation": "e8d0090a4d6143ed7d15c5818240990456b42388",
+    "preparation_runs": 2,
+    "measured_samples": 0,
+    "window_started": false,
+    "preparation_result": ".planning/execution/254-rerun-preparation/RESULT.json",
+    "rebaseline_proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json"
   },
   "phase254_unblock_decision": {
-    "status": "approved",
+    "status": "approved_rerun_method_attempted_preparation_failed",
     "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
     "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
-    "notification_created": false
+    "notification_created": false,
+    "preparation_runs": 2,
+    "measured_samples": 0,
+    "next_decision": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json"
   }
 }
