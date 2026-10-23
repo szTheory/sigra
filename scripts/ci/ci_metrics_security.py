@@ -494,6 +494,127 @@ def deduplicate_physical_jobs(attempts: dict) -> tuple[list[dict], list[dict]]:
     return counted, rows
 
 
+def derive_attempt_job_costs(attempt_jobs: dict) -> dict:
+    """Sum runner time from raw jobs, retaining every attempt and surfacing unknowns."""
+    known = 0.0
+    unknown = []
+    diagnostics = []
+    attempt_costs = []
+    if not isinstance(attempt_jobs, dict) or not attempt_jobs:
+        return {"total_seconds": None, "known_subtotal_seconds": 0.0, "attempts": [], "unknown_jobs": ["attempt_jobs"], "diagnostics": ["attempt_jobs_missing"]}
+    for attempt, jobs in sorted(attempt_jobs.items(), key=lambda item: int(item[0]) if str(item[0]).isdigit() else 0):
+        if not str(attempt).isdigit() or int(attempt) < 1 or not isinstance(jobs, list):
+            diagnostics.append("attempt_jobs_shape_invalid")
+            unknown.append(f"{attempt}:*")
+            continue
+        seen = set()
+        attempt_total = 0.0
+        for job in jobs:
+            job_id = str(job.get("id", ""))
+            identity = f"{attempt}:{job_id or '?'}"
+            if not job_id.isdigit():
+                unknown.append(identity)
+                diagnostics.append("job_id_invalid")
+                continue
+            if job_id in seen:
+                unknown.append(identity)
+                diagnostics.append("duplicate_job_id_within_attempt")
+                continue
+            seen.add(job_id)
+            try:
+                if job.get("conclusion") == "skipped" and not job.get("started_at") and not job.get("completed_at"):
+                    seconds = 0.0
+                else:
+                    start, end = _utc(job["started_at"]), _utc(job["completed_at"])
+                    seconds = (end - start).total_seconds()
+                    if seconds < 0:
+                        raise ValueError("negative_duration")
+            except (KeyError, TypeError, ValueError):
+                unknown.append(identity)
+                continue
+            known += seconds
+            attempt_total += seconds
+        attempt_costs.append({"attempt": int(attempt), "known_subtotal_seconds": round(attempt_total, 6)})
+    return {
+        "total_seconds": None if unknown else round(known, 6),
+        "known_subtotal_seconds": round(known, 6),
+        "attempts": attempt_costs,
+        "unknown_jobs": sorted(set(unknown)),
+        "diagnostics": sorted(set(diagnostics)),
+    }
+
+
+def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str]) -> dict:
+    """Bind required checks to native jobs and derive the last successful completion."""
+    errors, by_attempt, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, checks, required)
+    if errors:
+        return {"seconds": None, "missing_contexts": list(required), "diagnostics": errors}
+    successes = {}
+    for checks_for_attempt in by_attempt.values():
+        for name, check in checks_for_attempt.items():
+            if check.get("status") == "completed" and check.get("conclusion") == "success":
+                try:
+                    completed = _utc(check["completed_at"])
+                    created = _utc(run["created_at"])
+                    seconds = (completed - created).total_seconds()
+                    if seconds < 0:
+                        continue
+                except (KeyError, TypeError, ValueError):
+                    continue
+                successes[name] = max(successes.get(name, 0.0), seconds)
+    missing = sorted(set(required) - set(successes))
+    return {"seconds": None if missing else round(max(successes.values()), 6), "missing_contexts": missing, "diagnostics": []}
+
+
+def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, required_contexts: list[str]) -> dict:
+    """Replay cost and wait only from authenticated family files already collected."""
+    root = pathlib.Path(bundle).resolve()
+    family = root / "raw" / "families" / str(run_id)
+    try:
+        detail_path = family / "manifest.json"
+        detail = json.loads(detail_path.read_text())
+        run_path = family / "run.json"
+        run_bytes = run_path.read_bytes()
+        if not _matches(run_path, detail.get("source_run_sha256")):
+            raise ValueError("comparison_run_hash_mismatch")
+        run = json.loads(run_bytes)
+        if str(run.get("id")) != str(run_id) or detail.get("detail_status") != "complete":
+            raise ValueError("comparison_family_detail_incomplete")
+        jobs_by_attempt = {}
+        for attempt, ref in sorted((detail.get("attempt_jobs") or {}).items(), key=lambda item: int(item[0])):
+            expected_rel = f"raw/families/{run_id}/jobs-attempt-{attempt}.json"
+            rel = ref.get("path")
+            if rel != expected_rel:
+                raise ValueError("comparison_attempt_path_invalid")
+            path = (root / rel).resolve()
+            if not path.is_relative_to(root) or not _matches(path, ref.get("sha256")):
+                raise ValueError("comparison_attempt_hash_mismatch")
+            response = json.loads(path.read_text())
+            jobs = response.get("jobs")
+            if not isinstance(jobs, list):
+                raise ValueError("comparison_attempt_jobs_invalid")
+            jobs_by_attempt[str(attempt)] = jobs
+        checks_path = family / "check-runs.json"
+        checks_hash = detail.get("check_runs_sha256")
+        if not _matches(checks_path, checks_hash):
+            raise ValueError("comparison_check_runs_hash_mismatch")
+        checks = json.loads(checks_path.read_text()).get("check_runs")
+        if not isinstance(checks, list):
+            raise ValueError("comparison_check_runs_invalid")
+        cost = derive_attempt_job_costs(jobs_by_attempt)
+        wait = derive_required_result_wait(run, jobs_by_attempt, checks, required_contexts)
+        return {"status": "complete", "run_id": run_id, "conclusion": run.get("conclusion"),
+                "created_at": run.get("created_at"), "head_sha": run.get("head_sha"),
+                "runner_seconds": cost["total_seconds"], "runner_known_subtotal_seconds": cost["known_subtotal_seconds"],
+                "runner_unknown_jobs": cost["unknown_jobs"], "runner_diagnostics": cost["diagnostics"],
+                "attempt_costs": cost["attempts"], "required_result_wait_seconds": wait["seconds"],
+                "missing_required_contexts": wait["missing_contexts"], "wait_diagnostics": wait["diagnostics"]}
+    except (OSError, ValueError, TypeError, KeyError) as error:
+        return {"status": "unknown", "run_id": run_id, "runner_seconds": None,
+                "runner_known_subtotal_seconds": 0, "runner_unknown_jobs": [],
+                "required_result_wait_seconds": None, "diagnostics": [str(error) or "comparison_raw_input_invalid"]}
+
+
 def comparison_contract_sha256(contract: dict) -> str:
     frozen = {k: v for k, v in contract.items() if k not in ("family_registrations", "registration_ledger_sha256")}
     return hashlib.sha256(json.dumps(frozen, sort_keys=True, separators=(",", ":")).encode()).hexdigest()

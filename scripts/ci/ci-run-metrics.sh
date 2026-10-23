@@ -1352,7 +1352,7 @@ replay_snapshot() {
     source_expected="$(jq -r --arg name "$source_name" '.source_file_sha256[$name]' "$manifest")"
     [[ -s "$source_path" && "$(sha256_file "$source_path")" == "$source_expected" ]] || fail "snapshot_source_file_hash_mismatch:${source_name}"
   done < <(jq -r '.source_file_sha256|keys[]' "$manifest")
-  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,captured_at_utc,window_start_utc,status,stop_reason,request_count,source_sha,workflow_sha256,workflow_blob_sha,required_contexts,required_rule_provenance,active_rulesets,source_file_sha256,source_sha256,measured_pr_workflow_sha256,replay_tool_sha256,measured_pr_identity,comparison_families:(.comparison_families // null),source_runs:([.populations|to_entries[]|select(.key=="pull_request" or .key=="push_main" or .key=="schedule") as $pop | $pop.value.runs[]? | {event:$pop.key,id,html_url,head_sha,run_attempt,conclusion,created_at,updated_at,detail_status,workload,changes_docs_only} ]|sort_by(.event,.created_at,.id)),populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
+  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,captured_at_utc,window_start_utc,status,stop_reason,request_count,source_sha,workflow_sha256,workflow_blob_sha,required_contexts,required_rule_provenance,active_rulesets,source_file_sha256,source_sha256,measured_pr_workflow_sha256,replay_tool_sha256,measured_pr_identity,comparison_families:(.comparison_families // null),source_runs:([.populations|to_entries[]|select(.key=="pull_request" or .key=="push_main" or .key=="schedule") as $pop | $pop.value.runs[]? | {event:$pop.key,id,html_url,head_sha,run_attempt,conclusion,created_at,updated_at,detail_status,attempt_jobs,pull_requests,path,workload,changes_docs_only} ]|sort_by(.event,.created_at,.id)),populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
   local metrics_file
   metrics_file="$(mktemp "${TMPDIR:-/tmp}/ci-run-metrics-replay.XXXXXX")"
   python3 - "$bundle" "$ROOT" >"$metrics_file" <<'PY'
@@ -1844,12 +1844,13 @@ if [[ "$EVALUATE_COMPARISON" == true ]]; then
   after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
   replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
   replay_snapshot "$AFTER_BUNDLE" >"$after_json"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" "$REGISTRATIONS_FILE" "$BASELINE_SOURCE_BUNDLE" <<'PY'
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" "$REGISTRATIONS_FILE" "$BASELINE_SOURCE_BUNDLE" "$BEFORE_BUNDLE" "$AFTER_BUNDLE" <<'PY'
 import datetime, hashlib, json, math, pathlib, sys
-from ci_metrics_security import validate_comparison_reservations
+from ci_metrics_security import derive_comparison_family_costs, validate_comparison_reservations
 contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:4])
 registrations = json.loads(pathlib.Path(sys.argv[4]).read_text()) if sys.argv[4] else None
 baseline_bundle_path=pathlib.Path(sys.argv[5]) if sys.argv[5] else None
+bundle_paths={'before':pathlib.Path(sys.argv[6]),'after':pathlib.Path(sys.argv[7])}
 issues=[]; families=[]; paired=[]
 def issue(code, detail=None):
     row={'reason':code}
@@ -1892,6 +1893,18 @@ for label, data in [('before',before),('after',after)]:
     if len(rows) != 20: issue(label+'_family_count',len(rows))
     seen=set()
     for row in rows:
+        if contract.get('comparison_schedule'):
+            raw=derive_comparison_family_costs(bundle_paths[label],row.get('run_id'),contract.get('required_contexts') or data.get('required_contexts') or [])
+            if raw.get('status')!='complete': issue(label+'_raw_family_invalid',{'run_id':row.get('run_id'),'diagnostics':raw.get('diagnostics')}); continue
+            row={**row,'created_at':raw.get('created_at'),'conclusion':raw.get('conclusion'),
+                 'required_result_wait_seconds':raw.get('required_result_wait_seconds'),
+                 'runner_seconds':raw.get('runner_seconds'),'runner_known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),
+                 'runner_unknown_jobs':raw.get('runner_unknown_jobs'),'raw_attempt_costs':raw.get('attempt_costs'),
+                 'required_context_missing':raw.get('missing_required_contexts')}
+            if raw.get('runner_diagnostics') or raw.get('runner_unknown_jobs'):
+                issue(label+'_family_runner_cost_unknown',{'run_id':row.get('run_id'),'known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),'unknown_jobs':raw.get('runner_unknown_jobs'),'diagnostics':raw.get('runner_diagnostics')})
+            if raw.get('required_result_wait_seconds') is None:
+                issue(label+'_family_required_wait_unknown',{'run_id':row.get('run_id'),'missing_contexts':raw.get('missing_required_contexts'),'diagnostics':raw.get('wait_diagnostics')})
         ident=(row.get('pair_id'),row.get('family_role'))
         if ident in seen: issue(label+'_duplicate_family',ident)
         seen.add(ident); families.append((label,row))
@@ -1917,8 +1930,10 @@ for pair_id in sorted(set(before_rows)&set(after_rows)):
     if not isinstance(b.get('runner_seconds'),(int,float)) or not isinstance(a.get('runner_seconds'),(int,float)): continue
 wait_before=[b['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
 wait_after=[a['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
-runner_before=sum(b['runner_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success')
-runner_after=sum(a['runner_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success')
+runner_before_known=sum(b.get('runner_known_subtotal_seconds',b.get('runner_seconds') or 0) for _,b,a in paired)
+runner_after_known=sum(a.get('runner_known_subtotal_seconds',a.get('runner_seconds') or 0) for _,b,a in paired)
+runner_before=None if any(b.get('runner_seconds') is None for _,b,a in paired) else sum(b['runner_seconds'] for _,b,a in paired)
+runner_after=None if any(a.get('runner_seconds') is None for _,b,a in paired) else sum(a['runner_seconds'] for _,b,a in paired)
 def median(xs):
     xs=sorted(xs); n=len(xs)
     return (xs[(n-1)//2]+xs[n//2])/2 if n else None
@@ -1932,7 +1947,7 @@ else:
     actual_alloc={}
     for _,b,_ in paired: actual_alloc[str(b.get('cache_stratum'))]=actual_alloc.get(str(b.get('cache_stratum')),0)+1
     if actual_alloc!=expected_alloc: issue('cache_stratum_allocation_mismatch',{'expected':expected_alloc,'actual':actual_alloc})
-metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead')}
+metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'baseline_runner_known_subtotal_seconds':runner_before_known,'candidate_runner_known_subtotal_seconds':runner_after_known,'family_attempt_costs':[{'pair_id':b.get('pair_id'),'family_role':b.get('family_role'),'run_id':b.get('run_id'),'conclusion':b.get('conclusion'),'runner_seconds':b.get('runner_seconds'),'known_subtotal_seconds':b.get('runner_known_subtotal_seconds',b.get('runner_seconds')),'unknown_jobs':b.get('runner_unknown_jobs',[]),'attempts':b.get('raw_attempt_costs',[])} for _,b,a in paired]+[{'pair_id':a.get('pair_id'),'family_role':a.get('family_role'),'run_id':a.get('run_id'),'conclusion':a.get('conclusion'),'runner_seconds':a.get('runner_seconds'),'known_subtotal_seconds':a.get('runner_known_subtotal_seconds',a.get('runner_seconds')),'unknown_jobs':a.get('runner_unknown_jobs',[]),'attempts':a.get('raw_attempt_costs',[])} for _,b,a in paired],'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead')}
 if not issues and len(wait_before)==20:
     verdict='pass' if median(wait_after)<=.8*median(wait_before) and p95(wait_after)<=p95(wait_before) and runner_after<=runner_before else 'miss'
 else: verdict='insufficient_data'

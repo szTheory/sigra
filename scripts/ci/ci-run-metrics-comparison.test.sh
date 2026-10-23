@@ -4,12 +4,19 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 python3 - "$TMP" <<'PY'
-import base64,hashlib,json,pathlib,sys
+import base64,datetime,hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1])
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+required=['Library tests','Example unit smoke (ExUnit + ConnTest)','Install smoke (fresh phx.new + sigra.install)','Example HTTP smoke (boot + curl critical routes)','Example Playwright smoke (full lifecycle)']
+schedule=[]
+for pair in range(1,21):
+    roles=('before','after') if pair%2 else ('after','before')
+    schedule.extend({'pair_id':f'pair-{pair:02d}','family_role':role} for role in roles)
+reservations=[{'reservation_id':f"r-{slot['pair_id']}-{slot['family_role']}",**slot} for slot in schedule]
 def snapshot(name, source_sha, workflow_sha, role, factor):
     base=root/name; raw=base/'raw'; pops=raw/'populations'; pops.mkdir(parents=True)
-    for filename,data in [('request-ledger.json',{'requests':[]}),('selection-ledger.json',{'populations':[]})]: (base/filename).write_text(json.dumps(data,sort_keys=True))
+    requests=[]
+    (base/'selection-ledger.json').write_text(json.dumps({'populations':[]},sort_keys=True))
     files={}
     for name2 in ['pull_request','push_main','schedule','manual','release_push']:
         path=pops/(name2+'.json'); path.write_text(json.dumps({'population':name2,'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[],'pages':[]})); files[name2]=digest(path)
@@ -19,17 +26,39 @@ def snapshot(name, source_sha, workflow_sha, role, factor):
     api_runs=[]
     for i in range(1,21):
         run_id=(1000 if role=='before' else 2000)+i
-        created='2026-10-14T10:00:00Z'
-        family={'pair_id':f'pair-{i:02d}','family_id':f'{role}-{i:02d}','family_role':role,'run_id':run_id,'created_at':created,'workload':'full','workload_sha':'workload-sha','workflow_sha256':workflow_sha,'runner_class':'ubuntu-22-x64','runner_image':'ubuntu-24-20261012','cache_stratum':'warm','exunit_instrumentation':'exunit-v1','playwright_instrumentation':'playwright-v1','conclusion':'success','required_result_wait_seconds':i*factor,'runner_seconds':10,'attempts':[]}
+        pair=int(i); base_time=datetime.datetime(2026,10,14,10,0,tzinfo=datetime.timezone.utc)+datetime.timedelta(seconds=pair*60)
+        first=schedule[(pair-1)*2]['family_role']; offset=10 if role==first else 20
+        created=(base_time+datetime.timedelta(seconds=offset)).isoformat().replace('+00:00','Z')
+        pr={'number':331,'head':{'sha':source_sha,'repo':{'id':1207487684}},'base':{'sha':'base-ref','repo':{'id':1207487684}}}
+        run={'id':run_id,'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':source_sha,'created_at':created,'updated_at':created,'run_attempt':2,'status':'completed','conclusion':'success','repository':{'id':1207487684},'pull_requests':[pr]}
+        family={'pair_id':f'pair-{i:02d}','family_id':f'{role}-{i:02d}','family_role':role,'run_id':run_id,'created_at':created,'workload':'full','workload_sha':'workload-sha','workflow_sha256':workflow_sha,'runner_class':'ubuntu-22-x64','runner_image':'ubuntu-24-20261012','cache_stratum':'warm','exunit_instrumentation':'exunit-v1','playwright_instrumentation':'playwright-v1','conclusion':'success','required_result_wait_seconds':999,'runner_seconds':1,'attempts':[]}
         families.append(family)
-        api_runs.append({'id':run_id,'event':'pull_request','head_sha':source_sha,'created_at':created,'detail_status':'complete'})
-    manifest={'schema_version':'sigra.ci-run-metrics/snapshot-v1','repository':'szTheory/sigra','workflow':'ci.yml','cutoff_utc':'2026-10-12T00:00:00Z','captured_at_utc':'2026-10-12T00:01:00Z','window_start_utc':'2026-09-12T00:00:00Z','status':'complete','request_count':0,'source_sha':source_sha,'workflow_sha256':workflow_sha,'workflow_blob_sha':'blob-'+workflow_sha,'measured_pr_identity':{'application_sha':source_sha,'workflow_revision':source_sha,'workflow_file_sha256':workflow_sha,'workload_revision_sha256':'workload-sha'},'required_contexts':[],'required_rule_provenance':[],'active_rulesets':[],'source_file_sha256':{},'source_sha256':{'request_ledger':digest(base/'request-ledger.json'),'selection_ledger':digest(base/'selection-ledger.json'),**files},'populations':{'pull_request':{'api_total_count':20,'population_capped':False,'population_exhausted':True,'runs':api_runs},'push_main':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'schedule':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'manual':{'records':[]},'release_push':{'records':[]}},'comparison_families':families}
+        api_runs.append({**run,'detail_status':'complete','workload':'full','attempt_jobs':{}})
+        family_dir=raw/'families'/str(run_id); family_dir.mkdir(parents=True)
+        (family_dir/'run.json').write_text(json.dumps(run,sort_keys=True))
+        fail_job={'id':run_id*100+99,'run_id':run_id,'run_attempt':1,'head_sha':source_sha,'name':'failed preparation','conclusion':'failure','started_at':created,'completed_at':(base_time+datetime.timedelta(seconds=offset+20)).isoformat().replace('+00:00','Z')}
+        attempt1={'jobs':[fail_job]}; path1=family_dir/'jobs-attempt-1.json'; path1.write_text(json.dumps(attempt1,sort_keys=True))
+        wait=int((200+i)*factor); completed=base_time+datetime.timedelta(seconds=offset+wait)
+        jobs=[]; checks=[]
+        for index,context in enumerate(required):
+            jid=run_id*100+index+1; ended=completed
+            started=ended-datetime.timedelta(seconds=10 if role=='before' else 5)
+            jobs.append({'id':jid,'run_id':run_id,'run_attempt':2,'head_sha':source_sha,'name':context,'conclusion':'success','started_at':started.isoformat().replace('+00:00','Z'),'completed_at':ended.isoformat().replace('+00:00','Z')})
+            checks.append({'id':jid+1000000,'external_id':str(jid),'name':context,'head_sha':source_sha,'status':'completed','conclusion':'success','started_at':started.isoformat().replace('+00:00','Z'),'completed_at':ended.isoformat().replace('+00:00','Z'),'app':{'slug':'github-actions'},'check_suite':{'id':run_id*10+index}})
+        attempt2={'jobs':jobs}; path2=family_dir/'jobs-attempt-2.json'; path2.write_text(json.dumps(attempt2,sort_keys=True))
+        checks_path=family_dir/'check-runs.json'; checks_path.write_text(json.dumps({'check_runs':checks},sort_keys=True))
+        details={'run_id':run_id,'detail_status':'complete','source_run_sha256':digest(family_dir/'run.json'),'attempt_jobs':{'1':{'path':f'raw/families/{run_id}/jobs-attempt-1.json','sha256':digest(path1)},'2':{'path':f'raw/families/{run_id}/jobs-attempt-2.json','sha256':digest(path2)}},'check_runs_sha256':digest(checks_path),'changed_path_pages':[]}
+        (family_dir/'manifest.json').write_text(json.dumps(details,sort_keys=True))
+        requests += [f'/repos/szTheory/sigra/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100' for attempt in (1,2)]
+    (base/'request-ledger.json').write_text(json.dumps({'requests':requests},sort_keys=True))
+    pr_population=pops/'pull_request.json'
+    pr_population.write_text(json.dumps({'population':'pull_request','api_total_count':20,'population_capped':False,'population_exhausted':True,'runs':api_runs,'pages':[]},sort_keys=True))
+    files['pull_request']=digest(pr_population)
+    manifest={'schema_version':'sigra.ci-run-metrics/snapshot-v1','repository':'szTheory/sigra','workflow':'ci.yml','cutoff_utc':'2026-10-12T00:00:00Z','captured_at_utc':'2026-10-12T00:01:00Z','window_start_utc':'2026-09-12T00:00:00Z','status':'complete','request_count':len(requests),'source_sha':source_sha,'workflow_sha256':workflow_sha,'workflow_blob_sha':'blob-'+workflow_sha,'measured_pr_identity':{'application_sha':source_sha,'workflow_revision':source_sha,'workflow_file_sha256':workflow_sha,'workload_revision_sha256':'workload-sha'},'required_contexts':required,'required_rule_provenance':[],'active_rulesets':[],'source_file_sha256':{},'source_sha256':{'request_ledger':digest(base/'request-ledger.json'),'selection_ledger':digest(base/'selection-ledger.json'),**files},'populations':{'pull_request':{'api_total_count':20,'population_capped':False,'population_exhausted':True,'runs':api_runs},'push_main':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'schedule':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'manual':{'records':[]},'release_push':{'records':[]}},'comparison_families':families}
     (base/'manifest.json').write_text(json.dumps(manifest)); return base,families
 before,before_rows=snapshot('before','base-app','base-workflow','before',1)
 after,after_rows=snapshot('after','candidate-app','candidate-workflow','after',.5)
-reservations=[]
-for family in before_rows+after_rows:
-    reservations.append({'reservation_id':'r-'+str(family['run_id']),'pair_id':family['pair_id'],'family_role':family['family_role'],'run_id':family['run_id'],'created_at':family['created_at']})
+reservations=[{'reservation_id':f"r-{slot['pair_id']}-{slot['family_role']}",'pair_id':slot['pair_id'],'family_role':slot['family_role'],'run_id':next(f['run_id'] for f in before_rows+after_rows if f['pair_id']==slot['pair_id'] and f['family_role']==slot['family_role']),'created_at':next(f['created_at'] for f in before_rows+after_rows if f['pair_id']==slot['pair_id'] and f['family_role']==slot['family_role'])} for slot in schedule]
 registrations=[]; previous='0'*64
 for index,reservation in enumerate(reservations):
     import hashlib
@@ -40,14 +69,14 @@ for index,reservation in enumerate(reservations):
     row['record_sha256']=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     registrations.append(row); previous=row['record_sha256']
 baseline_source=root/'baseline-source-bundle.tar.gz'; baseline_source.write_bytes(b'authenticated baseline bundle')
-contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'window_duration_hours':48,'baseline_application_sha':'base-app','baseline_identity':{'source_bundle_sha256':hashlib.sha256(baseline_source.read_bytes()).hexdigest()},'baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'candidate-app','workflow_revision':'candidate-app','workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
+contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'comparison_schedule':schedule,'maximum_pair_start_gap_seconds':1800,'preparation_compatibility':{'baseline_cache_stratum':'warm','candidate_cache_stratum':'warm','runner_image_policy':'same'},'required_contexts':required,'window_duration_hours':48,'baseline_application_sha':'base-app','baseline_identity':{'source_bundle_sha256':hashlib.sha256(baseline_source.read_bytes()).hexdigest()},'baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'candidate-app','workflow_revision':'candidate-app','workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
 (root/'registrations.json').write_text(json.dumps({'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':hashlib.sha256(json.dumps({k:v for k,v in contract.items() if k not in ('family_registrations','registration_ledger_sha256')},sort_keys=True,separators=(',',':')).encode()).hexdigest(),'records':registrations}))
 contract.pop('family_registrations')
 (root/'contract.json').write_text(json.dumps(contract))
 PY
 run_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/contract.json" --registrations "$TMP/registrations.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --baseline-source-bundle "$TMP/baseline-source-bundle.tar.gz" --format json; }
 run_eval >"$TMP/pass.json"
-jq -e '.status=="pass" and .metrics.pair_count==20 and .metrics.comparable_successful_pairs==20 and .metrics.baseline_median_seconds==10.5 and .metrics.baseline_p95_seconds==19 and .metrics.candidate_median_seconds==5.25 and .metrics.candidate_p95_seconds==9.5 and .metrics.baseline_runner_seconds==200 and .metrics.candidate_runner_seconds==200 and (.metrics.overhead_disclosure.playwright.status=="unmeasured")' "$TMP/pass.json" >/dev/null
+jq -e '.status=="pass" and .metrics.pair_count==20 and .metrics.comparable_successful_pairs==20 and .metrics.baseline_median_seconds==210.5 and .metrics.baseline_p95_seconds==219 and .metrics.candidate_median_seconds==105 and .metrics.candidate_p95_seconds==109 and .metrics.baseline_runner_seconds==1400 and .metrics.candidate_runner_seconds==900 and (.metrics.overhead_disclosure.playwright.status=="unmeasured")' "$TMP/pass.json" >/dev/null
 printf 'substituted baseline' >"$TMP/baseline-source-bundle.tar.gz"
 run_eval >"$TMP/baseline-bundle-mismatch.json"
 jq -e '.status=="insufficient_data" and any(.diagnostics[];.reason=="baseline_source_bundle_hash_mismatch")' "$TMP/baseline-bundle-mismatch.json" >/dev/null
