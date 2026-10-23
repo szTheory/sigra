@@ -1004,6 +1004,16 @@ if {owner:sum(row.get('owner')==owner for row in rows) for owner in owners}!={'a
 for side in ('before','after'):
     ids=[json.dumps(row[side],separators=(',',':')) for row in rows]
     if len(ids)!=len(set(ids)): raise SystemExit(1)
+receipt_relative=spec.get('parity_receipt_path'); receipt_expected=spec.get('parity_receipt_sha256')
+if not isinstance(receipt_relative,str) or pathlib.PurePosixPath(receipt_relative).is_absolute() or '..' in pathlib.PurePosixPath(receipt_relative).parts: raise SystemExit(1)
+receipt_path=(root/receipt_relative).resolve()
+if root not in receipt_path.parents or not receipt_path.is_file() or not isinstance(receipt_expected,str) or hashlib.sha256(receipt_path.read_bytes()).hexdigest()!=receipt_expected: raise SystemExit(1)
+receipt=json.loads(receipt_path.read_text())
+if receipt.get('schema_version')!='sigra.browser-parity-receipt/v1' or receipt.get('status')!='passed' or receipt.get('owner_integration_status')!='profiled' or receipt.get('mapping_sha256')!=expected: raise SystemExit(1)
+if receipt.get('baseline_source_sha')!=contract.get('baseline_application_sha') or receipt.get('candidate_source_sha')!=contract.get('candidate_identity',{}).get('application_sha') or receipt.get('event')!='pull_request': raise SystemExit(1)
+comparisons=receipt.get('owners')
+owners={'admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}
+if not isinstance(comparisons,list) or len(comparisons)!=5 or {row.get('owner') for row in comparisons}!=owners or any(row.get('status')!='passed' for row in comparisons): raise SystemExit(1)
 PY
   python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" <<'PY' || { rm -rf "$tmp"; fail "request_budget_ledger_contract_or_readback_invalid"; }
 import json,pathlib,sys

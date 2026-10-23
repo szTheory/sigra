@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP" "$ROOT/scripts/ci/.comparison-test-map.json"' EXIT
+trap 'rm -rf "$TMP" "$ROOT/scripts/ci/.comparison-test-map.json" "$ROOT/scripts/ci/.comparison-test-parity.json" "$ROOT/scripts/ci/.comparison-test-blocked-parity.json"' EXIT
 python3 - "$TMP" "$ROOT" <<'PY'
 import base64,datetime,hashlib,json,pathlib,sys,zipfile
 root=pathlib.Path(sys.argv[1])
@@ -33,7 +33,7 @@ def snapshot(name, source_sha, workflow_sha, role, factor):
         first=schedule[(pair-1)*2]['family_role']; offset=10 if role==first else 20
         created=(base_time+datetime.timedelta(seconds=offset)).isoformat().replace('+00:00','Z')
         pr={'number':331,'head':{'sha':source_sha,'repo':{'id':1207487684}},'base':{'sha':'base-ref','repo':{'id':1207487684}}}
-        run={'id':run_id,'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':source_sha,'created_at':created,'updated_at':created,'run_attempt':2,'status':'completed','conclusion':'success','repository':{'id':1207487684},'pull_requests':[pr]}
+        run={'id':run_id,'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':source_sha,'created_at':created,'updated_at':created,'run_attempt':2,'status':'completed','conclusion':'success','repository':{'id':1207487684,'full_name':'szTheory/sigra'},'pull_requests':[pr]}
         family={'pair_id':f'pair-{i:02d}','family_id':f'{role}-{i:02d}','family_role':role,'run_id':run_id,'created_at':created,'workload':'full','workload_sha':'workload-sha','workflow_sha256':workflow_sha,'runner_class':'ubuntu-22-x64','runner_image':'ubuntu-24-20261012','cache_stratum':'warm','exunit_instrumentation':'exunit-v1','playwright_instrumentation':'playwright-v1','conclusion':'success','required_result_wait_seconds':999,'runner_seconds':1,'attempts':[]}
         families.append(family)
         api_runs.append({**run,'detail_status':'complete','workload':'full','attempt_jobs':{}})
@@ -56,7 +56,7 @@ def snapshot(name, source_sha, workflow_sha, role, factor):
         with zipfile.ZipFile(archive,'w') as zf: zf.writestr('report.json',report_bytes)
         archive_hash=digest(archive)
         extracted=artifact_dir/'777'; extracted.mkdir(); (extracted/'report.json').write_bytes(report_bytes)
-        artifact={'id':777,'name':'playwright-report','expired':False,'digest':'sha256:'+archive_hash,'workflow_run':{'id':run_id,'head_sha':source_sha}}
+        artifact={'id':777,'name':'playwright-report','expired':False,'digest':'sha256:'+archive_hash,'workflow_run':{'id':run_id,'head_sha':source_sha,'repository_id':1207487684}}
         metadata_path=family_dir/'artifacts-metadata.json'; metadata_path.write_text(json.dumps({'artifacts':[artifact]},sort_keys=True))
         evidence=[{'artifact':artifact,'result':{'status':'accepted','archive_sha256':archive_hash,'members':[{'member':'report.json','sha256':hashlib.sha256(report_bytes).hexdigest()}]}}]
         evidence_path=family_dir/'artifact-evidence.json'; evidence_path.write_text(json.dumps(evidence,sort_keys=True))
@@ -98,7 +98,7 @@ registrations=[]; previous='0'*64
 for index,reservation in enumerate(reservations):
     import hashlib
     source_sha='a'*40 if reservation['family_role']=='before' else 'b'*40
-    api_run={'id':reservation['run_id'],'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':source_sha,'created_at':reservation['created_at'],'status':'in_progress','conclusion':None,'pull_requests':[{'number':331,'head':{'sha':source_sha},'base':{'sha':'base-ref'}}]}
+    api_run={'id':reservation['run_id'],'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':source_sha,'created_at':reservation['created_at'],'status':'in_progress','conclusion':None,'repository':{'id':1207487684,'full_name':'szTheory/sigra'},'pull_requests':[{'number':331,'head':{'sha':source_sha,'repo':{'id':1207487684}},'base':{'sha':'base-ref','repo':{'id':1207487684}}}]}
     api_raw=json.dumps(api_run,sort_keys=True,separators=(',',':')).encode()
     row={'sequence':index,'previous_sha256':previous,**reservation,'head_sha':source_sha,'pull_request_head_sha':source_sha,'pull_request_number':331,'pull_request_base_sha':'base-ref','event':'pull_request','workflow_path':'.github/workflows/ci.yml','api_run_sha256':hashlib.sha256(api_raw).hexdigest(),'api_run_response_b64':base64.b64encode(api_raw).decode()}
     row['record_sha256']=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(',',':')).encode()).hexdigest()
@@ -107,7 +107,11 @@ baseline_source=root/'baseline-source-bundle.tar.gz'; baseline_source.write_byte
 native_map={'schema_version':'sigra.browser-coverage-map/v1','rows':coverage_map_rows}
 native_map_path=project/'scripts/ci/.comparison-test-map.json'
 native_map_path.write_text(json.dumps(native_map,sort_keys=True,separators=(',',':')))
+parity_path=project/'scripts/ci/.comparison-test-parity.json'
+parity={'schema_version':'sigra.browser-parity-receipt/v1','status':'passed','owner_integration_status':'profiled','mapping_sha256':digest(native_map_path),'baseline_source_sha':'a'*40,'candidate_source_sha':'b'*40,'event':'pull_request','owners':[{'owner':owner,'status':'passed'} for owner in sorted({'admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'})]}
+parity_path.write_text(json.dumps(parity,sort_keys=True,separators=(',',':')))
 contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'comparison_schedule':schedule,'maximum_pair_start_gap_seconds':1800,'preparation_compatibility':{'baseline_cache_stratum':'warm','candidate_cache_stratum':'warm','runner_image_policy':'same'},'request_budget_ledger_id':'f'*64,'required_contexts':required,'window_duration_hours':48,'baseline_application_sha':'a'*40,'baseline_identity':{'source_bundle_sha256':hashlib.sha256(baseline_source.read_bytes()).hexdigest()},'baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'b'*40,'workflow_revision':'b'*40,'workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'native_coverage_comparison':{'mapping_path':'scripts/ci/.comparison-test-map.json','mapping_sha256':digest(native_map_path)},'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
+contract['native_coverage_comparison'].update({'parity_receipt_path':'scripts/ci/.comparison-test-parity.json','parity_receipt_sha256':digest(parity_path)})
 (root/'registrations.json').write_text(json.dumps({'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':hashlib.sha256(json.dumps({k:v for k,v in contract.items() if k not in ('family_registrations','registration_ledger_sha256')},sort_keys=True,separators=(',',':')).encode()).hexdigest(),'records':registrations}))
 contract.pop('family_registrations')
 (root/'contract.json').write_text(json.dumps(contract))
@@ -123,6 +127,38 @@ echo "$*" >>"$GH_CALL_LOG"
 printf '[]\n'
 GH
 chmod +x "$TMP/no-network-bin/gh"
+python3 - "$TMP/contract.json" "$TMP/registrations.json" "$TMP/no-parity-contract.json" "$TMP/no-parity-registrations.json" <<'PY'
+import json,pathlib,sys
+sys.path.insert(0,str(pathlib.Path('scripts/ci').resolve()))
+from ci_metrics_security import comparison_contract_sha256
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
+contract['native_coverage_comparison'].pop('parity_receipt_sha256')
+pathlib.Path(sys.argv[3]).write_text(json.dumps(contract))
+registrations=json.loads(pathlib.Path(sys.argv[2]).read_text())
+registrations['contract_sha256']=comparison_contract_sha256(contract)
+pathlib.Path(sys.argv[4]).write_text(json.dumps(registrations))
+blocked=json.loads(pathlib.Path(sys.argv[1]).read_text())
+receipt_path=pathlib.Path('scripts/ci/.comparison-test-blocked-parity.json')
+receipt=json.loads(pathlib.Path('scripts/ci/.comparison-test-parity.json').read_text())
+receipt['owner_integration_status']='blocked'
+receipt_path.write_text(json.dumps(receipt,sort_keys=True,separators=(',',':')))
+import hashlib
+blocked['native_coverage_comparison']['parity_receipt_path']=receipt_path.as_posix()
+blocked['native_coverage_comparison']['parity_receipt_sha256']=hashlib.sha256(receipt_path.read_bytes()).hexdigest()
+pathlib.Path(sys.argv[1]).parent.joinpath('blocked-parity-contract.json').write_text(json.dumps(blocked))
+registrations['contract_sha256']=comparison_contract_sha256(blocked)
+pathlib.Path(sys.argv[1]).parent.joinpath('blocked-parity-registrations.json').write_text(json.dumps(registrations))
+PY
+set +e
+GH_CALL_LOG="$TMP/no-parity-gh-calls" PATH="$TMP/no-network-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --collect-comparison --comparison-role before --contract "$TMP/no-parity-contract.json" --registrations "$TMP/no-parity-registrations.json" --request-budget-ledger "$TMP/no-parity-budget.json" --source-bundle "$TMP/no-parity-bundle" >"$TMP/no-parity.out" 2>"$TMP/no-parity.err"
+no_parity_rc=$?
+set -e
+[[ $no_parity_rc -ne 0 ]] && rg -q 'native_coverage_map_missing_or_invalid_collection_blocked' "$TMP/no-parity.err" && [[ ! -s "$TMP/no-parity-gh-calls" ]] && [[ ! -e "$TMP/no-parity-bundle" ]]
+set +e
+GH_CALL_LOG="$TMP/blocked-parity-gh-calls" PATH="$TMP/no-network-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --collect-comparison --comparison-role before --contract "$TMP/blocked-parity-contract.json" --registrations "$TMP/blocked-parity-registrations.json" --request-budget-ledger "$TMP/blocked-parity-budget.json" --source-bundle "$TMP/blocked-parity-bundle" >"$TMP/blocked-parity.out" 2>"$TMP/blocked-parity.err"
+blocked_parity_rc=$?
+set -e
+[[ $blocked_parity_rc -ne 0 ]] && rg -q 'native_coverage_map_missing_or_invalid_collection_blocked' "$TMP/blocked-parity.err" && [[ ! -s "$TMP/blocked-parity-gh-calls" ]] && [[ ! -e "$TMP/blocked-parity-bundle" ]]
 set +e
 GH_CALL_LOG="$TMP/gh-calls" PATH="$TMP/no-network-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --collect-comparison --comparison-role before --contract "$TMP/contract.json" --registrations "$TMP/empty-registrations.json" --request-budget-ledger "$TMP/request-budget.json" --source-bundle "$TMP/unregistered" >"$TMP/unregistered.out" 2>"$TMP/unregistered.err"
 unregistered_rc=$?

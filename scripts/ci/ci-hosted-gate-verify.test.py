@@ -3226,8 +3226,8 @@ class ComparisonFamilyOriginTests(unittest.TestCase):
         family = root / "raw" / "families" / str(run_id)
         (family / "artifacts").mkdir(parents=True)
         run = {"id": run_id, "event": "pull_request", "path": ".github/workflows/ci.yml", "head_sha": sha,
-            "run_attempt": 2, "repository": {"id": 42}, "pull_requests": [{"number": 331,
-            "head": {"sha": sha, "repo": {"id": 42}}, "base": {"sha": base, "repo": {"id": 42}}}]}
+            "run_attempt": 2, "repository": {"id": 1207487684, "full_name": "szTheory/sigra"}, "pull_requests": [{"number": 331,
+            "head": {"sha": sha, "repo": {"id": 1207487684}}, "base": {"sha": base, "repo": {"id": 1207487684}}}]}
         run_bytes = json.dumps(run, sort_keys=True).encode()
         (family / "run.json").write_bytes(run_bytes)
         refs = {}
@@ -3249,7 +3249,7 @@ class ComparisonFamilyOriginTests(unittest.TestCase):
             archive.writestr("report.json", "{}")
         archive_digest = hashlib.sha256(archive_path.read_bytes()).hexdigest()
         artifact = {"id": 777, "expired": False, "digest": "sha256:" + archive_digest,
-            "workflow_run": {"id": run_id, "head_sha": sha}}
+            "workflow_run": {"id": run_id, "head_sha": sha, "repository_id": 1207487684}}
         evidence = [{"artifact": artifact, "result": {"status": "accepted", "archive_sha256": archive_digest}}]
         evidence_bytes = json.dumps(evidence, sort_keys=True).encode()
         (family / "artifact-evidence.json").write_bytes(evidence_bytes)
@@ -3281,6 +3281,42 @@ class ComparisonFamilyOriginTests(unittest.TestCase):
             rejected = subprocess.run(command, capture_output=True, text=True)
             self.assertNotEqual(rejected.returncode, 0)
             self.assertIn("digest mismatch", rejected.stderr)
+
+    def test_comparison_origin_binds_repository_name_id_and_artifact_repository(self):
+        import hashlib
+        with tempfile.TemporaryDirectory(prefix="comparison-origin-repository-") as directory:
+            root, registration_path = self.fixture(Path(directory))
+            family = root / "raw" / "families" / "98765"
+            run_path = family / "run.json"
+            manifest_path = family / "manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            run = json.loads(run_path.read_text())
+            run["repository"]["full_name"] = "attacker/sigra"
+            run_bytes = json.dumps(run, sort_keys=True).encode()
+            run_path.write_bytes(run_bytes)
+            manifest["source_run_sha256"] = hashlib.sha256(run_bytes).hexdigest()
+            manifest_path.write_text(json.dumps(manifest))
+            command = [sys.executable, str(VERIFY), "--mode", "comparison-family", "--evidence", str(root),
+                "--registration", str(registration_path), "--required-contexts", json.dumps(self.CONTEXTS)]
+            wrong_repo = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(wrong_repo.returncode, 0)
+            self.assertIn("repository identity mismatch", wrong_repo.stderr)
+
+            run = json.loads(run_path.read_text())
+            run["repository"] = {"id": 1207487684, "full_name": "szTheory/sigra"}
+            run_bytes = json.dumps(run, sort_keys=True).encode()
+            run_path.write_bytes(run_bytes)
+            manifest["source_run_sha256"] = hashlib.sha256(run_bytes).hexdigest()
+            evidence_path = family / "artifact-evidence.json"
+            evidence = json.loads(evidence_path.read_text())
+            evidence[0]["artifact"]["workflow_run"]["repository_id"] = 42
+            evidence_bytes = json.dumps(evidence, sort_keys=True).encode()
+            evidence_path.write_bytes(evidence_bytes)
+            manifest["artifact_evidence"]["sha256"] = hashlib.sha256(evidence_bytes).hexdigest()
+            manifest_path.write_text(json.dumps(manifest))
+            wrong_artifact_repo = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(wrong_artifact_repo.returncode, 0)
+            self.assertIn("artifact API origin", wrong_artifact_repo.stderr)
 
 
 if __name__ == "__main__":

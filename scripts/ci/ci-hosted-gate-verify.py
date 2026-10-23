@@ -27,6 +27,7 @@ SCENARIOS = ("full-pass", "docs-only", "actual-failure", "missing-seam", "unexpe
 FIXTURE_NAME = "Phase 253 Gate Canary"
 WORKFLOW_PATH = ".github/workflows/ci.yml"
 REPLAN_SCHEMA = "sigra.phase253.hosted-replan-evidence/v2"
+REPOSITORY_ID = 1207487684
 REQUIRED_NAMES = (
     "Library tests", "Example unit smoke (ExUnit + ConnTest)",
     "Install smoke (fresh phx.new + sigra.install)",
@@ -1874,6 +1875,9 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             and run.get("path") == registration.get("workflow_path")
             and run.get("head_sha") == registration.get("head_sha"),
             "collected run origin differs from early registration")
+    repository = run.get("repository") or {}
+    require(repository.get("full_name") == REPOSITORY and repository.get("id") == REPOSITORY_ID,
+            "comparison run repository identity mismatch")
     pull_requests = run.get("pull_requests")
     require(isinstance(pull_requests, list) and len(pull_requests) == 1, "comparison run must identify exactly one pull request")
     pr = pull_requests[0]
@@ -1933,7 +1937,8 @@ def verify_comparison_family_origin(family_directory, registration, required_con
     for entry in evidence:
         artifact, result = entry.get("artifact") or {}, entry.get("result") or {}
         require(str((artifact.get("workflow_run") or {}).get("id")) == run_id
-                and (artifact.get("workflow_run") or {}).get("head_sha") == registration.get("head_sha"),
+                and (artifact.get("workflow_run") or {}).get("head_sha") == registration.get("head_sha")
+                and (artifact.get("workflow_run") or {}).get("repository_id") == REPOSITORY_ID,
                 "artifact API origin differs from registered run")
         if result.get("status") == "accepted":
             artifact_id = str(artifact.get("id"))
