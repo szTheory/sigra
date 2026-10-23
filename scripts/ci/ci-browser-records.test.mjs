@@ -223,3 +223,114 @@ test('the producer records actual selected outcomes and copies only native repor
     assert.equal(JSON.parse(readFileSync(join(output, 'execution-record.json'))).selected_steps[0].outcome, 'success');
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
+
+function coverageDirectory(directory, { sourceSha, project = 'chromium', caseTitle = 'actual useful case', result = 'passed',
+  seam = 'admin_behavior', classification = 'product' }) {
+  mkdirSync(directory, { recursive: true });
+  const native = report(['tests/admin-behavior.spec.ts'], [project]);
+  const selected = structuredClone(native);
+  const item = native.suites[0].specs[0].tests[0];
+  item.results[0].status = result;
+  item.status = result === 'skipped' ? 'skipped' : 'expected';
+  item.expectedStatus = result === 'skipped' ? 'skipped' : 'passed';
+  const selectedItem = selected.suites[0].specs[0].tests[0];
+  selectedItem.status = item.status;
+  selectedItem.expectedStatus = item.expectedStatus;
+  native.suites[0].specs[0].title = caseTitle;
+  selected.suites[0].specs[0].title = caseTitle;
+  for (const suite of selected.suites) for (const spec of suite.specs) for (const test of spec.tests) test.results = [];
+  const reportPath = 'native.json';
+  const selectionPath = 'selection.json';
+  writeFileSync(join(directory, reportPath), JSON.stringify(native));
+  writeFileSync(join(directory, selectionPath), JSON.stringify(selected));
+  const descriptor = { schema_version: 'sigra.browser-coverage-source/v1', source_sha: sourceSha,
+    workflow_sha256: 'c'.repeat(64), configuration_sha256: 'd'.repeat(64), lock_sha256: 'e'.repeat(64),
+    event: 'pull_request', seam, owner: seam,
+    project_inventory: [project], selected_inventory: [{
+      id: JSON.stringify([project, 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', caseTitle]),
+      project, spec: 'tests/admin-behavior.spec.ts', title: caseTitle, owner: seam, classification,
+    }],
+    excluded_inventory: [],
+    reports: [{ path: reportPath, selection_path: selectionPath, sha256: hash(join(directory, reportPath)),
+      selection_sha256: hash(join(directory, selectionPath)) }] };
+  writeFileSync(join(directory, 'coverage-source.json'), JSON.stringify(descriptor));
+}
+
+function compareCoverage(before, after, mapping, extra = []) {
+  return spawnSync(process.execPath, [cli, '--compare-coverage', '--before-directory', before,
+    '--after-directory', after, '--mapping', mapping, ...extra], { encoding: 'utf8' });
+}
+
+test('coverage CLI accepts identical native product identities and rejects equal-count substitutions', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'browser-coverage-compare-'));
+  try {
+    const before = join(directory, 'before');
+    const after = join(directory, 'after');
+    const mapping = join(directory, 'mapping.json');
+    coverageDirectory(before, { sourceSha: '1'.repeat(40) });
+    coverageDirectory(after, { sourceSha: '2'.repeat(40) });
+    writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [
+      { before: ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'],
+        after: ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'], owner: 'admin_behavior', kind: 'product' },
+    ] }));
+    const same = compareCoverage(before, after, mapping);
+    assert.equal(same.status, 0, same.stderr);
+    assert.equal(JSON.parse(same.stdout).status, 'passed');
+    coverageDirectory(after, { sourceSha: '2'.repeat(40), caseTitle: 'substituted case' });
+    const substituted = compareCoverage(before, after, mapping);
+    assert.notEqual(substituted.status, 0, 'equal counts with a different product case must fail');
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('coverage CLI rejects changed actual status, excluded work and reports with a wrong digest', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'browser-coverage-status-'));
+  try {
+    const before = join(directory, 'before');
+    const after = join(directory, 'after');
+    const mapping = join(directory, 'mapping.json');
+    coverageDirectory(before, { sourceSha: '1'.repeat(40) });
+    coverageDirectory(after, { sourceSha: '2'.repeat(40), result: 'skipped' });
+    writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [
+      { before: ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'],
+        after: ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'], owner: 'admin_behavior', kind: 'product' },
+    ] }));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'passed to skipped cannot be hidden');
+    const descriptorPath = join(after, 'coverage-source.json');
+    const descriptor = JSON.parse(readFileSync(descriptorPath, 'utf8'));
+    descriptor.reports[0].sha256 = '0'.repeat(64);
+    writeFileSync(descriptorPath, JSON.stringify(descriptor));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'native report without matching digest cannot be trusted');
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('setup dependency rows remain separate and cannot replace product coverage', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'browser-coverage-setup-'));
+  try {
+    const before = join(directory, 'before');
+    const after = join(directory, 'after');
+    const mapping = join(directory, 'mapping.json');
+    for (const [target, sourceSha] of [[before, '1'.repeat(40)], [after, '2'.repeat(40)]])
+      coverageDirectory(target, { sourceSha, project: 'admin-design-setup-chromium', seam: 'design_gallery', classification: 'setup' });
+    const id = ['admin-design-setup-chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'];
+    writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [
+      { before: id, after: id, owner: 'design_gallery', kind: 'setup' },
+    ] }));
+    const result = compareCoverage(before, after, mapping);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).before_rows, 0);
+    assert.equal(JSON.parse(result.stdout).before_setup_rows, 1);
+    writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [
+      { before: id, after: id, owner: 'design_gallery', kind: 'product' },
+    ] }));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'setup dependency cannot be promoted into product coverage');
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('non-PR design gallery keeps both snapshot and behavior invocations', () => {
+  const policy = bodyPolicy('design_gallery', 'push');
+  assert.equal(policy.length, 1);
+  assert.equal(policy[0].id, 'design_gallery_snapshots');
+  assert.deepEqual(policy[0].invocations.map((invocation) => invocation.path), [
+    'design-gallery-nonpr-snapshots.json', 'design-gallery-nonpr-behavior.json',
+  ]);
+});
