@@ -1,9 +1,9 @@
 {
   "schema_version": "sigra.phase254.admin-theme-check/v1",
-  "status": "blocked",
+  "status": "passed",
   "mode": "tracer",
-  "source_sha": "fa3a73826c89ea3e00dc28769b586cf075bece60",
-  "started_at": "2026-10-23T17:30:38.987Z",
+  "source_sha": "51c68c3e7b7d6c4ce15dd027e9b4d3888d9bbabf",
+  "started_at": "2026-10-23T17:32:59.908Z",
   "limits": {
     "max_duration_seconds": 1200,
     "max_workers": 1,
@@ -12,7 +12,7 @@
   },
   "source_digests": {
     "test/example/priv/playwright/fixtures/adminTheme.ts": "ea0b97a5abb65a6e7850e5a1afa666416848cc81b326513322b4639cf4c7ee06",
-    "test/example/priv/playwright/tests/admin-theme.spec.ts": "35fe564d38f8df14d1a4fd19b964c397168344088f7707edd8462b6ecdb05259",
+    "test/example/priv/playwright/tests/admin-theme.spec.ts": "49002eff18727587f458efec9550ef531a404231bb88149c6467699b210f0a92",
     "test/example/priv/playwright/playwright.config.ts": "e20b8cc4e2e4496aadaca8545054f3d30c7143a4488bbab1ccb49a3107a5ed56",
     "test/example/priv/playwright/package-lock.json": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5"
   },
@@ -26,32 +26,32 @@
         "--shared",
         "--no-checkout",
         "/Users/jon/projects/sigra",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/repo"
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/repo"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 22,
+      "duration_ms": 20,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/clone.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/clone.log"
     },
     {
       "name": "source-checkout",
       "command": [
         "git",
         "-C",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/repo",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/repo",
         "checkout",
         "--quiet",
         "--detach",
-        "fa3a73826c89ea3e00dc28769b586cf075bece60"
+        "51c68c3e7b7d6c4ce15dd027e9b4d3888d9bbabf"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 985,
+      "duration_ms": 935,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/checkout.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/checkout.log"
     },
     {
       "name": "postgres-readiness",
@@ -65,9 +65,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 16,
+      "duration_ms": 14,
       "log_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/postgres-health.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/postgres-health.log"
     },
     {
       "name": "dependency-fetch",
@@ -79,9 +79,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1732,
-      "log_sha256": "58a2989c410b24a584e197292ddb3c7ae962a778681537ff931f554a8ea87a6e",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/dependency-fetch.log"
+      "duration_ms": 1713,
+      "log_sha256": "1837eb0506057b70b5290bf81cc80df2c9370b91f745ca8b43ec57c35956fa96",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/dependency-fetch.log"
     },
     {
       "name": "compile",
@@ -93,9 +93,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 18139,
-      "log_sha256": "a5ed437e32605d83dad869b00b56dc8c50f88dfd6c4784ad5b67a2831a8215fd",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/compile.log"
+      "duration_ms": 18032,
+      "log_sha256": "225706afc4336e71132978b6427857009fd0a1d29c6356c311699c8e5c4c94ba",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/compile.log"
     },
     {
       "name": "pinned-playwright-dependencies",
@@ -106,9 +106,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 667,
-      "log_sha256": "ac48789124b109d2b57122c8c9edf24f8584c4b1da5baa14e73e43f688966bcb",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/npm-ci.log"
+      "duration_ms": 486,
+      "log_sha256": "13bbd761c89a995cf22dea420808c125ad4a0b613471a4eb7170d9ef1bf431c8",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/npm-ci.log"
     },
     {
       "name": "chromium-install",
@@ -121,9 +121,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 30533,
-      "log_sha256": "e139cbfd834c8df99cbe279f0a865025524775e887f0e15c3b84df9508239d29",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/browser-install.log"
+      "duration_ms": 29866,
+      "log_sha256": "259b27d891cf69bbbcc34a9229e388a5f3d4af4585840b37bfcd9e5e1de9d2fa",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/browser-install.log"
     },
     {
       "name": "1-tracer-topbar-database-create",
@@ -135,9 +135,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 655,
+      "duration_ms": 642,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/1-tracer-topbar-database-create.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/1-tracer-topbar-database-create.log"
     },
     {
       "name": "1-tracer-topbar-database-migrate",
@@ -149,9 +149,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 848,
+      "duration_ms": 834,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/1-tracer-topbar-database-migrate.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/1-tracer-topbar-database-migrate.log"
     },
     {
       "name": "1-tracer-topbar-database-seed",
@@ -163,23 +163,23 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 829,
-      "log_sha256": "e3c2bb28918a70987230d26d1b7d7962b5a71290773190cd77da945089d116c4",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/1-tracer-topbar-seeds.log"
+      "duration_ms": 826,
+      "log_sha256": "69d04a250be03c8728387542848b97d6cfb64950dba4bcfbc632a9443539b955",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/1-tracer-topbar-seeds.log"
     },
     {
-      "name": "database-drop-after-failure",
+      "name": "database-drop",
       "command": [
-        "dropdb",
-        "--if-exists",
-        "sigra_254_theme_63684_1_tracer_topbar"
+        "mix",
+        "ecto.drop",
+        "--quiet"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 47,
+      "duration_ms": 630,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/logs/database-drop-after-failure.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-DhOu65/logs/sigra_254_theme_67254_1_tracer_topbar-drop.log"
     }
   ],
   "browser_invocations": [
@@ -197,29 +197,28 @@
         "--grep",
         "renders stable topbar controls and overview notice before deferred app JS"
       ],
-      "exit_code": 1,
+      "exit_code": 0,
       "signal": null,
-      "duration_ms": 18892,
-      "log_sha256": "9c1f8c81eca7be36bd1842a9c04eb526de7bfbe78c8ea229cfa8c4a5a554dfd3",
-      "log_excerpt": "\nRunning 1 test using 1 worker\n\n  ✘  1 [chromium] › tests/admin-theme.spec.ts:384:17 › admin theme switch › renders stable topbar controls and overview notice before deferred app JS (16.9s)\n\n\n  1) [chromium] › tests/admin-theme.spec.ts:384:17 › admin theme switch › renders stable topbar controls and overview notice before deferred app JS \n\n    TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\n    Call log:\n    \u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\n\n       8 |\n       9 | async function waitForLiveViewReady(page: Page) {\n    > 10 |   await page.waitForSelector(\"[data-phx-session].phx-connected\", {\n         |              ^\n      11 |     state: \"attached\",\n      12 |   });\n      13 | }\n        at waitForLiveViewReady (/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/repo/test/example/priv/playwright/tests/admin-theme.spec.ts:10:14)\n        at restoreBrandingDefaults (/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/repo/test/example/priv/playwright/tests/admin-theme.spec.ts:364:9)\n        at /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-2Y1BQe/repo/test/example/priv/playwright/tests/admin-theme.spec.ts:380:3\n\n    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────\n    test-results/admin-theme-admin-theme-sw-76696-tice-before-deferred-app-JS-chromium/test-failed-1.png\n    ────────────────────────────────────────────────────────────────────────────────────────────────\n\n    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────\n    test-results/admin-theme-admin-theme-sw-76696-tice-before-deferred-app-JS-chromium/test-failed-2.png\n    ────────────────────────────────────────────────────────────────────────────────────────────────\n\n    Error Context: test-results/admin-theme-admin-theme-sw-76696-tice-before-deferred-app-JS-chromium/error-context.md\n\n  1 failed\n    [chromium] › tests/admin-theme.spec.ts:384:17 › admin theme switch › renders stable topbar controls and overview notice before deferred app JS \n",
-      "native_report_sha256": "93a30efe7689a2c9fc59b94e55ce28f0c36ab2d6d7e0b82fe19d8f52edf0a203",
+      "duration_ms": 2377,
+      "log_sha256": "193aa345060792375c754c09b08f6224368fe40faaa8edfe70b51bde6f6d3e39",
+      "native_report_sha256": "d500c0602b261829b04fa7d4182142a2e3dab68cec3e7336d8267fb6fdf42869",
       "native_report_status": {
-        "passed": 0,
-        "failed": 1,
+        "passed": 1,
+        "failed": 0,
         "skipped": 0
       },
       "safe_state": {
         "registered_admin_count": 1,
-        "storage_filename": "admin-theme-local-job-sigra_254_theme_63684_1_tracer_topbar-pid-65087-0179c57c476ee661.json",
+        "storage_filename": "admin-theme-local-job-sigra_254_theme_67254_1_tracer_topbar-pid-68529-17cb01602cf0d24f.json",
         "storage_mode": 384,
-        "database_identity": "sigra_254_theme_63684_1_tracer_topbar",
+        "database_identity": "sigra_254_theme_67254_1_tracer_topbar",
         "context_creation_count": 1,
         "consumer_context_ids": [
-          "9aa3dada-0ec3-4ae1-b8cc-740d646b5fcd"
+          "b4fb7e31-80f4-4296-b8b3-8242281287e7"
         ],
         "cleanup_complete": true
       },
-      "status": "failed"
+      "status": "passed"
     }
   ],
   "state_controls": [
@@ -227,20 +226,20 @@
       "name": "1-tracer-topbar-app-readiness",
       "passed": true,
       "http_status": 200,
-      "database_identity": "sigra_254_theme_63684_1_tracer_topbar"
+      "database_identity": "sigra_254_theme_67254_1_tracer_topbar"
+    },
+    {
+      "name": "auth-artifact-exclusion",
+      "passed": true,
+      "remaining_auth_files": 0,
+      "upload_or_cache_path_checked": "Playwright test-results/.auth and scoped task-local cache"
     }
   ],
   "interpretation": "Local browser development diagnostics only; these results do not prove the CISPEED hosted median, p95, or runner-cost targets.",
-  "failure": {
-    "message": "browser_invocation_failed:tracer-topbar:exit_1"
-  },
+  "completed_at": "2026-10-23T17:33:58.409Z",
+  "duration_seconds": 59,
   "cleanup": {
-    "database_name": "sigra_254_theme_63684_1_tracer_topbar",
-    "database_drop_exit": 0,
-    "database_restored": true,
     "checkout_removed": true,
     "scoped_temp_removed": true
-  },
-  "completed_at": "2026-10-23T17:31:54.442Z",
-  "duration_seconds": 75
+  }
 }
