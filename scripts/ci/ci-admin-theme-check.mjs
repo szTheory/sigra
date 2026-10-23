@@ -156,6 +156,8 @@ async function main() {
     if (install.exit_code !== 0) throw new Error(`chromium_install_failed:${install.exit_code}`);
 
     const sourceFiles = [
+      'scripts/ci/ci-admin-theme-check.mjs',
+      'scripts/ci/ci-admin-theme-prep.test.mjs',
       'test/example/priv/playwright/fixtures/adminTheme.ts',
       'test/example/priv/playwright/tests/admin-theme.spec.ts',
       'test/example/priv/playwright/playwright.config.ts',
@@ -203,9 +205,12 @@ async function main() {
       const diagnostic = fs.existsSync(diagPath) ? JSON.parse(fs.readFileSync(diagPath, 'utf8')) : null;
       const native = fs.existsSync(jsonPath) ? JSON.parse(fs.readFileSync(jsonPath, 'utf8')) : null;
       const ids = diagnostic?.consumer_context_ids ?? [];
-      const passed = result.exit_code === 0 && !!native && !!diagnostic && diagnostic.cleanup_complete === true && ids.length > 0 && new Set(ids).size === ids.length && diagnostic.registered_admin_count === 1 && diagnostic.storage_mode === 0o600;
-      const item = { name: label, selected_title: grep, command: result.command, exit_code: result.exit_code, signal: result.signal, duration_ms: result.duration_ms, log_sha256: result.log_sha256, log_excerpt: result.log_excerpt, native_report_sha256: readSha(jsonPath), native_report_status: native ? { passed: native.stats?.expected ?? null, failed: native.stats?.unexpected ?? null, skipped: native.stats?.skipped ?? null } : null, safe_state: diagnostic ? { registered_admin_count: diagnostic.registered_admin_count, storage_filename: diagnostic.storage_filename, storage_mode: diagnostic.storage_mode, database_identity: diagnostic.database_identity, context_creation_count: ids.length, consumer_context_ids: ids, cleanup_complete: diagnostic.cleanup_complete } : null, status: passed ? 'passed' : 'failed' };
+      const requiresFixture = !label.includes('lockout');
+      const fixturePassed = !requiresFixture || (!!diagnostic && diagnostic.cleanup_complete === true && ids.length > 0 && new Set(ids).size === ids.length && diagnostic.registered_admin_count === 1 && diagnostic.storage_mode === 0o600);
+      const passed = result.exit_code === 0 && !!native && fixturePassed;
+      const item = { name: label, selected_title: grep, command: result.command, exit_code: result.exit_code, signal: result.signal, duration_ms: result.duration_ms, log_sha256: result.log_sha256, log_excerpt: result.log_excerpt, native_report_sha256: readSha(jsonPath), native_report_status: native ? { passed: native.stats?.expected ?? null, failed: native.stats?.unexpected ?? null, skipped: native.stats?.skipped ?? null } : null, safe_state: diagnostic ? { registered_admin_count: diagnostic.registered_admin_count, storage_filename: diagnostic.storage_filename, storage_mode: diagnostic.storage_mode, database_identity: diagnostic.database_identity, context_creation_count: ids.length, consumer_context_ids: ids, cleanup_complete: diagnostic.cleanup_complete } : requiresFixture ? null : { anonymous_default_context: true, separate_target_registered_by_original_test: true, real_failed_login_lockout_assertions: result.exit_code === 0 }, status: passed ? 'passed' : 'failed' };
       record.browser_invocations.push(item); save();
+      if (!requiresFixture && passed) record.state_controls.push({ name: 'real-lockout-control', passed: true, behavior: 'separate target registered through the UI and locked by five real failed passwords from the default anonymous context' });
       if (!passed) throw new Error(`browser_invocation_failed:${label}:exit_${result.exit_code}`);
     }
 
@@ -229,8 +234,23 @@ async function main() {
     const authLeaks = [];
     const authDir = path.join(playwright, 'test-results', '.auth');
     if (fs.existsSync(authDir)) authLeaks.push(...fs.readdirSync(authDir).map((name) => path.join(authDir, name)));
+    for (const cacheDir of [env.HEX_HOME, env.MIX_BUILD_PATH, env.PLAYWRIGHT_BROWSERS_PATH, path.join(playwright, 'test-results')]) {
+      if (!fs.existsSync(cacheDir)) continue;
+      const pending = [cacheDir];
+      while (pending.length) {
+        const current = pending.pop();
+        for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+          const child = path.join(current, entry.name);
+          if (entry.isDirectory()) pending.push(child);
+          else if (/^admin-theme-.*\.json$/i.test(entry.name)) authLeaks.push(child);
+        }
+      }
+    }
     if (authLeaks.length) throw new Error('temporary_auth_files_remain_after_invocation');
-    record.state_controls.push({ name: 'auth-artifact-exclusion', passed: true, remaining_auth_files: 0, upload_or_cache_path_checked: 'Playwright test-results/.auth and scoped task-local cache' });
+    const workflow = fs.readFileSync(path.join(checkout, '.github/workflows/ci.yml'), 'utf8');
+    const authPathListed = /(?:test-results\/\.auth|\.auth\/admin-theme)/.test(workflow);
+    if (authPathListed) throw new Error('auth_storage_path_configured_for_workflow_upload_or_cache');
+    record.state_controls.push({ name: 'auth-artifact-exclusion', passed: true, remaining_auth_files: 0, workflow_contains_auth_storage_path: false, upload_or_cache_path_checked: 'Playwright test-results, scoped task-local Mix/Hex/browser caches, and workflow source' });
     record.status = 'passed';
   } catch (error) {
     failure = error.message;

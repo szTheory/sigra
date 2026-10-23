@@ -359,6 +359,25 @@ async function setColorInput(page: Page, fieldName: string, value: string) {
     }, value);
 }
 
+async function restoreBrandingDefaults(page: Page) {
+  await page.goto("/admin/auth-branding?panel=details");
+  await waitForLiveViewReady(page);
+  const restoreButton = page.getByRole("button", {
+    name: "Restore config defaults",
+  });
+  if ((await restoreButton.count()) > 0) {
+    await restoreButton.click();
+    await page.getByRole("button", { name: "Restore defaults" }).click();
+  }
+  await expect(page.getByText("Source: Config defaults")).toBeVisible();
+}
+
+adminThemeTest.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.title.startsWith("auth branding")) {
+    await restoreBrandingDefaults(page);
+  }
+});
+
 test.describe("admin theme switch", () => {
   adminThemeTest("renders stable topbar controls and overview notice before deferred app JS", async ({
     page,
