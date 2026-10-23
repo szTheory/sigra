@@ -1,14 +1,14 @@
 {
   "schema_version": "sigra.phase254.setup-check/v1",
   "status": "profiled",
-  "source_sha": "6dc04dafc49147b86a66125c995163d7fbd130bd",
+  "source_sha": "3f850188d832bcebc966e885fe29170ab53f48e1",
   "source_files": {
     "action_sha256": "074bb63f04f84bf3cff749e854e0dff1942d3ab50c7655d8827786d936ef696f",
     "workflow_sha256": "25c20412ff76cacc5276cb63bcf67e82f7b563b51d3522f44e9293887c4abb0e",
-    "profiler_sha256": "d76a6da705700b0ce869ef55c5260570e8f7b4a6e8c828d1efa7833c1de3230c"
+    "profiler_sha256": "a0d1af6d2814823a808596cb3a2ff4079bb15323df7e04534af44b95b865c28e"
   },
   "profile": {
-    "captured_at": "2026-10-23T18:07:30.432Z",
+    "captured_at": "2026-10-23T18:09:08.494Z",
     "runtime": {
       "node": "v26.10.0",
       "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
@@ -35,17 +35,15 @@
     "mix ecto.migrate",
     "mix run priv/repo/seeds.exs"
   ],
-  "combined_candidate": "mix do mix deps.get + mix compile --warnings-as-errors + mix ecto.create + mix ecto.migrate + mix run priv/repo/seeds.exs",
+  "combined_candidate": "mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs",
   "previous_artifact": {
     "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-SETUP-CHECK.json",
-    "sha256": "e33144863b039e41b411e981c0c6190183753969c5a6b0862e96cf3343a7d079",
-    "commit": "6dc04dafc49147b86a66125c995163d7fbd130bd",
+    "sha256": "cd2a0fde987aaaf29e81a293340e55e259d70b37aba64d2aec69d0079554990a",
+    "commit": "3f850188d832bcebc966e885fe29170ab53f48e1",
     "red_target": "library job relies on pinned setup-beam defaults and its sole mix ci dependency owner",
     "classifier_verdict": "RED_EVIDENCE_OK",
-    "prior_status": "blocked",
-    "prior_failure": {
-      "message": "database_snapshot_failed:ERROR:  relation \"users\" does not exist\nLINE 3:     (select count(*) from users),\n                                  ^"
-    },
+    "prior_status": "profiled",
+    "prior_failure": null,
     "prior_component_results": [
       {
         "name": "hex-install",
@@ -91,6 +89,41 @@
         "name": "current-cold-05",
         "status": "measured",
         "exit_code": 0
+      },
+      {
+        "name": "current-warm-01",
+        "status": "measured",
+        "exit_code": 0
+      },
+      {
+        "name": "current-warm-02",
+        "status": "measured",
+        "exit_code": 0
+      },
+      {
+        "name": "current-warm-03",
+        "status": "measured",
+        "exit_code": 0
+      },
+      {
+        "name": "current-warm-04",
+        "status": "measured",
+        "exit_code": 0
+      },
+      {
+        "name": "current-warm-05",
+        "status": "measured",
+        "exit_code": 0
+      },
+      {
+        "name": "combined-cold-01",
+        "status": "failed",
+        "exit_code": 1
+      },
+      {
+        "name": "combined-controlled-middle-failure",
+        "status": "failed",
+        "exit_code": 1
       }
     ]
   },
@@ -101,10 +134,10 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1114,
+      "duration_ms": 1136,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/hex-install.log",
-      "log_sha256": "ceaccbc0ef7c993b59073c43e65030c390c31c24d5e1f3d252ab9cc8b59772b5"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/hex-install.log",
+      "log_sha256": "696d10f964bdb4c9aa92898ea8ca026ecad7a2ff722b42f6c06a5075c8108b35"
     },
     {
       "name": "rebar-install",
@@ -112,31 +145,31 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 707,
+      "duration_ms": 797,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/rebar-install.log",
-      "log_sha256": "dee7a7e60d2b616bb4fe43f389c1cab934c0291e90aee1006910c04b80e8b642"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/rebar-install.log",
+      "log_sha256": "d421ca3c070a96daa8390d78f77a15e4d0c3e601f041a0a2beba90a9ac8efc47"
     },
     {
       "name": "checkout-current",
-      "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/checkouts/current\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/checkouts/current\" checkout --quiet --detach 6dc04dafc49147b86a66125c995163d7fbd130bd",
+      "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/checkouts/current\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/checkouts/current\" checkout --quiet --detach 3f850188d832bcebc966e885fe29170ab53f48e1",
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1080,
+      "duration_ms": 1381,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/checkout-current.log",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/checkout-current.log",
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "name": "checkout-combined",
-      "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/checkouts/combined\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/checkouts/combined\" checkout --quiet --detach 6dc04dafc49147b86a66125c995163d7fbd130bd",
+      "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/checkouts/combined\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/checkouts/combined\" checkout --quiet --detach 3f850188d832bcebc966e885fe29170ab53f48e1",
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1085,
+      "duration_ms": 1060,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/checkout-combined.log",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/checkout-combined.log",
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
@@ -145,10 +178,10 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1501,
+      "duration_ms": 1650,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-cold-01.log",
-      "log_sha256": "5465b92984ed42034a2d8bdaf5cd210a806c7e7464302bef881b574b32e26ff5"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-cold-01.log",
+      "log_sha256": "d2a35871c56ca970b528fc71e3cc1c2380e504187a8043b4b455eef2eddb35c2"
     },
     {
       "name": "current-cold-02",
@@ -156,10 +189,10 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 19299,
+      "duration_ms": 19426,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-cold-02.log",
-      "log_sha256": "0888d3ee32047aacab2cc4802d008d8d55c30270017ccb053c1e79a80697428c"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-cold-02.log",
+      "log_sha256": "fe5ab085623466d3897bb536c5901bc263652832c33e9ef5fdf8d62deb4e9ff8"
     },
     {
       "name": "current-cold-03",
@@ -167,9 +200,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 814,
+      "duration_ms": 822,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-cold-03.log",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-cold-03.log",
       "log_sha256": "7eabe0d4fb0baa5f83b9483a6a5073e8d238c87642ae2cc62deda6bef114d609"
     },
     {
@@ -178,10 +211,10 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1031,
+      "duration_ms": 1050,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-cold-04.log",
-      "log_sha256": "2ea8ad07106079eb5c103cad604bea2cd5c8c50e16abfa4d49b15eb208577083"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-cold-04.log",
+      "log_sha256": "4f35d6e280efe9f71ed22cc353f61b9fc385586fc1915c90c8669e0da486ddc8"
     },
     {
       "name": "current-cold-05",
@@ -189,10 +222,10 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1051,
+      "duration_ms": 1115,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-cold-05.log",
-      "log_sha256": "c831a580a5a8e9e2e967ad9cb76087391922572ec4d92b17992f45fea267ec06"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-cold-05.log",
+      "log_sha256": "e43a3ac87d6d8b5626f48c2ee20d27705c408246a1a4bf85c455ff5342a61678"
     },
     {
       "name": "current-warm-01",
@@ -200,10 +233,10 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 756,
+      "duration_ms": 776,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-warm-01.log",
-      "log_sha256": "343c9b617a8f9dc91d13bae0e6486cfcd0608977b3df54834473690bb6a77e17"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-warm-01.log",
+      "log_sha256": "f60c48f9dfdcec23987dd85be79d12b6c2f7a27649e068850942a8d9fc99cd02"
     },
     {
       "name": "current-warm-02",
@@ -211,9 +244,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 700,
+      "duration_ms": 749,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-warm-02.log",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-warm-02.log",
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
@@ -222,9 +255,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 774,
+      "duration_ms": 720,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-warm-03.log",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-warm-03.log",
       "log_sha256": "4ceabc707ca9c01cc286fe3b0d30870b98c948590b417a71d6a917d8b12e0707"
     },
     {
@@ -233,10 +266,10 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 726,
+      "duration_ms": 758,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-warm-04.log",
-      "log_sha256": "cc460b9eeb8a7daf23b9bf05f605f1ea06c0707f569013d4ba0c5cfddd22113e"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-warm-04.log",
+      "log_sha256": "b5cad855e867ec9e66eca641c595fe31928de2311df1881c950d86ab425442b2"
     },
     {
       "name": "current-warm-05",
@@ -244,22 +277,32 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 898,
+      "duration_ms": 882,
       "status": "measured",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/current-warm-05.log",
-      "log_sha256": "1568d477b52a70f68a608d8002820623c90936830f1951293513e5c367c50dc2"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/current-warm-05.log",
+      "log_sha256": "7c7f30395e74d73a73d647afbffc6a8c7826cf13cb14da8e157c72dc199ba48c"
     },
     {
       "name": "combined-cold-01",
-      "command": "set -euo pipefail\nmix do mix deps.get + mix compile --warnings-as-errors + mix ecto.create + mix ecto.migrate + mix run priv/repo/seeds.exs",
-      "exit_code": 1,
+      "command": "set -euo pipefail\nmix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs",
+      "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 342,
-      "status": "failed",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/combined-cold-01.log",
-      "log_sha256": "2f33a972aae2eb283625478b7418710330aaf3ae5f5d16bdafb040ce38c42ecb",
-      "log_excerpt": "Unchecked dependencies for environment dev:\n* telemetry_metrics (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* argon2_elixir (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* nimble_options (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* assent (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* jason (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* comeonin (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* oban (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* phoenix_live_reload (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* gettext (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* swoosh (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* ecto (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* ecto_sql (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* wax_ (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* phoenix_ecto (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* bandit (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* phoenix_live_view (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* telemetry_poller (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* nimble_totp (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* flop (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* flop_phoenix (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* phoenix_html (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* phoenix (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* dns_cluster (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* postgrex (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* joken (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* hammer (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* eqrcode (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* threadline (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n* cloak_ecto (Hex package)\n  the dependency is not available, run \"mix deps.get\"\n** (Mix) Can't continue due to errors on dependencies\n"
+      "duration_ms": 22145,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/combined-cold-01.log",
+      "log_sha256": "49eb4a44816c2dc9e1c91656455f9df4fa2c57d71bf9e3236c2afb568145e9e9"
+    },
+    {
+      "name": "combined-warm-01",
+      "command": "set -euo pipefail\nmix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1389,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/combined-warm-01.log",
+      "log_sha256": "246085e139de490494aae6fde3b080685a1aafc350fac069c797562830afbe29"
     },
     {
       "name": "combined-controlled-middle-failure",
@@ -267,11 +310,11 @@
       "exit_code": 1,
       "signal": null,
       "error": null,
-      "duration_ms": 21503,
+      "duration_ms": 1695,
       "status": "failed",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-pdVer5/logs/combined-controlled-middle-failure.log",
-      "log_sha256": "4e25018ed9246d58f7d2036e9dab0e845f7693d5652a5c2afd7814b8102b0557",
-      "log_excerpt": "4.087 [info] create index if not exists public.oban_jobs_queue_state_scheduled_at_id_index\n\n14:08:24.088 [info] create index if not exists public.oban_jobs_attempted_at_id_index\n\n14:08:24.089 [info] alter table public.oban_jobs\n\n14:08:24.089 [info] alter table public.oban_jobs\n\n14:08:24.090 [info] drop index if exists public.oban_jobs_queue_state_scheduled_at_id_index\n\n14:08:24.090 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index\n\n14:08:24.091 [info] execute \"CREATE OR REPLACE FUNCTION \\\"public\\\".oban_jobs_notify() RETURNS trigger AS $$\\nDECLARE\\n  channel text;\\n  notice json;\\nBEGIN\\n  IF NEW.state = 'available' THEN\\n    channel = 'public.oban_insert';\\n    notice = json_build_object('queue', NEW.queue);\\n\\n    PERFORM pg_notify(channel, notice::text);\\n  END IF;\\n\\n  RETURN NULL;\\nEND;\\n$$ LANGUAGE plpgsql;\\n\"\n\n14:08:24.092 [info] execute \"DROP TRIGGER IF EXISTS oban_notify ON \\\"public\\\".oban_jobs\"\n\n14:08:24.092 [info] execute \"CREATE TRIGGER oban_notify\\nAFTER INSERT ON \\\"public\\\".oban_jobs\\nFOR EACH ROW EXECUTE PROCEDURE \\\"public\\\".oban_jobs_notify();\\n\"\n\n14:08:24.092 [info] alter table public.oban_jobs\n\n14:08:24.093 [info] execute \"ALTER TYPE \\\"public\\\".oban_job_state ADD VALUE IF NOT EXISTS 'cancelled'\"\n\n14:08:24.093 [info] enum label \"cancelled\" already exists, skipping\n\n14:08:24.093 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index\n\n14:08:24.094 [info] relation \"oban_jobs_state_queue_priority_scheduled_at_id_index\" already exists, skipping\n\n14:08:24.094 [info] alter table public.oban_jobs\n\n14:08:24.095 [info] create check constraint priority_range on table public.oban_jobs\n\n14:08:24.095 [info] create check constraint positive_max_attempts on table public.oban_jobs\n\n14:08:24.096 [info] create check constraint attempt_range on table public.oban_jobs\n\n14:08:24.096 [info] drop index if exists public.oban_jobs_args_vector\n\n14:08:24.097 [info] index \"oban_jobs_args_vector\" does not exist, skipping\n\n14:08:24.097 [info] drop index if exists public.oban_jobs_worker_gist\n\n14:08:24.097 [info] index \"oban_jobs_worker_gist\" does not exist, skipping\n\n14:08:24.097 [info] drop index if exists public.oban_jobs_attempted_at_id_index\n\n14:08:24.097 [info] create index if not exists public.oban_jobs_args_index\n\n14:08:24.098 [info] create index if not exists public.oban_jobs_meta_index\n\n14:08:24.099 [info] create table if not exists public.oban_peers\n\n14:08:24.100 [info] execute \"ALTER TABLE \\\"public\\\".oban_peers SET UNLOGGED\"\n\n14:08:24.102 [info] drop constraint priority_range from table public.oban_jobs\n\n14:08:24.103 [info] create check constraint non_negative_priority on table public.oban_jobs\n\n14:08:24.103 [info] execute \"DROP TRIGGER IF EXISTS oban_notify ON \\\"public\\\".oban_jobs\"\n\n14:08:24.104 [info] execute \"DROP FUNCTION IF EXISTS \\\"public\\\".oban_jobs_notify()\"\n\n14:08:24.104 [info] execute \"COMMENT ON TABLE \\\"public\\\".oban_jobs IS '12'\"\n\n14:08:24.104 [info] == Migrated 20260623000000 in 0.0s\nFound packages with security advisories, see above for details\n    warning: :asn1ct.compile/2 is undefined (module :asn1ct is not available or is yet to be defined)\n    │\n 74 │       :asn1ct.compile(to_charlist(input), options)\n    │               ~\n    │\n    └─ lib/mix/tasks/compile.asn1.ex:74:15: Mix.Tasks.Compile.Asn1.run/1\n\n** (RuntimeError) controlled_phase254_preparation_failure\n    tmp/phase254-prep-failure/fail.exs:1: (file)\n    (elixir 1.19.5) lib/code.ex:1613: Code.require_file/2\n    (mix 1.19.5) lib/mix/tasks/run.ex:167: Mix.Tasks.Run.run/5\n    (mix 1.19.5) lib/mix/tasks/run.ex:106: Mix.Tasks.Run.run/1\n    (mix 1.19.5) lib/mix/task.ex:499: anonymous fn/3 in Mix.Task.run_task/5\n    (elixir 1.19.5) lib/enum.ex:961: Enum.\"-each/2-lists^foreach/1-0-\"/2\n    (mix 1.19.5) lib/mix/task.ex:499: anonymous fn/3 in Mix.Task.run_task/5\n    (mix 1.19.5) lib/mix/cli.ex:129: Mix.CLI.run_task/2\n    /Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/mix:7: (file)\n"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-WfkCVV/logs/combined-controlled-middle-failure.log",
+      "log_sha256": "3529618302c1f60be13fe606c5450cd306d0c43fe2ea9c1caa339376ec61b228",
+      "log_excerpt": "\\\"public\\\".oban_wrap_id(value bigint)\"\n\n14:10:06.378 [info] drop index if exists public.oban_jobs_scheduled_at_index\n\n14:10:06.379 [info] drop index if exists public.oban_jobs_queue_index\n\n14:10:06.379 [info] drop index if exists public.oban_jobs_state_index\n\n14:10:06.379 [info] create index if not exists public.oban_jobs_queue_state_scheduled_at_id_index\n\n14:10:06.380 [info] create index if not exists public.oban_jobs_attempted_at_id_index\n\n14:10:06.381 [info] alter table public.oban_jobs\n\n14:10:06.381 [info] alter table public.oban_jobs\n\n14:10:06.382 [info] drop index if exists public.oban_jobs_queue_state_scheduled_at_id_index\n\n14:10:06.382 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index\n\n14:10:06.383 [info] execute \"CREATE OR REPLACE FUNCTION \\\"public\\\".oban_jobs_notify() RETURNS trigger AS $$\\nDECLARE\\n  channel text;\\n  notice json;\\nBEGIN\\n  IF NEW.state = 'available' THEN\\n    channel = 'public.oban_insert';\\n    notice = json_build_object('queue', NEW.queue);\\n\\n    PERFORM pg_notify(channel, notice::text);\\n  END IF;\\n\\n  RETURN NULL;\\nEND;\\n$$ LANGUAGE plpgsql;\\n\"\n\n14:10:06.383 [info] execute \"DROP TRIGGER IF EXISTS oban_notify ON \\\"public\\\".oban_jobs\"\n\n14:10:06.384 [info] execute \"CREATE TRIGGER oban_notify\\nAFTER INSERT ON \\\"public\\\".oban_jobs\\nFOR EACH ROW EXECUTE PROCEDURE \\\"public\\\".oban_jobs_notify();\\n\"\n\n14:10:06.384 [info] alter table public.oban_jobs\n\n14:10:06.384 [info] execute \"ALTER TYPE \\\"public\\\".oban_job_state ADD VALUE IF NOT EXISTS 'cancelled'\"\n\n14:10:06.385 [info] enum label \"cancelled\" already exists, skipping\n\n14:10:06.385 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index\n\n14:10:06.385 [info] relation \"oban_jobs_state_queue_priority_scheduled_at_id_index\" already exists, skipping\n\n14:10:06.385 [info] alter table public.oban_jobs\n\n14:10:06.386 [info] create check constraint priority_range on table public.oban_jobs\n\n14:10:06.387 [info] create check constraint positive_max_attempts on table public.oban_jobs\n\n14:10:06.387 [info] create check constraint attempt_range on table public.oban_jobs\n\n14:10:06.388 [info] drop index if exists public.oban_jobs_args_vector\n\n14:10:06.388 [info] index \"oban_jobs_args_vector\" does not exist, skipping\n\n14:10:06.388 [info] drop index if exists public.oban_jobs_worker_gist\n\n14:10:06.388 [info] index \"oban_jobs_worker_gist\" does not exist, skipping\n\n14:10:06.389 [info] drop index if exists public.oban_jobs_attempted_at_id_index\n\n14:10:06.389 [info] create index if not exists public.oban_jobs_args_index\n\n14:10:06.390 [info] create index if not exists public.oban_jobs_meta_index\n\n14:10:06.390 [info] create table if not exists public.oban_peers\n\n14:10:06.392 [info] execute \"ALTER TABLE \\\"public\\\".oban_peers SET UNLOGGED\"\n\n14:10:06.394 [info] drop constraint priority_range from table public.oban_jobs\n\n14:10:06.394 [info] create check constraint non_negative_priority on table public.oban_jobs\n\n14:10:06.395 [info] execute \"DROP TRIGGER IF EXISTS oban_notify ON \\\"public\\\".oban_jobs\"\n\n14:10:06.395 [info] execute \"DROP FUNCTION IF EXISTS \\\"public\\\".oban_jobs_notify()\"\n\n14:10:06.395 [info] execute \"COMMENT ON TABLE \\\"public\\\".oban_jobs IS '12'\"\n\n14:10:06.396 [info] == Migrated 20260623000000 in 0.0s\nFound packages with security advisories, see above for details\n** (RuntimeError) controlled_phase254_preparation_failure\n    tmp/phase254-prep-failure/fail.exs:1: (file)\n    (elixir 1.19.5) lib/code.ex:1613: Code.require_file/2\n    (mix 1.19.5) lib/mix/tasks/run.ex:167: Mix.Tasks.Run.run/5\n    (mix 1.19.5) lib/mix/tasks/run.ex:106: Mix.Tasks.Run.run/1\n    (mix 1.19.5) lib/mix/task.ex:499: anonymous fn/3 in Mix.Task.run_task/5\n    (elixir 1.19.5) lib/enum.ex:961: Enum.\"-each/2-lists^foreach/1-0-\"/2\n    (mix 1.19.5) lib/mix/task.ex:499: anonymous fn/3 in Mix.Task.run_task/5\n    (mix 1.19.5) lib/mix/cli.ex:129: Mix.CLI.run_task/2\n    /Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/mix:7: (file)\n"
     }
   ],
   "forms": {
@@ -279,7 +322,7 @@
       "cold": {
         "status": "measured",
         "exit_code": 0,
-        "elapsed_ms": 23696,
+        "elapsed_ms": 24063,
         "snapshot": {
           "migration_versions": [
             "20260410125242",
@@ -316,7 +359,7 @@
       "warm": {
         "status": "measured",
         "exit_code": 0,
-        "elapsed_ms": 3854,
+        "elapsed_ms": 3885,
         "snapshot": {
           "migration_versions": [
             "20260410125242",
@@ -353,13 +396,78 @@
     },
     "combined": {
       "cold": {
-        "status": "failed",
-        "exit_code": 1,
-        "elapsed_ms": 342,
-        "failed_component": "combined-cold-01"
+        "status": "measured",
+        "exit_code": 0,
+        "elapsed_ms": 22145,
+        "snapshot": {
+          "migration_versions": [
+            "20260410125242",
+            "20260410125243",
+            "20260410125244",
+            "20260410125245",
+            "20260410125246",
+            "20260413120000",
+            "20260414000000",
+            "20260415000001",
+            "20260415000002",
+            "20260416193000",
+            "20260525010000",
+            "20260526043000",
+            "20260528152137",
+            "20260528152138",
+            "20260528152139",
+            "20260529000000",
+            "20260607000000",
+            "20260623000000"
+          ],
+          "users": 47,
+          "demo_tasklane_users": 47,
+          "organizations": 3,
+          "memberships": 8,
+          "mfa_credentials": 2,
+          "passkeys": 2,
+          "sessions": 3,
+          "identities": 1,
+          "audit_events": 43,
+          "enterprise_connections": 1
+        }
       },
       "warm": {
-        "status": "not_run_after_cold_failure"
+        "status": "measured",
+        "exit_code": 0,
+        "elapsed_ms": 1389,
+        "snapshot": {
+          "migration_versions": [
+            "20260410125242",
+            "20260410125243",
+            "20260410125244",
+            "20260410125245",
+            "20260410125246",
+            "20260413120000",
+            "20260414000000",
+            "20260415000001",
+            "20260415000002",
+            "20260416193000",
+            "20260525010000",
+            "20260526043000",
+            "20260528152137",
+            "20260528152138",
+            "20260528152139",
+            "20260529000000",
+            "20260607000000",
+            "20260623000000"
+          ],
+          "users": 47,
+          "demo_tasklane_users": 47,
+          "organizations": 3,
+          "memberships": 8,
+          "mfa_credentials": 2,
+          "passkeys": 2,
+          "sessions": 3,
+          "identities": 1,
+          "audit_events": 43,
+          "enterprise_connections": 1
+        }
       }
     }
   },
@@ -392,35 +500,35 @@
     "expected_marker_in_log": true
   },
   "decision": {
-    "selected": "original_separate_commands",
-    "reason": "combined form was rejected because measured cold/warm semantic equivalence, failure semantics, or both cold and warm full-preparation benefits were not all proven."
+    "selected": "combined",
+    "reason": "cold and warm database snapshots matched and both complete preparation timings improved; injected middle failure stopped before seed/sentinel."
   },
   "hosted_acceptance": "not_started",
   "speed_target_claimed": false,
-  "semantic_equivalence": false,
+  "semantic_equivalence": true,
   "measured_benefit": {
-    "cold": false,
-    "warm": false,
-    "current_total_ms": 27550,
-    "combined_total_ms": 342
+    "cold": true,
+    "warm": true,
+    "current_total_ms": 27948,
+    "combined_total_ms": 23534
   },
   "database_cleanup": [
     {
-      "database": "sigra_25405_11917_mvla8m80_failure",
+      "database": "sigra_25405_15102_mvlaapvz_failure",
       "exit_code": 0,
       "status": "passed"
     },
     {
-      "database": "sigra_25405_11917_mvla8m80_combined",
+      "database": "sigra_25405_15102_mvlaapvz_combined",
       "exit_code": 0,
       "status": "passed"
     },
     {
-      "database": "sigra_25405_11917_mvla8m80_current",
+      "database": "sigra_25405_15102_mvlaapvz_current",
       "exit_code": 0,
       "status": "passed"
     }
   ],
-  "completed_at": "2026-10-23T18:08:24.317Z",
-  "duration_ms": 53885
+  "completed_at": "2026-10-23T18:10:06.603Z",
+  "duration_ms": 58109
 }
