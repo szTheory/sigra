@@ -1,0 +1,476 @@
+{
+  "command": "PATH=<asdf-node-20.18.1>/bin:$PATH node --test --test-reporter=tap scripts/ci/ci-org-prep.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: registered owner helper proves authenticated zero-organization state without browser navigation\nnot ok 1 - registered owner helper proves authenticated zero-organization state without browser navigation\n  ---\n  duration_ms: 0.75225\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:18:1'\n  failureType: 'testCodeFailure'\n  error: 'missing helper-return authentication assertion'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  operator: '=='\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:20:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    node:internal/test_runner/harness:255:12\n    node:internal/process/task_queues:140:7\n    AsyncResource.runInAsyncScope (node:async_hooks:206:9)\n    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)\n  ...\n# Subtest: new-user owner starts organization creation directly after the authenticated helper\nnot ok 2 - new-user owner starts organization creation directly after the authenticated helper\n  ---\n  duration_ms: 0.624084\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:29:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /await registerAndConfirmUser\\(page, ownerEmail, ownerPassword\\);\\s*await assertAuthenticatedZeroOrganizationState\\(page\\);\\s*await createOrganizationFromZeroState/. Input:\n    \n    \"test('organization invitations: new user accepts through the mailbox signup path', async ({\\n\" +\n      '  page,\\n' +\n      '  browser,\\n' +\n      '}) => {\\n' +\n      '  const suffix = Date.now();\\n' +\n      '  const ownerEmail = `org-owner-${suffix}@example.test`;\\n' +\n      \"  const ownerPassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const inviteeEmail = `org-invitee-${suffix}@example.test`;\\n' +\n      \"  const inviteePassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const orgName = `Invite Org ${suffix}`;\\n' +\n      '  const orgSlug = `invite-org-${suffix}`;\\n' +\n      '\\n' +\n      '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\\n' +\n      '  await logInIfNeeded(page, ownerEmail, ownerPassword);\\n' +\n      '  await createOrganizationFromZeroState(page, orgName, orgSlug);\\n' +\n      '  await sendInvitation(page, inviteeEmail);\\n' +\n      '  const invitationHref = await extractInvitationLink(page, inviteeEmail);\\n' +\n      '\\n' +\n      '  const inviteeContext = await browser.newContext({\\n' +\n      '    baseURL: EXAMPLE_BASE_URL,\\n' +\n      '  });\\n' +\n      '  const inviteePage = await inviteeContext.newPage();\\n' +\n      '\\n' +\n      '  try {\\n' +\n      '    await inviteePage.goto(invitationHref);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();\\n\" +\n      \"    await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.getByLabel('Email')).toBeDisabled();\\n\" +\n      \"    await inviteePage.getByLabel('Password').fill(inviteePassword);\\n\" +\n      '    await inviteePage\\n' +\n      \"      .getByRole('button', { name: `Create account & join ${orgName}` })\\n\" +\n      '      .click();\\n' +\n      '\\n' +\n      '    await expect(inviteePage).toHaveURL(/\\\\/users\\\\/log_in/);\\n' +\n      `    await inviteePage.fill('#login_form input[name=\"user[email]\"]', inviteeEmail);\\n` +\n      `    await inviteePage.fill('#login_form input[name=\"user[password]\"]', inviteePassword);\\n` +\n      `    await inviteePage.click('#login_form button:has-text(\"Log in\")');\\n` +\n      '    await expect(inviteePage).not.toHaveURL(/\\\\/users\\\\/log_in(\\\\?|$)/);\\n' +\n      '\\n' +\n      '    await inviteePage.goto(`/organizations/${orgSlug}/members`);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\\n\" +\n      '      inviteeEmail,\\n' +\n      '    );\\n' +\n      '  } finally {\\n' +\n      '    await inviteeContext.close();\\n' +\n      '  }\\n' +\n      '});\\n'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual: |-\n    test('organization invitations: new user accepts through the mailbox signup path', async ({\n      page,\n      browser,\n    }) => {\n      const suffix = Date.now();\n      const ownerEmail = `org-owner-${suffix}@example.test`;\n      const ownerPassword = 'CorrectHorseBatteryStaple123!';\n      const inviteeEmail = `org-invitee-${suffix}@example.test`;\n      const inviteePassword = 'CorrectHorseBatteryStaple123!';\n      const orgName = `Invite Org ${suffix}`;\n      const orgSlug = `invite-org-${suffix}`;\n    \n      await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n      await logInIfNeeded(page, ownerEmail, ownerPassword);\n      await createOrganizationFromZeroState(page, orgName, orgSlug);\n      await sendInvitation(page, inviteeEmail);\n      const invitationHref = await extractInvitationLink(page, inviteeEmail);\n    \n      const inviteeContext = await browser.newContext({\n        baseURL: EXAMPLE_BASE_URL,\n      });\n      const inviteePage = await inviteeContext.newPage();\n    \n      try {\n        await inviteePage.goto(invitationHref);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();\n        await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);\n        await expect(inviteePage.getByLabel('Email')).toBeDisabled();\n        await inviteePage.getByLabel('Password').fill(inviteePassword);\n        await inviteePage\n          .getByRole('button', { name: `Create account & join ${orgName}` })\n          .click();\n    \n        await expect(inviteePage).toHaveURL(/\\/users\\/log_in/);\n        await inviteePage.fill('#login_form input[name=\"user[email]\"]', inviteeEmail);\n        await inviteePage.fill('#login_form input[name=\"user[password]\"]', inviteePassword);\n        await inviteePage.click('#login_form button:has-text(\"Log in\")');\n        await expect(inviteePage).not.toHaveURL(/\\/users\\/log_in(\\?|$)/);\n    \n        await inviteePage.goto(`/organizations/${orgSlug}/members`);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\n        await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\n          inviteeEmail,\n        );\n      } finally {\n        await inviteeContext.close();\n      }\n    });\n    \n  operator: 'match'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:31:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    Test.postRun (node:internal/test_runner/test:889:19)\n    Test.run (node:internal/test_runner/test:835:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:527:7)\n  ...\n# Subtest: matching-user owner uses the same proven return while invitee authentication and acceptance remain\nnot ok 3 - matching-user owner uses the same proven return while invitee authentication and acceptance remain\n  ---\n  duration_ms: 0.415\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:38:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /await registerAndConfirmUser\\(page, ownerEmail, ownerPassword\\);\\s*await assertAuthenticatedZeroOrganizationState\\(page\\);\\s*await createOrganizationFromZeroState/. Input:\n    \n    \"test('organization invitations: signed-in matching user accepts through the mailbox link', async ({\\n\" +\n      '  page,\\n' +\n      '  browser,\\n' +\n      '}) => {\\n' +\n      '  const suffix = Date.now();\\n' +\n      '  const ownerEmail = `org-owner-match-${suffix}@example.test`;\\n' +\n      \"  const ownerPassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const inviteeEmail = `org-member-match-${suffix}@example.test`;\\n' +\n      \"  const inviteePassword = 'CorrectHorseBatteryStaple123!';\\n\" +\n      '  const orgName = `Match Org ${suffix}`;\\n' +\n      '  const orgSlug = `match-org-${suffix}`;\\n' +\n      '\\n' +\n      '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\\n' +\n      '  await logInIfNeeded(page, ownerEmail, ownerPassword);\\n' +\n      '  await createOrganizationFromZeroState(page, orgName, orgSlug);\\n' +\n      '  await sendInvitation(page, inviteeEmail);\\n' +\n      '  const invitationHref = await extractInvitationLink(page, inviteeEmail);\\n' +\n      '\\n' +\n      '  const inviteeContext = await browser.newContext({\\n' +\n      '    baseURL: EXAMPLE_BASE_URL,\\n' +\n      '  });\\n' +\n      '  const inviteePage = await inviteeContext.newPage();\\n' +\n      '\\n' +\n      '  try {\\n' +\n      '    await registerAndConfirmUser(inviteePage, inviteeEmail, inviteePassword);\\n' +\n      '    await logInIfNeeded(inviteePage, inviteeEmail, inviteePassword);\\n' +\n      '\\n' +\n      '    await inviteePage.goto(invitationHref);\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#invitation-accept-accept')).toBeVisible();\\n\" +\n      '    await inviteePage\\n' +\n      \"      .getByRole('button', { name: `Accept & join ${orgName}` })\\n\" +\n      '      .click();\\n' +\n      '\\n' +\n      '    await expect(inviteePage).toHaveURL(new RegExp(`/organizations/${orgSlug}/members$`));\\n' +\n      '    await waitForLiveViewReady(inviteePage);\\n' +\n      \"    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\\n\" +\n      \"    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\\n\" +\n      '      inviteeEmail,\\n' +\n      '    );\\n' +\n      '  } finally {\\n' +\n      '    await inviteeContext.close();\\n' +\n      '  }\\n' +\n      '});\\n'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual: |-\n    test('organization invitations: signed-in matching user accepts through the mailbox link', async ({\n      page,\n      browser,\n    }) => {\n      const suffix = Date.now();\n      const ownerEmail = `org-owner-match-${suffix}@example.test`;\n      const ownerPassword = 'CorrectHorseBatteryStaple123!';\n      const inviteeEmail = `org-member-match-${suffix}@example.test`;\n      const inviteePassword = 'CorrectHorseBatteryStaple123!';\n      const orgName = `Match Org ${suffix}`;\n      const orgSlug = `match-org-${suffix}`;\n    \n      await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n      await logInIfNeeded(page, ownerEmail, ownerPassword);\n      await createOrganizationFromZeroState(page, orgName, orgSlug);\n      await sendInvitation(page, inviteeEmail);\n      const invitationHref = await extractInvitationLink(page, inviteeEmail);\n    \n      const inviteeContext = await browser.newContext({\n        baseURL: EXAMPLE_BASE_URL,\n      });\n      const inviteePage = await inviteeContext.newPage();\n    \n      try {\n        await registerAndConfirmUser(inviteePage, inviteeEmail, inviteePassword);\n        await logInIfNeeded(inviteePage, inviteeEmail, inviteePassword);\n    \n        await inviteePage.goto(invitationHref);\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#invitation-accept-accept')).toBeVisible();\n        await inviteePage\n          .getByRole('button', { name: `Accept & join ${orgName}` })\n          .click();\n    \n        await expect(inviteePage).toHaveURL(new RegExp(`/organizations/${orgSlug}/members$`));\n        await waitForLiveViewReady(inviteePage);\n        await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);\n        await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(\n          inviteeEmail,\n        );\n      } finally {\n        await inviteeContext.close();\n      }\n    });\n    \n  operator: 'match'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-org-prep.test.mjs:40:10)\n    Test.runInAsyncScope (node:async_hooks:206:9)\n    Test.run (node:internal/test_runner/test:796:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:527:18)\n    Test.postRun (node:internal/test_runner/test:889:19)\n    Test.run (node:internal/test_runner/test:835:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:527:7)\n  ...\n# Subtest: organization registration, confirmation, zero-org creation, and first-org lifecycle remain unchanged\nok 4 - organization registration, confirmation, zero-org creation, and first-org lifecycle remain unchanged\n  ---\n  duration_ms: 0.100833\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 1\n# fail 3\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 38.036583\n",
+  "targetTest": "registered owner helper proves authenticated zero-organization state without browser navigation",
+  "targetFile": "scripts/ci/ci-org-prep.test.mjs",
+  "expected": "A helper-return assertion proves the registered owner is authenticated and still has zero organizations.",
+  "actual": "The target assertion failed because assertAuthenticatedZeroOrganizationState does not exist yet.",
+  "semanticAssessment": "Valid RED: the named target test executed and failed on the planned missing helper-return authentication behavior; other current owner-login removal assertions also fail because the duplicate calls remain.",
+  "baseline": {
+    "status": "passed",
+    "source_sha": "6b13592092e7cd3b9eaefbb07cffd67ff4ac496e",
+    "source_digests": {
+      "test/example/priv/playwright/tests/organizations.spec.ts": "e7e75a767bf221531c29da8d6df3f073229a79e992efa937699cf3ab605f62f4",
+      "test/example/priv/playwright/playwright.config.ts": "e20b8cc4e2e4496aadaca8545054f3d30c7143a4488bbab1ccb49a3107a5ed56",
+      "test/example/priv/playwright/package-lock.json": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5"
+    },
+    "toolchain": {
+      "node": "v20.18.1",
+      "playwright": "1.59.1"
+    },
+    "setup": {
+      "fresh_database": "sigra_254_org_pre_escalated_89662",
+      "database_created_migrated_seeded": true,
+      "server_route": "/users/log_in",
+      "server_stopped": true,
+      "database_dropped": true
+    },
+    "invocation": {
+      "command": "node node_modules/@playwright/test/cli.js test tests/organizations.spec.ts --grep \\\"organization invitations: new user accepts through the mailbox signup path\\\" --project=chromium --project=mobile --workers=1 --retries=0",
+      "projects": [
+        "chromium",
+        "mobile"
+      ],
+      "workers": 1,
+      "retries": 0,
+      "exit_code": 0,
+      "log_path": "/tmp/sigra-254-organization-baseline-escalated/playwright.log",
+      "log_sha256": "e30654c8a7e9b79ccb205fdf9fed22959c2dfb7d9efac907c42b874977ae7a18",
+      "native_report_path": "/tmp/sigra-254-organization-baseline-escalated/native.json",
+      "native_report_sha256": "324028b5f9da98944f389cd0764be8234fee0d970ed17bb62280fcfaa69b44fd",
+      "native_report": {
+        "config": {
+          "configFile": "/Users/jon/projects/sigra/test/example/priv/playwright/playwright.config.ts",
+          "rootDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+          "forbidOnly": false,
+          "fullyParallel": false,
+          "globalSetup": null,
+          "globalTeardown": null,
+          "globalTimeout": 0,
+          "grep": {},
+          "grepInvert": null,
+          "maxFailures": 0,
+          "metadata": {
+            "actualWorkers": 1
+          },
+          "preserveOutput": "always",
+          "projects": [
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "chromium",
+              "name": "chromium",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [
+                "/admin-checkpoints\\.spec\\.ts/",
+                "/admin-design\\.spec\\.ts/",
+                "/admin-generated\\.spec\\.ts/",
+                "/generated-confirmation\\.spec\\.ts/",
+                "/demo-showcase\\.spec\\.ts/",
+                "/admin-eval\\.spec\\.ts/"
+              ],
+              "testMatch": [
+                "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "mobile",
+              "name": "mobile",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [
+                "/(admin-user-operations|admin-audit|admin-theme|admin-coherence-sweep|impersonation|admin-flow-).*\\.spec\\.ts/",
+                "/admin-checkpoints\\.spec\\.ts/",
+                "/admin-design\\.spec\\.ts/",
+                "/admin-generated\\.spec\\.ts/",
+                "/generated-confirmation\\.spec\\.ts/",
+                "/passkeys-hooks\\.spec\\.ts|passkey-options\\.spec\\.ts|passkey-login\\.spec\\.ts/",
+                "/demo-showcase\\.spec\\.ts/",
+                "/admin-modal-interaction\\.spec\\.ts/",
+                "/admin-eval\\.spec\\.ts/"
+              ],
+              "testMatch": [
+                "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-checkpoints-chromium",
+              "name": "admin-checkpoints-chromium",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-checkpoints\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-checkpoints-mobile",
+              "name": "admin-checkpoints-mobile",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-checkpoints\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-checkpoints-dark",
+              "name": "admin-checkpoints-dark",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-checkpoints\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-generated",
+              "name": "admin-generated",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-generated\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "generated-host-chromium",
+              "name": "generated-host-chromium",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/generated-confirmation\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "demo-showcase-chromium",
+              "name": "demo-showcase-chromium",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/demo-showcase\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-design-setup-chromium",
+              "name": "admin-design-setup-chromium",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-design\\.setup\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-design-chromium",
+              "name": "admin-design-chromium",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-design\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-design-setup-mobile",
+              "name": "admin-design-setup-mobile",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-design\\.setup\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-design-mobile",
+              "name": "admin-design-mobile",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-design\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-design-setup-dark",
+              "name": "admin-design-setup-dark",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-design\\.setup\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-design-dark",
+              "name": "admin-design-dark",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-design\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-eval",
+              "name": "admin-eval",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-eval\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-eval-mobile",
+              "name": "admin-eval-mobile",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-eval\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            },
+            {
+              "outputDir": "/Users/jon/projects/sigra/test/example/priv/playwright/test-results",
+              "repeatEach": 1,
+              "retries": 0,
+              "metadata": {
+                "actualWorkers": 1
+              },
+              "id": "admin-eval-dark",
+              "name": "admin-eval-dark",
+              "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+              "testIgnore": [],
+              "testMatch": [
+                "/admin-eval\\.spec\\.ts/"
+              ],
+              "timeout": 60000
+            }
+          ],
+          "quiet": false,
+          "reporter": [
+            [
+              "list",
+              null
+            ],
+            [
+              "html",
+              {
+                "open": "never",
+                "outputFolder": "playwright-report/html"
+              }
+            ],
+            [
+              "json",
+              {
+                "outputFile": "/tmp/sigra-254-organization-baseline-escalated/native.json"
+              }
+            ]
+          ],
+          "reportSlowTests": {
+            "max": 5,
+            "threshold": 300000
+          },
+          "shard": null,
+          "tags": [],
+          "updateSnapshots": "missing",
+          "updateSourceMethod": "patch",
+          "version": "1.59.1",
+          "workers": 1,
+          "webServer": null
+        },
+        "suites": [
+          {
+            "title": "organizations.spec.ts",
+            "file": "organizations.spec.ts",
+            "column": 0,
+            "line": 0,
+            "specs": [
+              {
+                "title": "organization invitations: new user accepts through the mailbox signup path",
+                "ok": true,
+                "tags": [],
+                "tests": [
+                  {
+                    "timeout": 60000,
+                    "annotations": [],
+                    "expectedStatus": "passed",
+                    "projectId": "chromium",
+                    "projectName": "chromium",
+                    "results": [
+                      {
+                        "workerIndex": 0,
+                        "parallelIndex": 0,
+                        "status": "passed",
+                        "duration": 1213,
+                        "errors": [],
+                        "stdout": [],
+                        "stderr": [],
+                        "retry": 0,
+                        "startTime": "2026-10-23T17:48:21.964Z",
+                        "annotations": [],
+                        "attachments": []
+                      }
+                    ],
+                    "status": "expected"
+                  }
+                ],
+                "id": "e73cfbd0adf242785189-6b33e2c786ab25b9ac22",
+                "file": "organizations.spec.ts",
+                "line": 442,
+                "column": 5
+              },
+              {
+                "title": "organization invitations: new user accepts through the mailbox signup path",
+                "ok": true,
+                "tags": [],
+                "tests": [
+                  {
+                    "timeout": 60000,
+                    "annotations": [],
+                    "expectedStatus": "passed",
+                    "projectId": "mobile",
+                    "projectName": "mobile",
+                    "results": [
+                      {
+                        "workerIndex": 1,
+                        "parallelIndex": 0,
+                        "status": "passed",
+                        "duration": 1936,
+                        "errors": [],
+                        "stdout": [],
+                        "stderr": [],
+                        "retry": 0,
+                        "startTime": "2026-10-23T17:48:23.516Z",
+                        "annotations": [],
+                        "attachments": []
+                      }
+                    ],
+                    "status": "expected"
+                  }
+                ],
+                "id": "e73cfbd0adf242785189-0fc39f37615c7294300c",
+                "file": "organizations.spec.ts",
+                "line": 442,
+                "column": 5
+              }
+            ]
+          }
+        ],
+        "errors": [],
+        "stats": {
+          "startTime": "2026-10-23T17:48:21.747Z",
+          "duration": 3961.371,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      }
+    },
+    "sandbox_attempt": {
+      "exit_code": 1,
+      "native_report_path": "/tmp/sigra-254-organization-baseline/native.json",
+      "note": "Both projects failed during browser launch under sandbox restrictions before product assertions; rerun with authorized escalation passed."
+    }
+  }
+}
