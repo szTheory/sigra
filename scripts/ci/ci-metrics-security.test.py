@@ -8,6 +8,7 @@ import pathlib
 import tempfile
 import unittest
 import zipfile
+import ci_metrics_security as security
 
 from ci_metrics_security import (
     CoreRequestBudget,
@@ -31,6 +32,18 @@ from ci_metrics_security import (
 
 
 class SecurityContractsTest(unittest.TestCase):
+    def test_attempt_job_costs_keep_failed_work_and_report_unknowns(self):
+        derive=getattr(security,"derive_attempt_job_costs",None)
+        self.assertTrue(callable(derive),"raw attempt job cost derivation is required")
+        attempts={"1":[{"id":1,"name":"browser","conclusion":"failure","started_at":"2026-10-13T00:00:00Z","completed_at":"2026-10-13T00:00:20Z"},
+                       {"id":2,"name":"cancelled","conclusion":"cancelled","started_at":"2026-10-13T00:00:00Z"}],
+                  "2":[{"id":3,"name":"retry","conclusion":"success","started_at":"2026-10-13T00:00:00Z","completed_at":"2026-10-13T00:00:30Z"},
+                       {"id":4,"name":"skipped","conclusion":"skipped"}]}
+        result=derive(attempts)
+        self.assertEqual(50,result["known_subtotal_seconds"])
+        self.assertIsNone(result["total_seconds"])
+        self.assertEqual(["1:2"],result["unknown_jobs"])
+
     def test_comparison_plan_freezes_balanced_order_and_rejects_tied_pair_starts(self):
         schedule=[]; reservations=[]
         for pair in range(1,21):
