@@ -29,7 +29,9 @@ Raw scripts, outcomes and hashes are in `CONTINUATION-RESULT.json`, committed at
 
 Implementation and local checks are complete for this candidate. Fresh source-pinned post-fix browser/CI results are still missing, so CIREL-01 and Phase 253 remain incomplete. Required-gate implementation is unchanged; CIREL-02 remains complete.
 
-Prepare and verify the exact validation bundle offline before requesting a separately scoped new runtime decision. No existing allowance authorizes those runs. Phase 254 has no context, research or plans and has not started; recheck readiness after actual Phase 253 completion.
+The exact source-pinned Linux bundle is now prepared and verified at `.planning/execution/253-registration-postfix/README.md` (commit `b63fb33e665d1a48c7dbcb124a21a09043cb4722`). Fifteen runner tests and three configuration tests with each fixed seed101/202/303 pass. Candidate compilation, endpoint inspection and list-only collection pass; the real unapproved runtime command refuses. No app, database, browser or CI started.
+
+A new proposal requests nine fresh local Linux targeted invocations, zero retries, first-failure stop and1200seconds including cleanup, with no CI or GitHub requests. Approval and results are still absent. Normal integration and phase verification remain after targeted passes. No old allowance is reused. Phase254 remains pending without context/research/plans; readiness was rechecked and it has not started. The following command resumes execution of the prepared bundle only after this new scoped approval:
 
 ```text
 $gsd-debug continue phase253-registration-timeout

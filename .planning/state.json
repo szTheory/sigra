@@ -20,7 +20,7 @@
       "unsummarized_plan_count": 73,
       "ready_plans": [],
       "verification_status": "not_started",
-      "current_status": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM.",
+      "current_status": "Candidate a87664733 disables CI hot reloading. Source-pinned Linux image is rebuilt offline; 15 runner tests and three configuration tests in each of three fixed-seed processes pass. The exact nine-run targeted validation is prepared but not approved or executed. CIREL-01 and Phase253 remain incomplete; CIREL-02 remains complete. After explicit approval of proposal f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06, continue this session to run the prepared bundle once. No new CI scope is requested; old allowances remain closed.",
       "requirement_review_status": "complete_blocker_confirmed"
     },
     {
@@ -35,12 +35,13 @@
     }
   ],
   "next": {
-    "command": "python3 .planning/execution/253-registration-linux/diagnostic.py --run",
+    "command": "$gsd-debug continue phase253-registration-timeout",
+    "execution_command": "python3 .planning/execution/253-registration-postfix/validate.py --run",
     "conditional": true,
-    "label": "Prepared Linux registration diagnostic; approval required",
-    "reason": "A local Linux x64 registration diagnostic is prepared and verified through database setup and app readiness (11.4 seconds), with zero browser tests. It uses the preserved original source, exact PostgreSQL image digest, original tools, localhost:4011 and recovered161-test order. One new run needs explicit approval:40minutes including cleanup, zero retries, first-failure stop, no CI or GitHub API calls. Old limits and failed attempts remain unchanged. CIREL-01 is not reproduced; CIREL-02 stays complete; phase verification remains incomplete. Emulation requires the documented Erlang JIT flag and does not recreate the original hosted VM."
+    "label": "Prepared post-fix validation; new local runtime approval required",
+    "reason": "Candidate a87664733 disables CI hot reloading. Source-pinned Linux image is rebuilt offline; 15 runner tests and three configuration tests in each of three fixed-seed processes pass. The exact nine-run targeted validation is prepared but not approved or executed. CIREL-01 and Phase253 remain incomplete; CIREL-02 remains complete. After explicit approval of proposal f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06, continue this session to run the prepared bundle once. No new CI scope is requested; old allowances remain closed."
   },
-  "updated_at": "2026-10-22T23:51:58.351123+00:00",
+  "updated_at": "2026-10-23T00:46:01.143401+00:00",
   "phase253_execution": {
     "status": "direct_requirement_review_complete_registration_blocked",
     "implementation_status": "partial",
@@ -1727,9 +1728,9 @@
     "resume_command": "$gsd-execute-phase 253 --gaps-only",
     "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
   },
-  "last_updated": "2026-10-22T21:31:09.632731+00:00",
-  "stopped_at": "PR343 success saved; offline remaining-evidence preparation ready",
-  "state_head": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+  "last_updated": "2026-10-23T00:46:01.143401+00:00",
+  "stopped_at": "Exact post-fix local validation bundle verified; new runtime approval pending",
+  "state_head": "b63fb33e665d1a48c7dbcb124a21a09043cb4722",
   "phase253_control_recovery_execution": {
     "status": "native_halted_recovery_planning_required",
     "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
@@ -2635,7 +2636,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "phase253_reloader_fix_offline_validation_preparation",
+  "workflow_step": "phase253_postfix_bundle_awaiting_local_runtime_approval",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3147,17 +3148,19 @@
     "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0"
   },
   "current_routing": {
-    "status": "candidate_reloader_fix_ready_offline_validation_preparation_next",
+    "status": "postfix_bundle_verified_awaiting_new_local_runtime_approval",
     "next_command": "$gsd-debug continue phase253-registration-timeout",
     "resume_command": "$gsd-debug continue phase253-registration-timeout",
-    "conditional": false,
-    "reason": "Product fix a87664733 disables example hot code reloading in CI. A controlled loader/reloader schedule produces the original Ecto.Queryable error with development reloading and passes using the patched CI configuration. Three configuration tests pass;the example compiles;its CI-built endpoint contains no reloader calls/live-reload socket and retains LiveView. The original job did not trace the exact interleaving. Fresh post-fix browser/CI validation is still missing and unauthorized,so CIREL-01 and Phase253 stay incomplete;CIREL-02 gate implementation is unchanged. Next:prepare and verify a source-pinned validation bundle offline. Do not rerun browsers/CI or reopen old allowances.",
-    "evidence": ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+    "execution_command": "python3 .planning/execution/253-registration-postfix/validate.py --run",
+    "conditional": true,
+    "condition": "explicit approval of the exact nine-run local Linux proposal",
+    "reason": "Candidate a87664733 disables CI hot reloading. Source-pinned Linux image is rebuilt offline; 15 runner tests and three configuration tests in each of three fixed-seed processes pass. The exact nine-run targeted validation is prepared but not approved or executed. CIREL-01 and Phase253 remain incomplete; CIREL-02 remains complete. After explicit approval of proposal f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06, continue this session to run the prepared bundle once. No new CI scope is requested; old allowances remain closed.",
+    "evidence": ".planning/execution/253-registration-postfix/CHECKS.json",
     "phase_verification_status": "incomplete",
-    "immediate_user_action": "None for offline bundle preparation",
+    "immediate_user_action": "Approve or decline nine fresh local Linux invocations, 1200 seconds total including cleanup; no CI or GitHub requests.",
     "readiness": {
-      "ready_scope": "offline source-pinned validation preparation",
-      "approval_still_required": false,
+      "ready_scope": "prepared nine-run local Linux validation",
+      "approval_still_required": true,
       "browser_execution_authorized": false,
       "new_ci_authorized": false
     }
@@ -3322,19 +3325,15 @@
       }
     ]
   },
-  "next_command_conditional": false,
+  "next_command_conditional": true,
   "phase253_completed_plans": 81,
   "phase253_unsummarized_plans": 73,
   "phase253_pending_decision": {
-    "status": "approved_and_consumed",
-    "approval_received": true,
-    "approval_pending": false,
-    "approval_commit": "c67cbeac7",
-    "decision_text": "i approve",
-    "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
-    "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
-    "window_closed": true,
-    "new_approval_requested": false,
+    "status": "awaiting_new_local_scope_approval",
+    "approval_received": false,
+    "approval_pending": true,
+    "proposal_sha256": "f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06",
+    "scope": "nine-fresh-local-linux-postfix-invocations",
     "new_ci_authorized": false
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
@@ -3393,7 +3392,7 @@
     "normal_independently_verified": true,
     "docs_pr_created": false
   },
-  "prior_shared_state_commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+  "prior_shared_state_commit": "bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -3455,7 +3454,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "next_action": "Product fix a87664733 disables example hot code reloading in CI. A controlled loader/reloader schedule produces the original Ecto.Queryable error with development reloading and passes using the patched CI configuration. Three configuration tests pass;the example compiles;its CI-built endpoint contains no reloader calls/live-reload socket and retains LiveView. The original job did not trace the exact interleaving. Fresh post-fix browser/CI validation is still missing and unauthorized,so CIREL-01 and Phase253 stay incomplete;CIREL-02 gate implementation is unchanged. Next:prepare and verify a source-pinned validation bundle offline. Do not rerun browsers/CI or reopen old allowances.",
+  "next_action": "Candidate a87664733 disables CI hot reloading. Source-pinned Linux image is rebuilt offline; 15 runner tests and three configuration tests in each of three fixed-seed processes pass. The exact nine-run targeted validation is prepared but not approved or executed. CIREL-01 and Phase253 remain incomplete; CIREL-02 remains complete. After explicit approval of proposal f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06, continue this session to run the prepared bundle once. No new CI scope is requested; old allowances remain closed.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3537,6 +3536,18 @@
       "github_writes": 0,
       "ci_launches": 0,
       "checkpoint": ".planning/execution/253-pr343-recovery-CHECKPOINT.json"
+    },
+    {
+      "status": "approved_and_consumed",
+      "approval_received": true,
+      "approval_pending": false,
+      "approval_commit": "c67cbeac7",
+      "decision_text": "i approve",
+      "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+      "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
+      "window_closed": true,
+      "new_approval_requested": false,
+      "new_ci_authorized": false
     }
   ],
   "phase253_repaired_source_preparation_history": [
@@ -3594,15 +3605,15 @@
   },
   "phase253_requirement_review_status": "partial_cirel02_verified_cirel01_blocked",
   "phase253_current_blocker": {
-    "status": "candidate_fix_implemented_postfix_runtime_validation_missing",
+    "status": "postfix_bundle_prepared_runtime_approval_and_results_missing",
     "requirement": "CIREL-01",
     "original_order_log_recovered": true,
     "full_original_prefix_passed": 161,
-    "record": ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+    "record": ".planning/execution/253-registration-postfix/CHECKS.json",
     "missing": [
-      "fresh source-pinned post-fix browser/CI results",
-      "a separately approved new runtime scope after its bundle is prepared",
-      "whole-phase verification"
+      "approval for the prepared nine-run local Linux proposal",
+      "fresh post-fix targeted native results",
+      "normal integration coverage and whole-phase verification"
     ],
     "environment_differences": [
       "x64 emulation on ARM Mac; diagnostic-only Erlang +JMsingle true flag",
@@ -3610,10 +3621,10 @@
       "fresh seeded database; original snapshot and redacted page state unavailable"
     ],
     "post_fix_slots_expired": 9,
-    "approval_pending": false,
+    "approval_pending": true,
     "additional_native_authorized": false,
     "next_command": "$gsd-debug continue phase253-registration-timeout",
-    "next_action": "offline source-pinned validation preparation",
+    "next_action": "After new scoped approval, execute the prepared nine-run local bundle once",
     "linux_replay_passed": 161,
     "new_diagnostic_approval_pending": false,
     "product_commit": "a876647338095b6d280608cb75bcf886ab1da953",
@@ -3721,6 +3732,34 @@
     "ci_launches": 0,
     "network_requests": 0,
     "additional_native_authorized": false,
-    "next_command": "$gsd-debug continue phase253-registration-timeout"
+    "next_command": "$gsd-debug continue phase253-registration-timeout",
+    "postfix_validation_bundle": ".planning/execution/253-registration-postfix/CHECKS.json"
+  },
+  "phase253_postfix_validation": {
+    "status": "prepared_awaiting_new_scope_approval",
+    "bundle_commit": "b63fb33e665d1a48c7dbcb124a21a09043cb4722",
+    "source": "a876647338095b6d280608cb75bcf886ab1da953",
+    "proposal": ".planning/execution/253-registration-postfix/proposal.json",
+    "proposal_sha256": "f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06",
+    "readme": ".planning/execution/253-registration-postfix/README.md",
+    "checks": ".planning/execution/253-registration-postfix/CHECKS.json",
+    "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+    "limits": {
+      "browser_invocations": 9,
+      "seconds_including_cleanup": 1200,
+      "retries": 0,
+      "stop_at_first_failure": true,
+      "github_requests": 0,
+      "ci_launches": 0,
+      "old_slots_reopened": 0
+    },
+    "approval_received": false,
+    "approval_pending": true,
+    "browser_invocations": 0,
+    "ci_launches": 0,
+    "old_slots_reopened": 0,
+    "execution_command": "python3 .planning/execution/253-registration-postfix/validate.py --run",
+    "next_command": "$gsd-debug continue phase253-registration-timeout",
+    "phase_verified": false
   }
 }

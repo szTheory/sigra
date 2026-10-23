@@ -35,7 +35,7 @@ bug_class: concurrency — loader/reloader race demonstrated under a controlled 
 hypothesis: CI's development reloader is an unnecessary module-deletion actor and can cause the original module error when it overlaps OTP's loader checks.
 test: the controlled schedule reproduces the exact error with the development configuration and passes with the actual CI configuration after the patch. Three configuration tests pass;CI compilation and compiled endpoint inspection pass.
 expecting: fresh source-pinned post-fix browser/CI results are still needed before completing CIREL-01 or Phase253. No old allowance permits those runs.
-next_action: prepare and verify a new source-pinned post-fix validation bundle offline using product commit a87664733. Do not run browsers or CI,reset old slots,or ask for runtime approval before the concrete bundle is reviewable.
+next_action: exact source-pinned post-fix bundle is prepared and verified. Await explicit approval of proposal f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06 for nine fresh local Linux invocations/1200seconds including cleanup,then execute validate.py --run once. Do not run CI,reuse old slots,or prepare another equivalent bundle.
 
 ## Evidence
 
@@ -70,3 +70,7 @@ fix: a87664733 — CI example servers disable hot code reloading;local developme
 verification: controlled component failure/control;three passing configuration tests;successful example compilation and compiled endpoint inspection. Fresh post-fix browser/CI results remain absent and unauthorized.
 files_changed: test/example/config/dev.exs;test/sigra/planning/phase_253_ci_static_runtime_test.exs;scoped debug and handoff records.
 phase_status: CIREL-01 and Phase253 remain incomplete;CIREL-02 unchanged.
+
+## Prepared post-fix runtime check
+
+Candidate image and source manifest are pinned in `.planning/execution/253-registration-postfix/preparation.json`. Fifteen runner tests pass;three configuration tests pass with each fixed seed101/202/303 in separate Linux processes. Native list-only collection selects the original failing board once per project. The real unapproved command refuses before reservation/allocation. No app,database,browser or CI started;new runtime scope remains unapproved. Checks:.planning/execution/253-registration-postfix/CHECKS.json;bundle commit:b63fb33e665d1a48c7dbcb124a21a09043cb4722. After approval,continue the same debug session to execute the prepared nine-run bundle. Normal integration/phase verification remain afterward.

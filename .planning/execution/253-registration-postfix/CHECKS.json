@@ -24,7 +24,8 @@
     "actual_unapproved_run_exit": 1,
     "unapproved_run_allocated_nothing": true,
     "owned_containers_remaining": 0,
-    "git_diff_check_exit": 0
+    "git_diff_check_exit": 0,
+    "current_shared_routes_agree": true
   },
   "runtime": {
     "approval_received": false,
@@ -50,7 +51,8 @@
     "in_container.py": "dd4c09aa895880b6e75d70f73c9f1d9db394901dba1c65d83091c06efe545f37",
     "README.md": "219fc271a5e5984beec23256a7467ab64b20706499713272d2c49c6c1ea7c252",
     "validate.py": "a3084530022ffc6a88991179f31409b5554ccebc13eda16ddc20da2996ba7ab0",
-    "tests.log": "ba94d178800206803172b26f14a07f06dc731980572da814ba8c530a099f3094",
+    ".gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+    "tests.log": "cd718e54215dc9ad2963fc6b559a6eb5465f636d4af07d7f27ce78b7fb57e926",
     "inspect.json": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
     "test_validate.py": "c651053ac7da91a403b99cec41729d43f838d05f3b9f13787027443af44edc98",
     "unapproved-run-refusal.log": "d2e510675ea045fc5fad529de7951977287d3a9080d5bb501fe5a35caf873a4b",
@@ -60,5 +62,6 @@
     "build.log": "666b125948274092432b5d5492974a5dab17493be69ec0d9723ff4c403b371e4",
     "stopped-build-1/prepare.py": "f991c0d6bc0e49230fc8e78fc099c64b3e5246a2c53b8c2159f14c385c028d11",
     "stopped-build-1/build.log": "07f10d0850b458de5586a27f5554fa92deb246e4ebcb747c62c21121ec849352"
-  }
+  },
+  "prior_checks_commit": "b63fb33e6"
 }
