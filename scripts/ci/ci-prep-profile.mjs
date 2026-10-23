@@ -10,17 +10,25 @@ import { fileURLToPath } from 'node:url';
 
 const SELF = fileURLToPath(import.meta.url);
 const MAX_MS = 20 * 60 * 1000;
-const SCOPES = { admin_behavior: { port: 4141, database: 'sigra_254_admin_behavior', browserPath: 'admin_behavior' }, non_admin_smoke: { port: 4142, database: 'sigra_254_non_admin_smoke', browserPath: 'non_admin_smoke' } };
+const SCOPES = {
+  admin_behavior: { port: 4141, database: 'sigra_254_admin_behavior', browserPath: 'admin_behavior' },
+  admin_checkpoints: { port: 4143, database: 'sigra_254_admin_checkpoints', browserPath: 'admin_checkpoints' },
+  design_gallery: { port: 4144, database: 'sigra_254_design_gallery', browserPath: 'design_gallery' },
+  non_admin_smoke: { port: 4142, database: 'sigra_254_non_admin_smoke', browserPath: 'non_admin_smoke' },
+  demo_showcase: { port: 4145, database: 'sigra_254_demo_showcase', browserPath: 'demo_showcase' },
+};
 const hash = (data) => createHash('sha256').update(data).digest('hex');
 
 export function parseArgs(argv) {
   const options = { mode: 'current', checkOnly: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--check-only') options.checkOnly = true;
-    else if (['--root', '--output', '--scope', '--mode'].includes(argv[i]) && argv[i + 1]) options[argv[i].slice(2)] = argv[++i];
+    else if (['--root', '--output', '--scope', '--mode', '--workload-map'].includes(argv[i]) && argv[i + 1]) options[argv[i].slice(2).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = argv[++i];
     else throw new Error(`unknown_or_incomplete_argument:${argv[i]}`);
   }
-  if (!options.root || !options.output || !SCOPES[options.scope] || !['current', 'compare-preparation'].includes(options.mode)) throw new Error('usage: ci-prep-profile.mjs --root <repo> --output <json> --scope admin_behavior|non_admin_smoke --mode current|compare-preparation [--check-only]');
+  const validMode = ['current', 'compare-preparation', 'workload'].includes(options.mode);
+  const validScope = options.mode === 'workload' ? (!options.scope || Boolean(SCOPES[options.scope])) : Boolean(SCOPES[options.scope]);
+  if (!options.root || !options.output || !validScope || !validMode || (options.mode === 'workload' && !options.workloadMap)) throw new Error('usage: ci-prep-profile.mjs --root <repo> --output <json> --scope <owner> --mode current|compare-preparation|workload [--workload-map <json>] [--check-only]');
   return options;
 }
 
@@ -93,6 +101,43 @@ export function parseBrowserMatrix(source, scope) {
   if (!browserLine) throw new Error(`scope_not_found:${scope}`);
   return browserLine;
 }
+
+export function parseWorkflowBrowserOwners(source) {
+  const owners = {};
+  for (const name of Object.keys(SCOPES)) {
+    owners[name] = { browser_selection: parseBrowserMatrix(source, name), workflow_steps: [] };
+  }
+  const lines = source.split('\n');
+  for (let index = 0; index < lines.length; index++) {
+    if (!/^      - name: /.test(lines[index])) continue;
+    let end = index + 1;
+    while (end < lines.length && !/^      - (?:name|uses): /.test(lines[end])) end++;
+    const body = lines.slice(index + 1, end).join('\n');
+    const owner = body.match(/^        id: (admin_behavior|admin_checkpoints|design_gallery|non_admin_smoke|demo_showcase)$/m)?.[1] ??
+      body.match(/matrix\.seam == ['"](admin_behavior|admin_checkpoints|design_gallery|non_admin_smoke|demo_showcase)['"]/m)?.[1];
+    if (!owner) continue;
+    const bodyLines = body.split('\n');
+    const runIndex = bodyLines.findIndex((line) => /^        run:/.test(line));
+    const runHeader = bodyLines[runIndex] ?? '';
+    let command = null;
+    if (runHeader === '        run: |') {
+      const commandLines = [];
+      for (let lineIndex = runIndex + 1; lineIndex < bodyLines.length; lineIndex++) {
+        const line = bodyLines[lineIndex];
+        if (line && !/^          /.test(line)) break;
+        commandLines.push(line.replace(/^          /, ''));
+      }
+      command = commandLines.join('\n').trim();
+    } else if (runHeader) command = runHeader.replace(/^        run: /, '').trim();
+    if (!command) throw new Error(`workflow_owner_run_missing:${owner}`);
+    owners[owner].workflow_steps.push({ name: lines[index].match(/^      - name: (.+)$/)?.[1] ?? null, command });
+    index = end - 1;
+  }
+  for (const [name, owner] of Object.entries(owners)) if (owner.workflow_steps.length === 0) throw new Error(`workflow_owner_steps_missing:${name}`);
+  return owners;
+}
+
+export function browserOwnerBaseURL(port) { return `http://localhost:${port}`; }
 
 export function runMeasuredCommand({ label, command, cwd, env, timeoutMs, logPath, clock = () => Number(process.hrtime.bigint()) / 1e6 }) {
   const start = clock();
@@ -283,6 +328,33 @@ async function profileScope(options) {
     }
     components.push({ name: 'route-warming', status: warmup.some((item) => item.status === 'failed') ? 'blocked' : 'measured', exit_code: warmup.some((item) => item.status === 'failed') ? 1 : 0, routes: warmup });
     if (warmup.some((item) => item.status === 'failed')) throw new Error('route_warming_failed');
+    if (options.mode === 'workload') {
+      const owner = options.workflowOwners?.[scope.browserPath];
+      if (!owner?.workflow_steps?.length) throw new Error(`workflow_owner_invocation_missing:${scope.browserPath}`);
+      const invocation = owner.workflow_steps[0];
+      const reportRoot = path.resolve(options.reportRoot, scope.browserPath);
+      context.owner_invocation = invocation.name;
+      try {
+        run('native-owner-invocation', invocation.command, playwright, { ...env, SIGRA_EXAMPLE_URL: browserOwnerBaseURL(scope.port) });
+      } finally {
+        fs.mkdirSync(reportRoot, { recursive: true });
+        const reportDir = path.join(playwright, 'playwright-report');
+        if (fs.existsSync(reportDir)) fs.cpSync(reportDir, reportRoot, { recursive: true, errorOnExist: true });
+        const commandLog = components.find((item) => item.name === 'native-owner-invocation')?.log_path;
+        if (commandLog && fs.existsSync(commandLog)) fs.copyFileSync(commandLog, path.join(reportRoot, 'native-owner-invocation.log'));
+        if (fs.existsSync(env.SERVER_LOG)) fs.copyFileSync(env.SERVER_LOG, path.join(reportRoot, 'server.log'));
+        const testResults = path.join(playwright, 'test-results');
+        if (fs.existsSync(testResults)) fs.cpSync(testResults, path.join(reportRoot, 'test-results'), {
+          recursive: true,
+          errorOnExist: true,
+          filter: (source) => !source.endsWith('.png') && (!fs.statSync(source).isDirectory() || source === testResults),
+        });
+        context.native_reports = fs.readdirSync(reportRoot).filter((name) => name.endsWith('.json')).map((name) => ({
+          path: path.relative(path.dirname(options.reportRoot), path.join(reportRoot, name)),
+          sha256: digest(path.join(reportRoot, name)),
+        }));
+      }
+    }
     context.status = 'profiled';
   } catch (error) {
     context.status = 'blocked'; context.failure = { message: error.message };
@@ -309,7 +381,7 @@ async function profileScope(options) {
     fs.rmSync(temp, { recursive: true, force: true });
   }
   console.log(JSON.stringify({ status: context.status, scope: options.scope, output, duration_ms: context.duration_ms, failure: context.failure ?? null }));
-  if (context.status !== 'profiled') process.exitCode = 2;
+  if (context.status !== 'profiled' && options.mode !== 'workload') process.exitCode = 2;
 }
 
 function gitOutput(root, ...args) {
@@ -464,6 +536,46 @@ async function comparePreparation(options) {
   if (result.status !== 'profiled' || result.database_cleanup.some((item) => item.status !== 'passed')) process.exitCode = 2;
 }
 
+async function runWorkload(options) {
+  const root = path.resolve(options.root);
+  const output = path.resolve(options.output);
+  const mapPath = path.resolve(root, options.workloadMap);
+  const map = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
+  const owners = Object.keys(SCOPES);
+  const rows = map.rows ?? map.owners?.flatMap((owner) => owner.rows ?? []) ?? [];
+  if (rows.length !== 108 || owners.some((owner) => !rows.some((row) => row.owner === owner))) throw new Error('workload_map_requires_108_mapped_rows_for_all_five_owners');
+  if (fs.existsSync(output)) throw new Error(`refusing_to_overwrite_profile:${output}`);
+  const workflow = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
+  const workflowOwners = parseWorkflowBrowserOwners(workflow);
+  const reportRoot = path.join(path.dirname(output), `${path.basename(output, path.extname(output))}-NATIVE`);
+  if (fs.existsSync(reportRoot)) throw new Error(`refusing_to_overwrite_native_reports:${reportRoot}`);
+  const result = {
+    schema_version: 'sigra.phase254.owner-integration/v1', status: 'running',
+    source_sha: gitOutput(root, 'rev-parse', 'HEAD'), workflow_sha256: hash(workflow), workload_map_sha256: hash(fs.readFileSync(mapPath)),
+    comparison_event: map.comparison_event ?? map.comparisonEvent ?? 'pull_request',
+    toolchain: { node: commandVersion('node', ['--version'], root, process.env), elixir: commandVersion('elixir', ['--version'], root, process.env), playwright: JSON.parse(fs.readFileSync(path.join(root, 'test/example/priv/playwright/package-lock.json'), 'utf8')).packages['node_modules/@playwright/test']?.version ?? null },
+    owner_runs: [], parity: { status: 'not_compared', reason: 'Native descriptors and explicit before/after mappings are assembled only after all five actual owner reports exist.' },
+    hosted_ready: false,
+  };
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-254-workload-'));
+  try {
+    for (const name of owners) {
+      const ownerOutput = path.join(scratch, `${name}.json`);
+      await profileScope({ ...options, root, output: ownerOutput, scope: name, workflowOwners, reportRoot, mode: 'workload' });
+      const record = JSON.parse(fs.readFileSync(ownerOutput, 'utf8'));
+      result.owner_runs.push({ owner: name, ...record });
+    }
+    result.status = result.owner_runs.length === owners.length && result.owner_runs.every((record) => record.status === 'profiled') ? 'profiled' : 'blocked';
+  } finally {
+    result.completed_at = new Date().toISOString();
+    fs.mkdirSync(path.dirname(output), { recursive: true });
+    fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`, { flag: 'wx' });
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
+  console.log(JSON.stringify({ status: result.status, output, owner_count: result.owner_runs.length, parity: result.parity.status }));
+  if (result.status !== 'profiled') process.exitCode = 2;
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.checkOnly) {
@@ -478,6 +590,12 @@ async function main() {
     return;
   }
   if (options.mode === 'compare-preparation') await comparePreparation(options);
+  else if (options.mode === 'workload' && options.scope) {
+    const root = path.resolve(options.root);
+    const workflow = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
+    await profileScope({ ...options, root, workflowOwners: parseWorkflowBrowserOwners(workflow), reportRoot: path.join(path.dirname(path.resolve(options.output)), 'native-retry') });
+  }
+  else if (options.mode === 'workload') await runWorkload(options);
   else await profileScope(options);
 }
 

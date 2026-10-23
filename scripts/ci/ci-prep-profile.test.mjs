@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, runMeasuredCommand, sanitizeLog, versionFromOutput } from './ci-prep-profile.mjs';
+import { browserOwnerBaseURL, buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, parseWorkflowBrowserOwners, runMeasuredCommand, sanitizeLog, versionFromOutput } from './ci-prep-profile.mjs';
 
 test('profile CLI accepts source-bound preparation comparison mode', () => {
   assert.deepEqual(parseArgs(['--root', '.', '--scope', 'admin_behavior', '--mode', 'compare-preparation', '--output', 'setup.json']), {
@@ -30,6 +30,18 @@ test('browser selection comes from each workflow matrix scope', () => {
   assert.equal(parseBrowserMatrix(workflow, 'admin_behavior'), 'chromium');
   assert.equal(parseBrowserMatrix(workflow, 'non_admin_smoke'), 'chromium webkit');
   assert.throws(() => parseBrowserMatrix(workflow, 'missing'), /scope_not_found/);
+});
+
+test('owner invocations and browser selections are extracted from workflow source', () => {
+  const workflow = `      matrix:\n        include:\n          - seam: admin_behavior\n            browsers: chromium\n          - seam: admin_checkpoints\n            browsers: chromium webkit\n          - seam: design_gallery\n            browsers: chromium webkit\n          - seam: non_admin_smoke\n            browsers: chromium webkit\n          - seam: demo_showcase\n            browsers: chromium\n      - name: Run selected browser cases\n        id: admin_behavior\n        run: |\n          mkdir -p playwright-report\n          npx playwright test tests/admin.spec.ts --project=chromium --list --reporter=json\n      - name: Run checkpoints\n        id: admin_checkpoints\n        run: npx playwright test --project=admin-checkpoints-chromium\n      - name: Run gallery\n        id: design_gallery\n        run: npx playwright test --project=admin-design-chromium\n      - name: Run smoke\n        id: non_admin_smoke\n        run: npx playwright test --project=chromium\n      - name: Run demo\n        id: demo_showcase\n        run: npx playwright test --project=demo-showcase-chromium\n      - name: Next unrelated step\n        run: echo done\n`;
+  const owners = parseWorkflowBrowserOwners(workflow);
+  assert.equal(owners.admin_behavior.browser_selection, 'chromium');
+  assert.match(owners.admin_behavior.workflow_steps[0].command, /--list --reporter=json/);
+  assert.equal(owners.admin_checkpoints.browser_selection, 'chromium webkit');
+  assert.match(owners.demo_showcase.workflow_steps[0].command, /demo-showcase-chromium/);
+  assert.equal(browserOwnerBaseURL(4142), 'http://localhost:4142');
+  const historicalWorkflow = workflow.replace('        id: admin_behavior\n', '').replace('        run: |\n          mkdir', "        if: ${{ matrix.seam == 'admin_behavior' }}\n        run: |\n          mkdir");
+  assert.match(parseWorkflowBrowserOwners(historicalWorkflow).admin_behavior.workflow_steps[0].name, /Run selected browser cases/);
 });
 
 test('measured subprocess retains failure, exit and monotonic elapsed time', () => {
