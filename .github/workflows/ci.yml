@@ -165,8 +165,17 @@ jobs:
             echo "docs_only=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git fetch origin "${BASE_REF}" --depth=1
-          git diff --name-only "origin/${BASE_REF}...HEAD" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
+          if ! git fetch origin "${BASE_REF}"; then
+            echo "::warning::Base ref unavailable; running the full CI workload."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! changed_paths="$(git diff --name-only "origin/${BASE_REF}...HEAD")"; then
+            echo "::warning::Change comparison unavailable; running the full CI workload."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s\n' "$changed_paths" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
 
   # Phase 194 (CACHE-02): 6 trivial leaf guard jobs folded into one fast_checks
   # job (single checkout + single base-ref resolve) to cut 6 runner cold-starts.

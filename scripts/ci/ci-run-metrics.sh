@@ -99,6 +99,8 @@ BOUNDED_REQUEST=""
 REQUEST_METHOD="GET"
 REQUEST_BODY=""
 COLLECT_PREPARATION=false
+FAILED_JOB_ID=""
+FAILED_JOB_RECEIPT=""
 API_BUDGET_OWNER=""
 API_STARTED=0
 API_REQUESTS=0
@@ -148,6 +150,8 @@ while [[ $# -gt 0 ]]; do
     --request-budget-ledger) REQUEST_BUDGET_LEDGER="$2"; shift 2;;
     --bounded-request) BOUNDED_REQUEST="$2"; shift 2;;
     --collect-preparation) COLLECT_PREPARATION=true; shift;;
+    --collect-failed-job-log) FAILED_JOB_ID="$2"; shift 2;;
+    --failed-job-receipt) FAILED_JOB_RECEIPT="$2"; shift 2;;
     --request-method) REQUEST_METHOD="$2"; shift 2;;
     --request-body) REQUEST_BODY="$2"; shift 2;;
     --replay) REPLAY=true; shift;;
@@ -291,12 +295,12 @@ PY
 }
 
 redact_log_file() {
-  local source="$1" destination="$2"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$source" "$destination" <<'PY'
+  local source="$1" destination="$2" extent="${3:-excerpt}"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$source" "$destination" "$extent" <<'PY'
 import pathlib, sys
 from ci_metrics_security import sanitize_failure_log
-source, destination = map(pathlib.Path, sys.argv[1:])
-report = sanitize_failure_log(source.read_bytes())
+source, destination = map(pathlib.Path, sys.argv[1:3])
+report = sanitize_failure_log(source.read_bytes(), max_output_bytes=1024*1024) if sys.argv[3]=='full' else sanitize_failure_log(source.read_bytes())
 destination.parent.mkdir(parents=True, exist_ok=True)
 temp = destination.with_suffix(destination.suffix + ".tmp")
 temp.write_text(report["text"], encoding="utf-8")
@@ -836,12 +840,20 @@ PY
           cp "$changed_file" "$family_dir/changed-paths-page-${page}.json"
           changed_path_pages="$(jq -cn --argjson prior "$changed_path_pages" --argjson page "$page" --arg path "raw/families/$sample_id/changed-paths-page-${page}.json" --arg sha256 "$(sha256_file "$family_dir/changed-paths-page-${page}.json")" '$prior + [{page:$page,path:$path,sha256:$sha256}]')"
           (( $(jq 'length' "$changed_file") == 100 )) || { paths_status=complete; break; }
+          # One authenticated non-document path proves this is not a docs-only
+          # PR, even when GitHub caps a large PR's file listing at 3,000 files.
+          # Keep the listing explicitly partial; full execution is checked from
+          # the actual selected-attempt jobs, required checks and native reports.
+          if [[ -n "$COMPARISON_RUNS_FILE" ]] && [[ "$(jq -r '.[].filename' "$paths_file" | bash "$ROOT/scripts/ci/docs-only-classify.sh" | sed -n 's/^docs_only=//p')" == false ]]; then
+            paths_status=non_docs_witness
+            break
+          fi
           (( API_REQUESTS + 1 + reserve <= 600 )) || { paths_status=detail_unavailable_budget; break; }
           page=$((page+1))
         done
       elif [[ "$event" == pull_request ]]; then paths_status=changed_paths_unavailable_budget; fi
       docs_flag="$(jq -r 'if .changes.docs_only==true then "true" elif .changes.docs_only==false then "false" else "unknown" end' <<<"$run")"
-      if [[ "$paths_status" == complete ]]; then
+      if [[ "$paths_status" == complete || "$paths_status" == non_docs_witness ]]; then
         docs_rule="$(jq -r '.[].filename' "$paths_file" | bash "$ROOT/scripts/ci/docs-only-classify.sh" 2>/dev/null | sed -n 's/^docs_only=//p')"
       else docs_rule=unknown; fi
       skip_seen=false
@@ -850,7 +862,7 @@ PY
       fi
       workload=unknown
       if [[ "$paths_status" == complete && "$docs_rule" == true && "$skip_seen" == true ]]; then workload=docs_only
-      elif [[ "$paths_status" == complete && "$docs_rule" == false && "$jobs_status" == complete && "$skip_seen" == false ]]; then workload=full
+      elif [[ ( "$paths_status" == complete || "$paths_status" == non_docs_witness ) && "$docs_rule" == false && "$jobs_status" == complete && "$skip_seen" == false ]]; then workload=full
       fi
       local diagnostic="[]" artifact_meta="$tmp/family-${id}-artifacts.json" artifact_record='{}' log_record='{}' job_id artifact_row artifact_id expected_digest artifact_zip="$family_dir/timing-artifact.zip" artifact_out="$family_dir/timing" artifact_status
       if jq -e --argjson id "$id" '[.[] | select(.run.id==$id)]|length>0' "$failed_file" >/dev/null; then
@@ -2095,6 +2107,32 @@ fi
 
 if [[ "$MODE" != "wall" && "$MODE" != "jobspan" ]]; then
   fail "unknown --mode: ${MODE} (expected wall|jobspan)"
+fi
+
+if [[ -n "$FAILED_JOB_ID" ]]; then
+  [[ -s "$CONTRACT_FILE" && -s "$FAILED_JOB_RECEIPT" && -n "$REQUEST_BUDGET_LEDGER" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "failed_job_log_inputs_missing"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$FAILED_JOB_RECEIPT" "$FAILED_JOB_ID" <<'PY' || fail "failed_job_log_identity_invalid"
+import json,pathlib,sys
+from ci_metrics_security import initialize_comparison_request_budget
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); initialize_comparison_request_budget(c,pathlib.Path(sys.argv[2]))
+jobs=json.loads(pathlib.Path(sys.argv[3]).read_text()).get('jobs',[])
+matches=[job for job in jobs if str(job.get('id'))==sys.argv[4]]
+if len(matches)!=1 or matches[0].get('conclusion') not in ('failure','timed_out'): raise SystemExit(1)
+job=matches[0]; baseline=c['baseline_identity']
+if not ((job.get('run_id')==baseline['run_id'] and job.get('run_attempt')==baseline['preparation_attempt'] and job.get('head_sha')==c['baseline_application_sha'])
+        or job.get('head_sha')==c['candidate_identity']['application_sha']): raise SystemExit(1)
+PY
+  mkdir -p "$(dirname "$DIAGNOSIS_OUTPUT")"
+  API_LEDGER="${DIAGNOSIS_OUTPUT}.requests.json"; API_STARTED="$(date +%s)"; API_BUDGET_OWNER="preparation-failed-log"
+  API_TEMP_DIR="$(mktemp -d)"
+  trap api_cleanup EXIT INT TERM HUP
+  api_get rate_limit "$API_TEMP_DIR/rate.json" || fail "failed_job_log_rate_preflight_blocked"
+  api_download_no_follow "https://api.github.com/repos/${REPO}/actions/jobs/${FAILED_JOB_ID}/logs" "$API_TEMP_DIR/log" "job-log:${FAILED_JOB_ID}" || fail "failed_job_log_unavailable"
+  redact_log_file "$API_TEMP_DIR/log" "$DIAGNOSIS_OUTPUT" full
+  api_write_ledger complete; API_COMPLETED=true
+  rm -rf "$API_TEMP_DIR"
+  trap - EXIT INT TERM HUP
+  exit 0
 fi
 
 if [[ "$COLLECT_PREPARATION" == true ]]; then

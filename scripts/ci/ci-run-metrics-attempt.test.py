@@ -301,9 +301,13 @@ if pathlib.Path(sys.argv[0]).name=='gh':
  if endpoint not in table: print('unstubbed endpoint '+endpoint,file=sys.stderr);sys.exit(1)
  sys.stdout.buffer.write((root/table[endpoint]).read_bytes())
 else:
- url=args[-1]; aid=url.split('/artifacts/')[1].split('/')[0]
+ url=args[-1]
  pathlib.Path(args[args.index('--dump-header')+1]).write_text('HTTP/1.1 200 OK\\r\\n\\r\\n')
- pathlib.Path(args[args.index('--output')+1]).write_bytes((root/(aid+'.zip')).read_bytes())
+ if '/actions/jobs/' in url:
+  pathlib.Path(args[args.index('--output')+1]).write_bytes(b'checkout details\\n'+b'x'*20000+b'\\nPostgreSQL image pull: authentication required\\n')
+ else:
+  aid=url.split('/artifacts/')[1].split('/')[0]
+  pathlib.Path(args[args.index('--output')+1]).write_bytes((root/(aid+'.zip')).read_bytes())
  print('200',end='')
 '''
                 for command in ("gh", "curl"):
@@ -393,7 +397,8 @@ else:
                     route("/repos/szTheory/sigra/rulesets?per_page=100", "rulesets.json", [])
                     route(f"/repos/szTheory/sigra/actions/runs/{rid}/attempts/{attempt}", "run.json", run)
                     route(f"/repos/szTheory/sigra/actions/runs/{rid}/attempts/{attempt}/jobs?per_page=100", "jobs.json", jobs)
-                    route("/repos/szTheory/sigra/pulls/331/files?per_page=100&page=1", "changes.json", [{"filename": "lib/sigra.ex", "status": "modified"}])
+                    route("/repos/szTheory/sigra/pulls/331/files?per_page=100&page=1", "changes.json", [{"filename": "lib/sigra.ex", "status": "modified"}]
+                          + [{'filename':f'guides/example-{index}.md','status':'modified'} for index in range(99)])
                     route(f"/repos/szTheory/sigra/commits/{head}/check-runs?per_page=100", "checks.json", checks)
                     route(f"/repos/szTheory/sigra/actions/runs/{rid}/artifacts?per_page=100", "artifacts.json", {"total_count": len(retained_artifacts), "artifacts": retained_artifacts})
                     route(f"/repos/szTheory/sigra/commits/{producer}", "commit.json", source_documents["commit"])
@@ -416,6 +421,9 @@ else:
                     raw_run = bundle / f"raw/families/{rid}-attempt-{attempt}/run.json"
                     self.assertEqual(json.loads(raw_run.read_text())["run_attempt"], attempt)
                     self.assertEqual(list((bundle / "raw/families").iterdir()), [raw_run.parent])
+                    detail = json.loads((raw_run.parent / 'manifest.json').read_text())
+                    self.assertEqual(detail['changed_paths_status'], 'non_docs_witness')
+                    self.assertEqual(detail['workload'], 'full')
                     self.assertTrue(all(len(list((raw_run.parent / "artifacts/derived-native" / owner).glob("coverage-source.json"))) == 1 for owner in OWNERS))
                     if role == 'before':
                         preparation = subprocess.run(['bash', str(ROOT / 'scripts/ci/ci-run-metrics.sh'),
@@ -426,6 +434,15 @@ else:
                         self.assertEqual(preparation.returncode, 0, preparation.stderr[-3000:])
                         prepared = json.loads((root / 'preparation-before/preparation-origin-verification.json').read_text())
                         self.assertEqual(prepared['status'], 'origin_verified')
+                        failed_job = {**jobs['jobs'][0], 'conclusion':'failure'}
+                        write(root / 'failed-job-receipt.json', {'jobs':[failed_job]})
+                        failed_log = subprocess.run(['bash', str(ROOT / 'scripts/ci/ci-run-metrics.sh'),
+                            '--collect-failed-job-log', str(failed_job['id']), '--failed-job-receipt', str(root / 'failed-job-receipt.json'),
+                            '--contract', str(root / 'acquisition-contract.json'), '--request-budget-ledger', str(root / 'budget.json'),
+                            '--output', str(root / 'container-failure.log')], cwd=ROOT, env=environment,
+                            capture_output=True, text=True, timeout=30)
+                        self.assertEqual(failed_log.returncode, 0, failed_log.stderr)
+                        self.assertIn('authentication required', (root / 'container-failure.log').read_text())
                     pair_runs.append(raw_run.parent)
                 # Verify actual derived native bytes through the existing comparator for every owner.
                 for owner in OWNERS:

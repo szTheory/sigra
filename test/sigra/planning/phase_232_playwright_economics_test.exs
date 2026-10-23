@@ -90,7 +90,16 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
              "example-dev-port${{ inputs.app-port }}-otp",
            "cached compile output must be partitioned by the endpoint's compile-time port"
 
-    for marker <- ["mix ecto.create", "mix run priv/repo/seeds.exs", "mix phx.server", "curl -sf"] do
+    preparation =
+      Regex.scan(~r/^\s+run: (mix do .+)$/m, action, capture: :all_but_first)
+      |> List.flatten()
+
+    assert preparation == [
+             "mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs"
+           ],
+           "shared action must own one ordered dependency, compile, database and seed invocation"
+
+    for marker <- ["mix phx.server", "curl -sf"] do
       assert length(Regex.scan(Regex.compile!(Regex.escape(marker)), action)) == 1,
              "shared action must own #{marker} exactly once"
     end
@@ -100,6 +109,7 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
       assert body =~ "uses: ./.github/actions/example-playwright-boot"
       refute body =~ "mix ecto.create"
       refute body =~ "mix run priv/repo/seeds.exs"
+      refute body =~ "mix do deps.get"
       refute body =~ "mix phx.server"
       refute body =~ "for i in $(seq 1 30)"
     end
