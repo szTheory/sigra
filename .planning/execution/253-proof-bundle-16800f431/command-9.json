@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "bash",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431/runtime/ci-gate-canary.sh",
+    "--scenario",
+    "full-pass",
+    "--revision-freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431/canary-freeze.json",
+    "--action-approval",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431/canary-approval.json",
+    "--http-allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431/canary-allocation.json",
+    "--requests",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431/canary-ledger.json",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431/canary-evidence.json",
+    "--publication-receipt",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431/publication-receipt.json"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "hosted-gate-verify: FAIL: retained response receipts are incomplete\nci-gate-canary: FAIL: independent measured transport and effective check-source verification failed\n"
+}

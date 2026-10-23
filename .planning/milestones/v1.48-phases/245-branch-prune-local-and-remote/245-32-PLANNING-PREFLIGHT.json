@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "plan": "245-32",
+  "captured_at": "2026-10-02T13:17:31Z",
+  "purpose": "Read-only D-06 feasibility check for reconciling the failed Plan 31 post-commit predicate.",
+  "verdict": "ready_to_plan",
+  "authoritative_sources": ["local_git_checkout"],
+  "current_head_at_capture": "81e430a139c76a46d341240036f9c333aaa092bf",
+  "source_commit_oid": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30",
+  "source_commit_parent": "8d9fac8b7270a06634233e5cf20349f9ed15af44",
+  "source_commit_exact_four_paths": true,
+  "source_commit_paths": [
+    ".planning/phases/245-branch-prune-local-and-remote/245-27-RESULT.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+    "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+    "scripts/maintainers/prune-stale-branches.sh"
+  ],
+  "evidence_commit_oid": "08ac3462549b98a4ca87ea4f9c1631ece2a74363",
+  "evidence_commit_parent": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30",
+  "evidence_commit_exact_nine_paths": true,
+  "evidence_commit_paths": [
+    ".planning/phases/245-branch-prune-local-and-remote/245-16-SUMMARY.md",
+    ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json.sha256",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-RECOVERY.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-28-SUMMARY.md",
+    ".planning/phases/245-branch-prune-local-and-remote/245-31-EXEC-PREFLIGHT.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-31-RECOVERY.json",
+    ".planning/phases/245-branch-prune-local-and-remote/245-31-SUMMARY.md"
+  ],
+  "original_commits_are_ancestors_of_head": true,
+  "source_plan27_summary_sha256": "808c4b7697bb6c3e0fdec74bc93fe14ccd7a03524e0454cf9392d7f2c58ebe65",
+  "source_script_blobs": {
+    "scripts/maintainers/prune-stale-branches.sh": "8468981653ce8290c9886d600c49d44823d293fb",
+    "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs": "b01b1f275e487a2f6f0574ad7da0d694851efcdd"
+  },
+  "plan28_receipt_sha256": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097",
+  "plan28_receipt_unchanged_in_head": true,
+  "committed_plan27_supersession_has_requirements_completed_field": false,
+  "committed_plan31_receipt_outcome": "committed",
+  "committed_plan31_receipt_claims": {
+    "plan27_superseded": true,
+    "plan28_blocked_receipt_immutable": true,
+    "plan16_28_superseded": true
+  },
+  "actual_failed_predicate": "Evidence commit 08ac3462549b98a4ca87ea4f9c1631ece2a74363 contains a superseded Plan 27 SUMMARY without the required requirements-completed: [] frontmatter field.",
+  "working_tree_plan31_diagnostic_outcome": "blocked",
+  "working_tree_plan31_failed_stage": "post_commit_validation",
+  "working_tree_plan31_admission_attempts": 1,
+  "working_tree_plan31_requirements_completed_field_check": false,
+  "working_tree_plan31_summary_status": "halted",
+  "working_tree_plan31_recovery_sha256": "025e5142f18233a339e48645bca1e9b40994f757dec073e55b4bf2b3ab2d7ddc",
+  "working_tree_plan31_summary_sha256": "f98118ee0241a166379f43bd5b2b7775c20f29031ea9bb02bb26c46be1df082f",
+  "coordinator_before": {
+    "verified": true,
+    "common_dir": "/Users/jon/projects/sigra/.git",
+    "hooks_path": "/Users/jon/projects/sigra/.git/sigra-branch-worktree-coordinator/hooks",
+    "gate": "absent",
+    "lock": "free",
+    "transaction_leases": 0,
+    "pinned_git_path": "/usr/bin/git",
+    "pinned_git_version": "git version 2.50.1 (Apple Git-155)",
+    "pinned_git_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "commit_branch": "phase-244-playwright-measurement",
+  "commit_branch_protected": false,
+  "unrelated_wip_fingerprint": "64a0084535f38a3e7d4bc3afd6739ef987e675f3e7615dceb446f5fa5d7eb55a",
+  "unrelated_wip": {
+    "status_sha256": "6e822ad70bcad9a5d20694981c335713b7cf9a64962be38ce8e12f0059e6e80d",
+    "tracked_diff_sha256": "de5f0f0e3aab8b1cc516bf2b2fec60ce7d6e77bf84863d1bf04f526ebdcf9cf0",
+    "index_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked_manifest_sha256": "293b8f0c7a217b9ff948d756fdc61d0bbd8ec4302a7f15a90a8b4b5dbbb136fb",
+    "untracked_count": 112,
+    "excluded_paths": [
+      ".planning/phases/245-branch-prune-local-and-remote/245-32-PLANNING-PREFLIGHT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-29-PLAN.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-32-RECOVERY.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-32-SUMMARY.md"
+    ]
+  },
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "failed_predicates": []
+}

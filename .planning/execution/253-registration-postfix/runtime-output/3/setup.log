@@ -1,0 +1,1099 @@
+The database for Example.Repo has been created
+
+00:52:17.700 [info] == Running 20260410125242 Example.Repo.Migrations.CreateSigraAuthTables.up/0 forward
+
+00:52:17.707 [info] execute "CREATE SCHEMA IF NOT EXISTS auth"
+
+00:52:17.710 [info] execute "CREATE EXTENSION IF NOT EXISTS citext"
+
+00:52:17.727 [info] create table auth.users
+
+00:52:17.737 [info] create index auth.users_email_active_index
+
+00:52:17.739 [info] create index auth.users_pending_email_index
+
+00:52:17.740 [info] create index auth.users_inserted_at_index
+
+[authentication values redacted]
+
+[authentication values redacted]
+
+[authentication values redacted]
+
+00:52:17.748 [info] create table auth.user_sessions
+
+[authentication values redacted]
+
+00:52:17.751 [info] create index auth.user_sessions_user_id_index
+
+00:52:17.752 [info] create index auth.user_sessions_user_id_type_index
+
+00:52:17.753 [info] create index auth.user_sessions_inserted_at_index
+
+00:52:17.753 [info] create index auth.user_sessions_last_active_at_index
+
+00:52:17.754 [info] create index auth.user_sessions_user_id_last_active_at_index
+
+00:52:17.755 [info] create table auth.user_mfa_credentials
+
+00:52:17.757 [info] create index auth.user_mfa_credentials_user_id_type_index
+
+00:52:17.758 [info] create table auth.user_backup_codes
+
+00:52:17.759 [info] create index auth.user_backup_codes_user_id_index
+
+00:52:17.759 [info] alter table auth.users
+
+00:52:17.762 [info] == Migrated 20260410125242 in 0.0s
+
+00:52:17.795 [info] == Running 20260410125243 Example.Repo.Migrations.AddActiveOrganizationIdToUserSessions.change/0 forward
+
+00:52:17.795 [info] alter table auth.user_sessions
+
+00:52:17.798 [info] == Migrated 20260410125243 in 0.0s
+
+00:52:17.804 [info] == Running 20260410125244 Example.Repo.Migrations.CreateAuditEvents.change/0 forward
+
+00:52:17.804 [info] create table auth.audit_events
+
+00:52:17.811 [info] create index auth.audit_events_actor_id_inserted_at_index
+
+00:52:17.812 [info] create index auth.audit_events_action_inserted_at_index
+
+00:52:17.813 [info] create index auth.audit_events_inserted_at_index
+
+00:52:17.814 [info] == Migrated 20260410125244 in 0.0s
+
+00:52:17.816 [info] == Running 20260410125245 Example.Repo.Migrations.CreateOrganizations.up/0 forward
+
+00:52:17.816 [info] create table auth.organizations
+
+00:52:17.820 [info] create index auth.organizations_slug_active_index
+
+00:52:17.823 [info] create table auth.organization_memberships
+
+00:52:17.827 [info] create index auth.organization_memberships_user_id_organization_id_index
+
+00:52:17.828 [info] create index auth.organization_memberships_organization_id_index
+
+00:52:17.829 [info] create table auth.organization_invitations
+
+00:52:17.831 [info] create index auth.organization_invitations_pending_index
+
+[authentication values redacted]
+
+00:52:17.833 [info] == Migrated 20260410125245 in 0.0s
+
+00:52:17.834 [info] == Running 20260410125246 Example.Repo.Migrations.AlterAuditEventsAddOrgColumns.up/0 forward
+
+00:52:17.834 [info] alter table auth.audit_events
+
+00:52:17.837 [info] create index auth.audit_events_organization_id_inserted_at_index
+
+00:52:17.840 [info] == Migrated 20260410125246 in 0.0s
+
+00:52:17.841 [info] == Running 20260413120000 Example.Repo.Migrations.CreateOrganizationSlugAliases.up/0 forward
+
+00:52:17.841 [info] create table auth.organization_slug_aliases
+
+00:52:17.843 [info] create index auth.organization_slug_aliases_organization_id_index
+
+00:52:17.844 [info] create index auth.organization_slug_aliases_old_slug_active_idx
+
+00:52:17.845 [info] == Migrated 20260413120000 in 0.0s
+
+00:52:17.846 [info] == Running 20260414000000 Example.Repo.Migrations.AddRevokedByIdToOrganizationInvitations.change/0 forward
+
+00:52:17.846 [info] alter table auth.organization_invitations
+
+00:52:17.855 [info] == Migrated 20260414000000 in 0.0s
+
+00:52:17.856 [info] == Running 20260415000001 Example.Repo.Migrations.AddOwnerUserIdAndPersonalToOrganizations.change/0 forward
+
+00:52:17.856 [info] alter table auth.organizations
+
+00:52:17.857 [info] create index auth.organizations_owner_user_id_index
+
+00:52:17.858 [info] create index auth.organizations_personal_owner_unique_index
+
+00:52:17.859 [info] == Migrated 20260415000001 in 0.0s
+
+00:52:17.860 [info] == Running 20260415000002 Example.Repo.Migrations.CreateUserPasskeys.change/0 forward
+
+00:52:17.861 [info] create table auth.user_passkeys
+
+00:52:17.864 [info] create index auth.user_passkeys_user_id_index
+
+00:52:17.865 [info] create index auth.user_passkeys_credential_id_index
+
+00:52:17.866 [info] == Migrated 20260415000002 in 0.0s
+
+00:52:17.867 [info] == Running 20260416193000 Example.Repo.Migrations.AddDisplayNameToUsers.change/0 forward
+
+00:52:17.867 [info] alter table auth.users
+
+00:52:17.867 [info] create index auth.users_display_name_index
+
+00:52:17.868 [info] == Migrated 20260416193000 in 0.0s
+
+00:52:17.869 [info] == Running 20260525010000 Example.Repo.Migrations.CreateEnterpriseConnections.change/0 forward
+
+00:52:17.870 [info] create table auth.enterprise_connections
+
+00:52:17.872 [info] create index auth.enterprise_connections_organization_id_index
+
+00:52:17.873 [info] create index auth.enterprise_connections_active_display_name_index
+
+00:52:17.875 [info] == Migrated 20260525010000 in 0.0s
+
+00:52:17.877 [info] == Running 20260526043000 Example.Repo.Migrations.CreateOrganizationAuthPolicies.change/0 forward
+
+00:52:17.877 [info] create table auth.organization_auth_policies
+
+00:52:17.879 [info] create index auth.organization_auth_policies_organization_id_index
+
+00:52:17.879 [info] create table auth.organization_auth_policy_exemptions
+
+00:52:17.881 [info] create index auth.organization_auth_policy_exemptions_organization_id_index
+
+00:52:17.881 [info] create index auth.organization_auth_policy_exemptions_organization_id_user_id_index
+
+00:52:17.883 [info] identifier "organization_auth_policy_exemptions_organization_id_user_id_index" will be truncated to "organization_auth_policy_exemptions_organization_id_user_id_ind"
+
+00:52:17.883 [info] == Migrated 20260526043000 in 0.0s
+
+00:52:17.884 [info] == Running 20260528152137 ThreadlineAuditSchema.up/0 forward
+
+00:52:17.884 [info] execute "CREATE TABLE IF NOT EXISTS audit_transactions (\n  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  txid        bigint      NOT NULL UNIQUE,\n  occurred_at timestamptz NOT NULL DEFAULT now(),\n  source      text,\n  meta        jsonb\n)\n"
+
+00:52:17.887 [info] execute "CREATE INDEX IF NOT EXISTS audit_transactions_txid_idx ON audit_transactions (txid)"
+
+00:52:17.888 [info] execute "CREATE TABLE IF NOT EXISTS audit_changes (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  transaction_id uuid        NOT NULL REFERENCES audit_transactions(id) ON DELETE CASCADE,\n  table_schema   text        NOT NULL,\n  table_name     text        NOT NULL,\n  table_pk       jsonb       NOT NULL,\n  op             text        NOT NULL CHECK (op IN ('insert', 'update', 'delete')),\n  data_after     jsonb,\n  changed_fields text[],\n  changed_from     jsonb,\n  captured_at    timestamptz NOT NULL DEFAULT now()\n)\n"
+
+00:52:17.892 [info] execute "CREATE INDEX IF NOT EXISTS audit_changes_transaction_id_idx ON audit_changes (transaction_id)"
+
+00:52:17.893 [info] execute "CREATE INDEX IF NOT EXISTS audit_changes_table_name_idx ON audit_changes (table_name)"
+
+00:52:17.894 [info] execute "CREATE INDEX IF NOT EXISTS audit_changes_captured_at_idx ON audit_changes (captured_at)"
+
+00:52:17.895 [info] execute "CREATE OR REPLACE FUNCTION threadline_capture_changes()\nRETURNS TRIGGER\nLANGUAGE plpgsql\nAS $threadline_trigger$\nDECLARE\n  v_txid           bigint;\n  v_tx_id          uuid;\n  v_data_after     jsonb;\n  v_table_pk       jsonb;\n  v_changed_fields text[];\nBEGIN\n  v_txid := txid_current();\n\n  -- Upsert the audit_transactions row keyed on the PostgreSQL transaction ID.\n  -- ON CONFLICT DO NOTHING is idempotent: multiple writes in the same transaction\n  -- reuse the existing row. This is PgBouncer-safe because txid_current() is\n  -- transaction-scoped, not session-scoped.\n  INSERT INTO audit_transactions (id, txid, occurred_at, actor_ref)\n  VALUES (\n    gen_random_uuid(),\n    v_txid,\n    clock_timestamp(),\n    NULLIF(current_setting('threadline.actor_ref', true), '')::jsonb\n  )\n  ON CONFLICT (txid) DO NOTHING;\n\n  SELECT id INTO v_tx_id\n  FROM audit_transactions\n  WHERE txid = v_txid;\n\n\n  IF TG_OP = 'DELETE' THEN\n    v_table_pk       := jsonb_build_object('id', (to_jsonb(OLD) ->> 'id'));\n    v_data_after     := NULL;\n    v_changed_fields := NULL;\n\n  ELSIF TG_OP = 'INSERT' THEN\n    v_table_pk       := jsonb_build_object('id', (to_jsonb(NEW) ->> 'id'));\n    v_data_after     := to_jsonb(NEW);\n    v_changed_fields := NULL;\n\n  ELSE\n    -- UPDATE: capture changed field names\n    v_table_pk   := jsonb_build_object('id', (to_jsonb(NEW) ->> 'id'));\n    v_data_after := to_jsonb(NEW);\n\n    SELECT array_agg(n.key ORDER BY n.key)\n    INTO   v_changed_fields\n    FROM   jsonb_each(to_jsonb(NEW)) AS n\n    JOIN   jsonb_each(to_jsonb(OLD)) AS o ON n.key = o.key\n    WHERE  n.value IS DISTINCT FROM o.value;\n  END IF;\n\n  INSERT INTO audit_changes (\n    id, transaction_id, table_schema, table_name,\n    table_pk, op, data_after, changed_fields, changed_from, captured_at\n  ) VALUES (\n    gen_random_uuid(), v_tx_id, TG_TABLE_SCHEMA, TG_TABLE_NAME,\n    v_table_pk, lower(TG_OP), v_data_after, v_changed_fields, NULL::jsonb, clock_timestamp()\n  );\n\n\n  IF TG_OP = 'DELETE' THEN\n    RETURN OLD;\n  END IF;\n  RETURN NEW;\nEND;\n$threadline_trigger$\n"
+
+00:52:17.899 [info] == Migrated 20260528152137 in 0.0s
+
+00:52:17.901 [info] == Running 20260528152138 ThreadlineSemanticsMigration.up/0 forward
+
+00:52:17.901 [info] execute "CREATE TABLE IF NOT EXISTS audit_actions (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  name           text        NOT NULL,\n  actor_ref      jsonb       NOT NULL,\n  status         text        NOT NULL CHECK (status IN ('ok', 'error')),\n  verb           text,\n  category       text,\n  reason         text,\n  comment        text,\n  correlation_id text,\n  request_id     text,\n  job_id         text,\n  inserted_at    timestamptz NOT NULL DEFAULT now()\n)\n"
+
+00:52:17.903 [info] execute "CREATE INDEX IF NOT EXISTS audit_actions_actor_ref_idx\n  ON audit_actions USING GIN (actor_ref)\n"
+
+00:52:17.904 [info] execute "CREATE INDEX IF NOT EXISTS audit_actions_inserted_at_idx\n  ON audit_actions (inserted_at)\n"
+
+00:52:17.905 [info] execute "CREATE INDEX IF NOT EXISTS audit_actions_name_idx\n  ON audit_actions (name)\n"
+
+00:52:17.906 [info] execute "ALTER TABLE audit_transactions\n  ADD COLUMN IF NOT EXISTS actor_ref jsonb,\n  ADD COLUMN IF NOT EXISTS action_id uuid REFERENCES audit_actions(id) ON DELETE SET NULL\n"
+
+00:52:17.907 [info] == Migrated 20260528152138 in 0.0s
+
+00:52:17.908 [info] == Running 20260528152139 ThreadlineGovernanceSchema.up/0 forward
+
+00:52:17.908 [info] execute "CREATE TABLE IF NOT EXISTS threadline_export_jobs (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  status         text        NOT NULL,\n  query_params   jsonb       NOT NULL,\n  actor_ref      jsonb,\n  file_path      text,\n  error_message  text,\n  started_at     timestamptz,\n  completed_at   timestamptz,\n  expires_at     timestamptz,\n  inserted_at    timestamptz NOT NULL DEFAULT now(),\n  updated_at     timestamptz NOT NULL DEFAULT now()\n)\n"
+
+00:52:17.910 [info] execute "CREATE TABLE IF NOT EXISTS threadline_retention_runs (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  status         text        NOT NULL,\n  deleted_count  integer,\n  duration_ms    integer,\n  error_message  text,\n  started_at     timestamptz,\n  completed_at   timestamptz,\n  inserted_at    timestamptz NOT NULL DEFAULT now(),\n  updated_at     timestamptz NOT NULL DEFAULT now()\n)\n"
+
+00:52:17.912 [info] execute "CREATE TABLE IF NOT EXISTS threadline_saved_views (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  name           text        NOT NULL,\n  actor_ref      jsonb       NOT NULL,\n  filters        jsonb       NOT NULL,\n  inserted_at    timestamptz NOT NULL DEFAULT now(),\n  updated_at     timestamptz NOT NULL DEFAULT now()\n)\n"
+
+00:52:17.914 [info] execute "CREATE TABLE IF NOT EXISTS threadline_evidence_records (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  subject        text        NOT NULL,\n  subject_ref    jsonb       NOT NULL,\n  summary_status text        NOT NULL,\n  recorded_at    timestamptz NOT NULL,\n  actor_ref      jsonb,\n  provenance     jsonb       NOT NULL DEFAULT '{}'::jsonb,\n  detail         jsonb       NOT NULL DEFAULT '{}'::jsonb,\n  schema_version integer     NOT NULL DEFAULT 1,\n  inserted_at    timestamptz NOT NULL DEFAULT now()\n)\n"
+
+00:52:17.915 [info] execute "CREATE INDEX IF NOT EXISTS threadline_evidence_records_subject_idx\n  ON threadline_evidence_records (subject)\n"
+
+00:52:17.916 [info] execute "CREATE INDEX IF NOT EXISTS threadline_evidence_records_recorded_at_idx\n  ON threadline_evidence_records (recorded_at)\n"
+
+00:52:17.917 [info] execute "CREATE INDEX IF NOT EXISTS threadline_evidence_records_subject_ref_idx\n  ON threadline_evidence_records\n  USING gin (subject_ref)\n"
+
+00:52:17.918 [info] == Migrated 20260528152139 in 0.0s
+
+00:52:17.920 [info] == Running 20260529000000 Example.Repo.Migrations.CreateUserIdentities.change/0 forward
+
+00:52:17.920 [info] create table if not exists auth.user_identities
+
+00:52:17.922 [info] create index if not exists auth.user_identities_user_id_provider_index
+
+00:52:17.923 [info] create index if not exists auth.user_identities_provider_provider_uid_index
+
+00:52:17.924 [info] create index if not exists auth.user_identities_user_id_index
+
+00:52:17.925 [info] == Migrated 20260529000000 in 0.0s
+
+00:52:17.927 [info] == Running 20260607000000 Example.Repo.Migrations.CreateSigraBrandProfiles.up/0 forward
+
+00:52:17.927 [info] execute "CREATE SCHEMA IF NOT EXISTS auth"
+
+00:52:17.927 [info] schema "auth" already exists, skipping
+
+00:52:17.927 [info] create table auth.sigra_brand_profiles
+
+00:52:17.931 [info] create index auth.sigra_brand_profiles_scope_index
+
+00:52:17.932 [info] == Migrated 20260607000000 in 0.0s
+
+00:52:17.933 [info] == Running 20260623000000 Example.Repo.Migrations.AddObanJobsTable.up/0 forward
+
+00:52:17.944 [info] execute "DO $$\nBEGIN\nIF NOT EXISTS (SELECT 1 FROM pg_type\n               WHERE typname = 'oban_job_state'\n                 AND typnamespace = 'public'::regnamespace::oid) THEN\n    CREATE TYPE \"public\".oban_job_state AS ENUM (\n      'available',\n      'suspended',\n      'scheduled',\n      'executing',\n      'retryable',\n      'completed',\n      'discarded',\n      'cancelled'\n    );\n  END IF;\nEND$$;\n"
+
+00:52:17.948 [info] create table if not exists public.oban_jobs
+
+00:52:17.951 [info] create index if not exists public.oban_jobs_queue_index
+
+00:52:17.952 [info] create index if not exists public.oban_jobs_state_index
+
+00:52:17.953 [info] create index if not exists public.oban_jobs_scheduled_at_index
+
+00:52:17.954 [info] execute "CREATE OR REPLACE FUNCTION \"public\".oban_jobs_notify() RETURNS trigger AS $$\nDECLARE\n  channel text;\n  notice json;\nBEGIN\n  IF (TG_OP = 'INSERT') THEN\n    channel = 'public.oban_insert';\n    notice = json_build_object('queue', NEW.queue, 'state', NEW.state);\n\n    -- No point triggering for a job that isn't scheduled to run now\n    IF NEW.scheduled_at IS NOT NULL AND NEW.scheduled_at > now() AT TIME ZONE 'utc' THEN\n      RETURN null;\n    END IF;\n  ELSE\n    channel = 'public.oban_update';\n    notice = json_build_object('queue', NEW.queue, 'new_state', NEW.state, 'old_state', OLD.state);\n  END IF;\n\n  PERFORM pg_notify(channel, notice::text);\n\n  RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n"
+
+00:52:17.955 [info] execute "DROP TRIGGER IF EXISTS oban_notify ON \"public\".oban_jobs"
+
+00:52:17.955 [info] trigger "oban_notify" for relation "public.oban_jobs" does not exist, skipping
+
+00:52:17.956 [info] execute "CREATE TRIGGER oban_notify\nAFTER INSERT OR UPDATE OF state ON \"public\".oban_jobs\nFOR EACH ROW EXECUTE PROCEDURE \"public\".oban_jobs_notify();\n"
+
+00:52:17.956 [info] drop index if exists public.oban_jobs_scheduled_at_index
+
+00:52:17.958 [info] create index public.oban_jobs_scheduled_at_index
+
+00:52:17.959 [info] create check constraint worker_length on table public.oban_jobs
+
+00:52:17.959 [info] create check constraint queue_length on table public.oban_jobs
+
+00:52:17.960 [info] execute "CREATE OR REPLACE FUNCTION \"public\".oban_wrap_id(value bigint) RETURNS int AS $$\nBEGIN\n  RETURN (CASE WHEN value > 2147483647 THEN mod(value, 2147483647) ELSE value END)::int;\nEND;\n$$ LANGUAGE plpgsql IMMUTABLE;\n"
+
+00:52:17.960 [info] alter table public.oban_jobs
+
+00:52:17.960 [info] execute "DROP FUNCTION IF EXISTS \"public\".oban_wrap_id(value bigint)"
+
+00:52:17.961 [info] drop index if exists public.oban_jobs_scheduled_at_index
+
+00:52:17.961 [info] drop index if exists public.oban_jobs_queue_index
+
+00:52:17.961 [info] drop index if exists public.oban_jobs_state_index
+
+00:52:17.961 [info] create index if not exists public.oban_jobs_queue_state_scheduled_at_id_index
+
+00:52:17.962 [info] create index if not exists public.oban_jobs_attempted_at_id_index
+
+00:52:17.963 [info] alter table public.oban_jobs
+
+00:52:17.963 [info] alter table public.oban_jobs
+
+00:52:17.964 [info] drop index if exists public.oban_jobs_queue_state_scheduled_at_id_index
+
+00:52:17.964 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index
+
+00:52:17.965 [info] execute "CREATE OR REPLACE FUNCTION \"public\".oban_jobs_notify() RETURNS trigger AS $$\nDECLARE\n  channel text;\n  notice json;\nBEGIN\n  IF NEW.state = 'available' THEN\n    channel = 'public.oban_insert';\n    notice = json_build_object('queue', NEW.queue);\n\n    PERFORM pg_notify(channel, notice::text);\n  END IF;\n\n  RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n"
+
+00:52:17.966 [info] execute "DROP TRIGGER IF EXISTS oban_notify ON \"public\".oban_jobs"
+
+00:52:17.966 [info] execute "CREATE TRIGGER oban_notify\nAFTER INSERT ON \"public\".oban_jobs\nFOR EACH ROW EXECUTE PROCEDURE \"public\".oban_jobs_notify();\n"
+
+00:52:17.966 [info] alter table public.oban_jobs
+
+00:52:17.967 [info] execute "ALTER TYPE \"public\".oban_job_state ADD VALUE IF NOT EXISTS 'cancelled'"
+
+00:52:17.967 [info] enum label "cancelled" already exists, skipping
+
+00:52:17.967 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index
+
+00:52:17.967 [info] relation "oban_jobs_state_queue_priority_scheduled_at_id_index" already exists, skipping
+
+00:52:17.967 [info] alter table public.oban_jobs
+
+00:52:17.969 [info] create check constraint priority_range on table public.oban_jobs
+
+00:52:17.969 [info] create check constraint positive_max_attempts on table public.oban_jobs
+
+00:52:17.970 [info] create check constraint attempt_range on table public.oban_jobs
+
+00:52:17.970 [info] drop index if exists public.oban_jobs_args_vector
+
+00:52:17.970 [info] index "oban_jobs_args_vector" does not exist, skipping
+
+00:52:17.970 [info] drop index if exists public.oban_jobs_worker_gist
+
+00:52:17.970 [info] index "oban_jobs_worker_gist" does not exist, skipping
+
+00:52:17.970 [info] drop index if exists public.oban_jobs_attempted_at_id_index
+
+00:52:17.970 [info] create index if not exists public.oban_jobs_args_index
+
+00:52:17.970 [info] create index if not exists public.oban_jobs_meta_index
+
+00:52:17.971 [info] create table if not exists public.oban_peers
+
+00:52:17.972 [info] execute "ALTER TABLE \"public\".oban_peers SET UNLOGGED"
+
+00:52:17.977 [info] drop constraint priority_range from table public.oban_jobs
+
+00:52:17.977 [info] create check constraint non_negative_priority on table public.oban_jobs
+
+00:52:17.977 [info] execute "DROP TRIGGER IF EXISTS oban_notify ON \"public\".oban_jobs"
+
+00:52:17.978 [info] execute "DROP FUNCTION IF EXISTS \"public\".oban_jobs_notify()"
+
+00:52:17.978 [info] execute "COMMENT ON TABLE \"public\".oban_jobs IS '12'"
+
+00:52:17.978 [info] == Migrated 20260623000000 in 0.0s
+[error] `inotify-tools` is needed to run `file_system` for your system, check https://github.com/rvoicilas/inotify-tools/wiki for more information about how to install it. If it's already installed but not be found, appoint executable file with `config.exs` or `FILESYSTEM_FSINOTIFY_EXECUTABLE_FILE` env.
+[warning] Not able to start file_system worker, reason: {:error, :fs_inotify_bootstrap_error}
+[warning] Could not start Phoenix live-reload because we cannot listen to the file system.
+You don't need to worry! This is an optional feature used during development to
+refresh your browser when you save files and it does not affect production.
+
+[debug] QUERY OK source="users" db=13.0ms decode=1.2ms queue=53.3ms idle=0.0ms
+SELECT count(*) FROM "auth"."users" AS u0 WHERE (u0."email" LIKE 'loadtest-%') [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:117
+[debug] QUERY OK db=0.5ms queue=0.1ms idle=33.5ms
+begin []
+↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:124
+[debug] QUERY OK source="users" db=3.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=7.0ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=2.5ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=1.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.8ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.0ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.8ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.0ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="users" db=0.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK db=1.6ms
+commit []
+↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:124
+[debug] QUERY OK source="users" db=13.9ms queue=5.9ms idle=243.1ms
+SELECT count(*) FROM "auth"."users" AS u0 WHERE (u0."email" = $1) [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:177
+[debug] QUERY OK source="users" db=17.1ms idle=263.4ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=1.4ms idle=283.5ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=11.3ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.5ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=15.7ms queue=5.0ms idle=302.0ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:190
+[debug] QUERY OK source="users" db=17.5ms idle=324.6ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=1.4ms idle=345.0ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=11.5ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.3ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=15.3ms queue=5.2ms idle=364.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=17.6ms idle=385.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.6ms idle=385.5ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=6.4ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.3ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.5ms idle=176.5ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=1.6ms idle=154.7ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.5ms idle=141.8ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=4.5ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.2ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=7.1ms queue=1.2ms idle=127.9ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=4.1ms idle=115.5ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.5ms idle=103.2ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=4.1ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.1ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=7.7ms queue=1.2ms idle=88.7ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=4.2ms idle=77.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.6ms idle=66.4ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=4.4ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.2ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=3.8ms queue=0.4ms idle=60.9ms
+UPDATE "auth"."users" SET "locked_at" = $1, "failed_login_attempts" = $2, "updated_at" = $3 WHERE "id" = $4 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:260
+[debug] QUERY OK source="users" db=0.4ms queue=0.2ms idle=64.6ms
+UPDATE "auth"."users" SET "hashed_password" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ anonymous fn/1 in Example.Demo.Seeds.seed_users/0, at: lib/example/demo/seeds.ex:203
+[debug] QUERY OK source="users" db=0.3ms idle=63.6ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.1ms idle=56.1ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=0.2ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.4ms idle=48.8ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=1.6ms queue=0.2ms idle=45.1ms
+UPDATE "auth"."users" SET "scheduled_deletion_at" = $1, "deleted_at" = $2, "updated_at" = $3 WHERE "id" = $4 [SQL arguments redacted]
+↳ anonymous fn/1 in Example.Demo.Seeds.seed_users/0, at: lib/example/demo/seeds.ex:203
+[debug] QUERY OK source="users" db=0.7ms idle=37.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.1ms idle=31.6ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=0.2ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.4ms idle=28.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=0.3ms idle=18.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.1ms idle=16.4ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=0.2ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.4ms queue=0.2ms idle=16.5ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=0.2ms idle=16.8ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.1ms idle=15.5ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=0.2ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.4ms idle=15.8ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="users" db=0.4ms idle=14.2ms
+UPDATE "auth"."users" SET "scheduled_deletion_at" = $1, "deleted_at" = $2, "updated_at" = $3 WHERE "id" = $4 [SQL arguments redacted]
+↳ anonymous fn/1 in Example.Demo.Seeds.seed_users/0, at: lib/example/demo/seeds.ex:203
+[debug] QUERY OK source="users" db=0.2ms idle=13.8ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=0.1ms idle=12.8ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","hashed_password","display_name","failed_login_attempts","must_change_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=0.3ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=0.4ms idle=13.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [SQL arguments redacted]
+↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259
+[debug] QUERY OK source="organizations" db=0.8ms queue=0.4ms idle=16.3ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE (o0."slug" = $1) [SQL arguments redacted]
+↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:343
+[debug] QUERY OK source="organizations" db=2.1ms queue=0.4ms idle=18.0ms
+INSERT INTO "auth"."organizations" ("name","slug","personal","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:350
+[debug] QUERY OK source="organizations" db=0.6ms idle=20.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE (o0."slug" = $1) [SQL arguments redacted]
+↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:343
+[debug] QUERY OK source="organizations" db=7.0ms queue=0.9ms idle=20.6ms
+INSERT INTO "auth"."organizations" ("name","slug","personal","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:350
+[debug] QUERY OK source="organizations" db=0.9ms idle=25.4ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE (o0."slug" = $1) [SQL arguments redacted]
+↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:343
+[debug] QUERY OK source="organizations" db=1.6ms queue=0.3ms idle=26.1ms
+INSERT INTO "auth"."organizations" ("name","slug","personal","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:350
+[debug] QUERY OK source="organization_memberships" db=4.9ms queue=0.7ms idle=29.9ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:371
+[debug] QUERY OK source="organization_memberships" db=4.8ms queue=0.4ms idle=35.6ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:372
+[debug] QUERY OK source="organization_memberships" db=3.9ms queue=0.4ms idle=37.5ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:373
+[debug] QUERY OK source="organization_memberships" db=4.8ms queue=0.6ms idle=41.7ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:374
+[debug] QUERY OK source="organization_memberships" db=4.8ms queue=0.3ms idle=43.2ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:375
+[debug] QUERY OK source="organization_memberships" db=2.0ms queue=0.5ms idle=42.5ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:376
+[debug] QUERY OK source="organization_memberships" db=2.8ms queue=0.3ms idle=44.3ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:385
+[debug] QUERY OK source="organization_memberships" db=3.1ms queue=0.4ms idle=39.7ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:71
+[debug] QUERY OK source="organization_invitations" db=1.5ms queue=0.8ms idle=42.4ms
+SELECT o0."id", o0."email", o0."role", o0."hashed_token", o0."accepted_at", o0."revoked_at", o0."expires_at", o0."organization_id", o0."invited_by_id", o0."accepted_by_id", o0."revoked_by_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_invitations" AS o0 WHERE ((((o0."organization_id" = $1) AND (o0."email" = $2)) AND (o0."accepted_at" IS NULL)) AND (o0."revoked_at" IS NULL)) [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_invitation/1, at: lib/example/demo/seeds.ex:405
+[debug] QUERY OK source="organization_invitations" db=3.2ms queue=0.2ms idle=42.9ms
+INSERT INTO "auth"."organization_invitations" ("role","expires_at","email","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7) [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_invitation/1, at: lib/example/demo/seeds.ex:423
+[debug] QUERY OK source="organization_invitations" db=0.9ms idle=38.5ms
+SELECT o0."id", o0."email", o0."role", o0."hashed_token", o0."accepted_at", o0."revoked_at", o0."expires_at", o0."organization_id", o0."invited_by_id", o0."accepted_by_id", o0."revoked_by_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_invitations" AS o0 WHERE ((((o0."organization_id" = $1) AND (o0."email" = $2)) AND (o0."accepted_at" IS NULL)) AND (o0."revoked_at" IS NULL)) [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_invitation/1, at: lib/example/demo/seeds.ex:433
+[debug] QUERY OK source="organization_invitations" db=0.6ms queue=0.2ms idle=33.9ms
+INSERT INTO "auth"."organization_invitations" ("role","expires_at","email","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7) [SQL arguments redacted]
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:72
+[debug] QUERY OK source="user_mfa_credentials" db=1.3ms queue=0.3ms idle=31.9ms
+INSERT INTO "auth"."user_mfa_credentials" ("type","user_id","enabled_at","encrypted_secret","failed_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("user_id","type") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_mfa_credentials/1, at: lib/example/demo/seeds.ex:463
+[debug] QUERY OK source="user_mfa_credentials" db=0.5ms queue=0.2ms idle=28.2ms
+INSERT INTO "auth"."user_mfa_credentials" ("type","user_id","enabled_at","encrypted_secret","failed_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("user_id","type") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:73
+[debug] QUERY OK source="user_passkeys" db=1.6ms queue=0.3ms idle=24.8ms
+INSERT INTO "auth"."user_passkeys" ("user_id","public_key","credential_id","nickname","sign_count","transports","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT ("credential_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_passkey/1, at: lib/example/demo/seeds.ex:487
+[debug] QUERY OK source="user_passkeys" db=0.9ms queue=0.3ms idle=24.2ms
+INSERT INTO "auth"."user_passkeys" ("user_id","public_key","credential_id","nickname","sign_count","transports","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT ("credential_id") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:74
+[debug] QUERY OK source="user_sessions" db=0.8ms queue=0.2ms idle=24.4ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","user_agent","hashed_token","inserted_at","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("hashed_token") DO NOTHING [SQL arguments redacted]
+↳ Enum."-each/2-lists^foreach/1-0-"/2, at: lib/enum.ex:961
+[debug] QUERY OK source="user_sessions" db=0.6ms queue=0.2ms idle=22.0ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","user_agent","hashed_token","inserted_at","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("hashed_token") DO NOTHING [SQL arguments redacted]
+↳ Enum."-each/2-lists^foreach/1-0-"/2, at: lib/enum.ex:961
+[debug] QUERY OK source="user_sessions" db=3.8ms queue=0.4ms idle=20.2ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","user_agent","hashed_token","inserted_at","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("hashed_token") DO NOTHING [SQL arguments redacted]
+↳ Enum."-each/2-lists^foreach/1-0-"/2, at: lib/enum.ex:961
+[debug] QUERY OK source="enterprise_connections" db=1.2ms queue=1.3ms idle=22.4ms
+SELECT e0."id", e0."protocol", e0."status", e0."display_name", e0."login_hint_domains", e0."last_validated_at", e0."last_validation_error", e0."organization_id", e0."oidc_settings", e0."inserted_at", e0."updated_at" FROM "auth"."enterprise_connections" AS e0 WHERE (((e0."organization_id" = $1) AND (e0."display_name" = $2)) AND (e0."status" = $3)) [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_enterprise_connection/1, at: lib/example/demo/seeds.ex:580
+[debug] QUERY OK db=0.5ms idle=26.3ms
+begin []
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:76
+[debug] QUERY OK source="enterprise_connections" db=4.5ms
+INSERT INTO "auth"."enterprise_connections" ("status","protocol","organization_id","display_name","oidc_settings","login_hint_domains","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:76
+[debug] QUERY OK db=0.3ms
+commit []
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:76
+[debug] QUERY OK source="user_identities" db=1.6ms queue=0.3ms idle=35.1ms
+INSERT INTO "auth"."user_identities" ("metadata","user_id","provider","provider_email","provider_uid","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("user_id","provider") DO NOTHING [SQL arguments redacted]
+↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:77
+[debug] QUERY OK source="audit_events" db=3.9ms queue=1.4ms idle=35.1ms
+SELECT count(*) FROM "auth"."audit_events" AS a0 WHERE (a0."effective_user_id" = ANY($1)) [SQL arguments redacted]
+↳ Example.Demo.Seeds.seed_audit_events/2, at: lib/example/demo/seeds.ex:811
+[debug] QUERY OK db=0.5ms idle=39.5ms
+begin []
+↳ Example.Demo.Seeds.insert_audit_batch/3, at: lib/example/demo/seeds.ex:827
+[debug] QUERY OK source="audit_events" db=1.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK source="audit_events" db=0.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","organization_id","effective_user_id","occurred_at","target_id","target_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+
+=== Demo Credentials ===
+[debug] QUERY OK db=0.3ms
+commit []
+↳ Example.Demo.Seeds.insert_audit_batch/3, at: lib/example/demo/seeds.ex:827
+[admin]  admin@demo.tasklane.test  DemoAdmin1!SecurePass  (Admin — TOTP MFA, passkey display row, multi-org owner, rich audit trail)
+[alice]  alice@demo.tasklane.test  AliceDemoPass1!  (Standard confirmed user — happy path login, Acme Corp member)
+[bob]  bob@demo.tasklane.test  BobDemoPass1!Beta  (TOTP MFA enrolled — org owner (Beta Labs))
+[carol]  carol@demo.tasklane.test  CarolDemoPass1!Github  (OAuth identity — GitHub-linked login (carol@demo.tasklane.test))
+[dave]  dave@demo.tasklane.test  DaveDemoPass1!Locked  (Locked account — failed login attempts exhausted, unconfirmed)
+[frank]  frank@demo.tasklane.test  FrankDemoPass1!Deleted  (Scheduled deletion — account marked for deletion)
+[morgan]  morgan@demo.tasklane.test  MorganDemo1!OrgAdmin  (Org admin — Acme Corp admin, non-platform, org-scoped console)
+[pat]  pat@demo.tasklane.test  PatDemoPass1!Passkey  (Passkey-only user — no MFA, passkey display row, demonstrates Passkeys pill on users index)
+[grace]  grace@demo.tasklane.test  GraceDemoPass1!Acme  (Deletion-scheduled Acme member — demonstrates in-roster Deletion scheduled pill)
+[zoe]  zoe@demo.tasklane.test  ZoeDemoPass1!Empty  (Zero-state user — confirmed, no MFA/passkey/identity/org/sessions/audit; drives empty panels on user detail)

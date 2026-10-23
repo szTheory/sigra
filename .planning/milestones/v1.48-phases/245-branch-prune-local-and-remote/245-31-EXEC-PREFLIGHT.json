@@ -1,0 +1,1020 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-31",
+  "captured_at": "2026-10-02T06:20:16.310Z",
+  "verdict": "ready",
+  "approved_elevated_context": true,
+  "planning_preflight_precommitted": true,
+  "planning_preflight_committed_blob_matches": true,
+  "plan31_plan_precommitted": true,
+  "planning_commit": "8d9fac8b7270a06634233e5cf20349f9ed15af44",
+  "planning_commit_parent": "c639926c93d0f7e1009041ff5daa4016eeb7c371",
+  "planning_preflight_blob": "b84fbcf1737eb6013433f7e72393022edcfcdc1c",
+  "plan31_plan_blob": "201901ee03ac531316e29d93dd5f00548c5e40a8",
+  "plan27_gap_closure_disabled": true,
+  "early_summary_precommitted": true,
+  "early_summary_status": "halted",
+  "observed_head": "8d9fac8b7270a06634233e5cf20349f9ed15af44",
+  "git_common_dir": "/Users/jon/projects/sigra/.git",
+  "coordinator_root": "/Users/jon/projects/sigra/.git/sigra-branch-worktree-coordinator",
+  "git_common_dir_writable": true,
+  "coordinator_root_writable": true,
+  "coordinator_verified": true,
+  "pinned_git_path": "/usr/bin/git",
+  "pinned_git_version": "git version 2.50.1 (Apple Git-155)",
+  "pinned_git_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+  "gate": "absent",
+  "lock": "free",
+  "owner_metadata": "absent",
+  "transaction_leases": 0,
+  "staged_paths": [
+    "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+    "scripts/maintainers/prune-stale-branches.sh"
+  ],
+  "staged_blobs": {
+    "staged_source_blob": "8468981653ce8290c9886d600c49d44823d293fb",
+    "staged_test_blob": "b01b1f275e487a2f6f0574ad7da0d694851efcdd",
+    "plan27_result_sha256": "c9645d850fc17dae1250b921f804bc800c2030beac5fa0a6cd59265200964663",
+    "plan27_summary_sha256": "808c4b7697bb6c3e0fdec74bc93fe14ccd7a03524e0454cf9392d7f2c58ebe65",
+    "plan28_receipt_sha256": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097",
+    "plan28_planning_preflight_sha256": "3080a22b540f42aac1c003a14412e2bdbaad20e72700fbb5a0690ea33c4ac506"
+  },
+  "staged_binary_diff_sha256": "755b3456a91d439430a9f48f04560d1353d7991889958df3bb8c8308e45b7f5c",
+  "plan27_result_sha256": "c9645d850fc17dae1250b921f804bc800c2030beac5fa0a6cd59265200964663",
+  "plan27_summary_sha256": "808c4b7697bb6c3e0fdec74bc93fe14ccd7a03524e0454cf9392d7f2c58ebe65",
+  "plan28_failed_receipt_sha256": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097",
+  "plan28_planning_preflight_sha256": "3080a22b540f42aac1c003a14412e2bdbaad20e72700fbb5a0690ea33c4ac506",
+  "plan28_planning_sidecar_matches": true,
+  "unrelated_wip_fingerprint": "d37f876054346f5a758c2c24583b6122b8fcf1e6d2615eac70fdb21c6b2a1780",
+  "unrelated_wip": {
+    "status_sha256": "b565b4a5e142d4abde70d7270ac503f1840c1793a8943a2673f2b2f4406e124f",
+    "tracked_diff_sha256": "a62a5f36eafe9565f372f24710dce814b631d2a068e5af7135143451d6d9bbb6",
+    "untracked": [
+      {
+        "path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-SECURITY.md",
+        "sha256": "0c8812b4df3d775a0806b8824de8f41698a7b881a0d4824e72fdce7f0ae768be"
+      },
+      {
+        "path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VALIDATION.md",
+        "sha256": "3eca5ec310742cdfb085d2b7ba93f272e49c1ec5e856aa252fc91fe25bce8d81"
+      },
+      {
+        "path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/continue.md",
+        "sha256": "07b392fff78fefe469ea128c988803f2d5118ef34bfa30e1a4408b4965a8a4d4"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-02-SUMMARY.md",
+        "sha256": "16d424b86377c89c95530aba00c83b070c9071be0241a2caca26eff2a892cf37"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-03-SUMMARY.md",
+        "sha256": "f9659699640d7f145a46289b17da6313d6c30158eb47424e40609bd5febaab97"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-10-SUMMARY.md",
+        "sha256": "4046bad1b171594760ec8faf0d9439829bc4fca34c41a9c38c753637fa4b08fc"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-11-PLAN.md",
+        "sha256": "90131fb742609f7c626e90ae8a5c44916012966018283be0f3694972eff21a98"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-11-SUMMARY.md",
+        "sha256": "d4ebc9c7c381b391498364df6a674230f3fd00752d4d587acbd49cf80f542d57"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-12-PLAN.md",
+        "sha256": "6ffb738edf984f9cf75089e8cff3ddedc93de6e9ad5de9cdc61bdd7ff3e17f14"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-12-SUMMARY.md",
+        "sha256": "035979fd2e6db7b058f42c5f0a3dabf797009e7b8137d2aa02f0c005a1a96187"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-13-PLAN.md",
+        "sha256": "211d2e4b174fdc66e1c89fd6cce1ea9b013d8e6b3e000bc79f6b3de4613c29b3"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-13-SUMMARY.md",
+        "sha256": "4cc86de752a306e94f4c84743c64d280cfb9435b8959b1fcc3f4c0316601a551"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-14-PLAN.md",
+        "sha256": "a029e0c1a5d166beb1358cea11ba2f60f5e04c246016fa0085b8852d46f45c97"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-14-SUMMARY.md",
+        "sha256": "0df80dbd3dff6b301372563e729ff85a6b32cf36c23bc74beb31a3dbc4b6011f"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-LEARNINGS.md",
+        "sha256": "6e08713a920ef1ba4b497785a186fe4cc555fce44c58e6a6bd4e672c12f72c33"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-RECONCILIATION.md",
+        "sha256": "6f665e42e40167fa3f32bad1ad13d4ccb59f953c59c0416c6cc3d918b1593c78"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md",
+        "sha256": "d8d6a852556c02223e719c0a2f8679016da8516013576f74d04c99243679f39b"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SECURITY.md",
+        "sha256": "b3af5ffc0ce355be451d361a7892f35d0e52492bfd5aa553e5f909fd0bde5df3"
+      },
+      {
+        "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/continue.md",
+        "sha256": "85f294cddff7d342f7b1993a6585c5340e6887a102ac6baf4861edfbef046927"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-SUMMARY.md",
+        "sha256": "f64867c72a869332d641b9589b966d32ab129cbfde78edc58930ebd0ab9e59c1"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-02-SUMMARY.md",
+        "sha256": "2c9351b84f6676aa40266860aefdcf7d419f3efafc9497e1958436e9e9ba94a6"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-03-REPLAN.md",
+        "sha256": "d0b3a220878d0c2f6d1e54bdf4058bb55fc3f15b2d7c25862d31dded8a82127f"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-03-SUMMARY.md",
+        "sha256": "d1ef7f448c63663f0cb6ccb738b782ec48c8980b3da090bba0c62f790247f5bd"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-04-SUMMARY.md",
+        "sha256": "1b46faa531a1a3fe56eaf46c67e510a552ab5ced770a8655d29da0e2501c677c"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-STALE-PR-EVIDENCE.json",
+        "sha256": "8d84a22fd6ec7af2ed4da5126c235600baa11f0b997cf4e2801ab4d13b8676ec"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-A-EVIDENCE.json",
+        "sha256": "f92a7b46986320dd0f114085114c8c77d374a0e9bd8ae4985b66c3c126070081"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-A-FAILURE.json",
+        "sha256": "a7eb3fc65ee405b1b88cd9efbfceb0e7aaf6d29548acc26e9f6c05edb31c51e5"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-B-EVIDENCE.json",
+        "sha256": "3069a07ecdb9011808e5dcf8b929b070c6bdc69849fc521ee78cdafb3bc56e0f"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-B-FAILURE.json",
+        "sha256": "f66c935c2210c1ec2bc4c9e2611a1fe811dcfb87f2c7ff4e36ca9d23363b452e"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TODO-INVENTORY.json",
+        "sha256": "b159246b663aedcc150971d2b64b5203f0beb3693d49b4bc22b42bde0b61424d"
+      },
+      {
+        "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TODO-TRIAGE-VALIDATION.json",
+        "sha256": "b71ed48849d2ae8556b08973c7bbd4ef0ab3f10e59e77dde8b29356c8201ba16"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-SUMMARY.md",
+        "sha256": "e1bed37a479303388d01b8b2e258e57987b9950a1ebecab630756435b0de8c59"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-02-SUMMARY.md",
+        "sha256": "3e1b4df3cdee8e1b460b78a125216bf2e366f304360ee1c500dcada6d65ccda8"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-SUMMARY.md",
+        "sha256": "3eba01b20d7300b2db29de53014b7e2aa527dff1dec50c19071eaf01710afbf8"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-05-SUMMARY.md",
+        "sha256": "b77bd6eeee8ba89dd42f6ddc91375d82bd45d2e9fbb619ca049babd6f7073477"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-06-SUMMARY.md",
+        "sha256": "db3827985a242365e3721008c1064fce57cffa6f44e688e3382cd2fad9ff4bfd"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-07-SUMMARY.md",
+        "sha256": "3a035df16ac6736ed00331a4d074fbb50cd4ba76405f7604e8c1fdee8aaad803"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/continue.md",
+        "sha256": "8164e632ceb7ecc2de2aefe7978c038463d7248d4c04e8d50691a1f2ce41cb6a"
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/deferred-items.md",
+        "sha256": "ce89e96b6deb04ecd646d70f12ef3d35c501bc83b6c09b69949948d9543c6d53"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-01-RED-EVIDENCE.json",
+        "sha256": "7693a41008547e5a9576e5910ec3d95098bb5fb2cfe1f22e3b10425f3a3b8668"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-01-REMOTE-RED-EVIDENCE.json",
+        "sha256": "cd7b852a8cba08a08d7fedc88b28c835ea7a6c8294efb7208d6ffa61da87513b"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-01-SUMMARY.md",
+        "sha256": "0455ea1b0baaacf24edd8fd3b9006a5737c5e06b233ca562dd99da2e78e2ee63"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-02-SUMMARY.md",
+        "sha256": "bda75d499350b77cc6d5aa3a9f279fef1b116257209333b48b4b20962a3b184d"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-03-SUMMARY.md",
+        "sha256": "f544711c43e5fc460fe3a16f165d22a864f2c2fc07b86def421329f2e8523454"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-04-SUMMARY.md",
+        "sha256": "370cbcb893a1db619b58229e2d555e44e52e75dd487ec345df20fecd048cd455"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-05-SUMMARY.md",
+        "sha256": "a807474ab4b8ae423cb212de07d23be368ec5e5825ef49077b15af9a89fec9f4"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-06-SUMMARY.md",
+        "sha256": "a96dca56641f048d027bc7cb4eeaee6c76915b5fd37fc2cc664793906d19c628"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-07-RED-EVIDENCE.json",
+        "sha256": "f370bf33acef195177a2e7169deb76cf8198d3bec374d833448f12acc88d089c"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-07-SUMMARY.md",
+        "sha256": "78cb4bf8857687358f6726cd6efb8c6d2a2ee5aa082db43339b637c06c241f45"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-08-SUMMARY.md",
+        "sha256": "bf35324b0b8bfab288a549e7c816ced593fd5571ce35dc9d4ed6e290819e27e1"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-09-SUMMARY.md",
+        "sha256": "401a00ddde0c10a9862343656fa508145ce3b320b1de57f1e502148082ce9e45"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-10-SUMMARY.md",
+        "sha256": "2bc9d95e18d552f0c6ec55f95f643c49a4a25ee96c4c6a381976a7d964ba73e3"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-11-SUMMARY.md",
+        "sha256": "94a42b1a19eeb32509eee6de73027c5b61051b0f33f45fbf971b0ef86153a10c"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-SUMMARY.md",
+        "sha256": "7426ce84e84baef38393a86e7d0a8a523718605989f053839793f6ef2d7e555d"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-TASK1-RED-EVIDENCE.json",
+        "sha256": "828d67b304f80066958ebf99d944dfe6564f34440f9bb2882fa44e9cdb18f554"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-TASK1B-RED-EVIDENCE.json",
+        "sha256": "19b769dcf5420008a70754110dc79c16e04411e4f0cebedb95e40de2d9b67758"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-TASK2-RED-EVIDENCE.json",
+        "sha256": "cbc19e591b9e337d4ce20238c7bec4c32ab77bc5f6094468bb9c359f39941656"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-13-SUMMARY.md",
+        "sha256": "e4d3bcc5ea5b2cb33dcfbe31e220b69a45d323bd9ba5eae0fe1f1fddf2b40061"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-13-TASK1-RED-EVIDENCE.json",
+        "sha256": "ff60add72b8d5b52c854b4b43ddf3bf27a9c65d05aef46fbd162789e3a09db43"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-13-TASK2-RED-EVIDENCE.json",
+        "sha256": "35ceaed8dd33711a9c8d2209ef0377de516f92e529ccafcd2a8820d19a4bda6d"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-PREVIEW.json.sha256",
+        "sha256": "d9fc943e6e0f8240e3331f3230fd81a91eb3946763b1717f87a14a0396a18bff"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-EXEC-PREFLIGHT.json",
+        "sha256": "41d720cc2f26521463d93ad96abd416066c74e177adf8562dab0426c16849062"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RESULT.json",
+        "sha256": "700619e0deb178908335dfd32c1b9f9695ab2913c8071524d9a4f3e77b91005a"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-EXEC-PREFLIGHT.json",
+        "sha256": "8d40f3c83df365a9199ba2c2d515bbfebf89da5e61318e6908ad78084ac1df98"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-RESULT.json",
+        "sha256": "f0d7df1f370119a9bb4d7d42a8e3018665b1e3f5036a2c339c570c5f6f6fe6d9"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-SUMMARY.md",
+        "sha256": "3d15fe40bf30a524135b24e80e2b34e461f968414cb22f7e8901754ba7c8fdc5"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-27-RESULT.json",
+        "sha256": "c9645d850fc17dae1250b921f804bc800c2030beac5fa0a6cd59265200964663"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+        "sha256": "808c4b7697bb6c3e0fdec74bc93fe14ccd7a03524e0454cf9392d7f2c58ebe65"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json",
+        "sha256": "3080a22b540f42aac1c003a14412e2bdbaad20e72700fbb5a0690ea33c4ac506"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json.sha256",
+        "sha256": "d797b5ae72ba987d068b947121aa1a3521098bdd8b71d9b6532437489249c115"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-28-RECOVERY.json",
+        "sha256": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-BRANCH-DELETE-ALLOWLIST.tsv",
+        "sha256": "8967af11697b631132d90ac7b32603e74b041d496c636f3f161b902bc754d98b"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-EVIDENCE.json",
+        "sha256": "e0286d6f0d7daa0e3828970b711b78e347769c1be495309c929c03ec1b67c02f"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-GAP-CODE-TESTS.tap",
+        "sha256": "b64093af009c6e706380aa81113b50a948188aab1b1cb2a9b1e704187656f8ec"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv",
+        "sha256": "b159fb061f9e5a36c38d72eddea7fa8b310bf9e3357b591ce73a71bc952f6497"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-MILESTONE-CLEANUP-AUDIT.json",
+        "sha256": "eb9f141fce4499a9c244e576dc151561510adb2fa9146861d09ca4a610674518"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+        "sha256": "5531300b92edaf8e9e08d6d8c17c9d6e3ad3496c02d6fe2a35ecc26b49184ce1"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+        "sha256": "154487b40b5a895f5f87d8b2b78e479931e07da3fffb5ab3c35b3147e4a89633"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+        "sha256": "588a80e02e19efd8dc9ce7f3f5becc88c6b5f44930e3ad1f67ada97a64e203de"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-OPEN-PR-STATE.json",
+        "sha256": "8d8600cabd3c888bf2fa30fcf32592012a5b3a07776547bd5737c542d4a27f7c"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-ACCESS-PREFLIGHT.json",
+        "sha256": "80d2b46a67c68d0086feb25bb1a8d066117030ee392f8767a627c062901fac2a"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-REFS.tsv",
+        "sha256": "1f4b3df6b383c28e1a86817e7d41a18c64ec5e1bbdc88b804802a64f25b9aeb1"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-BRANCH-ORIGIN-REFS.tsv",
+        "sha256": "1f4b3df6b383c28e1a86817e7d41a18c64ec5e1bbdc88b804802a64f25b9aeb1"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-BRANCH-PR-STATE.json",
+        "sha256": "676db0a1e33a35084556d559041cf9ff2f0724248247e5ecef6506e4bfc8d03c"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-OPEN-PR-STATE.json",
+        "sha256": "f7219b02a708e86d87f091e7b013f89ff94eaebabd0a9df68a58d545d5604d76"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-ORIGIN-REFS.tsv",
+        "sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-IDENTITY-AUDIT.json",
+        "sha256": "5aad409061ed3b28820e3c37873dfabf701759b8725538e671cac790a18abec3"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json",
+        "sha256": "8861d39a207145892ce2d95180d8a244b8d077915f6aea9df34e82ab1d0d9e35"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-CLASSIFICATION-ORIGIN-REFS.tsv",
+        "sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-CLASSIFICATION-PR-STATE.json",
+        "sha256": "68f1926fb68ef6007b5b04e82935d4e7187bb2e9a57e464029ee3e0ec2a6b457"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-BRANCH-ORIGIN-REFS.tsv",
+        "sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-BRANCH-PR-STATE.json",
+        "sha256": "cb99e8fb3f750034b1535e5ccd0fe5dae9fe5da2b22b04ac94d09e83e308f6ba"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-OPEN-PR-STATE.json",
+        "sha256": "1a690e68d917a72bd1295e273aa9ae8bc2ed5077d03dd2c458e4db4843b8a32f"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-ORIGIN-REFS.tsv",
+        "sha256": "f90abe97aceba435d961457bc5c0bf5814c6562ebb6035f6d9f76572b99cfd2a"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-READINESS.json",
+        "sha256": "795dca5b402639865b21dfa2dda46e256cc27a7a7015922609a21464ef026e4f"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-REVIEW-FIX.md",
+        "sha256": "a843d6f2a4843b01414c4c0e20e0c13362d02d1e14de509d200cb3c7815b913f"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-REVIEW.md",
+        "sha256": "20565814c962ba94a55d6ec679c5ec37d069e0f0c45a963c4a9ff234707e9d1c"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-SAFETY-BRANCH-ORIGIN-ACCESS-PREFLIGHT.json",
+        "sha256": "1b7103f2dcb5306f52bffb772517f846fecf19f1f35eee98a91171e5304d7b7f"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-SAFETY-PUBLISH.tsv",
+        "sha256": "cd56f2e4c23dffb5f1a6f0456b5d342c49d0b8c1b4788ecdf66e92075da36028"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-VALIDATION.md",
+        "sha256": "f00428433348f42f3f8c654c29dc31020aff2ae7da9f129c63fa544f77294ba4"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-VERIFICATION.md",
+        "sha256": "7989e672f80ddef768f170dfebdda8889351a6e079cdaaac6ff37fec8ebd1edf"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/COVERAGE.md",
+        "sha256": "4ecaae6eccc110ec6a2eda55d0ba5d21cd923fc5681ae351aedbfcf4efe3ff80"
+      },
+      {
+        "path": ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/260923-uqh-PLAN.md",
+        "sha256": "f5b60a36bf3b417fdedd0f8c36d44a3d80bddc7eb7ff831b263ee3a8ae9e2e5e"
+      },
+      {
+        "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-PLAN.md",
+        "sha256": "6a1ccd9d5b15bbda0f1ad1e430012f41494c1eb6e2331e0adbb4d552c86fee2c"
+      },
+      {
+        "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-VERIFICATION.md",
+        "sha256": "a0c441166fb1641a195400f969224c04ba2cb68838b41ed44b3aa8f734bc8ee3"
+      },
+      {
+        "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md",
+        "sha256": "b8b32ea52a558c1ef4a2d5dd54284b964e384194ae443c12d577c6e6facd6b4c"
+      },
+      {
+        "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-RETRY.log",
+        "sha256": "e7d28696d2e0141c55936089dd62f673a110dbb520c297adf280224576e9d54d"
+      },
+      {
+        "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-PLAN.md",
+        "sha256": "d687751c555f0e2edc993b1d6df394cf1593c6527ff9c431c0694c90a5b4adfc"
+      },
+      {
+        "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-VERIFICATION.md",
+        "sha256": "80b52974bc812d02493138427e2835d7180976d003e0d231e7197c6ac235f3b5"
+      },
+      {
+        "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-BLOCKED.md",
+        "sha256": "63055e6b8e1d942dfc773494e5a5165bbabf2a8f7f9495200e2c71ab9de19501"
+      },
+      {
+        "path": ".planning/research/.cache/1939fe0e54d70d87e56c72f6b607e46b11aecdf90abb479782509d5e7a46b158.json",
+        "sha256": "a446a440b7be01d78379472497ddf9f40063c2cdd21a0d75668f36005f172289"
+      },
+      {
+        "path": ".planning/research/.cache/7d49970d3aa51d95afa9ad50dbcf62b3d6b1944459d5a0d27b3c62dce1d37fe8.json",
+        "sha256": "b9fbc7c0e39dbc9693ab2d405b2578882cf86abcda07c89f60aa170d876e6f92"
+      },
+      {
+        "path": ".planning/research/.cache/912404c9acd26e8b87e584a6fac0c85af887c81caf4097ede313017562e6fbfe.json",
+        "sha256": "ab4cded9d2dd45b00c01cf9b728efc0d53c909b3787cf49a76d5d64b3d4d430d"
+      },
+      {
+        "path": ".planning/research/.cache/91c0e7c6ac3912dfa6e9ae0de301c8385f169f7d3936c3d3a7eb4c4d1e2f0a78.json",
+        "sha256": "9ceac3292ac9dcbe3cbc5094d74891b7d6bb828737bd5be5cb0bea73aa954843"
+      },
+      {
+        "path": ".planning/research/.cache/ed0f3ecdac0460eb9afa673a640fbd0e12bd9e5b97d195e5c0792958a358768a.json",
+        "sha256": "d01d4eda380bac924676a1075dd8797f6d4a17f5250ba394442069f2fe648201"
+      },
+      {
+        "path": "scripts/maintainers/validate-milestone-cleanup-audit.mjs",
+        "sha256": "d2fa5fff4668803b1ba33bdc6b5a0e9f54a9cdcc3420448eb1901b82cb729d63"
+      },
+      {
+        "path": "scripts/maintainers/validate-milestone-cleanup-audit.test.mjs",
+        "sha256": "7e721fc0bd4dfd6aadfce699372a87c8558b13ba9077915c73b63016a0881c2f"
+      }
+    ],
+    "untracked_manifest_sha256": "461b60d61fdb763fc60d93c18ec79e0562d914ac94af7b253dee5ea141a6d3cf"
+  },
+  "observed_command_statuses": {
+    "pinned_git": 0,
+    "coordinator_status": 0,
+    "cached_diff_check": 0,
+    "preflight_assertions": 0
+  },
+  "admission_attempts": 0,
+  "production_ref_operations": 0,
+  "failed_predicates": [],
+  "historical_document_hashes": {
+    "plan16": "5efbc71ea66e70d87b55e79f88771b187e5d1e5c00c4342aff8b2e1914cc585f",
+    "plan28": "289a6efea33f78f0ce8d0d051d7908353d872ddc37733cde3e955865eb4fd24a",
+    "plan28Recovery": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097",
+    "plan28Planning": "3080a22b540f42aac1c003a14412e2bdbaad20e72700fbb5a0690ea33c4ac506"
+  },
+  "task2_unrelated_wip": {
+    "fingerprint": "4176f2b921b8a41b4bf90c46bab3e3381a07e046fe02e2ea6d4f74410f0bde43",
+    "projection": {
+      "status_sha256": "54a0993d1c7abe85a43f3a394302e78d8902469a04a2833d8dba191197573e81",
+      "tracked_diff_sha256": "56664ee70229ec4b74b9f824b210811a2445d469754f4d16c8bdf2c591671cde",
+      "untracked": [
+        {
+          "path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-SECURITY.md",
+          "sha256": "0c8812b4df3d775a0806b8824de8f41698a7b881a0d4824e72fdce7f0ae768be"
+        },
+        {
+          "path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VALIDATION.md",
+          "sha256": "3eca5ec310742cdfb085d2b7ba93f272e49c1ec5e856aa252fc91fe25bce8d81"
+        },
+        {
+          "path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/continue.md",
+          "sha256": "07b392fff78fefe469ea128c988803f2d5118ef34bfa30e1a4408b4965a8a4d4"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-02-SUMMARY.md",
+          "sha256": "16d424b86377c89c95530aba00c83b070c9071be0241a2caca26eff2a892cf37"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-03-SUMMARY.md",
+          "sha256": "f9659699640d7f145a46289b17da6313d6c30158eb47424e40609bd5febaab97"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-10-SUMMARY.md",
+          "sha256": "4046bad1b171594760ec8faf0d9439829bc4fca34c41a9c38c753637fa4b08fc"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-11-PLAN.md",
+          "sha256": "90131fb742609f7c626e90ae8a5c44916012966018283be0f3694972eff21a98"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-11-SUMMARY.md",
+          "sha256": "d4ebc9c7c381b391498364df6a674230f3fd00752d4d587acbd49cf80f542d57"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-12-PLAN.md",
+          "sha256": "6ffb738edf984f9cf75089e8cff3ddedc93de6e9ad5de9cdc61bdd7ff3e17f14"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-12-SUMMARY.md",
+          "sha256": "035979fd2e6db7b058f42c5f0a3dabf797009e7b8137d2aa02f0c005a1a96187"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-13-PLAN.md",
+          "sha256": "211d2e4b174fdc66e1c89fd6cce1ea9b013d8e6b3e000bc79f6b3de4613c29b3"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-13-SUMMARY.md",
+          "sha256": "4cc86de752a306e94f4c84743c64d280cfb9435b8959b1fcc3f4c0316601a551"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-14-PLAN.md",
+          "sha256": "a029e0c1a5d166beb1358cea11ba2f60f5e04c246016fa0085b8852d46f45c97"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-14-SUMMARY.md",
+          "sha256": "0df80dbd3dff6b301372563e729ff85a6b32cf36c23bc74beb31a3dbc4b6011f"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-LEARNINGS.md",
+          "sha256": "6e08713a920ef1ba4b497785a186fe4cc555fce44c58e6a6bd4e672c12f72c33"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-RECONCILIATION.md",
+          "sha256": "6f665e42e40167fa3f32bad1ad13d4ccb59f953c59c0416c6cc3d918b1593c78"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md",
+          "sha256": "d8d6a852556c02223e719c0a2f8679016da8516013576f74d04c99243679f39b"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SECURITY.md",
+          "sha256": "b3af5ffc0ce355be451d361a7892f35d0e52492bfd5aa553e5f909fd0bde5df3"
+        },
+        {
+          "path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/continue.md",
+          "sha256": "85f294cddff7d342f7b1993a6585c5340e6887a102ac6baf4861edfbef046927"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-SUMMARY.md",
+          "sha256": "f64867c72a869332d641b9589b966d32ab129cbfde78edc58930ebd0ab9e59c1"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-02-SUMMARY.md",
+          "sha256": "2c9351b84f6676aa40266860aefdcf7d419f3efafc9497e1958436e9e9ba94a6"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-03-REPLAN.md",
+          "sha256": "d0b3a220878d0c2f6d1e54bdf4058bb55fc3f15b2d7c25862d31dded8a82127f"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-03-SUMMARY.md",
+          "sha256": "d1ef7f448c63663f0cb6ccb738b782ec48c8980b3da090bba0c62f790247f5bd"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-04-SUMMARY.md",
+          "sha256": "1b46faa531a1a3fe56eaf46c67e510a552ab5ced770a8655d29da0e2501c677c"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-STALE-PR-EVIDENCE.json",
+          "sha256": "8d84a22fd6ec7af2ed4da5126c235600baa11f0b997cf4e2801ab4d13b8676ec"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-A-EVIDENCE.json",
+          "sha256": "f92a7b46986320dd0f114085114c8c77d374a0e9bd8ae4985b66c3c126070081"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-A-FAILURE.json",
+          "sha256": "a7eb3fc65ee405b1b88cd9efbfceb0e7aaf6d29548acc26e9f6c05edb31c51e5"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-B-EVIDENCE.json",
+          "sha256": "3069a07ecdb9011808e5dcf8b929b070c6bdc69849fc521ee78cdafb3bc56e0f"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TIER-B-FAILURE.json",
+          "sha256": "f66c935c2210c1ec2bc4c9e2611a1fe811dcfb87f2c7ff4e36ca9d23363b452e"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TODO-INVENTORY.json",
+          "sha256": "b159246b663aedcc150971d2b64b5203f0beb3693d49b4bc22b42bde0b61424d"
+        },
+        {
+          "path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TODO-TRIAGE-VALIDATION.json",
+          "sha256": "b71ed48849d2ae8556b08973c7bbd4ef0ab3f10e59e77dde8b29356c8201ba16"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-SUMMARY.md",
+          "sha256": "e1bed37a479303388d01b8b2e258e57987b9950a1ebecab630756435b0de8c59"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-02-SUMMARY.md",
+          "sha256": "3e1b4df3cdee8e1b460b78a125216bf2e366f304360ee1c500dcada6d65ccda8"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-SUMMARY.md",
+          "sha256": "3eba01b20d7300b2db29de53014b7e2aa527dff1dec50c19071eaf01710afbf8"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-05-SUMMARY.md",
+          "sha256": "b77bd6eeee8ba89dd42f6ddc91375d82bd45d2e9fbb619ca049babd6f7073477"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-06-SUMMARY.md",
+          "sha256": "db3827985a242365e3721008c1064fce57cffa6f44e688e3382cd2fad9ff4bfd"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-07-SUMMARY.md",
+          "sha256": "3a035df16ac6736ed00331a4d074fbb50cd4ba76405f7604e8c1fdee8aaad803"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/continue.md",
+          "sha256": "8164e632ceb7ecc2de2aefe7978c038463d7248d4c04e8d50691a1f2ce41cb6a"
+        },
+        {
+          "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/deferred-items.md",
+          "sha256": "ce89e96b6deb04ecd646d70f12ef3d35c501bc83b6c09b69949948d9543c6d53"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-01-RED-EVIDENCE.json",
+          "sha256": "7693a41008547e5a9576e5910ec3d95098bb5fb2cfe1f22e3b10425f3a3b8668"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-01-REMOTE-RED-EVIDENCE.json",
+          "sha256": "cd7b852a8cba08a08d7fedc88b28c835ea7a6c8294efb7208d6ffa61da87513b"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-01-SUMMARY.md",
+          "sha256": "0455ea1b0baaacf24edd8fd3b9006a5737c5e06b233ca562dd99da2e78e2ee63"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-02-SUMMARY.md",
+          "sha256": "bda75d499350b77cc6d5aa3a9f279fef1b116257209333b48b4b20962a3b184d"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-03-SUMMARY.md",
+          "sha256": "f544711c43e5fc460fe3a16f165d22a864f2c2fc07b86def421329f2e8523454"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-04-SUMMARY.md",
+          "sha256": "370cbcb893a1db619b58229e2d555e44e52e75dd487ec345df20fecd048cd455"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-05-SUMMARY.md",
+          "sha256": "a807474ab4b8ae423cb212de07d23be368ec5e5825ef49077b15af9a89fec9f4"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-06-SUMMARY.md",
+          "sha256": "a96dca56641f048d027bc7cb4eeaee6c76915b5fd37fc2cc664793906d19c628"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-07-RED-EVIDENCE.json",
+          "sha256": "f370bf33acef195177a2e7169deb76cf8198d3bec374d833448f12acc88d089c"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-07-SUMMARY.md",
+          "sha256": "78cb4bf8857687358f6726cd6efb8c6d2a2ee5aa082db43339b637c06c241f45"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-08-SUMMARY.md",
+          "sha256": "bf35324b0b8bfab288a549e7c816ced593fd5571ce35dc9d4ed6e290819e27e1"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-09-SUMMARY.md",
+          "sha256": "401a00ddde0c10a9862343656fa508145ce3b320b1de57f1e502148082ce9e45"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-10-SUMMARY.md",
+          "sha256": "2bc9d95e18d552f0c6ec55f95f643c49a4a25ee96c4c6a381976a7d964ba73e3"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-11-SUMMARY.md",
+          "sha256": "94a42b1a19eeb32509eee6de73027c5b61051b0f33f45fbf971b0ef86153a10c"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-SUMMARY.md",
+          "sha256": "7426ce84e84baef38393a86e7d0a8a523718605989f053839793f6ef2d7e555d"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-TASK1-RED-EVIDENCE.json",
+          "sha256": "828d67b304f80066958ebf99d944dfe6564f34440f9bb2882fa44e9cdb18f554"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-TASK1B-RED-EVIDENCE.json",
+          "sha256": "19b769dcf5420008a70754110dc79c16e04411e4f0cebedb95e40de2d9b67758"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-12-TASK2-RED-EVIDENCE.json",
+          "sha256": "cbc19e591b9e337d4ce20238c7bec4c32ab77bc5f6094468bb9c359f39941656"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-13-SUMMARY.md",
+          "sha256": "e4d3bcc5ea5b2cb33dcfbe31e220b69a45d323bd9ba5eae0fe1f1fddf2b40061"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-13-TASK1-RED-EVIDENCE.json",
+          "sha256": "ff60add72b8d5b52c854b4b43ddf3bf27a9c65d05aef46fbd162789e3a09db43"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-13-TASK2-RED-EVIDENCE.json",
+          "sha256": "35ceaed8dd33711a9c8d2209ef0377de516f92e529ccafcd2a8820d19a4bda6d"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-PREVIEW.json.sha256",
+          "sha256": "d9fc943e6e0f8240e3331f3230fd81a91eb3946763b1717f87a14a0396a18bff"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-EXEC-PREFLIGHT.json",
+          "sha256": "41d720cc2f26521463d93ad96abd416066c74e177adf8562dab0426c16849062"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RESULT.json",
+          "sha256": "700619e0deb178908335dfd32c1b9f9695ab2913c8071524d9a4f3e77b91005a"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-EXEC-PREFLIGHT.json",
+          "sha256": "8d40f3c83df365a9199ba2c2d515bbfebf89da5e61318e6908ad78084ac1df98"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-RESULT.json",
+          "sha256": "f0d7df1f370119a9bb4d7d42a8e3018665b1e3f5036a2c339c570c5f6f6fe6d9"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-SUMMARY.md",
+          "sha256": "3d15fe40bf30a524135b24e80e2b34e461f968414cb22f7e8901754ba7c8fdc5"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-BRANCH-DELETE-ALLOWLIST.tsv",
+          "sha256": "8967af11697b631132d90ac7b32603e74b041d496c636f3f161b902bc754d98b"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-EVIDENCE.json",
+          "sha256": "e0286d6f0d7daa0e3828970b711b78e347769c1be495309c929c03ec1b67c02f"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-GAP-CODE-TESTS.tap",
+          "sha256": "b64093af009c6e706380aa81113b50a948188aab1b1cb2a9b1e704187656f8ec"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv",
+          "sha256": "b159fb061f9e5a36c38d72eddea7fa8b310bf9e3357b591ce73a71bc952f6497"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-MILESTONE-CLEANUP-AUDIT.json",
+          "sha256": "eb9f141fce4499a9c244e576dc151561510adb2fa9146861d09ca4a610674518"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+          "sha256": "5531300b92edaf8e9e08d6d8c17c9d6e3ad3496c02d6fe2a35ecc26b49184ce1"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+          "sha256": "154487b40b5a895f5f87d8b2b78e479931e07da3fffb5ab3c35b3147e4a89633"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+          "sha256": "588a80e02e19efd8dc9ce7f3f5becc88c6b5f44930e3ad1f67ada97a64e203de"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-OPEN-PR-STATE.json",
+          "sha256": "8d8600cabd3c888bf2fa30fcf32592012a5b3a07776547bd5737c542d4a27f7c"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-ACCESS-PREFLIGHT.json",
+          "sha256": "80d2b46a67c68d0086feb25bb1a8d066117030ee392f8767a627c062901fac2a"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-REFS.tsv",
+          "sha256": "1f4b3df6b383c28e1a86817e7d41a18c64ec5e1bbdc88b804802a64f25b9aeb1"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-BRANCH-ORIGIN-REFS.tsv",
+          "sha256": "1f4b3df6b383c28e1a86817e7d41a18c64ec5e1bbdc88b804802a64f25b9aeb1"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-BRANCH-PR-STATE.json",
+          "sha256": "676db0a1e33a35084556d559041cf9ff2f0724248247e5ecef6506e4bfc8d03c"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-OPEN-PR-STATE.json",
+          "sha256": "f7219b02a708e86d87f091e7b013f89ff94eaebabd0a9df68a58d545d5604d76"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-POST-SAFETY-ORIGIN-REFS.tsv",
+          "sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-IDENTITY-AUDIT.json",
+          "sha256": "5aad409061ed3b28820e3c37873dfabf701759b8725538e671cac790a18abec3"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json",
+          "sha256": "8861d39a207145892ce2d95180d8a244b8d077915f6aea9df34e82ab1d0d9e35"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-CLASSIFICATION-ORIGIN-REFS.tsv",
+          "sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-CLASSIFICATION-PR-STATE.json",
+          "sha256": "68f1926fb68ef6007b5b04e82935d4e7187bb2e9a57e464029ee3e0ec2a6b457"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-BRANCH-ORIGIN-REFS.tsv",
+          "sha256": "f3630d45edfb29cfc5f99a8083e2421a7f6c659567faf6601a3cb8ab53ade283"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-BRANCH-PR-STATE.json",
+          "sha256": "cb99e8fb3f750034b1535e5ccd0fe5dae9fe5da2b22b04ac94d09e83e308f6ba"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-OPEN-PR-STATE.json",
+          "sha256": "1a690e68d917a72bd1295e273aa9ae8bc2ed5077d03dd2c458e4db4843b8a32f"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-PRE-SAFETY-ORIGIN-REFS.tsv",
+          "sha256": "f90abe97aceba435d961457bc5c0bf5814c6562ebb6035f6d9f76572b99cfd2a"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-READINESS.json",
+          "sha256": "795dca5b402639865b21dfa2dda46e256cc27a7a7015922609a21464ef026e4f"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-REVIEW-FIX.md",
+          "sha256": "a843d6f2a4843b01414c4c0e20e0c13362d02d1e14de509d200cb3c7815b913f"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-REVIEW.md",
+          "sha256": "20565814c962ba94a55d6ec679c5ec37d069e0f0c45a963c4a9ff234707e9d1c"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-SAFETY-BRANCH-ORIGIN-ACCESS-PREFLIGHT.json",
+          "sha256": "1b7103f2dcb5306f52bffb772517f846fecf19f1f35eee98a91171e5304d7b7f"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-SAFETY-PUBLISH.tsv",
+          "sha256": "cd56f2e4c23dffb5f1a6f0456b5d342c49d0b8c1b4788ecdf66e92075da36028"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-VALIDATION.md",
+          "sha256": "f00428433348f42f3f8c654c29dc31020aff2ae7da9f129c63fa544f77294ba4"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-VERIFICATION.md",
+          "sha256": "7989e672f80ddef768f170dfebdda8889351a6e079cdaaac6ff37fec8ebd1edf"
+        },
+        {
+          "path": ".planning/phases/245-branch-prune-local-and-remote/COVERAGE.md",
+          "sha256": "4ecaae6eccc110ec6a2eda55d0ba5d21cd923fc5681ae351aedbfcf4efe3ff80"
+        },
+        {
+          "path": ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/260923-uqh-PLAN.md",
+          "sha256": "f5b60a36bf3b417fdedd0f8c36d44a3d80bddc7eb7ff831b263ee3a8ae9e2e5e"
+        },
+        {
+          "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-PLAN.md",
+          "sha256": "6a1ccd9d5b15bbda0f1ad1e430012f41494c1eb6e2331e0adbb4d552c86fee2c"
+        },
+        {
+          "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-VERIFICATION.md",
+          "sha256": "a0c441166fb1641a195400f969224c04ba2cb68838b41ed44b3aa8f734bc8ee3"
+        },
+        {
+          "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md",
+          "sha256": "b8b32ea52a558c1ef4a2d5dd54284b964e384194ae443c12d577c6e6facd6b4c"
+        },
+        {
+          "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-RETRY.log",
+          "sha256": "e7d28696d2e0141c55936089dd62f673a110dbb520c297adf280224576e9d54d"
+        },
+        {
+          "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-PLAN.md",
+          "sha256": "d687751c555f0e2edc993b1d6df394cf1593c6527ff9c431c0694c90a5b4adfc"
+        },
+        {
+          "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-VERIFICATION.md",
+          "sha256": "80b52974bc812d02493138427e2835d7180976d003e0d231e7197c6ac235f3b5"
+        },
+        {
+          "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-BLOCKED.md",
+          "sha256": "63055e6b8e1d942dfc773494e5a5165bbabf2a8f7f9495200e2c71ab9de19501"
+        },
+        {
+          "path": ".planning/research/.cache/1939fe0e54d70d87e56c72f6b607e46b11aecdf90abb479782509d5e7a46b158.json",
+          "sha256": "a446a440b7be01d78379472497ddf9f40063c2cdd21a0d75668f36005f172289"
+        },
+        {
+          "path": ".planning/research/.cache/7d49970d3aa51d95afa9ad50dbcf62b3d6b1944459d5a0d27b3c62dce1d37fe8.json",
+          "sha256": "b9fbc7c0e39dbc9693ab2d405b2578882cf86abcda07c89f60aa170d876e6f92"
+        },
+        {
+          "path": ".planning/research/.cache/912404c9acd26e8b87e584a6fac0c85af887c81caf4097ede313017562e6fbfe.json",
+          "sha256": "ab4cded9d2dd45b00c01cf9b728efc0d53c909b3787cf49a76d5d64b3d4d430d"
+        },
+        {
+          "path": ".planning/research/.cache/91c0e7c6ac3912dfa6e9ae0de301c8385f169f7d3936c3d3a7eb4c4d1e2f0a78.json",
+          "sha256": "9ceac3292ac9dcbe3cbc5094d74891b7d6bb828737bd5be5cb0bea73aa954843"
+        },
+        {
+          "path": ".planning/research/.cache/ed0f3ecdac0460eb9afa673a640fbd0e12bd9e5b97d195e5c0792958a358768a.json",
+          "sha256": "d01d4eda380bac924676a1075dd8797f6d4a17f5250ba394442069f2fe648201"
+        },
+        {
+          "path": "scripts/maintainers/validate-milestone-cleanup-audit.mjs",
+          "sha256": "d2fa5fff4668803b1ba33bdc6b5a0e9f54a9cdcc3420448eb1901b82cb729d63"
+        },
+        {
+          "path": "scripts/maintainers/validate-milestone-cleanup-audit.test.mjs",
+          "sha256": "7e721fc0bd4dfd6aadfce699372a87c8558b13ba9077915c73b63016a0881c2f"
+        }
+      ],
+      "untracked_manifest_sha256": "1ef9f2b85ee5d01c50e70a8decc61da3e302398cf9d56b6f5ace0e8b20af48af"
+    },
+    "excluded_paths": [
+      "scripts/maintainers/prune-stale-branches.sh",
+      "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+      ".planning/phases/245-branch-prune-local-and-remote/245-27-RESULT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-16-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json.sha256",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-RECOVERY.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-31-EXEC-PREFLIGHT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-31-RECOVERY.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-31-SUMMARY.md"
+    ]
+  },
+  "coordinator_before": {
+    "verified": true,
+    "status": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\ncoordinator=verified\ncommon_dir=/Users/jon/projects/sigra/.git\nlock=free\ntransaction_leases=0",
+    "gate": "absent",
+    "lock": "free",
+    "transaction_leases": 0
+  }
+}

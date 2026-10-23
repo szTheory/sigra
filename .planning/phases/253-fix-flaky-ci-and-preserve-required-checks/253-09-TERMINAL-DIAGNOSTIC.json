@@ -1,0 +1,54 @@
+{
+  "schema_version": "sigra.phase253.registration-terminal-diagnostic/v1",
+  "status": "halted",
+  "freeze": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+    "sha256": "e662f7fe9045b576320b8885126c726c00d650261991e1d46db35d02bf868308",
+    "source_commit": "6be4b5332060595ebd528122a9f6d030bcc8788b"
+  },
+  "attempt": {
+    "slot": "D19-DIAG-01",
+    "project": "admin-eval",
+    "selection": "render bundle: board-mg-9/populated",
+    "setup_exit_code": 1,
+    "application_started": false,
+    "http_status": null,
+    "browser_launched": false,
+    "browser_exit_code": null,
+    "database_drop_exit_code": 1,
+    "execution_duration_ms": 2101,
+    "prelaunch_charge_ms": 1667,
+    "charged_duration_ms": 3768,
+    "terminal_diagnostic": "Mix rejected the runtime ExampleWeb.Endpoint port 25311 because the compiled endpoint port was 4011. Setup and cleanup both exited 1 before application or browser startup.",
+    "native_runner_result": "runner exit 3; initial validation halted because database drop did not succeed. After log redaction, direct native validation rejects the stale original setup/drop digests and the nonzero database-drop exit."
+  },
+  "redacted_logs": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/setup-log.log",
+      "sha256": "57cd1940345dacaaa82795b966bbed7a72e5ce007d3a7afe70365ff8b584c09c",
+      "bytes": 2123,
+      "redaction": "Mix's development secret_key_base value replaced with [REDACTED]."
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/drop-log.log",
+      "sha256": "57cd1940345dacaaa82795b966bbed7a72e5ce007d3a7afe70365ff8b584c09c",
+      "bytes": 2123,
+      "redaction": "Mix's development secret_key_base value replaced with [REDACTED]."
+    }
+  ],
+  "budget": {
+    "browser_launches_used": 0,
+    "browser_launches_remaining_shared_ceiling": 19,
+    "charged_ms_total": 3768,
+    "charged_ms_remaining_shared_ceiling": 3476232,
+    "diagnostic_slots_remaining": ["D19-DIAG-02", "D19-DIAG-03"],
+    "plan10_controls_or_acceptance_used": 0
+  },
+  "evidence_handling": {
+    "canonical_ledger": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+    "canonical_ledger_sha256": "17a7f9b3f0a30be002d177b70924a7efdc3dcaa5e047525951830d47ebfbfc18",
+    "canonical_ledger_preserved_unchanged": true,
+    "native_log_hashes_in_canonical_ledger_match_redacted_logs": false,
+    "reason": "Automatic approval review rejected committing an exact pre-redaction ledger snapshot as credential-bearing. The exact terminal fields are restated here without key material; the canonical ledger was left unchanged and will fail native digest verification after log redaction."
+  }
+}

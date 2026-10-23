@@ -1,0 +1,30 @@
+{
+  "status": "passed_halted_closeout",
+  "checked_at": "2026-10-21T00:10:05.562874+00:00",
+  "changed_prior_paths": [
+    ".planning/HANDOFF.json",
+    ".planning/ROADMAP.md",
+    ".planning/STATE.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    ".planning/state.json"
+  ],
+  "all_other_prior_paths_byte_identical": true,
+  "total_plans": 183,
+  "halted": 28,
+  "completed_implementation": 75,
+  "unsummarized": 80,
+  "runnable": 0,
+  "test_suite_not_repeated": true,
+  "terminal_native_result": {
+    "tests": 6,
+    "failures": 1,
+    "errors": 2,
+    "exit_code": 1
+  },
+  "syntax_valid": true,
+  "test_methods": 25,
+  "route_consistent": true,
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "phase_verification_status": "not_started"
+}

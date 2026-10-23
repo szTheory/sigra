@@ -1,0 +1,32 @@
+{
+  "phase_found": true,
+  "phase_number": "254",
+  "phase_name": "Speed Up the Measured Slow Jobs",
+  "phase_status": "Planned",
+  "phase_req_ids": "CISPEED-01, CISPEED-02",
+  "has_context": true,
+  "has_research": true,
+  "has_plans": true,
+  "plan_count": 8,
+  "captured_at": "2026-10-23T16:29:07.618095+00:00",
+  "next_command": "$gsd-execute-phase 254",
+  "prerequisite_blocker": null,
+  "baseline_source_preflight": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-PREFLIGHT.json",
+  "scope": "Ready to execute local implementation; hosted collection has unresolved prerequisites. Implementation and phase verification have not started.",
+  "wave_count": 5,
+  "task_count": 19,
+  "planning_checks": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json",
+  "hosted_collection_prerequisites": [
+    "Prove a real PR event executes the exact frozen baseline application/workflow/producer source despite the main-only trigger and PR merge tree.",
+    "Establish exact warm cache access and compatible actual runner images for both fixed conditions.",
+    "Obtain a separate explicit budget only if extra preparation runs are required; no prior Phase 253 allowance is renewed.",
+    "Freeze the prepared candidate identities, twenty-pair schedule and one 48-hour window before collection."
+  ],
+  "execution_readiness": {
+    "query": "init.execute-phase 254",
+    "plan_count": 8,
+    "incomplete_count": 8,
+    "blocked_by": {},
+    "threat_id_duplicate_count": 0
+  }
+}

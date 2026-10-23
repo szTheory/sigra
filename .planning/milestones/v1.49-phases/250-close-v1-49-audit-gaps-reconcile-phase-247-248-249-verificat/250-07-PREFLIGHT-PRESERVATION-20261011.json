@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:21:36Z",
+  "canonical_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+  "canonical_status_before": "clean",
+  "prior_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
+  "prior_captured_at": "2026-10-10T21:21:47Z",
+  "prior_target_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+  "history_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-HISTORICAL-9cb1c48-20261010.json",
+  "history_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
+  "source_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATED-84ebcea-20261011T115503Z.json",
+  "source_status_before": "?? .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATED-84ebcea-20261011T115503Z.json",
+  "source_sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+  "replacement_sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+  "replacement_target_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+  "replacement_captured_at": "2026-10-11T11:55:06Z"
+}

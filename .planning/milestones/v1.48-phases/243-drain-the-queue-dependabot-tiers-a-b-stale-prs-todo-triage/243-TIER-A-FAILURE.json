@@ -1,0 +1,201 @@
+{
+  "schema": "sigra.phase-243-tier-a-failure/1",
+  "captured_at": "2026-09-25T07:05:00Z",
+  "phase": 243,
+  "plan": "243-01",
+  "batch": "tier-a",
+  "verdict": "passed",
+  "merge_count": 4,
+  "stop_rule": "Do not merge a partial Tier A batch or begin Tier B while the fixed Tier A batch has stale or failed required checks.",
+  "baseline": {
+    "base_branch": "main",
+    "base_sha": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+    "ci_workflow_run": "https://github.com/szTheory/sigra/actions/runs/35956437825",
+    "ci_workflow_run_id": 35956437825,
+    "ci_gate_job_id": 107497303363,
+    "ci_gate_conclusion": "success",
+    "lock_versions": {
+      "@anthropic-ai/sdk": "0.110.0",
+      "zod": "4.4.3",
+      "otplib": "12.0.1"
+    },
+    "evidence_source": "origin/main at the captured SHA"
+  },
+  "pull_requests": [
+    {
+      "number": 215,
+      "title": "ci: bump actions/attest-build-provenance from 4.1.1 to 4.2.2",
+      "state": "MERGED",
+      "base": "main",
+      "head_sha": "eca754c5dbba1472356c4f1554dbd3fd18a8797f",
+      "merge_state": "MERGED",
+      "target_version": "4.2.2",
+      "lockfile": null,
+      "status": "merged; required ci-gate green",
+      "failed_run": {
+        "id": 34299057625,
+        "url": "https://github.com/szTheory/sigra/actions/runs/34299057625",
+        "conclusion": "failure",
+        "failed_jobs": [
+          {
+            "name": "Library tests shard",
+            "job_id": 102301896058,
+            "url": "https://github.com/szTheory/sigra/actions/runs/34299057625/job/102301896058",
+            "diagnosis": "Three Phase 235 contract tests assert the prior attest-build-provenance SHA 0f67c3f4856b2e3261c31976d6725780e5e4c373; this PR changes the action to 4d101475d8b20a2381f78447822ac1eab6504dd8. The failure is directly tied to the proposed pin update."
+          },
+          {
+            "name": "ci-gate",
+            "job_id": 102303661351,
+            "url": "https://github.com/szTheory/sigra/actions/runs/34299057625/job/102303661351",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      "plan_contract_mismatch": "The plan/context requires preserving a same-line # vX.Y.Z annotation, but the current base and PR diff contain no such annotation on the three changed `uses:` lines, and the PR does not add one.",
+      "merge_sha": "eca754c5dbba1472356c4f1554dbd3fd18a8797f",
+      "ci_run": {
+        "id": 36092183600,
+        "url": "https://github.com/szTheory/sigra/actions/runs/36092183600",
+        "conclusion": "success",
+        "ci_gate_job_id": 107938419574
+      }
+    },
+    {
+      "number": 227,
+      "title": "deps: bump @anthropic-ai/sdk from 0.110.0 to 0.123.0 in /test/example/priv/playwright",
+      "state": "MERGED",
+      "base": "main",
+      "head_sha": "78def9e06e7d2af130fbff551183f54cd9b8440e",
+      "merge_state": "MERGED",
+      "target_version": "0.123.0",
+      "lockfile": "test/example/priv/playwright/package-lock.json",
+      "base_locked_version": "0.110.0",
+      "status": "merged; required ci-gate green",
+      "ci_run": {
+        "id": 36093295424,
+        "url": "https://github.com/szTheory/sigra/actions/runs/36093295424",
+        "conclusion": "success",
+        "ci_gate_job_id": 107941978212
+      },
+      "merge_sha": "78def9e06e7d2af130fbff551183f54cd9b8440e"
+    },
+    {
+      "number": 228,
+      "title": "deps: bump zod from 4.4.3 to 4.5.4 in /test/example/priv/playwright",
+      "state": "MERGED",
+      "base": "main",
+      "head_sha": "e5d8495763600b78ae53047be1691de651085383",
+      "merge_state": "MERGED",
+      "target_version": "4.5.4",
+      "lockfile": "test/example/priv/playwright/package-lock.json",
+      "base_locked_version": "4.4.3",
+      "status": "merged; required ci-gate green",
+      "ci_run": {
+        "id": 36094146718,
+        "url": "https://github.com/szTheory/sigra/actions/runs/36094146718",
+        "conclusion": "success",
+        "ci_gate_job_id": 107944442095
+      },
+      "retry_diagnosis": "First refreshed run failed one unrelated test because Oban remained supervised in Sigra.Account.DeletionTest; one allowed retry is running.",
+      "merge_sha": "e5d8495763600b78ae53047be1691de651085383"
+    },
+    {
+      "number": 220,
+      "title": "deps: bump otplib from 12.0.1 to 13.5.0 in /test/example/priv/playwright",
+      "state": "MERGED",
+      "base": "main",
+      "head_sha": "53d83ba50df877044fcb1350b5a58f79d766751e",
+      "merge_state": "MERGED",
+      "target_version": "13.5.0",
+      "lockfile": "test/example/priv/playwright/package-lock.json",
+      "base_locked_version": "12.0.1",
+      "status": "merged; required ci-gate green",
+      "failed_run": {
+        "id": 33222889507,
+        "url": "https://github.com/szTheory/sigra/actions/runs/33222889507",
+        "conclusion": "failure",
+        "failed_jobs": [
+          {
+            "name": "Example Playwright shard (non_admin_smoke)",
+            "job_id": 99020544374,
+            "url": "https://github.com/szTheory/sigra/actions/runs/33222889507/job/99020544374",
+            "diagnosis": "The non_admin_smoke shard failed and caused the full-lifecycle smoke and ci-gate to fail. The public job log does not expose a concise assertion-level cause; retain this as undiagnosed until the PR is refreshed against main and its required checks rerun."
+          },
+          {
+            "name": "Example Playwright smoke (full lifecycle)",
+            "job_id": 99021620467,
+            "url": "https://github.com/szTheory/sigra/actions/runs/33222889507/job/99021620467",
+            "conclusion": "failure"
+          },
+          {
+            "name": "ci-gate",
+            "job_id": 99021638299,
+            "url": "https://github.com/szTheory/sigra/actions/runs/33222889507/job/99021638299",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      "ci_run": {
+        "id": 36097071095,
+        "url": "https://github.com/szTheory/sigra/actions/runs/36097071095",
+        "conclusion": "success",
+        "ci_gate_job_id": 107952751861
+      },
+      "merge_sha": "53d83ba50df877044fcb1350b5a58f79d766751e"
+    }
+  ],
+  "batch_outcome": {
+    "merged": [
+      {
+        "number": 215,
+        "merge_sha": "eca754c5dbba1472356c4f1554dbd3fd18a8797f"
+      },
+      {
+        "number": 227,
+        "merge_sha": "78def9e06e7d2af130fbff551183f54cd9b8440e"
+      },
+      {
+        "number": 228,
+        "merge_sha": "e5d8495763600b78ae53047be1691de651085383"
+      },
+      {
+        "number": 220,
+        "merge_sha": "53d83ba50df877044fcb1350b5a58f79d766751e"
+      }
+    ],
+    "none_advanced_as_a_partial_batch": false,
+    "main_baseline_ci_gate": "success",
+    "blockers": [
+      "No required Tier A gate blocker. Optional admin-eval probe on intermediate SHA e5d8495 failed on URL wait; subsequent final main run passed in full."
+    ],
+    "current_main_sha": "53d83ba50df877044fcb1350b5a58f79d766751e",
+    "main_ci_run": {
+      "id": 36100547128,
+      "url": "https://github.com/szTheory/sigra/actions/runs/36100547128",
+      "conclusion": "success",
+      "ci_gate_job_id": 107963937362,
+      "ci_gate_conclusion": "success"
+    }
+  },
+  "resume_condition": "Tier A is complete. Proceed to Tier B #225 after confirming no unexpected main SHA movement; require a green ci-gate on main after each Tier B merge.",
+  "repairs": [
+    {
+      "pr": 215,
+      "commit": "6754e1d02aaab14186a057ae44c72a5c14aa677d",
+      "changes": [
+        "Added # v4.2.2 to all three changed action uses lines.",
+        "Updated three Phase 235 pin assertions to the new action SHA."
+      ],
+      "verified_by_run": 36092183600
+    },
+    {
+      "pr": 220,
+      "commit": "003f79274f916dff34b804112d30dab5dd0a6095",
+      "changes": [
+        "Migrated affected Playwright specs from removed authenticator.generate(secret) to async generate({ secret }).",
+        "Removed an obsolete unused authenticator import from demo-showcase comments/spec."
+      ],
+      "basis": "Official otplib v13 migration API; run 36092189818 passed non_admin_smoke and ci-gate."
+    }
+  ]
+}

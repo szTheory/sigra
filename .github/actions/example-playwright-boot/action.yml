@@ -83,20 +83,7 @@ runs:
         key: ${{ runner.os }}-example-dev-port${{ inputs.app-port }}-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
         restore-keys: ${{ runner.os }}-example-dev-port${{ inputs.app-port }}-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-
 
-    - name: Fetch and compile example
-      shell: bash
-      working-directory: test/example
-      env:
-        MIX_ENV: dev
-        PORT: ${{ inputs.app-port }}
-        PGDATABASE: ${{ inputs.database-name }}
-        PGPORT: ${{ inputs.database-port }}
-      run: |
-        set -euo pipefail
-        mix deps.get
-        mix compile --warnings-as-errors
-
-    - name: Create, migrate, and seed example database
+    - name: Prepare example with combined Mix
       shell: bash
       working-directory: test/example
       env:
@@ -107,11 +94,7 @@ runs:
         PGHOST: localhost
         PGDATABASE: ${{ inputs.database-name }}
         PGPORT: ${{ inputs.database-port }}
-      run: |
-        set -euo pipefail
-        mix ecto.create
-        mix ecto.migrate
-        mix run priv/repo/seeds.exs
+      run: mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
 
     - name: Install Playwright dependencies
       shell: bash

@@ -1,0 +1,30 @@
+{
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "context": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-linux-build-7gj3zco1",
+  "image_tag": "sigra-phase253-registration-linux:original-4ff6c50e4",
+  "base": "mcr.microsoft.com/playwright@sha256:eac9b0a5312cdab40ee8c2429df5bf19bffdccf8f3bf3c42268e173f97541645",
+  "postgres": "docker.io/library/postgres@sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c",
+  "platform": "linux/amd64",
+  "assets": {
+    "otp.tar.gz": {
+      "url": "https://builds.hex.pm/builds/otp/amd64/ubuntu-24.04/OTP-28.5.tar.gz",
+      "sha256": "dc8038a4a8e7a1107e0c959eaeef421d8960f7a70a19d045cac3e04f67d41a81"
+    },
+    "elixir.zip": {
+      "url": "https://builds.hex.pm/builds/elixir/v1.19.5-otp-28.zip",
+      "sha256": "ca481510feb6dabc875bba43e44b25c7abafa53bd7a103639851b7aeace8a022"
+    },
+    "node.tar.xz": {
+      "url": "https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.xz",
+      "sha256": "df770b2a6f130ed8627c9782c988fda9669fa23898329a61a871e32f965e007d"
+    }
+  },
+  "browser_invocations": 0,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "acceptance": false,
+  "image_id": "sha256:e5272f11689c8740c02789ca6bf3e3fc955c4550f25ac53f738e7807205c9836",
+  "dockerfile_sha256": "24d929cfeba967676d33edb75deefaf4193cc95b072f517254552e6d5b7933e7",
+  "container_runner_sha256": "0910a03bedcbf7b5c1aba4997dbddefc551e9fe3cd5ebd121138f916fe6e4e9a",
+  "inspect_sha256": "2840bd23f4a3435febeb421ea78bc913ccca1398b00cd7d5bf08b33b4922578b"
+}

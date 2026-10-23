@@ -1,0 +1,43 @@
+{
+  "schema": "sigra.phase253.repaired-source-bundle-checks/v1",
+  "status": "passed_offline_only",
+  "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
+  "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
+  "tests": {
+    "bundle": 23,
+    "candidate_boundary": 4,
+    "namespace_boundary": 7,
+    "receipt_boundary": 3,
+    "operator_request": 4
+  },
+  "bundle_tests_total": 41,
+  "candidate_checks": {
+    "prohibitions": 118,
+    "browser_reports": 35,
+    "known_bad_claim_rejected": true
+  },
+  "network_requests": 0,
+  "ci_launches": 0,
+  "allocations": 0,
+  "approval_received": false,
+  "phase_verification_status": "not_started",
+  "historical_outcomes_modified": false,
+  "closed_windows_reopened": 0,
+  "early_draft_test_harness_corrections": [
+    "Restore the object pack before a standalone pinned-candidate checker test",
+    "Use a disposable root for real PR-startup state writes",
+    "Use explicit TAP output for stable Node test-count assertions",
+    "Remove the duplicated gsd/ prefix in the unapproved draft before regenerating objects/actions"
+  ],
+  "logs": {
+    "namespace_boundary.log": "f49b9ae352abf6fddc9ddd35956ba6b317787b1cb3fe5ebd4aff9df1c5e6a81b",
+    "candidate_boundary.log": "676a5878af06fd6f638218f9e58ca9030ca05240101034d7226e9d4c06c36e7c",
+    "self-check.log": "252f25d35bf3eb022dd39555832f95268d6f74a1f8eaa8d289f3d7507cf25a97",
+    "bundle.log": "0651ad5a1b17ca7485387e19f8f8424a79643428c318854cc6d1d22600e8ec76",
+    "operator_request.log": "d3045f8e256d135d99bdb990f11cc32bd35627693ed5a9e35b941c7b0011cbfa",
+    "receipt_boundary.log": "ed7c0f0e8b61898e64d62f11f367e289fcccb0384a0711853c1f67974f0b7fcf"
+  },
+  "prior_shared_state_commit": "8437d4bc9",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "approval_request": ".planning/execution/253-proof-bundle-4734916ee/approval-request.json"
+}

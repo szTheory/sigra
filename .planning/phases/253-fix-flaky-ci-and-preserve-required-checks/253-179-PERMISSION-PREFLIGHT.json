@@ -1,0 +1,52 @@
+{
+  "schema": "sigra.phase253.git-permission-preflight/v1",
+  "status": "passed",
+  "acceptance_status": "passed",
+  "acceptance_exit": 0,
+  "once_only": true,
+  "acceptance_source": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+  "acceptance_pid": 61419,
+  "probe": {
+    "schema": "sigra.phase253.git-permission-probe/v1",
+    "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+    "shell_pid": 61419,
+    "git_common_dir": "/Users/jon/projects/sigra/.git",
+    "object_dir": "/Users/jon/projects/sigra/.git/objects",
+    "command": [
+      "git",
+      "hash-object",
+      "-w",
+      "--stdin"
+    ],
+    "object_oid": "0eedbdb5b0b856b19325c158ad3e71261eb9f025",
+    "payload_sha256": "9e39cf94721785ca982448bd42bc1761c13bb9eac696b87b1353a77887fa2c98",
+    "readback_sha256": "9e39cf94721785ca982448bd42bc1761c13bb9eac696b87b1353a77887fa2c98",
+    "payload_bytes": 77,
+    "write_exit": 0,
+    "read_exit": 0,
+    "readback": "exact"
+  },
+  "launch": {
+    "tool": "exec_command",
+    "sandbox_permissions": "require_escalated",
+    "executor": "root",
+    "tool_call_id": "functions.exec/tool-result-chunk-1dedd5",
+    "session_id": 16381,
+    "identity_note": "The tool exposes session_id and result chunk_id; it does not expose a separate opaque call ID.",
+    "arguments": {
+      "cmd": "bash /tmp/sigra253-179-eobpr7_6/launch-wrapper.sh",
+      "sandbox_permissions": "require_escalated",
+      "justification": "Run Plan 179's authorized once-only offline acceptance with its required same-process Git write/readback; no network or CI launch.",
+      "yield_time_ms": 1000,
+      "max_output_tokens": 3000
+    },
+    "block_sha256": "96a9d177365e32058e54356c56b369d36d9bc0dfd6dff28510250b4faf7dd38c",
+    "generated_script_sha256": "b2149927e93a90ecea643df29898cc220abeae3498be85fe7b9584ecec7d36cc"
+  },
+  "generated_script_sha256": "b2149927e93a90ecea643df29898cc220abeae3498be85fe7b9584ecec7d36cc",
+  "plan_command_sha256": "96a9d177365e32058e54356c56b369d36d9bc0dfd6dff28510250b4faf7dd38c",
+  "started_at_utc": "2026-10-21T01:10:18Z",
+  "ended_at_utc": "2026-10-21T03:14:50Z",
+  "power_source": "Now drawing from 'AC Power'",
+  "attempt_dir": "/tmp/sigra253-179-eobpr7_6"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "sigra.ci-comparison-evidence/v1",
+  "status": "not_started",
+  "proof_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
+  "registrations_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-REGISTRATIONS.json",
+  "raw_bundle_refs": [],
+  "raw_bundle_digests": [],
+  "request_ledgers": [],
+  "families_started": 0,
+  "attempts": 0,
+  "reason": "No hosted collection occurred; no raw comparison evidence exists."
+}

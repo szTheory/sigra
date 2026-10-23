@@ -1,0 +1,51 @@
+{
+  "schema_version": "sigra.phase253.control-recovery-shared-preservation/v1",
+  "recorded_at": "2026-10-14T00:49:05.645506+00:00",
+  "source_head": "4f87b9650ffc54051ed9c4ab692a0283fede559c",
+  "preservation": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "bd24652b166f7eea94bf8e87628c6ebd76a242c203516ff60524fc3794befcc3",
+      "commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "f3641345aef346c61a1445decd1b7a59351383460c0503b86f02e1f22c369159",
+      "commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "2fa1e35e42686b658e95fb95c8ed73828bd18b8565e54be9601d9526a6e11710",
+      "commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "3a1a1218606b299c3edefda2064c1672f09a5d70f6597499eeaab7c6e940fd01",
+      "commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "status": "clean",
+      "sha256": "f6072c0146c81049d0fbf58e720cb392a973cf4ee31312bdafdb3531accaa375",
+      "commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c",
+      "readback_exact": true
+    }
+  ],
+  "unrelated_config": {
+    "path": ".planning/config.json",
+    "status": " M",
+    "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+    "preservation_ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+    "blob": "ab8aa3007f17294e2f224d4ac8482522b79bda24",
+    "readback_exact": true,
+    "edit_or_stage": false
+  }
+}

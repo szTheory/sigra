@@ -1,0 +1,208 @@
+{
+  "action_approval": {
+    "commit": "e4eeb9c9bc08010fa6ea0ae9b2cc341acffa6d94",
+    "path": ".planning/execution/253-proof-bundle-a6838a8f9/canary-approval.json",
+    "section": "canary",
+    "section_sha256": "4a6e26bf4f02a0808cfdda9c411b98894f19053c39bbf67c42b9d3e269ff876b",
+    "sha256": "ce912dc5688fa5b00ef734e925df7fd13e79ae39e02111686dbf995b392c2d25",
+    "window_wall_start_epoch": 1792632289
+  },
+  "allocation_path": "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/canary-allocation.json",
+  "allocation_sha256": "2eef96ef4d524d8cb12ebdaaa841f2fffb4368bd453c2bc55a457400ba9f7520",
+  "candidate_ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-candidate",
+  "candidate_sha": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+  "candidate_tree_sha": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+  "candidate_workflow_blob": "072a1ea3793213309d89f0c46d75810c6b7df341",
+  "fixture_ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-fixture",
+  "fixture_sha": "b12f53100ddaa99307de46294ec2ce07579c5b7d",
+  "fixture_tree_sha": "a186dc6b130dcc5d0e7068f4099c182b4eaad5d6",
+  "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+  "ledger_path": "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/canary-ledger.json",
+  "ledger_sha256": "69fb468000277b81fb6edb913179f336d7065c706b46ab09a2daadb4c1414ff9",
+  "manifest_sha256": "6f3bd41499f9218a45bab9785fb18fe5f60099180af0c85b7f7779f697bbbee1",
+  "origin": {
+    "allocation_mode": "live",
+    "host": "api.github.com",
+    "identities_from_ledger": true,
+    "kind": "actual-github",
+    "transactions": 19,
+    "window_id": "gsd/253-replan-proof-a6838a8f9-canary-1"
+  },
+  "production_publish_performed": true,
+  "publication_transactions": [
+    {
+      "sequence": 6,
+      "sha256": "4436ba4f46d58a162d6532a1cb2732eab0e56ebce6312611e0af702ad13a3fc1"
+    },
+    {
+      "sequence": 7,
+      "sha256": "02e2eb9850de1e4c5466853ead4b6e03b43c0b9e85817b90336ea58c0c2aeb41"
+    },
+    {
+      "sequence": 8,
+      "sha256": "00e4c9b81398bcce9c025da3532905d3eec25a9bd2f53808b0bfd6661b256639"
+    },
+    {
+      "sequence": 9,
+      "sha256": "ccab4762fe9997acf8d21d7f9e23dfa56226519b2487c45633c0576fec5a22da"
+    },
+    {
+      "sequence": 10,
+      "sha256": "403b475b3cca837da35dc3ba5f9b9d3a796c02b5649f55a17f7cd22c0a1b09e0"
+    },
+    {
+      "sequence": 11,
+      "sha256": "60df2b3003935e47140948b9ab2341ed57642d557697928ab03659a55ccd0037"
+    },
+    {
+      "sequence": 12,
+      "sha256": "5fec2d8f644233a6e4d10cbaa04adfee1d56a205a79f4b92bab9bd7c43f64dcf"
+    },
+    {
+      "sequence": 13,
+      "sha256": "ccdefb2f9a59592059f3e5544affeda672527fe9e22daf51ce280f22740aee7e"
+    },
+    {
+      "sequence": 14,
+      "sha256": "b5252623af237d5acf5e5d9784d262b715bd20183fa020369ea0c521938f63d9"
+    },
+    {
+      "sequence": 15,
+      "sha256": "935f281ba0ee5cfc3bce9cc92d4d9b6a565aa46fbd69fefbee6be6d2fa68799e"
+    },
+    {
+      "sequence": 16,
+      "sha256": "fc324923aec469308d5f96b7f217fc36b418900ae16dc79a722dedd54f336b03"
+    },
+    {
+      "sequence": 17,
+      "sha256": "56a1e36469fb2c3e2bed335e55cd1ea221a5250e6713b2e0843a033072c2e496"
+    },
+    {
+      "sequence": 18,
+      "sha256": "6399d8678955d1862835aeb475e02502bfce32fe6376a1254b5847ed718ca3d9"
+    },
+    {
+      "sequence": 19,
+      "sha256": "d1e5844476a46683bcf007361cc6948939a2b2cb15d6e2dbd1bafa0010d5aea4"
+    },
+    {
+      "sequence": 20,
+      "sha256": "bd2b0ebd0a916c85101609c5144bfe5842ec93de76d03a051b6d41a2bfad42cc"
+    },
+    {
+      "sequence": 21,
+      "sha256": "68d5b54aca373b2b408a7035d157db60e5e518bb02880941948159d6cc1c6ee7"
+    },
+    {
+      "sequence": 22,
+      "sha256": "55dfe44a69804bf9692a5861297654794b7ba70af4c044f0191f36fe540bfaaf"
+    },
+    {
+      "sequence": 23,
+      "sha256": "1f2021582aa08e471507096b941e985e4fefe869308e801f60db1ca56b36b6c3"
+    },
+    {
+      "sequence": 24,
+      "sha256": "a218b7941bf2afb94717f853c4634dc2e0f77d6f7609683237a416c117008a83"
+    }
+  ],
+  "request_count": 19,
+  "schema_version": "sigra.phase253.git-publication-receipt/v1",
+  "server_object_receipts": [
+    {
+      "kind": "parent-preflight",
+      "sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "tree": "817de2441c7b03dff93cfff89296c9c2f345d289"
+    },
+    {
+      "base_tree": "817de2441c7b03dff93cfff89296c9c2f345d289",
+      "kind": "tree",
+      "sequence": 1,
+      "sha": "9986349962a0dd4e358df682d8ddfe507a84778f",
+      "variant": "candidate-part-01"
+    },
+    {
+      "base_tree": "9986349962a0dd4e358df682d8ddfe507a84778f",
+      "kind": "tree",
+      "sequence": 2,
+      "sha": "4f1fba5024f7034266a5abb40a76c7bdeb6ff86e",
+      "variant": "candidate-part-02"
+    },
+    {
+      "kind": "blob",
+      "path": "test/fixtures/ci-metrics/archived-diagnosis/source.tar.gz",
+      "sha": "25e3ee6679a9f418f96585f9c7602cd3e7976a45"
+    },
+    {
+      "base_tree": "4f1fba5024f7034266a5abb40a76c7bdeb6ff86e",
+      "kind": "tree",
+      "sequence": 3,
+      "sha": "bc5ad02189fc66c5da3d65ab147fe310ffeeb067",
+      "variant": "candidate-part-03"
+    },
+    {
+      "base_tree": "bc5ad02189fc66c5da3d65ab147fe310ffeeb067",
+      "kind": "tree",
+      "sequence": 4,
+      "sha": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+      "variant": "candidate"
+    },
+    {
+      "kind": "commit",
+      "message": "Phase 253 frozen CI candidate\n",
+      "parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "server_message_form": "trailing_newline_stripped",
+      "sha": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+      "tree": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+      "variant": "candidate"
+    },
+    {
+      "commit": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+      "kind": "workflow-blob",
+      "sha": "072a1ea3793213309d89f0c46d75810c6b7df341",
+      "variant": "candidate"
+    },
+    {
+      "base_tree": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+      "kind": "tree",
+      "sequence": 1,
+      "sha": "a186dc6b130dcc5d0e7068f4099c182b4eaad5d6",
+      "variant": "fixture"
+    },
+    {
+      "kind": "commit",
+      "message": "Phase 253 isolated gate canary fixture\n",
+      "parent": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+      "server_message_form": "trailing_newline_stripped",
+      "sha": "b12f53100ddaa99307de46294ec2ce07579c5b7d",
+      "tree": "a186dc6b130dcc5d0e7068f4099c182b4eaad5d6",
+      "variant": "fixture"
+    },
+    {
+      "commit": "b12f53100ddaa99307de46294ec2ce07579c5b7d",
+      "kind": "workflow-blob",
+      "sha": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+      "variant": "fixture"
+    },
+    {
+      "kind": "ref",
+      "ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-candidate",
+      "sha": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+      "tree": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+      "variant": "candidate",
+      "workflow_blob": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    },
+    {
+      "kind": "ref",
+      "ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-fixture",
+      "sha": "b12f53100ddaa99307de46294ec2ce07579c5b7d",
+      "tree": "a186dc6b130dcc5d0e7068f4099c182b4eaad5d6",
+      "variant": "fixture",
+      "workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+    }
+  ],
+  "server_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "status": "published-actual-github"
+}

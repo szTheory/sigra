@@ -1,0 +1,82 @@
+{
+  "status": "complete",
+  "phase": 253,
+  "canonical_verification": {
+    "status": "passed",
+    "score": "6/6",
+    "report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md",
+    "phase_complete": true,
+    "verified_at": "2026-10-23T15:17:23.454208+00:00",
+    "requirements_completed": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "gates_commit": "70729a937a74ca11fe9b84f733563e738209d452",
+    "gate_evidence": ".planning/execution/253-final-gates",
+    "known_limit": "Original hosted loader/reloader timing remains inferred; controlled pinned-component reproduction matches the observed exception."
+  },
+  "next": {
+    "command": "$gsd-discuss-phase 254",
+    "conditional": false,
+    "label": "Discuss Phase254 \u2014 Speed Up the Measured Slow Jobs",
+    "reason": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker."
+  },
+  "readiness": {
+    "phase_found": true,
+    "phase_number": "254",
+    "phase_name": "Speed Up the Measured Slow Jobs",
+    "phase_status": "Pending",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0,
+    "auto_advance": false,
+    "auto_chain_active": false,
+    "checked_at": "2026-10-23T15:17:23.454208+00:00",
+    "prerequisite_blocker_reported": false,
+    "next_command": "$gsd-discuss-phase 254",
+    "historical_verification_is_forward_blocker": false
+  },
+  "history": {
+    "prior_commit": "70729a937a74ca11fe9b84f733563e738209d452",
+    "identity_record": ".planning/execution/253-final-gates/completion-prior-state.json",
+    "historical_plan_count": 183,
+    "completed_implementation_count": 81,
+    "halted_count": 29,
+    "retired_never_executed": 73,
+    "retirements": ".planning/execution/253-final-review/RETIREMENTS.json",
+    "original_failed_results_unchanged": true,
+    "old_allowances_remain_consumed": true
+  },
+  "completion_tool_notes": [
+    "The tool reported110/110from110active SUMMARY records; historical accounting remains81implementations/29halts/73retired recipes.",
+    "Historical plan checkboxes restored to original outcomes.",
+    "Root JSON state condensed with exact prior bytes recoverable from referenced commit.",
+    "Historical partial UAT and old-summary path-parser warnings remain historical; Phase254 readiness has no prerequisite blocker."
+  ],
+  "cleanup_deferred": [
+    "WR-01 unreachable legacy runner code",
+    "Stale advisory TODO in honest-skip-verdict.sh"
+  ],
+  "supplemental_source_review": {
+    "path": "test/example/config/dev.exs",
+    "result": "CI flag changes only code_reloader; local dev remains enabled. Final verifier inspected this actual source; no defect found."
+  },
+  "graduation": {
+    "window": [
+      249,
+      250,
+      251,
+      252,
+      253
+    ],
+    "learnings_files": [
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LEARNINGS.md"
+    ],
+    "result": "skipped_fewer_than_3_phases"
+  },
+  "new_browser_invocations": 0,
+  "new_ci_launches": 0,
+  "new_github_requests": 0,
+  "budgets_reset": false
+}

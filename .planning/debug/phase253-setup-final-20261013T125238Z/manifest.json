@@ -1,0 +1,99 @@
+{
+  "schema_version": "sigra.phase253.setup-evidence-manifest/v1",
+  "freeze": ".planning/debug/phase253-setup-final-verification-freeze.json",
+  "invocation": "bash scripts/ci/ci-registration-repro.sh --diagnose-setup --output /private/tmp/sigra-253-setup-final-20261013T125500Z.json",
+  "invocation_count": 1,
+  "cli_exit_code": 0,
+  "source_head": "46399bddc62dd3813ea2e0a136a35804a8ffa353",
+  "receipt": {
+    "original_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json",
+    "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/receipt.json",
+    "sha256": "0a9140738f3415399773c03577609dd37bafe6f5b596982d899ad25f6e3c30d1",
+    "bytes": 6694,
+    "byte_identical_to_original": true
+  },
+  "log_bindings": [
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/clone.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/clone.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/checkout.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/checkout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/deps-get.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/deps-get.log",
+      "sha256": "c48fde30cc70abf0ec48735c791d53e82f1c82f5b987a6997b319a43f11bc997",
+      "bytes": 3158
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval.db.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval.db.log",
+      "sha256": "99b9325aaae9822614faa181ce46e6f5341fa16b270e9e53796421471b4e2cab",
+      "bytes": 135667
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval.app.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval.app.log",
+      "sha256": "f640e57ace594c57448bf263a3b6d3c120537f40d8d28f2be665ccccbb6030d4",
+      "bytes": 319
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval.drop.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval.drop.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-mobile.db.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval-mobile.db.log",
+      "sha256": "c3fff63caaa73fde72abb569b89a894bc68a0bc1b3a62d83417e89fbdbe3e0a3",
+      "bytes": 135566
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-mobile.app.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval-mobile.app.log",
+      "sha256": "f9c23ade4cd3b924a28f9902a33f38ff04e3f98b8a390380de350e07c8126593",
+      "bytes": 319
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-mobile.drop.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval-mobile.drop.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-dark.db.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval-dark.db.log",
+      "sha256": "b8aad3b56a562254f0fad60cbc5333f84aa2c91e8c00582245d08a85fcdd0857",
+      "bytes": 135562
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-dark.app.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval-dark.app.log",
+      "sha256": "c1c7ab959dac22ce649a9d4ddda1929c4b239ef77e5fb6c487c8da00e6247002",
+      "bytes": 319
+    },
+    {
+      "receipt_absolute_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-dark.drop.log",
+      "committed_path": ".planning/debug/phase253-setup-final-20261013T125238Z/raw-logs/admin-eval-dark.drop.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "result": {
+    "status": "setup_passed",
+    "duration_seconds": 76,
+    "project_launches": 3,
+    "setup_exits_zero": 3,
+    "http_200": 3,
+    "drop_exits_zero": 3,
+    "browser_invocations": 0,
+    "owned_port_listeners_after_exit": 0
+  }
+}

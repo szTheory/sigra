@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-10T14:10:46Z",
+  "reason": "Preserve the exact pre-recovery Phase 250 planning checkpoint before refreshing state and the merged-main preflight",
+  "source": {
+    "branch": "phase-244-playwright-measurement",
+    "commit": "1b4df4b4d204bc905d438839887a409e56a81bd0",
+    "worktree_status": "clean"
+  },
+  "preservation": {
+    "ref": "refs/codex/preservations/phase-250-checkpoint-20261010",
+    "commit": "1b4df4b4d204bc905d438839887a409e56a81bd0",
+    "readback_verified": true
+  },
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "tracked clean",
+      "sha256": "a0c62b62fa7e25a616bb435e6b8a8941f6b3b6e5d3931ba8eb529d8a56c7ac4e"
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "tracked clean",
+      "sha256": "bbd2957cc44dd8ca90ddd2c31f52f7ff3657ec98e7ddd611f2dabb60df56eb58"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "tracked clean",
+      "sha256": "397f370a20f0397e8f5254db846f8bcd84048261191a8366dbb02ccfc89b415b"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "status": "tracked clean",
+      "sha256": "2a7e68e1963aec7f0cff29d5ff1722f5117d48c6cbdc5571273f5b2f03d94696"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "status": "tracked clean",
+      "sha256": "5d80dd349b3e7c5b42c40a64d9e133daa8819536f59f5e1e9315caf1ec356348"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "phase": 252,
+  "checked_at_utc": "2026-10-13T01:30:12.397571+00:00",
+  "checks": {
+    "route_aligned": true,
+    "phase252_complete": true,
+    "phase253_pending": true,
+    "only_two_requirements_checked": true,
+    "next_phase_ready_for_discussion": true,
+    "no_auto_advance": true,
+    "security_closed": true,
+    "code_review_closed": true,
+    "no_historical_forward_blocker": true,
+    "no_pending_jobs_or_human_actions": true,
+    "no_comparison_runs_claimed": true,
+    "initial_capture_unchanged": true
+  },
+  "preserved_tracking_exact_readbacks": 7,
+  "verification_status": {
+    "status": "passed",
+    "next_action": "Verification passed \u2014 continue.",
+    "next_command": "",
+    "route": ""
+  },
+  "baseline_verification": {
+    "cutoff_utc": "2026-10-12T22:41:22Z",
+    "diagnostics": [],
+    "source_sha": "4ed2edf5f1c231a3889fbf02b7179f9093df4883",
+    "status": "ready"
+  },
+  "next_command": "$gsd-discuss-phase 253",
+  "coverage_fingerprint_unchanged": true
+}

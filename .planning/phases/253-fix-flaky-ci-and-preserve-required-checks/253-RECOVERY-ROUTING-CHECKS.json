@@ -1,0 +1,525 @@
+{
+  "schema_version": "sigra.phase253.recovery-routing-checks/v1",
+  "recorded_at": "2026-10-13T14:05:43.714043+00:00",
+  "status": "pass",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "ready_plans": [
+    "253-09",
+    "253-11"
+  ],
+  "selected_recovery_plans": [
+    "253-09",
+    "253-10",
+    "253-11",
+    "253-12",
+    "253-13",
+    "253-14"
+  ],
+  "readiness": {
+    "executor_model": "gpt-6-luna",
+    "verifier_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "commit_docs": true,
+    "sub_repos": [],
+    "parallelization": true,
+    "context_window": 200000,
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "verifier_enabled": true,
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+    "phase_number": "253",
+    "padded_phase": "253",
+    "phase_name": "Fix Flaky CI and Preserve Required Checks",
+    "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+    "phase_req_ids": "CIREL-01, CIREL-02",
+    "plans": [
+      "253-01-PLAN.md",
+      "253-02-PLAN.md",
+      "253-03-PLAN.md",
+      "253-04-PLAN.md",
+      "253-05-PLAN.md",
+      "253-06-PLAN.md",
+      "253-07-PLAN.md",
+      "253-08-PLAN.md",
+      "253-09-PLAN.md",
+      "253-10-PLAN.md",
+      "253-11-PLAN.md",
+      "253-12-PLAN.md",
+      "253-13-PLAN.md",
+      "253-14-PLAN.md"
+    ],
+    "summaries": [
+      "253-01-SUMMARY.md",
+      "253-02-SUMMARY.md",
+      "253-03-SUMMARY.md",
+      "253-04-SUMMARY.md",
+      "253-05-SUMMARY.md",
+      "253-06-SUMMARY.md",
+      "253-07-SUMMARY.md"
+    ],
+    "incomplete_plans": [
+      "253-08-PLAN.md",
+      "253-09-PLAN.md",
+      "253-10-PLAN.md",
+      "253-11-PLAN.md",
+      "253-12-PLAN.md",
+      "253-13-PLAN.md",
+      "253-14-PLAN.md"
+    ],
+    "plan_count": 14,
+    "incomplete_count": 7,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "halted_plans": [
+      "253-02-PLAN.md",
+      "253-07-PLAN.md"
+    ],
+    "blocked_by": {
+      "253-08-PLAN.md": [
+        "253-02",
+        "253-07"
+      ]
+    },
+    "runnable_plans": [
+      "253-09-PLAN.md",
+      "253-10-PLAN.md",
+      "253-11-PLAN.md",
+      "253-12-PLAN.md",
+      "253-13-PLAN.md",
+      "253-14-PLAN.md"
+    ],
+    "runnable_count": 6,
+    "branch_name": null,
+    "milestone_version": "v1.50",
+    "milestone_name": "CI-SPEED-AND-RELIABILITY",
+    "milestone_slug": "ci-speed-and-reliability",
+    "state_exists": true,
+    "roadmap_exists": true,
+    "config_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "section_manifest": {
+      "workflow": "execute-phase",
+      "included": [
+        "regression-gate"
+      ],
+      "excluded": [
+        "partial-wave",
+        "gap-closure-artifacts"
+      ],
+      "read": [
+        "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+      ]
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "plan_index": {
+    "phase": "253",
+    "plans": [
+      {
+        "id": "253-01",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Correct the Phase 252 failure shortlist through a separate, source-bound diagnosis and retain the original replay.",
+        "files_modified": [
+          "scripts/ci/ci-run-metrics.sh",
+          "scripts/ci/ci-run-metrics.test.sh",
+          "scripts/ci/ci_metrics_security.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DIAGNOSIS.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-02",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Reproduce the current registration failure with pinned tools and signal-driven controls, then fix only an established test or CI cause.",
+        "files_modified": [
+          "scripts/ci/ci-registration-repro.sh",
+          "scripts/ci/ci-registration-repro.test.sh",
+          "test/example/priv/playwright/tests/admin-eval.spec.ts",
+          "test/example/priv/playwright/helpers/adminFlows.ts",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 3,
+        "has_summary": true,
+        "halted": true,
+        "blocked_by": []
+      },
+      {
+        "id": "253-03",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Make the internal release gate own the existing required unit smoke result.",
+        "files_modified": [
+          ".github/workflows/ci.yml",
+          "scripts/ci/honest-skip-verdict.sh",
+          "scripts/ci/honest-skip-verdict.test.sh"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-04",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Correct the browser skip inventory to describe what the workflow actually gates.",
+        "files_modified": [
+          ".github/ci-skip-manifest.tsv",
+          "MAINTAINING.md",
+          "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+          "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-05",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Validate five browser producer records and every selected native Playwright report before the aggregate can pass.",
+        "files_modified": [
+          "scripts/ci/ci-browser-records.mjs",
+          "scripts/ci/ci-browser-records.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-06",
+        "wave": 2,
+        "depends_on": [
+          "253-03",
+          "253-04",
+          "253-05"
+        ],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Wire the five browser producer records and native reports into the existing terminal required check.",
+        "files_modified": [
+          ".github/workflows/ci.yml",
+          "scripts/ci/ci-measure-workflow.test.mjs"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": false,
+        "blocked_by": []
+      },
+      {
+        "id": "253-07",
+        "wave": 3,
+        "depends_on": [
+          "253-06"
+        ],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Prove the browser gate on a bounded hosted fixture with real success, failure and cancellation outcomes.",
+        "files_modified": [
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh",
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": true,
+        "halted": true,
+        "blocked_by": []
+      },
+      {
+        "id": "253-08",
+        "wave": 4,
+        "depends_on": [
+          "253-02",
+          "253-07"
+        ],
+        "autonomous": true,
+        "gap_closure": false,
+        "objective": "Confirm required checks through normal PR CI and record exactly which reliability requirements the evidence proves.",
+        "files_modified": [
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PR-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-COMPLETION-RECORD.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [
+          "253-02",
+          "253-07"
+        ],
+        "ready": false
+      },
+      {
+        "id": "253-09",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Run the selected registration flow from a new bounded freeze and retain native receipts that can be checked independently.",
+        "files_modified": [
+          "scripts/ci/ci-registration-repro.sh",
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-10",
+        "wave": 2,
+        "depends_on": [
+          "253-09"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove the readiness and isolation controls, then fix and repeat only a demonstrated registration cause.",
+        "files_modified": [
+          "scripts/ci/ci-registration-repro.sh",
+          "scripts/ci/ci-registration-recovery.mjs",
+          "scripts/ci/ci-registration-recovery.test.mjs",
+          "test/example/priv/playwright/tests/admin-eval.spec.ts",
+          "test/example/priv/playwright/helpers/adminFlows.ts",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-ACCEPTANCE-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-09"
+        ]
+      },
+      {
+        "id": "253-11",
+        "wave": 1,
+        "depends_on": [],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Make a new hosted canary safe to launch by proving its request accounting, input sizes, and frozen identities locally.",
+        "files_modified": [
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh",
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-WORKFLOW.yml",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": true
+      },
+      {
+        "id": "253-12",
+        "wave": 2,
+        "depends_on": [
+          "253-11"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove the repaired browser gate through a fresh bounded hosted fixture and independently checked outcomes.",
+        "files_modified": [
+          "scripts/ci/ci-gate-canary.sh",
+          "scripts/ci/ci-gate-canary.test.sh",
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-11"
+        ]
+      },
+      {
+        "id": "253-13",
+        "wave": 3,
+        "depends_on": [
+          "253-10",
+          "253-12"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Prove required checks on a normal production PR and prove docs-only classification on a separate real PR.",
+        "files_modified": [
+          "scripts/ci/ci-pr-proof.sh",
+          "scripts/ci/ci-pr-proof.test.sh",
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PR-FREEZE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PR-EVIDENCE.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PR-REQUESTS.json"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 3,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-10",
+          "253-12"
+        ]
+      },
+      {
+        "id": "253-14",
+        "wave": 4,
+        "depends_on": [
+          "253-13"
+        ],
+        "autonomous": true,
+        "gap_closure": true,
+        "objective": "Record exactly what the recovery evidence proves and clear the old blocked-plan index only after both requirements are accepted.",
+        "files_modified": [
+          "scripts/ci/ci-hosted-gate-verify.py",
+          "scripts/ci/ci-hosted-gate-verify.test.py",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-COMPLETION-RECORD.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RECONCILIATION.json",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-SUMMARY.md"
+        ],
+        "files_deleted": [],
+        "agent_hint": null,
+        "task_count": 2,
+        "has_summary": false,
+        "halted": false,
+        "blocked_by": [],
+        "ready": false,
+        "unresolved_dependencies": [
+          "253-13"
+        ]
+      }
+    ],
+    "waves": {
+      "1": [
+        "253-01",
+        "253-02",
+        "253-03",
+        "253-04",
+        "253-05",
+        "253-09",
+        "253-11"
+      ],
+      "2": [
+        "253-06",
+        "253-10",
+        "253-12"
+      ],
+      "3": [
+        "253-07",
+        "253-13"
+      ],
+      "4": [
+        "253-08",
+        "253-14"
+      ]
+    },
+    "incomplete": [
+      "253-08",
+      "253-09",
+      "253-10",
+      "253-11",
+      "253-12",
+      "253-13",
+      "253-14"
+    ],
+    "runnable": [
+      "253-09",
+      "253-10",
+      "253-11",
+      "253-12",
+      "253-13",
+      "253-14"
+    ],
+    "ready_plans": [
+      "253-09",
+      "253-11"
+    ],
+    "has_checkpoints": false,
+    "warning": "Found 6 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract."
+  },
+  "unchanged_prior_paths": 211,
+  "allowed_shared_refreshes": [
+    ".planning/HANDOFF.json",
+    ".planning/ROADMAP.md",
+    ".planning/STATE.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+    ".planning/state.json"
+  ],
+  "phase252_unchanged": true,
+  "original_eight_plans_unchanged": true,
+  "reviewed_six_plans_unchanged": true,
+  "structural_checks": 12,
+  "decisions_covered": 24,
+  "requirements_open": true,
+  "historical_status_preserved": true,
+  "implementation_status": "partial",
+  "phase_verification_status": "not_started",
+  "browser_invocations": 0,
+  "github_requests": 0
+}

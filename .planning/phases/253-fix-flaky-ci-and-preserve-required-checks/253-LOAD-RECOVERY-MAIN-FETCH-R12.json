@@ -1,0 +1,58 @@
+{
+  "schema_version": "sigra.phase253.main-fetch/r12",
+  "status": "fetched",
+  "command": "git fetch --no-tags origin main",
+  "remote_url": "https://github.com/szTheory/sigra.git",
+  "approval": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-MAIN-FETCH-APPROVAL-R12.json",
+    "sha256": "b21172c63fc33cf978c52f8117356c3ab5d8dc7546cf455d454e836144d32ade",
+    "commit": "886c8d8efee47458c0087d0d7ed5abd4617e7ada"
+  },
+  "before_origin_main": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "fetched_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "fetch_head_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "fetched_at_utc": "2026-10-19T03:43:56Z",
+  "fetched_commit_committer_time": "2026-10-16T08:49:28-04:00",
+  "fetched_commit_subject": "ci: Dependabot grouping + Playwright cache fixes (#332)",
+  "ancestry": {
+    "84ebcea60024c9e8caee405d55cad1c76b0e858a": true,
+    "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97": true,
+    "09df342a82e03c3d5d40173c912b70e827f7eadc": true
+  },
+  "commits_since_4ff6c50e4": {
+    "total": 1,
+    "listed": 1,
+    "truncated": false,
+    "commits": [
+      {
+        "sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+        "committer_time": "2026-10-16T08:49:28-04:00",
+        "subject": "ci: Dependabot grouping + Playwright cache fixes (#332)"
+      }
+    ]
+  },
+  "planning_paths_changed_since_84ebcea60": [
+    ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json"
+  ],
+  "r11_candidate_merge_tree": {
+    "head": "2b239a98df72b8d47e8c4e03edf193905b3239da",
+    "against": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "exit": 1,
+    "conflicts": [
+      ".release-please-manifest.json",
+      "CHANGELOG.md",
+      "doc/llms.txt",
+      "mix.exs",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts"
+    ]
+  },
+  "control_merge_tree": {
+    "head": "2b239a98df72b8d47e8c4e03edf193905b3239da",
+    "base": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "exit": 0
+  },
+  "local_refs_changed": [
+    "refs/remotes/origin/main"
+  ],
+  "anomalies": []
+}

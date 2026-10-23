@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "19",
+  "captured_at": "2026-09-30T02:15:43Z",
+  "status": "ready",
+  "scope": ["D-05 mutator pinning and coordinator coverage", "D-07 current evidence-ref identity"],
+  "read_only": true,
+  "production_mutations": 0,
+  "d06_source_preflight": {
+    "status": "passed",
+    "pinned_input_count": 6,
+    "blob_identity_checks": "passed",
+    "sha256_checks": "passed",
+    "object_readability_checks": "passed",
+    "source": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
+      "commit": "e5f3ddecd3a7e4604d5e5afefac2e2e6d34101ea",
+      "blob": "ff3f3b59dfebd1e5baf36e6b05e84c0800728560",
+      "sha256": "45484b4658e3b61bde36d98ed1fd4a22c1c0f9f9528a1a0db855b0ab2da70317"
+    },
+    "pinned_inputs": [
+      "current_contract",
+      "local_snapshot",
+      "origin_snapshot",
+      "open_pr_state",
+      "readiness",
+      "source_preflight"
+    ],
+    "historical_pr_base_audit": "not required as planning evidence; remains unresolved",
+    "cleanup_history_audit": "not required as planning evidence; remains unresolved"
+  },
+  "existing_execution_gate_observations": {
+    "d01_readiness": "passed",
+    "d02_all_488_direct_and_peeled_objects": "passed",
+    "d05_coordinator_coverage": "blocked: scanner reports its own regex literal at prune-stale-branches-admission.mjs:135; operator/coordinator calls remain ambient",
+    "d07_current_contract": "blocked: active evidence ref is e5f3ddecd3a7e4604d5e5afefac2e2e6d34101ea; old contract permits 319bc487e8b438ff135d84f5d42018f3f35940e7",
+    "production_mutations": 0
+  },
+  "planning_boundary": "The pinned Plan 18 inputs are available and hash-verified. This permits a bounded D-05/D-07 gap plan; it does not authorize candidate classification, coordinator installation, ref deletion, origin mutation, or a replacement historical acceptance contract.",
+  "next_action": "Revise Plan 245-19 to resolve D-05 and D-07 before any candidate admission; keep unavailable historical audits explicitly unresolved."
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": "sigra.phase253.control-recovery-planning-assumptions/v1",
+  "status": "planning_contract_not_execution",
+  "discovery": {
+    "level": 0,
+    "reason": "Current RESEARCH/PATTERNS plus retained18–20 source contracts cover the existing stack; no new dependency or external capability.",
+    "research_reused": true
+  },
+  "source_facts": {
+    "wait_binding": "admin-eval.spec.ts local three-argument waitForLiveViewReady already forwards selector/timeout and waits for fonts; no ignored-option defect is asserted.",
+    "context_options": "Pinned Playwright1.59.1 runBeforeCreateBrowserContext fills combined project options for newContext; no missing-baseURL defect is asserted.",
+    "native_timeout": "HTTP200/app/setup succeeded; no native final report/error remains. Saved console shows first positive failed16.5s, two intended negatives2.3/1.8s and collision last started.",
+    "candidate_publication": "Old proposal source778be9 is stale; existing packed publisher is reused and fresh final source parity/projection must be regenerated.",
+    "registered_path": "Current publisher adds an unregistered workflow path;32 introduces explicit ci.yml fixture path without rebuilding packing/transport."
+  },
+  "edge_items": [
+    {
+      "requirement_id": "CIREL-01",
+      "category": "unclassified",
+      "source_status": "unresolved",
+      "status": "unresolved",
+      "verification": null,
+      "flagged_assumption": "Actual historical registration cause and original preceding-order log remain unknown; a helper repair/current pass cannot satisfy no-flake.",
+      "plans": [
+        "26",
+        "27",
+        "28",
+        "29",
+        "35"
+      ]
+    },
+    {
+      "requirement_id": "CIREL-02",
+      "category": "empty",
+      "source_status": "unresolved",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Null/empty/singleton/fake/duplicate/incomplete collections reject exact-five checks/producers and complete native-report proof.",
+      "plans": [
+        "30",
+        "33",
+        "34",
+        "35"
+      ],
+      "runtime_verified": false
+    },
+    {
+      "requirement_id": "CIREL-02",
+      "category": "encoding",
+      "source_status": "unresolved",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Exact UTF-8 identity bytes without normalization. Existing serialized input contract counts Unicode scalars and separately bounds UTF-8 bytes; malformed/surrogate/byte-variant input rejects.",
+      "plans": [
+        "30",
+        "32",
+        "35"
+      ],
+      "runtime_verified": false
+    }
+  ],
+  "prohibitions": [
+    {
+      "statement": "MUST NOT describe a successful helper repair or current pass as proof that historical registration failures were fixed.",
+      "status": "unresolved",
+      "reason": "Descriptor-less fallback: retain every failed outcome and disclose missing cause/order/native results."
+    },
+    {
+      "statement": "MUST NOT present synthetic dispatch or caller-written success as real PR required-check proof.",
+      "status": "unresolved",
+      "reason": "Descriptor-less fallback: native producing event/source and independent origin are required."
+    }
+  ],
+  "prohibition_contract": "Authored through installed projectProhibitions serializer, descriptor-less/unresolved/flagged-unverified. No invented check_* fields or auto-dismissal. Generic OWASP/path traversal/credential handling is covered by each plan threat model and secure-phase, not minted as bespoke prohibition.",
+  "assumption_delta": {
+    "detected": true,
+    "signal": "additional recovery",
+    "primary_noun": "source-bound evidence identity (source, command/run attempt, freeze/window)",
+    "decision": "no-change",
+    "reason": "Additive records link exact prior identities; no prior outcome/count/window is replaced or reset."
+  },
+  "packing": {
+    "status": "reviewed_planning_choice_requires_native_acceptance",
+    "regular_commands": 5,
+    "first_desktop_mobile": "One actual serial multi-project Playwright process; per-project device/theme/context and collision account results retained.",
+    "fresh_second_backends": "Three separate source-bound app/database/context invocations.",
+    "launch_unit": "playwright_cli_process",
+    "engine_worker_facts": "Retained separately; do not claim one engine or hide extra CLI processes.",
+    "blocked_alternative": "Six separate remaining single-project commands require eleven total D19 invocation reservations and exceed ten.",
+    "feasibility": "Source/actual process inventory and120000ms per-command acceptance must hold; unexpected failure or extra capacity need halts."
+  },
+  "hosted_assumptions": [
+    "Fresh parent/server objects/refs and effective required check/app scope remain unproved until33.",
+    "True artifact survival and cancellation require actual hosted native metadata; local tests cannot supply them.",
+    "Normal PR checkout can be GitHub merge commit distinct from candidate head; called source/workflow blobs must independently match.",
+    "Real docs base is trigger-only scoped exception; docs child is one-document diff.",
+    "Historical actual HTTP count remains unproved;117 new measured requests plus3 known-command allocation is not proof of all historical actual HTTP."
+  ],
+  "sdk_assumption": "31 must prove actual installed SDK can reach full-verification route through ten additive unexecuted supersession summaries while five halted summaries stay unchanged. Failure is an explicit blocker, never false completion.",
+  "phase_acceptance": false,
+  "native_launches_this_planning": 0,
+  "github_requests_this_planning": 0
+}
+

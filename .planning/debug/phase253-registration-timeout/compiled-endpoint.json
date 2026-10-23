@@ -1,0 +1,10 @@
+{
+  "status": "compiled_ci_endpoint_has_no_reloader",
+  "beam_sha256": "d17e4aa03da59f517a4006876b77b09943528ce965b227271a036239e0bf5a81",
+  "reloader_calls": [],
+  "live_reload_socket": false,
+  "liveview_socket_retained": true,
+  "app_started": false,
+  "browser_invocations": 0,
+  "ci_launches": 0
+}

@@ -1,0 +1,292 @@
+{
+  "phase": "253",
+  "waves": {
+    "1": [
+      "253-01",
+      "253-02",
+      "253-03",
+      "253-04",
+      "253-05",
+      "253-09",
+      "253-11",
+      "253-15",
+      "253-173",
+      "253-174",
+      "253-175",
+      "253-178",
+      "253-179",
+      "253-18",
+      "253-181",
+      "253-182",
+      "253-183",
+      "253-26",
+      "253-36",
+      "253-37",
+      "253-42",
+      "253-43",
+      "253-49",
+      "253-57",
+      "253-58",
+      "253-59",
+      "253-69",
+      "253-79"
+    ],
+    "2": [
+      "253-06",
+      "253-12",
+      "253-16",
+      "253-180",
+      "253-19",
+      "253-27",
+      "253-38",
+      "253-50",
+      "253-60",
+      "253-70",
+      "253-80"
+    ],
+    "3": [
+      "253-07",
+      "253-168",
+      "253-20",
+      "253-39",
+      "253-61",
+      "253-62"
+    ],
+    "4": [
+      "253-169",
+      "253-40",
+      "253-48",
+      "253-63",
+      "253-71"
+    ],
+    "5": [
+      "253-170",
+      "253-172",
+      "253-51",
+      "253-72",
+      "253-81"
+    ],
+    "6": [
+      "253-171",
+      "253-73",
+      "253-82"
+    ],
+    "7": [
+      "253-83"
+    ],
+    "8": [
+      "253-84"
+    ],
+    "9": [
+      "253-89"
+    ],
+    "10": [
+      "253-90"
+    ],
+    "11": [
+      "253-91"
+    ],
+    "12": [
+      "253-92"
+    ],
+    "13": [
+      "253-95"
+    ],
+    "14": [
+      "253-96"
+    ],
+    "15": [
+      "253-100",
+      "253-97"
+    ],
+    "16": [
+      "253-101"
+    ],
+    "17": [
+      "253-102"
+    ],
+    "18": [
+      "253-103"
+    ],
+    "19": [
+      "253-104",
+      "253-107"
+    ],
+    "20": [
+      "253-108"
+    ],
+    "21": [
+      "253-109"
+    ],
+    "22": [
+      "253-110"
+    ],
+    "23": [
+      "253-111"
+    ],
+    "24": [
+      "253-112"
+    ],
+    "25": [
+      "253-113",
+      "253-116"
+    ],
+    "26": [
+      "253-117"
+    ],
+    "27": [
+      "253-118"
+    ],
+    "28": [
+      "253-119"
+    ],
+    "29": [
+      "253-120"
+    ],
+    "30": [
+      "253-121"
+    ],
+    "31": [
+      "253-122"
+    ],
+    "32": [
+      "253-125"
+    ],
+    "33": [
+      "253-126"
+    ],
+    "34": [
+      "253-127"
+    ],
+    "35": [
+      "253-128"
+    ],
+    "36": [
+      "253-129"
+    ],
+    "37": [
+      "253-130"
+    ],
+    "38": [
+      "253-131"
+    ],
+    "39": [
+      "253-132"
+    ],
+    "40": [
+      "253-133"
+    ],
+    "41": [
+      "253-134"
+    ],
+    "42": [
+      "253-136"
+    ],
+    "43": [
+      "253-137"
+    ],
+    "44": [
+      "253-138"
+    ],
+    "45": [
+      "253-139"
+    ],
+    "46": [
+      "253-140"
+    ],
+    "47": [
+      "253-141"
+    ],
+    "48": [
+      "253-142"
+    ],
+    "49": [
+      "253-143"
+    ],
+    "50": [
+      "253-146"
+    ],
+    "51": [
+      "253-155"
+    ],
+    "52": [
+      "253-164"
+    ],
+    "53": [
+      "253-165"
+    ],
+    "54": [
+      "253-166"
+    ],
+    "55": [
+      "253-167"
+    ]
+  },
+  "incomplete": [],
+  "runnable": [],
+  "ready_plans": [],
+  "has_checkpoints": true,
+  "warning": "Found 16 plan-shaped file(s) in this phase that don't match the canonical naming convention \"{padded_phase}-{NN}-PLAN.md\" (or bare \"PLAN.md\") and were skipped: \"253-06-PLAN-PRESERVED-20261012.md\", \"253-07-PLAN-PRESERVED-20261012.md\", \"253-183-PLAN-DRAFT-01.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-01.md\", \"253-CONTROL-RECOVERY-PLAN-CHECK-02.md\", \"253-LOAD-RECOVERY-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-01.md\", \"253-PLAN-CHECK-02.md\", \"253-RECOVERY-PLAN-CHECK-01.md\", \"253-RECOVERY-PLAN-CHECK-02.md\", \"253-REPLAN-BUDGETS.md\", \"253-REPLAN-COVERAGE.md\", \"253-REPLAN-PLAN-CHECK-01.md\", \"253-REPLAN-PLAN-CHECK-02.md\", \"253-REPLAN-SOURCE-AUDIT.md\", \"253-REPLAN-VALIDATION.md\". Rename to the canonical form (e.g. \"01-01-PLAN.md\") so the executor can detect them. See agents/gsd-planner.md write_phase_prompt step for the full contract.",
+  "warnings": [
+    "Plan 253-100: declared wave: 18 but depends_on DAG places it in wave 15",
+    "Plan 253-101: declared wave: 19 but depends_on DAG places it in wave 16",
+    "Plan 253-102: declared wave: 20 but depends_on DAG places it in wave 17",
+    "Plan 253-103: declared wave: 21 but depends_on DAG places it in wave 18",
+    "Plan 253-104: declared wave: 22 but depends_on DAG places it in wave 19",
+    "Plan 253-107: declared wave: 25 but depends_on DAG places it in wave 19",
+    "Plan 253-108: declared wave: 26 but depends_on DAG places it in wave 20",
+    "Plan 253-109: declared wave: 27 but depends_on DAG places it in wave 21",
+    "Plan 253-110: declared wave: 28 but depends_on DAG places it in wave 22",
+    "Plan 253-111: declared wave: 29 but depends_on DAG places it in wave 23",
+    "Plan 253-112: declared wave: 30 but depends_on DAG places it in wave 24",
+    "Plan 253-113: declared wave: 31 but depends_on DAG places it in wave 25",
+    "Plan 253-116: declared wave: 34 but depends_on DAG places it in wave 25",
+    "Plan 253-117: declared wave: 35 but depends_on DAG places it in wave 26",
+    "Plan 253-118: declared wave: 36 but depends_on DAG places it in wave 27",
+    "Plan 253-119: declared wave: 37 but depends_on DAG places it in wave 28",
+    "Plan 253-120: declared wave: 38 but depends_on DAG places it in wave 29",
+    "Plan 253-121: declared wave: 39 but depends_on DAG places it in wave 30",
+    "Plan 253-122: declared wave: 40 but depends_on DAG places it in wave 31",
+    "Plan 253-125: declared wave: 43 but depends_on DAG places it in wave 32",
+    "Plan 253-126: declared wave: 44 but depends_on DAG places it in wave 33",
+    "Plan 253-127: declared wave: 45 but depends_on DAG places it in wave 34",
+    "Plan 253-128: declared wave: 46 but depends_on DAG places it in wave 35",
+    "Plan 253-129: declared wave: 47 but depends_on DAG places it in wave 36",
+    "Plan 253-130: declared wave: 48 but depends_on DAG places it in wave 37",
+    "Plan 253-131: declared wave: 49 but depends_on DAG places it in wave 38",
+    "Plan 253-132: declared wave: 50 but depends_on DAG places it in wave 39",
+    "Plan 253-133: declared wave: 51 but depends_on DAG places it in wave 40",
+    "Plan 253-134: declared wave: 52 but depends_on DAG places it in wave 41",
+    "Plan 253-136: declared wave: 54 but depends_on DAG places it in wave 42",
+    "Plan 253-137: declared wave: 55 but depends_on DAG places it in wave 43",
+    "Plan 253-138: declared wave: 56 but depends_on DAG places it in wave 44",
+    "Plan 253-139: declared wave: 57 but depends_on DAG places it in wave 45",
+    "Plan 253-140: declared wave: 58 but depends_on DAG places it in wave 46",
+    "Plan 253-141: declared wave: 59 but depends_on DAG places it in wave 47",
+    "Plan 253-142: declared wave: 60 but depends_on DAG places it in wave 48",
+    "Plan 253-143: declared wave: 61 but depends_on DAG places it in wave 49",
+    "Plan 253-146: declared wave: 64 but depends_on DAG places it in wave 50",
+    "Plan 253-155: declared wave: 73 but depends_on DAG places it in wave 51",
+    "Plan 253-164: declared wave: 82 but depends_on DAG places it in wave 52",
+    "Plan 253-165: declared wave: 83 but depends_on DAG places it in wave 53",
+    "Plan 253-166: declared wave: 84 but depends_on DAG places it in wave 54",
+    "Plan 253-167: declared wave: 85 but depends_on DAG places it in wave 55",
+    "Plan 253-168: declared wave: 4 but depends_on DAG places it in wave 3",
+    "Plan 253-169: declared wave: 5 but depends_on DAG places it in wave 4",
+    "Plan 253-170: declared wave: 6 but depends_on DAG places it in wave 5",
+    "Plan 253-171: declared wave: 7 but depends_on DAG places it in wave 6",
+    "Plan 253-172: declared wave: 8 but depends_on DAG places it in wave 5",
+    "Plan 253-61: declared wave: 1 but depends_on DAG places it in wave 3",
+    "Plan 253-71: declared wave: 1 but depends_on DAG places it in wave 4",
+    "Plan 253-72: declared wave: 3 but depends_on DAG places it in wave 5",
+    "Plan 253-73: declared wave: 4 but depends_on DAG places it in wave 6",
+    "Plan 253-81: declared wave: 1 but depends_on DAG places it in wave 5",
+    "Plan 253-82: declared wave: 3 but depends_on DAG places it in wave 6",
+    "Plan 253-83: declared wave: 4 but depends_on DAG places it in wave 7",
+    "Plan 253-84: declared wave: 5 but depends_on DAG places it in wave 8",
+    "Plan 253-89: declared wave: 6 but depends_on DAG places it in wave 9",
+    "Plan 253-90: declared wave: 7 but depends_on DAG places it in wave 10",
+    "Plan 253-91: declared wave: 8 but depends_on DAG places it in wave 11",
+    "Plan 253-92: declared wave: 9 but depends_on DAG places it in wave 12"
+  ]
+}

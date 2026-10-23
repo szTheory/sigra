@@ -8,9 +8,72 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.48 CLEAN-BASELINE
+## Verification Default
 
-**Goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
+Shift verification left: automate phase acceptance criteria with deterministic tests and durable
+CI evidence wherever practical. Keep human verification and UAT for genuinely irreducible judgment
+or manual actions only. See [VERIFICATION-POLICY.md](VERIFICATION-POLICY.md) for the standing GSD
+policy.
+
+During execution, a user request to proceed authorizes scoped repository work and its deterministic
+checks under the plan's stated allowlists and fail-closed preconditions; do not repeat approval
+checkpoints for actions already inside that authorization. Escalate only when the next step exceeds
+scope, requires unavailable credentials, creates an unapproved external or materially irreversible
+side effect, changes a security or public-contract decision, or leaves uncertainty that automation
+cannot resolve.
+
+## Current Milestone: v1.50 CI-SPEED-AND-RELIABILITY
+
+**Goal:** Make CI faster and more reliable while keeping useful tests and making failures easy to reproduce locally.
+
+**Target features:**
+- Measure current test times, queue time, failures, and reruns for pull requests, main pushes, and nightly CI.
+- Speed up the measured slowest jobs while keeping useful tests and controlling total runner time.
+- Reproduce and fix flaky failures without adding blanket retries; keep relevant checks runnable through the contributor CI commands.
+
+**Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
+
+**Current step:** Phases 252 and 253 are implemented and verified. CIMEAS-01/02 and CIREL-01/02 are satisfied. Phase 253 verified 6/6 with the current controlled reproduction, post-fix runs and honest gate evidence. Phase 254 discussion is complete with researched delegated defaults and exact baseline source recovery. Implementation, hosted comparison and phase verification have not started. Next: `$gsd-plan-phase 254`. Five requirements remain pending.
+
+**Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
+
+## Current State (2026-10-12)
+
+The planning cycle for Phases 246–251 is archived. The original phase reports and 8/9 audit remain unchanged in the archive; this is an explicitly user-authorized closeout with known gaps, not a claim that every acceptance check passed. Phase 251 implemented seven plans and 12 gap tasks, while verification remains 9/10.
+
+Use plain English with the user. Name the missing approval, test record, or guide directly instead of phrases such as “new trusted historical evidence.” Do not ask the user to produce records the automated recovery could not find.
+
+<details>
+<summary>v1.49 original scope and release target (historical)</summary>
+
+## Current Milestone: v1.49 RELEASE-1.6.0
+
+**Goal:** Ship Sigra 1.6.0 from reviewed, exactly tested source, with an accurate adopter upgrade path,
+green main CI, clean worktrees, triaged open PRs, and durable package-to-source evidence.
+
+**Target features:**
+- Close the pre-committed generated confirmation defects A and D, plus the adjacent verified code-paste
+  defect B from SEED-011, with deterministic generated-host regression coverage.
+- Prepare the existing Release Please 1.6.0 candidate from a clean, reviewed source; curate its
+  changelog and upgrade guidance; preserve inherited work and disposition every open PR.
+- Harden the existing release lane so the tag, tested source SHA, package, and docs are tied together,
+  with bounded permissions, publish-only credentials, and durable success/failure receipts.
+- Publish 1.6.0 and verify the Hex package, versioned HexDocs, source reference, final main CI, and a
+  clean set of local worktrees.
+
+**Package version choice:** The user delegated the version decision. Use the existing protected-main
+Release Please PR #224 proposing 1.6.0; the GSD milestone version remains v1.49.
+
+</details>
+
+## Archived Milestone Context: v1.48 CLEAN-BASELINE (opened 2026-09-15; closed 2026-10-05)
+
+**Closeout:** Internal `override_closeout`, not a Hex release. The milestone audit records 21/27
+requirements satisfied, four partial, and two unsatisfied. Live GSD readiness is 2/10 phases
+complete and passed, seven stale, and Phase 245 `gaps_found`; none of those statuses was promoted
+to passed during archival. No 1.5.1 release was published.
+
+**Original goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
 code free of planning artifacts, and a release cut — so Sigra sits in a quiet, ready posture
 where the next milestone can start whenever we choose.
 
@@ -57,7 +120,41 @@ intended *next* milestone), admin/operator-UI iteration, pruning `.planning/` ou
 BFG/filter-repo history slimming (the 645M `.git` is acknowledged and deliberately untouched),
 and any new feature work.
 
-## Current State
+## Previous State (2026-10-06)
+
+**v1.48 CLEAN-BASELINE is archived as an internal override closeout.** It advanced the generated-
+admin flake fix, release-tag namespace cleanup, adopter-surface ratchets, queue triage, and
+fail-closed branch-prune tooling. Its closeout record preserves unfinished work: no 1.5.1 release
+receipt, REPO-04 unsatisfied, and GREEN-04, GREEN-05, REL-05, and SURF-01 partial. The archive and
+milestone audit are under `.planning/milestones/`.
+
+**Hex status:** 1.20.0 is retired and the HexDocs root serves v1.5.0 documentation, but Hex still
+reports `latest_stable_version: 1.20.0`. This closeout did not publish 1.5.1 and does not claim
+that dependency resolution is repaired.
+
+**v1.49 RELEASE-1.6.0 is now being initialized.** Phase numbering continues at 246. The selected
+package target is the existing Release Please PR #224, proposing 1.6.0 from protected-main source;
+the existing release checks and public state must be rechecked at execution time. The milestone also
+honors SEED-011's explicit fast-follow commitment to verify and close generated confirmation defects
+A and D in its first phase batch, with adjacent confirmed finding B included in the same generated-host
+flow and test seam.
+
+**Carryover boundaries:** Phase 245's 11 historical PR-base rows and 30 cleanup-history pairs remain
+unresolved and out of scope absent new evidence. The Hex 1.20.0 resolver-ranking issue, remaining
+SEED-011 findings, and unrelated auth/UI work are also out of scope.
+
+**Repository baseline:** On 2026-10-06 there was one local worktree, on
+`phase-244-playwright-measurement` at `94051d8c`, with inherited changes and no upstream. Fourteen
+open PRs were visible, including #224 and ten Dependabot updates. Phase 247 will refresh this
+inventory, classify every PR, and preserve/disposition the inherited worktree before release-source
+work proceeds; this snapshot is not a substitute for that live check.
+
+**Closeout inventory:** The read-only pre-close inventory recorded 175 dirty paths across phase
+evidence, planning, docs, CI, and tests. The phase directories were moved intact into the v1.48
+archive and checkpointed separately from the remaining mixed product/CI worktree. The current
+branch has no upstream and was not treated as a PR candidate.
+
+## State at v1.48 Start (2026-09-15)
 
 **Milestone v1.47 CI-EFFICIENCY shipped 2026-09-15** as an `override_closeout`. Six phases
 (230-235) cut PR wall-clock p50 from **27.3 minutes to 469 seconds (7m49s)** across n=52
@@ -688,6 +785,35 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — v1.50, Phase 252
+
+- ✓ **CIMEAS-01:** Contributors can see the current CI baseline for pull requests, main pushes, and nightly runs, with waiting time, execution time, run conclusions, and reruns recorded separately. — Phase 252 verified.
+- ✓ **CIMEAS-02:** Maintainers can identify the largest runtime costs from saved job/step/test measurements, including setup and cache work, and use a ranked list to select improvements. — Phase 252 verified.
+
+### Validated — v1.50, Phase 253
+
+- ✓ **CIREL-01:** The flaky failures selected from current measurements are reproduced and fixed with deterministic regression checks and repeat runs, without increasing blanket retries or replacing readiness with sleeps. — Phase 253 verified6/6.
+- ✓ **CIREL-02:** Useful test coverage and required-check names remain intact; injected failures, cancellations, missing expected jobs, and unexpected skips still prevent a green required gate. Any proposed redundant-check removal needs a recorded coverage comparison before it is accepted. — Phase 253 verified6/6.
+
+### Active — v1.50 CI-SPEED-AND-RELIABILITY
+
+- [ ] **CIMEAS-03:** Maintainers can replay the final before/after comparison from saved inputs and a documented calculation, with failures, cancellations, reruns, sample sizes, and limitations disclosed.
+- [ ] **CISPEED-01:** Contributors receive the required PR CI result at least 20% faster by median elapsed time than the newly captured baseline, using a comparison method fixed before optimization.
+- [ ] **CISPEED-02:** The same comparison shows no increase in total runner time per comparable PR or in the 95th-percentile wait for the required PR CI result.
+- [ ] **CIDX-01:** Contributors can run the relevant updated CI checks locally through documented commands that agree with the CI execution paths, preserving `mix ci` as the contributor entry point.
+- [ ] **CIDX-02:** A failed updated CI check reports the failed test or command and the reproduction information it needs, with retained logs/traces and random seed when applicable.
+
+### Validated — v1.49 RELEASE-1.6.0 (closed with known gaps)
+
+- ✓ **CONF-01, CONF-02, CONF-03:** Generated confirmation, pasted spaced codes, and visible feedback proved by the archived owner/CI records.
+- ✓ **READY-02:** Complete captured PR and inherited-work decisions with readable preserved copies.
+- ✓ **AUTO-01, AUTO-02:** Exact tested release source and retained success/failure/cancellation records proved by the archived owner reports.
+- ✓ **REL-01, REL-02:** Published 1.6.0 source/package/docs proof and recorded final CI/repository closeout.
+
+### Outstanding at v1.49 close
+
+- [ ] **READY-01:** Original approval and matching readiness/test records remain missing; the published source also lacks the upgrade guide/link. This remains a failed original requirement and does not block the next planning cycle. Follow up on the guide through `.planning/todos/pending/2026-10-12-add-missing-v16-upgrade-guidance.md`.
+
 ### Validated — Phase 235
 - ✓ **FAST-01** — authenticated source-complete protected evidence verifies 52 eligible PR runs at a 469-second wall-clock p50, below the strict 720-second threshold, with literal terminal conclusions and immutable miss history.
 - ✓ **GATE-05** — the protected 93-row ownership ledger, receipts, contributor topology, and independent offline verifier remain exact while FAST-01 is reconciled.
@@ -1083,8 +1209,12 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 
 ## Key Decisions
 
+**v1.49 closeout decision:** The user explicitly instructed us to move on when original records could not be recovered. Preserve the failed requirement and strict audit; close the planning cycle with the failure disclosed. Require original approval/test records at the time of future release preparation so this situation does not recur. No release safety gate is weakened.
+
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
+| CI values tied to saved GitHub job/check/artifact/source identities | Prevent wrong-run timing, overwritten reports and unverified metadata claims | ✓ Verified Phase 252; archive replays identically |
+| Fixed later 20-pair comparison and disclosed unknowns | Prevent favorable replacements and distinguish one observation from a population estimate | ✓ Contract verified Phase 252; comparison not yet run |
 | Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated v1.0 — no regret |
 | Phoenix context pattern for generated code | `MyApp.Auth` context follows DDD boundaries, is idiomatic Phoenix, and keeps the public API clean. | ✓ Validated v1.0 — no regret |
 | Assent over Ueberauth for OAuth | Framework-agnostic, PKCE/OIDC built-in, single package vs N strategy deps, actively maintained. | ✓ Validated v1.0 — shipped 5 strategy wrappers (Google/GitHub/Apple/Facebook/Generic); Assent's PKCE + OIDC + single-package design paid off |
@@ -1114,6 +1244,9 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | A green gate must prove a lane actually ran | Phase 231 found stale conditions and skip-tolerant aggregation could report green without executing required work; live run evidence is the acceptance boundary. | ✓ Validated Phase 231 — honest-skip verdict wired into `ci-gate`; scheduled run `30607570671` closed the nightly on a real `schedule` event |
 | Source-complete signed evidence is the FAST-01 authority | Derived statistics cannot prove membership, chronology, pagination exhaustion, or preserved terminal outcomes; the signed raw source must replay exactly against the metrics instrument. | ✓ Validated Phase 235 — protected run `34350618761`, n=52, p50=469 seconds, exact offline replay |
 | FAST-01 reconciliation cannot reopen GATE-05 | Performance evidence and ownership evidence have separate protected receipts and verifiers, preventing a favorable performance result from weakening coverage ownership. | ✓ Validated Phase 235 — independent 93-row GATE-05 proof remained byte-stable and green |
+| Internal milestone closeout does not create a release tag | Planning IDs such as v1.48 are not Hex releases; two-component `v*` tags collide with the release namespace. | ✓ Recorded for v1.48 — `git.create_tag` is false and `init.complete-milestone` excludes `git-tag` |
+| Current GSD readiness takes precedence over historical pass reports | Stale verification and gaps must remain visible through closeout; archiving plans does not make their evidence current. | ✓ Applied at v1.48 close — 2/10 phases current, seven stale, Phase 245 gaps_found |
+| Shift verification left and minimize human handoffs | Prefer deterministic checks, browser automation, CI evidence, and durable machine-readable receipts; reserve human review for irreducible judgment or external actions. | ✓ Recorded as the default in `VERIFICATION-POLICY.md` and this project's Verification Default |
 
 ## Evolution
 
@@ -1235,4 +1368,14 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-09-15 — `/gsd-new-milestone` opened **v1.48 CLEAN-BASELINE** (phases continue from 236). Housekeeping/release-readiness lane chosen over the W-3/W-4 auth-UI proof milestone, which is deliberately queued next. Evidence gathered this session: `ci-gate` intermittently red on `main` via a flaky `Generated admin Playwright smoke` (the v1.45 silent-strand mechanism recurring); `pages build` red on every push; Hex `latest_stable_version` still the phantom `1.20.0`, unretired, so `{:sigra, "~> 1.0"}` misresolves; 28 `v1.NN` planning tags + 11 `phase-238-*` proof tags polluting the release-tag namespace (ADR-003 footgun, still being fed); 171 planning-bookkeeping references in `lib/`+`priv/templates/`, 5 of them dead `.planning/` paths incl. one shipping to adopters; 18 open PRs, 19 local / 31 remote branches, 3 stale worktrees, 6 stashes, 41 pending todos. Six target features: (1) green main honestly; (2) unambiguous release namespace + cut the release, incl. gated Hex `1.20.0` retire; (3) clean shipped surface; (4) clean git working state; (5) drain the PR/todo queue; (6) retire v1.47's dishonest debt (TEST-01/02 supersession, fictional parity guard, composite-action supply-chain gap). Also corrected a stale Current State claim that `1.4.0` was latest — `v1.5.0` is live. Human-gated: `mix hex.retire sigra 1.20.0 invalid`. Out of scope: W-3/W-4 auth-UI runtime proof, admin/operator-UI iteration, `.planning/` pruning, BFG history slimming, all new features. Next: define REQUIREMENTS.md → roadmap.*
 
+
 *Last updated: 2026-09-17 after Phase **238 Tag Guard, Then Tag Deletion** completed (6/6 plans; verification passed, UAT 1/1, security threats_open 0 across a 35-entry register). REL-01 satisfied as a **supersession** — its "server-side ruleset + paired contract test, demonstrated RED, before any deletion" holds, but its implied SemVer-validator mechanism does not: Tier 1 `tag_name_pattern` is enterprise-gated and was rejected live (`HTTP 422`) on this Free-tier repo, so the landed Tier 2 `creation` rule with `exclude: refs/tags/v*.*.*` is a shape guard. REL-02 satisfied: 39 tags deleted from a committed allowlist (never a glob), one literal name per invocation, `pre_delete_sha` captured for every ref, release surface unchanged and zero untagged drafts. The last UAT item — whether the `tag_ruleset_drift` observer actually executes post-merge — was closed by evidence, not by eye: observe run `35249205910` ran the job green (`live tag-namespace ruleset (id 23574716) matches the committed snapshot`). Recorded trap: two earlier observe runs at the same head SHA reported the RUN green while the job was `skipped` (its guard is `workflow_run.event != 'pull_request'`), so a green run is not proof — only the job's own conclusion and stdout are. Carry-forward: `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*` now tracks three items — the unreachable `ABSENT` branch, the unpaginated ruleset list, and the absent assertion that the job ran; all three fail closed. **Never run `git gc`, `reflog expire` or `prune`** — the allowlist's `pre_delete_sha` column is Phase 245's forward-feed and the deleted objects must stay reachable by SHA. Phase 239 (`priv/templates/` sweep + one batched re-bless) is next.*
+
+*Last updated: 2026-10-06 — Opened milestone v1.49 RELEASE-1.6.0; phases continue at 246. Package version 1.6.0 was selected from existing Release Please PR #224 by user delegation. Four bounded phases cover the committed generated-confirmation fast-follow, release-source readiness, exact-source automation, and publication. Shift-left verification is the default per VERIFICATION-POLICY.md.*
+
+---
+*Last updated: 2026-10-12 after starting v1.50 CI-SPEED-AND-RELIABILITY with user-confirmed scope.*
+
+*Last updated: 2026-10-12 after Phase 252 implementation and verification; Phase 253 discussion is next.*
+
+*Last updated: 2026-10-23 after Phase 253 implementation and final verification; Phase 254 discussion is next.*

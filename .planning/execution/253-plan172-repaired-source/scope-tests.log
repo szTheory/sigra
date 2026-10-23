@@ -1,0 +1,38 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.482s
+
+OK
+{
+  "schema": "sigra.phase253.repaired-source-offline-checks/v1",
+  "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "product_delta": [
+    "scripts/ci/admin-acceptance-smoke.sh",
+    "scripts/ci/ci-hosted-gate-verify.py",
+    "scripts/ci/ci-pr-proof.test.sh",
+    "test/sigra/planning/phase_146_release_validation_test.exs"
+  ],
+  "gate_inputs": {
+    ".github/workflows/ci.yml": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+    ".github/ci-skip-manifest.tsv": "cad8c02e7f8614cd2e13e2df377505803f301ad7c24410f66e62247d1e9fc41d",
+    "scripts/ci/ci-browser-records.mjs": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e",
+    "scripts/ci/ci-playwright-report.mjs": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+    "scripts/ci/honest-skip-verdict.sh": "33fb73b70e7733b7701e353cd2fcdb6400294194c00ed58c314841e8277b9488",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b"
+  },
+  "verifier_scope": {
+    "canary_code_unchanged": true,
+    "excluded_pr_functions": [
+      "compare_file_paths",
+      "verify_pr_family"
+    ]
+  },
+  "old_normal_with_repaired_docs_rejected": true,
+  "objects_pack_verified": true,
+  "network_calls": 0,
+  "ci_launches": 0,
+  "historical_canaries_remain_proof_of_original_gate_inputs": true,
+  "repaired_source_hosted_acceptance": false,
+  "phase_verified": false,
+  "original_selected_failure_reproduced": false
+}

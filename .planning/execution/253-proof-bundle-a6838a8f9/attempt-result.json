@@ -1,0 +1,39 @@
+{
+  "state": {
+    "schema": "sigra.phase253.proof-run/v1",
+    "status": "halted",
+    "stage": "closed",
+    "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+    "approval_sha256": "5c74726353c38c55d7dc009a0448462cf186abeca94170682d9748d845d917d8",
+    "expected_parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "started_epoch": 1792632280,
+    "command_count": 17,
+    "parent_verified": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "merge_preflight": {
+      "head": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+      "base": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "exit": 0,
+      "clean": true,
+      "conflicts": []
+    },
+    "canary_allocation_sha256": "2eef96ef4d524d8cb12ebdaaa841f2fffb4368bd453c2bc55a457400ba9f7520",
+    "canary_started_epoch": 1792632281,
+    "canary_verified": true,
+    "prs_allocation_sha256": "e7dd5ba706aa332ea5c19ac70a75dd38db758c495dee037c00c928003db47b0b",
+    "prs_started_epoch": 1792633113,
+    "stop": "command failed with exit 1: /opt/homebrew/opt/python@3.14/bin/python3.14 [PosixPath('/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/runtime/ci-hosted-gate-verify.py'), '--mode']",
+    "completed_epoch": 1792633621
+  },
+  "artifacts": {
+    "normal-evidence.json": "46ebbcbb7f6df17394a9da78f2c10a0f5cffa7603c5e4fbd138ee392db038d6d",
+    "publication-receipt.json": "4b873d6e54d89485882cdf040931827643e554827c77241c8d38ce5b5d4c5765",
+    "canary-ledger.json": "54d49c3f2e811ba1c85f35b627d3a76cad2dc14dad94fb23cefe3f847606506b",
+    "prs-ledger.json": "57966d72d5bf9a4fa2773d18cca91b6c7a69239156033e3f085e44d5de41a9b3",
+    "canary-allocation.json": "2eef96ef4d524d8cb12ebdaaa841f2fffb4368bd453c2bc55a457400ba9f7520",
+    "canary-evidence.json": "5980e599984d58b268b5b176c205b904270e0abf90185a0ed667bf997dd41181",
+    "prs-allocation.json": "e7dd5ba706aa332ea5c19ac70a75dd38db758c495dee037c00c928003db47b0b"
+  },
+  "historical_windows_changed": false,
+  "reruns": 0
+}

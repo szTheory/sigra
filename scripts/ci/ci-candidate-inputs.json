@@ -1,0 +1,11 @@
+{
+  "schema_version": "sigra.ci-candidate-inputs/v1",
+  "inputs": {
+    ".planning/milestones/v1.48-REQUIREMENTS.md": "29f2b24d7b4da173cae78c34d0a024d39f6169edb8d04bae8597edecd26bb9db",
+    ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md": "81e80839881831575046d7846aa9bad0099a0730077004a4f296028da173c65a",
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-03-SUMMARY.md": "f9659699640d7f145a46289b17da6313d6c30158eb47424e40609bd5febaab97",
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-10-SUMMARY.md": "4046bad1b171594760ec8faf0d9439829bc4fca34c41a9c38c753637fa4b08fc",
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-12-SUMMARY.md": "035979fd2e6db7b058f42c5f0a3dabf797009e7b8137d2aa02f0c005a1a96187",
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md": "d8d6a852556c02223e719c0a2f8679016da8516013576f74d04c99243679f39b"
+  }
+}

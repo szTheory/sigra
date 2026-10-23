@@ -16,8 +16,22 @@
  * Phase 216-03 Plan, HARNESS-01 requirement.
  */
 
-import { parseFragment } from 'parse5';
 import { createHash } from 'node:crypto';
+
+// parse5 8.x is ESM-only. Playwright transforms this module to CommonJS, where a static
+// import becomes require() and throws ERR_REQUIRE_ESM under Node 20. A native dynamic
+// import() works from both module systems; the promise is cached after first use.
+type ParseFragment = (html: string) => unknown;
+let parseFragmentPromise: Promise<ParseFragment> | undefined;
+
+function loadParseFragment(): Promise<ParseFragment> {
+  parseFragmentPromise ??= import('parse5').then((mod) => mod.parseFragment as ParseFragment);
+  // A failed import must not be cached as a permanent failure, and is never masked.
+  parseFragmentPromise.catch(() => {
+    parseFragmentPromise = undefined;
+  });
+  return parseFragmentPromise;
+}
 
 // ── Allowlist and volatile sets ───────────────────────────────────────────────
 
@@ -182,9 +196,10 @@ function walk(node: ParseNode): string {
  * bundle.facts (see bundle.ts) for probe consumption.
  *
  * @param outerHTML - Post-hydration HTML string (full page or fragment)
- * @returns 64-char lowercase hex sha256
+ * @returns Promise of a 64-char lowercase hex sha256
  */
-export function renderSha256(outerHTML: string): string {
+export async function renderSha256(outerHTML: string): Promise<string> {
+  const parseFragment = await loadParseFragment();
   const doc = parseFragment(outerHTML) as ParseNode;
   const canon = walk(doc);
   return createHash('sha256').update(canon).digest('hex');

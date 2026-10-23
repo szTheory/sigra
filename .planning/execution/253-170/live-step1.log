@@ -1,0 +1,85 @@
+projected check_runs pages 4 budget 10
+== commit the allocation alone
+952ebb7a9 docs(253-170): declare the R13 live canary HTTP allocation
+== pre-clock asserts (offline)
+CLOCK STARTS 2026-10-21T17:43:32Z (publish-only)
+ci-gate-canary: counted publication verified (requests=17/117; no workflow dispatch)
+publication receipt valid
+== full-pass 2026-10-21T17:44:50Z
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "status": "preflight_verified",
+  "transport": {
+    "requests": 24,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifact_digest": "sha256:df4077d9d8ab93d833ae5c827bc8ce631277528367b1e2ae4daeb6371ef0cffa",
+    "artifact_id": 12368250609,
+    "conclusion": "success",
+    "run_id": "39646563957",
+    "scenario": "full-pass",
+    "status": "verified",
+    "synthetic": true
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 33,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+ci-gate-canary: retained evidence at /Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13.json (requests=33/117; job ceiling=45; time ceiling=60m)
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifact_digest": "sha256:df4077d9d8ab93d833ae5c827bc8ce631277528367b1e2ae4daeb6371ef0cffa",
+    "artifact_id": 12368250609,
+    "conclusion": "success",
+    "run_id": "39646563957",
+    "scenario": "full-pass",
+    "status": "verified",
+    "synthetic": true
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 33,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+e01083692 docs(253-170): R13 full-pass evidence, ledger and publication receipt
+WINDOW DEADLINE 2026-10-21T18:43:36Z (window started 2026-10-21T17:43:36Z; the whole window must finish before the deadline)
+DONE step 1 2026-10-21T17:46:36Z. Now run promptly: bash .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-R13-CANARY-OPERATOR.sh remaining
+RUNNER-EXIT 0

@@ -1,0 +1,9 @@
+{
+  "schema": "sigra.phase253.paired-candidate-publication/v1",
+  "mode": "live",
+  "candidate_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+  "parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "ledger_sha256": "f110631bdce451f5b80bc23635d335d4b49036c1876212d5eec858cfeb8207c3",
+  "allocation_sha256": "57eccae6ae92cb43718cf88f305ae0eb27adf2210ec74d45d789b44b7d2ed08c",
+  "complete": true
+}

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "timestamp": "2026-10-23T19:53:39.202034+00:00",
+  "updated_at": "2026-10-23T21:09:52.686054+00:00",
+  "status": "in_progress",
+  "current_milestone": "v1.50",
+  "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
+  "current_phase": 254,
+  "current": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+  "next_command": "$gsd-execute-phase 254",
+  "resume_command": "$gsd-execute-phase 254",
+  "next_command_conditional": false,
+  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md",
+  "next_action": "Implement and test attempt-specific registration/acquisition/timing/cost before hosted preparation",
+  "route": {
+    "status": "in_progress",
+    "next_command": "$gsd-execute-phase 254",
+    "resume_command": "$gsd-execute-phase 254",
+    "conditional": false,
+    "condition": "User approved the explicit rerun amendment and separate two-invocation preparation allowance; continue same Plan08 under that authorization.",
+    "reason": "Approved rerun continuation; implementation and preparation feasibility checks are in progress.",
+    "resume_plan": "254-08",
+    "resume_task": "254-08-01",
+    "checkpoint": "blocked_before_preparation_or_collection",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
+    "historical_verification_is_forward_blocker": false
+  },
+  "current_routing": {
+    "status": "in_progress",
+    "next_command": "$gsd-execute-phase 254",
+    "resume_command": "$gsd-execute-phase 254",
+    "conditional": false,
+    "condition": "User approved the explicit rerun amendment and separate two-invocation preparation allowance; continue same Plan08 under that authorization.",
+    "reason": "Approved rerun continuation; implementation and preparation feasibility checks are in progress.",
+    "resume_plan": "254-08",
+    "resume_task": "254-08-01",
+    "checkpoint": "blocked_before_preparation_or_collection",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
+    "historical_verification_is_forward_blocker": false
+  },
+  "workflow": {
+    "phase253_implementation_status": "complete",
+    "phase253_verification_status": "passed",
+    "phase254_implementation_status": "complete",
+    "phase254_comparison_status": "blocked_not_started",
+    "phase254_verification_status": "pending",
+    "phase254_completed_plans": 7,
+    "phase254_halted_plans": [
+      "254-08"
+    ],
+    "phase254_plan_count": 8,
+    "next_required_gate": "Use the approved rerun amendment. Prove exact original baseline workflow/checkout, fixed candidate identity, attempt timing, cache/image compatibility and durable capture before measured collection."
+  },
+  "phase253_canonical_verification": {
+    "status": "passed",
+    "score": "6/6",
+    "report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md",
+    "phase_complete": true,
+    "verified_at": "2026-10-23T15:17:23.454208+00:00",
+    "requirements_completed": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "gates_commit": "70729a937a74ca11fe9b84f733563e738209d452",
+    "gate_evidence": ".planning/execution/253-final-gates",
+    "known_limit": "Original hosted loader/reloader timing remains inferred; controlled pinned-component reproduction matches the observed exception."
+  },
+  "phase253_history": {
+    "prior_commit": "70729a937a74ca11fe9b84f733563e738209d452",
+    "identity_record": ".planning/execution/253-final-gates/completion-prior-state.json",
+    "historical_plan_count": 183,
+    "completed_implementation_count": 81,
+    "halted_count": 29,
+    "retired_never_executed": 73,
+    "retirements": ".planning/execution/253-final-review/RETIREMENTS.json",
+    "original_failed_results_unchanged": true,
+    "old_allowances_remain_consumed": true
+  },
+  "phase254_evidence": {
+    "eligibility": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COLLECTION-ELIGIBILITY.json",
+    "hosted_readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-READINESS.json",
+    "hosted_pr_path_proof": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
+    "halted_summary": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
+    "validator_maintenance": ".planning/execution/254-validator-maintenance.json",
+    "hosted_runs_started": false,
+    "preparation_runs": 0,
+    "comparison_families_started": 0,
+    "window_started": false,
+    "rerun_authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json"
+  },
+  "preservation": {
+    "ref": "refs/gsd/phase254/state-before-hosted-halt",
+    "commit": "f2cd83578701b4d212c7b4fc955d50179e867880",
+    "files": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "git_blob": "5c10129df9b1540c1d4b07d7aaacbc506b958522",
+        "sha256": "8aa85b0ab13249ae3ac64503cf86de2ee7292ccf0e017997d635695f7ac545db",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "git_blob": "aff9d4541aec6a48d0b71961bb163ce9c6b624c5",
+        "sha256": "e3a814935ec5791b0978bffc5dbb9d27de22e57eb440c57afce68f5022948002",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "git_blob": "823a60d11c48fa823abd42b8821b64824a40fa29",
+        "sha256": "9164d9d988ecd652996cfe0e46dda6c32d12774994dbaf92eda280fbae297c60",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "git_blob": "c894adcfff86dc904a593679705d5b0e42580536",
+        "sha256": "cd6686a1ceb052fce4df803a30678852a644de4886cc96692af4ed4ba5b4fedc",
+        "readback_verified": true
+      }
+    ]
+  },
+  "historical_verification_is_forward_blocker": false,
+  "human_actions_pending": [],
+  "async_jobs": [],
+  "known_unfinished_work": {
+    "READY-01": "Original approval, matching readiness/test records, and independently confirmed old report are missing; requirement remains unsatisfied.",
+    "upgrade_guidance": "Published 1.6.0 lacks the guide/link; separately tracked corrective documentation task.",
+    "phase252_revision_source": "Run 38144377407 returned pull_requests: []; its bundle proves one source SHA. Multi-revision timing remains unknown until each revision has retained source data."
+  },
+  "authorization": {
+    "scope": "User invoked $gsd-execute-phase254. Implementation and conditional fixed comparison are authorized within the plans.",
+    "extra_preparation_runs_authorized": false,
+    "previous_phase253_allowances": "unchanged; not reused",
+    "baseline_method_changed": false
+  },
+  "phase254_unblock_decision": {
+    "status": "approved",
+    "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
+    "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
+    "notification_created": false
+  }
+}
