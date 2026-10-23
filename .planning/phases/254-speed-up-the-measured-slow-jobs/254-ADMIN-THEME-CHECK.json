@@ -2,8 +2,8 @@
   "schema_version": "sigra.phase254.admin-theme-check/v1",
   "status": "blocked",
   "mode": "tracer",
-  "source_sha": "1ec4925512e5e31df22b4ef64c79bedf42df9906",
-  "started_at": "2026-10-23T17:25:36.071Z",
+  "source_sha": "bca4f4fc40959968843cf4fc73097a29e4dd8a5d",
+  "started_at": "2026-10-23T17:27:06.336Z",
   "limits": {
     "max_duration_seconds": 1200,
     "max_workers": 1,
@@ -26,32 +26,32 @@
         "--shared",
         "--no-checkout",
         "/Users/jon/projects/sigra",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/repo"
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/repo"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 25,
+      "duration_ms": 22,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/clone.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/clone.log"
     },
     {
       "name": "source-checkout",
       "command": [
         "git",
         "-C",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/repo",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/repo",
         "checkout",
         "--quiet",
         "--detach",
-        "1ec4925512e5e31df22b4ef64c79bedf42df9906"
+        "bca4f4fc40959968843cf4fc73097a29e4dd8a5d"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1336,
+      "duration_ms": 1050,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/checkout.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/checkout.log"
     },
     {
       "name": "postgres-readiness",
@@ -65,9 +65,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 20,
+      "duration_ms": 19,
       "log_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/postgres-health.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/postgres-health.log"
     },
     {
       "name": "dependency-fetch",
@@ -79,9 +79,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 2243,
-      "log_sha256": "fab332ef79088f50f208763e795599ad1c4fc85d5a32271fb017999826c822c1",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/dependency-fetch.log"
+      "duration_ms": 2327,
+      "log_sha256": "e151e5c33fc9548ec9b4c04f41b1dd696e2b59c726db54ae35802e31cc44487b",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/dependency-fetch.log"
     },
     {
       "name": "compile",
@@ -93,9 +93,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 19698,
-      "log_sha256": "32aad9d119a000416190bbc6271c0344f8c1e9d9cc6e08a8bd06277230a75ce8",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/compile.log"
+      "duration_ms": 19200,
+      "log_sha256": "4a88b0abd956e07458bea983efd2f5b4abf6d06bdbdea216d000b678c9eae60b",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/compile.log"
     },
     {
       "name": "pinned-playwright-dependencies",
@@ -106,9 +106,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 784,
-      "log_sha256": "3b806d30f8eb5bccbc4a5fe7fd3f9ae82cc0a28ca01a9250d10ff37c0caac246",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/npm-ci.log"
+      "duration_ms": 791,
+      "log_sha256": "329bb4dfa8953e76f2874cde1c80fccc4ac0e8ac7a8d1ebe3d95fabc682769b5",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/npm-ci.log"
     },
     {
       "name": "chromium-install",
@@ -121,9 +121,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 29686,
-      "log_sha256": "068df522aa88c94c2fce39827682f01aaf8815c655ed2e987437e24f1d595d77",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/browser-install.log"
+      "duration_ms": 30329,
+      "log_sha256": "40beddf6f9218acb3155d756a85a871f416e77064e6ef51d164d559c3b6643cf",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/browser-install.log"
     },
     {
       "name": "1-tracer-topbar-database-create",
@@ -135,9 +135,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 825,
+      "duration_ms": 902,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/1-tracer-topbar-database-create.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/1-tracer-topbar-database-create.log"
     },
     {
       "name": "1-tracer-topbar-database-migrate",
@@ -149,9 +149,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 957,
+      "duration_ms": 964,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/1-tracer-topbar-database-migrate.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/1-tracer-topbar-database-migrate.log"
     },
     {
       "name": "1-tracer-topbar-database-seed",
@@ -163,9 +163,9 @@
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1044,
-      "log_sha256": "541dcff2944edaeae3265af6d618c28b3652f986f4a71b45478417b79ec7754d",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/1-tracer-topbar-seeds.log"
+      "duration_ms": 1035,
+      "log_sha256": "41febef6ca072ab82ce3b784b4a01ccbbdab956031e554500f04ceb6a77af462",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/logs/1-tracer-topbar-seeds.log"
     }
   ],
   "browser_invocations": [
@@ -181,16 +181,17 @@
         "--workers=1",
         "--retries=0",
         "--grep",
-        "^renders stable topbar controls and overview notice before deferred app JS$"
+        "renders stable topbar controls and overview notice before deferred app JS"
       ],
       "exit_code": 1,
       "signal": null,
-      "duration_ms": 431,
-      "log_sha256": "10430d4abdbd108757550247ef54aa526417db51010e4fcac2d0bf16fe54e830",
-      "native_report_sha256": "55fa69e67f7c887307508b56932e2c335fb0b6159e1fdb3dff506f6a71fd12cf",
+      "duration_ms": 803,
+      "log_sha256": "1ea5ea5c543c836c5fc93637728e7bc53a73eda97d47027c850dd66bfe0c40c3",
+      "log_excerpt": "4 --no-sandbox --user-data-dir=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/playwright_chromiumdev_profile-wiiBAN --remote-debugging-pipe --no-startup-window\n    <launched> pid=60671\n    [pid=60671][err] [1023/132805.097180:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\n    [pid=60671][err] [1023/132805.100630:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\n    [pid=60671][err] [1023/132805.102248:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.60671: Permission denied (1100)\n    [pid=60671] <process did exit: exitCode=null, signal=SIGTRAP>\n    [pid=60671] starting temporary directories cleanup\n    Call log:\n    \u001b[2m  - <launching> /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-wwXORA/browsers/chromium_headless_shell-1217/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/playwright_chromiumdev_profile-wiiBAN --remote-debugging-pipe --no-startup-window\u001b[22m\n    \u001b[2m  - <launched> pid=60671\u001b[22m\n    \u001b[2m  - [pid=60671][err] [1023/132805.097180:ERROR:base/power_monitor/thermal_state_observer_mac.mm:140] ThermalStateObserverMac unable to register to power notifications. Result: 9\u001b[22m\n    \u001b[2m  - [pid=60671][err] [1023/132805.100630:ERROR:net/dns/dns_config_service_posix.cc:138] DNS config watch failed to start.\u001b[22m\n    \u001b[2m  - [pid=60671][err] [1023/132805.102248:FATAL:base/apple/mach_port_rendezvous_mac.cc:159] Check failed: kr == KERN_SUCCESS. bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer.60671: Permission denied (1100)\u001b[22m\n    \u001b[2m  - [pid=60671] <process did exit: exitCode=null, signal=SIGTRAP>\u001b[22m\n    \u001b[2m  - [pid=60671] starting temporary directories cleanup\u001b[22m\n    \u001b[2m  - [pid=60671] <gracefully close start>\u001b[22m\n    \u001b[2m  - [pid=60671] <kill>\u001b[22m\n    \u001b[2m  - [pid=60671] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n    \u001b[2m  - [pid=60671] finished temporary directories cleanup\u001b[22m\n    \u001b[2m  - [pid=60671] <gracefully close end>\u001b[22m\n\n\n    Error Context: test-results/admin-theme-admin-theme-sw-76696-tice-before-deferred-app-JS-chromium/error-context.md\n\n  1 failed\n    [chromium] › tests/admin-theme.spec.ts:384:17 › admin theme switch › renders stable topbar controls and overview notice before deferred app JS \n",
+      "native_report_sha256": "92b703a22db72e9d07f168b82c9a9719ecf693cd5638e88fe52b134cb668ada7",
       "native_report_status": {
         "passed": 0,
-        "failed": 0,
+        "failed": 1,
         "skipped": 0
       },
       "safe_state": null,
@@ -202,15 +203,15 @@
       "name": "1-tracer-topbar-app-readiness",
       "passed": true,
       "http_status": 200,
-      "database_identity": "sigra_254_theme_57906_1_tracer_topbar"
+      "database_identity": "sigra_254_theme_59744_1_tracer_topbar"
     }
   ],
   "interpretation": "Local browser development diagnostics only; these results do not prove the CISPEED hosted median, p95, or runner-cost targets.",
   "failure": {
     "message": "browser_invocation_failed:tracer-topbar:exit_1"
   },
-  "completed_at": "2026-10-23T17:26:35.519Z",
-  "duration_seconds": 59,
+  "completed_at": "2026-10-23T17:28:06.195Z",
+  "duration_seconds": 60,
   "cleanup": {
     "checkout_removed": true,
     "scoped_temp_removed": true
