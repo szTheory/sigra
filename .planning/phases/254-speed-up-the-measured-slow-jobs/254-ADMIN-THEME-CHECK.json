@@ -1,0 +1,64 @@
+{
+  "schema_version": "sigra.phase254.admin-theme-check/v1",
+  "status": "blocked",
+  "mode": "tracer",
+  "source_sha": "8a12a761c70e02f8c3d226129e163a2a3a392257",
+  "started_at": "2026-10-23T17:23:45.517Z",
+  "limits": {
+    "max_duration_seconds": 1200,
+    "max_workers": 1,
+    "retries": 0,
+    "hosted_runs": 0
+  },
+  "source_digests": {},
+  "commands": [
+    {
+      "name": "checkout-clone",
+      "command": [
+        "git",
+        "clone",
+        "--quiet",
+        "--shared",
+        "--no-checkout",
+        "/Users/jon/projects/sigra",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/repo"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 24,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/logs/clone.log"
+    },
+    {
+      "name": "source-checkout",
+      "command": [
+        "git",
+        "-C",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/repo",
+        "checkout",
+        "--quiet",
+        "--detach",
+        "8a12a761c70e02f8c3d226129e163a2a3a392257"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1464,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/logs/checkout.log"
+    }
+  ],
+  "browser_invocations": [],
+  "state_controls": [],
+  "interpretation": "Local browser development diagnostics only; these results do not prove the CISPEED hosted median, p95, or runner-cost targets.",
+  "failure": {
+    "message": "pinned_toolchain_mismatch:v20.18.1/"
+  },
+  "completed_at": "2026-10-23T17:23:47.109Z",
+  "duration_seconds": 2,
+  "cleanup": {
+    "checkout_removed": true,
+    "scoped_temp_removed": true
+  }
+}
