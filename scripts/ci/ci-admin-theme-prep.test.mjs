@@ -9,7 +9,7 @@ test('admin theme fixture defines an invocation-scoped storage identity and isol
 
   assert.match(source, /createAdminThemeStoragePath/);
   assert.match(source, /mode:\s*0o600/);
-  assert.match(source, /flag:\s*['"]wx['"]/);
+  assert.match(source, /openSync\(storagePath,\s*['"]wx['"],\s*0o600\)/);
   assert.match(source, /scope:\s*['"]worker['"]/);
   assert.match(source, /storageState:\s*adminThemeAuth\.storagePath/);
   assert.match(source, /finally/);
