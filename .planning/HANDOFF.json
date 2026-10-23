@@ -1,49 +1,55 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-23T18:18:29.903469+00:00",
-  "updated_at": "2026-10-23T18:18:29.903469+00:00",
-  "status": "in_progress",
+  "timestamp": "2026-10-23T19:53:39.202034+00:00",
+  "updated_at": "2026-10-23T19:53:39.202034+00:00",
+  "status": "blocked",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "current_phase": 254,
-  "current": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
+  "current": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
   "next_command": "$gsd-execute-phase 254",
   "resume_command": "$gsd-execute-phase 254",
-  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-06-PLAN.md",
-  "next_action": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
+  "next_command_conditional": true,
+  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md",
+  "next_action": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
   "route": {
-    "status": "in_progress",
+    "status": "blocked",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
-    "conditional": false,
-    "reason": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
-    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
-    "planning_checks": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json",
+    "conditional": true,
+    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
+    "reason": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+    "resume_plan": "254-08",
+    "resume_task": "254-08-01",
+    "checkpoint": "blocked_before_preparation_or_collection",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
     "historical_verification_is_forward_blocker": false
   },
   "current_routing": {
-    "status": "in_progress",
+    "status": "blocked",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
-    "conditional": false,
-    "reason": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
-    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
-    "planning_checks": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json",
+    "conditional": true,
+    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
+    "reason": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+    "resume_plan": "254-08",
+    "resume_task": "254-08-01",
+    "checkpoint": "blocked_before_preparation_or_collection",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
     "historical_verification_is_forward_blocker": false
   },
   "workflow": {
     "phase253_implementation_status": "complete",
     "phase253_verification_status": "passed",
-    "next_required_gate": "Implement comparison tooling in Plan254-06 before candidate integration and hosted readiness",
-    "phase254_started": true,
-    "phase254_context_status": "complete",
-    "phase254_implementation_status": "in_progress",
-    "phase254_verification_status": "not_started",
-    "phase254_planning_status": "passed",
+    "phase254_implementation_status": "complete",
+    "phase254_comparison_status": "blocked_not_started",
+    "phase254_verification_status": "pending",
+    "phase254_completed_plans": 7,
+    "phase254_halted_plans": [
+      "254-08"
+    ],
     "phase254_plan_count": 8,
-    "phase254_wave_count": 5,
-    "phase254_comparison_status": "not_started",
-    "phase254_completed_plans": 5
+    "next_required_gate": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
   },
   "phase253_canonical_verification": {
     "status": "passed",
@@ -70,101 +76,66 @@
     "original_failed_results_unchanged": true,
     "old_allowances_remain_consumed": true
   },
-  "human_actions_pending": [],
+  "phase254_evidence": {
+    "eligibility": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COLLECTION-ELIGIBILITY.json",
+    "hosted_readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-READINESS.json",
+    "hosted_pr_path_proof": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
+    "halted_summary": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
+    "validator_maintenance": ".planning/execution/254-validator-maintenance.json",
+    "hosted_runs_started": false,
+    "preparation_runs": 0,
+    "comparison_families_started": 0,
+    "window_started": false
+  },
+  "preservation": {
+    "ref": "refs/gsd/phase254/state-before-hosted-halt",
+    "commit": "f2cd83578701b4d212c7b4fc955d50179e867880",
+    "files": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "git_blob": "5c10129df9b1540c1d4b07d7aaacbc506b958522",
+        "sha256": "8aa85b0ab13249ae3ac64503cf86de2ee7292ccf0e017997d635695f7ac545db",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "git_blob": "aff9d4541aec6a48d0b71961bb163ce9c6b624c5",
+        "sha256": "e3a814935ec5791b0978bffc5dbb9d27de22e57eb440c57afce68f5022948002",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "git_blob": "823a60d11c48fa823abd42b8821b64824a40fa29",
+        "sha256": "9164d9d988ecd652996cfe0e46dda6c32d12774994dbaf92eda280fbae297c60",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "git_blob": "c894adcfff86dc904a593679705d5b0e42580536",
+        "sha256": "cd6686a1ceb052fce4df803a30678852a644de4886cc96692af4ed4ba5b4fedc",
+        "readback_verified": true
+      }
+    ]
+  },
+  "historical_verification_is_forward_blocker": false,
+  "human_actions_pending": [
+    "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
+  ],
   "async_jobs": [],
   "known_unfinished_work": {
     "READY-01": "Original approval, matching readiness/test records, and independently confirmed old report are missing; requirement remains unsatisfied.",
     "upgrade_guidance": "Published 1.6.0 lacks the guide/link; separately tracked corrective documentation task.",
     "phase252_revision_source": "Run 38144377407 returned pull_requests: []; its bundle proves one source SHA. Multi-revision timing remains unknown until each revision has retained source data."
   },
-  "previous_milestone": {
-    "version": "v1.49",
-    "status": "closed_with_known_gaps",
-    "closeout_type": "override_closeout",
-    "requirements_score": "8/9",
-    "READY-01": "unfinished; not a forward blocker",
-    "phase251_verification": "gaps_found 9/10"
-  },
-  "historical_verification_is_forward_blocker": false,
-  "new_browser_or_ci_authorized": false,
-  "state_head": "1aa7fdcaec836f44a389a0f4c610c3a9578cd86a",
-  "preservation": {
-    "prior_commit": "70729a937a74ca11fe9b84f733563e738209d452",
-    "identity_record": ".planning/execution/253-final-gates/completion-prior-state.json",
-    "historical_plan_count": 183,
-    "completed_implementation_count": 81,
-    "halted_count": 29,
-    "retired_never_executed": 73,
-    "retirements": ".planning/execution/253-final-review/RETIREMENTS.json",
-    "original_failed_results_unchanged": true,
-    "old_allowances_remain_consumed": true
-  },
-  "phase254_evidence": {
-    "context": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md",
-    "baseline_preflight": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-PREFLIGHT.json",
-    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
-    "discussion_log": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-DISCUSSION-LOG.md",
-    "baseline_refs": [
-      "refs/gsd/phase254/baseline-application",
-      "refs/gsd/phase254/baseline-producer"
-    ],
-    "remaining_before_acceptance": [
-      "Prove a real PR event executes the exact frozen baseline application/workflow/producer source despite the main-only trigger and PR merge tree.",
-      "Establish exact warm cache access and compatible actual runner images for both fixed conditions.",
-      "Obtain a separate explicit budget only if extra preparation runs are required; no prior Phase 253 allowance is renewed.",
-      "Freeze the prepared candidate identities, twenty-pair schedule and one 48-hour window before collection."
-    ],
-    "hosted_runs_started": false,
-    "research": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-RESEARCH.md",
-    "patterns": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PATTERNS.md",
-    "validation": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-VALIDATION.md",
-    "planning_checks": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json",
-    "plans": [
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-01-PLAN.md",
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-02-PLAN.md",
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-03-PLAN.md",
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-04-PLAN.md",
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-05-PLAN.md",
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-06-PLAN.md",
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-07-PLAN.md",
-      ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md"
-    ],
-    "completed_plans": [
-      "254-01",
-      "254-02",
-      "254-03",
-      "254-04",
-      "254-05"
-    ],
-    "current_plan": "254-06",
-    "state_preservation": {
-      "ref": "refs/gsd/phase254/state-before-wave3",
-      "commit": "d0843f191169df3d7fa54d47eb72d8967f50dfc7",
-      "prior_head": "fa634e1822d3167376d2d4c88c78ea1e6f77d2d7",
-      "files": [
-        {
-          "path": ".planning/STATE.md",
-          "status": " M .planning/STATE.md",
-          "git_blob": "63702002ab43745f18ddd21e2d306351b5176c72",
-          "sha256": "e9e24aeecfd3b11b5cc17835560478fa44d9c632a829b9027a4cbe495b3c80c0",
-          "readback_verified": true
-        },
-        {
-          "path": ".planning/state.json",
-          "status": " M .planning/state.json",
-          "git_blob": "829f9159199eddf8581485e58aeb429d1956b282",
-          "sha256": "8ec5f258977aaedec4ff52f0c56ffe15b36bac4c7d1b1af898976317c64fbd74",
-          "readback_verified": true
-        },
-        {
-          "path": ".planning/HANDOFF.json",
-          "status": "",
-          "git_blob": "800fe9adfbd788d61ce5eaff9c6e581f432b9e9e",
-          "sha256": "f643bc35bad6709b922e34a86c781d301c1e25ba62aead0cf3f378c1943881ff",
-          "readback_verified": true
-        }
-      ]
-    }
-  },
-  "authorization_note": "The user invoked gsd-execute-phase254; scoped local work is authorized. Hosted runs remain subject to the exact frozen comparison and preparation gates; old Phase253 allowances stay consumed."
+  "authorization": {
+    "scope": "User invoked $gsd-execute-phase254. Implementation and conditional fixed comparison are authorized within the plans.",
+    "extra_preparation_runs_authorized": false,
+    "previous_phase253_allowances": "unchanged; not reused",
+    "baseline_method_changed": false
+  }
 }

@@ -16,7 +16,10 @@
     {
       "number": "254",
       "name": "Speed Up the Measured Slow Jobs",
-      "status": "in_progress"
+      "status": "blocked",
+      "implementation_status": "complete",
+      "comparison_status": "blocked_not_started",
+      "verification_status": "pending"
     },
     {
       "number": "255",
@@ -26,17 +29,24 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 254",
-    "label": "Continue Phase 254",
-    "reason": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started."
+    "label": "Continue the existing hosted checkpoint after baseline proof",
+    "reason": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+    "conditional": true,
+    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
   },
-  "updated_at": "2026-10-23T18:18:29.903469+00:00",
+  "updated_at": "2026-10-23T19:53:39.202034+00:00",
   "phase254": {
-    "completed_plans": 5,
+    "completed_plans": 7,
+    "halted_plans": [
+      "254-08"
+    ],
     "total_plans": 8,
-    "implementation_status": "in_progress",
-    "comparison_status": "not_started",
-    "verification_status": "not_started",
-    "resume_plan": "254-06",
-    "state_preservation": "d0843f191169df3d7fa54d47eb72d8967f50dfc7"
+    "implementation_status": "complete",
+    "comparison_status": "blocked_not_started",
+    "verification_status": "pending",
+    "resume_plan": "254-08",
+    "resume_task": "254-08-01",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
+    "state_preservation": "f2cd83578701b4d212c7b4fc955d50179e867880"
   }
 }

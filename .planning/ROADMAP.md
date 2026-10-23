@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phases 252 and 253 complete and verified; Phase 254 planned, execution next)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phases 252 and 253 complete and verified; Phase 254 implementation complete; hosted comparison blocked)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 254 — Eight plans passed independent review and cover both requirements and all 21 decisions. Phase253 remains complete and verified. Phase254 implementation, hosted comparison and phase verification have not started. Hosted collection requires proof of exact frozen-source PR execution, compatible warm caches/images, and a separate budget for any extra warm-ups. Historical Phase253 route text below is retained history.
+**Next command:** $gsd-execute-phase 254 — Conditional on proving an allowed real-PR path for the exact frozen baseline; continue the existing Plan254-08 checkpoint. Plans01–07 are implemented and locally checked. Current baseline PR331 merges a different tree/workflow, so no hosted prep/family or window started. Phase verification and CISPEED acceptance remain pending. See `.planning/execution/254-CONTINUATION.json`; eight summaries include one halted plan, not eight successes.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -328,23 +328,23 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
   3. The same comparison shows a 95th-percentile required-result wait no higher than baseline and total runner time per comparable PR no higher than baseline.
   4. The changed CI paths still pass the Phase 253 coverage/gate checks and applicable isolation/cache tests. A target miss is recorded as a miss; the collection window is not extended until the numbers look favorable.
 
-**Plans**: 8 plans in 5 waves (planning checked; implementation and phase verification not started)
+**Plans**: 8 plans in 5 waves (7 successful implementations; Plan08 halted before hosted collection; phase verification pending)
 **Wave 1**
-- [ ] 254-01-PLAN.md — Recheck frozen sources and profile actual preparation costs
+- [x] 254-01-PLAN.md — Recheck frozen sources and profile actual preparation costs
 
-**Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 254-02-PLAN.md — Enforce exact useful case/project/skip parity
-- [ ] 254-03-PLAN.md — Reuse admin-theme login within isolated invocations
-- [ ] 254-04-PLAN.md — Remove proven redundant organization login navigation
-- [ ] 254-05-PLAN.md — Remove duplicate setup and measure Mix preparation composition
+**Wave 2** *(implementation complete)*
+- [x] 254-02-PLAN.md — Enforce exact useful case/project/skip parity
+- [x] 254-03-PLAN.md — Reuse admin-theme login within isolated invocations
+- [x] 254-04-PLAN.md — Remove proven redundant organization login navigation
+- [x] 254-05-PLAN.md — Remove duplicate setup and measure Mix preparation composition
 
-**Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 254-06-PLAN.md — Validate fixed schedule, authenticated families and all-attempt cost
+**Wave 3** *(implementation complete)*
+- [x] 254-06-PLAN.md — Validate fixed schedule, authenticated families and all-attempt cost
 
-**Wave 4** *(blocked on Wave 3 completion)*
-- [ ] 254-07-PLAN.md — Verify the integrated workload and measured conditional rebalancing
+**Wave 4** *(implementation complete)*
+- [x] 254-07-PLAN.md — Verify the integrated workload and measured conditional rebalancing
 
-**Wave 5** *(blocked on Wave 4 completion)*
+**Wave 5** *(halted at exact frozen-baseline PR prerequisite; no families started)*
 - [ ] 254-08-PLAN.md — Establish hosted prerequisites and retain the real fixed comparison outcome
 
 ### Phase 255: Make Failures Reproducible and Report the Result
@@ -362,13 +362,13 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has eight checked plans; implementation, comparison and phase verification remain pending. Phase255 remains pending.
+**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has seven completed implementation plans and one hosted prerequisite halt; comparison and phase verification remain pending. Phase255 remains pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Complete; verified6/6 | 2026-10-23 |
-| 254. Speed Up the Measured Slow Jobs | v1.50 | 0/8 | Planned | — |
+| 254. Speed Up the Measured Slow Jobs | v1.50 | 7/8; 1 halted | Implementation complete; hosted baseline blocked | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
 ## Historical Closeout
