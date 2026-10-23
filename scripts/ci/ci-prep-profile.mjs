@@ -20,7 +20,7 @@ export function parseArgs(argv) {
     else if (['--root', '--output', '--scope', '--mode'].includes(argv[i]) && argv[i + 1]) options[argv[i].slice(2)] = argv[++i];
     else throw new Error(`unknown_or_incomplete_argument:${argv[i]}`);
   }
-  if (!options.root || !options.output || !SCOPES[options.scope] || options.mode !== 'current') throw new Error('usage: ci-prep-profile.mjs --root <repo> --output <new-json> --scope admin_behavior|non_admin_smoke --mode current [--check-only]');
+  if (!options.root || !options.output || !SCOPES[options.scope] || !['current', 'compare-preparation'].includes(options.mode)) throw new Error('usage: ci-prep-profile.mjs --root <repo> --output <json> --scope admin_behavior|non_admin_smoke --mode current|compare-preparation [--check-only]');
   return options;
 }
 
@@ -53,6 +53,31 @@ export function parseActionSteps(source) {
     i = end - 1;
   }
   return steps;
+}
+
+export function buildPreparationCommands(actionSource) {
+  const steps = parseActionSteps(actionSource);
+  const required = ['Fetch and compile example', 'Create, migrate, and seed example database'];
+  const expected = ['mix deps.get', 'mix compile --warnings-as-errors', 'mix ecto.create', 'mix ecto.migrate', 'mix run priv/repo/seeds.exs'];
+  if (required.every((name) => steps[name])) {
+    const current = required.flatMap((name) => steps[name].filter((line) => !/^set -/.test(line)));
+    if (JSON.stringify(current) !== JSON.stringify(expected)) throw new Error('unexpected_current_preparation_commands');
+    const combined = `mix do ${current.map((line) => line.replace(/^mix\s+/, '')).join(' + ')}`;
+    return { current, combined, selected: current, isCombined: false };
+  }
+  const selected = steps['Prepare example with combined Mix'];
+  if (selected?.length !== 1 || !/^mix do deps\.get \+ compile --warnings-as-errors \+ ecto\.create \+ ecto\.migrate \+ run priv\/repo\/seeds\.exs$/.test(selected[0])) throw new Error('action_step_missing:preparation');
+  return { current: expected, combined: selected[0], selected, isCombined: true };
+}
+
+export function assertPreparationCacheContract(actionSource) {
+  const action = actionSource;
+  for (const token of ['inputs.app-port', 'steps.setup_beam.outputs.otp-version', 'steps.setup_beam.outputs.elixir-version', '-dev-', 'restore-keys:', 'deps.get', 'compile --warnings-as-errors', 'PGDATABASE:', 'PGPORT:', 'PORT:', 'MIX_ENV: dev', 'ecto.create', 'ecto.migrate', 'run priv/repo/seeds.exs', 'run: npm ci', 'npx playwright install-deps $BROWSERS', 'npx playwright install --with-deps $BROWSERS', 'Boot example app', 'mix phx.server', 'Wait for app and warm routes', 'curl -sf "$BASE_URL/"']) {
+    if (!action.includes(token)) throw new Error(`preparation_contract_missing:${token}`);
+  }
+  buildPreparationCommands(action);
+  if (!action.includes('if: inputs.cache-browsers == \'true\'')) throw new Error('browser_cache_condition_missing');
+  return true;
 }
 
 export function parseBrowserMatrix(source, scope) {
@@ -141,8 +166,9 @@ async function profileScope(options) {
   const action = fs.readFileSync(actionPath, 'utf8');
   const workflow = fs.readFileSync(workflowPath, 'utf8');
   const steps = parseActionSteps(action);
+  const preparation = buildPreparationCommands(action);
   const browsers = parseBrowserMatrix(workflow, options.scope);
-  const requirements = ['Fetch and compile example', 'Create, migrate, and seed example database', 'Install Playwright dependencies', 'Install Playwright browsers', 'Boot example app', 'Wait for app and warm routes'];
+  const requirements = ['Install Playwright dependencies', 'Install Playwright browsers', 'Boot example app', 'Wait for app and warm routes'];
   for (const name of requirements) if (!steps[name]) throw new Error(`action_step_missing:${name}`);
   const actionHash = hash(action);
   const workflowHash = hash(workflow);
@@ -190,7 +216,7 @@ async function profileScope(options) {
     components.push(clone); if (clone.status !== 'measured') throw new Error(`disposable_checkout_failed:${clone.exit_code}`);
     const example = path.join(checkout, 'test/example');
     const playwright = path.join(example, 'priv/playwright');
-    const hexHome = path.join(temp, 'hex'); const npmCache = path.join(temp, 'npm-cache'); const browserCache = path.join(temp, 'playwright-cache'); const build = path.join(temp, 'build');
+    const hexHome = path.join(temp, 'hex'); const npmCache = path.join(temp, 'npm-cache'); const browserCache = path.join(temp, 'playwright-cache'); const build = path.join(example, '_build', 'phase254-prep-profile');
     for (const dir of [hexHome, npmCache, browserCache, build]) fs.mkdirSync(dir, { recursive: true });
     const env = { ...process.env, HEX_HOME: hexHome, npm_config_cache: npmCache, PLAYWRIGHT_BROWSERS_PATH: browserCache, MIX_ENV: 'dev', MIX_BUILD_PATH: build, PORT: String(scope.port), PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: `${scope.database}_${process.pid}`, SERVER_LOG: path.join(logDir, 'server.log'), BASE_URL: `http://127.0.0.1:${scope.port}`, WARMUP_PATHS: options.scope === 'admin_behavior' ? '/admin/users' : '/users/log_in', BROWSERS: browsers, CACHE_HIT: 'false', CI: 'true' };
     env.PGDATABASE = `${scope.database}_${process.pid}`;
@@ -214,16 +240,21 @@ async function profileScope(options) {
     if (Number((context.toolchain.node ?? '').replace(/^v/, '').split('.')[0]) !== 20) throw new Error(`node_20_required_actual_${context.toolchain.node ?? 'unknown'}`);
     if (!await portAvailable(scope.port)) throw new Error(`profile_port_unavailable:${scope.port}`);
 
-    const fetchCompileEnv = { ...env, PGDATABASE: env.PGDATABASE };
-    const fetchCompileCommands = steps['Fetch and compile example'].filter((line) => !/^set -/.test(line));
-    if (fetchCompileCommands.length !== 2) throw new Error(`unexpected_fetch_compile_commands:${fetchCompileCommands.length}`);
-    run('dependency-fetch', fetchCompileCommands[0], example, fetchCompileEnv);
-    run('example-compilation', fetchCompileCommands[1], example, fetchCompileEnv);
-    const dbSetup = steps['Create, migrate, and seed example database'].join('\n');
-    for (const line of dbSetup.split('\n')) {
-      if (/^set -/.test(line)) continue;
-      if (/^mix ecto\.create/.test(line)) dbCreated = true;
-      run(`database-${line.replace(/[^a-z0-9]+/gi, '-')}`, line, example, env);
+    if (preparation.isCombined) {
+      dbCreated = true;
+      run('combined-preparation', preparation.selected[0], example, env);
+    } else {
+      const fetchCompileEnv = { ...env, PGDATABASE: env.PGDATABASE };
+      const fetchCompileCommands = steps['Fetch and compile example'].filter((line) => !/^set -/.test(line));
+      if (fetchCompileCommands.length !== 2) throw new Error(`unexpected_fetch_compile_commands:${fetchCompileCommands.length}`);
+      run('dependency-fetch', fetchCompileCommands[0], example, fetchCompileEnv);
+      run('example-compilation', fetchCompileCommands[1], example, fetchCompileEnv);
+      const dbSetup = steps['Create, migrate, and seed example database'].join('\n');
+      for (const line of dbSetup.split('\n')) {
+        if (/^set -/.test(line)) continue;
+        if (/^mix ecto\.create/.test(line)) dbCreated = true;
+        run(`database-${line.replace(/[^a-z0-9]+/gi, '-')}`, line, example, env);
+      }
     }
     run('npm-ci', steps['Install Playwright dependencies'].join('\n'), playwright, env);
     const browserCommand = steps['Install Playwright browsers'].join('\n');
@@ -281,6 +312,158 @@ async function profileScope(options) {
   if (context.status !== 'profiled') process.exitCode = 2;
 }
 
+function gitOutput(root, ...args) {
+  const result = spawnSync('git', ['-C', root, ...args], { encoding: 'utf8' });
+  if (result.status !== 0) throw new Error(`git_${args.join('_')}_failed`);
+  return result.stdout.trim();
+}
+
+function databaseSnapshot(env) {
+  const sql = `select
+    (select string_agg(version::text, ',' order by version) from schema_migrations),
+    (select count(*) from auth.users),
+    (select count(*) from auth.users where email like '%@demo.tasklane.test'),
+    (select count(*) from auth.organizations),
+    (select count(*) from auth.organization_memberships),
+    (select count(*) from auth.user_mfa_credentials),
+    (select count(*) from auth.user_passkeys),
+    (select count(*) from auth.user_sessions),
+    (select count(*) from auth.user_identities),
+    (select count(*) from auth.audit_events),
+    (select count(*) from auth.enterprise_connections)`;
+  const result = spawnSync('psql', ['-X', '-qAt', '-c', sql], { env, encoding: 'utf8', timeout: 15_000 });
+  if (result.status !== 0) throw new Error(`database_snapshot_failed:${(result.stderr ?? '').trim()}`);
+  const [migrationVersions, users, demoUsers, organizations, memberships, mfaCredentials, passkeys, sessions, identities, auditEvents, enterpriseConnections] = result.stdout.trim().split('|');
+  return { migration_versions: migrationVersions?.split(',').filter(Boolean) ?? [], users: Number(users), demo_tasklane_users: Number(demoUsers), organizations: Number(organizations), memberships: Number(memberships), mfa_credentials: Number(mfaCredentials), passkeys: Number(passkeys), sessions: Number(sessions), identities: Number(identities), audit_events: Number(auditEvents), enterprise_connections: Number(enterpriseConnections) };
+}
+
+function runMixStep({ label, command, cwd, env, logDir, deadline, components }) {
+  const item = runMeasuredCommand({ label, command: `set -euo pipefail\n${command}`, cwd, env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, `${label.replace(/[^a-z0-9]+/gi, '-')}.log`) });
+  components.push(item);
+  return item;
+}
+
+async function comparePreparation(options) {
+  const root = path.resolve(options.root);
+  const output = path.resolve(options.output);
+  const sourceSha = gitOutput(root, 'rev-parse', 'HEAD');
+  const actionPath = path.join(root, '.github/actions/example-playwright-boot/action.yml');
+  const workflowPath = path.join(root, '.github/workflows/ci.yml');
+  const action = fs.readFileSync(actionPath, 'utf8');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  assertPreparationCacheContract(action, workflow);
+  const plan = buildPreparationCommands(action);
+  const tddRedPath = path.join(root, '.planning/phases/254-speed-up-the-measured-slow-jobs/254-05-02-red-evidence.tmp.json');
+  const tddRedEvidence = fs.existsSync(tddRedPath) ? JSON.parse(fs.readFileSync(tddRedPath, 'utf8')) : null;
+  const prior = fs.existsSync(output) ? JSON.parse(fs.readFileSync(output, 'utf8')) : null;
+  const priorCommit = fs.existsSync(output) ? gitOutput(root, 'log', '-1', '--format=%H', '--', path.relative(root, output)) : null;
+  const priorHash = prior ? hash(fs.readFileSync(output)) : null;
+  const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-254-compare-prep-')));
+  const logs = path.join(temp, 'logs'); fs.mkdirSync(logs);
+  const startedAt = new Date().toISOString(); const deadline = Date.now() + MAX_MS;
+  const components = []; const databaseIds = []; const runs = {};
+  const commonHome = path.join(temp, 'tool-home'); const mixHome = path.join(commonHome, 'mix'); const hexHome = path.join(commonHome, 'hex');
+  fs.mkdirSync(mixHome, { recursive: true }); fs.mkdirSync(hexHome, { recursive: true });
+  const prerequisiteEnv = { ...process.env, MIX_HOME: mixHome, HEX_HOME: hexHome, MIX_ENV: 'dev', CI: 'true' };
+  const baseDatabase = `sigra_25405_${process.pid}_${Date.now().toString(36)}`;
+  const runtime = { node: commandVersion('node', ['--version'], root, process.env), elixir: commandVersion('elixir', ['--version'], root, process.env), erlang: commandVersion('erl', ['-noshell', '-eval', 'io:format("~s", [erlang:system_info(otp_release)]), halt().'], root, process.env) };
+  const checkoutRoot = path.join(temp, 'checkouts'); fs.mkdirSync(checkoutRoot);
+  const result = {
+    schema_version: 'sigra.phase254.setup-check/v1', status: 'running', source_sha: sourceSha,
+    source_files: { action_sha256: hash(action), workflow_sha256: hash(workflow), profiler_sha256: hash(fs.readFileSync(SELF)) },
+    profile: { captured_at: startedAt, runtime, scope: options.scope, env: 'MIX_ENV=dev; CI=true; localhost PostgreSQL; unique DB and PORT per form; isolated MIX_HOME/HEX_HOME shared across forms' },
+    pinned_setup_proof: { action: 'erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124', source: 'https://raw.githubusercontent.com/erlef/setup-beam/54075bcc5e249e4758d363f27d099f55d843f124/action.yml', version_file: '.tool-versions', version_type: 'strict', install_hex_default: true, install_rebar_default: true, flags_disabling_defaults: false, workflow_changes_homes_after_setup: false, reason_outer_fetch_retained: 'mix ci runs format --check-formatted before deps.get --check-locked; a clean source checkout failed at formatter import loading without a preceding dependency fetch.' },
+    current_commands: plan.current, combined_candidate: plan.combined,
+    previous_artifact: prior ? { path: path.relative(root, output), sha256: priorHash, commit: priorCommit, red_target: prior.targetTest ?? prior.target_test ?? prior.previous_artifact?.red_target ?? null, classifier_verdict: prior.targetTest || prior.target_test || prior.previous_artifact ? 'RED_EVIDENCE_OK' : null, prior_status: prior.status ?? null, prior_failure: prior.failure ?? null, prior_component_results: (prior.components ?? []).map((item) => ({ name: item.name, status: item.status, exit_code: item.exit_code })) } : null,
+    tdd_red_evidence_task_02: tddRedEvidence ? { ...tddRedEvidence, classifier_verdict: 'RED_EVIDENCE_OK' } : null,
+    components, forms: runs, failure_semantics: null, decision: null, hosted_acceptance: 'not_started', speed_target_claimed: false,
+  };
+
+  const createCheckout = (form) => {
+    const checkout = path.join(checkoutRoot, form);
+    const clone = runMeasuredCommand({ label: `checkout-${form}`, command: `git clone --quiet --shared --no-checkout ${JSON.stringify(root)} ${JSON.stringify(checkout)} && git -C ${JSON.stringify(checkout)} checkout --quiet --detach ${sourceSha}`, cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logs, `checkout-${form}.log`) });
+    components.push(clone);
+    if (clone.status !== 'measured') throw new Error(`checkout_${form}_failed`);
+    return checkout;
+  };
+  const commonEnvFor = (checkout, form) => {
+    const env = { ...process.env, MIX_HOME: mixHome, HEX_HOME: hexHome, MIX_ENV: 'dev', CI: 'true', PORT: form === 'current' ? '4141' : '4142', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGDATABASE: `${baseDatabase}_${form}` };
+    databaseIds.push(env.PGDATABASE);
+    return env;
+  };
+  const prepare = (form, phase, checkout, commands, env) => {
+    const example = path.join(checkout, 'test/example'); const before = components.length;
+    for (let i = 0; i < commands.length; i++) {
+      const item = runMixStep({ label: `${form}-${phase}-${String(i + 1).padStart(2, '0')}`, command: commands[i], cwd: example, env, logDir: logs, deadline, components });
+      if (item.status !== 'measured') return { status: 'failed', exit_code: item.exit_code, elapsed_ms: components.slice(before).reduce((sum, part) => sum + (part.duration_ms ?? 0), 0), failed_component: item.name };
+    }
+    return { status: 'measured', exit_code: 0, elapsed_ms: components.slice(before).reduce((sum, part) => sum + (part.duration_ms ?? 0), 0), snapshot: databaseSnapshot(env) };
+  };
+
+  try {
+    for (const [label, args] of [['hex-install', ['local.hex', '--force']], ['rebar-install', ['local.rebar', '--force']]]) {
+      const item = runMeasuredCommand({ label, command: `mix ${args.join(' ')}`, cwd: root, env: prerequisiteEnv, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logs, `${label}.log`) });
+      components.push(item); if (item.status !== 'measured') throw new Error(`${label}_failed`);
+    }
+    const currentCheckout = createCheckout('current');
+    const candidateCheckout = createCheckout('combined');
+    const currentEnv = commonEnvFor(currentCheckout, 'current'); const candidateEnv = commonEnvFor(candidateCheckout, 'combined');
+    const coldCurrent = prepare('current', 'cold', currentCheckout, plan.current, currentEnv);
+    runs.current = { cold: coldCurrent };
+    if (coldCurrent.status === 'measured') runs.current.warm = prepare('current', 'warm', currentCheckout, plan.current, currentEnv);
+    else runs.current.warm = { status: 'not_run_after_cold_failure' };
+    const coldCombined = prepare('combined', 'cold', candidateCheckout, [plan.combined], candidateEnv);
+    runs.combined = { cold: coldCombined };
+    if (coldCombined.status === 'measured') runs.combined.warm = prepare('combined', 'warm', candidateCheckout, [plan.combined], candidateEnv);
+    else runs.combined.warm = { status: 'not_run_after_cold_failure' };
+
+    const failDir = path.join(candidateCheckout, 'test/example/tmp/phase254-prep-failure'); fs.mkdirSync(failDir, { recursive: true });
+    const failingTask = path.join(failDir, 'fail.exs'); const sentinelTask = path.join(failDir, 'sentinel.exs'); const sentinelPath = path.join(failDir, 'reached');
+    fs.writeFileSync(failingTask, 'raise "controlled_phase254_preparation_failure"\n');
+    fs.writeFileSync(sentinelTask, `File.write!(System.fetch_env!("PHASE254_SENTINEL"), "reached")\n`);
+    const failureEnv = { ...candidateEnv, PGDATABASE: `${baseDatabase}_failure`, PHASE254_SENTINEL: sentinelPath }; databaseIds.push(failureEnv.PGDATABASE);
+    const failSequence = [
+      'deps.get', 'compile --warnings-as-errors', 'ecto.create', 'ecto.migrate',
+      `run ${path.relative(path.join(candidateCheckout, 'test/example'), failingTask)}`,
+      'run priv/repo/seeds.exs', `run ${path.relative(path.join(candidateCheckout, 'test/example'), sentinelTask)}`,
+    ];
+    const failed = runMeasuredCommand({ label: 'combined-controlled-middle-failure', command: `mix do ${failSequence.join(' + ')}`, cwd: path.join(candidateCheckout, 'test/example'), env: failureEnv, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logs, 'combined-controlled-middle-failure.log') });
+    components.push(failed);
+    const failureSnapshot = failed.exit_code !== 0 ? databaseSnapshot(failureEnv) : null;
+    const markerFound = fs.existsSync(failed.log_path) && fs.readFileSync(failed.log_path, 'utf8').includes('controlled_phase254_preparation_failure');
+    result.failure_semantics = { command: `mix do ${failSequence.join(' + ')}`, exit_code: failed.exit_code, status: failed.exit_code !== 0 && markerFound && !fs.existsSync(sentinelPath) && failureSnapshot?.users === 0 ? 'passed' : 'failed', sentinel_created: fs.existsSync(sentinelPath), seed_users_after_failure: failureSnapshot?.users ?? null, migration_versions_after_failure: failureSnapshot?.migration_versions ?? [], expected_marker_in_log: markerFound };
+    const equivalent = [
+      runs.current.cold?.status === 'measured' && runs.combined.cold?.status === 'measured' && JSON.stringify(runs.current.cold.snapshot) === JSON.stringify(runs.combined.cold.snapshot),
+      runs.current.warm?.status === 'measured' && runs.combined.warm?.status === 'measured' && JSON.stringify(runs.current.warm.snapshot) === JSON.stringify(runs.combined.warm.snapshot),
+      runs.current.cold?.status === 'measured' && runs.current.warm?.status === 'measured' && JSON.stringify(runs.current.cold.snapshot) === JSON.stringify(runs.current.warm.snapshot),
+      runs.combined.cold?.status === 'measured' && runs.combined.warm?.status === 'measured' && JSON.stringify(runs.combined.cold.snapshot) === JSON.stringify(runs.combined.warm.snapshot),
+    ].every(Boolean);
+    const coldBenefit = runs.current.cold?.status === 'measured' && runs.combined.cold?.status === 'measured' && runs.combined.cold.elapsed_ms < runs.current.cold.elapsed_ms;
+    const warmBenefit = runs.current.warm?.status === 'measured' && runs.combined.warm?.status === 'measured' && runs.combined.warm.elapsed_ms < runs.current.warm.elapsed_ms;
+    result.semantic_equivalence = equivalent;
+    result.measured_benefit = { cold: coldBenefit, warm: warmBenefit, current_total_ms: (runs.current.cold?.elapsed_ms ?? 0) + (runs.current.warm?.elapsed_ms ?? 0), combined_total_ms: (runs.combined.cold?.elapsed_ms ?? 0) + (runs.combined.warm?.elapsed_ms ?? 0) };
+    const failurePass = result.failure_semantics.status === 'passed';
+    const useCombined = equivalent && coldBenefit && warmBenefit && failurePass;
+    result.decision = { selected: useCombined ? 'combined' : 'original_separate_commands', reason: useCombined ? 'cold and warm database snapshots matched and both complete preparation timings improved; injected middle failure stopped before seed/sentinel.' : 'combined form was rejected because measured cold/warm semantic equivalence, failure semantics, or both cold and warm full-preparation benefits were not all proven.' };
+    result.status = runs.current.cold?.status === 'measured' && runs.current.warm?.status === 'measured' && result.failure_semantics.status === 'passed' ? 'profiled' : 'blocked';
+    if (result.status === 'blocked') result.failure = { message: 'baseline current preparation or controlled failure semantics did not complete successfully' };
+  } catch (error) {
+    result.status = 'blocked'; result.failure = { message: error.message };
+  } finally {
+    result.database_cleanup = [];
+    for (const database of [...new Set(databaseIds)].reverse()) {
+      const env = { ...process.env, PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres' };
+      const dropped = spawnSync('dropdb', ['--if-exists', database], { env, encoding: 'utf8', timeout: 15_000 });
+      result.database_cleanup.push({ database, exit_code: dropped.status, status: dropped.status === 0 ? 'passed' : 'failed' });
+    }
+    result.completed_at = new Date().toISOString(); result.duration_ms = Date.now() - Date.parse(startedAt);
+    fs.mkdirSync(path.dirname(output), { recursive: true }); fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`);
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+  console.log(JSON.stringify({ status: result.status, output, duration_ms: result.duration_ms, decision: result.decision ?? null, failure: result.failure ?? null }));
+  if (result.status !== 'profiled' || result.database_cleanup.some((item) => item.status !== 'passed')) process.exitCode = 2;
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.checkOnly) {
@@ -288,11 +471,14 @@ async function main() {
     const action = fs.readFileSync(path.join(root, '.github/actions/example-playwright-boot/action.yml'), 'utf8');
     const workflow = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
     const scopeSteps = parseActionSteps(action);
-    for (const name of ['Fetch and compile example', 'Create, migrate, and seed example database', 'Install Playwright dependencies', 'Install Playwright browsers', 'Boot example app', 'Wait for app and warm routes']) if (!scopeSteps[name]) throw new Error(`action_step_missing:${name}`);
+    buildPreparationCommands(action);
+    assertPreparationCacheContract(action, workflow);
+    for (const name of ['Install Playwright dependencies', 'Install Playwright browsers', 'Boot example app', 'Wait for app and warm routes']) if (!scopeSteps[name]) throw new Error(`action_step_missing:${name}`);
     console.log(JSON.stringify({ status: 'ready', source_sha: git(root, 'rev-parse', 'HEAD'), action_sha256: hash(action), workflow_sha256: hash(workflow), scope: options.scope, browsers: parseBrowserMatrix(workflow, options.scope) }));
     return;
   }
-  await profileScope(options);
+  if (options.mode === 'compare-preparation') await comparePreparation(options);
+  else await profileScope(options);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === SELF) main().catch((error) => { console.error(error.message); process.exitCode = 2; });
