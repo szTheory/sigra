@@ -18,6 +18,8 @@ from ci_metrics_security import (
     sanitize_failure_log,
     validate_check_bindings,
     validate_comparison_reservations,
+    validate_comparison_plan,
+    validate_comparison_schedule,
     validate_producer_binding,
     validate_producer_commit,
     validate_general_job_identity,
@@ -29,6 +31,24 @@ from ci_metrics_security import (
 
 
 class SecurityContractsTest(unittest.TestCase):
+    def test_comparison_plan_freezes_balanced_order_and_rejects_tied_pair_starts(self):
+        schedule=[]; reservations=[]
+        for pair in range(1,21):
+            roles=("before","after") if pair % 2 else ("after","before")
+            for role in roles:
+                pair_id=f"pair-{pair:02d}"
+                schedule.append({"pair_id":pair_id,"family_role":role})
+                reservations.append({"reservation_id":f"r-{pair_id}-{role}","pair_id":pair_id,"family_role":role})
+        contract={"status":"ready","pair_count":20,"primary_family_count":40,"comparison_schedule":schedule,
+                  "family_reservations":reservations,"maximum_pair_start_gap_seconds":1800,
+                  "preparation_compatibility":{"baseline_cache_stratum":"warm","candidate_cache_stratum":"warm","runner_image_policy":"same"},
+                  "candidate_identity":{"application_sha":"a","workflow_revision":"b","workload_revision_sha256":"c","workflow_file_sha256":"d"},
+                  "window":{"start_utc":"2026-10-12T00:00:00Z","end_utc":"2026-10-14T00:00:00Z"}}
+        self.assertEqual([],validate_comparison_plan(contract))
+        rows=[{"reservation_id":reservations[i]["reservation_id"],"pair_id":reservations[i]["pair_id"],
+               "family_role":reservations[i]["family_role"],"created_at":"2026-10-13T00:00:00Z"} for i in range(2)]
+        self.assertIn("comparison_pair_start_not_ordered",validate_comparison_schedule(contract,rows))
+
     def test_snapshot_hashes_cover_manual_release_and_family_sources(self):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp)
