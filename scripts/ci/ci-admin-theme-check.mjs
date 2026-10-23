@@ -52,7 +52,8 @@ function run(program, args, options, deadline) {
   const result = spawnSync(program, args, { cwd: options.cwd, env: options.env, encoding: 'utf8', timeout: Math.max(1, deadline - Date.now()), killSignal: 'SIGKILL', maxBuffer: 32 * 1024 * 1024 });
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}${result.error ? `\n${result.error.message}\n` : ''}`;
   fs.writeFileSync(options.log, output, { mode: 0o600 });
-  return { command: [program, ...args], exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, duration_ms: Math.round(now() - start), log_sha256: sha(output), log_path: options.log };
+  const safeExcerpt = output.replace(/([\w.+-]+@[\w.-]+\s+)[^\s]+/g, '$1[redacted]').replace(/((?:password|token|secret|api[_-]?key)\s*[:=]\s*)[^\s,;]+/gi, '$1[redacted]').replace(/\bgh[pousr]_[A-Za-z0-9_]{20,}\b/g, '[redacted-token]').slice(-4000);
+  return { command: [program, ...args], exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, duration_ms: Math.round(now() - start), log_sha256: sha(output), log_excerpt: result.status === 0 ? undefined : safeExcerpt, log_path: options.log };
 }
 
 function reservePort() {
@@ -101,12 +102,11 @@ async function main() {
   const save = () => fs.writeFileSync(options.output, `${JSON.stringify(record, null, 2)}\n`, { mode: 0o600 });
   save();
   let app = null;
-  let postgresStarted = false;
   let dbName = null;
+  let dbOwned = false;
   let failure = null;
   let browserPath = null;
   let nodePath = process.env.PATH;
-  let pgData = path.join(temp, 'postgres');
   let port = null;
   try {
     const clone = run('git', ['clone', '--quiet', '--shared', '--no-checkout', options.root, checkout], { cwd: options.root, env: process.env, log: path.join(logs, 'clone.log') }, deadline);
@@ -121,20 +121,14 @@ async function main() {
     nodePath = `${path.join(nodeInstall.stdout.trim(), 'bin')}:${nodePath}`;
     const env = {
       ...process.env, PATH: nodePath, MIX_ENV: 'dev', PORT: '',
-      PGHOST: '127.0.0.1', PGUSER: 'postgres', PGPASSWORD: 'postgres',
+      PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres',
       PGDATABASE: '', SIGRA_EXAMPLE_BIND: '127.0.0.1',
     };
     const nodeVersion = spawnSync('node', ['--version'], { cwd: checkout, env, encoding: 'utf8' }).stdout.trim();
     if (nodeVersion !== 'v20.18.1') throw new Error(`pinned_node_mismatch:${nodeVersion}`);
-    const clusterPort = await reservePort();
-    const init = run('initdb', ['-D', pgData, '-U', 'postgres', '--auth-local=trust', '--auth-host=trust', '--no-instructions'], { cwd: checkout, env, log: path.join(logs, 'postgres-init.log') }, deadline);
-    record.commands.push({ name: 'initialize-isolated-postgres', ...init }); save();
-    if (init.exit_code !== 0) throw new Error(`isolated_postgres_init_failed:${init.exit_code}`);
-    const startDb = run('pg_ctl', ['-D', pgData, '-o', `-p ${clusterPort} -h 127.0.0.1`, '-l', path.join(logs, 'postgres.log'), 'start'], { cwd: checkout, env, log: path.join(logs, 'postgres-start.log') }, deadline);
-    record.commands.push({ name: 'start-isolated-postgres', ...startDb }); save();
-    if (startDb.exit_code !== 0) throw new Error(`isolated_postgres_start_failed:${startDb.exit_code}`);
-    postgresStarted = true;
-    env.PGPORT = String(clusterPort);
+    const dbHealth = run('psql', ['-d', 'postgres', '-Atqc', 'select 1'], { cwd: checkout, env, log: path.join(logs, 'postgres-health.log') }, deadline);
+    record.commands.push({ name: 'postgres-readiness', ...dbHealth }); save();
+    if (dbHealth.exit_code !== 0 || !dbHealth.log_excerpt?.trim() && fs.readFileSync(path.join(logs, 'postgres-health.log'), 'utf8').trim() !== '1') throw new Error('configured_postgres_unavailable_or_unauthorized');
     port = await reservePort();
     env.PORT = String(port);
     env.SIGRA_EXAMPLE_URL = `http://127.0.0.1:${port}`;
@@ -175,6 +169,7 @@ async function main() {
         const result = run('mix', args, { cwd: example, env, log: path.join(logs, `${suffix}-${name}.log`) }, deadline);
         record.commands.push({ name: `${suffix}-${name}`, ...result }); save();
         if (result.exit_code !== 0) throw new Error(`${suffix}_${name}_failed:${result.exit_code}`);
+        if (name === 'database-create') dbOwned = true;
       }
       const seeds = run('mix', ['run', 'priv/repo/seeds.exs'], { cwd: example, env, log: path.join(logs, `${suffix}-seeds.log`) }, deadline);
       record.commands.push({ name: `${suffix}-database-seed`, ...seeds }); save();
@@ -189,11 +184,11 @@ async function main() {
     }
     async function stopApp() {
       await stopProcess(app); app = null;
-      if (dbName) {
+      if (dbName && dbOwned) {
         const drop = run('mix', ['ecto.drop', '--quiet'], { cwd: example, env, log: path.join(logs, `${dbName}-drop.log`) }, deadline);
         record.commands.push({ name: 'database-drop', ...drop }); save();
         if (drop.exit_code !== 0) throw new Error(`database_drop_failed:${drop.exit_code}`);
-        dbName = null;
+        dbName = null; dbOwned = false;
       }
     }
     async function invoke(label, grep, testFile) {
@@ -241,11 +236,6 @@ async function main() {
     record.status = 'blocked';
   } finally {
     if (app) await stopProcess(app);
-    if (postgresStarted) {
-      const stopDb = spawnSync('pg_ctl', ['-D', pgData, '-m', 'immediate', 'stop'], { encoding: 'utf8', timeout: 15000 });
-      record.cleanup = { postgres_stopped: stopDb.status === 0, checkout_removed: false, scoped_temp_removed: false };
-      if (stopDb.status !== 0 && !failure) { failure = 'isolated_postgres_cleanup_failed'; record.status = 'blocked'; record.failure = { message: failure }; }
-    }
     record.completed_at = new Date().toISOString();
     record.duration_seconds = Math.round((Date.now() - start) / 1000);
     fs.rmSync(temp, { recursive: true, force: true });
