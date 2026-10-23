@@ -125,8 +125,7 @@ async function main() {
       PGDATABASE: '', SIGRA_EXAMPLE_BIND: '127.0.0.1',
     };
     const nodeVersion = spawnSync('node', ['--version'], { cwd: checkout, env, encoding: 'utf8' }).stdout.trim();
-    const playwrightVersion = spawnSync('node', ['-p', "require('./node_modules/@playwright/test/package.json').version"], { cwd: path.join(checkout, 'test/example/priv/playwright'), env, encoding: 'utf8' });
-    if (nodeVersion !== 'v20.18.1' || playwrightVersion.status !== 0 || playwrightVersion.stdout.trim() !== '1.59.1') throw new Error(`pinned_toolchain_mismatch:${nodeVersion}/${playwrightVersion.stdout?.trim()}`);
+    if (nodeVersion !== 'v20.18.1') throw new Error(`pinned_node_mismatch:${nodeVersion}`);
     const clusterPort = await reservePort();
     const init = run('initdb', ['-D', pgData, '-U', 'postgres', '--auth-local=trust', '--auth-host=trust', '--no-instructions'], { cwd: checkout, env, log: path.join(logs, 'postgres-init.log') }, deadline);
     record.commands.push({ name: 'initialize-isolated-postgres', ...init }); save();
@@ -154,6 +153,8 @@ async function main() {
     const npm = run('npm', ['ci'], { cwd: playwright, env, log: path.join(logs, 'npm-ci.log') }, deadline);
     record.commands.push({ name: 'pinned-playwright-dependencies', ...npm }); save();
     if (npm.exit_code !== 0) throw new Error(`npm_ci_failed:${npm.exit_code}`);
+    const playwrightVersion = spawnSync('node', ['-p', "require('./node_modules/@playwright/test/package.json').version"], { cwd: playwright, env, encoding: 'utf8' });
+    if (playwrightVersion.status !== 0 || playwrightVersion.stdout.trim() !== '1.59.1') throw new Error(`pinned_playwright_mismatch:${playwrightVersion.stdout?.trim()}`);
     const install = run('node', ['node_modules/@playwright/test/cli.js', 'install', 'chromium'], { cwd: playwright, env, log: path.join(logs, 'browser-install.log') }, deadline);
     record.commands.push({ name: 'chromium-install', ...install }); save();
     if (install.exit_code !== 0) throw new Error(`chromium_install_failed:${install.exit_code}`);
