@@ -1,10 +1,169 @@
 {
-  "command": "node --test --test-reporter=tap scripts/ci/ci-prep-semantics.test.mjs",
-  "exitCode": 1,
-  "output": "TAP version 13\n# Subtest: library job relies on pinned setup-beam defaults and its sole mix ci dependency owner\nnot ok 1 - library job relies on pinned setup-beam defaults and its sole mix ci dependency owner\n  ---\n  duration_ms: 2.635458\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-prep-semantics.test.mjs:25:1'\n  failureType: 'testCodeFailure'\n  error: 'the job must not repeat setup-beam installs or the mix ci dependency fetch'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual: |-\n      library_tests_shard:\n        name: Library tests shard\n        runs-on: ubuntu-latest\n        timeout-minutes: 20\n        needs: release_ref_guard\n        services:\n          postgres:\n            image: postgres:15\n            env:\n              POSTGRES_PASSWORD: postgres\n    \n              POSTGRES_DB: sigra_test\n            ports: ['5432:5432']\n            options: >-\n              --health-cmd pg_isready --health-interval 10s\n              --health-timeout 5s --health-retries 5\n        steps:\n          - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  \n          - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  \n            id: setup\n            with:\n              version-file: .tool-versions\n              version-type: strict\n          - name: Cache library deps\n            id: deps_cache\n            uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  \n            with:\n              path: |\n                deps\n                _build\n              key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1\n              restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-\n          - name: Install Hex + Rebar\n            run: |\n              mix local.hex --force\n              mix local.rebar --force\n    \n    \n    \n          - name: Install phx_new archive\n            run: mix archive.install --force hex phx_new 1.8.8\n          - name: Fetch library deps\n            run: mix deps.get\n          - name: Prepare timing output directory\n            run: mkdir -p test-results\n          - name: Run contributor CI gate\n            env:\n              PGUSER: postgres\n              MIX_ENV: test\n              PGPASSWORD: postgres\n              PGHOST: localhost\n              SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing-main.json\n              SIGRA_EXUNIT_TIMING_INVOCATION: main\n              SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results/ci-exunit-timing-threadline-guard.json\n    \n            run: mix ci\n          - name: Upload library test timing\n            if: always()\n            uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a \n            with:\n              name: library-test-timing-${{ github.run_id }}-${{ github.run_attempt }}\n              path: |\n                test-results/ci-exunit-timing-main.json\n                test-results/ci-exunit-timing-threadline-guard.json\n              retention-days: 7\n              if-no-files-found: warn\n          - name: Capture CI measurement metadata\n            if: always()\n            env:\n              JOB_NAME: Library tests shard\n              CONFIGURED_NODE: ''\n              DEPS_CACHE_HIT: ${{ steps.deps_cache.outputs.cache-hit }}\n              EXAMPLE_DEPS_CACHE_HIT: ''\n              INSTALL_DEPS_CACHE_HIT: ''\n              HTTP_DEPS_CACHE_HIT: ''\n              BROWSER_DEPS_CACHE_HIT: ''\n              BROWSER_CACHE_HIT: ''\n            run: |\n              node <<'NODE'\n              const fs = require('node:fs');\n              const { spawnSync } = require('node:child_process');\n              const readTool = (name) => {\n                try { return fs.readFileSync('.tool-versions', 'utf8').split(/\\n/).find((line) => line.trim().startsWith(`${name} `))?.trim().split(/\\s+/)[1] ?? null; }\n                catch { return null; }\n              };\n              const commandVersion = (command, args, pattern) => {\n                const result = spawnSync(command, args, { encoding: 'utf8' });\n                if (result.error?.code === 'ENOENT') return { value: null, reason: 'binary_missing' };\n                if (result.status !== 0) return { value: null, reason: 'version_command_failed' };\n                const line = `${result.stdout ?? ''}\\n${result.stderr ?? ''}`.split(/\\r?\\n/).map((s) => s.trim()).find((s) => pattern.test(s));\n                return line ? { value: line, reason: null } : { value: null, reason: 'version_line_unrecognized' };\n              };\n              const elixirOut = commandVersion('elixir', ['--version'], /^Elixir v?[0-9.]+/);\n              const otpOut = commandVersion('elixir', ['--version'], /^Erlang\\/OTP [0-9.]+/);\n              const cache = (value) => value === 'true' ? 'hit' : value === 'false' ? 'miss' : null;\n              const lockVersion = () => {\n                try { return JSON.parse(fs.readFileSync('test/example/priv/playwright/package-lock.json', 'utf8')).packages['node_modules/@playwright/test'].version ?? null; }\n                catch { return null; }\n              };\n              const metadata = {\n                schema_version: 'sigra.ci-measurement-metadata/v1',\n                repository: process.env.GITHUB_REPOSITORY ?? null,\n                run_id: process.env.GITHUB_RUN_ID ?? null,\n                run_attempt: process.env.GITHUB_RUN_ATTEMPT ?? null,\n                source_sha: process.env.GITHUB_SHA ?? null,\n                event: process.env.GITHUB_EVENT_NAME ?? null,\n                matrix_seam: null,\n                job_name: process.env.JOB_NAME,\n                timing_artifact_name: `library-test-timing-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`,\n                exunit_reports: [\n                  { invocation: 'main', path: 'ci-exunit-timing-main.json' },\n                  { invocation: 'threadline_guard', path: 'ci-exunit-timing-threadline-guard.json' },\n                ],\n                runner_os: process.env.RUNNER_OS ?? null,\n                runner_arch: process.env.RUNNER_ARCH ?? null,\n                runner_image: { image_os: process.env.ImageOS ?? null, image_version: process.env.ImageVersion ?? null },\n                cache_outcome: { library_deps: cache(process.env.DEPS_CACHE_HIT) },\n                configured_versions: { erlang: readTool('erlang'), elixir: readTool('elixir'), node: null, playwright: lockVersion() },\n                observed_versions: { erlang: otpOut.value, elixir: elixirOut.value, node: null, playwright: null },\n                version_unavailable: { erlang: otpOut.reason, elixir: elixirOut.reason, node: 'not_applicable', playwright: 'not_applicable' },\n              };\n              fs.mkdirSync('test-results', { recursive: true });\n              fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata, null, 2)}\\n`);\n              NODE\n          - name: Upload library measurement metadata\n            if: always()\n            uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a \n            with:\n              name: library-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}\n              path: test-results/ci-measurement-metadata.json\n              retention-days: 7\n              if-no-files-found: warn\n    \n    \n    \n    \n    \n    \n    \n    \n    \n    \n    \n    \n  operator: 'doesNotMatch'\n  stack: |-\n    assertLibrarySetupContract (file:///Users/jon/projects/sigra/scripts/ci/ci-prep-semantics.test.mjs:19:10)\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-prep-semantics.test.mjs:26:3)\n    Test.runInAsyncScope (node:async_hooks:226:14)\n    Test.run (node:internal/test_runner/test:1402:25)\n    Test.start (node:internal/test_runner/test:1262:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n  ...\n# Subtest: library setup contract rejects unique source mutations, including misleading comments\nok 2 - library setup contract rejects unique source mutations, including misleading comments\n  ---\n  duration_ms: 5.047708\n  type: 'test'\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 1\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 43.504083\n",
-  "targetTest": "library job relies on pinned setup-beam defaults and its sole mix ci dependency owner",
-  "targetFile": "scripts/ci/ci-prep-semantics.test.mjs",
-  "expected": "The assertion fails because the library job still repeats Hex/Rebar installs and mix deps.get.",
-  "actual": "The target test fails at the assertion forbidding duplicate setup; the mutated-source rejection test passes.",
-  "semanticAssessment": "The named target executed and failed on the intended duplicate-setup assertion. TAP shows 2 tests discovered, one pass and one fail; there are no syntax, setup or load failures."
+  "schema_version": "sigra.phase254.setup-check/v1",
+  "status": "blocked",
+  "source_sha": "75d697b217be90f1d0395acad11651ed3072d95e",
+  "source_files": {
+    "action_sha256": "074bb63f04f84bf3cff749e854e0dff1942d3ab50c7655d8827786d936ef696f",
+    "workflow_sha256": "25c20412ff76cacc5276cb63bcf67e82f7b563b51d3522f44e9293887c4abb0e",
+    "profiler_sha256": "060071a8b54bc939527be0df035a3cb32f2bc9d7ee8e8437fa4981f8e8eb30f3"
+  },
+  "profile": {
+    "captured_at": "2026-10-23T18:06:05.262Z",
+    "runtime": {
+      "node": "v26.10.0",
+      "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+      "erlang": "28"
+    },
+    "scope": "admin_behavior",
+    "env": "MIX_ENV=dev; CI=true; localhost PostgreSQL; unique DB and PORT per form; isolated MIX_HOME/HEX_HOME shared across forms"
+  },
+  "pinned_setup_proof": {
+    "action": "erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124",
+    "source": "https://raw.githubusercontent.com/erlef/setup-beam/54075bcc5e249e4758d363f27d099f55d843f124/action.yml",
+    "version_file": ".tool-versions",
+    "version_type": "strict",
+    "install_hex_default": true,
+    "install_rebar_default": true,
+    "flags_disabling_defaults": false,
+    "workflow_changes_homes_after_setup": false,
+    "reason_outer_fetch_retained": "mix ci runs format --check-formatted before deps.get --check-locked; a clean source checkout failed at formatter import loading without a preceding dependency fetch."
+  },
+  "current_commands": [
+    "mix deps.get",
+    "mix compile --warnings-as-errors",
+    "mix ecto.create",
+    "mix ecto.migrate",
+    "mix run priv/repo/seeds.exs"
+  ],
+  "combined_candidate": "mix do mix deps.get + mix compile --warnings-as-errors + mix ecto.create + mix ecto.migrate + mix run priv/repo/seeds.exs",
+  "previous_artifact": {
+    "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-SETUP-CHECK.json",
+    "sha256": "45609df60976416a6b1c7fcd232ca192bcbc167096cd212bd875d0b495d5d41e",
+    "commit": "7b1eb5d90c219cfdbd255a89eff7959fd3e11530",
+    "red_target": "library job relies on pinned setup-beam defaults and its sole mix ci dependency owner",
+    "classifier_verdict": "RED_EVIDENCE_OK"
+  },
+  "components": [
+    {
+      "name": "hex-install",
+      "command": "mix local.hex --force",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1204,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/hex-install.log",
+      "log_sha256": "6274c82e0ae0dd861a31f29125625de2ee33daae4793724e519b79a0c1623b19"
+    },
+    {
+      "name": "rebar-install",
+      "command": "mix local.rebar --force",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 830,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/rebar-install.log",
+      "log_sha256": "7bdf995d235e248afd84157c56718d33c39cd38142fd96be5c6bc91952f59732"
+    },
+    {
+      "name": "checkout-current",
+      "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/checkouts/current\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/checkouts/current\" checkout --quiet --detach 75d697b217be90f1d0395acad11651ed3072d95e",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1473,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/checkout-current.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "checkout-combined",
+      "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/checkouts/combined\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/checkouts/combined\" checkout --quiet --detach 75d697b217be90f1d0395acad11651ed3072d95e",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1115,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/checkout-combined.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "current-cold-01",
+      "command": "set -euo pipefail\nmix deps.get",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1699,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/current-cold-01.log",
+      "log_sha256": "5465b92984ed42034a2d8bdaf5cd210a806c7e7464302bef881b574b32e26ff5"
+    },
+    {
+      "name": "current-cold-02",
+      "command": "set -euo pipefail\nmix compile --warnings-as-errors",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 19497,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/current-cold-02.log",
+      "log_sha256": "4b87a61777460adaebc0242e2bc5668e1ade0c6b14041fcada39e933733e7585"
+    },
+    {
+      "name": "current-cold-03",
+      "command": "set -euo pipefail\nmix ecto.create",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 863,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/current-cold-03.log",
+      "log_sha256": "7eabe0d4fb0baa5f83b9483a6a5073e8d238c87642ae2cc62deda6bef114d609"
+    },
+    {
+      "name": "current-cold-04",
+      "command": "set -euo pipefail\nmix ecto.migrate",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1042,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/current-cold-04.log",
+      "log_sha256": "1ac8233322ffe49769bf3e394adf6e202266d5dd6010e0e2d705fb81790fcc0b"
+    },
+    {
+      "name": "current-cold-05",
+      "command": "set -euo pipefail\nmix run priv/repo/seeds.exs",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1019,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-compare-prep-oo1OQK/logs/current-cold-05.log",
+      "log_sha256": "ae98383eda0250ff542ca689a691a0a845ff5f2d9966f4e5345f47969f8fe087"
+    }
+  ],
+  "forms": {},
+  "failure_semantics": null,
+  "decision": null,
+  "hosted_acceptance": "not_started",
+  "speed_target_claimed": false,
+  "failure": {
+    "message": "database_snapshot_failed:ERROR:  relation \"users\" does not exist\nLINE 3:     (select count(*) from users),\n                                  ^"
+  },
+  "database_cleanup": [
+    {
+      "database": "sigra_25405_9803_mvla6si6_combined",
+      "exit_code": 0,
+      "status": "passed"
+    },
+    {
+      "database": "sigra_25405_9803_mvla6si6_current",
+      "exit_code": 0,
+      "status": "passed"
+    }
+  ],
+  "completed_at": "2026-10-23T18:06:34.431Z",
+  "duration_ms": 29169
 }
