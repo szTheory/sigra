@@ -69,7 +69,7 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
         run_path = family / "run.json"
         try:
             family_run = json.loads(run_path.read_text())
-            matches = [row for row in population_runs if str(row.get("id")) == str(family_run.get("id"))]
+            matches = [row for row in population_runs if str(row.get("id")) == str(family_run.get("id")) and row.get("run_attempt") == family_run.get("run_attempt")]
             identity_keys = ("id", "head_sha", "event", "path", "run_attempt", "created_at", "pull_requests")
             if len(matches) != 1 or any(matches[0].get(key) != family_run.get(key) for key in identity_keys):
                 diagnostics.append(f"family_run_population_binding_invalid:{family.name}")
@@ -116,6 +116,20 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
         for label, digest, path in refs:
             if not _matches(path, digest):
                 diagnostics.append(f"family_source_hash_mismatch:{family.name}:{label}")
+
+        for native in facts.get("derived_native_coverage") or []:
+            directory = (bundle / native.get("directory", "")).resolve()
+            member = (bundle / native.get("report_member_path", "")).resolve()
+            try:
+                artifact_root = (family / "artifacts" / str(native.get("artifact_id"))).resolve()
+                if (not directory.is_relative_to((family / "artifacts/derived-native").resolve())
+                        or not member.is_relative_to(artifact_root)
+                        or set(native.get("file_sha256") or {}) != {"report.json", "selection.json", "coverage-source.json"}
+                        or any(not _matches(directory / name, expected) for name, expected in native["file_sha256"].items())
+                        or (directory / "report.json").read_bytes() != member.read_bytes()):
+                    raise ValueError("derived_native_origin_or_digest_mismatch")
+            except (OSError, ValueError, TypeError):
+                diagnostics.append(f"derived_native_origin_or_digest_mismatch:{family.name}:{native.get('owner')}")
 
         metadata_path = family / "artifacts-metadata.json"
         evidence_path = family / "artifact-evidence.json"
@@ -240,6 +254,72 @@ def validate_producer_binding(run: dict, job: dict, artifact: dict, metadata: di
     if not valid:
         diagnostics.append("producer_metadata_not_bound_to_successful_job_upload")
     return diagnostics
+
+
+def legacy_playwright_artifact_matches_attempt(artifact: dict, run: dict, jobs: list[dict], attempt: int) -> bool:
+    """Bind frozen, run-only diagnostic names to the selected attempt's upload window."""
+    name = artifact.get("name")
+    owners = ("admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase")
+    owner = next((owner for owner in owners if name == f"example-playwright-{owner}-{run.get('id')}"), None)
+    if owner is None or str((artifact.get("workflow_run") or {}).get("id")) != str(run.get("id")):
+        return False
+    if (artifact.get("workflow_run") or {}).get("head_sha") != run.get("head_sha"):
+        return False
+    try:
+        created = _utc(artifact.get("created_at"))
+        return any(job.get("name") == f"Example Playwright shard ({owner})"
+                   and job.get("run_id") == run.get("id") and job.get("run_attempt") == attempt
+                   and job.get("head_sha") == run.get("head_sha") and job.get("conclusion") == "success"
+                   and any(step.get("name") == "Upload shard diagnostics" and step.get("conclusion") == "success"
+                           and _utc(step.get("started_at")) <= created <= _utc(step.get("completed_at"))
+                           for step in job.get("steps", [])) for job in jobs)
+    except (TypeError, ValueError):
+        return False
+
+
+def comparison_native_inventories(contract: dict, role: str, root: pathlib.Path) -> dict:
+    """Read frozen selections only when their complete Playwright tree still matches."""
+    import subprocess
+    root = pathlib.Path(root).resolve()
+    source = contract.get("baseline_application_sha") if role == "before" else (contract.get("candidate_identity") or {}).get("application_sha")
+    rows = ((contract.get("native_coverage_comparison") or {}).get("inventories") or {}).get(role)
+    owners = {"admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"}
+    if not isinstance(rows, dict) or set(rows) != owners:
+        raise ValueError("comparison_native_inventories_missing")
+
+    def git(*args):
+        return subprocess.check_output(["git", "-C", str(root), *args], stderr=subprocess.DEVNULL)
+
+    def retained(row, name):
+        path = (root / row.get(name + "_path", "")).resolve()
+        if not path.is_relative_to(root) or not _matches(path, row.get(name + "_sha256")):
+            raise ValueError("comparison_inventory_digest_invalid:" + name)
+        return path.read_bytes()
+
+    result = {}
+    for owner, row in rows.items():
+        descriptor = json.loads(retained(row, "descriptor"))
+        selection = retained(row, "selection")
+        inventory_source = row.get("inventory_source_sha")
+        if not re.fullmatch(r"[0-9a-f]{40}", str(source or "")) or not re.fullmatch(r"[0-9a-f]{40}", str(inventory_source or "")):
+            raise ValueError("comparison_inventory_source_invalid")
+        try:
+            if git("rev-parse", source + ":test/example/priv/playwright") != git("rev-parse", inventory_source + ":test/example/priv/playwright"):
+                raise ValueError("comparison_inventory_playwright_tree_changed:" + owner)
+            for field, path in (("workflow_sha256", ".github/workflows/ci.yml"),
+                                ("configuration_sha256", "test/example/priv/playwright/playwright.config.ts"),
+                                ("lock_sha256", "test/example/priv/playwright/package-lock.json")):
+                if hashlib.sha256(git("show", source + ":" + path)).hexdigest() != descriptor.get(field):
+                    raise ValueError("comparison_inventory_source_input_changed:" + field)
+        except subprocess.CalledProcessError as error:
+            raise ValueError("comparison_inventory_source_unavailable") from error
+        if (descriptor.get("schema_version") != "sigra.browser-coverage-source/v1"
+                or descriptor.get("owner") != owner or descriptor.get("seam") != owner
+                or descriptor.get("source_sha") != inventory_source or len(descriptor.get("reports") or []) != 1
+                or descriptor["reports"][0].get("selection_sha256") != hashlib.sha256(selection).hexdigest()):
+            raise ValueError("comparison_inventory_descriptor_invalid:" + owner)
+        result[owner] = {"descriptor": descriptor, "selection": selection, "inventory_source_sha": inventory_source}
+    return result
 
 
 def validate_producer_commit(source_sha: str, commit: dict, run: dict) -> list[str]:
@@ -632,7 +712,10 @@ def derive_attempt_job_costs(attempt_jobs: dict) -> dict:
                 continue
             seen.add(job_id)
             try:
-                if job.get("conclusion") == "skipped" and not job.get("started_at") and not job.get("completed_at"):
+                unexecuted = (not job.get("started_at") and not job.get("completed_at")) or (
+                    job.get("status") == "completed" and not job.get("steps")
+                    and job.get("runner_id") in (None, 0) and not job.get("runner_name"))
+                if job.get("conclusion") == "skipped" and unexecuted:
                     seconds = 0.0
                 else:
                     start, end = _utc(job["started_at"]), _utc(job["completed_at"])
@@ -887,6 +970,7 @@ def comparison_registered_runs(contract: dict, ledger: dict, role: str) -> list[
              "family_role": role, "run_id": row["run_id"], "run_attempt": row.get("run_attempt"),
              "sample_id": f"{row['run_id']}-attempt-{row['run_attempt']}" if row.get("run_attempt") is not None else str(row["run_id"]),
              "attempt_origin_at": row.get("attempt_origin_at"), "created_at": row["created_at"],
+             "event": row.get("event"), "workflow_path": row.get("workflow_path"),
              "head_sha": row["head_sha"], "pull_request_head_sha": row["pull_request_head_sha"],
              "pull_request_base_sha": row["pull_request_base_sha"],
              "pull_request_number": row["pull_request_number"]} for row in rows]
@@ -1025,6 +1109,10 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
             valid_raw = valid_raw and api_run.get("event") == "pull_request" and api_run.get("path") == ".github/workflows/ci.yml"
             valid_raw = valid_raw and len(api_run.get("pull_requests") or []) == 1
             valid_raw = valid_raw and api_run["pull_requests"][0].get("head", {}).get("sha") == row.get("pull_request_head_sha")
+            if contract.get("sample_identity") == "run_id+run_attempt":
+                valid_raw = valid_raw and api_run.get("run_attempt") == row.get("run_attempt")
+                valid_raw = valid_raw and (api_run.get("run_started_at") or api_run.get("queued_at")) == row.get("attempt_origin_at")
+                valid_raw = valid_raw and bool(row.get("attempt_origin_at"))
         except (ValueError, TypeError, KeyError):
             valid_raw = False
         if not valid_raw:

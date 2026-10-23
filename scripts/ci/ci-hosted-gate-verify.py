@@ -1925,7 +1925,14 @@ def verify_comparison_family_origin(family_directory, registration, required_con
     for check in check_rows:
         if check.get("name") not in required_contexts:
             continue
-        job = jobs_by_id.get(str(check.get("external_id")))
+        check_id = str(check.get("id", ""))
+        external_id = str(check.get("external_id", ""))
+        candidates = [job for job_id, job in jobs_by_id.items()
+                      if (check_id.isdigit() and job_id == check_id)
+                      or (external_id.isdigit() and job_id == external_id)
+                      or (check_id.isdigit() and job.get("check_run_url") ==
+                          f"https://api.github.com/repos/{REPOSITORY}/check-runs/{check_id}")]
+        job = candidates[0] if len(candidates) == 1 else None
         require(job is not None and check.get("head_sha") == registration.get("head_sha")
                 and (check.get("app") or {}).get("slug") == "github-actions"
                 and str(job.get("name")) == check.get("name"),
@@ -1950,7 +1957,7 @@ def verify_comparison_family_origin(family_directory, registration, required_con
                 and (artifact.get("workflow_run") or {}).get("repository_id") == REPOSITORY_ID,
                 "artifact API origin differs from registered run")
         if attempt_scoped and artifact_run.get("run_attempt") is not None:
-            require(artifact_run.get("run_attempt") == attempt, "artifact API origin belongs to another run attempt")
+            require(artifact_run.get("run_attempt") == int(attempt), "artifact API origin belongs to another run attempt")
         if result.get("status") == "accepted":
             artifact_id = str(artifact.get("id"))
             require(artifact_id.isdigit() and artifact.get("expired") is False
@@ -1966,10 +1973,16 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             if isinstance(artifact.get("name"), str): artifact_names.append(artifact["name"])
     require(artifacts, "no digest-verified artifact was retained for the comparison family")
     if attempt_scoped:
-        expected_names = sorted(f"browser-execution-{owner}-{run_id}-{attempt}" for owner in
-            ("admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"))
-        require(sorted(name for name in artifact_names if name.startswith("browser-execution-")) == expected_names,
-                "the exact five native artifacts for the registered run attempt are required")
+        from ci_metrics_security import legacy_playwright_artifact_matches_attempt
+        for owner in ("admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"):
+            current_name = f"browser-execution-{owner}-{run_id}-{attempt}"
+            legacy_name = f"example-playwright-{owner}-{run_id}"
+            legacy = [entry.get("artifact") or {} for entry in evidence
+                      if (entry.get("result") or {}).get("status") == "accepted"
+                      and (entry.get("artifact") or {}).get("name") == legacy_name]
+            require(current_name in artifact_names or (len(legacy) == 1 and
+                    legacy_playwright_artifact_matches_attempt(legacy[0], run, latest_jobs, int(attempt))),
+                    "the exact five native artifacts for the registered run attempt are required")
     merge_sha=run.get("merge_commit_sha")
     require(merge_sha is None or (isinstance(merge_sha,str) and SHA40.fullmatch(merge_sha)),
             "workflow run merge SHA is malformed")

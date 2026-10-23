@@ -1,0 +1,30 @@
+{
+  "schema_version": "sigra.phase254.attempt-tooling-validation/v1",
+  "recorded_at": "2026-10-23T22:05:36.867601+00:00",
+  "scope": "Existing Plan254-08; approved attempt-method tooling and bounded preparation",
+  "source_files": {
+    "scripts/ci/ci-run-metrics.sh": "2e084e4e5e8a7f183c881528f2a87cee800fb7dfc1afc851a5633c86131b396d",
+    "scripts/ci/ci_metrics_security.py": "5d2e479e1c8c9888941d3f736660a02c5d8a1480a12ba6972f70c6e25955163d",
+    "scripts/ci/ci-hosted-gate-verify.py": "a40844dcf94ec0cab97cb25626fd9742262ddcb61b561eb2ced2954d113f42dc",
+    "scripts/ci/ci-run-metrics-attempt.test.py": "78b6c9d2f1e5c708621b4a0f4a28e3a8f05979f45d1c1e25fd0453e778d6ea8e"
+  },
+  "implementation": [
+    "Exact-attempt registration, acquisition, source/origin validation and runner cost",
+    "Frozen baseline native artifacts bound by authenticated selected-attempt upload steps",
+    "Native report bytes retained and checked against raw artifact ZIP members",
+    "Single-reservation collection preserves each attempt before the next rerun",
+    "Preparation uses a shared 600-request/60-minute ledger; each approved trigger is once-only and uncertain mutations are never retried"
+  ],
+  "verification": {
+    "legacy_collector": "48 checks passed",
+    "security": "23 tests passed",
+    "hosted_origin": "154 tests passed",
+    "replay": "1 test passed",
+    "immutable_baseline": "ready; no diagnostics",
+    "attempt_integration": "5 tests passed; complete 20-pair pass/miss/missing-sample evaluation, real CLI acquisition, independent origin and native parity, preparation collection and once-only trigger guard"
+  },
+  "hosted_preparation_invocations": 0,
+  "measured_samples": 0,
+  "phase_verification": "pending",
+  "method_disclosure": "Method amendment approved after implementation. Rerun fixed-source experiment; it does not establish new-PR scheduling performance."
+}
