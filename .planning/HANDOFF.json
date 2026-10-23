@@ -8,13 +8,13 @@
   "current": "All nine approved fresh Linux registration runs passed on product a87664733: three desktop,three mobile,three dark;zero retries/skips;226.5seconds including cleanup. Every run saved registration,inserted an account and submitted login;the original Ecto.Queryable error did not recur. All18containers were removed. This new allowance is consumed;no extra browser/CI run is authorized. CIREL-01 still needs normal integration coverage and review of remaining controls/phase verification;CIREL-02 is complete and unchanged. Next:review existing integration evidence and prepare the smallest missing source-pinned integration check offline,without reopening old runs or adding a numbered repair plan.",
   "next_command": "$gsd-debug continue phase253-registration-timeout",
   "resume_command": "$gsd-debug continue phase253-registration-timeout",
-  "next_action": "All nine approved fresh Linux registration runs passed on product a87664733: three desktop,three mobile,three dark;zero retries/skips;226.5seconds including cleanup. Every run saved registration,inserted an account and submitted login;the original Ecto.Queryable error did not recur. All18containers were removed. This new allowance is consumed;no extra browser/CI run is authorized. CIREL-01 still needs normal integration coverage and review of remaining controls/phase verification;CIREL-02 is complete and unchanged. Next:review existing integration evidence and prepare the smallest missing source-pinned integration check offline,without reopening old runs or adding a numbered repair plan.",
+  "next_action": "Offline integration preparation is complete:108 tests frozen across the five current PR browser groups on product a87664733. Thirteen runner tests and43 existing unit contracts pass;three configuration tests pass with each seed101/202/303. No browser,app,database,CI or GitHub request ran. New proposal requires an explicit decision:five fresh local Linux groups,once each,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Prior nine-run approval is consumed. Readiness/isolation/trace browser controls and canonical phase verification remain after integration;CIREL-02 stays complete.",
   "route": {
-    "status": "nine_targeted_postfix_runs_passed_integration_preparation_next",
+    "status": "integration_bundle_ready_new_decision_required",
     "next_command": "$gsd-debug continue phase253-registration-timeout",
     "resume_command": "$gsd-debug continue phase253-registration-timeout",
-    "conditional": false,
-    "reason": "All nine approved fresh Linux registration runs passed on product a87664733: three desktop,three mobile,three dark;zero retries/skips;226.5seconds including cleanup. Every run saved registration,inserted an account and submitted login;the original Ecto.Queryable error did not recur. All18containers were removed. This new allowance is consumed;no extra browser/CI run is authorized. CIREL-01 still needs normal integration coverage and review of remaining controls/phase verification;CIREL-02 is complete and unchanged. Next:review existing integration evidence and prepare the smallest missing source-pinned integration check offline,without reopening old runs or adding a numbered repair plan.",
+    "conditional": true,
+    "reason": "Offline integration preparation is complete:108 tests frozen across the five current PR browser groups on product a87664733. Thirteen runner tests and43 existing unit contracts pass;three configuration tests pass with each seed101/202/303. No browser,app,database,CI or GitHub request ran. New proposal requires an explicit decision:five fresh local Linux groups,once each,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Prior nine-run approval is consumed. Readiness/isolation/trace browser controls and canonical phase verification remain after integration;CIREL-02 stays complete.",
     "evidence": ".planning/execution/253-registration-postfix/RESULT.json",
     "phase_verification_status": "incomplete",
     "immediate_user_action": "None for offline integration evidence review and preparation",
@@ -213,7 +213,9 @@
     "phase253_requirement_review_status": "partial_cirel02_verified_cirel01_blocked",
     "phase253_uat_status": "partial"
   },
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    "Approve or decline the frozen five-group local integration proposal; no CI/GitHub action is included."
+  ],
   "async_jobs": [],
   "previous_milestone": {
     "version": "v1.49",
@@ -4248,7 +4250,7 @@
     "253-172-PLAN.md"
   ],
   "phase253_verification_status": "not_started",
-  "workflow_step": "phase253_nine_postfix_runs_passed_integration_preparation_next",
+  "workflow_step": "phase253_integration_bundle_ready_new_decision_required",
   "phase253_gap_repair183_planning": {
     "schema": 1,
     "status": "passed",
@@ -4778,20 +4780,15 @@
       }
     ]
   },
-  "next_command_conditional": false,
+  "next_command_conditional": true,
   "phase253_completed_plans": 81,
   "phase253_unsummarized_plans": 73,
   "phase253_pending_decision": {
-    "status": "approved_and_consumed",
-    "approval_received": true,
-    "approval_pending": false,
-    "proposal_sha256": "f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06",
-    "scope": "nine-fresh-local-linux-postfix-invocations",
-    "new_ci_authorized": false,
-    "decision_text": "yes i approve",
-    "approval_commit": "61d24b90e",
-    "scope_complete": true,
-    "additional_native_authorized": false
+    "status": "new_integration_scope_decision_required",
+    "pending": true,
+    "proposal": ".planning/execution/253-registration-integration/proposal.json",
+    "proposal_sha256": "221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889",
+    "previous_nine_run_approval_consumed": true
   },
   "phase253_canary170_execution": ".planning/execution/253-170.json",
   "current_route_prior_commit": "3e184fc1c862654e24e5c04ac04dd1701eda3591",
@@ -4850,7 +4847,7 @@
     "docs_pr_created": false
   },
   "prior_shared_state_commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
-  "updated_at": "2026-10-23T00:58:30.129393+00:00",
+  "updated_at": "2026-10-23T01:21:59.408906+00:00",
   "phase253_docs_continuation_attempt": {
     "status": "closed_docs_ci_failed_offline_repairs_verified",
     "commit": "72103017d",
@@ -5231,5 +5228,38 @@
     "result": ".planning/execution/253-registration-postfix/RESULT.json",
     "approval_commit": "61d24b90e",
     "reservation_commit": "2473ecfa7"
+  },
+  "phase253_integration_validation": {
+    "status": "prepared_not_approved",
+    "proposal": ".planning/execution/253-registration-integration/proposal.json",
+    "proposal_sha256": "221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889",
+    "source": "a876647338095b6d280608cb75bcf886ab1da953",
+    "readme": ".planning/execution/253-registration-integration/README.md",
+    "checks": ".planning/execution/253-registration-integration/CHECKS.json",
+    "selected_tests": 108,
+    "groups": 5,
+    "approval_received": false,
+    "approval_pending": true,
+    "additional_native_authorized": false,
+    "limits": {
+      "browser_invocations": 5,
+      "seconds_including_cleanup": 3600,
+      "per_group_seconds": 1800,
+      "retries": 0,
+      "stop_at_first_failure": true,
+      "github_requests": 0,
+      "ci_launches": 0,
+      "old_slots_reopened": 0
+    },
+    "browser_invocations": 0,
+    "ci_launches": 0,
+    "github_requests": 0,
+    "phase_complete": false
+  },
+  "phase253_prior_shared_state": {
+    "record": ".planning/execution/253-registration-integration/prior-state.json",
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "93b3778c5a21855dd448d4b5601cdf90705ae6e5ab384af995c07d038cd2e2b5",
+    "readback_verified": true
   }
 }

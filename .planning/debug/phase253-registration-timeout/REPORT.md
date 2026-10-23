@@ -35,7 +35,7 @@ Independent native/server review: `.planning/execution/253-registration-postfix/
 
 The fix and targeted validation are complete. Normal integration coverage on this source, review of remaining CIREL-01 controls and canonical phase verification remain. CIREL-02 stays complete. These emulated runs do not reconstruct the original hosted scheduling or database snapshot.
 
-Next: review existing integration evidence and prepare the smallest missing integration check offline. No human verification or additional browser/CI run is required for that preparation. Phase254 is pending without context/research/plans and has not started; readiness was rechecked.
+The five ordinary PR browser groups are now frozen in `.planning/execution/253-registration-integration/proposal.json`:108tests including setup,one invocation per group,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Thirteen runner tests and43 existing unit contracts pass;configuration tests pass with each seed101/202/303. No browser/app/database ran. A new explicit runtime decision is required;the prior nine-run approval is consumed. Readiness/isolation/trace browser controls remain incomplete,as do canonical phase verification. After approval of the exact proposal,continue this debug session to execute it. Phase254 is pending without context/research/plans and has not started; readiness was rechecked.
 
 ```text
 $gsd-debug continue phase253-registration-timeout

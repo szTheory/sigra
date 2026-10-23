@@ -34,8 +34,8 @@ reasoning_checkpoint:
 bug_class: concurrency — loader/reloader race demonstrated under a controlled schedule; original historical interleaving remains untraced
 hypothesis: CI's development reloader is an unnecessary module-deletion actor and can cause the original module error when it overlaps OTP's loader checks.
 test: the controlled schedule reproduces the exact error with the development configuration and passes with the actual CI configuration after the patch. Three configuration tests pass;CI compilation and compiled endpoint inspection pass.
-expecting: fresh source-pinned post-fix browser/CI results are still needed before completing CIREL-01 or Phase253. No old allowance permits those runs.
-next_action: approved nine-run post-fix scope is complete:all9passed in226.5seconds with cleanup. Review existing integration evidence and prepare the smallest remaining source-pinned integration check offline. No additional browser/CI run is authorized;do not replay this bundle or add a numbered repair plan.
+expecting: nine targeted post-fix passes are established. The frozen108-test integration bundle still needs an explicit runtime decision;browser controls and canonical phase verification remain afterward.
+next_action: offline integration bundle is prepared and checked;await explicit approval or refusal of proposal 221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889. After approval,run five fresh local Linux groups once each within3600seconds including cleanup;no CI/GitHub scope. Prior approvals are consumed;controls and canonical verification remain.
 
 ## Evidence
 
@@ -78,3 +78,7 @@ Candidate image and source manifest are pinned in `.planning/execution/253-regis
 ## Approved post-fix runtime result
 
 The user approved proposal f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06 with “yes i approve”. Approval61d24b90e and reservation2473ecfa7 preceded the one approved execution. All9fresh invocations passed:3desktop/3mobile/3dark;zero retries/skips;226.5seconds including cleanup. Each server log shows one save,one account insert and one login POST,with no original module error. All18containers were removed;zero CI/GitHub requests. Actual evidence:eb2e23a14cc079a6539d8c037810e543e97c4658;result:`.planning/execution/253-registration-postfix/RESULT.json`. Authentication values were redacted before committing logs;native browser reports and flow counts are unchanged. The allowance is consumed. CIREL-01 still needs normal integration/remaining-control review and whole-phase verification;CIREL-02 unchanged. Next:offline integration evidence review/preparation in this same session.
+
+## Offline integration preparation
+
+Offline integration preparation is complete:108 tests frozen across the five current PR browser groups on product a87664733. Thirteen runner tests and43 existing unit contracts pass;three configuration tests pass with each seed101/202/303. No browser,app,database,CI or GitHub request ran. New proposal requires an explicit decision:five fresh local Linux groups,once each,zero retries,first-failure stop,3600seconds total including cleanup and1800seconds per group. Prior nine-run approval is consumed. Readiness/isolation/trace browser controls and canonical phase verification remain after integration;CIREL-02 stays complete. Proposal SHA256:221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889. Review:`.planning/execution/253-registration-integration/README.md`;checks:`CHECKS.json` in that directory. Original Plan16 and control-recovery browser receipts remain halted;their slots are not reopened. Prior exact session bytes:6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5;read-back:`.planning/execution/253-registration-integration/prior-state.json`.
