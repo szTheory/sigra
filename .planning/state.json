@@ -35,12 +35,12 @@
     }
   ],
   "next": {
-    "command": "$gsd-debug continue phase253-registration-timeout",
+    "command": "$gsd-execute-phase 253",
     "conditional": false,
-    "label": "Offline review/preparation of missing browser controls",
-    "reason": "Approved integration scope is complete:108/108 passed across five fresh local Linux groups on product a87664733;zero retries/skips;640.7seconds including cleanup;all10containers removed;no original Ecto.Queryable error,CI launch or GitHub request. Approval55324020c and reservation26ed7517c are consumed. The fix,targeted repeats and ordinary browser integration are complete. CIREL-01 still needs readiness/isolation/trace browser-control proof and canonical phase verification;CIREL-02 stays complete. Next:review stopped controls and prepare the smallest remaining browser-control check offline. No extra runtime action is authorized and no new decision is needed for that preparation."
+    "label": "Run final phase verification gates;no plan execution remains",
+    "reason": "All22existing readiness/isolation/trace control rows reverified from completed R4/R5 proof;the previous handoff incorrectly used older halted attempts. Control/test/authentication inputs are unchanged. No new browser run is needed. Nine targeted repeats and108integration tests remain passing. Seventy-three never-executed duplicate recovery recipes are explicitly superseded with exact originals preserved;all29halts are unchanged. The installed SDK now reports110active summarized records,zero incomplete plans and routes missing canonical verification to unfiltered execute-phase. Next:run normal final phase gates with $gsd-execute-phase 253. CIREL-01 and Phase253 remain pending canonical verification;CIREL-02 stays complete. No extra runtime permission or budget reset."
   },
-  "updated_at": "2026-10-23T01:38:16.450224+00:00",
+  "updated_at": "2026-10-23T02:11:40.299404+00:00",
   "phase253_execution": {
     "status": "direct_requirement_review_complete_registration_blocked",
     "implementation_status": "partial",
@@ -1228,7 +1228,7 @@
     "current_next_command": "$gsd-execute-phase 253 --gaps-only"
   },
   "status": "in_progress",
-  "next_command": "$gsd-debug continue phase253-registration-timeout",
+  "next_command": "$gsd-execute-phase 253",
   "resume_command": "$gsd-debug continue phase253-registration-timeout",
   "phase253_additional_execution": {
     "status": "native_controls_halted_recovery_planning_required",
@@ -2166,7 +2166,7 @@
     "github_requests": 0,
     "acceptance_attempts": 0
   },
-  "phase253_plan_count": 183,
+  "phase253_plan_count": 110,
   "phase253_ready_plans": [
     "253-172-PLAN.md"
   ],
@@ -2635,7 +2635,7 @@
     },
     "recorded_at": "2026-10-20T22:27:02.838416+00:00"
   },
-  "workflow_step": "phase253_postfix_integration_passed_controls_preparation_next",
+  "workflow_step": "phase253_controls_verified_final_verification_unblocked",
   "phase253_gap_repair182_planning": {
     "schema": 1,
     "status": "passed",
@@ -3452,7 +3452,7 @@
     "run_conclusion": "success",
     "phase_verified": false
   },
-  "next_action": "Approved integration scope is complete:108/108 passed across five fresh local Linux groups on product a87664733;zero retries/skips;640.7seconds including cleanup;all10containers removed;no original Ecto.Queryable error,CI launch or GitHub request. Approval55324020c and reservation26ed7517c are consumed. The fix,targeted repeats and ordinary browser integration are complete. CIREL-01 still needs readiness/isolation/trace browser-control proof and canonical phase verification;CIREL-02 stays complete. Next:review stopped controls and prepare the smallest remaining browser-control check offline. No extra runtime action is authorized and no new decision is needed for that preparation.",
+  "next_action": "All22existing readiness/isolation/trace control rows reverified from completed R4/R5 proof;the previous handoff incorrectly used older halted attempts. Control/test/authentication inputs are unchanged. No new browser run is needed. Nine targeted repeats and108integration tests remain passing. Seventy-three never-executed duplicate recovery recipes are explicitly superseded with exact originals preserved;all29halts are unchanged. The installed SDK now reports110active summarized records,zero incomplete plans and routes missing canonical verification to unfiltered execute-phase. Next:run normal final phase gates with $gsd-execute-phase 253. CIREL-01 and Phase253 remain pending canonical verification;CIREL-02 stays complete. No extra runtime permission or budget reset.",
   "phase253_paired_attempt": {
     "status": "closed_discovery_false_negative",
     "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
@@ -3713,7 +3713,7 @@
     "cleanup_complete": true
   },
   "phase253_registration_diagnosis": {
-    "status": "targeted_and_integration_passed_controls_pending",
+    "status": "implementation_repeats_integration_and_controls_verified_phase_review_pending",
     "product_commit": "a876647338095b6d280608cb75bcf886ab1da953",
     "evidence_commit": "b6a607da337a40cca081985beb50ee6f6caa5c40",
     "session": ".planning/debug/phase253-registration-timeout.md",
@@ -3734,7 +3734,8 @@
     "postfix_validation_bundle": ".planning/execution/253-registration-postfix/CHECKS.json",
     "postfix_validation_result": ".planning/execution/253-registration-postfix/RESULT.json",
     "integration_result": ".planning/execution/253-registration-integration/RESULT.json",
-    "integration_tests_passed": 108
+    "integration_tests_passed": 108,
+    "controls_result": ".planning/execution/253-final-review/controls.json"
   },
   "phase253_postfix_validation": {
     "status": "nine_targeted_runs_passed_scope_complete",
@@ -3760,7 +3761,7 @@
     "ci_launches": 0,
     "old_slots_reopened": 0,
     "execution_command": "python3 .planning/execution/253-registration-postfix/validate.py --run",
-    "next_command": "$gsd-debug continue phase253-registration-timeout",
+    "next_command": "$gsd-execute-phase 253",
     "phase_verified": false,
     "approval_consumed": true,
     "approval_scope_complete": true,
@@ -3811,12 +3812,43 @@
     "result": ".planning/execution/253-registration-integration/RESULT.json",
     "evidence_commit": "b42a8ad89816a8f81c21d067fa8c66a0ddc26c34",
     "approval_commit": "55324020c",
-    "reservation_commit": "26ed7517c"
+    "reservation_commit": "26ed7517c",
+    "next_command": "$gsd-execute-phase 253"
   },
   "phase253_prior_shared_state": {
-    "record": ".planning/execution/253-registration-integration/CLOSEOUT-STATE.json",
-    "commit": "68b032d42152c22e22e8cb6edac482c9099ab904",
-    "sha256": "f66c348eee600f17fbd7b1fbf37ae73930535c5ecded85764fcecec789cfa480",
+    "record": ".planning/execution/253-final-review/prior-state.json",
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "127ed4b6c93418390a36b8a61e7ee737888680375337c2307e4f16d79d4bc808",
     "readback_verified": true
-  }
+  },
+  "phase253_controls": {
+    "status": "completed_native_controls_reverified",
+    "result": ".planning/execution/253-final-review/controls.json",
+    "positive_rows": 13,
+    "deliberate_negative_rows": 9,
+    "total": 22,
+    "new_runtime_needed": false,
+    "tested_control_inputs_unchanged": true,
+    "new_browser_invocations": 0
+  },
+  "phase253_recovery_retirement": {
+    "record": ".planning/execution/253-final-review/RETIREMENTS.json",
+    "retired_never_executed": 73,
+    "original_plan_count": 183,
+    "completed_implementation": 81,
+    "historical_halts": 29,
+    "active_plans": 110,
+    "incomplete_plans": 0,
+    "failed_outcomes_unchanged": true,
+    "prior_commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca"
+  },
+  "phase253_canonical_verification": {
+    "status": "missing_ready_to_run",
+    "owner_command": "$gsd-execute-phase 253",
+    "phase_complete": false,
+    "readiness": ".planning/execution/253-final-review/execution-readiness.json",
+    "owner": ".planning/execution/253-final-review/verification-owner.json"
+  },
+  "phase253_historical_plan_count": 183,
+  "phase253_superseded_never_executed": 73
 }

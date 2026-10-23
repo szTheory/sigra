@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 partly implemented; reviewed load recovery plans ready)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 implementation and scoped checks complete; final verification ready)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -82,7 +82,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:183 total:81 completed implementation plans,29 historical halts,73 without summaries;0 runnable. Current required-gate evidence and local contracts verify. Original registration failure remains not_reproduced; the strict checker rejects acceptance. Direct review:253-CURRENT-REQUIREMENT-REVIEW.md. No status detour, automatic repair successor or spent-budget restart.
+**Plans**:183 historical records:81 completed implementations,29 preserved halts,73 explicitly retired never-executed recovery recipes. Active index:110 summarized records,0 incomplete. The selected fix,9targeted passes,108integration passes and22native readiness/isolation/trace controls have evidence. Whole-phase verification remains pending. See253-CURRENT-REQUIREMENT-REVIEW.md and `.planning/execution/253-final-review/RETIREMENTS.json`. Wave checkboxes below retain historical execution outcomes;retired instructions are not relabeled successful.
 
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
@@ -345,12 +345,12 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252complete;253remains incomplete with183plans,75completed implementation plans,28halted,80without summaries and0runnable. Local checker maintenance26/26passed;recovery reset active. Phase254/255pending.
+**Execution order:**252→253→254→255. Phase252 is complete. Phase253 has no incomplete active plans and is ready for final verification;81implementations,29halts and73retired unused recipes remain distinct. Phase254/255 remain pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81/183 | Partial implementation; 29 historical halts; no runnable plans; phase verification not started | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Implementation/scoped checks complete; final verification ready | — |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 
@@ -361,3 +361,5 @@ Phases 246–251 are archived under `milestones/v1.49-phases/`. Phase 251 implem
 **Latest execution — Plan183:** Task1 complete; Task2 halted on6tests/1failure/2errors. Task3unrun;179/180unchanged;0runnable plans. Both requirements and whole-phase verification stay open. The repeated evidence-checker repair loop needs review before another successor. Record:`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json`. Next:`$gsd-plan-phase 253 --gaps`.
 
 **Current recovery route:** User-requested lessons and process reset recorded in`253-LEARNINGS.md` and`253-RECOVERY-RESET.md`. Local checker suite26/26passed;no new numbered plan or acceptance. Original requirements remain open. Read the reset before choosing further work. Immediate status command:`$gsd-progress`;old gap-planning routes above are historical.
+
+**Current final-verification route:** Completed R4/R5 controls reverify22/22;73never-executed recovery recipes are explicitly superseded with exact originals preserved. Active incomplete count is0. Next:`$gsd-execute-phase 253`(unfiltered) for normal final gates. Phase253 is not yet verified or marked complete. Record:`.planning/execution/253-final-review/README.md`.

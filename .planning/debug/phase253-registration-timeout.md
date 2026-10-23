@@ -34,8 +34,8 @@ reasoning_checkpoint:
 bug_class: concurrency — loader/reloader race demonstrated under a controlled schedule; original historical interleaving remains untraced
 hypothesis: CI's development reloader is an unnecessary module-deletion actor and can cause the original module error when it overlaps OTP's loader checks.
 test: the controlled schedule reproduces the exact error with the development configuration and passes with the actual CI configuration after the patch. Three configuration tests pass;CI compilation and compiled endpoint inspection pass.
-expecting: targeted repeats and all108ordinary PR integration tests passed. Remaining readiness/isolation/trace browser-control proof and canonical phase verification still prevent completing CIREL-01/Phase253.
-next_action: approved five-group integration is complete:108passed,zero retries/skips,640.7seconds including cleanup. Review stopped controls and prepare the smallest remaining browser-control check offline. All approvals are consumed;no extra browser/CI action is authorized and no user action is needed for preparation.
+expecting: implementation,targeted repeats,integration and all22existing control rows have passing proof. Canonical phase verification remains;no new browser-control invocation is needed.
+next_action: run $gsd-execute-phase 253 unfiltered for final verification gates. Completed R4/R5 controls reverify;73obsolete unused plans are superseded with exact originals preserved. The installed SDK reports zero incomplete active plans. No new browser or CI permission is granted.
 
 ## Evidence
 
@@ -86,3 +86,9 @@ Offline integration preparation is complete:108 tests frozen across the five cur
 ## Approved integration result
 
 Approved integration scope is complete:108/108 passed across five fresh local Linux groups on product a87664733;zero retries/skips;640.7seconds including cleanup;all10containers removed;no original Ecto.Queryable error,CI launch or GitHub request. Approval55324020c and reservation26ed7517c are consumed. The fix,targeted repeats and ordinary browser integration are complete. CIREL-01 still needs readiness/isolation/trace browser-control proof and canonical phase verification;CIREL-02 stays complete. Next:review stopped controls and prepare the smallest remaining browser-control check offline. No extra runtime action is authorized and no new decision is needed for that preparation. Actual evidence:b42a8ad89816a8f81c21d067fa8c66a0ddc26c34;independent result:`.planning/execution/253-registration-integration/RESULT.json`. Native reports are unchanged;server logs omit authentication values with before/after hashes. All27 native path attachments are present. Prior exact session:68b032d42152c22e22e8cb6edac482c9099ab904;read-back:`.planning/execution/253-registration-integration/CLOSEOUT-STATE.json`.
+
+## Completed controls recovered; final verification unblocked
+
+The previous handoff was wrong about missing controls. Plan83 completed the R4/R5 chain; the current read-only verifier and independent audit reopen all22native rows, nine intended failure traces and three0-to-1fresh account receipts. Current control/test/authentication source and locks are unchanged. No new runtime check is needed. See `.planning/execution/253-final-review/README.md` and `controls.json`.
+
+The73never-executed recovery recipes are now explicitly superseded; original bytes remain at de9bccb356087b11cebade820c612b5cd5c1b5ca and are read back in `prior-state.json`. All failed attempts and limits remain unchanged. The actual installed SDK now reports110active summarized records,zero incomplete plans and a missing verification report. Next command:$gsd-execute-phase 253(unfiltered). The fix and scoped checks are complete;CIREL-01/Phase253 are still pending canonical review.

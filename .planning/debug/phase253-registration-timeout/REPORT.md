@@ -37,12 +37,18 @@ All108tests passed across the five existing PR browser groups on product a876647
 
 Independent result:`.planning/execution/253-registration-integration/RESULT.json`;actual evidence:b42a8ad89816a8f81c21d067fa8c66a0ddc26c34. Approval55324020c and reservation26ed7517c are consumed. Native reports are unchanged after server-log redaction;all27 referenced path attachments are retained.
 
+## Completed browser controls
+
+The later R4/R5 chain completed all22native control rows. The previous handoff incorrectly relied on the earlier Plan16/recovery halts. Fresh independent checks verify13positive rows,9intended failed rows with traces,and3fresh database receipts showing account counts0before/1after registration. Passing second-window controls retained no traces. The tested registration spec,helpers,authentication/schema and locks are unchanged. No new browser run is needed.
+
+Evidence:`.planning/execution/253-final-review/controls.json`;the existing `--verify-load-recovery ...R5.json --stage complete` command passes. All earlier failures and spent allowances remain unchanged.
+
 ## Remaining work
 
-The fix,targeted validation and ordinary browser integration are complete. Delayed/missing readiness,broken-wait,collision/fresh-state and failure/pass trace browser controls still need passing proof/review,followed by canonical phase verification. Original stopped control attempts remain stopped;no new runtime permission exists. CIREL-02 remains complete.
+Only normal whole-phase verification remains. All73unused duplicate recovery recipes were explicitly superseded with their exact originals preserved;no completion SUMMARY was invented. The installed SDK reports110active summarized records and zero incomplete plans. CIREL-01 is not yet marked complete;CIREL-02 remains complete. No new browser,CI or GitHub scope exists.
 
-Next:review stopped controls and prepare the smallest missing browser-control check offline. No human action is needed for preparation. These x64-emulated local runs do not establish the original hosted schedule or database snapshot. Phase254 readiness remains pending without context/research/plans;it has not started.
+Use the unfiltered command below;`--gaps-only` exits before final verification. Phase254 remains pending without context/research/plans.
 
 ```text
-$gsd-debug continue phase253-registration-timeout
+$gsd-execute-phase 253
 ```

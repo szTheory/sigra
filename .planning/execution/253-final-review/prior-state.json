@@ -1,0 +1,500 @@
+{
+  ".planning/STATE.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "7ddcc82193885ef3e8093b93a24b2718ba9e48ad8c8117299203a3d8a68c3e05",
+    "blob": "05df1017af59605e620901c65afc1838f82ff07b",
+    "readback_verified": true
+  },
+  ".planning/state.json": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "127ed4b6c93418390a36b8a61e7ee737888680375337c2307e4f16d79d4bc808",
+    "blob": "8bdc8fc0131673455dd90dd2551eb516f46fb3c8",
+    "readback_verified": true
+  },
+  ".planning/HANDOFF.json": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "7c6b2c1fd291200f69dc70881e255534018507e99f1b888d6112fc37f6f9db0f",
+    "blob": "57a5aae32493a313b416df28a14651b061a02901",
+    "readback_verified": true
+  },
+  ".planning/execution/253-CONTINUATION.json": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "6130d66a93628206b840bd7a6be05af3d3a8743633ba2c7608350d754fca89a3",
+    "blob": "042baeae16c80ec6600c01be32a2dd5672c19693",
+    "readback_verified": true
+  },
+  ".planning/debug/phase253-registration-timeout.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "9b9bf33484732d5af4f41c4c8786f2eac7ce4dfe22f6bbaef85dd54424298fc7",
+    "blob": "e7c6840e2f6767a45d5a872a1445640b452e2ceb",
+    "readback_verified": true
+  },
+  ".planning/debug/phase253-registration-timeout/REPORT.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "dfbff835077e5ba7788d0233be0e11bc8d7291169920e7e7c5bbe8515cb1e678",
+    "blob": "cf89aa7abceb8472d180ff3c0f5d6a1d40ef762c",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "256df45fe90af586fc16ca21c7653a964583c916823c56b088570834e9f686b9",
+    "blob": "24fa14a72e2c809588ccf4ce4b093e650bfeb972",
+    "readback_verified": true
+  },
+  ".planning/ROADMAP.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "e64080907eaf2770114d2dfcbf44b71332dc3bf1d87f68d9603c7c95e6499eb8",
+    "blob": "a0dc7896eda9b3b3a7c386ae5323784095ea38a5",
+    "readback_verified": true
+  },
+  ".planning/REQUIREMENTS.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "273a20549f808a7082a7dd9c899ffc839d1e40f400d217544110c45cbed51286",
+    "blob": "d3a4220e4b59419ad37ecff0b3f71b412d1ac997",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-UAT.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "6890eabfb9c8744d99c0588ba697a150572b11c25743703d77b34fb97fb9f58b",
+    "blob": "0301ff772c01133da3059d6c796c50a3103f421d",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468",
+    "blob": "8361e7f88481b5689e796bb136f28c1035b397f6",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "c3b6240b1c95bd65448f68fc7d5d54e0ba70b90d766380889402758b61240f34",
+    "blob": "fc2bcf8c506e8af1ab5f5109c9e30994308df23f",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-105-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "456272750d7ff98726c942ca51dfc670f7d4c5d64d2263a766ade99f0d8cfb0b",
+    "blob": "29a9c322f3abd07d5eb6cb689571ddf6b488b958",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-106-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "b115e6962b2eaeb35c9ff57f9eb422064747120136042d19fc4e0d715eebdfb4",
+    "blob": "65b182f2e4e2d3febd32b3a8551d994a39e76890",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-114-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "3d1e27e4ef7a5388bdeac872d07cc6a71f3c15b8b43b8666f94b23eaba57f1e8",
+    "blob": "c3c986e09fe57d69c9fa6f7f52bf2865ec2ed1c0",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-115-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "2f489ba5d17f1812b3c74c66e230d8427777b30f3d89b9da9b6fc3fd116e5ac4",
+    "blob": "74f8ca8564278c5dcd18551e1afb711158632210",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-123-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "ff9d1c923ec5a6d642274064f99c382eeda0de1d9557e7cae65b6655f16a8d48",
+    "blob": "bc50d11c925ad4844bedb0969aa3a33c9e19a67c",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-124-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "8b7e138eba491d81b3d85842df4408df8d56f08f0f623d54b26d381c77bc606f",
+    "blob": "7f258d40fdec7f850d7d038d20f08ef6ca09c94a",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-13-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "16c458406ca333eac6db2d8150c36734c53063dbcad37177064b534fedc5ae33",
+    "blob": "001faba9db7dd2c60d0f990c9c93ca0a0320f67b",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-135-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "46e77d82b75dc1f96371794edbb8582e9d8894ead1e66b2c57660255fc74c133",
+    "blob": "9a4a587dc8e70fcecb8e4b223bbd4cd8d24725c7",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-14-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "ce6cdcb30bf9472b1849df30cc2777dff7dd59cbce40486d82d0244378989cc9",
+    "blob": "37fafd220cd681e9b61439e5365a0e264903711f",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-144-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "322acac50961fd97e215efd3e91700b66905e393edcb541aaccb437f2ed1cc73",
+    "blob": "f287ccdc4efbbcf52a5505873f1e4aefde418a4c",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-145-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "28d11a5c351fc0e3b956d3c18efde1285ab7e4a9b02ceef82dd0fe8fe773f713",
+    "blob": "c54bf8ce6491f6b60c816acdb7fde5b4499ba9dc",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-147-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "ca732f965bf5725f8540e114a1a7d5639f9edee393352db7d485fb8f2fd85d70",
+    "blob": "8d9035b149bf452db84ed49cc7fd7d2aa63ee62f",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-148-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "694bb60bf2178591be47d8b9eff222843129e1cacf257e4011911b839cd6b310",
+    "blob": "47dff054c71fc45a56799f11097be5a9cc02e9e3",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-149-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "4007b679a5ade5096ab9328b8b423659cd38e545c93216c55efb5145a591173a",
+    "blob": "af4c76581a266fb4e16da6821f70f1642032b13a",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-150-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "9e8dd1c423c04b1b470a913b40097cc24915087596c3d63202e1ba7a45420024",
+    "blob": "008319b3c878ae5208e25707fd6d02f1ceb7b957",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-151-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "978fa1dc6e5cba9370570dc6f94827319c045f66ff85c03e7396b1d1ac4745ce",
+    "blob": "20c6a2401ffcdaa5956577915513c81d3376c654",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-152-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "528f31ffa468c3f4ab987fdc4422e2f54208e924c8e3e3fbce14e9831dea926a",
+    "blob": "797e2e4c11678dda01a2fbcb1248c04a3cff6a1e",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-153-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "b6c6509c75b48b1a0a2564ea124c76d07ad430c45e2b9b25578a3300967d5993",
+    "blob": "57aad0797468a7c52baa951ca2c9d7fdae224991",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-154-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "6a7cee8e1aaad9072151a90b5836e4d08887e42177645525f589d7cd1c171986",
+    "blob": "a31c2bb93fac75f9df3308339ca27aa865e9ff09",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-156-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "13fd0aa72d7263f1c1577a9b28e41d33fa632bde43aad17463c678521527f936",
+    "blob": "190dcf6f720b102d9e268a7b4eb1197ca6837b58",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-157-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "6501ae241879da8e7c3aa10fe8c3948161896e09b9ca16e5ea6398396aa2ddc4",
+    "blob": "521edcbe36c1ca37732600301e33b35a1f4292c4",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-158-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "acd7b7cf7226dc6cc61ced2bd01a32fe7fe98009d450427f601ac625d3c87ce1",
+    "blob": "1b916accfb17989ab389db1045adea5c756a32ed",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-159-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "957451bf47d6b0261163eea87c1da153da4701b29fb42b709e0800b95dce4f13",
+    "blob": "2e3b7497b2dccf7ed603866d2cb9f07cd90082af",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-160-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "3706be3fe95a548c61fd795fcf9efcbf4317452477e58620c4a3e6225a428038",
+    "blob": "6d8dcedc3914ba2e7762c3ad7ff61a486cf5f40f",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-161-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "668d9a6e6d3f023aec2bb5c8616f93e63827f22de2bd23aa80abc0713cf39733",
+    "blob": "e6d39d7b94f741c0762a158f59d71b3df5931ef9",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-162-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "6f1d1b27e16ef13d7bba03f6bbb774788dcbdac32d9f8252b890216c95ab1c7b",
+    "blob": "a05a6847e430807fe2208c0a322375f3bbf15458",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-163-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "b625037c9ff90f2fcf4ec0937ab389a4bdaab22235486b5f6f372e82bf5b61f9",
+    "blob": "647a4a0b370b9cffb6193a293a412841a6cf870e",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-17-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "74b8a8d0ed6de9b00d5c562ab6f458973d7136a56a5655f1e3edf2edb9c5b188",
+    "blob": "85cc777dc4c179cbf5d40354d1d40be3477f8a6b",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-176-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "15417a8e106ea5d61fd4594cc81e43cffee6e5a3646fdb54990fce99546c0e0f",
+    "blob": "4ad1fe281d43c527402dda6ea1553fb8ae6506ac",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-177-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "57bdc58b3bedb0c91fdb35d544a6b019d567ef4da5d061fe702dc6c5de13a119",
+    "blob": "943285e5b551ddba53f4aef07bbceaa4c731ba33",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-21-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "dd2a668631568a9bb7857c2c50ef3a3747f35e5140fb3e1446202fd9af2607b5",
+    "blob": "0030ede9774324bdab0752a428369b161f9f4f64",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-22-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "fe1b86e2bc5b1bdae9be3c2a0bed8213d7e7f6dd93d51346acbb8aa833588a91",
+    "blob": "c32bc0857a41f6cac76b11d248748dbefbab3174",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-23-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "77d98a1aeddb9d9902c7093fdd1bb7c4d2f461bac797a3724d080de5b5a395dd",
+    "blob": "4690f61f5ac186bbe8105e5dcc6fb75e410a4fdd",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-24-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "d868523f6df3bd2ac6b52a780b8425741dcd6e91580ed3bc650ff87ab9107690",
+    "blob": "979d74caf920c43cd2a00f333c4e22e0d83b4456",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-25-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "be7b7480209289e398ef0107c986a6606c33a045fb5baf8d6cab24ae12829039",
+    "blob": "0b5aaf4c8f03e18a4af2d515db0aad7aa9d8b034",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "15d82c6c7c01dd97b7a875c2f7acef1a0e93f3cee691ce523b43bddd525516b4",
+    "blob": "96efda53847709b2497cb2d8991d19e00903cbb9",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "44d38222cbcd94d4baea4837a3beca5768634118a668def2b44b372eae920000",
+    "blob": "9b1c25d01ab8b0bc1ed3bca5e786bce7e09fe1ae",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "d0b8b29d1bc854065e92fa745dc361d448d627c1b859d0490d0450e1187ee2a3",
+    "blob": "d1dd6d27a771885ed42ff232af37010e990bde22",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "6845a9040d4e34d313b161198bebd84862558e4fb3a4875f203ac7678c4cbaa0",
+    "blob": "a7dac140f0ff8a81ed33d49dabcf03600729c117",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "e66c3a6258914addf2c7b89155ea7e75aab05c758f68a986a85b3dfc4606ff11",
+    "blob": "b663ba2e6dc6f4022a6216b321c7ad712784255b",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "c527d8b0ac01d55185b9abf1c4431de8ecd7885aec2facc06c5c52c4088e2f7d",
+    "blob": "a3055b67a14e71933b715829ad51958ba1f041f7",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "b491e3d894dcd8670bd6c5084f5bc07c56a7a2041075f384e79e99a4c527f86d",
+    "blob": "2c980c055322353950fda4fa549bc4e99b2f04f1",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "1a98efdc8df0575e5e0aa75205344f116572e4cd8197caef49e36c7c5cc951b9",
+    "blob": "c5ebdc2190d13acad6b652a8d1c48adbee5b0f57",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-41-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "fcc9fd2d565969962b7455fa12379b3bb2f264743d3912aad15168528157e38e",
+    "blob": "7ff8ffd6a604f9c212b3fcedc48794c6e90e7940",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-44-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "dd097b8324eacc4b0a30c6c8c0ed8a493d7f60917debfbe5a63cbe0a61cc28e3",
+    "blob": "250bb59b3cc7dec1e49296ae266d4d3b78a0cbe7",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-45-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "8eb2de41c618c1d9a000ca9dbae59e9ddf2669fb22b382dafc1e999a16c0bd13",
+    "blob": "84c20f139a4f4bcb4200f3423052dff43b2c68ce",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-46-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "7c78db27cb01957365999b2173960c2273d1a9182ebd6494959c70ea67e8c30f",
+    "blob": "f113b7a8ebe0ad9d0dd02cd0ea6f1eafa72052cd",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-47-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "e6ef59d32399a7f5deb51c89cb6b064e8fd4358aaa6de9fa7b20eb52262e5be6",
+    "blob": "2f6d37f079bd7ffdb8cf041b9e8d384a5613dc2c",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-52-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "f5df0086aa57d66391f461d73f357c5c9a41de1eb41c259eea9737caa0f9ee4b",
+    "blob": "c99d20edf187390fa3ed6fd619e52c2df43116be",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-53-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "b7b520b226d5db583e01e6bbb78a4b2e19fa5c30201def1f6eb732eabf671b3a",
+    "blob": "c015c8a57ac638653a11f3ec441010fd088df841",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-54-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "44c908cc09e6b5569fe87c266b330727342e907dcbee4f1a52cb45d877594fe9",
+    "blob": "83eb81592a718ff997cc830bb5187725f6aeddaa",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-55-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "5c4b6a2b2e0c2b2fb869fb81f0c7be5d499027e78eadbcfb60ab6a04eb32894f",
+    "blob": "88da07ae8dffbe98665de3b4e4e9df2342cb2878",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-56-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "ed7a2271acabb8138c7ef888f839270c60dbba9151b60c287b55edfc09ea3a9b",
+    "blob": "20892b461db81cf88cb831b0ca5e27d3a9f88129",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-64-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "f5ab5a53f8e7f45b286fc72d753ea0854369fd4eb80e4d15712e4ea008062dcc",
+    "blob": "5fbf8d2dc1e2c77ced5a7b9f2f4c86c46e6bf609",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-65-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "7251fceaaf5ce6819cce95529484854bb254350ca4bff70a178fecb2e28c7364",
+    "blob": "95e9902a11df72485109b4fc3ee77aa06bca54e6",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-66-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "5651c785bcf16cfab445c2dd7ed9249a10e12919ec94bea0f6bc70a67ee50d3e",
+    "blob": "693746e7b9870932f59b7cc874c804a4d7f4f8a5",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-67-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "e2589e6f7b1242f4cb1966205eb81f62a9cefafcf1bbe670356a8e22e3b236ff",
+    "blob": "8d9654bb5612daeffb47e64e8175db4e974307ac",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-68-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "6800a996a74d7ec425a79efe7fde502727b868df6fd826f3adb370e45cdfb213",
+    "blob": "07ec247946b17f942d3ba82821646074429b033a",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-74-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "360c6b3edb001e3cbf1f4da681a86d987df22251054d0423a9e655332b05cd68",
+    "blob": "8240a1bf7aee83d276c16ee9f90cb5819e4ec8df",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-75-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "85c1923fedfef951d9f2c4ca043fba0daa508398e95a36237b2eb9c2a7c1efce",
+    "blob": "47856e2599adafe0094df81f2ddf8669a190684d",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-76-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "60e52445312cc52a6274af80141e345b50212dfd2cce89ea763c6cb2cb84eaf7",
+    "blob": "858e767b6dcfbe7c7c1ef1a08ac539b0c1c9efbc",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-77-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "f6fca2fbcf392f5c5605f7012458aefe444c49aa898c81411774bfcc8e9bc1b0",
+    "blob": "c2e729b13cfcf71d81d8e2a4911ea4d369eec377",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-78-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "624999d7df7269221d3b17dddf5c874e68b5b1985af7bec78fe5813a63395dad",
+    "blob": "2be87606d290411b5673b211a7afe753c91f3013",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-85-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "8af18479b7cd55352c33631d6edda9e24ef6f7013f6ef34e3a8e3a42b49de123",
+    "blob": "9822accf05ce480cac9e520c4563308e51bf1b95",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-86-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "3e9c88a0919dc67070370e4c4ac10329997276368e1f1d869f2ec78d633bec81",
+    "blob": "f34eb7ec4ba0a85f083ec8285637e9fecc3e8fdd",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-87-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "9f6c3311c2ed0953e6520269928b1aa8b783845e6eebf1496dc09377d9cc212c",
+    "blob": "2dc70a7fd69e2f349b8382aa02cc2355a2254551",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-88-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "d8aba37fdc3bd7f0f5519bc0184c2f0d61af6cb5405c80dfb0efb7d20f8fec52",
+    "blob": "0590664e0a5c61ef35d285c439f447ac02bd90dd",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-93-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "0923eca91ea098fed2c834a52455d6a92180fb19ab7b6c43a2df8e255b296fa6",
+    "blob": "304819d3d3b15df5cdeb6f736e205936c7e6b8aa",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-94-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "a8c2e330ab59e793a212baac731e95c7c28c505df20b2605166441e0d980bb84",
+    "blob": "62c4d99631a71d13b3ace0f711f5ae6f0946d88a",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-98-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "fbacea80e3ad03a67b2072df25278833ef9ea12fe534510836c7698a0b60e0e3",
+    "blob": "e73231a5b3cfc18db7ba722ed588cdfa6e3647bc",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-99-PLAN.md": {
+    "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+    "sha256": "fcb3a7fcc973617b04635d168bc5b86b01f561ec6d97fbf48d2981f67eba4f64",
+    "blob": "0378abefa3561cfa39661de059d7abb575580110",
+    "readback_verified": true
+  }
+}
