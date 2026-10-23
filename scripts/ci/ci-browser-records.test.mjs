@@ -351,6 +351,10 @@ test('setup dependency rows remain separate and cannot replace product coverage'
       { before: id, after: id, owner: 'design_gallery', kind: 'product' },
     ] }));
     assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'setup dependency cannot be promoted into product coverage');
+    writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [
+      { before: id, after: id, owner: 'admin_behavior', kind: 'setup' },
+    ] }));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'setup dependency must retain its exact owner on both sides');
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 

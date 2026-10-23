@@ -7,6 +7,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { normalizedProductRows } from './ci-browser-records.mjs';
 
 const SELF = fileURLToPath(import.meta.url);
 const MAX_MS = 20 * 60 * 1000;
@@ -23,7 +24,7 @@ export function parseArgs(argv) {
   const options = { mode: 'current', checkOnly: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--check-only') options.checkOnly = true;
-    else if (['--root', '--output', '--scope', '--mode', '--workload-map'].includes(argv[i]) && argv[i + 1]) options[argv[i].slice(2).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = argv[++i];
+    else if (['--root', '--output', '--scope', '--mode', '--workload-map', '--baseline-native', '--reuse-native-directory', '--reuse-integration'].includes(argv[i]) && argv[i + 1]) options[argv[i].slice(2).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = argv[++i];
     else throw new Error(`unknown_or_incomplete_argument:${argv[i]}`);
   }
   const validMode = ['current', 'compare-preparation', 'workload'].includes(options.mode);
@@ -139,13 +140,88 @@ export function parseWorkflowBrowserOwners(source) {
 
 export function browserOwnerBaseURL(port) { return `http://localhost:${port}`; }
 
-export function runMeasuredCommand({ label, command, cwd, env, timeoutMs, logPath, clock = () => Number(process.hrtime.bigint()) / 1e6 }) {
+function runMeasuredInvocation({ label, command, program, args, cwd, env, timeoutMs, logPath, clock = () => Number(process.hrtime.bigint()) / 1e6 }) {
   const start = clock();
-  const result = spawnSync('/bin/bash', ['-lc', command], { cwd, env, encoding: 'utf8', timeout: Math.max(1, timeoutMs), killSignal: 'SIGKILL', maxBuffer: 16 * 1024 * 1024 });
+  const result = spawnSync(program, args, { cwd, env, encoding: 'utf8', timeout: Math.max(1, timeoutMs), killSignal: 'SIGKILL', maxBuffer: 16 * 1024 * 1024 });
   const elapsed = Math.max(0, clock() - start);
   const log = `${result.stdout ?? ''}${result.stderr ?? ''}${result.error ? `\n${result.error.message}\n` : ''}`;
   fs.writeFileSync(logPath, log);
   return { name: label, command, exit_code: result.status, signal: result.signal, error: result.error?.message ?? null, duration_ms: Math.round(elapsed), status: result.status === 0 ? 'measured' : 'failed', log_path: logPath, log_sha256: hash(log), ...(result.status === 0 ? {} : { log_excerpt: sanitizeLog(log).slice(-4000) }) };
+}
+
+export function runMeasuredCommand({ label, command, ...options }) {
+  return runMeasuredInvocation({ label, command, program: '/bin/bash', args: ['-lc', command], ...options });
+}
+
+export function runMeasuredProcess({ label, program, args, ...options }) {
+  return runMeasuredInvocation({ label, command: JSON.stringify([program, ...args]), program, args, ...options });
+}
+
+function coverageSemanticKey(row) {
+  return JSON.stringify([row.project_id, row.spec, row.title_path, row.title]);
+}
+
+function coverageMapKey(row) { return JSON.stringify(row.semantic_identity); }
+
+function writeCoverageSource(directory, { owner, sourceSha, workflowSha, configurationSha, lockSha, event, mapRows, side, expectedFiles }) {
+  const reports = fs.readdirSync(directory).filter((name) => name.endsWith('.json') && !name.endsWith('.selection.json') && name !== 'coverage-source.json' && name !== 'coverage-map.json').sort();
+  if (!reports.length) throw new Error(`native_reports_missing:${owner}`);
+  const selectedInventory = [];
+  const reportRefs = [];
+  for (const name of reports) {
+    const selectionName = name.replace(/\.json$/, '.selection.json');
+    const reportPath = path.join(directory, name);
+    const selectionPath = path.join(directory, selectionName);
+    if (!fs.existsSync(selectionPath)) throw new Error(`native_selection_missing:${owner}:${selectionName}`);
+    for (const fileName of [name, selectionName]) {
+      const actualDigest = hash(fs.readFileSync(path.join(directory, fileName)));
+      if (expectedFiles?.[fileName] !== actualDigest) throw new Error(`native_artifact_digest_not_retained:${owner}:${fileName}`);
+    }
+    const nativeRows = normalizedProductRows(JSON.parse(fs.readFileSync(reportPath, 'utf8')), { seam: owner, invocation: name });
+    const selection = JSON.parse(fs.readFileSync(selectionPath, 'utf8'));
+    const selectedById = new Map();
+    const visit = (suites, parents = []) => {
+      for (const suite of suites ?? []) {
+        const titlePath = [...parents, suite.title];
+        for (const spec of suite.specs ?? []) for (const test of spec.tests ?? []) {
+          const id = JSON.stringify([test.projectId, spec.file.replaceAll('\\', '/'), titlePath, spec.id, spec.title]);
+          selectedById.set(id, { id, project: test.projectName, spec: spec.file.replaceAll('\\', '/'), title_path: titlePath,
+            native_spec_id: spec.id, title: spec.title, owner, classification: 'product', expected_status: test.expectedStatus });
+        }
+        visit(suite.suites, titlePath);
+      }
+    };
+    visit(selection.suites);
+    for (const row of nativeRows) {
+      const selected = selectedById.get(row.id);
+      if (!selected) throw new Error(`native_result_not_selected:${owner}:${row.id}`);
+      const nativeId = JSON.parse(row.id)[3];
+      const semantic = JSON.stringify([row.project_id, row.spec, row.title_path, row.title]);
+      const expectedMap = mapRows.find((candidate) => candidate[side === 'before' ? 'before_native_id' : 'candidate_native_id'] === nativeId && coverageMapKey(candidate) === semantic);
+      if (!expectedMap) throw new Error(`native_identity_unmapped:${owner}:${row.id}`);
+      selected.classification = expectedMap.classification;
+      selected.actual_result = row.actual_result;
+      selectedInventory.push(selected);
+    }
+    if (selectedById.size !== nativeRows.length) throw new Error(`native_selection_result_count_mismatch:${owner}:${selectedById.size}/${nativeRows.length}`);
+    reportRefs.push({ path: name, selection_path: selectionName, sha256: hash(fs.readFileSync(reportPath)),
+      selection_sha256: hash(fs.readFileSync(selectionPath)), source_sha: sourceSha });
+  }
+  const projects = [...new Set(selectedInventory.map((row) => row.project))].sort();
+  const descriptor = { schema_version: 'sigra.browser-coverage-source/v1', source_sha: sourceSha,
+    workflow_sha256: workflowSha, configuration_sha256: configurationSha, lock_sha256: lockSha,
+    event, seam: owner, owner, project_inventory: projects, selected_inventory: selectedInventory,
+    excluded_inventory: [], skip_policies: [], reports: reportRefs };
+  fs.writeFileSync(path.join(directory, 'coverage-source.json'), `${JSON.stringify(descriptor, null, 2)}\n`);
+  return descriptor;
+}
+
+function runCoverageComparison(root, beforeDirectory, afterDirectory, mappingPath) {
+  const comparison = spawnSync(process.execPath, [path.join(root, 'scripts/ci/ci-browser-records.mjs'), '--compare-coverage',
+    '--before-directory', beforeDirectory, '--after-directory', afterDirectory, '--mapping', mappingPath],
+  { cwd: root, encoding: 'utf8', timeout: 30_000 });
+  if (comparison.status !== 0) throw new Error(`native_parity_compare_failed:${(comparison.stderr ?? comparison.stdout ?? '').trim().slice(0, 1000)}`);
+  return JSON.parse(comparison.stdout);
 }
 
 export function sanitizeLog(log) {
@@ -257,8 +333,10 @@ async function profileScope(options) {
   const scope = SCOPES[options.scope];
   try {
     const checkout = path.join(temp, 'repo');
-    const clone = runMeasuredCommand({ label: 'disposable-checkout', command: `git clone --quiet --shared --no-checkout ${JSON.stringify(root)} ${JSON.stringify(checkout)} && git -C ${JSON.stringify(checkout)} checkout --quiet --detach ${sourceSha}`, cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, 'disposable-checkout.log') });
+    const clone = runMeasuredProcess({ label: 'disposable-checkout', program: 'git', args: ['clone', '--quiet', '--shared', '--no-checkout', root, checkout], cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, 'disposable-checkout.log') });
     components.push(clone); if (clone.status !== 'measured') throw new Error(`disposable_checkout_failed:${clone.exit_code}`);
+    const checkoutSource = runMeasuredProcess({ label: 'checkout-source', program: 'git', args: ['-C', checkout, 'checkout', '--quiet', '--detach', sourceSha], cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, 'checkout-source.log') });
+    components.push(checkoutSource); if (checkoutSource.status !== 'measured') throw new Error(`checkout_source_failed:${checkoutSource.exit_code}`);
     const example = path.join(checkout, 'test/example');
     const playwright = path.join(example, 'priv/playwright');
     const hexHome = path.join(temp, 'hex'); const npmCache = path.join(temp, 'npm-cache'); const browserCache = path.join(temp, 'playwright-cache'); const build = path.join(example, '_build', 'phase254-prep-profile');
@@ -456,9 +534,12 @@ async function comparePreparation(options) {
 
   const createCheckout = (form) => {
     const checkout = path.join(checkoutRoot, form);
-    const clone = runMeasuredCommand({ label: `checkout-${form}`, command: `git clone --quiet --shared --no-checkout ${JSON.stringify(root)} ${JSON.stringify(checkout)} && git -C ${JSON.stringify(checkout)} checkout --quiet --detach ${sourceSha}`, cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logs, `checkout-${form}.log`) });
+    const clone = runMeasuredProcess({ label: `checkout-${form}`, program: 'git', args: ['clone', '--quiet', '--shared', '--no-checkout', root, checkout], cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logs, `checkout-${form}.log`) });
     components.push(clone);
     if (clone.status !== 'measured') throw new Error(`checkout_${form}_failed`);
+    const checkoutSource = runMeasuredProcess({ label: `checkout-${form}-source`, program: 'git', args: ['-C', checkout, 'checkout', '--quiet', '--detach', sourceSha], cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logs, `checkout-${form}-source.log`) });
+    components.push(checkoutSource);
+    if (checkoutSource.status !== 'measured') throw new Error(`checkout_${form}_source_failed`);
     return checkout;
   };
   const commonEnvFor = (checkout, form) => {
@@ -545,33 +626,125 @@ async function runWorkload(options) {
   const mapPath = path.resolve(root, options.workloadMap);
   const map = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
   const owners = Object.keys(SCOPES);
-  const rows = map.rows ?? map.owners?.flatMap((owner) => owner.rows ?? []) ?? [];
+  const rows = map.owners?.flatMap((owner) => owner.rows ?? []) ?? map.rows ?? [];
   if (rows.length !== 108 || owners.some((owner) => !rows.some((row) => row.owner === owner))) throw new Error('workload_map_requires_108_mapped_rows_for_all_five_owners');
   if (fs.existsSync(output)) throw new Error(`refusing_to_overwrite_profile:${output}`);
   const workflow = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
   const workflowOwners = parseWorkflowBrowserOwners(workflow);
-  const reportRoot = path.join(path.dirname(output), `${path.basename(output, path.extname(output))}-NATIVE`);
-  if (fs.existsSync(reportRoot)) throw new Error(`refusing_to_overwrite_native_reports:${reportRoot}`);
+  const reportRoot = path.resolve(options.reuseNativeDirectory ?? path.join(path.dirname(output), `${path.basename(output, path.extname(output))}-NATIVE`));
+  if (!options.reuseNativeDirectory && fs.existsSync(reportRoot)) throw new Error(`refusing_to_overwrite_native_reports:${reportRoot}`);
+  let reused = null;
+  if (options.reuseIntegration) {
+    reused = JSON.parse(fs.readFileSync(path.resolve(options.reuseIntegration), 'utf8'));
+    if (reused.owner_runs?.length !== owners.length || owners.some((owner) => !reused.owner_runs.some((record) => record.owner === owner && record.status === 'profiled'))) throw new Error('reuse_integration_requires_five_profiled_owner_runs');
+    const unchanged = spawnSync('git', ['-C', root, 'diff', '--quiet', reused.source_sha, '--', '.github/workflows/ci.yml', 'test/example'], { encoding: 'utf8' });
+    if (unchanged.status !== 0) throw new Error('reuse_native_owner_inputs_changed_since_run');
+  }
+  const sourceSha = reused?.source_sha ?? gitOutput(root, 'rev-parse', 'HEAD');
+  const configurationBytes = fs.readFileSync(path.join(root, 'test/example/priv/playwright/playwright.config.ts'));
+  const lockBytes = fs.readFileSync(path.join(root, 'test/example/priv/playwright/package-lock.json'));
   const result = {
     schema_version: 'sigra.phase254.owner-integration/v1', status: 'running',
-    source_sha: gitOutput(root, 'rev-parse', 'HEAD'), workflow_sha256: hash(workflow), workload_map_sha256: hash(fs.readFileSync(mapPath)),
+    source_sha: sourceSha, workflow_sha256: hash(workflow), configuration_sha256: hash(configurationBytes), lock_sha256: hash(lockBytes), workload_map_input_sha256: hash(fs.readFileSync(mapPath)),
     comparison_event: map.comparison_event ?? map.comparisonEvent ?? 'pull_request',
     toolchain: { node: commandVersion('node', ['--version'], root, process.env), elixir: commandVersion('elixir', ['--version'], root, process.env), playwright: JSON.parse(fs.readFileSync(path.join(root, 'test/example/priv/playwright/package-lock.json'), 'utf8')).packages['node_modules/@playwright/test']?.version ?? null },
-    owner_runs: [], parity: { status: 'not_compared', reason: 'Native descriptors and explicit before/after mappings are assembled only after all five actual owner reports exist.' },
+    owner_runs: [], parity: { status: 'blocked', reason: 'Native descriptors and exact mappings are not yet compared.' },
     hosted_ready: false,
   };
+  if (reused) result.owner_runs = reused.owner_runs;
   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-254-workload-'));
   try {
-    for (const name of owners) {
+    if (!reused) for (const name of owners) {
       const ownerOutput = path.join(scratch, `${name}.json`);
       await profileScope({ ...options, root, output: ownerOutput, scope: name, workflowOwners, reportRoot, mode: 'workload' });
       const record = JSON.parse(fs.readFileSync(ownerOutput, 'utf8'));
       result.owner_runs.push({ owner: name, ...record });
     }
-    result.status = result.owner_runs.length === owners.length && result.owner_runs.every((record) => record.status === 'profiled') ? 'profiled' : 'blocked';
+    const beforeRoot = path.resolve(options.baselineNative ?? map.baseline_native_directory ?? path.join(path.dirname(options.workloadMap), '254-BASELINE-NATIVE'));
+    const fullRows = [];
+    const comparisons = [];
+    const mappings = map.owners ?? owners.map((owner) => ({ owner, rows: rows.filter((row) => row.owner === owner) }));
+    const baselineSelectionManifest = JSON.parse(fs.readFileSync(path.join(path.dirname(beforeRoot), '254-BASELINE-SELECTIONS-NODE20.19.5.json'), 'utf8'));
+    for (const owner of owners) {
+      try {
+        const ownerMapping = mappings.find((entry) => entry.owner === owner);
+        const ownerRows = ownerMapping?.rows ?? rows.filter((row) => row.owner === owner);
+        const baselineSelection = baselineSelectionManifest.owners.find((entry) => entry.owner === owner);
+        const ownerRecord = result.owner_runs.find((entry) => entry.owner === owner);
+        const baselineReportName = path.basename(ownerMapping.baseline.report);
+        const candidateExpectedFiles = Object.fromEntries((ownerRecord?.native_reports ?? []).map((entry) => [path.basename(entry.path), entry.sha256]));
+        const baselineExpectedFiles = { [baselineReportName]: ownerMapping.baseline.sha256, [baselineSelection.file]: baselineSelection.sha256 };
+        const baselineDirectory = path.join(beforeRoot, owner);
+        const candidateDirectory = path.join(reportRoot, owner);
+        writeCoverageSource(baselineDirectory, { owner, sourceSha: map.baseline.application_sha,
+          workflowSha: map.baseline.workflow_sha256, configurationSha: JSON.parse(fs.readFileSync(path.join(path.dirname(beforeRoot), '254-BASELINE-SELECTIONS-NODE20.19.5.json'), 'utf8')).playwright_config_sha256,
+          lockSha: JSON.parse(fs.readFileSync(path.join(path.dirname(beforeRoot), '254-BASELINE-SELECTIONS-NODE20.19.5.json'), 'utf8')).lock_sha256,
+          event: result.comparison_event, mapRows: ownerRows, side: 'before', expectedFiles: baselineExpectedFiles });
+        writeCoverageSource(candidateDirectory, { owner, sourceSha, workflowSha: result.workflow_sha256,
+          configurationSha: result.configuration_sha256, lockSha: result.lock_sha256,
+          event: result.comparison_event, mapRows: ownerRows, side: 'after', expectedFiles: candidateExpectedFiles });
+        const beforeRows = JSON.parse(fs.readFileSync(path.join(baselineDirectory, 'coverage-source.json'), 'utf8')).selected_inventory;
+        const afterRows = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'coverage-source.json'), 'utf8')).selected_inventory;
+        const beforeByNative = new Map(beforeRows.map((row) => [row.native_spec_id, row]));
+        const afterByNative = new Map(afterRows.map((row) => [row.native_spec_id, row]));
+        for (const row of ownerRows) {
+          const left = beforeByNative.get(row.before_native_id);
+          const right = afterByNative.get(row.candidate_native_id);
+          if (!left || !right) throw new Error(`explicit_native_id_mapping_unresolved:${owner}:${row.before_native_id}/${row.candidate_native_id}`);
+          const mapping = { ...row, before: JSON.parse(left.id), after: JSON.parse(right.id), kind: row.classification,
+            before_native_id: left.native_spec_id, candidate_native_id: right.native_spec_id,
+            expected_status: [left.expected_status, right.expected_status],
+            actual_result: [left.actual_result, right.actual_result], mapping_status: 'matched_native_reports' };
+          fullRows.push(mapping);
+        }
+        const ownerMap = path.join(candidateDirectory, 'coverage-map.json');
+        fs.writeFileSync(ownerMap, `${JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: fullRows.filter((row) => row.owner === owner) }, null, 2)}\n`);
+        const comparison = runCoverageComparison(root, baselineDirectory, candidateDirectory, ownerMap);
+        comparisons.push({ owner, status: 'passed', result: comparison });
+      } catch (error) {
+        comparisons.push({ owner, status: 'blocked', error: error.message });
+      }
+    }
+    const mapStatus = comparisons.length === owners.length && comparisons.every((item) => item.status === 'passed');
+    const nativeMap = { ...map, schema_version: 'sigra.browser-coverage-map/v1', status: mapStatus ? 'native_parity_passed' : 'native_parity_blocked',
+      candidate: { ...(map.candidate ?? {}), source_sha: sourceSha, source_files: { workflow: result.workflow_sha256,
+        playwright_config: result.configuration_sha256, package_lock: result.lock_sha256 } },
+      candidate_result_source: { status: mapStatus ? 'verified_native_reports' : 'actual_reports_with_parity_block', source_sha: sourceSha,
+        integration_path: path.relative(root, output), native_directory: path.relative(root, reportRoot) },
+      owners: (map.owners ?? []).map((owner) => {
+        const selection = result.owner_runs.find((entry) => entry.owner === owner.owner)?.native_reports?.find((entry) => entry.path.endsWith('.selection.json'));
+        return { ...owner, ...(selection ? { candidate_selection: { file: path.basename(selection.path), sha256: selection.sha256,
+          playwright: result.toolchain.playwright, result: 'selection_retained_from_actual_workflow_owner_invocation' } } : {}),
+          rows: fullRows.filter((row) => row.owner === owner.owner) };
+      }),
+      rows: fullRows, native_source: { baseline_source_sha: map.baseline.application_sha, candidate_source_sha: sourceSha,
+        workflow_sha256: result.workflow_sha256, configuration_sha256: result.configuration_sha256, lock_sha256: result.lock_sha256 } };
+    fs.writeFileSync(mapPath, `${JSON.stringify(nativeMap, null, 2)}\n`);
+    const mappingSha = hash(fs.readFileSync(mapPath));
+    result.workload_map_sha256 = mappingSha;
+    result.parity = { status: mapStatus ? 'passed' : 'blocked', mapping_sha256: mappingSha, owners: comparisons };
+    result.native_parity_receipt = { schema_version: 'sigra.browser-parity-receipt/v1', status: result.parity.status,
+      mapping_sha256: mappingSha, baseline_source_sha: map.baseline.application_sha, candidate_source_sha: sourceSha,
+      event: result.comparison_event, workflow_sha256: result.workflow_sha256,
+      configuration_sha256: result.configuration_sha256, lock_sha256: result.lock_sha256,
+      owners: comparisons.map(({ owner, status, result: comparison, error }) => {
+        const beforeDescriptor = path.join(beforeRoot, owner, 'coverage-source.json');
+        const afterDescriptor = path.join(reportRoot, owner, 'coverage-source.json');
+        return { owner, status, ...(comparison ? { comparison } : { error }),
+          before_descriptor: { path: path.relative(root, beforeDescriptor), sha256: fs.existsSync(beforeDescriptor) ? hash(fs.readFileSync(beforeDescriptor)) : null },
+          after_descriptor: { path: path.relative(root, afterDescriptor), sha256: fs.existsSync(afterDescriptor) ? hash(fs.readFileSync(afterDescriptor)) : null } };
+      }) };
+    result.status = result.owner_runs.length === owners.length && result.owner_runs.every((record) => record.status === 'profiled') && mapStatus ? 'profiled' : 'blocked';
   } finally {
     result.completed_at = new Date().toISOString();
     fs.mkdirSync(path.dirname(output), { recursive: true });
+    if (result.native_parity_receipt) {
+      result.native_parity_receipt.owner_integration_status = result.status;
+      const receiptPath = output.replace(/\.json$/, '-PARITY-RECEIPT.json');
+      fs.writeFileSync(receiptPath, `${JSON.stringify(result.native_parity_receipt, null, 2)}\n`, { flag: 'wx' });
+      result.native_parity_receipt_path = path.relative(root, receiptPath);
+      result.native_parity_receipt_sha256 = hash(fs.readFileSync(receiptPath));
+    }
     fs.writeFileSync(output, `${JSON.stringify(result, null, 2)}\n`, { flag: 'wx' });
     fs.rmSync(scratch, { recursive: true, force: true });
   }

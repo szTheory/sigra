@@ -216,21 +216,23 @@ export function compareProductCoverage(beforeDirectory, afterDirectory, mappingP
   const products = mapping.rows.filter((row) => row.kind === 'product');
   const setup = mapping.rows.filter((row) => row.kind === 'setup');
   requireValue(products.length + setup.length === mapping.rows.length, 'unmapped or unsupported coverage classification');
-  const mappedBefore = products.map((row) => JSON.stringify(row.before));
-  const mappedAfter = products.map((row) => JSON.stringify(row.after));
+  const mappedBefore = mapping.rows.map((row) => JSON.stringify(row.before));
+  const mappedAfter = mapping.rows.map((row) => JSON.stringify(row.after));
   requireValue(new Set(mappedBefore).size === mappedBefore.length && new Set(mappedAfter).size === mappedAfter.length,
-    'duplicate product ownership mapping');
+    'duplicate ownership mapping');
   const beforeByIdentity = new Map(before.rows.map((row) => [row.id, row]));
   const afterByIdentity = new Map(after.rows.map((row) => [row.id, row]));
   requireValue(beforeByIdentity.size === before.rows.length && afterByIdentity.size === after.rows.length, 'duplicate source product identity');
   const differences = [];
-  for (const row of products) {
+  for (const row of mapping.rows) {
     requireValue(Array.isArray(row.before) && row.before.length === 5 && Array.isArray(row.after) && row.after.length === 5 &&
-      typeof row.owner === 'string', 'product mapping row malformed');
+      typeof row.owner === 'string', 'coverage mapping row malformed');
     const left = beforeByIdentity.get(JSON.stringify(row.before));
     const right = afterByIdentity.get(JSON.stringify(row.after));
     if (!left || !right) { differences.push({ before: row.before, after: row.after, reason: !left ? 'before_missing' : 'after_missing' }); continue; }
-    if (left.classification !== right.classification || left.expected_status !== right.expected_status || left.actual_result !== right.actual_result)
+    if ((row.kind === 'setup' && (left.classification !== 'setup' || right.classification !== 'setup')) ||
+      (row.kind === 'product' && (left.classification === 'setup' || right.classification === 'setup')) ||
+      left.classification !== right.classification || left.expected_status !== right.expected_status || left.actual_result !== right.actual_result)
       differences.push({ before: row.before, after: row.after, reason: 'status_or_classification_changed',
         before_status: left.actual_result, after_status: right.actual_result,
         before_classification: left.classification, after_classification: right.classification });

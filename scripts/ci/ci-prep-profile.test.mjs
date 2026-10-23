@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { browserOwnerBaseURL, buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, parseWorkflowBrowserOwners, runMeasuredCommand, sanitizeLog, versionFromOutput } from './ci-prep-profile.mjs';
+import { browserOwnerBaseURL, buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, parseWorkflowBrowserOwners, runMeasuredCommand, runMeasuredProcess, sanitizeLog, versionFromOutput } from './ci-prep-profile.mjs';
 
 test('profile CLI accepts source-bound preparation comparison mode', () => {
   assert.deepEqual(parseArgs(['--root', '.', '--scope', 'admin_behavior', '--mode', 'compare-preparation', '--output', 'setup.json']), {
@@ -51,6 +51,20 @@ test('measured subprocess retains failure, exit and monotonic elapsed time', () 
     assert.equal(result.exit_code, 7);
     assert.ok(result.duration_ms >= 0);
     assert.match(readFileSync(result.log_path, 'utf8'), /intentional-failure/);
+  } finally { rmSync(temp, { recursive: true, force: true }); }
+});
+
+test('measured process passes shell metacharacters as literal arguments', () => {
+  const temp = mkdtempSync(path.join(os.tmpdir(), 'prep-profile-argv-'));
+  try {
+    const marker = path.join(temp, 'shell-ran');
+    const literal = `$(touch ${marker})`;
+    const result = runMeasuredProcess({ label: 'literal-argv', program: process.execPath,
+      args: ['-e', 'process.stdout.write(process.argv[1])', literal], cwd: temp, env: process.env,
+      timeoutMs: 10000, logPath: path.join(temp, 'argv.log') });
+    assert.equal(result.exit_code, 0);
+    assert.equal(readFileSync(result.log_path, 'utf8'), literal);
+    assert.equal(existsSync(marker), false);
   } finally { rmSync(temp, { recursive: true, force: true }); }
 });
 
