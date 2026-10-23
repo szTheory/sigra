@@ -1,0 +1,46 @@
+{"at": "2026-10-23T22:46:57.569719+00:00", "kind": "started", "runs": [{"attempt": 1, "role": "before", "run_id": 40035528418}, {"attempt": 1, "role": "after", "run_id": 40035537413}]}
+{"at": "2026-10-23T22:47:58.645704+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:47:59.883837+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:49:01.360701+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:49:02.445245+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:50:03.563780+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:50:04.677826+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:51:06.125552+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:51:07.372187+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:52:08.707133+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:52:09.924123+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:53:11.150188+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:53:12.361234+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:54:13.882371+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:54:15.283984+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:55:16.623743+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:55:17.919918+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:56:19.169677+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:56:20.461456+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40035537413, "status": "in_progress"}
+{"at": "2026-10-23T22:57:21.564235+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T22:57:22.615063+00:00", "attempt": 1, "conclusion": "success", "kind": "status", "role": "after", "run_id": 40035537413, "status": "completed"}
+{"at": "2026-10-23T22:57:59.643918+00:00", "collection_exit_code": 0, "kind": "captured", "role": "after", "source_bundle": ".planning/execution/254-rebaseline-preparation/RAW-after"}
+{"at": "2026-10-23T22:58:02.081741+00:00", "commit": "892594ad0bf9cb6c07fe004b30a8ace36d76e783", "files": 188, "kind": "preserved", "ref": "refs/evidence/phase254-rebaseline-preparation-after-attempt-1", "role": "after"}
+{"at": "2026-10-23T22:59:03.645007+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:00:04.889838+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:01:06.215398+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:02:07.308649+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:03:08.486374+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:04:09.632340+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:05:11.075726+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:06:12.303358+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:07:13.626092+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:08:14.799984+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:09:15.909447+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:10:17.002817+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:11:18.042111+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:12:19.132168+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:13:20.177141+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:14:21.320208+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:15:22.360785+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:16:23.567493+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:17:24.754742+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40035528418, "status": "in_progress"}
+{"at": "2026-10-23T23:18:25.759566+00:00", "attempt": 1, "conclusion": "cancelled", "kind": "status", "role": "before", "run_id": 40035528418, "status": "completed"}
+{"at": "2026-10-23T23:18:46.248935+00:00", "collection_exit_code": 1, "kind": "captured", "role": "before", "source_bundle": ".planning/execution/254-rebaseline-preparation/RAW-before"}
+{"at": "2026-10-23T23:18:49.065016+00:00", "commit": "0f354e084c335686edf4faca88d7b841f8544974", "files": 336, "kind": "preserved", "ref": "refs/evidence/phase254-rebaseline-preparation-before-attempt-1", "role": "before"}
+{"at": "2026-10-23T23:18:49.065140+00:00", "completed": ["after", "before"], "kind": "finished", "measured_samples": 0}

@@ -7,10 +7,10 @@ status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_approved_rebaseline_preparation
-stopped_at: Approved amended-baseline preparation in progress
-last_updated: "2026-10-23T22:43:12.698931+00:00"
-last_activity: 2026-10-23 - Two failed preparation invocations preserved; zero measured samples
+workflow_step: phase254_blocked_baseline_os_dependencies_and_images
+stopped_at: Candidate passed; baseline WebKit system package installation timed out
+last_updated: "2026-10-23T23:38:51.564739+00:00"
+last_activity: 2026-10-23 - Four preparation outcomes preserved; candidate passed; zero measured samples
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
   total_phases: 4
@@ -28,12 +28,12 @@ phase254_halted_plans: [254-08]
 phase254_wave_count: 5
 phase254_task_count: 19
 phase254_implementation_status: complete
-phase254_comparison_status: in_progress_preparation_failed
+phase254_comparison_status: blocked_baseline_os_dependencies_and_images
 phase254_verification_status: pending
 verification_status: pending
 next_command: "$gsd-execute-phase 254"
 resume_command: "$gsd-execute-phase 254"
-next_command_conditional: false
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 resume_file: .planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
@@ -41,10 +41,12 @@ phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 
 # Current position
 
-The latest user approval authorizes the precise baseline amendment and a separate two-run preparation allowance. Authority: `.planning/execution/254-REBASELINE-AUTHORIZATION.json`. Continue the same Plan254-08 with `$gsd-execute-phase 254`. The new baseline retains all original application/browser bytes and changes only Git-history handling, the PostgreSQL registry, and the matching live image assertion. The corrected candidate uses reviewed source `dd4e3b437`.
+Candidate CI and 108-case coverage passed; baseline system-package downloads hit two 30-minute limits, and per-job runner images differ. No measured comparison exists.
 
-Prior preparation remains two failures with186 HTTP requests, preserved under `.planning/execution/254-rerun-preparation/FINAL-RECOVERY.json`; no old budget is reset. Current allowance: two initial real-PR CI invocations, zero trigger retries, at most60 minutes and600 actual HTTP requests. It has not started. Current sources and limits: `.planning/execution/254-rebaseline-preparation/SOURCE-SNAPSHOTS.json` and `.planning/execution/254-rebaseline-preparation/CONTRACT.json`.
+The approved baseline amendment and separate two-run allowance were executed. Candidate run 40035537413 passed with all 105 product cases and 3 setup cases preserved. Baseline run 40035528418 concluded cancelled: two WebKit jobs were still downloading Ubuntu packages at their 30-minute limits; Phoenix and browser tests did not start. The cause of slow downloads remains unknown. Different per-job runner images also prevent a fair comparison.
 
-No measured sample or48-hour comparison window has started. Plans254-01 through254-07 remain implemented. CISPEED-01/02 remain open; whole-phase verification is pending. Phase253 remains complete and verified; Phase255 remains pending.
+Current allowance is closed: 2 invocations, 0 retries, 202 HTTP requests within 60 minutes. Prior allowance remains 2 failures/186 requests. Total preparation invocations: 4. No measured sample or 48-hour window has started; all 40 measured invocations remain unspent. Implementation remains complete, whole-phase verification pending, CISPEED-01/02 open. Phase 253 is complete and verified; Phase 255 remains pending.
 
-Previous state bytes are recoverable through `.planning/execution/254-rebaseline-preparation/PRIOR-STATE.json`. All original baseline archives, halted contracts, failed PR345 and prior preparation records remain unchanged. Do not interpret eight summary files as eight successful plans or complete the phase before actual hosted acceptance and verification.
+Next command: `$gsd-execute-phase 254`, conditional on resolving WebKit OS package installation and matching per-job images before another baseline invocation. Additional invocation authority is required; no retry or new numbered repair plan is authorized by the spent allowances.
+
+Result: `.planning/execution/254-rebaseline-preparation/RESULT.json`. Recovery: `.planning/execution/254-rebaseline-preparation/FINAL-RECOVERY.json`. Previous shared-state bytes: `.planning/execution/254-rebaseline-preparation/STATE-BEFORE-CLOSEOUT.json` at `refs/evidence/phase254-before-amended-prep-closeout` (`fef59a0af7a888c1efeb229d793d9808ef00131c`). Original baseline archives, original halt records, failed attempts and old budgets remain unchanged. No notification was scheduled.
