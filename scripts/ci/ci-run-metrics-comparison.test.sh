@@ -2,13 +2,16 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
-python3 - "$TMP" <<'PY'
-import base64,datetime,hashlib,json,pathlib,sys
+trap 'rm -rf "$TMP" "$ROOT/scripts/ci/.comparison-test-map.json"' EXIT
+python3 - "$TMP" "$ROOT" <<'PY'
+import base64,datetime,hashlib,json,pathlib,sys,zipfile
 root=pathlib.Path(sys.argv[1])
+project=pathlib.Path(sys.argv[2])
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 required=['Library tests','Example unit smoke (ExUnit + ConnTest)','Install smoke (fresh phx.new + sigra.install)','Example HTTP smoke (boot + curl critical routes)','Example Playwright smoke (full lifecycle)']
 schedule=[]
+coverage_owners={'admin_behavior':43,'admin_checkpoints':3,'design_gallery':42,'non_admin_smoke':16,'demo_showcase':4}
+coverage_map_rows=[]
 for pair in range(1,21):
     roles=('before','after') if pair%2 else ('after','before')
     schedule.extend({'pair_id':f'pair-{pair:02d}','family_role':role} for role in roles)
@@ -47,36 +50,113 @@ def snapshot(name, source_sha, workflow_sha, role, factor):
             checks.append({'id':jid+1000000,'external_id':str(jid),'name':context,'head_sha':source_sha,'status':'completed','conclusion':'success','started_at':started.isoformat().replace('+00:00','Z'),'completed_at':ended.isoformat().replace('+00:00','Z'),'app':{'slug':'github-actions'},'check_suite':{'id':run_id*10+index}})
         attempt2={'jobs':jobs}; path2=family_dir/'jobs-attempt-2.json'; path2.write_text(json.dumps(attempt2,sort_keys=True))
         checks_path=family_dir/'check-runs.json'; checks_path.write_text(json.dumps({'check_runs':checks},sort_keys=True))
-        details={'run_id':run_id,'detail_status':'complete','source_run_sha256':digest(family_dir/'run.json'),'attempt_jobs':{'1':{'path':f'raw/families/{run_id}/jobs-attempt-1.json','sha256':digest(path1)},'2':{'path':f'raw/families/{run_id}/jobs-attempt-2.json','sha256':digest(path2)}},'check_runs_sha256':digest(checks_path),'changed_path_pages':[]}
+        artifact_dir=family_dir/'artifacts'; artifact_dir.mkdir()
+        archive=artifact_dir/'777.zip'
+        report_bytes=b'{}'
+        with zipfile.ZipFile(archive,'w') as zf: zf.writestr('report.json',report_bytes)
+        archive_hash=digest(archive)
+        extracted=artifact_dir/'777'; extracted.mkdir(); (extracted/'report.json').write_bytes(report_bytes)
+        artifact={'id':777,'name':'playwright-report','expired':False,'digest':'sha256:'+archive_hash,'workflow_run':{'id':run_id,'head_sha':source_sha}}
+        metadata_path=family_dir/'artifacts-metadata.json'; metadata_path.write_text(json.dumps({'artifacts':[artifact]},sort_keys=True))
+        evidence=[{'artifact':artifact,'result':{'status':'accepted','archive_sha256':archive_hash,'members':[{'member':'report.json','sha256':hashlib.sha256(report_bytes).hexdigest()}]}}]
+        evidence_path=family_dir/'artifact-evidence.json'; evidence_path.write_text(json.dumps(evidence,sort_keys=True))
+        details={'schema_version':'sigra.ci-run-metrics/family-detail-v1','run_id':run_id,'detail_status':'complete','source_run_sha256':digest(family_dir/'run.json'),'attempt_jobs':{'1':{'path':f'raw/families/{run_id}/jobs-attempt-1.json','sha256':digest(path1)},'2':{'path':f'raw/families/{run_id}/jobs-attempt-2.json','sha256':digest(path2)}},'check_runs_sha256':digest(checks_path),'artifact_metadata_sha256':digest(metadata_path),'artifact_evidence':{'path':f'raw/families/{run_id}/artifact-evidence.json','sha256':digest(evidence_path)},'changed_path_pages':[]}
         (family_dir/'manifest.json').write_text(json.dumps(details,sort_keys=True))
+        for owner,count in coverage_owners.items():
+            native_dir=family_dir/'artifacts'/'coverage'/owner; native_dir.mkdir(parents=True)
+            suites=[]; inventory=[]
+            for case in range(count):
+                title=f'fixture native case {owner} {case:02d}'
+                spec_file=f'tests/{owner}-{case:02d}.spec.ts'
+                identity=['chromium',spec_file,[spec_file],f'spec-{case}',title]
+                test={'projectId':'chromium','projectName':'chromium','expectedStatus':'passed','status':'expected','results':[{'retry':0,'status':'passed','duration':1,'startTime':'2026-10-13T00:00:00Z'}]}
+                spec={'id':f'spec-{case}','title':title,'file':spec_file,'tests':[test]}
+                suites.append({'title':spec_file,'file':spec_file,'specs':[spec]})
+                identity_json=json.dumps(identity,separators=(',',':'))
+                inventory.append({'id':identity_json,'project':'chromium','spec':spec_file,'title':title,'owner':owner,'classification':'product'})
+                if role=='before' and i==1: coverage_map_rows.append({'before':identity,'after':identity,'owner':owner,'kind':'product'})
+            report={'config':{'projects':[{'id':'chromium','name':'chromium'}]},'suites':suites,'errors':[],'stats':{'expected':count,'unexpected':0,'flaky':0,'skipped':0,'startTime':'2026-10-13T00:00:00Z','duration':10}}
+            selection=json.loads(json.dumps(report))
+            for suite in selection['suites']:
+                for spec in suite['specs']:
+                    for selected_test in spec['tests']: selected_test['results']=[]
+            report_path=native_dir/'native.json'; selection_path=native_dir/'selection.json'
+            report_path.write_text(json.dumps(report)); selection_path.write_text(json.dumps(selection))
+            descriptor={'schema_version':'sigra.browser-coverage-source/v1','source_sha':source_sha,'workflow_sha256':'c'*64,'configuration_sha256':'d'*64,'lock_sha256':'e'*64,'event':'pull_request','seam':owner,'owner':owner,'project_inventory':['chromium'],'selected_inventory':inventory,'excluded_inventory':[],'skip_policies':[],'reports':[{'path':'native.json','selection_path':'selection.json','sha256':digest(report_path),'selection_sha256':digest(selection_path),'source_sha':source_sha}]}
+            (native_dir/'coverage-source.json').write_text(json.dumps(descriptor))
         requests += [f'/repos/szTheory/sigra/actions/runs/{run_id}/attempts/{attempt}/jobs?per_page=100' for attempt in (1,2)]
     (base/'request-ledger.json').write_text(json.dumps({'requests':requests},sort_keys=True))
     pr_population=pops/'pull_request.json'
     pr_population.write_text(json.dumps({'population':'pull_request','api_total_count':20,'population_capped':False,'population_exhausted':True,'runs':api_runs,'pages':[]},sort_keys=True))
     files['pull_request']=digest(pr_population)
-    manifest={'schema_version':'sigra.ci-run-metrics/snapshot-v1','repository':'szTheory/sigra','workflow':'ci.yml','cutoff_utc':'2026-10-12T00:00:00Z','captured_at_utc':'2026-10-12T00:01:00Z','window_start_utc':'2026-09-12T00:00:00Z','status':'complete','request_count':len(requests),'source_sha':source_sha,'workflow_sha256':workflow_sha,'workflow_blob_sha':'blob-'+workflow_sha,'measured_pr_identity':{'application_sha':source_sha,'workflow_revision':source_sha,'workflow_file_sha256':workflow_sha,'workload_revision_sha256':'workload-sha'},'required_contexts':required,'required_rule_provenance':[],'active_rulesets':[],'source_file_sha256':{},'source_sha256':{'request_ledger':digest(base/'request-ledger.json'),'selection_ledger':digest(base/'selection-ledger.json'),**files},'populations':{'pull_request':{'api_total_count':20,'population_capped':False,'population_exhausted':True,'runs':api_runs},'push_main':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'schedule':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'manual':{'records':[]},'release_push':{'records':[]}},'comparison_families':families}
+    manifest={'schema_version':'sigra.ci-run-metrics/snapshot-v1','repository':'szTheory/sigra','workflow':'ci.yml','cutoff_utc':'2026-10-12T00:00:00Z','captured_at_utc':'2026-10-12T00:01:00Z','window_start_utc':'2026-09-12T00:00:00Z','status':'complete','request_count':len(requests),'source_sha':source_sha,'workflow_sha256':workflow_sha,'workflow_blob_sha':'blob-'+workflow_sha,'measured_pr_identity':{'application_sha':source_sha,'workflow_revision':source_sha,'workflow_file_sha256':workflow_sha,'workload_revision_sha256':'workload-sha'},'required_contexts':required,'required_rule_provenance':[],'active_rulesets':[],'source_file_sha256':{},'source_sha256':{'request_ledger':digest(base/'request-ledger.json'),'selection_ledger':digest(base/'selection-ledger.json'),**files},'populations':{'pull_request':{'api_total_count':20,'population_capped':False,'population_exhausted':True,'runs':api_runs},'push_main':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'schedule':{'api_total_count':0,'population_capped':False,'population_exhausted':True,'runs':[]},'manual':{'records':[]},'release_push':{'records':[]}},'comparison_families':families,'comparison_collection':{'role':role}}
     (base/'manifest.json').write_text(json.dumps(manifest)); return base,families
-before,before_rows=snapshot('before','base-app','base-workflow','before',1)
-after,after_rows=snapshot('after','candidate-app','candidate-workflow','after',.5)
+before,before_rows=snapshot('before','a'*40,'base-workflow','before',1)
+after,after_rows=snapshot('after','b'*40,'candidate-workflow','after',.5)
 reservations=[{'reservation_id':f"r-{slot['pair_id']}-{slot['family_role']}",'pair_id':slot['pair_id'],'family_role':slot['family_role'],'run_id':next(f['run_id'] for f in before_rows+after_rows if f['pair_id']==slot['pair_id'] and f['family_role']==slot['family_role']),'created_at':next(f['created_at'] for f in before_rows+after_rows if f['pair_id']==slot['pair_id'] and f['family_role']==slot['family_role'])} for slot in schedule]
 registrations=[]; previous='0'*64
 for index,reservation in enumerate(reservations):
     import hashlib
-    source_sha='base-app' if reservation['family_role']=='before' else 'candidate-app'
+    source_sha='a'*40 if reservation['family_role']=='before' else 'b'*40
     api_run={'id':reservation['run_id'],'event':'pull_request','path':'.github/workflows/ci.yml','head_sha':source_sha,'created_at':reservation['created_at'],'status':'in_progress','conclusion':None,'pull_requests':[{'number':331,'head':{'sha':source_sha},'base':{'sha':'base-ref'}}]}
     api_raw=json.dumps(api_run,sort_keys=True,separators=(',',':')).encode()
     row={'sequence':index,'previous_sha256':previous,**reservation,'head_sha':source_sha,'pull_request_head_sha':source_sha,'pull_request_number':331,'pull_request_base_sha':'base-ref','event':'pull_request','workflow_path':'.github/workflows/ci.yml','api_run_sha256':hashlib.sha256(api_raw).hexdigest(),'api_run_response_b64':base64.b64encode(api_raw).decode()}
     row['record_sha256']=hashlib.sha256(json.dumps(row,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     registrations.append(row); previous=row['record_sha256']
 baseline_source=root/'baseline-source-bundle.tar.gz'; baseline_source.write_bytes(b'authenticated baseline bundle')
-contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'comparison_schedule':schedule,'maximum_pair_start_gap_seconds':1800,'preparation_compatibility':{'baseline_cache_stratum':'warm','candidate_cache_stratum':'warm','runner_image_policy':'same'},'required_contexts':required,'window_duration_hours':48,'baseline_application_sha':'base-app','baseline_identity':{'source_bundle_sha256':hashlib.sha256(baseline_source.read_bytes()).hexdigest()},'baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'candidate-app','workflow_revision':'candidate-app','workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
+native_map={'schema_version':'sigra.browser-coverage-map/v1','rows':coverage_map_rows}
+native_map_path=project/'scripts/ci/.comparison-test-map.json'
+native_map_path.write_text(json.dumps(native_map,sort_keys=True,separators=(',',':')))
+contract={'status':'ready','pair_count':20,'primary_family_count':40,'family_reservations':reservations,'family_registrations':registrations,'comparison_schedule':schedule,'maximum_pair_start_gap_seconds':1800,'preparation_compatibility':{'baseline_cache_stratum':'warm','candidate_cache_stratum':'warm','runner_image_policy':'same'},'request_budget_ledger_id':'f'*64,'required_contexts':required,'window_duration_hours':48,'baseline_application_sha':'a'*40,'baseline_identity':{'source_bundle_sha256':hashlib.sha256(baseline_source.read_bytes()).hexdigest()},'baseline_workload_revision_sha256':'workload-sha','baseline_workflow_sha256':'base-workflow','candidate_identity':{'application_sha':'b'*40,'workflow_revision':'b'*40,'workload_revision_sha256':'workload-sha','workflow_file_sha256':'candidate-workflow'},'window':{'start_utc':'2026-10-13T10:00:00Z','end_utc':'2026-10-15T10:00:00Z'},'cache_stratum_allocation':[{'stratum_id':'warm','pair_count':20}],'native_coverage_comparison':{'mapping_path':'scripts/ci/.comparison-test-map.json','mapping_sha256':digest(native_map_path)},'instrumentation_overhead':{'exunit':{'status':'measured','value':7},'playwright':{'status':'unmeasured','reason':'not available'}}}
 (root/'registrations.json').write_text(json.dumps({'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':hashlib.sha256(json.dumps({k:v for k,v in contract.items() if k not in ('family_registrations','registration_ledger_sha256')},sort_keys=True,separators=(',',':')).encode()).hexdigest(),'records':registrations}))
 contract.pop('family_registrations')
 (root/'contract.json').write_text(json.dumps(contract))
+empty={'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':hashlib.sha256(json.dumps({k:v for k,v in contract.items() if k not in ('family_registrations','registration_ledger_sha256')},sort_keys=True,separators=(',',':')).encode()).hexdigest(),'records':[]}
+(root/'empty-registrations.json').write_text(json.dumps(empty))
 PY
 run_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/contract.json" --registrations "$TMP/registrations.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --baseline-source-bundle "$TMP/baseline-source-bundle.tar.gz" --format json; }
+mkdir -p "$TMP/no-network-bin"
+cat >"$TMP/no-network-bin/gh" <<'GH'
+#!/usr/bin/env bash
+echo "$*" >>"$GH_CALL_LOG"
+printf '[]\n'
+GH
+chmod +x "$TMP/no-network-bin/gh"
+set +e
+GH_CALL_LOG="$TMP/gh-calls" PATH="$TMP/no-network-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --collect-comparison --comparison-role before --contract "$TMP/contract.json" --registrations "$TMP/empty-registrations.json" --request-budget-ledger "$TMP/request-budget.json" --source-bundle "$TMP/unregistered" >"$TMP/unregistered.out" 2>"$TMP/unregistered.err"
+unregistered_rc=$?
+set -e
+[[ $unregistered_rc -ne 0 ]] && rg -q 'comparison_role_has_no_registered_runs' "$TMP/unregistered.err" && [[ ! -s "$TMP/gh-calls" ]]
+PYTHONPATH="$ROOT/scripts/ci" python3 - "$TMP/contract.json" "$TMP/shared-budget.json" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import initialize_comparison_request_budget,comparison_request_budget_reserve
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text()); ledger=pathlib.Path(sys.argv[2])
+import time
+initialize_comparison_request_budget(contract,ledger,now=int(time.time()))
+for index in range(599): comparison_request_budget_reserve(contract,ledger,f'/seed/{index}',owner='synthetic',now=int(time.time()))
+PY
+cat >"$TMP/no-network-bin/gh" <<'GH'
+#!/usr/bin/env bash
+if [[ "${1:-}" == --version ]]; then echo 'gh version synthetic'; exit 0; fi
+echo "$*" >>"$GH_CALL_LOG"
+if [[ "${4:-}" == rate_limit ]]; then echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}'; exit 0; fi
+exit 99
+GH
+chmod +x "$TMP/no-network-bin/gh"
+set +e
+GH_CALL_LOG="$TMP/budget-gh-calls" PATH="$TMP/no-network-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --preflight --contract "$TMP/contract.json" --request-budget-ledger "$TMP/shared-budget.json" --preflight-output "$TMP/preflight.json" >"$TMP/preflight.out"
+preflight_rc=$?
+set -e
+[[ $preflight_rc -eq 2 ]]
+jq -e '.status=="blocked" and .request_count==1 and any(.missing_capabilities[]; contains("request_limit_exhausted"))' "$TMP/preflight.json" >/dev/null
+[[ "$(wc -l <"$TMP/budget-gh-calls" | tr -d ' ')" == 1 ]]
+python3 - "$TMP/shared-budget.json" <<'PY'
+import json,pathlib,sys
+data=json.loads(pathlib.Path(sys.argv[1]).read_text())
+assert sum(row.get('kind')=='request' for row in data['records'])==600
+PY
 run_eval >"$TMP/pass.json"
-jq -e '.status=="pass" and .metrics.pair_count==20 and .metrics.comparable_successful_pairs==20 and .metrics.baseline_median_seconds==210.5 and .metrics.baseline_p95_seconds==219 and .metrics.candidate_median_seconds==105 and .metrics.candidate_p95_seconds==109 and .metrics.baseline_runner_seconds==1400 and .metrics.candidate_runner_seconds==900 and (.metrics.overhead_disclosure.playwright.status=="unmeasured")' "$TMP/pass.json" >/dev/null
+jq -e '.status=="pass" and .performance_verdict=="pass" and .metrics.native_parity.status=="passed" and .metrics.native_parity.origin_status=="passed" and (.metrics.native_parity.comparisons|length)==100 and .metrics.pair_count==20 and .metrics.comparable_successful_pairs==20 and .metrics.baseline_median_seconds==210.5 and .metrics.baseline_p95_seconds==219 and .metrics.candidate_median_seconds==105 and .metrics.candidate_p95_seconds==109 and .metrics.baseline_runner_seconds==1400 and .metrics.candidate_runner_seconds==900 and (.metrics.overhead_disclosure.playwright.status=="unmeasured")' "$TMP/pass.json" >/dev/null
 printf 'substituted baseline' >"$TMP/baseline-source-bundle.tar.gz"
 run_eval >"$TMP/baseline-bundle-mismatch.json"
 jq -e '.status=="insufficient_data" and any(.diagnostics[];.reason=="baseline_source_bundle_hash_mismatch")' "$TMP/baseline-bundle-mismatch.json" >/dev/null

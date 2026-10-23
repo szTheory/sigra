@@ -153,13 +153,18 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
                     zip_members = {info.filename for info in archive.infolist() if not info.is_dir()}
                 recorded_json_members = {item.get("member") for item in member_records}
                 with zipfile.ZipFile(zip_path) as archive:
-                    all_extracted_json = {n for n in zip_members if pathlib.PurePosixPath(n).suffix.lower() == ".json" and pathlib.PurePosixPath(n).name.lower() in {
-                        "report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json"}}
+                    all_extracted_json = {n for n in zip_members if pathlib.PurePosixPath(n).suffix.lower() == ".json" and (pathlib.PurePosixPath(n).name.lower() in {
+                        "report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json", "coverage-source.json"} or pathlib.PurePosixPath(n).name.lower().endswith(".selection.json"))}
                 if all_extracted_json != recorded_json_members:
                     diagnostics.append(f"artifact_json_member_coverage_mismatch:{family.name}:{artifact_id}")
                 for item in member_records:
                     member = item.get("member")
-                    extracted = family / "artifacts" / artifact_id / pathlib.PurePosixPath(member).name
+                    extracted = family / "artifacts" / artifact_id / pathlib.PurePosixPath(member)
+                    if not extracted.exists():
+                        # Phase252 extraction flattened nested archive paths. Keep
+                        # that frozen replay layout readable while new comparison
+                        # artifacts preserve native report-relative directories.
+                        extracted = family / "artifacts" / artifact_id / pathlib.PurePosixPath(member).name
                     if member not in zip_members or not extracted.resolve().is_relative_to(bundle.resolve()):
                         diagnostics.append(f"artifact_extracted_member_invalid:{family.name}:{artifact_id}")
                         continue
@@ -477,6 +482,111 @@ class CoreRequestBudget:
         return True
 
 
+def _comparison_budget_read(path: pathlib.Path, contract: dict) -> dict:
+    ledger = json.loads(path.read_text())
+    expected = comparison_contract_sha256(contract)
+    if (ledger.get("schema_version") != "sigra.ci-comparison-request-budget/v1"
+            or ledger.get("contract_sha256") != expected
+            or ledger.get("ledger_id") != contract.get("request_budget_ledger_id")):
+        raise ValueError("request_budget_ledger_contract_mismatch")
+    previous = "0" * 64
+    for index, row in enumerate(ledger.get("records") or []):
+        body = {key: value for key, value in row.items() if key != "record_sha256"}
+        digest = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if row.get("sequence") != index or row.get("previous_sha256") != previous or row.get("record_sha256") != digest:
+            raise ValueError("request_budget_ledger_chain_invalid")
+        previous = digest
+    return ledger
+
+
+def _comparison_budget_append(path: pathlib.Path, ledger: dict, event: dict) -> dict:
+    records = ledger.get("records") or []
+    row = {"sequence": len(records), "previous_sha256": records[-1]["record_sha256"] if records else "0" * 64, **event}
+    row["record_sha256"] = hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    updated = {**ledger, "records": records + [row]}
+    temp = path.with_name(path.name + ".tmp")
+    with temp.open("w") as output:
+        json.dump(updated, output, sort_keys=True, separators=(",", ":"))
+        output.flush()
+        import os
+        os.fsync(output.fileno())
+    temp.replace(path)
+    with path.open("rb") as source:
+        import os
+        os.fsync(source.fileno())
+    return updated
+
+
+def initialize_comparison_request_budget(contract: dict, path: pathlib.Path, *, now: int | None = None) -> dict:
+    """Create or read back a contract-bound pass ledger; never reset an existing pass."""
+    path = pathlib.Path(path)
+    ledger_id = contract.get("request_budget_ledger_id")
+    if not isinstance(ledger_id, str) or not re.fullmatch(r"[0-9a-f]{64}", ledger_id):
+        raise ValueError("request_budget_ledger_id_missing")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists():
+        return _comparison_budget_read(path, contract)
+    ledger = {"schema_version": "sigra.ci-comparison-request-budget/v1", "ledger_id": ledger_id,
+              "contract_sha256": comparison_contract_sha256(contract), "started_at_epoch": int(now if now is not None else __import__("time").time()),
+              "records": []}
+    path.write_text(json.dumps(ledger, sort_keys=True, separators=(",", ":")))
+    return _comparison_budget_read(path, contract)
+
+
+def comparison_request_budget_reserve(contract: dict, path: pathlib.Path, endpoint: str, *, owner: str, now: int | None = None) -> dict:
+    """Durably reserve one actual HTTP attempt before calling the transport."""
+    import os
+    import time
+    path = pathlib.Path(path)
+    lock = path.with_name(path.name + ".lock")
+    try:
+        lock.mkdir()
+    except FileExistsError as error:
+        raise ValueError("request_budget_ledger_locked") from error
+    try:
+        ledger = _comparison_budget_read(path, contract)
+        records = ledger.get("records") or []
+        requests = [row for row in records if row.get("kind") == "request"]
+        latest = next((row for row in reversed(records) if row.get("kind") in ("request", "policy")), {})
+        current = int(now if now is not None else time.time())
+        elapsed = current - int(ledger.get("started_at_epoch", current))
+        if latest.get("stop_reason"):
+            raise ValueError("request_budget_hard_stop:" + latest["stop_reason"])
+        if elapsed >= 3600:
+            raise ValueError("request_budget_time_limit_exhausted")
+        if len(requests) >= 600:
+            raise ValueError("request_budget_request_limit_exhausted")
+        remaining = latest.get("core_remaining")
+        if remaining is not None and int(remaining) <= 250:
+            raise ValueError("request_budget_core_limit_stop")
+        if remaining is not None:
+            remaining = int(remaining) - 1
+        ledger = _comparison_budget_append(path, ledger, {"kind": "request", "at_epoch": current,
+                "endpoint": endpoint, "owner": owner, "core_remaining": remaining})
+        verified = _comparison_budget_read(path, contract)
+        if len(verified.get("records") or []) != len(ledger["records"]):
+            raise ValueError("request_budget_ledger_readback_failed")
+        return {"request_count": sum(row.get("kind") == "request" for row in verified["records"]), "core_remaining": remaining}
+    finally:
+        try:
+            lock.rmdir()
+        except OSError:
+            pass
+
+
+def comparison_request_budget_record_response(contract: dict, path: pathlib.Path, *, core_remaining: int | None = None, reset_at: int | None = None, stop_reason: str | None = None) -> None:
+    path = pathlib.Path(path)
+    ledger = _comparison_budget_read(path, contract)
+    latest = next((row for row in reversed(ledger.get("records") or []) if row.get("kind") in ("request", "policy")), {})
+    remaining = latest.get("core_remaining")
+    if core_remaining is not None:
+        remaining = int(core_remaining) if remaining is None else min(int(remaining), int(core_remaining))
+    _comparison_budget_append(path, ledger, {"kind": "policy", "at_epoch": int(__import__("time").time()),
+        "core_remaining": remaining, "reset_at": reset_at if reset_at is not None else latest.get("reset_at"),
+        "stop_reason": stop_reason})
+    _comparison_budget_read(path, contract)
+
+
 def deduplicate_physical_jobs(attempts: dict) -> tuple[list[dict], list[dict]]:
     """Count each GitHub job ID once; retain reused API rows as explicit history."""
     seen = set()
@@ -687,6 +797,74 @@ def validate_comparison_schedule(contract: dict, registrations: list[dict]) -> l
         if len(values) == 2 and (values[1] - values[0]).total_seconds() > 1800:
             diagnostics.append("comparison_pair_start_gap_exceeded")
     return sorted(set(diagnostics))
+
+
+def validate_comparison_registration_ledger(contract: dict, ledger: dict) -> list[str]:
+    """Authenticate a partial early-registration chain before collection uses its run IDs."""
+    rows = ledger.get("records") or []
+    diagnostics = validate_comparison_plan(contract)
+    if ledger.get("contract_sha256") != comparison_contract_sha256(contract):
+        diagnostics.append("comparison_registration_contract_hash_mismatch")
+    if len(rows) > 40:
+        diagnostics.append("comparison_registration_set_too_large")
+    diagnostics.extend(validate_comparison_schedule(contract, rows))
+    reservations = {row.get("reservation_id"): row for row in contract.get("family_reservations") or []}
+    previous = "0" * 64
+    for index, row in enumerate(rows):
+        body = {key: value for key, value in row.items() if key != "record_sha256"}
+        digest = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        reservation = reservations.get(row.get("reservation_id"))
+        try:
+            raw = base64.b64decode(row.get("api_run_response_b64", ""), validate=True)
+            api_run = json.loads(raw)
+            expected_sha = contract.get("baseline_application_sha") if row.get("family_role") == "before" else (contract.get("candidate_identity") or {}).get("application_sha")
+            valid = (hashlib.sha256(raw).hexdigest() == row.get("api_run_sha256")
+                     and str(api_run.get("id")) == str(row.get("run_id"))
+                     and api_run.get("status") in ("queued", "in_progress") and api_run.get("conclusion") is None
+                     and api_run.get("created_at") == row.get("created_at") and api_run.get("head_sha") == expected_sha
+                     and api_run.get("event") == "pull_request" and api_run.get("path") == ".github/workflows/ci.yml"
+                     and len(api_run.get("pull_requests") or []) == 1
+                     and api_run["pull_requests"][0].get("head", {}).get("sha") == expected_sha)
+        except (ValueError, TypeError, KeyError):
+            valid = False
+        if (row.get("sequence") != index or row.get("previous_sha256") != previous or row.get("record_sha256") != digest
+                or reservation is None or row.get("pair_id") != reservation.get("pair_id")
+                or row.get("family_role") != reservation.get("family_role") or not valid):
+            diagnostics.append("comparison_registration_identity_invalid")
+        previous = row.get("record_sha256", "")
+    return sorted(set(diagnostics))
+
+
+def comparison_registered_runs(contract: dict, ledger: dict, role: str) -> list[dict]:
+    if role not in ("before", "after"):
+        raise ValueError("comparison_role_invalid")
+    issues = validate_comparison_registration_ledger(contract, ledger)
+    if issues:
+        raise ValueError(issues[0])
+    rows = [row for row in ledger.get("records", []) if row.get("family_role") == role]
+    if not rows:
+        raise ValueError("comparison_role_has_no_registered_runs")
+    return [{"reservation_id": row["reservation_id"], "pair_id": row["pair_id"],
+             "family_role": role, "run_id": row["run_id"], "created_at": row["created_at"],
+             "head_sha": row["head_sha"], "pull_request_head_sha": row["pull_request_head_sha"],
+             "pull_request_base_sha": row["pull_request_base_sha"],
+             "pull_request_number": row["pull_request_number"]} for row in rows]
+
+
+def validate_registered_run_observation(registration: dict, api_run: dict) -> list[str]:
+    """Bind a later completed API read to its already-registered outcome-blind slot."""
+    expected = (str(api_run.get("id")) == str(registration.get("run_id"))
+                and api_run.get("created_at") == registration.get("created_at")
+                and api_run.get("event") == "pull_request" and api_run.get("path") == ".github/workflows/ci.yml"
+                and api_run.get("head_sha") == registration.get("head_sha"))
+    prs = api_run.get("pull_requests") or []
+    if len(prs) != 1:
+        return ["comparison_run_pull_request_identity_invalid"]
+    pr = prs[0]
+    expected = expected and pr.get("number") == registration.get("pull_request_number")
+    expected = expected and pr.get("head", {}).get("sha") == registration.get("pull_request_head_sha")
+    expected = expected and pr.get("base", {}).get("sha") == registration.get("pull_request_base_sha")
+    return [] if expected else ["comparison_run_registered_identity_mismatch"]
 
 
 def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, ledger: dict | None = None, api_run_sha256: str | None = None, api_run_response_bytes: bytes | None = None) -> dict:

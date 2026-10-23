@@ -89,6 +89,11 @@ DIAGNOSE_V1=false
 DIAGNOSIS_OUTPUT=""
 BASELINE_FILE=""
 BASELINE_SOURCE_BUNDLE=""
+COLLECT_COMPARISON=false
+COMPARISON_ROLE=""
+REQUEST_BUDGET_LEDGER=""
+COMPARISON_RUNS_FILE=""
+API_BUDGET_OWNER=""
 API_STARTED=0
 API_REQUESTS=0
 API_STOP_REASON=""
@@ -132,6 +137,9 @@ while [[ $# -gt 0 ]]; do
     --source-pages) SOURCE_PAGES="$2"; shift 2;;
     --threshold) THRESHOLD="$2"; shift 2;;
     --collect) COLLECT=true; shift;;
+    --collect-comparison) COLLECT_COMPARISON=true; shift;;
+    --comparison-role) COMPARISON_ROLE="$2"; shift 2;;
+    --request-budget-ledger) REQUEST_BUDGET_LEDGER="$2"; shift 2;;
     --replay) REPLAY=true; shift;;
     --evaluate-comparison) EVALUATE_COMPARISON=true; shift;;
     --validate-comparison-plan) VALIDATE_COMPARISON_PLAN=true; shift;;
@@ -217,7 +225,7 @@ extract_timing_archive() {
 import hashlib, json, os, pathlib, re, stat, sys, zipfile
 archive, destination = sys.argv[1:]
 max_total, max_member, max_members = 512 * 1024 * 1024, 64 * 1024 * 1024, 10000
-allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json"}
+allowed = {"report.json", "playwright-report.json", "test-results.json", "timing.json", "ci-timing.json", "metrics.json", "manifest.json", "ci-measurement-metadata.json", "ci-exunit-timing-main.json", "ci-exunit-timing-threadline-guard.json", "admin-behavior.json", "admin-checkpoints.json", "design-gallery-pr-behavior.json", "design-gallery-nonpr-snapshots.json", "design-gallery-nonpr-behavior.json", "non-admin-smoke.json", "demo-showcase.json", "coverage-source.json"}
 try:
     os.makedirs(destination, exist_ok=True)
     with zipfile.ZipFile(archive) as zf:
@@ -227,7 +235,7 @@ try:
         for info in infos:
             name = info.filename
             if "\\" in name or name.startswith("/") or re.match(r"^[A-Za-z]:", name): raise ValueError("unsafe_archive_path")
-            if any(part in ("..", "") for part in pathlib.PurePosixPath(name).parts): raise ValueError("unsafe_archive_path")
+            if any(part in ("..", "", ".") for part in pathlib.PurePosixPath(name).parts): raise ValueError("unsafe_archive_path")
             mode = (info.external_attr >> 16) & 0xffff
             if stat.S_ISLNK(mode): raise ValueError("archive_symlink_rejected")
             if info.is_dir(): continue
@@ -236,7 +244,9 @@ try:
             if total > max_total: raise ValueError("archive_total_limit_exceeded")
             if name in seen: raise ValueError("duplicate_archive_member")
             seen.add(name)
-            if pathlib.PurePosixPath(name).name.lower() not in allowed:
+            basename = pathlib.PurePosixPath(name).name.lower()
+            native_coverage = basename in allowed or basename.endswith(".selection.json")
+            if not native_coverage:
                 if pathlib.PurePosixPath(name).suffix.lower() == ".json": raise ValueError("unexpected_archive_json")
                 skipped.append(pathlib.PurePosixPath(name).name[:128])
                 continue
@@ -244,10 +254,15 @@ try:
         if not selected: raise ValueError("expected_timing_json_missing")
         used, output = set(), []
         for info in selected:
-            basename = pathlib.PurePosixPath(info.filename).name
-            if basename in used: raise ValueError("duplicate_archive_basename")
-            used.add(basename)
-            target = os.path.join(destination, basename); temp = target + ".tmp"; written = 0
+            relative = pathlib.PurePosixPath(info.filename)
+            basename = relative.name
+            # Preserve nested native report paths referenced by coverage-source.json;
+            # keep legacy timing artifacts flat for existing consumers.
+            native_path = basename == "coverage-source.json" or basename.endswith(".selection.json") or basename in {"report.json", "playwright-report.json", "test-results.json"}
+            output_path = relative.as_posix() if native_path else basename
+            if output_path in used: raise ValueError("duplicate_archive_path")
+            used.add(output_path)
+            target = os.path.join(destination, output_path); os.makedirs(os.path.dirname(target), exist_ok=True); temp = target + ".tmp"; written = 0
             with zf.open(info) as src, open(temp, "wb") as dst:
                 while True:
                     chunk = src.read(1024 * 1024)
@@ -332,6 +347,7 @@ api_external_reserve() {
   [[ -z "$API_CORE_REMAINING" || "$API_CORE_REMAINING" -gt 250 ]] || { api_stop core_rate_limit_stop "$API_RESET_AT" "$endpoint"; return 1; }
   timeout_cmd="$(command -v timeout || command -v gtimeout || true)"
   [[ -n "$timeout_cmd" ]] || { api_stop request_deadline_enforcer_unavailable "" "$endpoint"; return 1; }
+  request_budget_reserve "$endpoint" || { api_stop "$API_STOP_REASON" "$API_RESET_AT" "$endpoint"; return 1; }
   if [[ "$API_CORE_REMAINING" =~ ^[0-9]+$ ]]; then API_CORE_REMAINING=$((API_CORE_REMAINING - 1)); fi
   ((API_REQUESTS+=1))
   API_REQUEST_LOG="$(jq -cn --arg endpoint "$endpoint" --argjson prior "$API_REQUEST_LOG" '$prior + [$endpoint]')"
@@ -377,6 +393,7 @@ api_download_no_follow() {
       [[ "$status_code" =~ ^[0-9]{3}$ ]] || status_code=000
       if [[ "$status_code" == 403 || "$status_code" == 429 ]]; then
         location="$(awk 'BEGIN{IGNORECASE=1} tolower($1)=="retry-after:"||tolower($1)=="x-ratelimit-reset:" {gsub("\\r",""); print $2; exit}' "$headers" 2>/dev/null || true)"
+        request_budget_record_response "$API_CORE_REMAINING" "$location" "http_rate_limit"
         api_stop http_rate_limit "$location" "$category"; rm -f "$headers" "$body"; return 1
       fi
       if [[ "$status_code" =~ ^5(00|02|03|04)$ || "$status_code" == 000 ]]; then
@@ -429,6 +446,40 @@ api_stop() {
   return 1
 }
 
+request_budget_reserve() {
+  [[ -n "$REQUEST_BUDGET_LEDGER" ]] || return 0
+  [[ -s "$CONTRACT_FILE" && -s "$REQUEST_BUDGET_LEDGER" ]] || { API_STOP_REASON=request_budget_ledger_missing; return 1; }
+  local result reason remaining
+  result="$(PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$1" "${API_BUDGET_OWNER:-collector}" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import comparison_request_budget_reserve
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
+try:
+    print(json.dumps(comparison_request_budget_reserve(contract,pathlib.Path(sys.argv[2]),sys.argv[3],owner=sys.argv[4])))
+except (OSError,ValueError,TypeError) as error:
+    print(json.dumps({'error':str(error)})); raise SystemExit(1)
+PY
+)" || { reason="$(jq -r '.error // "request_budget_reservation_failed"' <<<"$result")"; API_STOP_REASON="$reason"; return 1; }
+  remaining="$(jq -r '.core_remaining // empty' <<<"$result")"
+  if [[ "$remaining" =~ ^[0-9]+$ ]]; then
+    local pre_request=$((remaining + 1))
+    if [[ "$API_CORE_REMAINING" =~ ^[0-9]+$ ]]; then (( pre_request < API_CORE_REMAINING )) && API_CORE_REMAINING="$pre_request"; else API_CORE_REMAINING="$pre_request"; fi
+  fi
+  return 0
+}
+
+request_budget_record_response() {
+  [[ -n "$REQUEST_BUDGET_LEDGER" ]] || return 0
+  local core="${1:-}" reset="${2:-}" stop="${3:-}"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$core" "$reset" "$stop" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import comparison_request_budget_record_response
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
+number=lambda value: int(value) if value.isdigit() else None
+comparison_request_budget_record_response(contract,pathlib.Path(sys.argv[2]),core_remaining=number(sys.argv[3]),reset_at=number(sys.argv[4]),stop_reason=sys.argv[5] or None)
+PY
+}
+
 api_get() {
   local endpoint="$1" output_file="$2" response rc attempt err_file elapsed remaining reset timeout_cmd
   if [[ "$endpoint" != "rate_limit" && "$endpoint" != "/rate_limit" && "$API_RATE_CHECK_IN_FLIGHT" != true && "$API_LAST_RATE_REQUEST" -gt 0 ]] && (( API_REQUESTS - API_LAST_RATE_REQUEST >= 100 )); then
@@ -448,6 +499,7 @@ api_get() {
   fi
   attempt=0
   while :; do
+    request_budget_reserve "$endpoint" || { api_stop "$API_STOP_REASON" "$API_RESET_AT" "$endpoint"; return 1; }
     if [[ "$API_CORE_REMAINING" =~ ^[0-9]+$ ]]; then
       (( API_CORE_REMAINING > 250 )) || { api_stop core_rate_limit_stop "$API_RESET_AT" "$endpoint"; return 1; }
       API_CORE_REMAINING=$((API_CORE_REMAINING - 1))
@@ -479,6 +531,7 @@ api_get() {
         fi
         API_RESET_AT="$(jq -r '.resources.core.reset // empty' "$output_file" 2>/dev/null || true)"
         API_LAST_RATE_REQUEST="$API_REQUESTS"
+        request_budget_record_response "$API_CORE_REMAINING" "$API_RESET_AT" ""
       fi
       api_write_ledger collecting
       return 0
@@ -487,6 +540,7 @@ api_get() {
     if [[ "$response" =~ (HTTP[[:space:]]+)?(403|429) ]]; then
       reset="$(printf '%s' "$response" | sed -nE 's/.*(retry-after|x-ratelimit-reset)[^0-9]*([0-9]+).*/\2/ip' | head -1)"
       [[ -n "$reset" ]] && API_RESET_AT="$reset"
+      request_budget_record_response "$API_CORE_REMAINING" "$API_RESET_AT" "http_rate_limit"
       api_stop http_rate_limit "$API_RESET_AT" "$endpoint"
       return 1
     fi
@@ -612,10 +666,36 @@ collect_window() {
   local collect_one_population
   collect_one_population() {
     local name="$1" ev="$2" br="$3" out="$stage/raw/populations/$1.json"
-    local p=1 total='' response returned filtered valid
+    local p=1 total='' response returned filtered valid id registration
     local selected_file="$tmp/${name}-selected.json" filtered_file="$tmp/${name}-filtered.json" pages_file="$tmp/${name}-pages.json"
     printf '[]\n' >"$selected_file"
     printf '[]\n' >"$pages_file"
+    if [[ -n "$COMPARISON_RUNS_FILE" ]]; then
+      if [[ "$name" != pull_request ]]; then
+        jq -n --arg name "$name" --arg event "$ev" '{population:$name,event:$event,api_total_count:0,population_capped:false,population_exhausted:true,selected_run_ids:[],runs:[],pages:[],detail_status:"complete"}' >"$out"
+        return 0
+      fi
+      while IFS= read -r registration; do
+        [[ -n "$registration" ]] || continue
+        id="$(jq -r '.run_id' <<<"$registration")"
+        API_BUDGET_OWNER="run:${id}"
+        page_file="$tmp/${name}-run-${id}.json"
+        api_get "/repos/${REPO}/actions/runs/${id}" "$page_file" || { API_STOP_REASON="${API_STOP_REASON:-registered_run_unavailable}"; break; }
+        PYTHONPATH="$ROOT/scripts/ci" python3 - "$registration" "$page_file" <<'PY' || { API_STOP_REASON="registered_run_identity_mismatch"; break; }
+import json,pathlib,sys
+from ci_metrics_security import validate_registered_run_observation
+registration=json.loads(sys.argv[1]); run=json.loads(pathlib.Path(sys.argv[2]).read_text())
+errors=validate_registered_run_observation(registration,run)
+if errors: raise SystemExit(','.join(errors))
+PY
+        jq -cn --slurpfile prior "$selected_file" --slurpfile run "$page_file" '$prior[0]+[$run[0]]' >"$selected_file.tmp" && mv "$selected_file.tmp" "$selected_file"
+        jq -cn --arg id "$id" --arg sha "$(sha256_file "$page_file")" --slurpfile prior "$pages_file" '$prior[0]+[{registered_run_id:($id|tonumber),response_sha256:$sha}]' >"$pages_file.tmp" && mv "$pages_file.tmp" "$pages_file"
+      done < <(jq -c '.[]' "$COMPARISON_RUNS_FILE")
+      total="$(jq 'length' "$selected_file")"
+      jq -n --arg cutoff "$CUTOFF" --arg population "$name" --arg since "$since" --argjson total "$total" --slurpfile selected "$selected_file" --slurpfile pages "$pages_file" '{population:$population,event:"pull_request",branch:null,created_window:{after:$since,before:$cutoff},api_total_count:$total,population_capped:false,population_exhausted:true,selected_run_ids:[$selected[0][].id],runs:$selected[0],pages:$pages[0],detail_status:"pending",selection_source:"authenticated_comparison_registrations"}' >"$out"
+      api_write_ledger collecting
+      return 0
+    fi
     while (( $(jq 'length' "$selected_file") < 100 )); do
       endpoint="/repos/${REPO}/actions/workflows/${WORKFLOW}/runs?event=${ev}"
       [[ -n "$br" ]] && endpoint+="&branch=${br}"
@@ -654,12 +734,14 @@ collect_window() {
     jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]' >"$selected_file"
     jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' "$selected_file" >"$failed_file"
     measurement_target="$(jq -r '[.[] | select(.population=="pull_request" and .run.conclusion=="success")] | sort_by(.run.created_at) | reverse | .[0].run.id // empty' "$selected_file")"
-    jq -cn --arg target "$measurement_target" --slurpfile failed "$failed_file" --slurpfile selected "$selected_file" '
+    if [[ -n "$COMPARISON_RUNS_FILE" ]]; then
+      cp "$selected_file" "$priority_file"
+    else jq -cn --arg target "$measurement_target" --slurpfile failed "$failed_file" --slurpfile selected "$selected_file" '
       ($selected[0] | sort_by(.run.created_at) | reverse) as $ordered |
       ([($ordered | map(select(.population=="pull_request" and (.run.id|tostring)==$target)) | .[0]),($ordered | map(select(.population=="push_main" and .run.conclusion=="success")) | .[0]),($ordered | map(select(.population=="schedule" and .run.conclusion=="success")) | .[0])] | map(select(.!=null)) | unique_by([.population,.run.id])) as $anchors |
       ($selected[0] | .[0:3]) as $recent |
       ($anchors + $recent + $failed[0]) | unique_by([.population,.run.id])
-    ' "$selected_file" >"$priority_file"
+    ' "$selected_file" >"$priority_file"; fi
     printf '[]\n' >"$enrichments_file"
     producer_refs='{}'
     while IFS= read -r row; do
@@ -775,7 +857,9 @@ collect_window() {
         jq -e . <<<"$log_record" >/dev/null || fail "log_diagnostic_invalid:${id}"
         diagnostic="$(jq -cn --argjson artifact "$artifact_record" --argjson log "$log_record" '[{kind:"artifact",result:$artifact},{kind:"failed_job_log",result:$log}]')"
       fi
-      if [[ "$event" == pull_request && "$id" == "$measurement_target" && "$workload" == full && "$jobs_status" == complete ]]; then
+      local registered_for_comparison=false
+      if [[ -n "$COMPARISON_RUNS_FILE" ]] && jq -e --argjson id "$id" 'any(.[]; .run_id==$id)' "$COMPARISON_RUNS_FILE" >/dev/null; then registered_for_comparison=true; fi
+      if [[ "$event" == pull_request && ("$id" == "$measurement_target" || "$registered_for_comparison" == true) && "$workload" == full && "$jobs_status" == complete ]]; then
         local check_file="$family_dir/check-runs.json" target_artifacts="$family_dir/artifacts" artifact_manifest="$family_dir/artifact-evidence.json" artifact_index=0 artifact_row_target target_artifact_id target_digest target_zip target_dir target_hash target_extract
         mkdir -p "$target_artifacts"
         if api_get "/repos/${REPO}/commits/$(jq -r '.head_sha' "$family_dir/run.json")/check-runs?per_page=100" "$tmp/family-${id}-check-runs.json"; then
@@ -886,6 +970,83 @@ collect_window() {
   rm -rf "$lock"
   printf '%s\n' "snapshot manifest: $SOURCE_BUNDLE/manifest.json" "status: $manifest_status; requests: $request_count"
   [[ "$manifest_status" == complete ]]
+}
+
+collect_comparison() {
+  [[ -s "$CONTRACT_FILE" && -s "$REGISTRATIONS_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$SOURCE_BUNDLE" ]] || fail "--collect-comparison requires --contract, --registrations, --request-budget-ledger and --source-bundle"
+  [[ "$COMPARISON_ROLE" == before || "$COMPARISON_ROLE" == after ]] || fail "--comparison-role must be before or after"
+  local tmp contract_window_end contract_hash registration_hash budget_hash
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-comparison-collect.XXXXXX")"
+  COMPARISON_RUNS_FILE="$tmp/registered-runs.json"
+  if ! PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" "$COMPARISON_ROLE" "$COMPARISON_RUNS_FILE" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import comparison_registered_runs
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
+ledger=json.loads(pathlib.Path(sys.argv[2]).read_text())
+rows=comparison_registered_runs(contract,ledger,sys.argv[3])
+pathlib.Path(sys.argv[4]).write_text(json.dumps(rows,sort_keys=True,separators=(',',':')))
+PY
+  then rm -rf "$tmp"; fail "comparison_role_has_no_registered_runs_or_registration_invalid"; fi
+  python3 - "$CONTRACT_FILE" "$ROOT" <<'PY' || { rm -rf "$tmp"; fail "native_coverage_map_missing_or_invalid_collection_blocked"; }
+import hashlib,json,pathlib,sys
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text()); root=pathlib.Path(sys.argv[2]).resolve()
+spec=contract.get('native_coverage_comparison') or {}
+relative=spec.get('mapping_path'); expected=spec.get('mapping_sha256')
+if not isinstance(relative,str) or pathlib.PurePosixPath(relative).is_absolute() or '..' in pathlib.PurePosixPath(relative).parts: raise SystemExit(1)
+path=(root/relative).resolve()
+if root not in path.parents or not path.is_file() or not isinstance(expected,str) or hashlib.sha256(path.read_bytes()).hexdigest()!=expected: raise SystemExit(1)
+mapping=json.loads(path.read_text())
+if mapping.get('schema_version')!='sigra.browser-coverage-map/v1' or not isinstance(mapping.get('rows'),list) or not mapping['rows']: raise SystemExit(1)
+owners={'admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}
+rows=mapping['rows']
+if len(rows)!=108 or {row.get('owner') for row in rows}!=owners or any(row.get('kind') not in ('product','setup') or not all(isinstance(row.get(k),list) and len(row[k])==5 for k in ('before','after')) for row in rows): raise SystemExit(1)
+if {owner:sum(row.get('owner')==owner for row in rows) for owner in owners}!={'admin_behavior':43,'admin_checkpoints':3,'design_gallery':42,'non_admin_smoke':16,'demo_showcase':4}: raise SystemExit(1)
+for side in ('before','after'):
+    ids=[json.dumps(row[side],separators=(',',':')) for row in rows]
+    if len(ids)!=len(set(ids)): raise SystemExit(1)
+PY
+  python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" <<'PY' || { rm -rf "$tmp"; fail "request_budget_ledger_contract_or_readback_invalid"; }
+import json,pathlib,sys
+from ci_metrics_security import initialize_comparison_request_budget
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
+initialize_comparison_request_budget(contract,pathlib.Path(sys.argv[2]))
+PY
+  contract_window_end="$(jq -r '.window.end_utc // empty' "$CONTRACT_FILE")"
+  [[ "$contract_window_end" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || { rm -rf "$tmp"; fail "comparison_window_end_invalid"; }
+  CUTOFF="$contract_window_end"
+  API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:preflight"
+  collect_window
+  # Run the independent hosted-origin verifier against every retained raw family.
+  # This is separate from snapshot hash replay and binds early registration, PR
+  # head/base, all attempts, required checks, and artifact API/archive origins.
+  local origin_results="$tmp/origin-verification.json" origin_status=passed origin_error
+  printf '[]\n' >"$origin_results"
+  while IFS= read -r registration; do
+    [[ -n "$registration" ]] || continue
+    printf '%s\n' "$registration" >"$tmp/registration.json"
+    if ! python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode comparison-family \
+      --evidence "$SOURCE_BUNDLE" --registration "$tmp/registration.json" \
+      --required-contexts "$(jq -c '.required_contexts' "$CONTRACT_FILE")" >"$tmp/origin-one.json" 2>"$tmp/origin-one.err"; then
+      origin_status=insufficient_data
+      origin_error="$(tr '\n' ' ' <"$tmp/origin-one.err" | cut -c1-500)"
+      jq -cn --slurpfile prior "$origin_results" --argjson run_id "$(jq '.run_id' <<<"$registration")" --arg error "$origin_error" '$prior[0]+[{run_id:$run_id,status:"failed",error:$error}]' >"$origin_results.tmp" && mv "$origin_results.tmp" "$origin_results"
+    else jq -cn --slurpfile prior "$origin_results" --slurpfile result "$tmp/origin-one.json" '$prior[0]+[$result[0]]' >"$origin_results.tmp" && mv "$origin_results.tmp" "$origin_results"; fi
+  done < <(jq -c '.[]' "$COMPARISON_RUNS_FILE")
+  cp "$origin_results" "$SOURCE_BUNDLE/comparison-origin-verification.json"
+  contract_hash="$(PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import comparison_contract_sha256
+print(comparison_contract_sha256(json.loads(pathlib.Path(sys.argv[1]).read_text())))
+PY
+)"
+  local registered_count
+  registered_count="$(jq 'length' "$COMPARISON_RUNS_FILE")"
+  registration_hash="$(sha256_file "$REGISTRATIONS_FILE")"
+  budget_hash="$(sha256_file "$REQUEST_BUDGET_LEDGER")"
+  jq --arg role "$COMPARISON_ROLE" --arg contract_sha256 "$contract_hash" --arg registrations_sha256 "$registration_hash" --arg request_budget_sha256 "$budget_hash" --argjson registered_runs "$(cat "$COMPARISON_RUNS_FILE")" --argjson origin_verification "$(cat "$origin_results")" --arg origin_status "$origin_status" '.comparison_collection={role:$role,contract_sha256:$contract_sha256,registrations_sha256:$registrations_sha256,request_budget_ledger_sha256:$request_budget_sha256,registered_runs:$registered_runs,origin_status:$origin_status,origin_verification:$origin_verification,parity_status:"pending_native_comparison"}' "$SOURCE_BUNDLE/manifest.json" >"$SOURCE_BUNDLE/manifest.json.tmp" && mv "$SOURCE_BUNDLE/manifest.json.tmp" "$SOURCE_BUNDLE/manifest.json"
+  sync "$SOURCE_BUNDLE/manifest.json" 2>/dev/null || sync 2>/dev/null || true
+  rm -rf "$tmp"
+  printf '{"status":"collected","role":"%s","registered_families":%s,"origin_status":"%s","parity_status":"pending_native_comparison","request_budget_ledger_sha256":"%s"}\n' "$COMPARISON_ROLE" "$registered_count" "$origin_status" "$budget_hash"
 }
 
 collect_family() {
@@ -1101,6 +1262,15 @@ w=c.get('window') or {}
 if not w.get('start_utc') or not w.get('end_utc') or (c.get('candidate_identity') or {}).get('status'):
     raise SystemExit(1)
 PY
+  if jq -e 'has("comparison_schedule")' "$CONTRACT_FILE" >/dev/null; then
+    [[ -n "$REQUEST_BUDGET_LEDGER" ]] || fail "scheduled comparison registration requires --request-budget-ledger"
+    python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" <<'PY' || fail "request_budget_ledger_contract_or_readback_invalid"
+import json,pathlib,sys
+from ci_metrics_security import initialize_comparison_request_budget
+initialize_comparison_request_budget(json.loads(pathlib.Path(sys.argv[1]).read_text()),pathlib.Path(sys.argv[2]))
+PY
+    API_BUDGET_OWNER="run:${RUN_ID}"
+  fi
   local tmp run_file output_tmp
   REGISTER_LOCK="${REGISTRATIONS_FILE}.lock"
   mkdir -p "$(dirname "$REGISTRATIONS_FILE")"
@@ -1352,7 +1522,7 @@ replay_snapshot() {
     source_expected="$(jq -r --arg name "$source_name" '.source_file_sha256[$name]' "$manifest")"
     [[ -s "$source_path" && "$(sha256_file "$source_path")" == "$source_expected" ]] || fail "snapshot_source_file_hash_mismatch:${source_name}"
   done < <(jq -r '.source_file_sha256|keys[]' "$manifest")
-  result="$(jq -c '{schema_version,repository,workflow,cutoff_utc,captured_at_utc,window_start_utc,status,stop_reason,request_count,source_sha,workflow_sha256,workflow_blob_sha,required_contexts,required_rule_provenance,active_rulesets,source_file_sha256,source_sha256,measured_pr_workflow_sha256,replay_tool_sha256,measured_pr_identity,comparison_families:(.comparison_families // null),source_runs:([.populations|to_entries[]|select(.key=="pull_request" or .key=="push_main" or .key=="schedule") as $pop | $pop.value.runs[]? | {event:$pop.key,id,html_url,head_sha,run_attempt,conclusion,created_at,updated_at,detail_status,attempt_jobs,pull_requests,path,workload,changes_docs_only} ]|sort_by(.event,.created_at,.id)),populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
+  result="$(jq -c '(.comparison_collection != null) as $comparison | {schema_version,repository,workflow,cutoff_utc,captured_at_utc,window_start_utc,status,stop_reason,request_count,source_sha,workflow_sha256,workflow_blob_sha,required_contexts,required_rule_provenance,active_rulesets,source_file_sha256,source_sha256,measured_pr_workflow_sha256,replay_tool_sha256,measured_pr_identity,comparison_families:(.comparison_families // null),source_runs:([.populations|to_entries[]|select(.key=="pull_request" or .key=="push_main" or .key=="schedule") as $pop | $pop.value.runs[]? | {event:$pop.key,id,html_url,head_sha,run_attempt,conclusion,created_at,updated_at,detail_status,workload,changes_docs_only} + (if $comparison then {attempt_jobs,pull_requests,path} else {} end) ]|sort_by(.event,.created_at,.id)),populations:{pull_request:{api_total_count:.populations.pull_request.api_total_count,population_capped:.populations.pull_request.population_capped,population_exhausted:.populations.pull_request.population_exhausted,run_count:(.populations.pull_request.runs|length),outcomes:(.populations.pull_request.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},push_main:{api_total_count:.populations.push_main.api_total_count,population_capped:.populations.push_main.population_capped,population_exhausted:.populations.push_main.population_exhausted,run_count:(.populations.push_main.runs|length),outcomes:(.populations.push_main.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},schedule:{api_total_count:.populations.schedule.api_total_count,population_capped:.populations.schedule.population_capped,population_exhausted:.populations.schedule.population_exhausted,run_count:(.populations.schedule.runs|length),outcomes:(.populations.schedule.runs|group_by(.conclusion)|map({key:(.[0].conclusion // "unknown"),value:length})|from_entries)},manual_records:(.populations.manual.records|length),release_push_records:(.populations.release_push.records|length)}}' "$manifest")"
   local metrics_file
   metrics_file="$(mktemp "${TMPDIR:-/tmp}/ci-run-metrics-replay.XXXXXX")"
   python3 - "$bundle" "$ROOT" >"$metrics_file" <<'PY'
@@ -1463,12 +1633,14 @@ def source_bound_full_pr(run, runid):
             if not aid.isdigit() or base.resolve().parent != (family/'artifacts').resolve() or not base.is_dir():
                 diagnostics.append('artifact_extraction_path_invalid'); continue
             for member in accepted.get('members',[]):
-                name=pathlib.PurePosixPath(member.get('member','')).name
-                if not name or name in ('.','..'): continue
-                path=base/name
+                member_path=pathlib.PurePosixPath(member.get('member',''))
+                if not member_path.parts or member_path.is_absolute() or any(part in ('','.','..') for part in member_path.parts): continue
+                path=base/member_path
+                if not path.is_file(): path=base/member_path.name
+                if base.resolve() not in path.resolve().parents: diagnostics.append('artifact_member_path_invalid'); continue
                 if not path.is_file(): continue
                 files.append((art,path))
-                if name=='ci-measurement-metadata.json':
+                if member_path.name=='ci-measurement-metadata.json':
                     try: meta=json.loads(path.read_text())
                     except Exception: continue
                     try: att=str(int(meta.get('run_attempt',-1)))
@@ -1837,6 +2009,11 @@ raise SystemExit(0 if not issues else 1)
 PY
   exit $?
 fi
+if [[ "$COLLECT_COMPARISON" == true ]]; then
+  [[ "$COLLECT" != true && "$EVALUATE_COMPARISON" != true && "$REGISTER_COMPARISON_RUN" != true ]] || fail "--collect-comparison cannot be combined with other collector modes"
+  collect_comparison
+  exit 0
+fi
 if [[ "$EVALUATE_COMPARISON" == true ]]; then
   [[ -s "$CONTRACT_FILE" && -d "$BEFORE_BUNDLE" && -d "$AFTER_BUNDLE" ]] || fail "--evaluate-comparison requires --contract and extracted --before-bundle/--after-bundle directories"
   FORMAT=json
@@ -1844,14 +2021,16 @@ if [[ "$EVALUATE_COMPARISON" == true ]]; then
   after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
   replay_snapshot "$BEFORE_BUNDLE" >"$before_json"
   replay_snapshot "$AFTER_BUNDLE" >"$after_json"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" "$REGISTRATIONS_FILE" "$BASELINE_SOURCE_BUNDLE" "$BEFORE_BUNDLE" "$AFTER_BUNDLE" <<'PY'
-import datetime, hashlib, json, math, pathlib, sys
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$before_json" "$after_json" "$REGISTRATIONS_FILE" "$BASELINE_SOURCE_BUNDLE" "$BEFORE_BUNDLE" "$AFTER_BUNDLE" "$ROOT" <<'PY'
+import datetime, hashlib, json, math, pathlib, subprocess, sys
 from ci_metrics_security import derive_comparison_family_costs, validate_comparison_reservations
 contract, before, after = map(lambda p: json.loads(pathlib.Path(p).read_text()), sys.argv[1:4])
 registrations = json.loads(pathlib.Path(sys.argv[4]).read_text()) if sys.argv[4] else None
 baseline_bundle_path=pathlib.Path(sys.argv[5]) if sys.argv[5] else None
 bundle_paths={'before':pathlib.Path(sys.argv[6]),'after':pathlib.Path(sys.argv[7])}
+project_root=pathlib.Path(sys.argv[8]).resolve()
 issues=[]; families=[]; paired=[]
+native_parity={'status':'insufficient_data','comparisons':[]}
 def issue(code, detail=None):
     row={'reason':code}
     if detail is not None: row['detail']=detail
@@ -1886,6 +2065,73 @@ except Exception: issue('comparison_window_not_predeclared')
 source_runs=(before.get('source_runs') or [])+(after.get('source_runs') or [])
 reservation_issues=validate_comparison_reservations(contract,(before.get('comparison_families') or [])+(after.get('comparison_families') or []),source_runs,registrations)
 for code in reservation_issues: issue(code)
+if registrations:
+    registration_by_run={str(row.get('run_id')):row for row in registrations.get('records',[])}
+    origin_results=[]
+    for label, data in [('before',before),('after',after)]:
+        for row in data.get('comparison_families') or []:
+            registration=registration_by_run.get(str(row.get('run_id')))
+            if registration is None:
+                issue(label+'_family_registration_missing',row.get('run_id')); continue
+            result=subprocess.run([sys.executable,str(project_root/'scripts/ci/ci-hosted-gate-verify.py'),
+                '--mode','comparison-family','--evidence',str(bundle_paths[label]),
+                '--registration-json',json.dumps(registration,separators=(',',':')),
+                '--required-contexts',json.dumps(contract.get('required_contexts') or [])],capture_output=True,text=True)
+            if result.returncode:
+                issue(label+'_independent_origin_verification_failed',{'run_id':row.get('run_id'),'error':result.stderr.strip()[:500]})
+            else: origin_results.append(json.loads(result.stdout))
+    native_parity['origin_status']='passed' if len(origin_results)==40 else 'insufficient_data'
+else:
+    issue('comparison_registrations_missing_for_origin_verification')
+before_rows={r.get('pair_id'):r for r in before.get('comparison_families',[]) if r.get('family_role')=='before'}
+after_rows={r.get('pair_id'):r for r in after.get('comparison_families',[]) if r.get('family_role')=='after'}
+coverage=contract.get('native_coverage_comparison') or {}
+mapping_relative=coverage.get('mapping_path'); mapping_digest=coverage.get('mapping_sha256')
+try:
+    mapping_path=(project_root/mapping_relative).resolve()
+    if project_root not in mapping_path.parents or not mapping_path.is_file() or hashlib.sha256(mapping_path.read_bytes()).hexdigest()!=mapping_digest:
+        raise ValueError('mapping_path_digest_or_scope_invalid')
+    mapping=json.loads(mapping_path.read_text())
+    owners={'admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}
+    mapping_rows=mapping.get('rows',[])
+    expected_owner_counts={'admin_behavior':43,'admin_checkpoints':3,'design_gallery':42,'non_admin_smoke':16,'demo_showcase':4}
+    if mapping.get('schema_version')!='sigra.browser-coverage-map/v1' or len(mapping_rows)!=108 or {row.get('owner') for row in mapping_rows}!=owners or {owner:sum(row.get('owner')==owner for row in mapping_rows) for owner in owners}!=expected_owner_counts:
+        raise ValueError('mapping_schema_or_owner_coverage_invalid')
+    native_results=[]
+    with __import__('tempfile').TemporaryDirectory(prefix='sigra-native-parity-') as native_tmp:
+        native_tmp=pathlib.Path(native_tmp)
+        for pair_id in sorted(set(before_rows)&set(after_rows)):
+            b,a=before_rows[pair_id],after_rows[pair_id]
+            for owner in sorted(owners):
+                owner_rows=[row for row in mapping_rows if row.get('owner')==owner]
+                if not owner_rows: raise ValueError(f'mapping_owner_rows_missing:{owner}')
+                owner_map=native_tmp/f'{pair_id}-{owner}.json'
+                owner_map.write_text(json.dumps({'schema_version':'sigra.browser-coverage-map/v1','rows':owner_rows},separators=(',',':')))
+                native_dirs=[]
+                for label,family_row in [('before',b),('after',a)]:
+                    family_dir=bundle_paths[label]/'raw'/'families'/str(family_row.get('run_id'))/'artifacts'
+                    descriptors=list(family_dir.rglob('coverage-source.json')) if family_dir.is_dir() else []
+                    matches=[]
+                    for descriptor in descriptors:
+                        try: doc=json.loads(descriptor.read_text())
+                        except (OSError,ValueError): continue
+                        if doc.get('owner')==owner and doc.get('seam')==owner: matches.append((descriptor.parent,doc))
+                    if len(matches)!=1: raise ValueError(f'{label}_native_descriptor_count:{pair_id}:{owner}:{len(matches)}')
+                    native_dir,descriptor=matches[0]
+                    raw_run=json.loads((bundle_paths[label]/'raw'/'families'/str(family_row.get('run_id'))/'run.json').read_text())
+                    if descriptor.get('source_sha')!=raw_run.get('head_sha'):
+                        raise ValueError(f'{label}_native_descriptor_source_mismatch:{pair_id}:{owner}')
+                    native_dirs.append(native_dir)
+                result=subprocess.run(['node',str(project_root/'scripts/ci/ci-browser-records.mjs'),'--compare-coverage',
+                    '--before-directory',str(native_dirs[0]),'--after-directory',str(native_dirs[1]),'--mapping',str(owner_map)],capture_output=True,text=True)
+                if result.returncode: raise ValueError(f'coverage_comparator:{pair_id}:{owner}:{result.stderr.strip()[:300]}')
+                native_results.append({'pair_id':pair_id,'owner':owner,'result':json.loads(result.stdout)})
+    if len(native_results)!=100: raise ValueError(f'native_comparison_count:{len(native_results)}')
+    native_parity['comparisons']=native_results
+    native_parity['status']='passed'
+except Exception as error:
+    native_parity['diagnostic']=str(error)
+    issue('native_coverage_parity_unverified',str(error))
 for label, data in [('before',before),('after',after)]:
     if data.get('status') != 'complete': issue(label+'_snapshot_incomplete')
     rows=data.get('comparison_families')
@@ -1947,11 +2193,12 @@ else:
     actual_alloc={}
     for _,b,_ in paired: actual_alloc[str(b.get('cache_stratum'))]=actual_alloc.get(str(b.get('cache_stratum')),0)+1
     if actual_alloc!=expected_alloc: issue('cache_stratum_allocation_mismatch',{'expected':expected_alloc,'actual':actual_alloc})
-metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'baseline_runner_known_subtotal_seconds':runner_before_known,'candidate_runner_known_subtotal_seconds':runner_after_known,'family_attempt_costs':[{'pair_id':b.get('pair_id'),'family_role':b.get('family_role'),'run_id':b.get('run_id'),'conclusion':b.get('conclusion'),'runner_seconds':b.get('runner_seconds'),'known_subtotal_seconds':b.get('runner_known_subtotal_seconds',b.get('runner_seconds')),'unknown_jobs':b.get('runner_unknown_jobs',[]),'attempts':b.get('raw_attempt_costs',[])} for _,b,a in paired]+[{'pair_id':a.get('pair_id'),'family_role':a.get('family_role'),'run_id':a.get('run_id'),'conclusion':a.get('conclusion'),'runner_seconds':a.get('runner_seconds'),'known_subtotal_seconds':a.get('runner_known_subtotal_seconds',a.get('runner_seconds')),'unknown_jobs':a.get('runner_unknown_jobs',[]),'attempts':a.get('raw_attempt_costs',[])} for _,b,a in paired],'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead')}
+metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'baseline_runner_known_subtotal_seconds':runner_before_known,'candidate_runner_known_subtotal_seconds':runner_after_known,'family_attempt_costs':[{'pair_id':b.get('pair_id'),'family_role':b.get('family_role'),'run_id':b.get('run_id'),'conclusion':b.get('conclusion'),'runner_seconds':b.get('runner_seconds'),'known_subtotal_seconds':b.get('runner_known_subtotal_seconds',b.get('runner_seconds')),'unknown_jobs':b.get('runner_unknown_jobs',[]),'attempts':b.get('raw_attempt_costs',[])} for _,b,a in paired]+[{'pair_id':a.get('pair_id'),'family_role':a.get('family_role'),'run_id':a.get('run_id'),'conclusion':a.get('conclusion'),'runner_seconds':a.get('runner_seconds'),'known_subtotal_seconds':a.get('runner_known_subtotal_seconds',a.get('runner_seconds')),'unknown_jobs':a.get('runner_unknown_jobs',[]),'attempts':a.get('raw_attempt_costs',[])} for _,b,a in paired],'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead'),'native_parity':native_parity}
+performance_verdict='pass' if len(wait_before)==20 and median(wait_after)<=.8*median(wait_before) and p95(wait_after)<=p95(wait_before) and runner_after is not None and runner_before is not None and runner_after<=runner_before else ('miss' if len(wait_before)==20 else 'insufficient_data')
 if not issues and len(wait_before)==20:
-    verdict='pass' if median(wait_after)<=.8*median(wait_before) and p95(wait_after)<=p95(wait_before) and runner_after<=runner_before else 'miss'
+    verdict='pass' if performance_verdict=='pass' and native_parity.get('status')=='passed' and native_parity.get('origin_status')=='passed' else 'miss' if performance_verdict=='miss' else 'insufficient_data'
 else: verdict='insufficient_data'
-print(json.dumps({'status':verdict,'metrics':metrics,'diagnostics':issues},sort_keys=True))
+print(json.dumps({'status':verdict,'performance_verdict':performance_verdict,'metrics':metrics,'diagnostics':issues},sort_keys=True))
 PY
   rc=$?
   rm -f "$before_json" "$after_json"

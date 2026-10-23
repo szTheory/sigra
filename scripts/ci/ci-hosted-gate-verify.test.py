@@ -7,6 +7,7 @@ import io
 import json
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -3211,6 +3212,75 @@ class PRBasePreflightTests(unittest.TestCase):
         pr_family = source[source.index("def verify_pr_family"):source.index("def verify_docs_workflow_relation")]
         self.assertIn('    check_pr(created, "created PR")\n    verify_base_preflight(evidence, family)\n', pr_family)
         self.assertIn("fetched_main_sha", source[source.index("def verify_base_preflight"):source.index("def verify_pr_family")])
+
+
+class ComparisonFamilyOriginTests(unittest.TestCase):
+    CONTEXTS = ["Library tests", "Example unit smoke (ExUnit + ConnTest)",
+        "Install smoke (fresh phx.new + sigra.install)", "Example HTTP smoke (boot + curl critical routes)",
+        "Example Playwright smoke (full lifecycle)"]
+
+    def fixture(self, root):
+        import hashlib
+        import zipfile
+        run_id, sha, base = 98765, "a" * 40, "b" * 40
+        family = root / "raw" / "families" / str(run_id)
+        (family / "artifacts").mkdir(parents=True)
+        run = {"id": run_id, "event": "pull_request", "path": ".github/workflows/ci.yml", "head_sha": sha,
+            "run_attempt": 2, "repository": {"id": 42}, "pull_requests": [{"number": 331,
+            "head": {"sha": sha, "repo": {"id": 42}}, "base": {"sha": base, "repo": {"id": 42}}}]}
+        run_bytes = json.dumps(run, sort_keys=True).encode()
+        (family / "run.json").write_bytes(run_bytes)
+        refs = {}
+        for attempt in (1, 2):
+            jobs = [{"id": run_id * 10 + index, "run_id": run_id, "run_attempt": attempt,
+                "head_sha": sha, "name": context, "conclusion": "success"} for index, context in enumerate(self.CONTEXTS, 1)]
+            data = json.dumps({"jobs": jobs}, sort_keys=True).encode()
+            path = family / f"jobs-attempt-{attempt}.json"
+            path.write_bytes(data)
+            refs[str(attempt)] = {"path": f"raw/families/{run_id}/{path.name}", "sha256": hashlib.sha256(data).hexdigest()}
+        checks = []
+        for index, context in enumerate(self.CONTEXTS, 1):
+            checks.append({"name": context, "external_id": str(run_id * 10 + index), "head_sha": sha,
+                "status": "completed", "conclusion": "success", "app": {"slug": "github-actions"}})
+        checks_bytes = json.dumps({"check_runs": checks}, sort_keys=True).encode()
+        (family / "check-runs.json").write_bytes(checks_bytes)
+        archive_path = family / "artifacts" / "777.zip"
+        with zipfile.ZipFile(archive_path, "w") as archive:
+            archive.writestr("report.json", "{}")
+        archive_digest = hashlib.sha256(archive_path.read_bytes()).hexdigest()
+        artifact = {"id": 777, "expired": False, "digest": "sha256:" + archive_digest,
+            "workflow_run": {"id": run_id, "head_sha": sha}}
+        evidence = [{"artifact": artifact, "result": {"status": "accepted", "archive_sha256": archive_digest}}]
+        evidence_bytes = json.dumps(evidence, sort_keys=True).encode()
+        (family / "artifact-evidence.json").write_bytes(evidence_bytes)
+        family_manifest = {"schema_version": "sigra.ci-run-metrics/family-detail-v1", "run_id": run_id,
+            "detail_status": "complete", "source_run_sha256": hashlib.sha256(run_bytes).hexdigest(),
+            "attempt_jobs": refs, "check_runs_sha256": hashlib.sha256(checks_bytes).hexdigest(),
+            "artifact_evidence": {"path": f"raw/families/{run_id}/artifact-evidence.json",
+                "sha256": hashlib.sha256(evidence_bytes).hexdigest()}}
+        (family / "manifest.json").write_text(json.dumps(family_manifest))
+        registration = {"run_id": run_id, "family_role": "before", "event": "pull_request",
+            "workflow_path": ".github/workflows/ci.yml", "head_sha": sha,
+            "pull_request_head_sha": sha, "pull_request_base_sha": base, "pull_request_number": 331}
+        registration_path = root / "registration.json"
+        registration_path.write_text(json.dumps(registration))
+        return root, registration_path
+
+    def test_real_cli_accepts_raw_registered_origin_and_rejects_mutated_inputs(self):
+        with tempfile.TemporaryDirectory(prefix="comparison-origin-") as directory:
+            root, registration = self.fixture(Path(directory))
+            command = [sys.executable, str(VERIFY), "--mode", "comparison-family", "--evidence", str(root),
+                "--registration", str(registration), "--required-contexts", json.dumps(self.CONTEXTS)]
+            accepted = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(accepted.returncode, 0, accepted.stderr)
+            self.assertEqual(json.loads(accepted.stdout)["status"], "origin_verified")
+            family = root / "raw" / "families" / "98765"
+            run = json.loads((family / "run.json").read_text())
+            run["head_sha"] = "c" * 40
+            (family / "run.json").write_text(json.dumps(run))
+            rejected = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("digest mismatch", rejected.stderr)
 
 
 if __name__ == "__main__":

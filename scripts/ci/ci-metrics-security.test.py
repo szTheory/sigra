@@ -13,6 +13,11 @@ import ci_metrics_security as security
 from ci_metrics_security import (
     CoreRequestBudget,
     bind_required_checks_by_attempt,
+    comparison_request_budget_reserve,
+    comparison_request_budget_record_response,
+    initialize_comparison_request_budget,
+    comparison_registered_runs,
+    validate_comparison_registration_ledger,
     deduplicate_physical_jobs,
     safe_markdown_url,
     register_comparison_run,
@@ -32,6 +37,66 @@ from ci_metrics_security import (
 
 
 class SecurityContractsTest(unittest.TestCase):
+    def test_collection_selects_only_authenticated_registered_role_ids(self):
+        schedule=[]; reservations=[]
+        for pair in range(1,21):
+            for role in (("before","after") if pair%2 else ("after","before")):
+                pair_id=f"pair-{pair:02d}"; slot={"pair_id":pair_id,"family_role":role}
+                schedule.append(slot); reservations.append({"reservation_id":f"r-{pair_id}-{role}",**slot})
+        contract={"status":"ready","pair_count":20,"primary_family_count":40,"comparison_schedule":schedule,
+                  "family_reservations":reservations,"maximum_pair_start_gap_seconds":1800,
+                  "preparation_compatibility":{"baseline_cache_stratum":"warm","candidate_cache_stratum":"warm","runner_image_policy":"same"},
+                  "candidate_identity":{"application_sha":"b"*40,"workflow_revision":"b"*40,"workload_revision_sha256":"c"*64,"workflow_file_sha256":"d"*64},
+                  "baseline_application_sha":"a"*40,"window":{"start_utc":"2026-10-12T00:00:00Z","end_utc":"2026-10-14T00:00:00Z"}}
+        raw_run={"id":101,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,
+                 "created_at":"2026-10-13T00:00:00Z","status":"queued","conclusion":None,
+                 "pull_requests":[{"number":1,"head":{"sha":"a"*40},"base":{"sha":"e"*40}}]}
+        raw=json.dumps(raw_run,sort_keys=True,separators=(",",":")).encode(); reservation=reservations[0]
+        ledger=register_comparison_run(contract,reservation["reservation_id"],raw_run,api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw)
+        self.assertEqual([],validate_comparison_registration_ledger(contract,ledger))
+        self.assertEqual([101],[row["run_id"] for row in comparison_registered_runs(contract,ledger,"before")])
+        with self.assertRaisesRegex(ValueError,"role_has_no_registered_runs"):
+            comparison_registered_runs(contract,ledger,"after")
+
+    def test_comparison_request_budget_is_shared_finite_and_hash_chained(self):
+        contract={"request_budget_ledger_id":"a"*64,"status":"ready"}
+        with tempfile.TemporaryDirectory() as temp:
+            path=pathlib.Path(temp)/"budget.json"
+            initialize_comparison_request_budget(contract,path,now=1000)
+            for index in range(600):
+                comparison_request_budget_reserve(contract,path,f"/request/{index}",owner="run-1",now=1000)
+            with self.assertRaisesRegex(ValueError,"request_limit_exhausted"):
+                comparison_request_budget_reserve(contract,path,"/request/601",owner="run-1",now=1000)
+            ledger=json.loads(path.read_text())
+            self.assertEqual(600,sum(row.get("kind")=="request" for row in ledger["records"]))
+            ledger["records"][0]["endpoint"]="/edited"
+            path.write_text(json.dumps(ledger))
+            with self.assertRaisesRegex(ValueError,"chain_invalid"):
+                comparison_request_budget_reserve(contract,path,"/request/602",owner="run-1",now=1000)
+
+    def test_comparison_request_budget_stops_at_low_core_time_and_rate_limit(self):
+        contract={"request_budget_ledger_id":"b"*64,"status":"ready"}
+        with tempfile.TemporaryDirectory() as temp:
+            path=pathlib.Path(temp)/"core.json"
+            initialize_comparison_request_budget(contract,path,now=1000)
+            comparison_request_budget_reserve(contract,path,"/first",owner="run-1",now=1000)
+            comparison_request_budget_record_response(contract,path,core_remaining=251)
+            self.assertEqual(250,comparison_request_budget_reserve(contract,path,"/last",owner="run-1",now=1001)["core_remaining"])
+            with self.assertRaisesRegex(ValueError,"core_limit_stop"):
+                comparison_request_budget_reserve(contract,path,"/blocked",owner="run-1",now=1002)
+        with tempfile.TemporaryDirectory() as temp:
+            path=pathlib.Path(temp)/"rate.json"
+            initialize_comparison_request_budget(contract,path,now=1000)
+            comparison_request_budget_reserve(contract,path,"/limited",owner="run-1",now=1000)
+            comparison_request_budget_record_response(contract,path,reset_at=2000,stop_reason="http_rate_limit")
+            with self.assertRaisesRegex(ValueError,"http_rate_limit"):
+                comparison_request_budget_reserve(contract,path,"/after-limit",owner="run-1",now=1001)
+        with tempfile.TemporaryDirectory() as temp:
+            path=pathlib.Path(temp)/"time.json"
+            initialize_comparison_request_budget(contract,path,now=1000)
+            with self.assertRaisesRegex(ValueError,"time_limit_exhausted"):
+                comparison_request_budget_reserve(contract,path,"/late",owner="run-1",now=4600)
+
     def test_attempt_job_costs_keep_failed_work_and_report_unknowns(self):
         derive=getattr(security,"derive_attempt_job_costs",None)
         self.assertTrue(callable(derive),"raw attempt job cost derivation is required")

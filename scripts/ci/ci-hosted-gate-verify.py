@@ -1831,6 +1831,133 @@ def verify_canary_matrix(evidence):
     return result
 
 
+@fail_closed
+def verify_comparison_family_origin(family_directory, registration, required_contexts):
+    """Independently bind a Phase254 raw family to its early registered PR origin."""
+    root = Path(family_directory).resolve()
+    require(root.is_dir() and not root.is_symlink(), "comparison snapshot directory is missing or symlinked")
+
+    def read(relative, expected=None, parse_json=True):
+        path = Path(relative)
+        require(not path.is_absolute() and ".." not in path.parts and "\\" not in str(relative),
+                "comparison family path is unsafe")
+        cursor = root
+        for part in path.parts:
+            cursor = cursor / part
+            require(not cursor.is_symlink(), "comparison family path contains a symlink")
+        target = (root / path).resolve()
+        require(root == target or root in target.parents, "comparison family path escapes bundle")
+        require(target.is_file() and not target.is_symlink(), f"comparison family file is missing: {relative}")
+        raw = target.read_bytes()
+        if expected is not None:
+            require(sha256(raw) == expected, f"comparison family digest mismatch: {relative}")
+        if not parse_json:
+            return None, raw
+        try:
+            return json.loads(raw.decode("utf-8", "strict")), raw
+        except (UnicodeError, json.JSONDecodeError) as error:
+            raise VerificationError(f"comparison family JSON is invalid: {relative}") from error
+
+    require(isinstance(registration, dict) and registration.get("family_role") in ("before", "after"),
+            "comparison registration role is invalid")
+    require(isinstance(required_contexts, list) and len(required_contexts) == 5 and len(set(required_contexts)) == 5,
+            "comparison required contexts must be the exact five unique checks")
+    run_id = str(registration.get("run_id"))
+    require(run_id.isdigit(), "comparison registration run ID is invalid")
+    family_prefix=f"raw/families/{run_id}/"
+    manifest, _ = read(family_prefix + "manifest.json")
+    require(manifest.get("schema_version") == "sigra.ci-run-metrics/family-detail-v1"
+            and manifest.get("detail_status") == "complete", "comparison family detail is incomplete")
+    require(run_id.isdigit() and manifest.get("run_id") == int(run_id), "registered and collected run IDs differ")
+    run, run_raw = read(family_prefix + "run.json", manifest.get("source_run_sha256"))
+    require(str(run.get("id")) == run_id and run.get("event") == registration.get("event")
+            and run.get("path") == registration.get("workflow_path")
+            and run.get("head_sha") == registration.get("head_sha"),
+            "collected run origin differs from early registration")
+    pull_requests = run.get("pull_requests")
+    require(isinstance(pull_requests, list) and len(pull_requests) == 1, "comparison run must identify exactly one pull request")
+    pr = pull_requests[0]
+    require(pr.get("number") == registration.get("pull_request_number")
+            and (pr.get("head") or {}).get("sha") == registration.get("pull_request_head_sha")
+            and (pr.get("base") or {}).get("sha") == registration.get("pull_request_base_sha"),
+            "pull request head/base origin differs from early registration")
+    require(pr.get("head", {}).get("repo", {}).get("id") == run.get("repository", {}).get("id")
+            and pr.get("base", {}).get("repo", {}).get("id") == run.get("repository", {}).get("id"),
+            "pull request repositories differ from measured run repository")
+    attempt_refs = manifest.get("attempt_jobs")
+    require(isinstance(attempt_refs, dict) and attempt_refs, "all raw attempt job receipts are required")
+    expected_attempts=set(map(str,range(1,int(run.get("run_attempt") or 1)+1)))
+    require(set(attempt_refs)==expected_attempts, "one or more original/retry attempt job receipts are missing")
+    jobs_by_attempt = {}
+    for attempt, ref in attempt_refs.items():
+        require(attempt.isdigit() and isinstance(ref, dict), "attempt job reference is malformed")
+        document, _ = read(ref.get("path"), ref.get("sha256"))
+        jobs = document.get("jobs") if isinstance(document, dict) else None
+        require(isinstance(jobs, list), f"raw attempt jobs missing for attempt {attempt}")
+        seen = set()
+        for job in jobs:
+            jid = job.get("id")
+            require(type(jid) is int and jid not in seen, "duplicate or invalid job ID in one run attempt")
+            seen.add(jid)
+            require(str(job.get("run_id")) == run_id and str(job.get("run_attempt")) == attempt
+                    and job.get("head_sha") == registration.get("head_sha"),
+                    "raw attempt job run/attempt/head origin mismatch")
+        jobs_by_attempt[attempt] = jobs
+    checks, _ = read(family_prefix + "check-runs.json", manifest.get("check_runs_sha256"))
+    check_rows = checks.get("check_runs") if isinstance(checks, dict) else None
+    require(isinstance(check_rows, list), "raw check-run response is malformed")
+    latest = str(run.get("run_attempt") or max(map(int, jobs_by_attempt)))
+    latest_jobs = jobs_by_attempt.get(latest)
+    require(isinstance(latest_jobs, list), "latest attempt job receipt is missing")
+    jobs_by_id = {str(job["id"]): job for job in latest_jobs}
+    bound = {}
+    for check in check_rows:
+        if check.get("name") not in required_contexts:
+            continue
+        job = jobs_by_id.get(str(check.get("external_id")))
+        require(job is not None and check.get("head_sha") == registration.get("head_sha")
+                and (check.get("app") or {}).get("slug") == "github-actions"
+                and str(job.get("name")) == check.get("name"),
+                f"required check is not bound to an actual job: {check.get('name')}")
+        require(check.get("status") == "completed" and check.get("conclusion") == "success",
+                f"required check did not succeed: {check.get('name')}")
+        require(check.get("name") not in bound, f"duplicate required check: {check.get('name')}")
+        bound[check["name"]] = check
+    require(set(bound) == set(required_contexts), "raw checks do not contain the exact five successful required contexts")
+
+    evidence_ref = manifest.get("artifact_evidence")
+    require(isinstance(evidence_ref, dict), "raw artifact evidence receipt is missing")
+    evidence, _ = read(evidence_ref.get("path"), evidence_ref.get("sha256"))
+    require(isinstance(evidence, list) and evidence, "raw artifact evidence is empty")
+    artifacts = []
+    for entry in evidence:
+        artifact, result = entry.get("artifact") or {}, entry.get("result") or {}
+        require(str((artifact.get("workflow_run") or {}).get("id")) == run_id
+                and (artifact.get("workflow_run") or {}).get("head_sha") == registration.get("head_sha"),
+                "artifact API origin differs from registered run")
+        if result.get("status") == "accepted":
+            artifact_id = str(artifact.get("id"))
+            require(artifact_id.isdigit() and artifact.get("expired") is False
+                    and isinstance(artifact.get("digest"),str) and artifact["digest"].startswith("sha256:"),
+                    "artifact API identity, expiry, or digest is invalid")
+            archive, archive_bytes = read(family_prefix + f"artifacts/{artifact_id}.zip", parse_json=False)
+            del archive
+            archive_digest = sha256(archive_bytes)
+            require(result.get("archive_sha256") == archive_digest
+                    and (artifact.get("digest") or "").removeprefix("sha256:") == archive_digest,
+                    "artifact archive differs from API digest or collector receipt")
+            artifacts.append(artifact_id)
+    require(artifacts, "no digest-verified artifact was retained for the comparison family")
+    merge_sha=run.get("merge_commit_sha")
+    require(merge_sha is None or (isinstance(merge_sha,str) and SHA40.fullmatch(merge_sha)),
+            "workflow run merge SHA is malformed")
+    return {"status": "origin_verified", "run_id": run_id, "run_attempt": latest,
+            "workflow_run_sha": run.get("head_sha"), "application_pr_head_sha": pr["head"]["sha"],
+            "pr_base_sha": pr["base"]["sha"], "merge_sha": merge_sha, "workflow_path": run.get("path"),
+            "required_contexts": sorted(bound), "verified_artifact_ids": artifacts,
+            "raw_run_sha256": sha256(run_raw)}
+
+
 LITERAL_LIMITATIONS = (
     "historical failed native and hosted outcomes remain failures and are never rewritten as successful execution",
     "the chronology of the historical failures is lost and is not reconstructed",
@@ -2041,9 +2168,12 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evidence", required=True, help="captured GitHub API and artifact receipt JSON")
-    parser.add_argument("--mode", choices=("legacy", "transport", "preflight", "canary", "pr", "completion"), default="legacy")
+    parser.add_argument("--mode", choices=("legacy", "transport", "preflight", "canary", "pr", "completion", "comparison-family"), default="legacy")
     parser.add_argument("--family", choices=("normal", "docs-only", "both"), default="normal")
     parser.add_argument("--docs-evidence", help="docs-only PR evidence when --mode pr --family both")
+    parser.add_argument("--registration", help="single early comparison registration JSON for --mode comparison-family")
+    parser.add_argument("--registration-json", help="inline single early comparison registration JSON for --mode comparison-family")
+    parser.add_argument("--required-contexts", help="JSON array of the five exact required context names")
     strictness = parser.add_mutually_exclusive_group()
     strictness.add_argument("--require-accepted", action="store_true")
     strictness.add_argument("--require-dispositioned", action="store_true")
@@ -2067,6 +2197,12 @@ def main():
     if args.mode == "completion":
         return verify_completion(read_json_file(args.evidence), require_accepted=args.require_accepted,
                                  require_dispositioned=args.require_dispositioned)
+    if args.mode == "comparison-family":
+        require(bool(args.registration) != bool(args.registration_json) and args.required_contexts,
+                "comparison-family mode requires exactly one registration input and --required-contexts")
+        registration = read_json_file(args.registration) if args.registration else json.loads(args.registration_json)
+        contexts = json.loads(args.required_contexts)
+        return verify_comparison_family_origin(args.evidence, registration, contexts)
     evidence = read_replan_evidence(args.evidence)
     result = replan_result(args, evidence)
     if hermetic_canary(evidence):
