@@ -1,0 +1,188 @@
+{
+  "action_approval": {
+    "commit": "7b6dc4dbdcff8a66231dac61b57803b8928d1c94",
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R12.json",
+    "section": "canary",
+    "section_sha256": "e506857812ea12e17e0ccd06e640a3ffd2582b6b90e3d3df6dba395a0456bd29",
+    "sha256": "32f3bbb7a59727cee3095fc87b285877eab4ea6131f8ccd6bb588289ac314299",
+    "window_wall_start_epoch": 1792437434
+  },
+  "allocation_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R12.json",
+  "allocation_sha256": "239361df06fd2ab46afa27312f45cc49661b69ff71b27bc98b5ffc23dc1c7839",
+  "candidate_ref": "refs/heads/gsd/253-replan-r12-candidate",
+  "candidate_sha": "6e4f87657254ed9d4a3c8b661d5e707751bc5214",
+  "candidate_tree_sha": "766812efa6e286bae069b06361d1c475cc016fde",
+  "candidate_workflow_blob": "072a1ea3793213309d89f0c46d75810c6b7df341",
+  "fixture_ref": "refs/heads/gsd/253-replan-r12-fixture",
+  "fixture_sha": "b37f05424b2b497b3c786fc604caa4dab4dbcdf0",
+  "fixture_tree_sha": "f28833d2482403e971548420c33d6d3a2f9f9b87",
+  "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+  "ledger_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R12.json",
+  "ledger_sha256": "d52a2340cd3f2866782371d6e7cad289b1372b6e895486cca6d1e2ae9f9dcb1d",
+  "manifest_sha256": "151765e54c4c24a8fa3f36dec6e6f58a8fd32dbd35a8ccbd9b3abce44c290ad1",
+  "origin": {
+    "allocation_mode": "live",
+    "host": "api.github.com",
+    "identities_from_ledger": true,
+    "kind": "actual-github",
+    "transactions": 17,
+    "window_id": "253-143-canary-window-1"
+  },
+  "production_publish_performed": true,
+  "publication_transactions": [
+    {
+      "sequence": 1,
+      "sha256": "1393b7b64e257712cc836e6937a9b664cd699bf1f04178c090b546ad5261c36e"
+    },
+    {
+      "sequence": 2,
+      "sha256": "797c7e96714f575f04f7597cdf3152f4d9613c6ebdbc43f6efcafe9847d241f5"
+    },
+    {
+      "sequence": 3,
+      "sha256": "b2a87876836a0136d2c5c73ceee7431caa6b0ae43b6bb31b2caa01f447ab30f5"
+    },
+    {
+      "sequence": 4,
+      "sha256": "3b29ba04f0f47a2a1de0548519ecbb5e7f461803a244c4143f13e1db85126654"
+    },
+    {
+      "sequence": 5,
+      "sha256": "01496375c39e6243e03794d4690100c37b2a050fd66b2e9ef629ab321fe2ed3b"
+    },
+    {
+      "sequence": 6,
+      "sha256": "ac3fe3cb30929914c725415d1becd77f373bf3ae13a00713cb05668c66abb9f5"
+    },
+    {
+      "sequence": 7,
+      "sha256": "3b7d62b2f076d7d117103dbce9b482e16ae8d7cb15bb0d1a2a079c408c43af9b"
+    },
+    {
+      "sequence": 8,
+      "sha256": "8b4c0b937b58b33e2dc062c2aff179fdd415de0d6b65be2617fef997bc714069"
+    },
+    {
+      "sequence": 9,
+      "sha256": "9eaacb7e13d2fcdbcd00e0e6d3e458ba36eedeb895f083511d9e3156846ffc89"
+    },
+    {
+      "sequence": 10,
+      "sha256": "69d4eeb18f0a441872415a8ae2067a8cdb8f28085e982add2ac7055f6cd9411e"
+    },
+    {
+      "sequence": 11,
+      "sha256": "ee00af71606b5293ae66364490661db960ea407f5461bb0ac5b07b7d937347e1"
+    },
+    {
+      "sequence": 12,
+      "sha256": "27446a573b41bd9ed4adb98efb501e0600682165c324e5d8a158fe3b499f3c99"
+    },
+    {
+      "sequence": 13,
+      "sha256": "8b6e60304ee24a8648372de8c1aa30ecfe2fcf6a10a374d3921da347495b44b9"
+    },
+    {
+      "sequence": 14,
+      "sha256": "0bc985e8d862a45f901901d89cbbea27009fa7b5e8055d493f187ae20ca119fe"
+    },
+    {
+      "sequence": 15,
+      "sha256": "0a1e4f3a50813a6464a46b9370e097541ee4e6f16631f9a88d2d821634971118"
+    },
+    {
+      "sequence": 16,
+      "sha256": "447fffd9df0bc95c130336ce09e0dddabb9c0bcb9cd8eb34a7849c7d5d6577a9"
+    },
+    {
+      "sequence": 17,
+      "sha256": "2ecd281d293486a0eb0bef53af71b570f64344b8683504185caf4375ec1fcfca"
+    }
+  ],
+  "request_count": 17,
+  "schema_version": "sigra.phase253.git-publication-receipt/v1",
+  "server_object_receipts": [
+    {
+      "kind": "parent-preflight",
+      "sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "tree": "817de2441c7b03dff93cfff89296c9c2f345d289"
+    },
+    {
+      "base_tree": "817de2441c7b03dff93cfff89296c9c2f345d289",
+      "kind": "tree",
+      "sequence": 1,
+      "sha": "87da52944923c17f62c3bb87b0bddce552054e24",
+      "variant": "candidate-part-01"
+    },
+    {
+      "base_tree": "87da52944923c17f62c3bb87b0bddce552054e24",
+      "kind": "tree",
+      "sequence": 2,
+      "sha": "528f4486f755162487921cdccc5d2b52ba27db58",
+      "variant": "candidate-part-02"
+    },
+    {
+      "base_tree": "528f4486f755162487921cdccc5d2b52ba27db58",
+      "kind": "tree",
+      "sequence": 3,
+      "sha": "766812efa6e286bae069b06361d1c475cc016fde",
+      "variant": "candidate"
+    },
+    {
+      "kind": "commit",
+      "message": "Phase 253 frozen CI candidate\n",
+      "parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "server_message_form": "trailing_newline_stripped",
+      "sha": "6e4f87657254ed9d4a3c8b661d5e707751bc5214",
+      "tree": "766812efa6e286bae069b06361d1c475cc016fde",
+      "variant": "candidate"
+    },
+    {
+      "commit": "6e4f87657254ed9d4a3c8b661d5e707751bc5214",
+      "kind": "workflow-blob",
+      "sha": "072a1ea3793213309d89f0c46d75810c6b7df341",
+      "variant": "candidate"
+    },
+    {
+      "base_tree": "766812efa6e286bae069b06361d1c475cc016fde",
+      "kind": "tree",
+      "sequence": 1,
+      "sha": "f28833d2482403e971548420c33d6d3a2f9f9b87",
+      "variant": "fixture"
+    },
+    {
+      "kind": "commit",
+      "message": "Phase 253 isolated gate canary fixture\n",
+      "parent": "6e4f87657254ed9d4a3c8b661d5e707751bc5214",
+      "server_message_form": "trailing_newline_stripped",
+      "sha": "b37f05424b2b497b3c786fc604caa4dab4dbcdf0",
+      "tree": "f28833d2482403e971548420c33d6d3a2f9f9b87",
+      "variant": "fixture"
+    },
+    {
+      "commit": "b37f05424b2b497b3c786fc604caa4dab4dbcdf0",
+      "kind": "workflow-blob",
+      "sha": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+      "variant": "fixture"
+    },
+    {
+      "kind": "ref",
+      "ref": "refs/heads/gsd/253-replan-r12-candidate",
+      "sha": "6e4f87657254ed9d4a3c8b661d5e707751bc5214",
+      "tree": "766812efa6e286bae069b06361d1c475cc016fde",
+      "variant": "candidate",
+      "workflow_blob": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    },
+    {
+      "kind": "ref",
+      "ref": "refs/heads/gsd/253-replan-r12-fixture",
+      "sha": "b37f05424b2b497b3c786fc604caa4dab4dbcdf0",
+      "tree": "f28833d2482403e971548420c33d6d3a2f9f9b87",
+      "variant": "fixture",
+      "workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+    }
+  ],
+  "server_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "source_sha": "ded90ae9c5455d6dc69a68a34a99eb900006c0f5",
+  "status": "published-actual-github"
+}

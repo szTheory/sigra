@@ -1,0 +1,72 @@
+{
+  "schema_version": "sigra.phase253.registration-repro-freeze/v1",
+  "status": "frozen_before_results",
+  "frozen_at": "2026-10-13T03:23:38Z",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "de53d1c80f4a67b73a5e5078959c2c88ad75abe8",
+    "tracked_worktree_clean": true,
+    "untracked_out_of_scope": ["scripts/ci/__pycache__/exunit_timing_contract.cpython-314.pyc"],
+    "execution_checkout": "temporary clean clone of checkout_head",
+    "historical_source_commit": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+    "historical_helper_path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+    "historical_helper_blob": "6540493e78121f134867445dffc7010afcd85815",
+    "current_helper_blob": "6540493e78121f134867445dffc7010afcd85815",
+    "nightly_workflow_revision": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+    "workflow_file": ".github/workflows/ci.yml",
+    "workflow_blob": "dcc36d0df055f9b11f4de36252cb6b3d0f6c8c85"
+  },
+  "selection": {
+    "signature_limit": 1,
+    "test_file": "tests/admin-eval.spec.ts",
+    "grep": "render bundle: board-mg-9/populated",
+    "projects": ["admin-eval", "admin-eval-mobile", "admin-eval-dark"],
+    "attempts_per_project": 1,
+    "isolated_selection": true,
+    "preceding_order_selection": false,
+    "preceding_order_reason": "The retained registration diagnostic identifies the failing project and test but supplies no preceding test order. No order is inferred or invented.",
+    "seed": "none; Playwright test and existing helper generate synthetic account identity from timestamp, project, worker, and random suffix",
+    "synthetic_account_prefix": "platform-admin+ev-*@example.test",
+    "retries": 0
+  },
+  "toolchain": {
+    "install_command": "npm ci --ignore-scripts=false",
+    "install_directory": "test/example/priv/playwright in the temporary execution checkout",
+    "playwright_expected": "1.59.1",
+    "playwright_observation_command": "./node_modules/.bin/playwright --version",
+    "ecto_sql_observation_command": "cd test/example && MIX_ENV=dev mix deps | rg '^\\* ecto_sql ' ",
+    "live_view_observation_command": "cd test/example && MIX_ENV=dev mix deps | rg '^\\* phoenix_live_view ' ",
+    "browser_observation_command": "./node_modules/.bin/playwright install --list"
+  },
+  "runtime": {
+    "mode": "MIX_ENV=dev phoenix application served over HTTP by the real example app",
+    "database": "fresh dedicated PostgreSQL service or isolated database per project; no shared application database",
+    "ports": {"admin-eval": 25311, "admin-eval-mobile": 25312, "admin-eval-dark": 25313},
+    "context": "fresh Playwright invocation and browser context per project",
+    "readiness": "HTTP health response followed by the existing registration helper's LiveView connected marker",
+    "trace": "retain-on-failure, enabled before navigation, retain only scoped first failure",
+    "trace_redaction": "exclude auth-state files, credentials, and non-synthetic account data"
+  },
+  "budgets": {
+    "signatures": 1,
+    "invocations_per_signature": 10,
+    "minutes_per_signature": 20,
+    "minutes_total": 60,
+    "infrastructure_retries": 1,
+    "retry_requires_independent_diagnosis": true,
+    "retries_and_sleeps": "none"
+  },
+  "frozen_commands": [
+    "bash scripts/ci/ci-registration-repro.test.sh",
+    "bash scripts/ci/ci-registration-repro.sh --run-frozen .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json",
+    "bash scripts/ci/ci-registration-repro.sh --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json",
+    "node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+    "bash scripts/ci/ci-registration-repro.sh --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+  ],
+  "stop_conditions": [
+    "Stop on source or tool version mismatch.",
+    "Stop before another invocation when ten invocations, twenty minutes for this signature, or sixty minutes total is reached.",
+    "Retain all original nonzero results and traces; do not classify absent output as a pass.",
+    "Leave CIREL-01 unsatisfied with diagnosis_incomplete or not_reproduced unless a cause-backed fix passes its frozen controls."
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T00:55:51Z",
+  "observation_type": "separate_public_release",
+  "authorization_scope": {
+    "user_reply_verbatim": "approval of what? if ci is green u can merge and release if thats what u mean",
+    "scope_applied": "Merge the release PR when CI is green and allow the guarded release workflow to publish.",
+    "phase_250_canary_authorized": false
+  },
+  "release": {
+    "version": "1.7.0",
+    "tag": "v1.7.0",
+    "github_release_url": "https://github.com/szTheory/sigra/releases/tag/v1.7.0",
+    "github_release_published_at": "2026-10-11T00:18:08Z",
+    "hex_release_url": "https://hex.pm/packages/sigra/1.7.0",
+    "hex_api_url": "https://hex.pm/api/packages/sigra/releases/1.7.0",
+    "hex_inserted_at": "2026-10-11T00:52:36.838363Z",
+    "hex_checksum": "da9edeefbda714a2e106615db7b0081f8ed9e5eb20691fe98056ab6131365be1"
+  },
+  "delivery": {
+    "release_pr": 302,
+    "release_pr_url": "https://github.com/szTheory/sigra/pull/302",
+    "state": "MERGED",
+    "merge_commit": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "merged_at": "2026-10-11T00:17:45Z",
+    "guarded_merge_run_id": 38097921285,
+    "candidate_ci_run_id": 38096337575,
+    "candidate_ci_head_sha": "b7b2a05c603736f0cff1128c9fa000cb0b5c05bd",
+    "release_commit_ci_run_id": 38097941299,
+    "release_commit_ci_head_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "release_commit_ci_conclusion": "success",
+    "release_please_run_id": 38097941302,
+    "release_please_run_url": "https://github.com/szTheory/sigra/actions/runs/38097941302",
+    "release_please_conclusion": "success",
+    "hex_publish_job_id": 114351805835,
+    "hex_publish_job_conclusion": "success",
+    "terminal_record_job_id": 114353564878,
+    "merge_method": "squash",
+    "guarded_merge_run_url": "https://github.com/szTheory/sigra/actions/runs/38097921285",
+    "merge_method_evidence": {
+      "workflow_path": ".github/workflows/release-pr-automerge.yml",
+      "workflow_source_sha": "6c9fb8a7623b1f35b8259489f9384b2bde3198d0",
+      "line": 154,
+      "command": "gh pr merge \"$PR_NUMBER\" --repo \"$REPOSITORY\" --squash"
+    }
+  },
+  "automation_repairs": [
+    {
+      "pull_request": 323,
+      "merge_commit": "369001aed6147e6f3d96003d1efb183b3fbec181",
+      "ci_run_id": 38094877326,
+      "ci_conclusion": "success"
+    },
+    {
+      "pull_request": 324,
+      "merge_commit": "6c9fb8a7623b1f35b8259489f9384b2bde3198d0",
+      "ci_run_id": 38095731834,
+      "ci_conclusion": "success"
+    }
+  ],
+  "phase_250_effect": {
+    "phase_verification_updated": false,
+    "v149_target_version": "1.6.0",
+    "note": "The 1.7.0 release is a separate automation observation and does not change the Phase 249 owner verdict or close Phase 250 requirements.",
+    "old_v5_packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+    "old_v5_packet_source_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+    "new_main_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "old_v5_packet_status": "stale_source_no_dispatch",
+    "controller_dispatch_after_v5": false,
+    "next_canary_prerequisite": "A fresh main-bound packet and explicit packet-specific authorization; release authorization does not cover this separate no-publish controller action.",
+    "plan_250_08_eligible_tuples": 0
+  },
+  "planning_capture_boundary": {
+    "head": "9a8ec0fb488f972c08075d6a4cfd3cde58db8dba",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "status_at_capture": "clean",
+        "head": "9a8ec0fb488f972c08075d6a4cfd3cde58db8dba",
+        "git_blob": "db75245d8eab8d48f02a931397bd015466e23231",
+        "sha256": "4785930381c439cb035e79ec859163089b93b66802a360a095df31a81410185a",
+        "bytes": 160844
+      },
+      {
+        "path": ".planning/state.json",
+        "status_at_capture": "clean",
+        "head": "9a8ec0fb488f972c08075d6a4cfd3cde58db8dba",
+        "git_blob": "36b82972d3311cc387d046cb45c82341feafec13",
+        "sha256": "3f4e017ec4230890b03b2c0974bfb3bb38edd7cbca11166f04fec8846384a7fc",
+        "bytes": 1691
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status_at_capture": "clean",
+        "head": "9a8ec0fb488f972c08075d6a4cfd3cde58db8dba",
+        "git_blob": "9d26a7175a93f883b651f4cbacbd4ef558ab0fd6",
+        "sha256": "a231652d46964f786d17c799d33e9258ad38ad3f3be7802724337639b623c876",
+        "bytes": 49821
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
+        "status_at_capture": "clean",
+        "head": "9a8ec0fb488f972c08075d6a4cfd3cde58db8dba",
+        "git_blob": "98e2d4df7aee957a62dd5bdbf0d4961eefa19b0a",
+        "sha256": "7c78a20bf38f364badcc0709e4abb4d960ffe60d20b2e4edfba93ab57e056c2a",
+        "bytes": 32395
+      }
+    ]
+  }
+}

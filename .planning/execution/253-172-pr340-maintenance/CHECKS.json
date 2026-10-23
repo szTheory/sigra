@@ -1,0 +1,45 @@
+{
+  "schema": "sigra.phase253.pr340-repair-checks/v1",
+  "status": "passed_offline_only",
+  "pr_collector_tests": 113,
+  "integrated_handoff_tests": 2,
+  "library": {
+    "tests": 2656,
+    "doctests": 33,
+    "properties": 3,
+    "failures": 0,
+    "skipped": 12,
+    "excluded": 22
+  },
+  "p12": {
+    "passed": 13,
+    "known_bad_fixture_rejected": true,
+    "expected_negative_failures": 2
+  },
+  "compile_exit": 0,
+  "formatter_exit": 0,
+  "actual_canary_independently_reverified": true,
+  "github_requests_after_halt": 0,
+  "ci_launches_after_halt": 0,
+  "historical_records_modified": false,
+  "logs": {
+    "candidate-library-final.log": "dca3dce4a55a98393974d9707521b3212ab77c26593d82d4b116d3874bf127f0",
+    "candidate-library-verified.log": "b36da92a4bc9e85920a1189c0df0e321753295ae8e15789b03d4fb52fd6f183d",
+    "requirements-result.json": "a4244277b027e3e3d67621561389acdcae236664a3f72f90189486450fa50ac7",
+    "candidate-provenance-after.log": "b37d83c99f63e00c4fa3b44f857acba3e3465f60dff05dce4e2d20e47b82e6ab",
+    "browser-artifacts.json": "bc766a06620f3f4a71731a215e84485f50d3918376c141f8989f712742a5d591",
+    "candidate-library-after.log": "eeadcdf9cb26b83edc5dad4372a7b70cb80b62beb8bb5ff5dbec69e30bdf8ad8",
+    "actual-canary-verified.json": "1aeee6b39b62beb7a35d4bc5a66feab8bc11ec7fe8385ab6adc1402e25f5f820",
+    "candidate-library-local-db.log": "cb7353fdce644a1d8fdc0207850eb72111e7c0e636b0c89d0f995e1997854550",
+    "p12-after.log": "25dd1a65d99a8df5144386c8800fa7e65bcc580ce4f79786a6d15fc707cfa14b",
+    "candidate-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "README.md": "5b7d87618e343fdf1803bed331f4794e2bd835c50297cba3592779497b61fbc0",
+    "p12-negative.log": "30a4efc84bad46318d62ee8bbfe1bb5c8fc65edc30d80bc9d5f860d5af436765",
+    "preflight-before.log": "6c142d59ad5e250678c7d3bfbdbfa04a5d304941cb1498c7cacae2ccc7da7657",
+    "preflight-after.log": "d8174086017c4a05f87de1e150bbd878be0f3ee3db5432dc9ed8a19afbc957fb",
+    "candidate-provenance-before.log": "9cf4cc8ef9be53296f9e78f07f983a5295216953e68b56d1b228a2c57cd9a68a",
+    "verifier-before.log": "fbf47a843a93525c18dacf3d7e74fab12b52107188ad3fbc7c54d65495422e27",
+    "diagnosis.json": "033525d7f9635aba876b5e1af0a93a910945c77419e2906cee022738e8f4ad13",
+    "pr-collector-after.log": "54d9a414df33002b2317a5f18bc20237f8169979ed38924f7b2d837ff0e6a7c4"
+  }
+}

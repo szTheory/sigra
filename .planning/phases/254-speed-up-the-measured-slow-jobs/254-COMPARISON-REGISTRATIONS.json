@@ -1,0 +1,8 @@
+{
+  "schema_version": "sigra.ci-comparison-registrations/v1",
+  "status": "not_started",
+  "contract_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-RUN-CONTRACT.json",
+  "records": [],
+  "families_started": 0,
+  "reason": "Hosted readiness is blocked before preparation; no PR runs or family reservations were started."
+}

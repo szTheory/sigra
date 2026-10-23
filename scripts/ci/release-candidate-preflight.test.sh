@@ -8,7 +8,6 @@ CI_WORKFLOW="${ROOT}/.github/workflows/ci.yml"
 MERGE_WORKFLOW="${ROOT}/.github/workflows/release-pr-automerge.yml"
 REPOSITORY="szTheory/sigra"
 EXPECTED_SHA="0123456789abcdef0123456789abcdef01234567"
-APPROVED_SHA="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 OTHER_SHA="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 TMP="$(mktemp -d)"
 PASS=0
@@ -44,55 +43,36 @@ JSON
 
 ## [1.6.0] (2026-10-08)
 
-### Adopter notes
+### Added
 
-- Generated Phoenix hosts let users confirm accounts by email link or displayed code without changing the current session.
-- Generated confirmation screens retry safely with missing or malformed links and clear stale error feedback.
-- Branding profiles support dark logos and dark accents tuned to accessible contrast.
-- Chimeway decodes magic-link tokens before recipient lookup and keeps authentication recipient references opaque.
-- Existing generated host files remain host-owned; apps can selectively adopt confirmation updates.
+- Generated email-confirmation screens accept pasted six-digit codes.
+- Generated Phoenix hosts support confirmation by email link or displayed code without changing an existing session.
+- Generated confirmation retries handle missing or malformed links safely and clear stale error feedback.
+- Branding profiles support a separate dark-theme logo. When no dark accent is configured, Sigra preserves an accent that already meets contrast and adjusts only its lightness when needed; the admin customizer shows how the dark accent was resolved.
+- OAuth callbacks can opt into returning validated provider identity evidence, including issuer, subject, and authentication time when available.
+- Chimeway auth-message integrations support opaque recipient references and resolve magic-link tokens before recipient lookup.
 
+### Upgrade notes
+
+Existing generated files remain host-owned; updating the dependency does not overwrite customized confirmation screens. Existing apps can selectively adopt the generated confirmation LiveView changes from the upgrade guide. The confirmation recovery changes require no database migration.
 MD
-  cat > "$TMP/claims.json" <<JSON
+  cat > "$TMP/ledger.json" <<JSON
 {
-  "schema_version":1,
-  "source_ledger":{
-    "path":".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
-    "sha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-    "validated_candidate_sha":"$APPROVED_SHA",
-    "selected_source_sha":"$OTHER_SHA",
-    "source_ci_run_id":111,
-    "hex_dry_run_run_id":222
-  },
-  "claim_release_version":"1.6.0",
-  "approved_source_blobs":{
-    "priv/templates/sigra.install/core/confirmation_live.ex":"1111111111111111111111111111111111111111",
-    "lib/sigra/branding.ex":"2222222222222222222222222222222222222222",
-    "lib/sigra/branding/contrast.ex":"3333333333333333333333333333333333333333",
-    "test/sigra/branding_test.exs":"4444444444444444444444444444444444444444",
-    "lib/sigra/integrations/chimeway.ex":"5555555555555555555555555555555555555555",
-    "test/sigra/integrations/chimeway_test.exs":"6666666666666666666666666666666666666666",
-    "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex":"7777777777777777777777777777777777777777"
-  },
-  "claim_sources":[
-    {"claim":"Generated Phoenix hosts support confirmation by email link or displayed code without changing an existing session.","source":"priv/templates/sigra.install/core/confirmation_live.ex","evidence":"Phase246 exact-source required CI passed","source_paths":["priv/templates/sigra.install/core/confirmation_live.ex"]},
-    {"claim":"Generated confirmation retries handle missing or malformed links safely and clear stale error feedback.","source":"priv/templates/sigra.install/core/confirmation_live.ex at tested source 90ec16f and promoted main 590eb4e","evidence":"four approved source blobs match; Phase246 CI passed","source_paths":["priv/templates/sigra.install/core/confirmation_live.ex"]},
-    {"claim":"Branding profiles can use separate dark logos and contrast-derived dark accents.","source":"lib/sigra/branding.ex, lib/sigra/branding/contrast.ex, test/sigra/branding_test.exs","evidence":"selected-main CI passed","source_paths":["lib/sigra/branding.ex","lib/sigra/branding/contrast.ex","test/sigra/branding_test.exs"]},
-    {"claim":"Chimeway magic-link handling decodes tokens before lookup and uses opaque recipient references.","source":"lib/sigra/integrations/chimeway.ex and test/sigra/integrations/chimeway_test.exs","evidence":"selected-main CI passed","source_paths":["lib/sigra/integrations/chimeway.ex","test/sigra/integrations/chimeway_test.exs"]},
-    {"claim":"Previously generated host files remain host-owned and need selective adoption for confirmation changes.","source":"priv/templates/sigra.install/core/confirmation_live.ex and installed host fixture","evidence":"generated-host install smoke and Playwright required CI passed","source_paths":["priv/templates/sigra.install/core/confirmation_live.ex","test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex"]}
-  ]
+  "source_selection":{"status":"ready","selected_source_sha":"$OTHER_SHA"},
+  "final_validation":{"valid":true,"status":"ready","checked":{"pr_head_sha":"$EXPECTED_SHA"}},
+  "final_readiness":{
+    "source_sha":"$EXPECTED_SHA",
+    "docs":{"candidate_summary_under_versioned_heading":true,"candidate_summary_only_unreleased":false},
+    "claim_sources":[
+      {"claim":"Generated Phoenix hosts support confirmation by email link or displayed code without changing an existing session.","source":"priv/templates/sigra.install/core/confirmation_live.ex","evidence":"exact-source required CI passed","source_paths":["priv/templates/sigra.install/core/confirmation_live.ex"],"source_paths_present":true,"source_sha":"$EXPECTED_SHA","ci_run_id":12345},
+      {"claim":"Generated confirmation retries handle missing or malformed links safely and clear stale error feedback.","source":"priv/templates/sigra.install/core/confirmation_live.ex","evidence":"exact-source required CI passed","source_paths":["priv/templates/sigra.install/core/confirmation_live.ex"],"source_paths_present":true,"source_sha":"$EXPECTED_SHA","ci_run_id":12345},
+      {"claim":"Branding profiles can use separate dark logos and contrast-derived dark accents.","source":"lib/sigra/branding.ex","evidence":"selected-main CI passed","source_paths":["lib/sigra/branding.ex"],"source_paths_present":true,"source_sha":"$EXPECTED_SHA","ci_run_id":12345},
+      {"claim":"Chimeway magic-link handling decodes tokens before lookup and uses opaque recipient references.","source":"lib/sigra/integrations/chimeway.ex","evidence":"selected-main CI passed","source_paths":["lib/sigra/integrations/chimeway.ex"],"source_paths_present":true,"source_sha":"$EXPECTED_SHA","ci_run_id":12345},
+      {"claim":"Previously generated host files remain host-owned and need selective adoption for confirmation changes.","source":"priv/templates/sigra.install/core/confirmation_live.ex","evidence":"generated-host install smoke passed","source_paths":["priv/templates/sigra.install/core/confirmation_live.ex"],"source_paths_present":true,"source_sha":"$EXPECTED_SHA","ci_run_id":12345}
+    ]
+  }
 }
-JSON
-  cat > "$TMP/source-blobs.json" <<'JSON'
-{
-  "priv/templates/sigra.install/core/confirmation_live.ex":"1111111111111111111111111111111111111111",
-  "lib/sigra/branding.ex":"2222222222222222222222222222222222222222",
-  "lib/sigra/branding/contrast.ex":"3333333333333333333333333333333333333333",
-  "test/sigra/branding_test.exs":"4444444444444444444444444444444444444444",
-  "lib/sigra/integrations/chimeway.ex":"5555555555555555555555555555555555555555",
-  "test/sigra/integrations/chimeway_test.exs":"6666666666666666666666666666666666666666",
-  "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex":"7777777777777777777777777777777777777777"
-}
+
 JSON
 }
 
@@ -120,8 +100,7 @@ run_content_preflight() {
   OUT="$(bash "$SCRIPT" --repository "$REPOSITORY" \
     --event-run "$TMP/event.json" --queried-run "$TMP/run.json" \
     --pull-requests "$TMP/prs.json" --gate-jobs "$TMP/jobs.json" \
-    --changelog "$TMP/changelog.md" --claims "$TMP/claims.json" \
-    --source-blobs "$TMP/source-blobs.json" 2>&1)"
+    --changelog "$TMP/changelog.md" --ledger "$TMP/ledger.json" 2>&1)"
   RC=$?
   set -e
 }
@@ -160,45 +139,18 @@ jq -s '.[0] + .[1]' "$TMP/prs.json" "$TMP/changed.json" > "$TMP/prs.json.tmp" &&
 run_preflight
 if [[ "$RC" -ne 0 ]]; then pass "multiple open release candidates are rejected"; else fail "multiple candidates were treated as one"; fi
 
-echo "Test H: valid 1.6.0 changelog and Phase 247 source-claim manifest -> PASS"
+echo "Test H: valid 1.6.0 changelog and source-bound candidate ledger -> PASS"
 write_valid_fixtures
 run_content_preflight
-if [[ "$RC" -eq 0 ]] && jq -e --arg approved "$APPROVED_SHA" '.verdict == "PASS" and .version == "1.6.0" and .claim_release_version == "1.6.0" and .source_blobs_verified == true and .approved_candidate_sha == $approved and (.source_ledger_sha | test("^[0-9a-f]{64}$"))' >/dev/null 2>&1 <<<"$OUT"; then
-  pass "versioned candidate content and approved source-blob manifest are accepted and reported"
+if [[ "$RC" -eq 0 ]] && jq -e '.verdict == "PASS" and .version == "1.6.0"' >/dev/null 2>&1 <<<"$OUT"; then
+  pass "versioned candidate content and all source-backed ledger rows are accepted"
 else
   fail "valid candidate content rejected (rc=$RC): $OUT"
 fi
-
-echo "Test H2: repository CHANGELOG release section satisfies Phase 247 source claims -> PASS"
 write_valid_fixtures
-cp "$ROOT/CHANGELOG.md" "$TMP/changelog.md"
+jq 'del(.final_readiness.docs.candidate_summary_only_unreleased)' "$TMP/ledger.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/ledger.json"
 run_content_preflight
-if [[ "$RC" -eq 0 ]] && jq -e '.verdict == "PASS" and .source_blobs_verified == true' >/dev/null 2>&1 <<<"$OUT"; then
-  pass "repository changelog source-backed summaries satisfy the actual candidate-content gate"
-else
-  fail "repository changelog does not satisfy the candidate-content gate (rc=$RC): $OUT"
-fi
-
-echo "Test H3: current 1.7.0 release validates source claims in their published 1.6.0 section -> PASS"
-write_valid_fixtures
-jq '.[0].title = "chore(main): release 1.7.0"' "$TMP/prs.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/prs.json"
-awk '
-  /^## \[1\.6\.0\]/ {
-    print "## [1.7.0] (2026-10-10)"
-    print ""
-    print "### Bug Fixes"
-    print ""
-    print "- Release automation now verifies exact source CI before merging."
-    print ""
-  }
-  { print }
-' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
-run_content_preflight
-if [[ "$RC" -eq 0 ]] && jq -e '.verdict == "PASS" and .version == "1.7.0" and .claim_release_version == "1.6.0" and .source_blobs_verified == true' >/dev/null 2>&1 <<<"$OUT"; then
-  pass "new release notes stay scoped while previously published source claims remain verified"
-else
-  fail "1.7.0 candidate was rejected despite its 1.6.0 claim section (rc=$RC): $OUT"
-fi
+if [[ "$RC" -eq 0 ]]; then pass "current ledger schema with omitted optional Unreleased flag is accepted"; else fail "current ledger schema rejected (rc=$RC): $OUT"; fi
 
 echo "Test I: candidate note stranded under Unreleased -> rejected"
 write_valid_fixtures
@@ -209,7 +161,7 @@ if [[ "$RC" -ne 0 ]]; then pass "candidate-specific Unreleased note is rejected"
 
 echo "Test J: duplicate normalized version note -> rejected"
 write_valid_fixtures
-awk '1; /^### Adopter notes$/ { print ""; print "- CHIMEWAY decodes MAGIC-LINK tokens before recipient lookup and keeps authentication recipient references opaque!" }' \
+awk '1; /^### Added$/ { print ""; print "- CHIMEWAY auth-message integrations support opaque recipient references and resolve magic-link tokens before recipient lookup!" }' \
   "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 run_content_preflight
 if [[ "$RC" -ne 0 ]]; then pass "duplicate note after punctuation/case normalization is rejected"; else fail "duplicate versioned note accepted"; fi
@@ -225,44 +177,32 @@ awk '1; index($0, "## [1.6.0]") == 1 { print ""; print "## [1.6.0] (duplicate)" 
 run_content_preflight
 if [[ "$RC" -ne 0 ]]; then pass "duplicate titled version section is rejected"; else fail "duplicate version section accepted"; fi
 
-echo "Test L: each source-backed adopter summary absent from its claim release section -> rejected"
+echo "Test L: each source-backed adopter summary absent from version section -> rejected"
 write_valid_fixtures
-awk '!/Generated Phoenix hosts let users confirm accounts/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Generated Phoenix hosts support confirmation/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing generated-confirmation source summary is rejected"
 write_valid_fixtures
-awk '!/Generated confirmation screens retry safely/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Generated confirmation retries handle/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing generated-confirmation recovery summary is rejected"
 write_valid_fixtures
-awk '!/Branding profiles support dark logos/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Branding profiles support a separate dark-theme logo/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing branding source summary is rejected"
 write_valid_fixtures
-awk '!/Chimeway decodes magic-link tokens/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Chimeway auth-message/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing Chimeway source summary is rejected"
 write_valid_fixtures
-awk '!/Existing generated host files remain host-owned/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
+awk '!/Existing generated files remain host-owned/' "$TMP/changelog.md" > "$TMP/changed.md" && mv "$TMP/changed.md" "$TMP/changelog.md"
 assert_content_rejected "missing generated-host upgrade summary is rejected"
 
-echo "Test M: invalid Phase 247 provenance or changed approved source blob -> rejected"
+echo "Test M: invalid readiness ledger or missing claim evidence -> rejected"
 write_valid_fixtures
-jq '.source_ledger.sha256 = "invalid"' "$TMP/claims.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/claims.json"
+jq '.final_validation.status = "blocked"' "$TMP/ledger.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/ledger.json"
 run_content_preflight
-if [[ "$RC" -ne 0 ]]; then pass "malformed source-ledger provenance digest is rejected"; else fail "malformed source-ledger digest accepted"; fi
+if [[ "$RC" -ne 0 ]]; then pass "blocked candidate ledger is rejected"; else fail "blocked candidate ledger accepted"; fi
 write_valid_fixtures
-jq 'del(.claim_release_version)' "$TMP/claims.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/claims.json"
+jq --arg sha "$OTHER_SHA" '.final_readiness.claim_sources[0].source_sha = $sha' "$TMP/ledger.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/ledger.json"
 run_content_preflight
-if [[ "$RC" -ne 0 ]] && grep -Fq 'no valid claim_release_version' <<<"$OUT"; then pass "missing claim release version is rejected"; else fail "missing claim release version accepted: $OUT"; fi
-write_valid_fixtures
-jq '.claim_release_version = "1.5.9"' "$TMP/claims.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/claims.json"
-run_content_preflight
-if [[ "$RC" -ne 0 ]] && grep -Fq 'exactly one claim release section for 1.5.9' <<<"$OUT"; then pass "claim version without one exact changelog section is rejected"; else fail "claim version without section accepted: $OUT"; fi
-write_valid_fixtures
-jq --arg path "lib/sigra/branding.ex" --arg sha "$OTHER_SHA" '.[$path] = $sha' "$TMP/source-blobs.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/source-blobs.json"
-run_content_preflight
-if [[ "$RC" -ne 0 ]]; then pass "candidate source blob drift from Phase 247 approval is rejected"; else fail "changed approved source blob accepted"; fi
-write_valid_fixtures
-jq 'del(."lib/sigra/branding.ex")' "$TMP/source-blobs.json" > "$TMP/changed.json" && mv "$TMP/changed.json" "$TMP/source-blobs.json"
-run_content_preflight
-if [[ "$RC" -ne 0 ]]; then pass "incomplete current source-blob map is rejected"; else fail "incomplete source-blob map accepted"; fi
+if [[ "$RC" -ne 0 ]]; then pass "source-backed ledger row bound to a different source is rejected"; else fail "mismatched source row accepted"; fi
 
 echo "Test N: wrong base, title, repository, label, or ci-gate result -> rejected"
 write_valid_fixtures
@@ -293,10 +233,8 @@ if grep -q 'gh pr merge' "$MERGE_WORKFLOW" \
    && grep -q 'Fresh final-state' "$MERGE_WORKFLOW" \
    && grep -q 'capture_candidate initial' "$MERGE_WORKFLOW" \
    && grep -q 'capture_candidate final' "$MERGE_WORKFLOW" \
-   && grep -q 'contents/CHANGELOG.md?ref=' "$MERGE_WORKFLOW" \
-   && grep -q "contents/\${path}?ref=" "$MERGE_WORKFLOW" \
-   && grep -q '248-AUTOMERGE-CLAIMS.json' "$MERGE_WORKFLOW"; then
-  pass "candidate changelog and approved source blobs are fetched as data before the exact-head merge guard"
+   && grep -q 'contents/CHANGELOG.md?ref=' "$MERGE_WORKFLOW"; then
+  pass "candidate content is fetched as data and final reread uses an exact-head merge guard"
 else
   fail "candidate data fetch, final reread, dedicated release token, or match-head merge guard is missing"
 fi

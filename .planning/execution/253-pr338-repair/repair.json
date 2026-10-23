@@ -1,0 +1,133 @@
+{
+  "schema": "sigra.phase253.pr338-offline-repair/v1",
+  "status": "verified_offline",
+  "timestamp": "2026-10-21T18:58:46.994484+00:00",
+  "repair_commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "diagnosis": ".planning/execution/253-171-diagnosis/diagnosis.json",
+  "fixed": [
+    "explicit six-file immutable input manifest plus a small provenance-bound metrics fixture; original 252 archive/baseline unchanged",
+    "inventory checks selection and execution independently, once per spec per command, Chromium/retries zero",
+    "complete docs regeneration labels actual source version 1.5.0",
+    "audit first submit checks canonical defaults; repeated submit checks URL and visible rows, plus existing disconnected comparison",
+    "JSON-aware redaction preserves escaping and removes credentials, including keys; malformed responses save current charged partial evidence"
+  ],
+  "diagnosis_correction": "Two Playwright commands are selection (--list) and execution, not mutually exclusive branches. Original diagnosis is retained unchanged.",
+  "checks": {
+    "transport_tests": 87,
+    "publication_tests": 125,
+    "pr_collector_tests": 111,
+    "metrics_shell_checks": 48,
+    "metrics_diagnosis_tests": 4,
+    "candidate_library": {
+      "tests": 2656,
+      "doctests": 33,
+      "properties": 3,
+      "failures": 0,
+      "skipped": 12,
+      "excluded": 22
+    },
+    "audit_browser": {
+      "passed": 1,
+      "retries": 0,
+      "base_url": "http://localhost:4011"
+    },
+    "docs_index_contract_tests": 6,
+    "candidate_docs": "generated and matched Git-indexed complete output",
+    "candidate_product_paths_modes_blobs_equal_repair_commit": 1485,
+    "candidate_publication_projection": {
+      "parent_preflight_requests": 1,
+      "fixed_non_tree_requests": 12,
+      "tree_request_count": 5,
+      "binary_blob_requests": 1,
+      "projected_total_requests": 19,
+      "max_requests": 24,
+      "largest_tree_body_bytes": 2092801,
+      "max_tree_body_bytes": 2097152,
+      "complete_product_delta_dropped": false
+    }
+  },
+  "limitations": [
+    "No new hosted result: old canary proves its old source only; Plan171 remains halted and Plan172 blocked.",
+    "Example mix precommit stops on pre-existing /dev/mailbox route warning in settings_live.ex:133; unrelated source not changed.",
+    "macOS Python3.9 cannot parse saved high-precision timestamps; candidate metrics passed with Python3.14, matching modern Python used for these tools.",
+    "Temporary candidate commits are local test fixtures, not approvals or publication freezes."
+  ],
+  "github_requests": 0,
+  "ci_launches": 0,
+  "ci_reruns": 0,
+  "acceptance179_reruns": 0,
+  "historical_plan171_requests_unchanged": 19,
+  "historical_canary170_requests_unchanged": 85,
+  "budget_renewals": 0,
+  "historical_halts_changed": 0,
+  "new_numbered_plans": 0,
+  "phase_verification_status": "not_started",
+  "preservation": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+      "sha256": "9d7e1524137891ce79129a806d5e2d9a227e42374b19c2700566e0ac550fd6d7",
+      "bytes": 35610,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+      "sha256": "1a04bdaf6caff94ddf6b233a1c66ff68b5477513f57bcbaecfca934015f168af",
+      "bytes": 120513,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+      "sha256": "41a1c2619df5a8641c71b0a3d6a100a3d5a771b98c3c10746032764ec5f578ae",
+      "bytes": 185379,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "status": "clean",
+      "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+      "sha256": "f3035cd3f7d55b4b3fae0863aee567f3c054e806a27c1ba6e83bbf05be964573",
+      "bytes": 2600,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/debug/knowledge-base.md",
+      "status": "clean",
+      "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+      "sha256": "c5cc9329f42deeb81b1756c3060f661f9c5d22901f48b4974c68f478150c740c",
+      "bytes": 6664,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/debug/pr338-offline-repair.md",
+      "status": "clean",
+      "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+      "sha256": "0646e45cef8e285ccbd6afc1865076e317fe876b0eb08e949ae5ea2e3cc16397",
+      "bytes": 1372,
+      "readback_verified": true
+    }
+  ],
+  "artifacts": {
+    ".planning/execution/253-pr338-repair/transport.log": "d5e153194904bf9eae9109090680845ded7a8a8d9bf58945e8b6d1506fc1c9d3",
+    ".planning/execution/253-pr338-repair/publication.log": "ed5b7731ccef74e8bd7a146df47806de528041b74fcf6797e1d6cf5a3b9469f3",
+    ".planning/execution/253-pr338-repair/pr_collector.log": "2c7c77ce14aa190815c6052f5216b8043b2688b3e48aa6c043e790eea6776d12",
+    ".planning/execution/253-pr338-repair/metrics.log": "658b90446286ce22e4e1ef52462ab405cdad6452583816cd72c7adcf278f612a",
+    ".planning/execution/253-pr338-repair/candidate_metrics.log": "65a375c9e5bf467aed2d78bfff5c332765ce7fed3a6b253bf45892182e6cf72b",
+    ".planning/execution/253-pr338-repair/candidate_library.log": "45051113e1251d63a69a3822ede23fd6953322701e408fe1280947c1bdf76c98",
+    ".planning/execution/253-pr338-repair/candidate_docs.log": "4bf13698afeca69e0338eba7d77bd305f2e4928ea0813c9cf384a0746d3ad180",
+    ".planning/execution/253-pr338-repair/audit_browser.log": "0aacef9bd640f2664c6af31cbafde96d04f55481a8da6169696d17124b0a2f68",
+    ".planning/execution/253-pr338-repair/docs_index_contract.log": "533b49c6c31ca27c92ef201d1bc40bafd9f80ec45b929b82ccb24f0f0b205a00",
+    ".planning/execution/253-pr338-repair/precommit_unrelated_warning.log": "f574bafe4d4f4b591ee24a64645dcc5d04572116fa3718c8c4556d31605c0284",
+    ".planning/execution/253-pr338-repair/redaction_before.log": "2c79b7489ffce1f61228263ea3f4be28297dfd9d06c945ad563ad7c6737ff625",
+    ".planning/execution/253-pr338-repair/redaction_after.log": "7d59a8fbca92ef540f42b6883247c3844892d23f501b6cf2621d0e535813fb81",
+    ".planning/execution/253-pr338-repair/inventory_before.log": "19072cc2f520b8536b3d8bbe81ba79ad7fd542f18541ea06fb204094d293e873",
+    ".planning/execution/253-pr338-repair/candidate_python39_failure.log": "4771a970a0a8763cf7c24db443317e81df21c06eb7ff39ff3d42adaec46897e1",
+    ".planning/execution/253-pr338-repair/assembled-candidate.json": "664e9507f55a2b0a749fcc1248ce27cb804dec2038496bdd02456a1a7af71cbf"
+  },
+  "next_command": "$gsd-quick \"Phase 253: prepare a hosted-proof proposal for repaired source 16800f431; preserve PR338 halt and all closed budgets; do not launch CI\""
+}

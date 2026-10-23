@@ -1,0 +1,259 @@
+{
+  "schema_version": "sigra.hosted-gate-canary/v1",
+  "repository": "szTheory/sigra",
+  "expected": {
+    "candidate_sha": "8459c10df54623d6f69f68076556dd0f144ec58f",
+    "fixture_ref": "refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+    "fixture_ref_state": "verified",
+    "workflow_id": 259268962,
+    "workflow_path": ".github/workflows/ci.yml",
+    "workflow_name": "Phase 253 Gate Canary",
+    "workflow_sha": "19e66df3c7869cc52b4662ae8d0e3b0ee2ec3c6f",
+    "workflow_blob": "077a89e438d5e054ee48799fe741cf1a49d2f85c"
+  },
+  "preflight": {
+    "initial_rate_limit": {
+      "resources": {
+        "core": {
+          "limit": 5000,
+          "used": 0,
+          "remaining": 5000,
+          "reset": 1791867469
+        },
+        "search": {
+          "limit": 30,
+          "used": 0,
+          "remaining": 30,
+          "reset": 1791863929
+        },
+        "graphql": {
+          "limit": 5000,
+          "used": 0,
+          "remaining": 5000,
+          "reset": 1791867469
+        },
+        "integration_manifest": {
+          "limit": 5000,
+          "used": 0,
+          "remaining": 5000,
+          "reset": 1791867469
+        },
+        "source_import": {
+          "limit": 100,
+          "used": 0,
+          "remaining": 100,
+          "reset": 1791863929
+        },
+        "code_scanning_autofix": {
+          "limit": 10,
+          "used": 0,
+          "remaining": 10,
+          "reset": 1791863929
+        },
+        "actions_runner_registration": {
+          "limit": 10000,
+          "used": 0,
+          "remaining": 10000,
+          "reset": 1791867469
+        },
+        "scim": {
+          "limit": 15000,
+          "used": 0,
+          "remaining": 15000,
+          "reset": 1791867469
+        },
+        "dependency_snapshots": {
+          "limit": 100,
+          "used": 0,
+          "remaining": 100,
+          "reset": 1791863929
+        },
+        "dependency_sbom": {
+          "limit": 100,
+          "used": 0,
+          "remaining": 100,
+          "reset": 1791863929
+        },
+        "audit_log": {
+          "limit": 1750,
+          "used": 0,
+          "remaining": 1750,
+          "reset": 1791867469
+        },
+        "audit_log_streaming": {
+          "limit": 15,
+          "used": 0,
+          "remaining": 15,
+          "reset": 1791867469
+        },
+        "code_search": {
+          "limit": 10,
+          "used": 0,
+          "remaining": 10,
+          "reset": 1791863929
+        },
+        "copilot_usage_records": {
+          "limit": 1750,
+          "used": 0,
+          "remaining": 1750,
+          "reset": 1791867469
+        },
+        "enterprise_token_inventory": {
+          "limit": 1750,
+          "used": 0,
+          "remaining": 1750,
+          "reset": 1791867469
+        }
+      },
+      "rate": {
+        "limit": 5000,
+        "used": 0,
+        "remaining": 5000,
+        "reset": 1791867469
+      }
+    },
+    "effective_rules": [
+      {
+        "type": "deletion",
+        "ruleset_source_type": "Repository",
+        "ruleset_source": "szTheory/sigra",
+        "ruleset_id": 14941512
+      },
+      {
+        "type": "non_fast_forward",
+        "ruleset_source_type": "Repository",
+        "ruleset_source": "szTheory/sigra",
+        "ruleset_id": 14941512
+      },
+      {
+        "type": "pull_request",
+        "parameters": {
+          "required_approving_review_count": 0,
+          "dismiss_stale_reviews_on_push": false,
+          "required_reviewers": [],
+          "require_code_owner_review": false,
+          "require_last_push_approval": false,
+          "required_review_thread_resolution": true,
+          "require_extra_approval_for_unattributed_changes": true,
+          "allowed_merge_methods": [
+            "merge",
+            "squash",
+            "rebase"
+          ]
+        },
+        "ruleset_source_type": "Repository",
+        "ruleset_source": "szTheory/sigra",
+        "ruleset_id": 14941512
+      },
+      {
+        "type": "required_status_checks",
+        "parameters": {
+          "strict_required_status_checks_policy": true,
+          "do_not_enforce_on_create": false,
+          "required_status_checks": [
+            {
+              "context": "Library tests"
+            },
+            {
+              "context": "Example unit smoke (ExUnit + ConnTest)"
+            },
+            {
+              "context": "Install smoke (fresh phx.new + sigra.install)"
+            },
+            {
+              "context": "Example HTTP smoke (boot + curl critical routes)"
+            },
+            {
+              "context": "Example Playwright smoke (full lifecycle)"
+            }
+          ]
+        },
+        "ruleset_source_type": "Repository",
+        "ruleset_source": "szTheory/sigra",
+        "ruleset_id": 14941512
+      }
+    ],
+    "registered_workflow": {
+      "id": 259268962,
+      "node_id": "W_kwDOR_jMxM4PdCFi",
+      "name": "CI",
+      "path": ".github/workflows/ci.yml",
+      "state": "active",
+      "created_at": "2026-04-10T22:14:35.000-04:00",
+      "updated_at": "2026-04-10T22:14:35.000-04:00",
+      "url": "https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962",
+      "html_url": "https://github.com/szTheory/sigra/blob/main/.github/workflows/ci.yml",
+      "badge_url": "https://github.com/szTheory/sigra/workflows/CI/badge.svg"
+    }
+  },
+  "budget": {
+    "max_requests": 120,
+    "request_count": 20,
+    "initial_requests": 3,
+    "max_jobs": 45,
+    "max_minutes": 60,
+    "watch_request_reservation": 8,
+    "started_epoch": 1791866473,
+    "actual_jobs": 7,
+    "elapsed_seconds": 268
+  },
+  "preserved_revisions": [
+    {
+      "ref": "refs/gsd/phase253-07-canary-evidence/0",
+      "sha256": "881c982e67d30b843621c9679191171cc673bb70dcf58a0049bc8e01ae92de14",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+    },
+    {
+      "ref": "refs/gsd/phase253-07-canary-evidence/1",
+      "sha256": "fe3e377f1993dfb07558d81559e0b4c6536791ac8bddbe5057a0f46cfa2ed846",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+    },
+    {
+      "ref": "refs/gsd/phase253-07-canary-evidence/2",
+      "sha256": "259625bc9f7f6dee1ffc7b7d6b4bcf80c21b1ca99948ae812d24f043ea3a27b1",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+    },
+    {
+      "ref": "refs/gsd/phase253-07-canary-evidence/3",
+      "sha256": "2cf31b91e9f415b8d84ee6d8108ecc9fb7d2674a328af0d15f82bc532b6d7710",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+    },
+    {
+      "ref": "refs/gsd/phase253-07-canary-evidence/4",
+      "sha256": "cc9807a2e61e75c4adcbadde84142f4a4145c23177c56c0f1d034e2ed7cb012b",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+    },
+    {
+      "ref": "refs/gsd/phase253-07-canary-evidence/5",
+      "sha256": "cd413295e3e471d6ab27dfb9300d02b20aad7bf4cdf477e9491912e33b424352",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+    },
+    {
+      "ref": "refs/gsd/phase253-07-canary-evidence/6",
+      "sha256": "3359a28416db16b45222c0495e9f08f7f06c4f0c7d59c684a01de776e5e90db4",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+    }
+  ],
+  "scenarios": {},
+  "separate_verifier": {
+    "status": "pending"
+  },
+  "diagnostics": {
+    "full_pass": {
+      "run_id": "38347679431",
+      "conclusion": "failure",
+      "job_records": 7,
+      "executed_job_records": 6,
+      "source_status": "unverified",
+      "failure": "Shared browser record validator: record identity mismatch: source_sha",
+      "other_deterministic_gap": "Hosted jobs summary includes a skipped verifier job; expected fixture contract currently omits it."
+    }
+  },
+  "status": "halted",
+  "remaining_work": [
+    "full-pass source receipt unverified",
+    "five remaining scenarios not dispatched",
+    "separate verifier not dispatched",
+    "CIREL-02 remains open"
+  ]
+}

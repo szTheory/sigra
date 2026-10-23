@@ -1,0 +1,10 @@
+2026-10-22 16:39:46.450 EDT [88975] LOG:  starting PostgreSQL 14.17 (Homebrew) on aarch64-apple-darwin24.2.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
+2026-10-22 16:39:46.451 EDT [88975] LOG:  listening on IPv4 address "127.0.0.1", port 58624
+2026-10-22 16:39:46.451 EDT [88975] LOG:  listening on Unix socket "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-v0WEqG/.s.PGSQL.58624"
+2026-10-22 16:39:46.453 EDT [88985] LOG:  database system was shut down at 2026-10-22 16:39:46 EDT
+2026-10-22 16:39:46.456 EDT [88975] LOG:  database system is ready to accept connections
+2026-10-22 16:39:46.715 EDT [89001] FATAL:  database "sigra253_order_diagnostic" does not exist
+2026-10-22 16:48:59.316 EDT [88975] LOG:  received smart shutdown request
+2026-10-22 16:48:59.317 EDT [88975] LOG:  background worker "logical replication launcher" (PID 88991) exited with exit code 1
+2026-10-22 16:48:59.317 EDT [88986] LOG:  shutting down
+2026-10-22 16:48:59.329 EDT [88975] LOG:  database system is shut down

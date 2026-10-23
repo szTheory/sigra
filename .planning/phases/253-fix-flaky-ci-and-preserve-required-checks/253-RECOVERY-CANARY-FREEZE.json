@@ -1,0 +1,143 @@
+{
+  "schema_version": "sigra.recovery-canary-freeze/v1",
+  "plan": "253-12",
+  "scope": "Plan12 bounded hosted canary after local startup and create-only remote-ref regressions; original Plan11 artifacts and failed run remain immutable",
+  "identity": {
+    "candidate_helper_commit": "a740517229ffa2d7573d23af76f9e98fadd27f84",
+    "fixture_workflow_commit": "f15eb9af5668a14995416d8c1ae053c0ec876c62",
+    "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T164004Z-plan12",
+    "fixture_ref_state": "verified-local-create-only-unpushed",
+    "original_failed_run_id": "38347679431",
+    "old_failed_run_id": "38347679431",
+    "old_failed_fixture_ref": "refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+    "old_failed_fixture_commit": "19e66df3c7869cc52b4662ae8d0e3b0ee2ec3c6f",
+    "old_failed_fixture_blob": "077a89e438d5e054ee48799fe741cf1a49d2f85c"
+  },
+  "superseded_local_candidates": [
+    {
+      "candidate_helper_commit": "307dd959197e348fd095fa4020fad6ddb7916752",
+      "fixture_workflow_commit": "e52ed3f63b5e94f9aeeee7bb32bf049ce49780b7",
+      "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+      "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T160411Z",
+      "dispatched": false,
+      "reason": "Replaced after adding durable fail-closed diagnostics before any dispatch."
+    }
+  ],
+  "source_sha256": {
+    "scripts/ci/ci-gate-canary.sh": "0dad278e782ec155f10454d2ab892a132ce293bc1a0ec957d2ab63d6c2b6cb6d",
+    "scripts/ci/ci-gate-canary.test.sh": "98bff3d972129004d98d43de6a39200403c6e0fbb95d4d2095dfa47f58c736d8",
+    "scripts/ci/ci-hosted-gate-verify.py": "e46366e315aeb1c1b3a170b0b586941b9897ca2d211114ecfb95d0aaa9e69e95",
+    "scripts/ci/ci-hosted-gate-verify.test.py": "2e0af813e8916e56e6d9272f3e460e4e6831f5a91e27f94d3e95232d074063c3"
+  },
+  "required_checks": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "workflow": {
+    "name": "Phase 253 Gate Canary",
+    "path": ".github/workflows/ci.yml",
+    "trigger": [
+      "workflow_dispatch"
+    ],
+    "permissions": {
+      "contents": "read"
+    },
+    "jobs": {
+      "tiny_producers": 5,
+      "verdict": 1,
+      "independent_verifier": 1,
+      "observer_trigger": false
+    },
+    "scenario_input_event": "workflow_dispatch",
+    "docs_only_logical_event": "pull_request",
+    "docs_only_classifier_result": "success",
+    "docs_only_production_exemption": false,
+    "registered_workflow_id": 259268962
+  },
+  "scenarios": {
+    "count": 6,
+    "cases": [
+      {
+        "name": "full-pass",
+        "expected_outcome": "success"
+      },
+      {
+        "name": "docs-only",
+        "expected_outcome": "success",
+        "actual_event": "workflow_dispatch",
+        "logical_event": "pull_request"
+      },
+      {
+        "name": "actual-failure",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "missing-seam",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "unexpected-skip",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "cancelled",
+        "expected_outcome": "cancelled"
+      }
+    ],
+    "optional_infrastructure_retry": 1,
+    "retry_requires": "independent diagnosis proving infrastructure-only cause; original outcome retained",
+    "max_scenario_tiny_job_executions": 36,
+    "max_independent_verifier_jobs": 1,
+    "max_retry_tiny_job_executions": 6,
+    "maximum_with_retry": 43
+  },
+  "bounds": {
+    "max_requests": 120,
+    "max_actual_tiny_jobs": 45,
+    "max_minutes": 60,
+    "max_infrastructure_retries": 1,
+    "max_dispatch_input_keys": 10,
+    "max_dispatch_input_chars": 65535,
+    "max_artifact_compressed_bytes": 2097152,
+    "max_artifact_extracted_bytes": 4194304
+  },
+  "historical": {
+    "previous_accounted_or_reserved_requests": 20,
+    "previous_exact_http_count_proven": false,
+    "note": "Old failed run/ref/evidence remain historical only and are not credited to this budget."
+  },
+  "stop_conditions": [
+    "stop before dispatch if the source, fixture, required-check, input, or budget identity differs",
+    "stop at REST core remaining <=250 before every run watch",
+    "stop on HTTP 403/429 until GitHub's reported reset or retry time",
+    "stop on missing, duplicated, malformed, oversized, or wrong-origin artifact/receipt",
+    "stop after any deterministic source failure while retaining its diagnostics",
+    "never dispatch after the 60-minute or 120-request ceiling"
+  ],
+  "prior_plan11_seal": {
+    "freeze_ref": "refs/gsd/phase253-12-prior-freeze",
+    "freeze_sha256": "f891b8c5bc8354fc110a8a0be4b8617d8f813c3f2c804e44206294cc6e98af82",
+    "workflow_ref": "refs/gsd/phase253-12-prior-workflow",
+    "workflow_sha256": "65b56df90ccd19b6152392027276887dcc1d55713462ec7e52d679480265c904",
+    "revision_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION.json",
+    "revision_sha256": "2c9e0fea97a6d900f96763f7376f88b30678e346106162135707f1547bb0d887"
+  },
+  "supersedes_intermediate_freeze": {
+    "ref": "refs/gsd/phase253-12-intermediate-freeze/50cd3075036741999cc9462d03195313ba597839ec29a1583880e0e541dd558c",
+    "sha256": "50cd3075036741999cc9462d03195313ba597839ec29a1583880e0e541dd558c",
+    "exact_readback": true
+  },
+  "latest_prelaunch_revision": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION-02.json",
+    "sha256": "14f364486b6cfbb8fdc18744c4585986fe0f4d35aa5387265747b0fa8a3cfef9"
+  },
+  "supersedes_final_prelaunch_freeze": {
+    "ref": "refs/gsd/phase253-12-prior-freeze-final-source/2553bde1b3d455248d2d6f780eda88f333e850198808b1fdd5dacb05f68c2f54",
+    "sha256": "2553bde1b3d455248d2d6f780eda88f333e850198808b1fdd5dacb05f68c2f54",
+    "exact_readback": true
+  }
+}

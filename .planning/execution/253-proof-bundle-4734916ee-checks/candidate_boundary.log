@@ -1,0 +1,9 @@
+test_actual_candidate_html_reporter_and_record_checks (__main__.CandidateBoundary.test_actual_candidate_html_reporter_and_record_checks) ... ok
+test_all_candidate_prohibition_checks (__main__.CandidateBoundary.test_all_candidate_prohibition_checks) ... ok
+test_candidate_keeps_old_parent_ledger_and_uses_exact_source_fixture (__main__.CandidateBoundary.test_candidate_keeps_old_parent_ledger_and_uses_exact_source_fixture) ... ok
+test_candidate_rejects_known_bad_historical_claim (__main__.CandidateBoundary.test_candidate_rejects_known_bad_historical_claim) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 4.547s
+
+OK

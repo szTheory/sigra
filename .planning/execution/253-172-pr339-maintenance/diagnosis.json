@@ -1,0 +1,57 @@
+{
+  "status": "offline_reproduced_and_repaired",
+  "actual_attempt_commit": "a4ad7101f",
+  "actual_attempt": ".planning/execution/253-proof-bundle-16800f431-compatible/attempt-result.json",
+  "actual_attempt_sha256": "f1e9bd11c5fad54e96fdddb35c8a21a54ff9c2a109488db10dd998002f4c07ad",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "run": {
+    "id": 39694840276,
+    "url": "https://github.com/szTheory/sigra/actions/runs/39694840276",
+    "conclusion": "failure",
+    "pr": 339
+  },
+  "defects": [
+    {
+      "id": "operator-pr-family",
+      "observed": "Independent PR verifier rejects the two operator preflight transactions because family is null.",
+      "reproduction": "pr-verifier-before.log",
+      "fix": "operator-fixed.py labels future PR-window operator preflight requests shared; the original ledger and approvals are unchanged.",
+      "status": "offline_recipe_verified_not_launched"
+    },
+    {
+      "id": "html-cleans-selection",
+      "observed": "All five native browser shards succeeded but all five retained execution records report missing selection JSON.",
+      "reproduction": "browser-retention-before.log uses actual installed Playwright reporter and repository config; execution deletes the earlier independent selection JSON.",
+      "fix": "HTML writes only into playwright-report/html; selection and execution JSON remain in the parent and existing artifact upload still includes HTML."
+    },
+    {
+      "id": "candidate-reads-old-ledger",
+      "observed": "Fast checks failed at Phase230 prohibition guards. Exact published product candidate reproduces three P12 failures because its main-parent live236 ledger differs from the corrected source archive.",
+      "reproduction": "candidate-prohibitions-before.log; hosted failed-step metadata is retained, detailed hosted logs were not collected before closure.",
+      "fix": "P12 reads an explicit byte-identical source236 ledger fixture with recorded source commit/path/digest. All original historical ledgers are unchanged; known-bad injected ledger remains rejected."
+    }
+  ],
+  "budget": {
+    "canary_requests": 93,
+    "pr_requests": 34,
+    "canary_seconds": 824,
+    "pr_seconds": 508,
+    "workflow_dispatches": 7,
+    "pr_creations": 1,
+    "reruns": 0,
+    "windows_reopened": 0
+  },
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "remaining": [
+    "Current source fixes have no hosted normal PR success.",
+    "Docs-only PR was not created.",
+    "Original selected registration failure remains not reproduced."
+  ],
+  "tests": ".planning/execution/253-172-pr339-maintenance/CHECKS.json",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Continue existing Plan172 offline: prepare and verify a new-source bundle using operator-fixed.py; no old operator restart and no hosted action without a new exact approval.",
+  "new_quick_or_numbered_plan": false
+}

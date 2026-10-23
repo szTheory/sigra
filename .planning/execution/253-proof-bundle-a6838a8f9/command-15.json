@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/runtime/ci-hosted-transport.py",
+    "--allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/prs-allocation.json",
+    "--ledger",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/prs-ledger.json",
+    "--request",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/prs-operator-request-2.json",
+    "--output",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/prs-operator-receipt-2.json",
+    "--body-output",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/prs-operator-body-2.json"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

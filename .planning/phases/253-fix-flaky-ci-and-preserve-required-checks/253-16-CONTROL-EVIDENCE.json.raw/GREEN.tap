@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: diagnostic verification rejects caller-written success without native receipts
+ok 1 - diagnostic verification rejects caller-written success without native receipts
+  ---
+  duration_ms: 43.405708
+  type: 'test'
+  ...
+# Subtest: the original controls and acceptance verification modes remain unavailable
+ok 2 - the original controls and acceptance verification modes remain unavailable
+  ---
+  duration_ms: 15.258958
+  type: 'test'
+  ...
+# Subtest: control verification requires native outcomes instead of caller-written passed status
+ok 3 - control verification requires native outcomes instead of caller-written passed status
+  ---
+  duration_ms: 0.265959
+  type: 'test'
+  ...
+# Subtest: the explicit revision CLI freezes before results and accepts a named diagnostic slot
+ok 4 - the explicit revision CLI freezes before results and accepts a named diagnostic slot
+  ---
+  duration_ms: 98.667166
+  type: 'test'
+  ...
+# Subtest: runner floors fractional millisecond process timeouts before spawnSync
+ok 5 - runner floors fractional millisecond process timeouts before spawnSync
+  ---
+  duration_ms: 222.291125
+  type: 'test'
+  ...
+# Subtest: browser attempt output gets a unique directory beside preserved preflight logs
+ok 6 - browser attempt output gets a unique directory beside preserved preflight logs
+  ---
+  duration_ms: 0.507958
+  type: 'test'
+  ...
+# Subtest: revision attempt directory creates the missing slot parent before any native setup
+ok 7 - revision attempt directory creates the missing slot parent before any native setup
+  ---
+  duration_ms: 0.287583
+  type: 'test'
+  ...
+# Subtest: revision attempt directory collisions preserve existing native artifacts
+ok 8 - revision attempt directory collisions preserve existing native artifacts
+  ---
+  duration_ms: 0.4985
+  type: 'test'
+  ...
+# Subtest: port availability detects an occupied localhost fixture port without launching a browser
+ok 9 - port availability detects an occupied localhost fixture port without launching a browser
+  ---
+  duration_ms: 8.930333
+  type: 'test'
+  ...
+# Subtest: readiness fails immediately when the app child already exited before HTTP readiness
+ok 10 - readiness fails immediately when the app child already exited before HTTP readiness
+  ---
+  duration_ms: 0.159
+  type: 'test'
+  ...
+# Subtest: one-use infrastructure retry requires the independently reviewed Chromium bootstrap failure
+ok 11 - one-use infrastructure retry requires the independently reviewed Chromium bootstrap failure
+  ---
+  duration_ms: 165.733666
+  type: 'test'
+  ...
+# Subtest: revision evidence binds to the freeze file digest while validating its internal digest separately
+ok 12 - revision evidence binds to the freeze file digest while validating its internal digest separately
+  ---
+  duration_ms: 0.268542
+  type: 'test'
+  ...
+# Subtest: each diagnostic uses its own physical Mix build for setup, server and cleanup
+ok 13 - each diagnostic uses its own physical Mix build for setup, server and cleanup
+  ---
+  duration_ms: 65.652334
+  type: 'test'
+  ...
+# Subtest: command logs remove development signing keys before a receipt hashes their bytes
+ok 14 - command logs remove development signing keys before a receipt hashes their bytes
+  ---
+  duration_ms: 22.022791
+  type: 'test'
+  ...
+# Subtest: command logs redact the complete seeded demo credentials block before hashing
+ok 15 - command logs redact the complete seeded demo credentials block before hashing
+  ---
+  duration_ms: 22.370417
+  type: 'test'
+  ...
+# Subtest: the saved desktop and mobile native Playwright receipts verify through the real shell CLI
+ok 16 - the saved desktop and mobile native Playwright receipts verify through the real shell CLI
+  ---
+  duration_ms: 194.573916
+  type: 'test'
+  ...
+# Subtest: revision CLI rejects null, empty, and fake evidence before trusting caller status
+ok 17 - revision CLI rejects null, empty, and fake evidence before trusting caller status
+  ---
+  duration_ms: 139.124666
+  type: 'test'
+  ...
+# Subtest: revision CLI rejects slot usage counters that do not match native attempts
+ok 18 - revision CLI rejects slot usage counters that do not match native attempts
+  ---
+  duration_ms: 159.474292
+  type: 'test'
+  ...
+# Subtest: revision CLI rejects forged, mismatched, duplicated, and over-budget saved receipts
+ok 19 - revision CLI rejects forged, mismatched, duplicated, and over-budget saved receipts
+  ---
+  duration_ms: 1889.947416
+  type: 'test'
+  ...
+# Subtest: the real shell rejects stale frozen source before setup or browser work
+ok 20 - the real shell rejects stale frozen source before setup or browser work
+  ---
+  duration_ms: 116.124667
+  type: 'test'
+  ...
+# Subtest: the dirty config must still match its exact preserved bytes and SHA-256
+ok 21 - the dirty config must still match its exact preserved bytes and SHA-256
+  ---
+  duration_ms: 41.311375
+  type: 'test'
+  ...
+# Subtest: native receipt accepts the selected project only with matching report, logs, exit and drop
+ok 22 - native receipt accepts the selected project only with matching report, logs, exit and drop
+  ---
+  duration_ms: 1.850834
+  type: 'test'
+  ...
+# Subtest: diagnostic ledger accepts one accurately charged, source-bound native attempt
+ok 23 - diagnostic ledger accepts one accurately charged, source-bound native attempt
+  ---
+  duration_ms: 2.27925
+  type: 'test'
+  ...
+# Subtest: native receipt rejects source drift, a wrong project, and a missing report
+ok 24 - native receipt rejects source drift, a wrong project, and a missing report
+  ---
+  duration_ms: 5.5685
+  type: 'test'
+  ...
+# Subtest: native receipt rejects an empty report, absent database drop and changed log digest
+ok 25 - native receipt rejects an empty report, absent database drop and changed log digest
+  ---
+  duration_ms: 5.245667
+  type: 'test'
+  ...
+# Subtest: native receipt rejects a failed browser without a retained failure trace
+ok 26 - native receipt rejects a failed browser without a retained failure trace
+  ---
+  duration_ms: 2.043709
+  type: 'test'
+  ...
+# Subtest: native receipt rejects uncharged controls and attempts over the slot limit
+ok 27 - native receipt rejects uncharged controls and attempts over the slot limit
+  ---
+  duration_ms: 2.701917
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3281.434834

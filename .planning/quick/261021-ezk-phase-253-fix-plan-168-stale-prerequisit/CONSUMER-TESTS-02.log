@@ -1,0 +1,7 @@
+test_mutated_plan_receipt_and_history_are_rejected (__main__.ConsumerTests.test_mutated_plan_receipt_and_history_are_rejected) ... ok
+test_scoped_correction_matches_current (__main__.ConsumerTests.test_scoped_correction_matches_current) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 40.197s
+
+OK

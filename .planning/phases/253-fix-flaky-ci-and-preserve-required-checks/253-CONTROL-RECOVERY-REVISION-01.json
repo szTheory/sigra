@@ -1,0 +1,96 @@
+{
+  "schema_version": "sigra.phase253.control-recovery-plan-revision/v1",
+  "iteration": 1,
+  "maximum_iterations": 3,
+  "previous_issue_count": 1,
+  "status": "targeted_planning_revision",
+  "capture_head": "a6bae4c256d47bf960885feb4c9937355ef867d8",
+  "checker_report_commit": "a6bae4c256d47bf960885feb4c9937355ef867d8",
+  "checker_report_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLAN-CHECK-01.md",
+  "issues": [
+    {
+      "plan": "253-26",
+      "task": 2,
+      "dimension": "task_completeness",
+      "severity": "blocker",
+      "required_property": "The offline regression test can invoke and fail on the actual control implementation that the Playwright spec imports, using the project’s pinned Node 20 test command.",
+      "description": "The earlier plan named registrationControls.ts but no Node 20-compatible loader or transpilation path.",
+      "resolution": "Replace the proposed shared helper with the sole plain JavaScript ESM registrationControls.mjs implementation. The Node .mjs test directly imports the same exports that async opt-in Playwright callbacks dynamically import and call. Require behavioral RED assertions against the faithful extraction before repair, then GREEN on those same exports.",
+      "resolution_scope": "Planned executable contract only; no control implementation or RED/GREEN/native test has been run during this revision.",
+      "conflict": false
+    }
+  ],
+  "files_rewritten": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md",
+      "change": "Shared .mjs ownership/artifact/output and both import edges; explicit Node 20 same-export RED/GREEN behavior, action, read-first, acceptance and failure signals."
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md",
+      "change": "Propagate only the helper extension in Task 1 read_first from .ts to .mjs."
+    }
+  ],
+  "files_created": [
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-REVISION-01.json",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-REVISION-CHECKS-01.json"
+  ],
+  "preservation": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md",
+      "prior_status": "",
+      "prior_sha256": "197482709c71475582fd1ca8185546b4c27071fc7205b823e8a9a6385d18c4d6",
+      "preservation_commit": "2ea9b0ab5ca92ae5036db6f6d61a7fc5a324cdc2",
+      "preserved_git_blob": "9d4da51cedd4b694abeaa88c56837bb3b117e08b",
+      "readback_sha256": "197482709c71475582fd1ca8185546b4c27071fc7205b823e8a9a6385d18c4d6",
+      "exact_readback_equal": true,
+      "source_status_and_hash_recheck_required_immediately_before_write": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md",
+      "prior_status": "",
+      "prior_sha256": "28f040411aa32b06391ddc493cc95eab3426970fd63758b7635a9d560480f6dd",
+      "preservation_commit": "2ea9b0ab5ca92ae5036db6f6d61a7fc5a324cdc2",
+      "preserved_git_blob": "e050f30cb5eabed291a7862b28274eee05b4280d",
+      "readback_sha256": "28f040411aa32b06391ddc493cc95eab3426970fd63758b7635a9d560480f6dd",
+      "exact_readback_equal": true,
+      "source_status_and_hash_recheck_required_immediately_before_write": true
+    }
+  ],
+  "source_facts": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "lines": [
+        443,
+        1791
+      ],
+      "fact": "CI setup-node selects Node 20."
+    },
+    {
+      "path": "test/example/priv/playwright/package.json",
+      "fact": "Existing scripts are playwright test and install-browsers; no TypeScript loader or typecheck script is declared."
+    },
+    {
+      "path": "test/example/priv/playwright/package-lock.json",
+      "fact": "@playwright/test and its playwright dependency are pinned to 1.59.1; no dependency or lock change is planned."
+    },
+    {
+      "path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+      "fact": "The current spec uses CJS/__dirname and a local three-argument readiness helper that already forwards selector/timeout and waits for fonts."
+    },
+    {
+      "path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+      "fact": "Current held-control source clicks before release and shares a project control account with collision. Planned offline assertion tests must demonstrate those control mismatches; this does not prove the historical registration cause."
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ASSUMPTIONS.json",
+      "fact": "Preserve the source fact that pinned Playwright 1.59.1 context options already work; no context-default repair is introduced."
+    }
+  ],
+  "unchanged_contracts": [
+    "All native/hosted numeric limits, prior charges/reservations, retry used1/available0, strict stop conditions, source identities and prior outcomes remain intact.",
+    "All D-01 through D-24 decisions, requirements, dependency/wave assignments and existing threat IDs remain intact.",
+    "All older plans01–25, evidence, context/research/patterns, coverage, shared state/roadmap/handoff/requirements/config and prior checker/probe files remain untouched.",
+    "Only planning artifacts are written; no implementation, app/browser/database, GitHub, branch/worktree change, commit or additional agent is performed."
+  ],
+  "next_action": "Parent preserves the revised draft bytes, reruns the independent plan checker, and commits the reviewed planning artifacts. No phase acceptance is claimed."
+}

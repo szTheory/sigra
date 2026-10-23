@@ -1,0 +1,59 @@
+{
+  "schema": "sigra.phase253.red-receipt/r10",
+  "plan": "253-116",
+  "task": "Task 2 (canary receipt-to-ledger binding)",
+  "produced_on_head": "e3ed66e913b88bfbd4c10fde153acbfae8bed82c",
+  "working_tree": "test edits uncommitted on top of produced_on_head; verifier source unchanged from produced_on_head",
+  "entries": [
+    {
+      "suite": "scripts/ci/ci-hosted-gate-verify.test.py",
+      "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; python3 scripts/ci/ci-hosted-gate-verify.test.py",
+      "exit_code": 1,
+      "summary": "Ran 108 tests in 28.778s, FAILED (failures=8, errors=2)",
+      "failing_tests": [
+        "test_cli_refuses_the_253_113_receipt_only_edit (__main__.CanaryBindingTests.test_cli_refuses_the_253_113_receipt_only_edit)",
+        "test_live_r9_real_full_pass_receipt_binds_to_its_ledger (__main__.CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger)",
+        "test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='253-113 control: receipt run.name set to the bare FIXTURE_NAME')",
+        "test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='artifact_zip hop 0 names another artifact id')",
+        "test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='dispatch transmitted scenario changed to docs-only')",
+        "test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='final hop raw_observation_sha256 changed')",
+        "test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='receipt artifacts created_at changed')",
+        "test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='receipt job runner_name changed')",
+        "test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='run poll removed')",
+        "test_the_separate_verifier_receipt_binds_to_its_own_ledger_rows (__main__.CanaryBindingTests.test_the_separate_verifier_receipt_binds_to_its_own_ledger_rows)"
+      ],
+      "failure_lines": [
+        "ERROR: test_live_r9_real_full_pass_receipt_binds_to_its_ledger (__main__.CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger)",
+        "AttributeError: module 'hosted_gate_verify_canary_binding' has no attribute 'verify_canary_bindings'. Did you mean: 'verify_canary_checks'?",
+        "ERROR: test_the_separate_verifier_receipt_binds_to_its_own_ledger_rows (__main__.CanaryBindingTests.test_the_separate_verifier_receipt_binds_to_its_own_ledger_rows)",
+        "AttributeError: module 'hosted_gate_verify_canary_binding' has no attribute 'verify_canary_bindings'. Did you mean: 'verify_canary_checks'?",
+        "FAIL: test_cli_refuses_the_253_113_receipt_only_edit (__main__.CanaryBindingTests.test_cli_refuses_the_253_113_receipt_only_edit)",
+        "AssertionError: 0 != 1 : {",
+        "FAIL: test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='253-113 control: receipt run.name set to the bare FIXTURE_NAME')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='receipt job runner_name changed')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='receipt artifacts created_at changed')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='artifact_zip hop 0 names another artifact id')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='final hop raw_observation_sha256 changed')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='dispatch transmitted scenario changed to docs-only')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) (label='run poll removed')",
+        "AssertionError: VerificationError not raised"
+      ]
+    }
+  ],
+  "semantic_assessment": "Target behavior failed for the intended reason on the unfixed binding (identity fix e3ed66e9 present, no binding). All seven tampered scratch copies of EVIDENCE-R9 were accepted by replan_result ('VerificationError not raised'), and each tamper first passed verify_transport_v2 inside the test, so the ledger stayed self-consistent and only a binding could refuse it: the exact 253-113 control (receipt run.name set to the bare FIXTURE_NAME, ledger untouched), a receipt job runner_name, a receipt artifact created_at, the artifact_zip hop-0 URL naming another artifact id (url_sha256 recomputed), the final hop raw_observation_sha256, the dispatch transmitted scenario changed to docs-only (request body, sha and input metrics recomputed), and the run poll removed (sequences and request count recomputed). The CLI on the 253-113 control exits 0 with canary_scenario_verified (see red_cli_observation). The two direct binding tests (real R9 positive control and the modeled separate-verifier receipt) error with AttributeError because verify_canary_bindings does not exist yet. The legacy/compact-matrix guard test passes, as intended (unchanged behavior). 108 tests ran; no syntax, collection or fixture-load fault.",
+  "red_cli_observation": {
+    "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; jq '.scenarios[\"full-pass\"].run.name = \"Phase 253 Gate Canary\"' EVIDENCE-R9 > TAMPER; python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario full-pass --evidence TAMPER",
+    "exit_code": 0,
+    "stdout_status": "canary_scenario_verified",
+    "stdout_scenario_run_id": "38906314106",
+    "stdout_transport_status": "transport_verified",
+    "stderr": "",
+    "note": "exit 0 is the RED observation: the receipt-only edit was accepted without a ledger binding"
+  }
+}

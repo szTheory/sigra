@@ -1,0 +1,33 @@
+test_canary_unchanged (__main__.RequestTests.test_canary_unchanged) ... ok
+test_prs_main_is_shared (__main__.RequestTests.test_prs_main_is_shared) ... ok
+test_prs_rate_is_shared (__main__.RequestTests.test_prs_rate_is_shared) ... ok
+test_generated_run_reaches_both_typed_pr_preflights_before_collector (__main__.StartupTests.test_generated_run_reaches_both_typed_pr_preflights_before_collector) ... ERROR
+
+======================================================================
+ERROR: test_generated_run_reaches_both_typed_pr_preflights_before_collector (__main__.StartupTests.test_generated_run_reaches_both_typed_pr_preflights_before_collector)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/test_operator_request.py", line 62, in test_generated_run_reaches_both_typed_pr_preflights_before_collector
+    with self.assertRaises(StopAfterStartup):m.run()
+                                             ~~~~~^^
+  File "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/operator.py", line 115, in run
+    execute(['bash',B/'runtime/ci-pr-proof.sh','--family',family,*common,'--evidence',evidence,*extra],state)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/test_operator_request.py", line 56, in fake_execute
+    scope['preflight'](subject)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "generated collector", line 475, in preflight
+NameError: name 'WORKFLOW_ID' is not defined
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.028s
+
+FAILED (errors=1)

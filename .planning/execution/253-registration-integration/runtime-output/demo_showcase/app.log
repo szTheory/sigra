@@ -1,0 +1,759 @@
+[error] `inotify-tools` is needed to run `file_system` for your system, check https://github.com/rvoicilas/inotify-tools/wiki for more information about how to install it. If it's already installed but not be found, appoint executable file with `config.exs` or `FILESYSTEM_FSINOTIFY_EXECUTABLE_FILE` env.
+[warning] Not able to start file_system worker, reason: {:error, :fs_inotify_bootstrap_error}
+[warning] Could not start Phoenix live-reload because we cannot listen to the file system.
+You don't need to worry! This is an optional feature used during development to
+refresh your browser when you save files and it does not affect production.
+
+[info] Running ExampleWeb.Endpoint with Bandit 1.10.4 at 127.0.0.1:4011 (http)
+[info] Access ExampleWeb.Endpoint at http://localhost:4011
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 73ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 38ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 7ms
+[info] GET /users/confirm
+[debug] Processing with ExampleWeb.ConfirmationLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 5ms
+[info] GET /dev/mailbox
+[debug] Processing with Plug.Swoosh.MailboxPreview
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 5ms
+[info] GET /users/sessions
+[debug] Processing with ExampleWeb.Auth.SessionLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated]
+[info] Sent 302 in 904µs
+[debug] Phoenix.Router halted in :require_authenticated/2
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 942µs
+[info] GET /users/sudo
+[debug] Processing with ExampleWeb.Auth.SudoController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated]
+[info] Sent 302 in 192µs
+[debug] Phoenix.Router halted in :require_authenticated/2
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 661µs
+[info] GET /users/settings/mfa
+[debug] Processing with ExampleWeb.MFASettingsLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :require_sudo]
+[info] Sent 302 in 282µs
+[debug] Phoenix.Router halted in :require_authenticated/2
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 673µs
+[info] GET /admin/users
+[debug] Processing with Sigra.Admin.Live.UsersIndexLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[info] Sent 302 in 405µs
+[debug] Phoenix.Router halted in :require_authenticated/2
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 904µs
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 887µs
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 2ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] POST /users/log_in/passkey/options
+[debug] Processing with ExampleWeb.SessionController.passkey_authentication_options/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser_passkey_options, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 27ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] POST /users/log_in/passkey/options
+[debug] Processing with ExampleWeb.SessionController.passkey_authentication_options/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser_passkey_options, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 736µs
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 900µs
+[info] GET /demo/credentials
+[debug] Processing with ExampleWeb.Demo.CredentialsLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 264µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.Demo.CredentialsLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] Replied in 232µs
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] POST /users/log_in/passkey/options
+[debug] Processing with ExampleWeb.SessionController.passkey_authentication_options/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser_passkey_options, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 916µs
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=18.3ms decode=1.4ms queue=8.8ms idle=29.4ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) [SQL arguments redacted]
+↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511
+[debug] QUERY OK db=2.0ms idle=96.6ms
+begin []
+[authentication values redacted]
+[debug] QUERY OK source="audit_events" db=11.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK db=2.4ms
+commit []
+[authentication values redacted]
+[debug] QUERY OK source="audit_actions" db=14.2ms queue=5.5ms idle=152.3ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[debug] QUERY OK source="user_sessions" db=11.2ms queue=6.5ms idle=187.4ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85
+[debug] QUERY OK source="user_sessions" db=20.4ms queue=4.2ms idle=206.3ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42
+[debug] QUERY OK source="organizations" db=3.5ms queue=1.5ms idle=240.6ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) [SQL arguments redacted]
+↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061
+[debug] QUERY OK source="user_sessions" db=15.1ms queue=4.7ms idle=248.5ms
+UPDATE "auth"."user_sessions" AS u0 SET "active_organization_id" = $1 WHERE (u0."hashed_token" = $2) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.update_active_organization/3, at: lib/sigra/session_stores/ecto.ex:170
+[debug] QUERY OK source="audit_events" db=24.4ms queue=4.5ms idle=269.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","organization_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [SQL arguments redacted]
+↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191
+[debug] QUERY OK source="audit_actions" db=12.9ms queue=4.5ms idle=299.4ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[debug] QUERY OK source="user_sessions" db=22.1ms queue=4.5ms idle=318.5ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","user_agent","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42
+[debug] QUERY OK source="organizations" db=8.7ms idle=289.6ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) [SQL arguments redacted]
+↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061
+[debug] QUERY OK source="user_sessions" db=8.9ms idle=218.5ms
+UPDATE "auth"."user_sessions" AS u0 SET "active_organization_id" = $1 WHERE (u0."hashed_token" = $2) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.update_active_organization/3, at: lib/sigra/session_stores/ecto.ex:170
+[debug] QUERY OK source="audit_events" db=10.9ms queue=0.6ms idle=192.7ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","organization_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [SQL arguments redacted]
+↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191
+[debug] QUERY OK source="audit_actions" db=8.3ms queue=1.4ms idle=172.0ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[info] Sent 302 in 383ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=0.8ms queue=0.5ms idle=164.7ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.4ms queue=0.3ms idle=151.8ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="organizations" db=2.2ms queue=1.5ms idle=131.6ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE ((o0."id" = $1) AND (o0."deleted_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Organizations.fetch_organization/2, at: lib/sigra/organizations.ex:1024
+[debug] QUERY OK source="organization_memberships" db=1.1ms queue=0.5ms idle=105.3ms
+SELECT o0."id", o0."role", o0."organization_id", o0."user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_memberships" AS o0 WHERE ((o0."user_id" = $1) AND (o0."organization_id" = $2)) [SQL arguments redacted]
+↳ Sigra.Scope.Hydration.do_hydrate/3, at: lib/sigra/scope/hydration.ex:78
+[debug] QUERY OK source="user_passkeys" db=7.3ms queue=2.7ms idle=95.5ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35
+[debug] QUERY OK source="user_identities" db=2.5ms queue=1.4ms idle=79.3ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36
+[debug] QUERY OK source="organization_memberships" db=2.2ms queue=0.6ms idle=76.3ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37
+[info] Sent 200 in 47ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 76µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=1.8ms idle=141.0ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=3.6ms idle=131.0ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="organizations" db=1.8ms idle=124.3ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE ((o0."id" = $1) AND (o0."deleted_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Organizations.fetch_organization/2, at: lib/sigra/organizations.ex:1024
+[debug] QUERY OK source="organization_memberships" db=1.1ms idle=116.4ms
+SELECT o0."id", o0."role", o0."organization_id", o0."user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_memberships" AS o0 WHERE ((o0."user_id" = $1) AND (o0."organization_id" = $2)) [SQL arguments redacted]
+↳ Sigra.Scope.Hydration.do_hydrate/3, at: lib/sigra/scope/hydration.ex:78
+[debug] QUERY OK source="user_passkeys" db=3.2ms idle=117.3ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35
+[debug] QUERY OK source="user_identities" db=3.4ms idle=115.3ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36
+[debug] QUERY OK source="organization_memberships" db=8.8ms idle=116.9ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37
+[debug] Replied in 27ms
+[info] GET /users/sessions
+[debug] Processing with ExampleWeb.Auth.SessionLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=1.5ms idle=129.2ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.9ms idle=125.1ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="organizations" db=0.6ms idle=121.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE ((o0."id" = $1) AND (o0."deleted_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Organizations.fetch_organization/2, at: lib/sigra/organizations.ex:1024
+[debug] QUERY OK source="organization_memberships" db=1.3ms idle=48.8ms
+SELECT o0."id", o0."role", o0."organization_id", o0."user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_memberships" AS o0 WHERE ((o0."user_id" = $1) AND (o0."organization_id" = $2)) [SQL arguments redacted]
+↳ Sigra.Scope.Hydration.do_hydrate/3, at: lib/sigra/scope/hydration.ex:78
+[debug] QUERY OK source="user_sessions" db=3.9ms idle=49.1ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85
+[debug] QUERY OK source="organization_memberships" db=6.3ms idle=53.2ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.Auth.SessionLive.mount/3, at: lib/example_web/live/auth/session_live.ex:29
+[info] Sent 200 in 23ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 21µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.Auth.SessionLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=0.4ms idle=81.3ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.5ms idle=77.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="organizations" db=0.5ms idle=75.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE ((o0."id" = $1) AND (o0."deleted_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Organizations.fetch_organization/2, at: lib/sigra/organizations.ex:1024
+[debug] QUERY OK source="organization_memberships" db=0.3ms idle=66.7ms
+SELECT o0."id", o0."role", o0."organization_id", o0."user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_memberships" AS o0 WHERE ((o0."user_id" = $1) AND (o0."organization_id" = $2)) [SQL arguments redacted]
+↳ Sigra.Scope.Hydration.do_hydrate/3, at: lib/sigra/scope/hydration.ex:78
+[debug] QUERY OK source="user_sessions" db=5.3ms idle=45.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85
+[debug] QUERY OK source="organization_memberships" db=8.6ms idle=50.3ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.Auth.SessionLive.mount/3, at: lib/example_web/live/auth/session_live.ex:29
+[debug] Replied in 18ms
+[info] GET /demo/credentials
+[debug] Processing with ExampleWeb.Demo.CredentialsLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 598µs
+[info] CONNECTED TO Phoenix.LiveView.Socket in 23µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.Demo.CredentialsLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] Replied in 160µs
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] POST /users/log_in/passkey/options
+[debug] Processing with ExampleWeb.SessionController.passkey_authentication_options/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser_passkey_options, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=3.8ms idle=1092.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) [SQL arguments redacted]
+↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511
+[debug] QUERY OK source="organizations" db=8.1ms idle=1102.4ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) [SQL arguments redacted]
+↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061
+[debug] QUERY OK db=0.6ms idle=1111.4ms
+begin []
+[authentication values redacted]
+[debug] QUERY OK source="audit_events" db=6.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK db=1.4ms
+commit []
+[authentication values redacted]
+[debug] QUERY OK source="audit_actions" db=1.7ms queue=0.4ms idle=1122.6ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[debug] QUERY OK source="user_sessions" db=3.1ms idle=1125.0ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85
+[debug] QUERY OK source="audit_events" db=0.5ms queue=0.3ms idle=1129.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191
+[debug] QUERY OK source="audit_actions" db=4.5ms queue=0.7ms idle=1130.9ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[debug] QUERY OK source="user_sessions" db=4.1ms queue=0.5ms idle=1136.7ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42
+[debug] QUERY OK source="organizations" db=0.8ms idle=1141.8ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) [SQL arguments redacted]
+↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061
+[debug] QUERY OK source="audit_events" db=7.4ms queue=1.1ms idle=1143.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191
+[debug] QUERY OK source="audit_actions" db=0.8ms idle=55.9ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[debug] QUERY OK source="user_sessions" db=2.5ms queue=0.3ms idle=43.8ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","user_agent","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42
+[debug] QUERY OK source="organizations" db=0.4ms idle=35.5ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) [SQL arguments redacted]
+↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061
+[debug] QUERY OK source="audit_events" db=1.2ms queue=0.2ms idle=33.6ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [SQL arguments redacted]
+↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191
+[debug] QUERY OK source="audit_actions" db=2.6ms queue=0.4ms idle=32.0ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[info] Sent 302 in 72ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=0.6ms idle=36.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.8ms idle=31.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="user_passkeys" db=4.0ms idle=28.3ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35
+[debug] QUERY OK source="user_identities" db=0.3ms idle=31.3ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36
+[debug] QUERY OK source="organization_memberships" db=1.8ms idle=22.6ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37
+[info] Sent 200 in 11ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 22µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=1.5ms idle=80.1ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=1.2ms idle=78.0ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="user_passkeys" db=3.5ms idle=79.5ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35
+[debug] QUERY OK source="user_identities" db=1.9ms idle=81.4ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36
+[debug] QUERY OK source="organization_memberships" db=5.7ms idle=80.2ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37
+[debug] Replied in 16ms
+[info] GET /admin/users
+[debug] Processing with Sigra.Admin.Live.UsersIndexLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[debug] QUERY OK source="user_sessions" db=0.4ms idle=119.1ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.3ms idle=118.6ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="users" db=2.9ms queue=1.7ms idle=148.0ms
+SELECT count(*) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) [SQL arguments redacted]
+↳ Flop.meta/3, at: lib/flop.ex:929
+[debug] QUERY OK source="users" db=8.6ms queue=2.5ms idle=154.6ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at", s1."last_active_at", NOT (s2."user_id" IS NULL), coalesce(s3."passkey_count", 0) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) ORDER BY u0."inserted_at" DESC LIMIT $3 OFFSET $4 [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.list_users/3, at: lib/sigra/admin/users/query.ex:148
+[debug] QUERY OK source="organization_memberships" db=2.7ms queue=0.5ms idle=170.2ms
+SELECT o0."user_id", o1."name" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.attach_organization_summaries/3, at: lib/sigra/admin/users/query.ex:503
+[debug] QUERY OK source="users" db=1.5ms queue=1.5ms idle=117.9ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:182
+[debug] QUERY OK source="users" db=3.0ms queue=1.6ms idle=119.8ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."confirmed_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:184
+[debug] QUERY OK source="users" db=4.8ms queue=1.0ms idle=120.2ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s2."user_id" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:185
+[debug] QUERY OK source="users" db=6.0ms queue=1.9ms idle=124.3ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (coalesce(s3."passkey_count", 0) > 0) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:186
+[debug] QUERY OK source="users" db=3.3ms queue=1.7ms idle=126.7ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."locked_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:188
+[debug] QUERY OK source="users" db=3.4ms queue=1.9ms idle=94.5ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."scheduled_deletion_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:190
+[debug] QUERY OK source="users" db=3.2ms queue=1.9ms idle=99.9ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:198
+[debug] QUERY OK source="users" db=0.8ms idle=66.7ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:200
+[debug] QUERY OK source="users" db=1.2ms queue=0.4ms idle=54.3ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:671
+[debug] QUERY OK source="users" db=3.5ms idle=46.6ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:681
+[info] Sent 200 in 129ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 47µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT Sigra.Admin.Live.UsersIndexLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=0.3ms idle=190.0ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.3ms idle=185.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] Replied in 2ms
+[debug] HANDLE PARAMS in Sigra.Admin.Live.UsersIndexLive
+  Parameters: [authentication values redacted]
+[debug] QUERY OK source="users" db=2.1ms idle=180.8ms
+SELECT count(*) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) [SQL arguments redacted]
+↳ Flop.meta/3, at: lib/flop.ex:929
+[debug] QUERY OK source="users" db=10.7ms idle=174.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at", s1."last_active_at", NOT (s2."user_id" IS NULL), coalesce(s3."passkey_count", 0) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) ORDER BY u0."inserted_at" DESC LIMIT $3 OFFSET $4 [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.list_users/3, at: lib/sigra/admin/users/query.ex:148
+[debug] QUERY OK source="organization_memberships" db=3.3ms idle=180.6ms
+SELECT o0."user_id", o1."name" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.attach_organization_summaries/3, at: lib/sigra/admin/users/query.ex:503
+[debug] QUERY OK source="users" db=2.8ms idle=178.5ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:182
+[debug] QUERY OK source="users" db=1.5ms idle=175.8ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."confirmed_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:184
+[debug] QUERY OK source="users" db=4.3ms idle=176.4ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s2."user_id" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:185
+[debug] QUERY OK source="users" db=7.0ms idle=179.6ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (coalesce(s3."passkey_count", 0) > 0) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:186
+[debug] QUERY OK source="users" db=0.5ms idle=183.2ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."locked_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:188
+[debug] QUERY OK source="users" db=1.0ms idle=37.3ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."scheduled_deletion_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:190
+[debug] QUERY OK source="users" db=2.6ms idle=38.1ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:198
+[debug] QUERY OK source="users" db=0.7ms idle=37.8ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:200
+[debug] QUERY OK source="users" db=1.3ms idle=27.8ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:671
+[debug] QUERY OK source="users" db=3.0ms idle=25.3ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:681
+[debug] Replied in 46ms
+[info] GET /admin/users
+[debug] Processing with Sigra.Admin.Live.UsersIndexLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[debug] QUERY OK source="user_sessions" db=0.6ms idle=1208.3ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.5ms idle=1207.5ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="users" db=0.7ms idle=1204.9ms
+SELECT count(*) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) [SQL arguments redacted]
+↳ Flop.meta/3, at: lib/flop.ex:929
+[debug] QUERY OK source="users" db=1.0ms queue=0.4ms idle=1197.8ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at", s1."last_active_at", NOT (s2."user_id" IS NULL), coalesce(s3."passkey_count", 0) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) ORDER BY u0."inserted_at" DESC LIMIT $3 [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.list_users/3, at: lib/sigra/admin/users/query.ex:148
+[debug] QUERY OK source="organization_memberships" db=0.5ms idle=1198.9ms
+SELECT o0."user_id", o1."name" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.attach_organization_summaries/3, at: lib/sigra/admin/users/query.ex:503
+[debug] QUERY OK source="users" db=0.2ms idle=1198.6ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:182
+[debug] QUERY OK source="users" db=0.3ms idle=1196.2ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."confirmed_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:184
+[debug] QUERY OK source="users" db=0.4ms idle=1195.8ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s2."user_id" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:185
+[debug] QUERY OK source="users" db=0.4ms idle=1194.9ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (coalesce(s3."passkey_count", 0) > 0) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:186
+[debug] QUERY OK source="users" db=0.3ms idle=1192.5ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."locked_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:188
+[debug] QUERY OK source="users" db=0.2ms idle=8.9ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."scheduled_deletion_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:190
+[debug] QUERY OK source="users" db=0.4ms idle=8.4ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:198
+[debug] QUERY OK source="users" db=0.4ms idle=7.0ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:200
+[debug] QUERY OK source="users" db=0.6ms idle=5.6ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:671
+[debug] QUERY OK source="users" db=0.4ms idle=5.7ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:681
+[info] Sent 200 in 14ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 24µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT Sigra.Admin.Live.UsersIndexLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=0.4ms idle=36.0ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.3ms idle=36.0ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] Replied in 2ms
+[debug] HANDLE PARAMS in Sigra.Admin.Live.UsersIndexLive
+  Parameters: [authentication values redacted]
+[debug] QUERY OK source="users" db=3.2ms idle=36.6ms
+SELECT count(*) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) [SQL arguments redacted]
+↳ Flop.meta/3, at: lib/flop.ex:929
+[debug] QUERY OK source="users" db=1.3ms idle=39.5ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at", s1."last_active_at", NOT (s2."user_id" IS NULL), coalesce(s3."passkey_count", 0) FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE ((u0."email" ILIKE $1) OR (u0."id"::varchar ILIKE $2)) ORDER BY u0."inserted_at" DESC LIMIT $3 [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.list_users/3, at: lib/sigra/admin/users/query.ex:148
+[debug] QUERY OK source="organization_memberships" db=0.9ms idle=40.5ms
+SELECT o0."user_id", o1."name" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.attach_organization_summaries/3, at: lib/sigra/admin/users/query.ex:503
+[debug] QUERY OK source="users" db=0.3ms idle=41.3ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:182
+[debug] QUERY OK source="users" db=0.2ms idle=41.3ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."confirmed_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:184
+[debug] QUERY OK source="users" db=0.4ms idle=41.1ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s2."user_id" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:185
+[debug] QUERY OK source="users" db=0.4ms idle=40.8ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (coalesce(s3."passkey_count", 0) > 0) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:186
+[debug] QUERY OK source="users" db=0.2ms idle=40.6ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."locked_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:188
+[debug] QUERY OK source="users" db=0.1ms idle=10.2ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (u0."scheduled_deletion_at" IS NULL)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:190
+[debug] QUERY OK source="users" db=0.5ms idle=9.9ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:198
+[debug] QUERY OK source="users" db=0.3ms idle=6.4ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (u0."inserted_at" >= $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.summary_stats/3, at: lib/sigra/admin/users/query.ex:200
+[debug] QUERY OK source="users" db=0.4ms idle=5.3ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:671
+[debug] QUERY OK source="users" db=0.5ms idle=4.5ms
+SELECT count(u0."id") FROM "auth"."users" AS u0 LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", max(su0."last_active_at") AS "last_active_at" FROM "auth"."user_sessions" AS su0 GROUP BY su0."user_id") AS s1 ON s1."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id" FROM "auth"."user_mfa_credentials" AS su0 WHERE (NOT (su0."enabled_at" IS NULL)) GROUP BY su0."user_id") AS s2 ON s2."user_id" = u0."id" LEFT OUTER JOIN (SELECT su0."user_id" AS "user_id", count(su0."user_id") AS "passkey_count" FROM "auth"."user_passkeys" AS su0 GROUP BY su0."user_id") AS s3 ON s3."user_id" = u0."id" WHERE (NOT (s1."last_active_at" IS NULL) AND (s1."last_active_at" >= $1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Query.activity_stats/5, at: lib/sigra/admin/users/query.ex:681
+[debug] Replied in 11ms
+[info] GET /admin/users/db577ba9-0485-4ebf-a798-64de09fe9276
+[debug] Processing with Sigra.Admin.Live.UserShowLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[debug] QUERY OK source="user_sessions" db=0.4ms idle=89.3ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.4ms idle=89.6ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="users" db=0.6ms idle=94.9ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.load_user!/4, at: lib/sigra/admin/users/detail.ex:157
+[debug] QUERY OK source="organization_memberships" db=1.0ms queue=0.3ms idle=95.6ms
+SELECT o1."id", o1."name", o1."slug", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) ORDER BY o1."name" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.load!/3, at: lib/sigra/admin/users/detail.ex:23
+[debug] QUERY OK source="user_identities" db=0.5ms queue=0.4ms idle=96.9ms
+SELECT u0."id", u0."provider", u0."provider_uid", u0."encrypted_access_token", u0."encrypted_refresh_token", u0."token_expires_at", u0."provider_email", u0."provider_name", u0."provider_avatar_url", u0."metadata", u0."last_used_at", u0."user_id", u0."inserted_at", u0."updated_at" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider", u0."inserted_at" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.identities_with_flag/3, at: lib/sigra/admin/users/detail.ex:197
+[debug] QUERY OK source="user_sessions" db=0.3ms idle=97.7ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85
+[debug] QUERY OK source="user_passkeys" db=2.1ms queue=0.4ms idle=97.9ms
+SELECT u0."id", u0."user_id", u0."credential_id", u0."public_key", u0."sign_count", u0."aaguid", u0."nickname", u0."device_hint", u0."transports", u0."rp_id", u0."last_used_at", u0."inserted_at", u0."updated_at" FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.Passkeys.list_for_user/3, at: lib/sigra/passkeys.ex:140
+[debug] QUERY OK source="user_mfa_credentials" db=0.3ms queue=0.3ms idle=101.8ms
+SELECT u0."id", u0."user_id", u0."type", u0."encrypted_secret", u0."last_used_at", u0."last_verified_step", u0."failed_attempts", u0."locked_until", u0."enabled_at", u0."inserted_at", u0."updated_at" FROM "auth"."user_mfa_credentials" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ Sigra.MFA.status/3, at: lib/sigra/mfa.ex:981
+[debug] QUERY OK source="audit_events" db=1.0ms queue=0.3ms idle=104.6ms
+SELECT a0."id", a0."occurred_at", a0."action", a0."outcome", a0."actor_id", a0."actor_type", a0."target_id", a0."target_type", a0."organization_id", a0."effective_user_id", a0."ip_address", a0."user_agent", a0."metadata", a0."inserted_at" FROM "auth"."audit_events" AS a0 WHERE ((a0."effective_user_id" = $1) OR (a0."target_id" = $2)) ORDER BY a0."inserted_at" DESC, a0."id" DESC LIMIT $3 [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.recent_audit_preview/3, at: lib/sigra/admin/users/detail.ex:97
+[debug] QUERY OK source="users" db=0.3ms queue=0.2ms idle=105.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.load_audit_users/2, at: lib/sigra/admin/users/detail.ex:115
+[info] Sent 200 in 27ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 26µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT Sigra.Admin.Live.UserShowLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=0.5ms idle=57.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.3ms idle=58.0ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] Replied in 2ms
+[debug] HANDLE PARAMS in Sigra.Admin.Live.UserShowLive
+  Parameters: [authentication values redacted]
+[debug] QUERY OK source="users" db=0.4ms idle=53.2ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.load_user!/4, at: lib/sigra/admin/users/detail.ex:157
+[debug] QUERY OK source="organization_memberships" db=0.6ms idle=52.0ms
+SELECT o1."id", o1."name", o1."slug", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) ORDER BY o1."name" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.load!/3, at: lib/sigra/admin/users/detail.ex:23
+[debug] QUERY OK source="user_identities" db=0.3ms idle=51.6ms
+SELECT u0."id", u0."provider", u0."provider_uid", u0."encrypted_access_token", u0."encrypted_refresh_token", u0."token_expires_at", u0."provider_email", u0."provider_name", u0."provider_avatar_url", u0."metadata", u0."last_used_at", u0."user_id", u0."inserted_at", u0."updated_at" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider", u0."inserted_at" [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.identities_with_flag/3, at: lib/sigra/admin/users/detail.ex:197
+[debug] QUERY OK source="user_sessions" db=0.3ms idle=51.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85
+[debug] QUERY OK source="user_passkeys" db=0.3ms idle=49.0ms
+SELECT u0."id", u0."user_id", u0."credential_id", u0."public_key", u0."sign_count", u0."aaguid", u0."nickname", u0."device_hint", u0."transports", u0."rp_id", u0."last_used_at", u0."inserted_at", u0."updated_at" FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.Passkeys.list_for_user/3, at: lib/sigra/passkeys.ex:140
+[debug] QUERY OK source="user_mfa_credentials" db=0.2ms idle=47.2ms
+SELECT u0."id", u0."user_id", u0."type", u0."encrypted_secret", u0."last_used_at", u0."last_verified_step", u0."failed_attempts", u0."locked_until", u0."enabled_at", u0."inserted_at", u0."updated_at" FROM "auth"."user_mfa_credentials" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ Sigra.MFA.status/3, at: lib/sigra/mfa.ex:981
+[debug] QUERY OK source="audit_events" db=0.4ms idle=43.5ms
+SELECT a0."id", a0."occurred_at", a0."action", a0."outcome", a0."actor_id", a0."actor_type", a0."target_id", a0."target_type", a0."organization_id", a0."effective_user_id", a0."ip_address", a0."user_agent", a0."metadata", a0."inserted_at" FROM "auth"."audit_events" AS a0 WHERE ((a0."effective_user_id" = $1) OR (a0."target_id" = $2)) ORDER BY a0."inserted_at" DESC, a0."id" DESC LIMIT $3 [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.recent_audit_preview/3, at: lib/sigra/admin/users/detail.ex:97
+[debug] QUERY OK source="users" db=0.2ms idle=43.2ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Users.Detail.load_audit_users/2, at: lib/sigra/admin/users/detail.ex:115
+[debug] Replied in 4ms
+[info] GET /admin/audit
+[debug] Processing with Sigra.Admin.Live.AuditIndexLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[debug] QUERY OK source="user_sessions" db=0.6ms idle=826.1ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.5ms idle=826.3ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="audit_events" db=1.2ms queue=0.4ms idle=831.6ms
+SELECT a0."id", a0."occurred_at", a0."action", a0."outcome", a0."actor_id", a0."actor_type", a0."target_id", a0."target_type", a0."organization_id", a0."effective_user_id", a0."ip_address", a0."user_agent", a0."metadata", a0."inserted_at" FROM "auth"."audit_events" AS a0 ORDER BY a0."inserted_at" DESC, a0."id" DESC LIMIT $1 [SQL arguments redacted]
+↳ Sigra.Admin.Audit.Explorer.list/4, at: lib/sigra/admin/audit/explorer.ex:132
+[debug] QUERY OK source="users" db=1.4ms idle=832.9ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Audit.Explorer.load_users/2, at: lib/sigra/admin/audit/explorer.ex:82
+[info] Sent 200 in 16ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 31µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT Sigra.Admin.Live.AuditIndexLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=1.4ms idle=906.7ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.9ms idle=908.0ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] Replied in 3ms
+[debug] HANDLE PARAMS in Sigra.Admin.Live.AuditIndexLive
+  Parameters: [authentication values redacted]
+[debug] QUERY OK source="audit_events" db=5.4ms idle=909.1ms
+SELECT a0."id", a0."occurred_at", a0."action", a0."outcome", a0."actor_id", a0."actor_type", a0."target_id", a0."target_type", a0."organization_id", a0."effective_user_id", a0."ip_address", a0."user_agent", a0."metadata", a0."inserted_at" FROM "auth"."audit_events" AS a0 ORDER BY a0."inserted_at" DESC, a0."id" DESC LIMIT $1 [SQL arguments redacted]
+↳ Sigra.Admin.Audit.Explorer.list/4, at: lib/sigra/admin/audit/explorer.ex:132
+[debug] QUERY OK source="users" db=1.5ms idle=914.5ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = ANY($1)) [SQL arguments redacted]
+↳ Sigra.Admin.Audit.Explorer.load_users/2, at: lib/sigra/admin/audit/explorer.ex:82
+[debug] Replied in 8ms
+[notice] SIGTERM received - shutting down
+

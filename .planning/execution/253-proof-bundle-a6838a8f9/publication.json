@@ -1,0 +1,167 @@
+{
+  "schema_version": "sigra.phase253.git-publication/v1",
+  "status": "ready-local-proposal",
+  "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "server_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "parent_tree_sha": "817de2441c7b03dff93cfff89296c9c2f345d289",
+  "candidate_source_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "candidate_helper_commit": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+  "fixture_workflow_commit": "b12f53100ddaa99307de46294ec2ce07579c5b7d",
+  "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+  "fixture_tree_sha": "a186dc6b130dcc5d0e7068f4099c182b4eaad5d6",
+  "docs_base_commit": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+  "docs_head_commit": "879d628feeb0b894af1c0d842830b3002f905440",
+  "docs_head_path": "guides/reference/phase253-docs-only-proof.md",
+  "workflow_path": ".github/workflows/ci.yml",
+  "fixture_file": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+    "sha256": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b"
+  },
+  "commit_metadata": {
+    "author": "Sigra Publication Bot",
+    "email": "sigra-publication@users.noreply.github.com",
+    "committer": "Sigra Publication Bot",
+    "date_utc_second": "2026-10-22T01:13:38Z",
+    "message_newline_terminated": true,
+    "unsigned": true
+  },
+  "product_tree_parity": {
+    "source_product_tree": "e8fbe21b9ba6b931d53dfdf7dea51524528bc5c8",
+    "parent_product_tree": "817de2441c7b03dff93cfff89296c9c2f345d289",
+    "source_product_files": 1488,
+    "candidate_product_files": 1488,
+    "candidate_product_tree": "e8fbe21b9ba6b931d53dfdf7dea51524528bc5c8",
+    "same_paths_modes_blobs": true
+  },
+  "source_cleanliness": {
+    "product_status_hex": "",
+    "config_status_hex": "",
+    "config_sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+    "config_ref": null,
+    "clean": true
+  },
+  "immutable_candidate_inputs": {
+    ".planning/milestones/v1.48-REQUIREMENTS.md": {
+      "path": ".planning/milestones/v1.48-REQUIREMENTS.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6262fb32e55fa5b65030727e54b3f61b2d87110e"
+    },
+    ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md": {
+      "path": ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b52e72c2c4443082fb429cb191a7f06df001ea4f"
+    },
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-03-SUMMARY.md": {
+      "path": ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-03-SUMMARY.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e0dab73c8fc3458bf0c7657c4325a2502f72240f"
+    },
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-10-SUMMARY.md": {
+      "path": ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-10-SUMMARY.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ce4197c1127c11bea62f80104ba7abf07e06c968"
+    },
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-12-SUMMARY.md": {
+      "path": ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-12-SUMMARY.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "76b5ae87abb1de27b393756bc3d584cdd5d024c9"
+    },
+    ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md": {
+      "path": ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c3749feab9e4ec8212f4c8686614462b94192ea0"
+    }
+  },
+  "candidate_tree_sha": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+  "tree_requests": [
+    {
+      "name": "candidate-part-01",
+      "variant": "candidate",
+      "sequence": 1,
+      "base_tree_sha": "817de2441c7b03dff93cfff89296c9c2f345d289",
+      "tree_sha": "9986349962a0dd4e358df682d8ddfe507a84778f",
+      "body_bytes": 2024461,
+      "binary_blobs": 0,
+      "changed_entries": 47
+    },
+    {
+      "name": "candidate-part-02",
+      "variant": "candidate",
+      "sequence": 2,
+      "base_tree_sha": "9986349962a0dd4e358df682d8ddfe507a84778f",
+      "tree_sha": "4f1fba5024f7034266a5abb40a76c7bdeb6ff86e",
+      "body_bytes": 2084056,
+      "binary_blobs": 0,
+      "changed_entries": 29
+    },
+    {
+      "name": "candidate-part-03",
+      "variant": "candidate",
+      "sequence": 3,
+      "base_tree_sha": "4f1fba5024f7034266a5abb40a76c7bdeb6ff86e",
+      "tree_sha": "bc5ad02189fc66c5da3d65ab147fe310ffeeb067",
+      "body_bytes": 2095714,
+      "binary_blobs": 1,
+      "changed_entries": 126
+    },
+    {
+      "name": "candidate-part-04",
+      "variant": "candidate",
+      "sequence": 4,
+      "base_tree_sha": "bc5ad02189fc66c5da3d65ab147fe310ffeeb067",
+      "tree_sha": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+      "body_bytes": 42941,
+      "binary_blobs": 0,
+      "changed_entries": 10
+    },
+    {
+      "name": "fixture",
+      "variant": "fixture",
+      "sequence": 1,
+      "base_tree_sha": "fc9ea85364ff8853ea5cb61a8e582d52fc8741eb",
+      "tree_sha": "a186dc6b130dcc5d0e7068f4099c182b4eaad5d6",
+      "body_bytes": 17686,
+      "binary_blobs": 0,
+      "changed_entries": 1
+    }
+  ],
+  "docs_variants_local_only": [
+    {
+      "name": "docs-base",
+      "body_bytes": 140040,
+      "binary_blobs": 0,
+      "changed_paths": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "name": "docs-head",
+      "body_bytes": 264,
+      "binary_blobs": 0,
+      "changed_paths": [
+        "guides/reference/phase253-docs-only-proof.md"
+      ]
+    }
+  ],
+  "server_parent_availability": "proposal-only; fresh availability must be proved in the authorized publication window",
+  "projection": {
+    "parent_preflight_requests": 1,
+    "fixed_non_tree_requests": 12,
+    "tree_request_count": 5,
+    "binary_blob_requests": 1,
+    "projected_total_requests": 19,
+    "max_requests": 24,
+    "largest_tree_body_bytes": 2095714,
+    "max_tree_body_bytes": 2097152,
+    "complete_product_delta_dropped": false
+  },
+  "blockers": [],
+  "server_object_receipts": [],
+  "source_git_status": ""
+}

@@ -1,0 +1,15 @@
+Compiling 1 file (.ex)
+Generated registration_reloader_probe app
+** (Protocol.UndefinedError) protocol String.Chars not implemented for Tuple. This protocol is implemented for: Atom, BitString, Date, DateTime, Float, Integer, List, NaiveDateTime, Time, URI, Version, Version.Requirement
+
+Got value:
+
+    {:error, :bad_name}
+
+    (elixir 1.19.5) lib/string/chars.ex:7: String.Chars.impl_for!/1
+    (elixir 1.19.5) lib/string/chars.ex:26: String.Chars.to_string/1
+    .planning/debug/phase253-registration-timeout/interleaving_probe.exs:16: RegistrationLoaderInterleaving.run/3
+    .planning/debug/phase253-registration-timeout/reloader_probe.exs:139: anonymous fn/8 in :elixir_compiler_2.__FILE__/1
+    (mix 1.19.5) lib/mix/project.ex:557: Mix.Project.in_project/4
+    (elixir 1.19.5) lib/file.ex:2013: File.cd!/2
+    .planning/debug/phase253-registration-timeout/reloader_probe.exs:105: (file)

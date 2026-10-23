@@ -1,0 +1,210 @@
+{
+  "schema": "sigra.phase253.execution-bundle-approval-request/v1",
+  "status": "awaiting_explicit_approval",
+  "bundle_path": ".planning/execution/253-proof-bundle-16800f431-next/bundle.json",
+  "bundle_sha256": "75b5fd26c059a6083257e0aa68377561ec1ebc62a26c80e1e305849404c95c06",
+  "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "limits": {
+    "canary_requests": 117,
+    "pr_requests": 120,
+    "seconds_per_window": 3600,
+    "jobs": 45,
+    "reruns": 0,
+    "publication_requests": 24,
+    "docs_publication_requests": 14
+  },
+  "refs": [
+    "refs/heads/gsd/253-proof-16800f431-next-candidate",
+    "refs/heads/gsd/253-proof-16800f431-next-fixture",
+    "refs/heads/gsd/253-proof-16800f431-next-docs-base",
+    "refs/heads/gsd/253-proof-16800f431-next-docs-head"
+  ],
+  "outward_actions": {
+    "canary": {
+      "max_requests": 117,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_git_objects",
+          "category": "publication",
+          "max_requests": 24,
+          "candidate_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+          "fixture_commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+          "manifest": "bound_documents.publication_manifest"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-proof-16800f431-next-candidate",
+          "sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-proof-16800f431-next-fixture",
+          "sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145"
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "full-pass",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "docs-only",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "actual-failure",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "missing-seam",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "unexpected-skip",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "cancelled",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "cancel_run",
+          "scenario": "cancelled",
+          "max": 1,
+          "run_identity": {
+            "workflow_id": 259268962,
+            "event": "workflow_dispatch",
+            "head_branch": "gsd/253-proof-16800f431-next-fixture",
+            "head_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "display_title_prefix": "Phase 253 Gate Canary / cancelled /"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "verifier",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch"
+          }
+        }
+      ]
+    },
+    "docs_and_prs": {
+      "max_requests": 120,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_docs_objects",
+          "category": "docs_publication",
+          "max_requests": 14,
+          "docs_base_commit": "13920797cab15bd2cebf7c2114facd6e69b31833",
+          "docs_head_commit": "481e3698b20c7f37f111ea6bc02fb7fda1f32e0c",
+          "refs": [
+            {
+              "ref": "refs/heads/gsd/253-proof-16800f431-next-docs-base",
+              "sha": "13920797cab15bd2cebf7c2114facd6e69b31833"
+            },
+            {
+              "ref": "refs/heads/gsd/253-proof-16800f431-next-docs-head",
+              "sha": "481e3698b20c7f37f111ea6bc02fb7fda1f32e0c"
+            }
+          ]
+        },
+        {
+          "action": "pr_create",
+          "family": "normal",
+          "head": "gsd/253-proof-16800f431-next-candidate",
+          "base": "main",
+          "draft": true
+        },
+        {
+          "action": "pr_create",
+          "family": "docs-only",
+          "head": "gsd/253-proof-16800f431-next-docs-head",
+          "base": "gsd/253-proof-16800f431-next-docs-base",
+          "draft": true
+        }
+      ]
+    }
+  },
+  "sections": {
+    "canary": "0e2e8388ce95ac47181aaee1a04a865b3cb66c59e321f7dc2bf3b090b3096669",
+    "docs_and_prs": "daf857fb4422ad9567fa2c0b3e412c3a370f7d296da8934b39715b7d89adcc27"
+  },
+  "approval_files_after_authorization": [
+    "live-approval.json",
+    "canary-approval.json",
+    "prs-approval.json"
+  ],
+  "operator": "python3 .planning/execution/253-proof-bundle-16800f431-next/operator.py --run",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "no_actions_performed": true,
+  "reason": "The first approved bundle stopped after32 requests before dispatch; its approval and closed window cannot authorize this corrected fresh attempt. New explicit approval is required."
+}

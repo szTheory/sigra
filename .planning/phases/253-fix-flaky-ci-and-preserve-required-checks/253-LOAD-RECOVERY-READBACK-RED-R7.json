@@ -1,0 +1,59 @@
+{
+  "schema": "sigra.phase253.readback-red/v1",
+  "produced_on_head": "6cf3aa0321743ec7d63a57e620f9b2066a48d55a",
+  "entries": [
+    {
+      "suite": "scripts/ci/ci-git-publication.test.py",
+      "command": "python3 scripts/ci/ci-git-publication.test.py",
+      "exit_code": 1,
+      "summary": "Ran 53 tests, FAILED (failures=12)",
+      "failing_tests": [
+        "test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback (__main__)",
+        "test_actual_transport_publishes_full_multifile_delta_through_bounded_tree_chain (__main__)",
+        "test_create_race_is_counted_and_never_retried_or_patched (__main__)",
+        "test_exact_existing_ref_is_reused_only_with_matching_manifest_and_window_receipt (__main__)",
+        "test_existing_wrong_ref_is_never_overwritten (__main__)",
+        "test_lost_ref_readback_keeps_created_ref_and_never_replays_create (__main__)",
+        "test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities (__main__)",
+        "test_canary_publish_only_drives_the_publisher_end_to_end_and_records_the_approval_first (__main__)",
+        "test_hermetic_and_legacy_origins_are_rejected_by_live_acceptance (__main__)",
+        "test_publish_docs_publishes_only_the_frozen_docs_variants_within_fourteen_requests (__main__)",
+        "test_registered_ci_yml_fixture_child_changes_exactly_the_registered_workflow_and_is_published (__main__)",
+        "test_a_publication_receipt_stays_verifiable_after_later_requests_join_the_shared_ledger (__main__)"
+      ],
+      "failure_lines": [
+        "AssertionError: 1 != 0 : ci-git-publication: PublicationError: server commit readback differs for candidate",
+        "AssertionError: 'HTTP 404' not found in 'ci-git-publication: PublicationError: server commit readback differs for candidate\\n'",
+        "AssertionError: 'already points to a different commit' not found in 'ci-git-publication: PublicationError: server commit readback differs for candidate\\n'"
+      ],
+      "target_test": "test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback",
+      "note": "The GitHub-faithful fake server strips one trailing newline from commit JSON; the unfixed publisher compares readback.message to the newline-terminated sent message."
+    },
+    {
+      "suite": "scripts/ci/ci-pr-proof.test.sh",
+      "command": "bash scripts/ci/ci-pr-proof.test.sh",
+      "exit_code": 1,
+      "summary": "Ran 12 tests, FAILED (failures=14, errors=1); zero-test guard: only 12 contracts executed",
+      "failing_tests": [
+        "setUpClass (__main__)",
+        "test_core_rate_floor_is_a_terminal_stop_before_any_later_request (__main__)",
+        "test_never_finishing_run_stops_at_the_frozen_poll_allocation_without_extra_requests (__main__)",
+        "test_refused_pr_creation_preserves_the_charged_failure_and_is_never_accepted (__main__)",
+        "test_a_freeze_that_fails_the_full_policy_is_refused_even_with_a_matching_approval (__main__)",
+        "test_docs_objects_in_the_ledger_are_reused_only_when_they_are_the_complete_frozen_publication (__main__)",
+        "test_docs_only_collection_reuses_docs_objects_already_published_in_the_shared_ledger (__main__)",
+        "test_every_live_family_mode_refuses_each_unapproved_or_wrongly_scoped_approval_before_any_request (__main__)",
+        "test_existing_evidence_is_never_overwritten_by_a_later_collection (__main__)",
+        "test_pr_create_that_differs_from_the_approved_section_is_refused_before_any_request (__main__)",
+        "test_prepare_and_check_only_stay_network_free_and_need_no_approval (__main__)",
+        "test_prepare_rejects_a_hermetic_publication_origin_when_live_acceptance_is_required (__main__)",
+        "test_the_action_approval_record_is_written_before_the_first_request (__main__)"
+      ],
+      "failure_lines": [
+        "AssertionError: ci-git-publication: PublicationError: server commit readback differs for candidate",
+        "ci-pr-proof.test: FAIL: only 12 contracts executed (zero-test guard)"
+      ],
+      "note": "The PR suite goes RED at its shared setup because it publishes through the same publisher against the same inheriting fake server. The docs-only verifier message check is not reached here; it is proven RED in isolation in Task 2."
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "26",
+  "status": "readiness_transport_repair_verified",
+  "root_cause": "Underlying runtime/OS pipe EOF cause unresolved; blocked synchronous stdin delivery isolated and avoided with regular-file stdin.",
+  "classification": "cross_runtime_synchronous_pipe_stdin_stall",
+  "platform": "macOS 26.6.2 arm64",
+  "git": {
+    "path": "/usr/bin/git",
+    "version": "2.50.1 (Apple Git-155)"
+  },
+  "runs": [
+    {
+      "started_at": "2026-10-01T17:44:33Z",
+      "stopped_at": "2026-10-01T17:59:26Z",
+      "outcome": "interrupted_after_observed_stall",
+      "supervisor_exit_code": 1,
+      "blocked_git_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "counts_as_passing_evidence": false,
+      "node": "v22.14.0"
+    },
+    {
+      "started_at": "2026-10-01T18:04:37Z",
+      "stopped_at": "2026-10-01T18:07:38Z",
+      "outcome": "interrupted_after_reproduced_stall",
+      "supervisor_exit_code": 1,
+      "blocked_git_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "counts_as_passing_evidence": false,
+      "node": "v22.14.0"
+    },
+    {
+      "started_at": "2026-10-01T18:09:07Z",
+      "stopped_at": "2026-10-01T18:16:40Z",
+      "node": "v24.19.0",
+      "outcome": "interrupted_after_reproduced_stall",
+      "supervisor_exit_code": 1,
+      "completed_readiness_tests": 20,
+      "blocked_git_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "child_runtime_verified_with_lsof": true,
+      "counts_as_passing_full_gate_evidence": false
+    }
+  ],
+  "observation": "Git hash-object --stdin waited in read/strbuf_read while its Node parent waited in SyncProcessRunner/uv__io_poll. No test assertion result was produced for either stalled run. Only command-identity-verified owned processes were signaled through their process-group supervisor.",
+  "samples": [
+    {
+      "process": "git",
+      "sha256": "10dc905a04e5e0949ca208cc42d85adccd0708abf5742d90304ed8c699b0a4de",
+      "relevant_stack": "802 Thread_251956225   DispatchQueue_1: com.apple.main-thread  (serial)\n      802 start  (in dyld) + 6992  [0x1894284e4]\n        802 main  (in git) + 40  [0x104ba28dc]\n          802 cmd_main  (in git) + 856  [0x104ae8da4]\n            802 handle_builtin  (in git) + 340  [0x104ae9550]\n              802 run_builtin  (in git) + 440  [0x104aea070]\n                802 cmd_hash_object  (in git) + 784  [0x104b38b2c]\n                  802 hash_fd  (in git) + 132  [0x104b38dd0]\n                    802 index_fd  (in git) + 400  [0x104c47770]\n                      802 strbuf_read  (in git) + 80  [0x104cc9958]\n                        802 read_in_full  (in git) + 52  [0x104cf8954]\n                          802 xread  (in git) + 52  [0x104cf8774]\n                            802 read  (in libsystem_kernel.dylib) + 8  [0x1897b091c]"
+    },
+    {
+      "process": "node",
+      "sha256": "6a435521cc42a08a6df6e74eaf71a619503c718017ef2f54cb899efa9332a702",
+      "relevant_stack": "+           796 uv__io_poll  (in node) + 1024  [0x1058bf920]\n    +                                                                                         796 node::SyncProcessRunner::Spawn(v8::FunctionCallbackInfo<v8::Value> const&)  (in node) + 288  [0x104db234c]\n    +                                                                                           796 node::SyncProcessRunner::Run(v8::Local<v8::Value>)  (in node) + 60  [0x104db2478]\n    +                                                                                             796 node::SyncProcessRunner::TryInitializeAndRunLoop(v8::Local<v8::Value>)  (in node) + 388  [0x104db27e0]\n    +                                                                                                 796 uv__io_poll  (in node) + 776  [0x1058bf828]\n    +                                                                                                   796 kevent  (in libsystem_kernel.dylib) + 8  [0x1897b5fc4]\n    +         796 uv__io_poll  (in node) + 776  [0x1058bf828]\n    +           796 kevent  (in libsystem_kernel.dylib) + 8  [0x1897b5fc4]\n        kevent  (in libsystem_kernel.dylib)        1592"
+    }
+  ],
+  "isolated_hash_probes": {
+    "passed": 10,
+    "failed": 0
+  },
+  "unchanged_direct_helper_probe": {
+    "exit_code": 0,
+    "status": "ready",
+    "reasons": []
+  },
+  "alternate_runtime_probe": {
+    "node": "v24.19.0",
+    "source_changed": false,
+    "command": "node --test --test-concurrency=1 scripts/maintainers/prune-stale-branches-readiness.test.mjs",
+    "exit_code": 0,
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "duration_ms": 60267.700334
+  },
+  "runtime_selection": "Final gate uses original Node v22.14.0 and pinned /usr/bin/git. A Node24-only workaround was disproven and is not used.",
+  "production_readiness_helper_modified": true,
+  "production_coordinator_modified": false,
+  "production_prune_operations": 0,
+  "follow_up": ".planning/todos/pending/2026-10-01-investigate-node-git-stdin-stall.md",
+  "observed_runtimes": [
+    "v20.18.1",
+    "v22.14.0",
+    "v24.19.0"
+  ],
+  "pipe_reproducer": {
+    "source": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+    "bytes": 683388,
+    "git_command": "/usr/bin/git hash-object --stdin --path <source>",
+    "per_command_timeout_ms": 2000,
+    "runs": [
+      {
+        "node": "v20.18.1",
+        "sandbox": "workspace-write",
+        "passed_before_stall": 79,
+        "failed_iteration": 80,
+        "error": "ETIMEDOUT",
+        "duration_ms": 3611
+      },
+      {
+        "node": "v24.19.0",
+        "sandbox": "workspace-write",
+        "passed_before_stall": 7,
+        "failed_iteration": 8,
+        "error": "ETIMEDOUT",
+        "duration_ms": 2118
+      },
+      {
+        "node": "v24.19.0",
+        "sandbox": "escalated",
+        "passed_before_stall": 263,
+        "failed_iteration": 264,
+        "error": "ETIMEDOUT",
+        "duration_ms": 7309
+      }
+    ]
+  },
+  "regular_file_reproducer": {
+    "node": "v22.14.0",
+    "bytes": 683388,
+    "tests": 1000,
+    "passed": 1000,
+    "failed": 0,
+    "exact_expected_blob_checked_each_time": true,
+    "duration_ms": 27144
+  },
+  "repair": {
+    "commit": "0739adfe",
+    "file": "scripts/maintainers/prune-stale-branches-readiness.mjs",
+    "function": "blobForBytes",
+    "change": "Pass the exact source bytes to the same path-aware pinned Git hash command through a private regular-file descriptor instead of a pipe; close descriptor and remove temporary directory in finally. The temporary file is only hashing input, never the authoritative readiness artifact.",
+    "deviation": "Required verification-blocker repair under user automation-first instructions; deviates from Plan26 helper-freeze action while preserving artifact/source/route semantics.",
+    "targeted_regression": {
+      "commit": "a483e0e9",
+      "node": "v22.14.0",
+      "passed": 1,
+      "failed": 0,
+      "exit_code": 0,
+      "duration_ms": 4380
+    }
+  },
+  "final_regression_gate": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-TEST-GATE.json",
+    "node": "v22.14.0",
+    "exit_code": 0,
+    "tests": 53,
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "duration_ms": 678082.821125
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "sigra.phase253.target-disposition-red/v1",
+  "command": "node --test --test-name-pattern='^disposition:' scripts/ci/ci-registration-recovery.test.mjs",
+  "node_version": "v20.18.1",
+  "exit_code": 1,
+  "failing": 7,
+  "passing": 1,
+  "output_sha256": "d94c9969a3e5a5e8a3a37e4e90051916daedba71b3af2f397d487d27c67c9e99",
+  "first_failing_tests": [
+    "disposition: an approved, committed, hash-bound not_reproduced record passes and names its route",
+    "disposition: no approval, a non-approve decision, or an uncommitted/tampered record exits the failing route",
+    "disposition: evidence edited after the disposition, or a wrong schema or status, is rejected"
+  ],
+  "head": "42ee29e6503e855b7e214563e403a8858eaf80cd",
+  "runner_blob_sha": "3ed8a1d433df4ff5dce0ea00b8a0427bfa6f476f",
+  "note": "Captured against the unchanged runner before any 253-89 implementation. Pass count of 1 is the argv-combination test, which already fails closed through the existing usage fallthrough."
+}

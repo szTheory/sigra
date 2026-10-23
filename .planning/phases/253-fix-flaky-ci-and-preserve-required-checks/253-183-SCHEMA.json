@@ -1,0 +1,17 @@
+{
+  "valid": true,
+  "missing": [],
+  "present": [
+    "phase",
+    "plan",
+    "type",
+    "wave",
+    "depends_on",
+    "files_modified",
+    "autonomous",
+    "must_haves",
+    "gap_closure"
+  ],
+  "invalidValue": [],
+  "schema": "plan-gap-closure"
+}

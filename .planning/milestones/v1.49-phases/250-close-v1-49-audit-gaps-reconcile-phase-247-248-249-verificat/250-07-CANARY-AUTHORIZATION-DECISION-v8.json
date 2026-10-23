@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "decision_id": "250-07-canary-authorization-v8",
+  "recorded_at": "2026-10-11T11:56:27Z",
+  "decision": "authorized",
+  "decision_basis": "explicit_contextual_confirmation",
+  "user_response": "yeah go for it maybe u can also in future optimize ci/cd that's a long run",
+  "context": "The user replied after the assistant stated that this exact packet authorizes one bounded no-publish canary on main, with no retry.",
+  "authorized_packet": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json",
+    "sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628"
+  },
+  "source": {
+    "ref": "refs/heads/main",
+    "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a"
+  },
+  "bounded_action": {
+    "controller_dispatches": 1,
+    "controller_event": "workflow_dispatch",
+    "controller_ref": "refs/heads/main",
+    "controlled_failure_source_runs": 1,
+    "exact_self_owned_cancellation_source_runs": 1,
+    "observer_dispatches": 1,
+    "observer_event": "workflow_dispatch",
+    "observer_scope": "Read-only observer dispatch once with source_run_id equal only to the exact canceled canary child created by this controller.",
+    "cancellation_scope": "Cancel only the exact waiting canary child this controller started after verifying workflow ID/path/name, workflow_dispatch event, refs/heads/main, exact source SHA, attempt, unique probe ID, and dynamic run title. Never cancel the controller or any other run.",
+    "maximum_duration_minutes": 35,
+    "observer_lookup_window_minutes": 10,
+    "additional_controller_retry_authorized": false,
+    "additional_observer_retry_authorized": false,
+    "expected_artifacts": [
+      "release-canary-controller-<controller-run-id>-<attempt>",
+      "release-canary-failure-<source-run-id>-<attempt>-<probe-id>",
+      "release-canary-cancellation-<cancelled-source-run-id>-<observer-run-attempt>"
+    ],
+    "retrieval_validation_command": "bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json"
+  },
+  "refreshed_preflight": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T115503Z.json",
+    "file_sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+    "payload_sha256": "fdcd2f9515befe0115480c7cb0f9212c570393cf1570e36ab3b03a1edc482cf1",
+    "payload_bytes": 825,
+    "payload_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-11T11:55:06Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"84ebcea60024c9e8caee405d55cad1c76b0e858a\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
+    "validation_status": "passed",
+    "captured_at": "2026-10-11T11:55:06Z",
+    "source_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a"
+  },
+  "scope": {
+    "controller_workflow_id": 380517406,
+    "controller_dispatches": 1,
+    "ref": "main",
+    "controlled_failure_source_runs": 1,
+    "exact_self_owned_cancellation_source_runs": 1,
+    "observer_workflow_id": 379162190,
+    "observer_dispatches": 1,
+    "maximum_duration_minutes": 35,
+    "retries_authorized": false,
+    "release_or_publish_authorized": false,
+    "dispatch_attempted": false
+  }
+}

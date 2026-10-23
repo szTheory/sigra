@@ -1,0 +1,32 @@
+test_actual_receipt_and_summary_statuses (__main__.IndependentPrerequisiteTests.test_actual_receipt_and_summary_statuses) ... ok
+test_current_plan_has_real_prerequisites (__main__.IndependentPrerequisiteTests.test_current_plan_has_real_prerequisites) ... ERROR
+test_mutations_reject_stale_completion_schema_and_consumer (__main__.IndependentPrerequisiteTests.test_mutations_reject_stale_completion_schema_and_consumer) ... ERROR
+test_original_automated_work_and_budgets_are_unchanged (__main__.IndependentPrerequisiteTests.test_original_automated_work_and_budgets_are_unchanged) ... ok
+test_original_contradiction_is_rejected (__main__.IndependentPrerequisiteTests.test_original_contradiction_is_rejected) ... ok
+
+======================================================================
+ERROR: test_current_plan_has_real_prerequisites (__main__.IndependentPrerequisiteTests.test_current_plan_has_real_prerequisites)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-prerequisites.test.py", line 37, in test_current_plan_has_real_prerequisites
+    check_instructions((ROOT / PLAN).read_text())
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-prerequisites.test.py", line 23, in check_instructions
+    raise ValueError('stale Plan 174 prerequisite: ' + pattern)
+ValueError: stale Plan 174 prerequisite: require completed 174
+
+======================================================================
+ERROR: test_mutations_reject_stale_completion_schema_and_consumer (__main__.IndependentPrerequisiteTests.test_mutations_reject_stale_completion_schema_and_consumer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-prerequisites.test.py", line 46, in test_mutations_reject_stale_completion_schema_and_consumer
+    check_instructions(current)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-prerequisites.test.py", line 23, in check_instructions
+    raise ValueError('stale Plan 174 prerequisite: ' + pattern)
+ValueError: stale Plan 174 prerequisite: require completed 174
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.018s
+
+FAILED (errors=2)

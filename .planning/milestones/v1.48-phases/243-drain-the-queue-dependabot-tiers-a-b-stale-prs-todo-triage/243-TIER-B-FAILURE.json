@@ -1,0 +1,132 @@
+{
+  "schema": "sigra.phase-243-tier-b-failure/1",
+  "captured_at": "2026-09-25T13:12:00Z",
+  "phase": 243,
+  "plan": "243-02",
+  "status": "resolved",
+  "pr": 230,
+  "title": "deps: bump flop_phoenix from 0.26.0 to 0.26.3",
+  "proposed_locked_version": "0.26.3",
+  "base_main_sha": "ff0e174bd07c3770e4a6df6025d5a6f97fac94c2",
+  "head_sha": "8528e580982702ce835bd8679e0b3b8538327b1f",
+  "changed_files": [
+    "mix.lock"
+  ],
+  "baseline": {
+    "main_sha": "ff0e174bd07c3770e4a6df6025d5a6f97fac94c2",
+    "run_id": 36103019375,
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/36103019375",
+    "library_tests_shard_job_id": 107969424111,
+    "library_tests_shard": "success",
+    "ci_gate": "success",
+    "ci_gate_job_id": 107971187425
+  },
+  "failed_runs": [
+    {
+      "run_id": 36103180740,
+      "url": "https://github.com/szTheory/sigra/actions/runs/36103180740",
+      "attempt": 1,
+      "library_tests_shard_job_id": 107969925650,
+      "ci_gate_job_id": 107971587840,
+      "conclusion": "failure"
+    },
+    {
+      "run_id": 36103180740,
+      "url": "https://github.com/szTheory/sigra/actions/runs/36103180740",
+      "attempt": 2,
+      "library_tests_shard_job_id": 107972620505,
+      "ci_gate_job_id": 107972950656,
+      "conclusion": "failure"
+    },
+    {
+      "run_id": 36138209774,
+      "url": "https://github.com/szTheory/sigra/actions/runs/36138209774",
+      "attempt": 1,
+      "library_tests_shard_job_id": 108081379897,
+      "ci_gate_job_id": 108083841866,
+      "conclusion": "failure",
+      "findings": [
+        "library_tests_shard failed all six Threadline forwarder tests before dep-off cleanup ran",
+        "library_tests_dep_off passed",
+        "initial mix ci log showed cached build did not compile Sigra before the failing tests"
+      ]
+    }
+  ],
+  "diagnosis": {
+    "observed": "The first post-fix run still failed all six Sigra.Audit.Forwarders.ThreadlineTest cases. Logs show mix ci did not recompile Sigra before running tests; the subsequent dep-off lane passed and force-compiled Sigra after restoring Threadline. The library job restored _build via a broad legacy restore-key prefix, which could reuse a cache created while the optional forwarder beam was absent.",
+    "source_probe": {
+      "file": "lib/sigra/audit/forwarders/threadline.ex",
+      "guard": "if Code.ensure_compiled(Threadline) == {:module, Threadline} do ... defmodule Sigra.Audit.Forwarders.Threadline ... end",
+      "finding": "The missing attach/1 function is consistent with the guarded forwarder module definition being skipped during compilation.",
+      "causal_status": "The source probe identifies the failure surface but does not isolate why the lockfile resolution changes the compile-time Threadline availability result. No source or CI change is justified yet."
+    },
+    "lockfile_changes": {
+      "flop": "0.26.6",
+      "flop_phoenix": "0.26.3",
+      "phoenix": "1.8.14",
+      "phoenix_live_view": "1.2.12",
+      "phoenix_template": "1.1.0",
+      "threadline": "0.7.0"
+    },
+    "causal_status": "Confirmed. The legacy cache prefix restored a build lacking the optional Threadline forwarder before the canonical test suite. Both the cache boundary and dep-off cleanup are fixed and the exact PR ci-gate passed; the merge is awaiting its exact-main gate."
+  },
+  "decision": "Original #230 cache failure is fixed and merged. #226, #183, and #216 were advanced only after preceding exact-main ci-gates. #216 narrow conflict was resolved by rebasing with current main SDK, preserving Axe 4.13.0, and regenerating package lock; exact-head CI run 36145084408 and ci-gate passed; merged as fed35a4. Await exact-main run 36146050540 required ci-gate. The prior #183 exact-main run 36143764959 required ci-gate passed but its separate admin-eval signal is still running; its final outcome will be recorded independently.",
+  "resume_condition": "None. The #230 cache failure was repaired and the final Tier B sequence completed through #216; exact-head PR gates and exact-main ci-gate boundaries all passed. Final exact-main full run 36146050540 concluded success. #213 remains reserved for Phase 244.",
+  "untouched_later_prs": [
+    213
+  ],
+  "resolution": {
+    "root_cause": "The canonical library job restored _build from a broad legacy cache prefix and reused a Sigra build missing the conditionally defined Threadline forwarder. Separately, the dep-off lane needed to recompile the whole project after restoring Threadline.",
+    "fixes": [
+      "force compile the whole Sigra project after dep-off restoration",
+      "isolate the canonical library test cache under a v2 namespace without restoring from the legacy cache prefix"
+    ],
+    "fix_head_sha": "8528e580982702ce835bd8679e0b3b8538327b1f",
+    "pr_ci_run": 36139268651,
+    "pr_ci_conclusion": "success",
+    "merge_sha": "fed35a4a3725d217486f45a571421dbbf5721765",
+    "main_ci_run": 36146050540,
+    "main_ci_status": "success",
+    "main_ci_gate": "success",
+    "main_ci_gate_job_id": 108110274367,
+    "main_workflow_conclusion": "success",
+    "note": "All six Tier B updates passed exact-head PR gates and exact-main ci-gate boundaries in order. Final exact-main workflow run 36146050540 concluded success on fed35a4, including admin-eval and admin baseline jobs.",
+    "main_admin_eval_job_id": 108107418328,
+    "main_admin_eval": "success"
+  },
+  "additional_main_workflow_diagnostic": {
+    "run": 36140299176,
+    "sha": "86c35bf1c1ee77ff08fb708bea48d7ff8659feff",
+    "conclusion": "failure",
+    "ci_gate_job_id": 108091102331,
+    "ci_gate": "success",
+    "install_matrix_failures": {
+      "jobs": [
+        108088194991,
+        108088195278,
+        108088195583,
+        108088195589
+      ],
+      "cause": "Hex registry checksum mismatch against lock for phoenix 1.8.15 during mix deps.get. The next main workflow run after #226 (36141801875) passed all four install-matrix combinations, so the failure appears transient and no code change was made."
+    },
+    "admin_eval_job_id": 108088229115,
+    "admin_eval": "The separate admin-eval job failed on 36140299176, then passed on full exact-main runs 36141801875 and 36143764959; treat the original as non-reproducing/transient, with no source change.",
+    "follow_up_runs": [
+      {
+        "run": 36141801875,
+        "sha": "caf3d051f4852ea0b818115a02d2cf7464b6a146",
+        "conclusion": "success",
+        "admin_eval": "success"
+      },
+      {
+        "run": 36143764959,
+        "sha": "170ff255cceececcd5d5d9342e72ab64918ba618",
+        "conclusion": "success",
+        "ci_gate_job_id": 108102610763,
+        "admin_eval_job_id": 108099706640,
+        "admin_eval": "success"
+      }
+    ]
+  },
+  "updated_at": "2026-09-25T14:30:00Z"
+}

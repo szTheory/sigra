@@ -1,0 +1,99 @@
+{
+  "schema_version": "sigra.phase253.sanitized-native-receipts/v1",
+  "source_evidence_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json",
+  "source_evidence_sha256": "bba0d4dec01f41c1f7570a9d568cb318c184a41f261149545b9334f9cb29aa41",
+  "created_from_committed_credential_free_evidence": true,
+  "redaction": "Removed the seeded Demo Credentials block from copied setup logs; originals are untouched.",
+  "originals": [
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/app-log.log",
+      "original_sha256": "c081f135aacbf8dc7012b9e4755cf70e09c03526dd52faffbb52324c61168bb5",
+      "original_bytes": 21083,
+      "sanitized_path": "R-INFRA-RETRY-DESKTOP/attempt-01/app-log.log",
+      "sanitized_sha256": "c081f135aacbf8dc7012b9e4755cf70e09c03526dd52faffbb52324c61168bb5",
+      "sanitized_bytes": 21083,
+      "redacted": false
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/drop-log.log",
+      "original_sha256": "efc486d18e2b9db1e5b8ba803c6605e61451666139cbb8ff244fc398f9b3ad3e",
+      "original_bytes": 36,
+      "sanitized_path": "R-INFRA-RETRY-DESKTOP/attempt-01/drop-log.log",
+      "sanitized_sha256": "efc486d18e2b9db1e5b8ba803c6605e61451666139cbb8ff244fc398f9b3ad3e",
+      "sanitized_bytes": 36,
+      "redacted": false
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/playwright-report.json",
+      "original_sha256": "08328a57d4b659e59c0742c6496d690481098922bfa3f1bc89f0c1b5451a5a3b",
+      "original_bytes": 14510,
+      "sanitized_path": "R-INFRA-RETRY-DESKTOP/attempt-01/playwright-report.json",
+      "sanitized_sha256": "08328a57d4b659e59c0742c6496d690481098922bfa3f1bc89f0c1b5451a5a3b",
+      "sanitized_bytes": 14510,
+      "redacted": false
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/setup-log.log",
+      "original_sha256": "64258cd6b8f43b8f71249bf664277219abdb3fe934c53d8e24be6c816929de51",
+      "original_bytes": 135739,
+      "sanitized_path": "R-INFRA-RETRY-DESKTOP/attempt-01/setup-log.log",
+      "sanitized_sha256": "806d620cb756e2f0edb72df062411520794bf4d7add38a6c71077b8210abad15",
+      "sanitized_bytes": 134342,
+      "redacted": true
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/test-log.log",
+      "original_sha256": "1f082af9d28dcab47c346f653193dd78c5a211e225eb4c33b86cb994c89e3f39",
+      "original_bytes": 841,
+      "sanitized_path": "R-INFRA-RETRY-DESKTOP/attempt-01/test-log.log",
+      "sanitized_sha256": "1f082af9d28dcab47c346f653193dd78c5a211e225eb4c33b86cb994c89e3f39",
+      "sanitized_bytes": 841,
+      "redacted": false
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/app-log.log",
+      "original_sha256": "4938d2c89f0104f3d45eac3c2a73828b2f23de8b135f8172a3c0fe28cef3ba63",
+      "original_bytes": 21231,
+      "sanitized_path": "R-DIAG-MOBILE/attempt-01/app-log.log",
+      "sanitized_sha256": "4938d2c89f0104f3d45eac3c2a73828b2f23de8b135f8172a3c0fe28cef3ba63",
+      "sanitized_bytes": 21231,
+      "redacted": false
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/drop-log.log",
+      "original_sha256": "efc486d18e2b9db1e5b8ba803c6605e61451666139cbb8ff244fc398f9b3ad3e",
+      "original_bytes": 36,
+      "sanitized_path": "R-DIAG-MOBILE/attempt-01/drop-log.log",
+      "sanitized_sha256": "efc486d18e2b9db1e5b8ba803c6605e61451666139cbb8ff244fc398f9b3ad3e",
+      "sanitized_bytes": 36,
+      "redacted": false
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/playwright-report.json",
+      "original_sha256": "fa5a4bb8cef942e7b2e7b036ed95b46f68d2ffcb59baf75029d0f3eb6998766d",
+      "original_bytes": 14515,
+      "sanitized_path": "R-DIAG-MOBILE/attempt-01/playwright-report.json",
+      "sanitized_sha256": "fa5a4bb8cef942e7b2e7b036ed95b46f68d2ffcb59baf75029d0f3eb6998766d",
+      "sanitized_bytes": 14515,
+      "redacted": false
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/setup-log.log",
+      "original_sha256": "3d0da2f6e7cf7fb9896506948de2ef48ef87ad9a30467a358357da660bbbd9f4",
+      "original_bytes": 135739,
+      "sanitized_path": "R-DIAG-MOBILE/attempt-01/setup-log.log",
+      "sanitized_sha256": "a6e6ba1bb1bb74fe6621a74f5fc2a682ae14ae9b16173b75c0acdc93be3fc6bc",
+      "sanitized_bytes": 134342,
+      "redacted": true
+    },
+    {
+      "original_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/test-log.log",
+      "original_sha256": "9a94d6899dc46c4e38b66c3511433e6bbb28a35dd95522ddbadccddab07afa36",
+      "original_bytes": 848,
+      "sanitized_path": "R-DIAG-MOBILE/attempt-01/test-log.log",
+      "sanitized_sha256": "9a94d6899dc46c4e38b66c3511433e6bbb28a35dd95522ddbadccddab07afa36",
+      "sanitized_bytes": 848,
+      "redacted": false
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "sigra.phase253.plan172-receipt-connection/v1",
+  "status": "passed_local_maintenance",
+  "timestamp": "2026-10-21T16:38:03.880769+00:00",
+  "implementation_commit": "3725eaf12fe690c47ac8bed9d2c64f8358b3ec93",
+  "preserved_input_commit": "17d79ca4ca7270b78510e67e40f0e3bfdb5de2d5",
+  "state_row_preservation": {
+    "ref": "refs/gsd/phase253-quick-261021-he7-state-row",
+    "commit": "569db38a0df6a5a50dbbcb02040f1f91fb0f212e",
+    "sha256": {
+      ".planning/STATE.md": "a48bc385527ff27342a018160664c55d41144926092bbdb7ec91138923353c18"
+    }
+  },
+  "changed_existing_phase_files": [
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.test.py",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py"
+  ],
+  "prior_bytes_read_back": true,
+  "tests": {
+    "caller_and_current_instructions": 3,
+    "plan168_prerequisites": 5,
+    "consumer_mutations": 2,
+    "total": 10,
+    "status": "passed",
+    "logs": [
+      ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CALLER-FINAL.log",
+      ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/PREREQUISITES-FINAL.log",
+      ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/CONSUMER-FINAL.log"
+    ]
+  },
+  "actual_command_before": {
+    "record": ".planning/quick/261021-he7-phase-253-connect-plan-172-receipt-check/ACTUAL-COMMAND-RED.json",
+    "exit_code": 1,
+    "refusal": "bridge amendment hash differs: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md"
+  },
+  "actual_command_after": {
+    "head": "3725eaf12fe690c47ac8bed9d2c64f8358b3ec93",
+    "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+    "bindings": [
+      {
+        "plan": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+        "automated_block": 0,
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+        "plan_sha256": "ff34aefb55c2188a02b2b560e0b2b92dc5e36c2cffe00d4f6894a4a558a7d10b"
+      },
+      {
+        "plan": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+        "automated_block": 1,
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+        "plan_sha256": "ff34aefb55c2188a02b2b560e0b2b92dc5e36c2cffe00d4f6894a4a558a7d10b"
+      },
+      {
+        "plan": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+        "automated_block": 1,
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+        "plan_sha256": "79c28c828df719d867e4b96b43a0f36aa4e358d24018691d0f9eb9afe3478000"
+      }
+    ],
+    "returncode": 0,
+    "stdout": "{\"acceptance_reruns\": 0, \"consumer\": \"168-172-v3\", \"correction_base\": \"e87b56fe32466749aedaf1ac8b47735a54cbf030\", \"count\": 90, \"github_requests\": 0, \"historical_plan180_unchanged\": true, \"phase_verification_status\": \"not_started\", \"protected_phase_files\": 1034, \"source_commit\": \"3197421e08f2af060c0a03f8b91cf6b298f641e1\", \"status\": \"verified\"}\n",
+    "stderr": "",
+    "unique_commands_executed": 1,
+    "phase_tasks_executed": 0,
+    "acceptance_reruns": 0,
+    "ci_launches": 0
+  },
+  "failure_exit_control": {
+    "returncode": 9,
+    "stdout": "",
+    "following_commands_executed": false
+  },
+  "phase_tasks_executed": 0,
+  "acceptance_reruns": 0,
+  "ci_launches": 0,
+  "budgets_renewed": false,
+  "phase_verification_status": "not_started",
+  "requirements_completed": [],
+  "phase_counts": {
+    "plans": 183,
+    "complete": 77,
+    "halted": 28,
+    "without_summary": 78
+  },
+  "next_command": "$gsd-progress",
+  "remaining_work": "Existing168-172 task execution and original CI requirements; no new phase verification evidence produced. Existing non-final-pipeline warnings remain outside the receipt-prefix change.",
+  "source_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md": "ff34aefb55c2188a02b2b560e0b2b92dc5e36c2cffe00d4f6894a4a558a7d10b",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md": "79c28c828df719d867e4b96b43a0f36aa4e358d24018691d0f9eb9afe3478000",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py": "88a751a564742d4a496fce0959bb3847d577f35d39198f77386608c0e40e7697",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.test.py": "103d2a3caa9b7ca5af27c20c6c5aed56ad5960a0c435b6216a1f26bd3cd4cb09",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-receipt-caller.test.py": "29ee7ba7370956777c6f920cf062d89dfefa4a96f6530a824bdea3e182bc6cce"
+  }
+}

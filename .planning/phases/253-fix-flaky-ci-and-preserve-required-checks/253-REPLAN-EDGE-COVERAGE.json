@@ -1,0 +1,73 @@
+{
+  "schema_version": "sigra.phase253.replan-edge-coverage/v1",
+  "status": "planning_contract",
+  "source": "/tmp/sigra253-replan-edges.json",
+  "items": [
+    {
+      "requirement_id": "CIREL-01",
+      "category": "unclassified",
+      "status": "unresolved",
+      "verification": null,
+      "resolution": null,
+      "reason": "Actual historical registration cause and original preceding-order log are unknown; current passing executions or spent budgets cannot prove no-flake.",
+      "flagged_assumption": true,
+      "plans": [
+        "253-15",
+        "253-16",
+        "253-17",
+        "253-25"
+      ]
+    },
+    {
+      "requirement_id": "CIREL-02",
+      "category": "empty",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Planning acceptance contract: empty/null/single/fake/duplicate/incomplete native producer sets and required-check inventories fail; exact five real producers and appropriate complete native reports are mandatory.",
+      "plans": [
+        "253-19",
+        "253-21",
+        "253-25"
+      ],
+      "execution_verified": false
+    },
+    {
+      "requirement_id": "CIREL-02",
+      "category": "encoding",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Planning acceptance contract: identifiers compare exact UTF-8 bytes, no Unicode normalization; dispatch inputs <=10 keys and65535 compact JSON Unicode scalars plus separate conservative UTF-8-byte limit; invalid encoding/surrogates/byte variants fail.",
+      "plans": [
+        "253-19",
+        "253-21"
+      ],
+      "execution_verified": false
+    }
+  ],
+  "prohibitions": [
+    {
+      "statement": "MUST NOT rewrite a historical failure, missing original log or lost test chronology as successful proof.",
+      "status": "unresolved",
+      "reason": "Descriptor-less fallback: preserved old failures, missing chronology and incomplete diagnosis remain literal."
+    },
+    {
+      "statement": "MUST NOT present a synthetic dispatch or caller-written success as real PR required-check proof.",
+      "status": "unresolved",
+      "reason": "Descriptor-less fallback: proof must retain source and event identity."
+    }
+  ],
+  "prohibition_disposition": "flagged-unverified; descriptor-less projection via installed projectProhibitions; no invented check_* keys",
+  "coverage": {
+    "applicable": 3,
+    "resolved": 2,
+    "unresolved": 1,
+    "unclassified": 1,
+    "byVerification": {
+      "explicit": 2,
+      "backstop": 0
+    },
+    "kept_prohibitions": 2
+  },
+  "phase_acceptance_claimed": false
+}
+

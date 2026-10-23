@@ -1,0 +1,12 @@
+{
+  "action_approval": {
+    "commit": "8e82569cbf30a7cecd6f7ff00df43a96d5be6df8",
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL.json",
+    "section": "canary",
+    "section_sha256": "678e2576b2aec98434410aeb6b1ed9ab257fce850ade6737277c6287b902a071",
+    "sha256": "068d72d5b78c817b4764a50e8c36ccc2ebb74774256e507860255e5531b25b46",
+    "window_wall_start_epoch": 1792026772
+  },
+  "schema_version": "sigra.phase253.git-publication-receipt/v1",
+  "status": "in-progress"
+}
