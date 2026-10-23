@@ -1,0 +1,111 @@
+{
+  "schema_version": "sigra.phase254.collection-eligibility/v1",
+  "phase": 254,
+  "plan": "07",
+  "status": "implementation_ready_hosted_blocked",
+  "implementation_ready": true,
+  "hosted_ready": false,
+  "requirements": {
+    "CISPEED-01": "supported_by_local_owner_and_setup_measurements; hosted_acceptance_pending",
+    "CISPEED-02": "supported_by_exact_native_parity_and_collector_gate; hosted_acceptance_pending"
+  },
+  "source_boundary": {
+    "repository_head": "8cc0d7c41",
+    "actual_owner_run_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
+    "owner_workflow_inputs_unchanged_since_run": true,
+    "workflow_sha256": "25c20412ff76cacc5276cb63bcf67e82f7b563b51d3522f44e9293887c4abb0e",
+    "playwright_configuration_sha256": "e20b8cc4e2e4496aadaca8545054f3d30c7143a4488bbab1ccb49a3107a5ed56",
+    "package_lock_sha256": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5",
+    "node": "v20.19.5",
+    "shell_resolved_node": "v20.19.5",
+    "playwright": "1.59.1",
+    "event": "pull_request"
+  },
+  "workload": {
+    "mapping_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+    "mapping_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+    "schema_version": "sigra.browser-coverage-map/v1",
+    "row_count": 108,
+    "product_rows": 105,
+    "setup_rows": 3,
+    "owner_row_counts": {
+      "admin_behavior": 43,
+      "admin_checkpoints": 3,
+      "design_gallery": 42,
+      "non_admin_smoke": 16,
+      "demo_showcase": 4
+    },
+    "all_mappings": "matched_native_reports",
+    "before_after_outcomes": "all_passed",
+    "movement_decision": "keep_all_five_existing_owners",
+    "movement_reason": "The local run measured setup and test costs, but did not establish compatible cross-owner headroom or a source-preserving move that lowers the measured maximum without increasing total work."
+  },
+  "native_parity": {
+    "status": "passed",
+    "baseline_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "candidate_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
+    "receipt_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8-PARITY-RECEIPT.json",
+    "receipt_sha256": "1dcf212a7b334a11f9cee96cc464fdd0c761a55a89d3b89f90957adb0aea6d14",
+    "integration_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8.json",
+    "integration_sha256": "fd64dbacdede50969dfbd6f0c0ab4bba1b43d6aa1fd078cb0e5f52d202579f7a",
+    "owner_statuses": {
+      "admin_behavior": "passed",
+      "admin_checkpoints": "passed",
+      "design_gallery": "passed",
+      "non_admin_smoke": "passed",
+      "demo_showcase": "passed"
+    },
+    "native_comparison_duration_ms": 148,
+    "native_evidence_transfer_duration_ms": 5,
+    "native_evidence_transfer_bytes": 371495
+  },
+  "measured_owner_runs": [
+    { "owner": "admin_behavior", "elapsed_ms": 110409, "preparation_ms": 23071, "npm_ci_ms": 1143, "browser_install_ms": 31573, "readiness_ms": 822, "native_tests_ms": 31437, "database_cleanup_ms": 19432 },
+    { "owner": "admin_checkpoints", "elapsed_ms": 110152, "preparation_ms": 24443, "npm_ci_ms": 1158, "browser_install_ms": 43778, "readiness_ms": 802, "native_tests_ms": 17155, "database_cleanup_ms": 20143 },
+    { "owner": "design_gallery", "elapsed_ms": 109165, "preparation_ms": 22678, "npm_ci_ms": 1306, "browser_install_ms": 43900, "readiness_ms": 1056, "native_tests_ms": 19625, "database_cleanup_ms": 18051 },
+    { "owner": "non_admin_smoke", "elapsed_ms": 106720, "preparation_ms": 22042, "npm_ci_ms": 1481, "browser_install_ms": 40022, "readiness_ms": 808, "native_tests_ms": 20263, "database_cleanup_ms": 19530 },
+    { "owner": "demo_showcase", "elapsed_ms": 81889, "preparation_ms": 22348, "npm_ci_ms": 1092, "browser_install_ms": 32952, "readiness_ms": 1063, "native_tests_ms": 4199, "database_cleanup_ms": 17650 }
+  ],
+  "collector_contract": {
+    "ready_for_plan08_contract": true,
+    "required_native_coverage_comparison_fields": {
+      "mapping_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+      "mapping_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+      "parity_receipt_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8-PARITY-RECEIPT.json",
+      "parity_receipt_sha256": "1dcf212a7b334a11f9cee96cc464fdd0c761a55a89d3b89f90957adb0aea6d14"
+    },
+    "preflight_requires": [
+      "map digest and 108 exact rows with expected owner counts",
+      "receipt digest, matching baseline/candidate source and map digest",
+      "receipt status passed and owner_integration_status profiled",
+      "exactly five passing owner comparison records"
+    ],
+    "negative_test": "Missing receipt digest or blocked owner integration stops collection before network requests or bundle creation."
+  },
+  "review": {
+    "code_review_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-REVIEW.md",
+    "code_review_sha256": "7a26c6af27ca00c006c4ed705a2de1f0f05627649b7c7bd63ed4d7fa88179f78",
+    "code_review_status": "clean_no_open_findings",
+    "security_review_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-07-SECURITY.md",
+    "security_review_sha256": "303646ce43c4b3bb3542ebe940076af5ccf2929c4e68b3307c843215a1168bb3",
+    "security_review_status": "T-254-16_closed; Plan08-specific T-254-18/19 remain blocking",
+    "nyquist_validation_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-VALIDATION.md",
+    "nyquist_validation_sha256": "dfacf83e614ac7209935bfab9d298392e553955f676a4f78f9f610d792a5f388",
+    "nyquist_gaps": 0
+  },
+  "checks": [
+    { "command": "node --test scripts/ci/ci-prep-profile.test.mjs scripts/ci/ci-browser-records.test.mjs", "result": "passed_45_tests" },
+    { "command": "bash scripts/ci/ci-run-metrics.test.sh", "result": "passed" },
+    { "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh", "result": "passed" },
+    { "command": "node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs scripts/ci/ci-measure-workflow.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs", "result": "passed_53_tests" },
+    { "command": "python3 -B scripts/ci/ci-hosted-gate-verify.test.py", "result": "passed_153_tests" },
+    { "command": "bash scripts/ci/honest-skip-verdict.test.sh", "result": "passed" },
+    { "command": "bash scripts/ci/playwright-cache-key-guard.test.sh", "result": "passed" }
+  ],
+  "hosted_blockers": [
+    "Plan 08 must prove the unchanged workflow can run against the exact frozen baseline through a real PR.",
+    "Plan 08 must prove compatible all-warm cache access, runner images, and preparation inputs.",
+    "Plan 08 must resolve the fixed forty-family window, registrations, budget, and original-attempt retention before collection."
+  ],
+  "acceptance": "No hosted run or hosted speedup claim is made here. CISPEED-01 and CISPEED-02 remain supported by local implementation evidence, not completed without Plan 08 hosted acceptance."
+}
