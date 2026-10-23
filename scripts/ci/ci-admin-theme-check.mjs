@@ -196,13 +196,13 @@ async function main() {
       const jsonPath = path.join(logs, `${label}-native.json`);
       const commandEnv = { ...env, SIGRA_ADMIN_THEME_DIAGNOSTICS: diagPath, SIGRA_PLAYWRIGHT_JSON: jsonPath };
       const args = ['node_modules/@playwright/test/cli.js', 'test', testFile, '--project=chromium', '--workers=1', '--retries=0'];
-      if (grep) args.push('--grep', `^${grep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+      if (grep) args.push('--grep', grep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
       const result = run('node', args, { cwd: playwright, env: commandEnv, log: path.join(logs, `${label}.log`) }, deadline);
       const diagnostic = fs.existsSync(diagPath) ? JSON.parse(fs.readFileSync(diagPath, 'utf8')) : null;
       const native = fs.existsSync(jsonPath) ? JSON.parse(fs.readFileSync(jsonPath, 'utf8')) : null;
       const ids = diagnostic?.consumer_context_ids ?? [];
       const passed = result.exit_code === 0 && !!native && !!diagnostic && diagnostic.cleanup_complete === true && ids.length > 0 && new Set(ids).size === ids.length && diagnostic.registered_admin_count === 1 && diagnostic.storage_mode === 0o600;
-      const item = { name: label, selected_title: grep, command: result.command, exit_code: result.exit_code, signal: result.signal, duration_ms: result.duration_ms, log_sha256: result.log_sha256, native_report_sha256: readSha(jsonPath), native_report_status: native ? { passed: native.stats?.expected ?? null, failed: native.stats?.unexpected ?? null, skipped: native.stats?.skipped ?? null } : null, safe_state: diagnostic ? { registered_admin_count: diagnostic.registered_admin_count, storage_filename: diagnostic.storage_filename, storage_mode: diagnostic.storage_mode, database_identity: diagnostic.database_identity, context_creation_count: ids.length, consumer_context_ids: ids, cleanup_complete: diagnostic.cleanup_complete } : null, status: passed ? 'passed' : 'failed' };
+      const item = { name: label, selected_title: grep, command: result.command, exit_code: result.exit_code, signal: result.signal, duration_ms: result.duration_ms, log_sha256: result.log_sha256, log_excerpt: result.log_excerpt, native_report_sha256: readSha(jsonPath), native_report_status: native ? { passed: native.stats?.expected ?? null, failed: native.stats?.unexpected ?? null, skipped: native.stats?.skipped ?? null } : null, safe_state: diagnostic ? { registered_admin_count: diagnostic.registered_admin_count, storage_filename: diagnostic.storage_filename, storage_mode: diagnostic.storage_mode, database_identity: diagnostic.database_identity, context_creation_count: ids.length, consumer_context_ids: ids, cleanup_complete: diagnostic.cleanup_complete } : null, status: passed ? 'passed' : 'failed' };
       record.browser_invocations.push(item); save();
       if (!passed) throw new Error(`browser_invocation_failed:${label}:exit_${result.exit_code}`);
     }
