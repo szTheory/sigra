@@ -16,7 +16,7 @@
     {
       "number": "254",
       "name": "Speed Up the Measured Slow Jobs",
-      "status": "blocked",
+      "status": "in_progress",
       "implementation_status": "complete",
       "comparison_status": "blocked_not_started",
       "verification_status": "pending"
@@ -30,11 +30,11 @@
   "next": {
     "command": "$gsd-execute-phase 254",
     "label": "Continue the existing hosted checkpoint after baseline proof",
-    "reason": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
-    "conditional": true,
+    "reason": "Continue the approved rerun amendment on existing Plan08.",
+    "conditional": false,
     "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
   },
-  "updated_at": "2026-10-23T20:01:41.313172+00:00",
+  "updated_at": "2026-10-23T21:09:52.686054+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -50,10 +50,9 @@
     "state_preservation": "f2cd83578701b4d212c7b4fc955d50179e867880"
   },
   "phase254_unblock_decision": {
-    "status": "awaiting_user_decision",
+    "status": "approved",
+    "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
     "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
-    "original_method_unchanged": true,
-    "notification_created": false,
-    "original_baseline_rerun_deadline_utc": "2026-11-11T22:33:57+00:00"
+    "notification_created": false
   }
 }

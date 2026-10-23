@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "phase": 254,
-  "updated_at": "2026-10-23T19:53:39.202034+00:00",
-  "status": "halted_at_prerequisite",
+  "updated_at": "2026-10-23T21:09:52.686054+00:00",
+  "status": "resuming_approved_rerun_method",
   "resume_plan": "254-08",
   "resume_task": "254-08-01",
   "successful_implementation_plans": [
@@ -16,14 +16,14 @@
   ],
   "halted_summary": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md",
   "halt_summary_commit": "7598e39b4",
-  "checkpoint_resume_requires": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
+  "checkpoint_resume_requires": "Use the approved rerun amendment. Prove exact original baseline workflow/checkout, fixed candidate identity, attempt timing, cache/image compatibility and durable capture before measured collection.",
   "route": {
-    "status": "blocked",
+    "status": "in_progress",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
-    "conditional": true,
-    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
-    "reason": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+    "conditional": false,
+    "condition": "User approved the explicit rerun amendment and separate two-invocation preparation allowance; continue same Plan08 under that authorization.",
+    "reason": "Approved rerun continuation; implementation and preparation feasibility checks are in progress.",
     "resume_plan": "254-08",
     "resume_task": "254-08-01",
     "checkpoint": "blocked_before_preparation_or_collection",
@@ -46,5 +46,10 @@
     "CISPEED-02": "open"
   },
   "assumptions_and_prohibitions": "The two unresolved assumptions and two reporting prohibitions in Plan254-08 remain unresolved; local checks do not clear them.",
-  "resume_rule": "All eight summaries exist, but the eighth is halted. Summary presence must not be treated as successful execution or authority to run phase.complete. Resume the same checkpoint only after its prerequisite is proven; preserve the stopped record."
+  "resume_rule": "All eight summaries exist, but the eighth is halted. Summary presence must not be treated as successful execution or authority to run phase.complete. Resume the same checkpoint only after its prerequisite is proven; preserve the stopped record.",
+  "active_authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
+  "original_halt_preserved_at": "97d57050f0eb2e0a63a8410117b68df2f629e990",
+  "approved_preparation_runs": 2,
+  "approved_preparation_retries": 0,
+  "current_task": "Implement and test attempt-specific registration/acquisition/timing/cost before hosted preparation"
 }

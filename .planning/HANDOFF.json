@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
   "timestamp": "2026-10-23T19:53:39.202034+00:00",
-  "updated_at": "2026-10-23T20:01:41.313172+00:00",
-  "status": "blocked",
+  "updated_at": "2026-10-23T21:09:52.686054+00:00",
+  "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "current_phase": 254,
   "current": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
   "next_command": "$gsd-execute-phase 254",
   "resume_command": "$gsd-execute-phase 254",
-  "next_command_conditional": true,
+  "next_command_conditional": false,
   "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md",
-  "next_action": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
+  "next_action": "Implement and test attempt-specific registration/acquisition/timing/cost before hosted preparation",
   "route": {
-    "status": "blocked",
+    "status": "in_progress",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
-    "conditional": true,
-    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
-    "reason": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+    "conditional": false,
+    "condition": "User approved the explicit rerun amendment and separate two-invocation preparation allowance; continue same Plan08 under that authorization.",
+    "reason": "Approved rerun continuation; implementation and preparation feasibility checks are in progress.",
     "resume_plan": "254-08",
     "resume_task": "254-08-01",
     "checkpoint": "blocked_before_preparation_or_collection",
@@ -26,12 +26,12 @@
     "historical_verification_is_forward_blocker": false
   },
   "current_routing": {
-    "status": "blocked",
+    "status": "in_progress",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
-    "conditional": true,
-    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07.",
-    "reason": "Implementation is complete through Plans 254-01 to 254-07. Plan 254-08 halted: baseline PR 331 merges current main into a different tree and CI workflow from the frozen baseline. Hosted comparison has not started; phase verification remains pending.",
+    "conditional": false,
+    "condition": "User approved the explicit rerun amendment and separate two-invocation preparation allowance; continue same Plan08 under that authorization.",
+    "reason": "Approved rerun continuation; implementation and preparation feasibility checks are in progress.",
     "resume_plan": "254-08",
     "resume_task": "254-08-01",
     "checkpoint": "blocked_before_preparation_or_collection",
@@ -49,7 +49,7 @@
       "254-08"
     ],
     "phase254_plan_count": 8,
-    "next_required_gate": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
+    "next_required_gate": "Use the approved rerun amendment. Prove exact original baseline workflow/checkout, fixed candidate identity, attempt timing, cache/image compatibility and durable capture before measured collection."
   },
   "phase253_canonical_verification": {
     "status": "passed",
@@ -86,7 +86,8 @@
     "hosted_runs_started": false,
     "preparation_runs": 0,
     "comparison_families_started": 0,
-    "window_started": false
+    "window_started": false,
+    "rerun_authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json"
   },
   "preservation": {
     "ref": "refs/gsd/phase254/state-before-hosted-halt",
@@ -123,9 +124,7 @@
     ]
   },
   "historical_verification_is_forward_blocker": false,
-  "human_actions_pending": [
-    "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
-  ],
+  "human_actions_pending": [],
   "async_jobs": [],
   "known_unfinished_work": {
     "READY-01": "Original approval, matching readiness/test records, and independently confirmed old report are missing; requirement remains unsatisfied.",
@@ -139,10 +138,9 @@
     "baseline_method_changed": false
   },
   "phase254_unblock_decision": {
-    "status": "awaiting_user_decision",
+    "status": "approved",
+    "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
     "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
-    "original_method_unchanged": true,
-    "notification_created": false,
-    "original_baseline_rerun_deadline_utc": "2026-11-11T22:33:57+00:00"
+    "notification_created": false
   }
 }

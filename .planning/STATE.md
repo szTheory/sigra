@@ -3,13 +3,13 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 milestone_status: active
-status: blocked
+status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_hosted_baseline_blocked
-stopped_at: Plan 254-08 prerequisite blocked; no hosted preparation or comparison started
-last_updated: "2026-10-23T19:53:39.202034+00:00"
+workflow_step: phase254_approved_rerun_continuation
+stopped_at: Approved rerun continuation; tooling and preparation preflight in progress
+last_updated: "2026-10-23T21:09:52.686054+00:00"
 last_activity: 2026-10-23 - Phase 254 implementation complete; hosted baseline PR path blocked
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
@@ -33,7 +33,7 @@ phase254_verification_status: pending
 verification_status: pending
 next_command: "$gsd-execute-phase 254"
 resume_command: "$gsd-execute-phase 254"
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 resume_file: .planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
@@ -68,6 +68,6 @@ Prior shared state and roadmap are recoverable at `f2cd83578701b4d212c7b4fc955d5
 
 Phase 253 remains complete and verified at 6/6. Its 81 implementations, 29 halts and 73 retired unused plans remain distinct; old stopped attempts and allowances are unchanged. Canonical report: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md`. Its recovery history remains under `.planning/execution/253-final-gates/` and `.planning/execution/253-final-review/`.
 
-## Proposed unblock — awaiting decision
+## Approved unblock — execution in progress
 
-The original baseline PR workflow can potentially be rerun at its original commit/ref. The current distinct-run-ID rule prevents using those reruns as forty registered observations. `.planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json` proposes an explicit amendment: attempt-scoped samples and timing, unchanged twenty-pair thresholds/window, plus at most two separate preparation invocations within60minutes/600HTTPrequests. No method or budget approval is inferred from this proposal. The original baseline rerun deadline is 2026-11-11T22:33:57+00:00. No scheduled notification was created; this session has no usable scheduling controls.
+The user explicitly approved the rerun method and finite preparation allowance with "yes i approve". Authority: `.planning/execution/254-RERUN-AUTHORIZATION.json`. Preserve the original distinct-run contract and blocked records as history; the approved continuation uses separately registered (run ID, attempt) samples. Keep all forty samples/twenty pairs, thresholds, all-warm/runner compatibility and the single48-hour window. At most two preparation invocations, no retries, within60minutes/600HTTPrequests; no old Phase253 budget is reused. No hosted run has started at this authorization capture. Continue the same Plan254-08 with `$gsd-execute-phase 254`.
