@@ -230,12 +230,21 @@ function coverageDirectory(directory, { sourceSha, project = 'chromium', caseTit
   const native = report(['tests/admin-behavior.spec.ts'], [project]);
   const selected = structuredClone(native);
   const item = native.suites[0].specs[0].tests[0];
-  item.results[0].status = result;
-  item.status = result === 'skipped' ? 'skipped' : 'expected';
-  item.expectedStatus = result === 'skipped' ? 'skipped' : 'passed';
+  const intentionalSkip = classification === 'intentional_skip';
+  const identityId = JSON.stringify([project, 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', caseTitle]);
   const selectedItem = selected.suites[0].specs[0].tests[0];
+  if (intentionalSkip) item.results = [];
+  else item.results[0].status = result;
+  item.status = result === 'skipped' ? 'skipped' : 'expected';
+  item.expectedStatus = intentionalSkip ? 'skipped' : 'passed';
   selectedItem.status = item.status;
   selectedItem.expectedStatus = item.expectedStatus;
+  if (result === 'skipped' || intentionalSkip) {
+    native.stats.expected = 0;
+    native.stats.skipped = 1;
+    selected.stats.expected = 0;
+    selected.stats.skipped = 1;
+  }
   native.suites[0].specs[0].title = caseTitle;
   selected.suites[0].specs[0].title = caseTitle;
   for (const suite of selected.suites) for (const spec of suite.specs) for (const test of spec.tests) test.results = [];
@@ -247,12 +256,15 @@ function coverageDirectory(directory, { sourceSha, project = 'chromium', caseTit
     workflow_sha256: 'c'.repeat(64), configuration_sha256: 'd'.repeat(64), lock_sha256: 'e'.repeat(64),
     event: 'pull_request', seam, owner: seam,
     project_inventory: [project], selected_inventory: [{
-      id: JSON.stringify([project, 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', caseTitle]),
-      project, spec: 'tests/admin-behavior.spec.ts', title: caseTitle, owner: seam, classification,
+      id: identityId, project, spec: 'tests/admin-behavior.spec.ts', title: caseTitle, owner: seam, classification,
+      ...(intentionalSkip ? { policy_id: 'source-policy-1' } : {}),
     }],
     excluded_inventory: [],
+    skip_policies: intentionalSkip ? [{ id: 'source-policy-1', owner: seam,
+      source_path: 'test/example/priv/playwright/playwright.config.ts', source_sha256: 'd'.repeat(64),
+      selector: `intentional skip: ${caseTitle}`, identities: [identityId] }] : [],
     reports: [{ path: reportPath, selection_path: selectionPath, sha256: hash(join(directory, reportPath)),
-      selection_sha256: hash(join(directory, selectionPath)) }] };
+      selection_sha256: hash(join(directory, selectionPath)), source_sha: sourceSha }] };
   writeFileSync(join(directory, 'coverage-source.json'), JSON.stringify(descriptor));
 }
 
@@ -300,6 +312,15 @@ test('coverage CLI rejects changed actual status, excluded work and reports with
     descriptor.reports[0].sha256 = '0'.repeat(64);
     writeFileSync(descriptorPath, JSON.stringify(descriptor));
     assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'native report without matching digest cannot be trusted');
+    descriptor.reports[0].source_sha = '3'.repeat(40);
+    descriptor.reports[0].sha256 = hash(join(after, 'native.json'));
+    writeFileSync(descriptorPath, JSON.stringify(descriptor));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'native report bound to another source cannot be trusted');
+    descriptor.reports[0].source_sha = '2'.repeat(40);
+    descriptor.excluded_inventory = [{ identity: ['chromium', 'tests/other.spec.ts', ['tests/other.spec.ts'], 'spec-x', 'excluded case'],
+      owner: 'admin_behavior', reason: 'unexpected exclusion' }];
+    writeFileSync(descriptorPath, JSON.stringify(descriptor));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'newly excluded identity must fail');
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
@@ -323,6 +344,70 @@ test('setup dependency rows remain separate and cannot replace product coverage'
       { before: id, after: id, owner: 'design_gallery', kind: 'product' },
     ] }));
     assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'setup dependency cannot be promoted into product coverage');
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('intentional skip parity requires the same exact identity and explicit source policy', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'browser-coverage-skip-'));
+  try {
+    const before = join(directory, 'before');
+    const after = join(directory, 'after');
+    const mapping = join(directory, 'mapping.json');
+    for (const [target, sourceSha] of [[before, '1'.repeat(40)], [after, '2'.repeat(40)]])
+      coverageDirectory(target, { sourceSha, result: 'skipped', classification: 'intentional_skip' });
+    const id = ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'];
+    writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [
+      { before: id, after: id, owner: 'admin_behavior', kind: 'product' },
+    ] }));
+    const positive = compareCoverage(before, after, mapping);
+    assert.equal(positive.status, 0, positive.stderr);
+    const descriptorPath = join(after, 'coverage-source.json');
+    const descriptor = JSON.parse(readFileSync(descriptorPath, 'utf8'));
+    descriptor.skip_policies = [];
+    writeFileSync(descriptorPath, JSON.stringify(descriptor));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'unbound skip allowlisting must fail');
+    descriptor.skip_policies = [{ id: 'source-policy-1', owner: 'admin_behavior',
+      source_path: 'test/example/priv/playwright/playwright.config.ts', source_sha256: 'd'.repeat(64),
+      selector: 'intentional skip: actual useful case', identities: [JSON.stringify(id)] }];
+    descriptor.selected_inventory[0].classification = 'product';
+    writeFileSync(descriptorPath, JSON.stringify(descriptor));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'skip cannot be silently admitted without explicit policy');
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('all five owners require one-to-one product mappings', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'browser-coverage-owners-'));
+  try {
+    for (const [index, seam] of seams.entries()) {
+      const before = join(directory, `before-${seam}`);
+      const after = join(directory, `after-${seam}`);
+      const mapping = join(directory, `${seam}.json`);
+      coverageDirectory(before, { sourceSha: String(index + 1).repeat(40), seam });
+      coverageDirectory(after, { sourceSha: (index + 11).toString(16).repeat(40), seam });
+      const id = ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'];
+      const row = { before: id, after: id, owner: seam, kind: 'product' };
+      writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [row] }));
+      const comparison = compareCoverage(before, after, mapping);
+      assert.equal(comparison.status, 0, `${seam} mapping: ${comparison.stderr}`);
+      writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [row, row] }));
+      assert.notEqual(compareCoverage(before, after, mapping).status, 0, `${seam} duplicate owner mapping`);
+    }
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('a missing mobile case cannot be concealed by retaining the chromium count', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'browser-coverage-mobile-'));
+  try {
+    const before = join(directory, 'before');
+    const after = join(directory, 'after');
+    const mapping = join(directory, 'mapping.json');
+    coverageDirectory(before, { sourceSha: '1'.repeat(40), project: 'mobile' });
+    coverageDirectory(after, { sourceSha: '2'.repeat(40), project: 'chromium' });
+    const mobile = ['mobile', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'];
+    writeFileSync(mapping, JSON.stringify({ schema_version: 'sigra.browser-coverage-map/v1', rows: [
+      { before: mobile, after: mobile, owner: 'admin_behavior', kind: 'product' },
+    ] }));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'missing mobile product identity must fail');
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 

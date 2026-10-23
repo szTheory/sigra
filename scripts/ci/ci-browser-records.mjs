@@ -169,13 +169,29 @@ function verifyCoverageSource(directory) {
   const inventory = descriptor.selected_inventory;
   requireValue(inventory.every((row) => row && typeof row.id === 'string' && typeof row.owner === 'string' &&
     ['product', 'setup', 'intentional_skip'].includes(row.classification)), 'selected coverage inventory malformed');
+  requireValue(Array.isArray(descriptor.skip_policies), 'source-bound intentional skip policies missing');
+  const policies = new Map();
+  for (const policy of descriptor.skip_policies) {
+    requireValue(policy && typeof policy.id === 'string' && typeof policy.owner === 'string' &&
+      typeof policy.selector === 'string' && policy.selector.length > 0 && Array.isArray(policy.identities) &&
+      policy.identities.length > 0, 'intentional skip policy malformed');
+    const expectedDigest = policy.source_path === '.github/workflows/ci.yml' ? descriptor.workflow_sha256
+      : policy.source_path === 'test/example/priv/playwright/playwright.config.ts' ? descriptor.configuration_sha256 : null;
+    requireValue(expectedDigest && policy.source_sha256 === expectedDigest, 'intentional skip policy source origin mismatch');
+    requireValue(!policies.has(policy.id), 'duplicate intentional skip policy identity');
+    policies.set(policy.id, policy);
+  }
   requireValue(new Set(inventory.map((row) => row.id)).size === inventory.length, 'duplicate pinned selection inventory identity');
   const inventoryById = new Map(inventory.map((row) => [row.id, row]));
   const rows = nativeRows.map((row) => {
     const match = inventoryById.get(row.id);
     requireValue(match && match.owner === descriptor.owner, `native product row missing from pinned inventory: ${row.id}`);
-    if (match.classification === 'intentional_skip')
+    if (match.classification === 'intentional_skip') {
+      const policy = policies.get(match.policy_id);
+      requireValue(policy && policy.owner === match.owner && policy.identities.includes(row.id),
+        `intentional skip has no source-bound identity policy: ${row.id}`);
       requireValue(row.expected_status === 'skipped' && row.actual_result === 'skipped', `intentional skip policy changed: ${row.id}`);
+    }
     return { ...row, owner: match.owner, classification: match.classification };
   });
   requireValue(rows.length === inventory.length, 'pinned selection inventory and native reports differ');
