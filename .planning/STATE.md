@@ -2,26 +2,26 @@
 gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
-status: ready_to_execute
-stopped_at: Phase 254 planning checked; implementation and phase verification not started
-last_updated: "2026-10-23T16:29:07.618095+00:00"
-state_head: 1aa7fdcaec836f44a389a0f4c610c3a9578cd86a
+status: in_progress
+stopped_at: Phase 254 wave 2 complete; Plan 254-06 comparison tooling next
+last_updated: "2026-10-23T18:18:29.903469+00:00"
+state_head: 645c11e6923b6b28b22285d55ff0a4b43ee7e83b
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 197
-  completed_plans: 87
+  total_plans: 124
+  completed_plans: 116
   percent: 50
 last_activity: 2026-10-23 - Phase 254 planning checked; execution next
 milestone_status: active
-workflow_step: phase254_planned_execution_next
+workflow_step: phase254_wave3_execution
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: passed
-phase254_implementation_status: not_started
+phase254_implementation_status: in_progress
 phase254_verification_status: not_started
-next_command: "$gsd-execute-phase 254"
-resume_command: "$gsd-execute-phase 254"
+next_command: $gsd-execute-phase 254
+resume_command: $gsd-execute-phase 254
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -72,18 +72,19 @@ phase253_control_recovery_task_count: 22
 phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: .planning/phases/254-speed-up-the-measured-slow-jobs/254-01-PLAN.md
+resume_file: .planning/phases/254-speed-up-the-measured-slow-jobs/254-06-PLAN.md
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 phase253_historical_plan_count: 183
 phase253_superseded_never_executed: 73
-current_phase_name: Speed Up the Measured Slow Jobs
-current_phase: 254
-last_activity_desc: Eight plans in five waves; two requirements and all 21 decisions covered; independent checker passed; no implementation or hosted runs
 phase254_planning_status: passed
 phase254_plan_count: 8
 phase254_wave_count: 5
 phase254_task_count: 19
+phase254_completed_plans: 5
 phase254_comparison_status: not_started
+current_phase_name: Speed Up the Measured Slow Jobs
+current_phase: 254
+last_activity_desc: Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.
 ---
 
 # Current position
@@ -94,9 +95,11 @@ The proof includes a controlled real-component loader/reloader reproduction and 
 
 ## Next action
 
-`$gsd-execute-phase 254` — Speed Up the Measured Slow Jobs. Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget.
+`$gsd-execute-phase 254` — Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.
 
-Planning evidence: `.planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json`. Plans remain unexecuted and validation remains draft. The two unclassified probe assumptions and two reporting prohibitions remain explicitly flagged in Plan 08.
+Completed summaries: `.planning/phases/254-speed-up-the-measured-slow-jobs/254-01-SUMMARY.md` through `254-05-SUMMARY.md`. Both CISPEED requirements remain open. Local profile and browser results do not prove hosted median, p95 or runner-cost thresholds. The library cold dependency fetch is retained because formatting requires dependencies before `mix ci` reaches its locked fetch.
+
+Prior shared state is recoverable from `d0843f191169df3d7fa54d47eb72d8967f50dfc7` (`refs/gsd/phase254/state-before-wave3`); exact paths/status/blobs/digests and read-back are in `.planning/execution/254-state-before-wave3.json`.
 
 ## Preserved history and limits
 
@@ -110,5 +113,5 @@ See `.planning/PROJECT.md` (updated 2026-10-23). Current focus: measured CI spee
 
 ## Session continuity
 
-Stopped at: Phase254 planning checked; execution next.
-Resume file: `.planning/phases/254-speed-up-the-measured-slow-jobs/254-01-PLAN.md`.
+Stopped at: Phase254 wave 2 complete; Plan254-06 next.
+Resume file: `.planning/phases/254-speed-up-the-measured-slow-jobs/254-06-PLAN.md`.

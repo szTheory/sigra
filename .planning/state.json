@@ -6,34 +6,17 @@
     {
       "number": "252",
       "name": "Measure Current CI",
-      "status": "complete",
-      "verification_status": "passed"
+      "status": "complete"
     },
     {
       "number": "253",
       "name": "Fix Flaky CI and Preserve Required Checks",
-      "status": "complete",
-      "implementation_status": "complete",
-      "verification_status": "passed",
-      "historical_plan_count": 183,
-      "completed_implementation_count": 81,
-      "halted_plan_count": 29,
-      "retired_never_executed": 73
+      "status": "complete"
     },
     {
       "number": "254",
       "name": "Speed Up the Measured Slow Jobs",
-      "status": "ready_to_execute",
-      "has_research": true,
-      "has_plans": true,
-      "plan_count": 8,
-      "wave_count": 5,
-      "task_count": 19,
-      "planning_status": "passed",
-      "implementation_status": "not_started",
-      "verification_status": "not_started",
-      "comparison_status": "not_started",
-      "has_context": true
+      "status": "in_progress"
     },
     {
       "number": "255",
@@ -43,68 +26,17 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 254",
-    "conditional": false,
-    "label": "Execute Phase 254 \u2014 Speed Up the Measured Slow Jobs",
-    "reason": "Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget."
+    "label": "Continue Phase 254",
+    "reason": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started."
   },
-  "updated_at": "2026-10-23T16:29:07.618095+00:00",
-  "status": "ready_to_execute",
-  "next_command": "$gsd-execute-phase 254",
-  "resume_command": "$gsd-execute-phase 254",
-  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-01-PLAN.md",
-  "next_action": "Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget.",
-  "next_command_conditional": false,
-  "current_routing": {
-    "status": "ready_to_execute",
-    "next_command": "$gsd-execute-phase 254",
-    "resume_command": "$gsd-execute-phase 254",
-    "conditional": false,
-    "reason": "Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget.",
-    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
-    "planning_checks": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json",
-    "historical_verification_is_forward_blocker": false
-  },
-  "workflow_step": "phase254_planned_execution_next",
-  "phase254_planning_status": "passed",
-  "phase254_implementation_status": "not_started",
-  "phase254_verification_status": "not_started",
-  "phase254_comparison_status": "not_started",
-  "last_updated": "2026-10-23T16:29:07.618095+00:00",
-  "state_head": "1aa7fdcaec836f44a389a0f4c610c3a9578cd86a",
-  "stopped_at": "Phase 254 planning checked; implementation, comparison and phase verification not started",
-  "current_phase": 254,
-  "current_phase_name": "Speed Up the Measured Slow Jobs",
-  "phase253_implementation_status": "complete",
-  "phase253_verification_status": "passed",
-  "phase253_requirements_completed": [
-    "CIREL-01",
-    "CIREL-02"
-  ],
-  "phase253_canonical_verification": {
-    "status": "passed",
-    "score": "6/6",
-    "report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md",
-    "phase_complete": true,
-    "verified_at": "2026-10-23T15:17:23.454208+00:00",
-    "requirements_completed": [
-      "CIREL-01",
-      "CIREL-02"
-    ],
-    "gates_commit": "70729a937a74ca11fe9b84f733563e738209d452",
-    "gate_evidence": ".planning/execution/253-final-gates",
-    "known_limit": "Original hosted loader/reloader timing remains inferred; controlled pinned-component reproduction matches the observed exception."
-  },
-  "phase253_history": {
-    "prior_commit": "70729a937a74ca11fe9b84f733563e738209d452",
-    "identity_record": ".planning/execution/253-final-gates/completion-prior-state.json",
-    "historical_plan_count": 183,
-    "completed_implementation_count": 81,
-    "halted_count": 29,
-    "retired_never_executed": 73,
-    "retirements": ".planning/execution/253-final-review/RETIREMENTS.json",
-    "original_failed_results_unchanged": true,
-    "old_allowances_remain_consumed": true
-  },
-  "phase253_current_blocker": null,
-  "historical_verification_is_forward_blocker": false
+  "updated_at": "2026-10-23T18:18:29.903469+00:00",
+  "phase254": {
+    "completed_plans": 5,
+    "total_plans": 8,
+    "implementation_status": "in_progress",
+    "comparison_status": "not_started",
+    "verification_status": "not_started",
+    "resume_plan": "254-06",
+    "state_preservation": "d0843f191169df3d7fa54d47eb72d8967f50dfc7"
+  }
 }

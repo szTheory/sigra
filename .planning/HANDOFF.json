@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-23T16:29:07.618095+00:00",
-  "updated_at": "2026-10-23T16:29:07.618095+00:00",
-  "status": "ready_to_execute",
+  "timestamp": "2026-10-23T18:18:29.903469+00:00",
+  "updated_at": "2026-10-23T18:18:29.903469+00:00",
+  "status": "in_progress",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "current_phase": 254,
-  "current": "Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget.",
+  "current": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
   "next_command": "$gsd-execute-phase 254",
   "resume_command": "$gsd-execute-phase 254",
-  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-01-PLAN.md",
-  "next_action": "Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget.",
+  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-06-PLAN.md",
+  "next_action": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
   "route": {
-    "status": "ready_to_execute",
+    "status": "in_progress",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
     "conditional": false,
-    "reason": "Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget.",
+    "reason": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
     "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
     "planning_checks": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json",
     "historical_verification_is_forward_blocker": false
   },
   "current_routing": {
-    "status": "ready_to_execute",
+    "status": "in_progress",
     "next_command": "$gsd-execute-phase 254",
     "resume_command": "$gsd-execute-phase 254",
     "conditional": false,
-    "reason": "Eight plans across five waves passed independent review; both requirements and all 21 decisions are covered. Fresh init.execute-phase 254 sees eight unexecuted plans and no entry blocker. Implementation, comparison and phase verification have not started. Hosted collection requires exact frozen-source real-PR execution, compatible warm caches/images and any separate extra preparation budget.",
+    "reason": "Plans 254-01 through 254-05 are implemented and locally checked. Continue with Plan 254-06 comparison tooling, then integrated candidate checks and hosted readiness. Hosted comparison and whole-phase verification have not started.",
     "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
     "planning_checks": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PLANNING-CHECKS.json",
     "historical_verification_is_forward_blocker": false
@@ -34,15 +34,16 @@
   "workflow": {
     "phase253_implementation_status": "complete",
     "phase253_verification_status": "passed",
-    "next_required_gate": "Execute Phase 254 starting with frozen-source preflight and local preparation profiling",
+    "next_required_gate": "Implement comparison tooling in Plan254-06 before candidate integration and hosted readiness",
     "phase254_started": true,
     "phase254_context_status": "complete",
-    "phase254_implementation_status": "not_started",
+    "phase254_implementation_status": "in_progress",
     "phase254_verification_status": "not_started",
     "phase254_planning_status": "passed",
     "phase254_plan_count": 8,
     "phase254_wave_count": 5,
-    "phase254_comparison_status": "not_started"
+    "phase254_comparison_status": "not_started",
+    "phase254_completed_plans": 5
   },
   "phase253_canonical_verification": {
     "status": "passed",
@@ -127,6 +128,43 @@
       ".planning/phases/254-speed-up-the-measured-slow-jobs/254-06-PLAN.md",
       ".planning/phases/254-speed-up-the-measured-slow-jobs/254-07-PLAN.md",
       ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md"
-    ]
-  }
+    ],
+    "completed_plans": [
+      "254-01",
+      "254-02",
+      "254-03",
+      "254-04",
+      "254-05"
+    ],
+    "current_plan": "254-06",
+    "state_preservation": {
+      "ref": "refs/gsd/phase254/state-before-wave3",
+      "commit": "d0843f191169df3d7fa54d47eb72d8967f50dfc7",
+      "prior_head": "fa634e1822d3167376d2d4c88c78ea1e6f77d2d7",
+      "files": [
+        {
+          "path": ".planning/STATE.md",
+          "status": " M .planning/STATE.md",
+          "git_blob": "63702002ab43745f18ddd21e2d306351b5176c72",
+          "sha256": "e9e24aeecfd3b11b5cc17835560478fa44d9c632a829b9027a4cbe495b3c80c0",
+          "readback_verified": true
+        },
+        {
+          "path": ".planning/state.json",
+          "status": " M .planning/state.json",
+          "git_blob": "829f9159199eddf8581485e58aeb429d1956b282",
+          "sha256": "8ec5f258977aaedec4ff52f0c56ffe15b36bac4c7d1b1af898976317c64fbd74",
+          "readback_verified": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "",
+          "git_blob": "800fe9adfbd788d61ce5eaff9c6e581f432b9e9e",
+          "sha256": "f643bc35bad6709b922e34a86c781d301c1e25ba62aead0cf3f378c1943881ff",
+          "readback_verified": true
+        }
+      ]
+    }
+  },
+  "authorization_note": "The user invoked gsd-execute-phase254; scoped local work is authorized. Hosted runs remain subject to the exact frozen comparison and preparation gates; old Phase253 allowances stay consumed."
 }

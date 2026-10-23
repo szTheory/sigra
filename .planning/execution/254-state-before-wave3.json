@@ -1,0 +1,28 @@
+{
+  "ref": "refs/gsd/phase254/state-before-wave3",
+  "commit": "d0843f191169df3d7fa54d47eb72d8967f50dfc7",
+  "prior_head": "fa634e1822d3167376d2d4c88c78ea1e6f77d2d7",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": " M .planning/STATE.md",
+      "git_blob": "63702002ab43745f18ddd21e2d306351b5176c72",
+      "sha256": "e9e24aeecfd3b11b5cc17835560478fa44d9c632a829b9027a4cbe495b3c80c0",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": " M .planning/state.json",
+      "git_blob": "829f9159199eddf8581485e58aeb429d1956b282",
+      "sha256": "8ec5f258977aaedec4ff52f0c56ffe15b36bac4c7d1b1af898976317c64fbd74",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "",
+      "git_blob": "800fe9adfbd788d61ce5eaff9c6e581f432b9e9e",
+      "sha256": "f643bc35bad6709b922e34a86c781d301c1e25ba62aead0cf3f378c1943881ff",
+      "readback_verified": true
+    }
+  ]
+}
