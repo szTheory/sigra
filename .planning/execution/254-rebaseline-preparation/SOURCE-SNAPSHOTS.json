@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "sources": {
+    "before": {
+      "application_sha": "7e8cf6ac845ef4f5dbeb5ca63f45632bca954560",
+      "tree_sha": "8d4070c7b74ca3137e482f4e10814ce99c936ec7",
+      "branch": "evidence/phase254-amended-before-20261023",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "workflow_sha256": "240ea9e4c4fd5410bbba9af69d52a77bbf00dfb3f7fbfe50bbf54fad1cd7ddd3"
+    },
+    "after": {
+      "application_sha": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+      "tree_sha": "e9d39623b5f574f17413839d56aad90a20738ab1",
+      "branch": "evidence/phase254-amended-after-20261023",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "dd4e3b437f13ee374cacb39922dc04915f521257",
+      "workflow_sha256": "6dec5b0aaf1c3405188843583ecd28a4b3960873cd968231d6f33ad1bc8136a9"
+    }
+  },
+  "baseline_changes": [
+    ".github/workflows/ci.yml",
+    "test/sigra/planning/phase_232_playwright_economics_test.exs"
+  ],
+  "all_other_baseline_paths_byte_identical": true,
+  "candidate_tree_identical_to_reviewed_commit": true,
+  "main_and_working_branch_unchanged": true
+}

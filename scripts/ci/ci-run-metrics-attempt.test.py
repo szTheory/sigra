@@ -278,6 +278,10 @@ class AttemptAcquisition(unittest.TestCase):
                     prefix = f"./raw/families/{rid}/"
                     read = lambda name: saved.extractfile(prefix + name).read()
                     recorded_run = json.loads(read("run.json"))
+                    pr = recorded_run['pull_requests'][0]
+                    contract['baseline_identity'].update(branch=pr['head']['ref'], parent_main_sha=pr['base']['sha'])
+                    contract['baseline_identity'].pop('run_id')
+                    write(root / 'acquisition-contract.json', contract)
                     recorded_jobs = json.loads(read("jobs-attempt-1.json"))
                     recorded_checks = json.loads(read("check-runs.json"))
                     recorded_metadata = json.loads(read("artifacts-metadata.json"))
@@ -493,6 +497,43 @@ else:
 
 
 class BoundedPreparation(unittest.TestCase):
+    def test_two_initial_pr_triggers_have_distinct_frozen_roles_and_no_retries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            transport = root / 'bin'
+            transport.mkdir()
+            gh = transport / 'gh'
+            gh.write_text('''#!/usr/bin/env python3
+import json,os,pathlib,sys
+args=sys.argv[1:]; endpoint=args[args.index('--method')+2]
+with pathlib.Path(os.environ['TRANSPORT_LOG']).open('a') as out: out.write(json.dumps(args)+'\\n')
+print(json.dumps({'resources':{'core':{'remaining':5000,'reset':2000000000}}}) if endpoint=='rate_limit' else '{}')
+''')
+            gh.chmod(0o755)
+            endpoint = '/repos/szTheory/sigra/pulls'
+            contract = {'request_budget_ledger_id':'b'*64, 'maximum_mutations':2,
+                'authorized_mutations':[endpoint], 'preparation_order':['before','after'],
+                'baseline_identity':{'branch':'evidence/phase254-new-before'},
+                'candidate_identity':{'branch':'evidence/phase254-new-after'}}
+            write(root/'contract.json',contract)
+            env={**os.environ,'PATH':str(transport)+os.pathsep+os.environ['PATH'],'TRANSPORT_LOG':str(root/'transport.jsonl')}
+            def invoke(role, sequence):
+                branch=contract['baseline_identity' if role=='before' else 'candidate_identity']['branch']
+                write(root/f'body-{sequence}.json',{'head':branch,'base':'main','draft':True,'title':'fixture'})
+                return subprocess.run(['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--bounded-request',endpoint,
+                    '--request-method','POST','--request-body',str(root/f'body-{sequence}.json'),'--comparison-role',role,
+                    '--contract',str(root/'contract.json'),'--request-budget-ledger',str(root/'budget.json'),
+                    '--output',str(root/f'output-{sequence}.json')],env=env,capture_output=True,text=True)
+            self.assertNotEqual(invoke('after',0).returncode,0)
+            self.assertEqual(invoke('before',1).returncode,0)
+            self.assertNotEqual(invoke('before',2).returncode,0)
+            self.assertEqual(invoke('after',3).returncode,0)
+            self.assertNotEqual(invoke('after',4).returncode,0)
+            ledger=json.loads((root/'budget.json').read_text())
+            self.assertEqual([row['mutation_key'] for row in ledger['records'] if row['kind']=='mutation'],['before','after'])
+            calls=[json.loads(line) for line in (root/'transport.jsonl').read_text().splitlines()]
+            self.assertEqual(sum(row[row.index('--method')+1]=='POST' for row in calls),2)
+
     def test_mutations_are_once_only_and_share_the_collection_budget(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

@@ -2119,7 +2119,7 @@ jobs=json.loads(pathlib.Path(sys.argv[3]).read_text()).get('jobs',[])
 matches=[job for job in jobs if str(job.get('id'))==sys.argv[4]]
 if len(matches)!=1 or matches[0].get('conclusion') not in ('failure','timed_out'): raise SystemExit(1)
 job=matches[0]; baseline=c['baseline_identity']
-if not ((job.get('run_id')==baseline['run_id'] and job.get('run_attempt')==baseline['preparation_attempt'] and job.get('head_sha')==c['baseline_application_sha'])
+if not ((job.get('run_id')==baseline.get('run_id',job.get('run_id')) and job.get('run_attempt')==baseline['preparation_attempt'] and job.get('head_sha')==c['baseline_application_sha'])
         or job.get('head_sha')==c['candidate_identity']['application_sha']): raise SystemExit(1)
 PY
   mkdir -p "$(dirname "$DIAGNOSIS_OUTPUT")"
@@ -2153,7 +2153,11 @@ if (run.get('status') not in ('queued','in_progress') or run.get('conclusion') i
         or not budget['started_at_epoch']-5 <= _utc(origin).timestamp() <= budget['started_at_epoch']+3600): raise SystemExit(1)
 pr=prs[0]
 if pr.get('head',{}).get('sha')!=expected: raise SystemExit(1)
-if role=='before' and (run['id']!=c['baseline_identity']['run_id'] or run['run_attempt']!=c['baseline_identity']['preparation_attempt'] or pr['number']!=331): raise SystemExit(1)
+identity=c['baseline_identity'] if role=='before' else c['candidate_identity']
+if identity.get('branch'):
+    if (run['run_attempt']!=identity.get('preparation_attempt',1) or pr['head'].get('ref')!=identity['branch']
+            or pr['base'].get('sha')!=identity['parent_main_sha']): raise SystemExit(1)
+elif role=='before' and (run['id']!=identity['run_id'] or run['run_attempt']!=identity['preparation_attempt'] or pr['number']!=331): raise SystemExit(1)
 row={'reservation_id':'preparation-'+role,'pair_id':'preparation-only','family_role':role,
      'run_id':run['id'],'run_attempt':run['run_attempt'],'sample_id':f"{run['id']}-attempt-{run['run_attempt']}",
      'head_sha':expected,'created_at':run['created_at'],'attempt_origin_at':origin,'event':run['event'],
@@ -2177,9 +2181,9 @@ fi
 
 if [[ -n "$BOUNDED_REQUEST" ]]; then
   [[ -s "$CONTRACT_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "bounded_request_requires_contract_budget_and_new_output"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$BOUNDED_REQUEST" "$REQUEST_METHOD" "$REQUEST_BODY" <<'PY' || fail "bounded_request_not_authorized"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$BOUNDED_REQUEST" "$REQUEST_METHOD" "$REQUEST_BODY" "$COMPARISON_ROLE" <<'PY' || fail "bounded_request_not_authorized"
 import json,pathlib,re,sys
-c=json.loads(pathlib.Path(sys.argv[1]).read_text()); endpoint,method,body=sys.argv[2:]
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); endpoint,method,body,role=sys.argv[2:]
 if method=='GET':
     if not (endpoint=='rate_limit' or endpoint.startswith('/repos/szTheory/sigra/')): raise SystemExit(1)
 elif method=='POST':
@@ -2187,6 +2191,9 @@ elif method=='POST':
     if endpoint.endswith('/pulls'):
         payload=json.loads(pathlib.Path(body).read_text())
         if payload.get('draft') is not True or payload.get('base')!='main' or not payload.get('head','').startswith('evidence/phase254-'): raise SystemExit(1)
+        if c.get('preparation_order'):
+            identity=c.get('baseline_identity') if role=='before' else c.get('candidate_identity') if role=='after' else None
+            if not identity or payload['head']!=identity['branch']: raise SystemExit(1)
 else: raise SystemExit(1)
 PY
   PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" <<'PY'
@@ -2203,13 +2210,16 @@ PY
     api_get rate_limit "$API_TEMP_DIR/rate.json" || fail "bounded_request_rate_preflight_blocked"
   fi
   if [[ "$REQUEST_METHOD" == POST ]]; then
-    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" "$COMPARISON_ROLE" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
 import hashlib,json,pathlib,sys,time
 from ci_metrics_security import _comparison_budget_read,_comparison_budget_append
 c=json.loads(pathlib.Path(sys.argv[1]).read_text()); path=pathlib.Path(sys.argv[2]); ledger=_comparison_budget_read(path,c)
 prior=[row for row in ledger['records'] if row.get('kind')=='mutation']
-if len(prior)>=c.get('maximum_mutations',0) or any(row['endpoint']==sys.argv[3] for row in prior): raise SystemExit(1)
+key=sys.argv[5] if c.get('preparation_order') else sys.argv[3]
+if len(prior)>=c.get('maximum_mutations',0) or any(row.get('mutation_key',row['endpoint'])==key for row in prior): raise SystemExit(1)
+if c.get('preparation_order') and (len(prior)>=len(c['preparation_order']) or c['preparation_order'][len(prior)]!=key): raise SystemExit(1)
 _comparison_budget_append(path,ledger,{'kind':'mutation','endpoint':sys.argv[3], 'at_epoch':int(time.time()),
+    'mutation_key':key,
     'body_sha256':hashlib.sha256(pathlib.Path(sys.argv[4]).read_bytes()).hexdigest() if sys.argv[4] else None})
 PY
   fi
