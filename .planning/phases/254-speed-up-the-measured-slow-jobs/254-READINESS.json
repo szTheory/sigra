@@ -1,0 +1,16 @@
+{
+  "phase_found": true,
+  "phase_number": "254",
+  "phase_name": "Speed Up the Measured Slow Jobs",
+  "phase_status": "Pending",
+  "phase_req_ids": "CISPEED-01, CISPEED-02",
+  "has_context": true,
+  "has_research": false,
+  "has_plans": false,
+  "plan_count": 0,
+  "captured_at": "2026-10-23T15:43:11.128793+00:00",
+  "next_command": "$gsd-plan-phase 254",
+  "prerequisite_blocker": null,
+  "baseline_source_preflight": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-PREFLIGHT.json",
+  "scope": "Planning route only; implementation and phase verification not started"
+}
