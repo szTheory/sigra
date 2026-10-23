@@ -94,6 +94,140 @@ function validateSelection(rows, policy, seam) {
   }
 }
 
+function readCoverageJSON(directory, path) {
+  return confinedJSON(directory, path);
+}
+
+function coverageIdentity(row) {
+  return JSON.stringify([row.project_id, row.spec_file, row.suite_path, row.native_spec_id, row.title]);
+}
+
+/** Normalize native report rows without reducing coverage to a count. */
+export function normalizedProductRows(report, { seam, invocation }) {
+  const normalized = normalizeReport(report, { seam, invocation });
+  requireValue(normalized.complete && normalized.tests.length > 0,
+    `native report incomplete: ${normalized.incomplete_reasons.join(',')}`);
+  const expected = new Map(selectionRows(report).map((row) => [row.id, row.expected_status]));
+  const rows = normalized.tests.map((row) => {
+    const native = JSON.parse(row.test_id);
+    requireValue(row.retry === null || row.retry === 0, `native coverage report contains retries: ${row.test_id}`);
+    return {
+    id: JSON.stringify(native),
+    native_spec_id: native[3],
+    project: row.project,
+    project_id: row.project_id,
+    spec: row.spec_file,
+    title_path: row.suite_path,
+    title: row.title,
+    expected_status: expected.get(row.test_id),
+    actual_result: row.result,
+    selected: true,
+    classification: 'product',
+  }; });
+  requireValue(new Set(rows.map((row) => row.id)).size === rows.length, 'duplicate native product identity');
+  return rows;
+}
+
+function verifyCoverageSource(directory) {
+  requireValue(!lstatSync(directory).isSymbolicLink(), 'symlink coverage source directory');
+  const descriptor = readCoverageJSON(directory, 'coverage-source.json');
+  requireValue(descriptor?.schema_version === 'sigra.browser-coverage-source/v1', 'coverage source schema mismatch');
+  requireValue(/^[0-9a-f]{40}$/.test(descriptor.source_sha ?? ''), 'coverage source revision missing');
+  for (const key of ['workflow_sha256', 'configuration_sha256', 'lock_sha256'])
+    requireValue(/^[0-9a-f]{64}$/.test(descriptor[key] ?? ''), `coverage source digest missing: ${key}`);
+  requireValue(SEAMS.includes(descriptor.seam) && descriptor.owner === descriptor.seam, 'coverage source owner mismatch');
+  requireValue(['pull_request', 'push', 'schedule', 'workflow_dispatch'].includes(descriptor.event), 'coverage source event invalid');
+  requireValue(Array.isArray(descriptor.project_inventory) && descriptor.project_inventory.length > 0 &&
+    new Set(descriptor.project_inventory).size === descriptor.project_inventory.length, 'coverage project inventory invalid');
+  requireValue(Array.isArray(descriptor.selected_inventory) && descriptor.selected_inventory.length > 0,
+    'coverage selected inventory missing');
+  requireValue(Array.isArray(descriptor.excluded_inventory) && descriptor.excluded_inventory.every((row) =>
+    row && Array.isArray(row.identity) && row.identity.length === 5 && typeof row.owner === 'string' && typeof row.reason === 'string'),
+  'coverage excluded inventory invalid');
+  requireValue(Array.isArray(descriptor.reports) && descriptor.reports.length > 0, 'coverage native report references missing');
+  const nativeRows = [];
+  for (const ref of descriptor.reports) {
+    requireValue(typeof ref.path === 'string' && typeof ref.selection_path === 'string', 'coverage native report reference invalid');
+    requireValue(ref.source_sha === descriptor.source_sha, 'coverage report source origin mismatch');
+    for (const [path, key] of [[ref.path, 'sha256'], [ref.selection_path, 'selection_sha256']]) {
+      const bytes = readFileSync(resolve(directory, path));
+      requireValue(/^[0-9a-f]{64}$/.test(ref[key] ?? '') && digest(bytes) === ref[key], `coverage report digest mismatch: ${path}`);
+    }
+    const report = readCoverageJSON(directory, ref.path);
+    const selection = readCoverageJSON(directory, ref.selection_path);
+    const selected = selectionRows(selection);
+    const actual = normalizedProductRows(report, { seam: descriptor.seam, invocation: ref.path });
+    requireValue(actual.length > 0 && selected.length > 0, 'empty coverage selection or native result');
+    const selectedPairs = new Set(selected.map((row) => row.id));
+    const actualPairs = new Set(actual.map((row) => row.id));
+    requireValue(selectedPairs.size === selected.length && actualPairs.size === actual.length, 'duplicate selection or native coverage identity');
+    requireValue(JSON.stringify([...selectedPairs].sort()) === JSON.stringify([...actualPairs].sort()),
+      'native report product identities differ from source selection');
+    requireValue(selected.every((row) => descriptor.project_inventory.includes(row.project)), 'selected project absent from pinned project inventory');
+    nativeRows.push(...actual);
+  }
+  const inventory = descriptor.selected_inventory;
+  requireValue(inventory.every((row) => row && typeof row.id === 'string' && typeof row.owner === 'string' &&
+    ['product', 'setup', 'intentional_skip'].includes(row.classification)), 'selected coverage inventory malformed');
+  requireValue(new Set(inventory.map((row) => row.id)).size === inventory.length, 'duplicate pinned selection inventory identity');
+  const inventoryById = new Map(inventory.map((row) => [row.id, row]));
+  const rows = nativeRows.map((row) => {
+    const match = inventoryById.get(row.id);
+    requireValue(match && match.owner === descriptor.owner, `native product row missing from pinned inventory: ${row.id}`);
+    if (match.classification === 'intentional_skip')
+      requireValue(row.expected_status === 'skipped' && row.actual_result === 'skipped', `intentional skip policy changed: ${row.id}`);
+    return { ...row, owner: match.owner, classification: match.classification };
+  });
+  requireValue(rows.length === inventory.length, 'pinned selection inventory and native reports differ');
+  return { descriptor, rows, productRows: rows.filter((row) => row.classification !== 'setup'),
+    setupRows: rows.filter((row) => row.classification === 'setup') };
+}
+
+/** Compare source-bound native product identities, outcomes and ownership mapping. */
+export function compareProductCoverage(beforeDirectory, afterDirectory, mappingPath) {
+  const before = verifyCoverageSource(beforeDirectory);
+  const after = verifyCoverageSource(afterDirectory);
+  requireValue(before.descriptor.event === after.descriptor.event, 'coverage comparison event changed');
+  const excluded = (source) => source.descriptor.excluded_inventory.map((row) => JSON.stringify(row)).sort();
+  requireValue(JSON.stringify(excluded(before)) === JSON.stringify(excluded(after)), 'excluded workload identity or reason changed');
+  const mapping = JSON.parse(readFileSync(mappingPath, 'utf8'));
+  requireValue(mapping?.schema_version === 'sigra.browser-coverage-map/v1' && Array.isArray(mapping.rows), 'coverage mapping schema invalid');
+  const products = mapping.rows.filter((row) => row.kind === 'product');
+  const setup = mapping.rows.filter((row) => row.kind === 'setup');
+  requireValue(products.length + setup.length === mapping.rows.length, 'unmapped or unsupported coverage classification');
+  const mappedBefore = products.map((row) => JSON.stringify(row.before));
+  const mappedAfter = products.map((row) => JSON.stringify(row.after));
+  requireValue(new Set(mappedBefore).size === mappedBefore.length && new Set(mappedAfter).size === mappedAfter.length,
+    'duplicate product ownership mapping');
+  const beforeByIdentity = new Map(before.rows.map((row) => [row.id, row]));
+  const afterByIdentity = new Map(after.rows.map((row) => [row.id, row]));
+  requireValue(beforeByIdentity.size === before.rows.length && afterByIdentity.size === after.rows.length, 'duplicate source product identity');
+  const differences = [];
+  for (const row of products) {
+    requireValue(Array.isArray(row.before) && row.before.length === 5 && Array.isArray(row.after) && row.after.length === 5 &&
+      typeof row.owner === 'string', 'product mapping row malformed');
+    const left = beforeByIdentity.get(JSON.stringify(row.before));
+    const right = afterByIdentity.get(JSON.stringify(row.after));
+    if (!left || !right) { differences.push({ before: row.before, after: row.after, reason: !left ? 'before_missing' : 'after_missing' }); continue; }
+    if (left.classification !== right.classification || left.expected_status !== right.expected_status || left.actual_result !== right.actual_result)
+      differences.push({ before: row.before, after: row.after, reason: 'status_or_classification_changed',
+        before_status: left.actual_result, after_status: right.actual_result,
+        before_classification: left.classification, after_classification: right.classification });
+    if (left.owner !== row.owner || right.owner !== row.owner)
+      differences.push({ before: row.before, after: row.after, reason: 'owner_mismatch', owner: row.owner });
+  }
+  const mappedBeforeSet = new Set(mapping.rows.map((row) => JSON.stringify(row.before)));
+  const mappedAfterSet = new Set(mapping.rows.map((row) => JSON.stringify(row.after)));
+  for (const row of before.rows) if (!mappedBeforeSet.has(row.id)) differences.push({ identity: row.id, reason: 'before_unmapped' });
+  for (const row of after.rows) if (!mappedAfterSet.has(row.id)) differences.push({ identity: row.id, reason: 'after_unmapped' });
+  requireValue(differences.length === 0, `product coverage differs: ${JSON.stringify(differences)}`);
+  requireValue(before.setupRows.length === setup.length && after.setupRows.length === setup.length,
+    'setup/dependency rows are not mapped separately from product coverage');
+  return { status: 'passed', before_rows: before.productRows.length, after_rows: after.productRows.length,
+    before_setup_rows: before.setupRows.length, after_setup_rows: after.setupRows.length,
+    before_source: before.descriptor.source_sha, after_source: after.descriptor.source_sha, differences };
+}
+
 function validateIdentity(identity) {
   requireValue(identity && /^[1-9][0-9]*$/.test(identity.run_id) && /^[1-9][0-9]*$/.test(identity.run_attempt), 'invalid run identity');
   requireValue(/^[0-9a-f]{40}$/.test(identity.source_sha) && /^[0-9a-f]{40}$/.test(identity.workflow_sha), 'invalid source identity');
@@ -191,15 +325,20 @@ function recordProducer(output, reportsDirectory, seam) {
 function main(argv) {
   const args = {};
   for (let index = 0; index < argv.length; index += 1) {
-    if (argv[index] === '--verify' || argv[index] === '--record') {
+    if (argv[index] === '--verify' || argv[index] === '--record' || argv[index] === '--compare-coverage') {
       requireValue(args[argv[index]] === undefined, 'duplicate CLI argument');
       args[argv[index]] = true; continue;
     }
-    requireValue(['--verify-seam', '--directory', '--identity', '--native-result', '--seam', '--reports-directory'].includes(argv[index]) && argv[index + 1], 'unknown or missing CLI argument');
+    requireValue(['--verify-seam', '--directory', '--identity', '--native-result', '--seam', '--reports-directory',
+      '--before-directory', '--after-directory', '--mapping'].includes(argv[index]) && argv[index + 1], 'unknown or missing CLI argument');
     requireValue(args[argv[index]] === undefined, 'duplicate CLI argument');
     args[argv[index]] = argv[++index];
   }
-  requireValue([args['--verify'], args['--verify-seam'], args['--record']].filter(Boolean).length === 1, 'select one CLI mode');
+  requireValue([args['--verify'], args['--verify-seam'], args['--record'], args['--compare-coverage']].filter(Boolean).length === 1, 'select one CLI mode');
+  if (args['--compare-coverage']) {
+    requireValue(args['--before-directory'] && args['--after-directory'] && args['--mapping'], 'coverage comparison requires before, after and mapping inputs');
+    return compareProductCoverage(args['--before-directory'], args['--after-directory'], args['--mapping']);
+  }
   if (args['--record']) return recordProducer(args['--directory'], args['--reports-directory'], args['--seam']);
   const identity = JSON.parse(readFileSync(args['--identity'], 'utf8'));
   if (args['--verify']) return verifyDirectory(args['--directory'], identity, args['--native-result']);
