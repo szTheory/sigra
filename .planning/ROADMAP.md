@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phase 252 complete and verified; Phase 253 implementation and scoped checks complete; final verification ready)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phases 252 and 253 complete and verified; Phase 254 discussion next)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -39,7 +39,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 ## Phases
 
 - [x] **Phase 252: Measure Current CI** — Contributors and maintainers can identify today's CI waiting time, failure patterns, and largest runtime costs before choosing fixes. (completed 2026-10-12)
-- [ ] **Phase 253: Fix Flaky CI and Preserve Required Checks** — Selected flaky CI failures are reproducible and fixed, while real failures still prevent the required checks from passing.
+- [x] **Phase 253: Fix Flaky CI and Preserve Required Checks** — Selected flaky CI failures are reproducible and fixed, while real failures still prevent the required checks from passing. (completed 2026-10-23)
 - [ ] **Phase 254: Speed Up the Measured Slow Jobs** — Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
 - [ ] **Phase 255: Make Failures Reproducible and Report the Result** — Contributors can reproduce updated CI checks locally and maintainers can independently replay the final speed and reliability comparison.
 
@@ -82,7 +82,9 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
   3. Required-check names and useful test ownership remain intact. Any accepted removal of a redundant check includes a comparison showing its useful coverage still executes.
   4. Injected failures, cancellations, missing expected jobs, and unexpected skips prevent a green required gate; documented intentional skips remain distinguishable from missing execution.
 
-**Plans**:183 historical records:81 completed implementations,29 preserved halts,73 explicitly retired never-executed recovery recipes. Active index:110 summarized records,0 incomplete. The selected fix,9targeted passes,108integration passes and22native readiness/isolation/trace controls have evidence. Whole-phase verification remains pending. See253-CURRENT-REQUIREMENT-REVIEW.md and `.planning/execution/253-final-review/RETIREMENTS.json`. Wave checkboxes below retain historical execution outcomes;retired instructions are not relabeled successful.
+**Plans**:183 historical records:81 completed implementations,29 preserved halts,73 explicitly retired never-executed recovery recipes. Active index:110 summarized records,0 incomplete. The selected fix,9targeted passes,108integration passes and22native readiness/isolation/trace controls have evidence. Canonical verification passed6/6 on2026-10-23; CIREL-01/02 are satisfied. See253-VERIFICATION.md. Historical wave checkboxes retain original attempt outcomes. See253-CURRENT-REQUIREMENT-REVIEW.md and `.planning/execution/253-final-review/RETIREMENTS.json`. Wave checkboxes below retain historical execution outcomes;retired instructions are not relabeled successful.
+
+**Historical execution and recovery records** — outcomes and old routes below remain as recorded. Current phase completion is the6/6 canonical report; next route is Phase254 discussion.
 
 **Wave 1**
 - [x] 253-01-PLAN.md — Preserved replay and corrected failed-step diagnosis
@@ -350,7 +352,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
-| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Implementation/scoped checks complete; final verification ready | — |
+| 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Complete; verified6/6 | 2026-10-23 |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 0/TBD | Not started | — |
 | 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
 

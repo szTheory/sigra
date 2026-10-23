@@ -1,6 +1,6 @@
 ---
 created: 2026-09-15T00:00:00.000Z
-status: pending
+status: completed
 title: admin-eval WebKit registration flake — the 2026-07-04 "resolved" fix outlived its premise and now reds main
 area: testing
 severity: medium
@@ -108,3 +108,7 @@ But since Phase 231 GATE-04 removed the job-level `continue-on-error`, this lane
 times per invocation, with zero retries, justified by a comment that is no longer true —
 means `main` goes red on a race no PR could have prevented. Fix the race; do not re-gate
 the job.
+
+## Phase253 completion —2026-10-23
+
+The linked phase is implemented and verified6/6; CIREL-01/02 are satisfied. See `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md`. The older diagnosis and suggestions above remain historical; current proof uses the real-component loader/reloader reproduction,CI-only configuration fix,and bounded passing tests. This closure does not assert an observed trace of the historical scheduler or add a retry allowance.

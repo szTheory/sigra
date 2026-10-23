@@ -2,23 +2,23 @@
 gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
-status: in_progress
-last_updated: "2026-10-23T02:11:40.299404+00:00"
-state_head: b42a8ad89816a8f81c21d067fa8c66a0ddc26c34
+status: ready_to_discuss
+last_updated: "2026-10-23T15:17:23.454208+00:00"
+state_head: 70729a937a74ca11fe9b84f733563e738209d452
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 189
   completed_plans: 87
-  percent: 25
-last_activity: 2026-10-22 - Completed controls reverified;obsolete recovery recipes retired;final verification unblocked
+  percent: 50
+last_activity: 2026-10-23 - Phase 253 completed and verified; Phase 254 discussion next
 milestone_status: active
-workflow_step: phase253_controls_verified_final_verification_unblocked
-verification_status: not_started
+workflow_step: phase253_complete_phase254_discussion_next
+verification_status: passed
 phase252_verification_status: passed
-phase253_verification_status: not_started
-next_command: "$gsd-execute-phase 253"
-resume_command: "$gsd-execute-phase 253"
+phase253_verification_status: passed
+next_command: "$gsd-discuss-phase 254"
+resume_command: "$gsd-discuss-phase 254"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -69,32 +69,37 @@ phase253_control_recovery_task_count: 22
 phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: .planning/execution/253-CONTINUATION.json
+resume_file: null
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
-current_phase: 253
-current_phase_name: Fix Flaky CI and Preserve Required Checks
-stopped_at: No incomplete active plans;unfiltered execute-phase can run final verification
-last_activity_desc: 22controls reverified offline;no new browser or CI execution
 phase253_historical_plan_count: 183
 phase253_superseded_never_executed: 73
+current_phase: 254
+current_phase_name: Speed Up the Measured Slow Jobs
+stopped_at: Phase 253 complete and verified; Phase 254 discussion next
+last_activity_desc: Final phase gates and6/6verification passed;  no new browser or CI run
 ---
 
 # Current position
 
-The registration fix, nine fresh targeted repeats and all 108 ordinary browser integration tests have passing evidence. The later completed R4/R5 proof also revalidates all 22 readiness/isolation/trace control rows. The previous handoff incorrectly treated older stopped attempts as the latest control result. No new control run is needed.
+Phase 253 implementation and final verification are complete. The canonical report passed 6/6 outcomes and satisfies CIREL-01 and CIREL-02. No manual checks remain. See `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md`.
 
-Thirteen positive controls passed; nine deliberate negative controls failed as intended and retained traces. Three fresh database receipts prove collision-account counts0before and1after registration, with no trace retained for passing controls. The tested control/authentication source and locks match the current candidate.
+The proof includes a controlled real-component loader/reloader reproduction and CI-only fix, 9 fresh targeted passes, 108 integration passes, 22 native controls, and 6 actual hosted gate scenarios plus normal/docs PR evidence. Final review ran only offline checks: 8 prior-phase regression commands passed;  security has 0 open planned threats. Code review deferred unreachable legacy runner cleanup; the verifier also noted a stale advisory comment. Original hosted scheduler timing remains inferred.
 
 ## Next action
 
-`$gsd-execute-phase 253` — use the unfiltered command to run normal final security, code-review, regression and verification gates. The installed SDK now reports110active summarized records and zero incomplete plans. `--gaps-only` would exit before final verification. No new browser or CI allowance is granted.
+`$gsd-discuss-phase 254` — Speed Up the Measured Slow Jobs. After253completion, `init.plan-phase 254` reports pending status, no context, research or plans, and no prerequisite blocker. Phase 254 has not started. Historical partial UAT and older report maintenance do not block this route.
 
-CIREL-01 and Phase253 remain pending canonical verification; CIREL-02 stays complete. Original hosted module scheduling remains inferred. This review does not mark the phase complete or change any old acceptance result.
+## Preserved history and limits
 
-## Recovery history
+Phase 253 retains 81 completed implementations, 29 halts and 73 retired unused recipes. No old result, approval or spent allowance changed. Completion tools count 110 summarized active records;that count does not mean 110 successful implementations. The installed writer temporarily checked historical halted plans; their original roadmap checkboxes were restored.
 
-All73never-executed duplicate recovery recipes now have explicit superseded status. Their originals, objectives and replacement evidence are retained in `.planning/execution/253-final-review/RETIREMENTS.json`. No successful SUMMARY was invented. All29failed attempts remain unchanged. The full historical inventory remains183plans:81completed implementations,29halts,73retired unused recipes.
+Exact prior shared files are recoverable from `70729a937a74ca11fe9b84f733563e738209d452`; paths, Git blobs, SHA-256 and read-back results are in `.planning/execution/253-final-gates/completion-prior-state.json`. Retirement originals remain at `de9bccb356087b11cebade820c612b5cd5c1b5ca`. Final gates: `.planning/execution/253-final-gates/`.
 
-Current evidence and fresh checks: `.planning/execution/253-final-review/README.md`, `controls.json` and `checks.json`. Prior shared/plan bytes are recoverable at `de9bccb356087b11cebade820c612b5cd5c1b5ca`; exact identities/read-backs are in `prior-state.json` in that directory.
+## Project reference
 
-Phase254 readiness rechecked:pending,no context/research/plans. After actual253completion,recheck before `$gsd-discuss-phase 254`. No later phase has started.
+See `.planning/PROJECT.md` (updated 2026-10-23). Current focus: measured CI speed improvements in Phase 254.
+
+## Session continuity
+
+Stopped at: Phase 253 complete and verified; Phase 254 discussion next.
+Resume file: None.

@@ -33,7 +33,7 @@ cannot resolve.
 
 **Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
 
-**Current step:** Phase 252 is implemented and verified (six plans, 27/27 truths; CIMEAS-01/02 satisfied). Phase 253 has eight independently checked plans in four waves; registration cause, implementation and phase verification remain pending. Next: $gsd-execute-phase 253. Seven requirements remain pending.
+**Current step:** Phases 252 and 253 are implemented and verified. CIMEAS-01/02 and CIREL-01/02 are satisfied. Phase 253 verified 6/6 with the current controlled reproduction, post-fix runs and honest gate evidence. Phase 254 is pending without context, research or plans. Next: `$gsd-discuss-phase 254`. Five requirements remain pending.
 
 **Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
 
@@ -790,13 +790,16 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 - ✓ **CIMEAS-01:** Contributors can see the current CI baseline for pull requests, main pushes, and nightly runs, with waiting time, execution time, run conclusions, and reruns recorded separately. — Phase 252 verified.
 - ✓ **CIMEAS-02:** Maintainers can identify the largest runtime costs from saved job/step/test measurements, including setup and cache work, and use a ranked list to select improvements. — Phase 252 verified.
 
+### Validated — v1.50, Phase 253
+
+- ✓ **CIREL-01:** The flaky failures selected from current measurements are reproduced and fixed with deterministic regression checks and repeat runs, without increasing blanket retries or replacing readiness with sleeps. — Phase 253 verified6/6.
+- ✓ **CIREL-02:** Useful test coverage and required-check names remain intact; injected failures, cancellations, missing expected jobs, and unexpected skips still prevent a green required gate. Any proposed redundant-check removal needs a recorded coverage comparison before it is accepted. — Phase 253 verified6/6.
+
 ### Active — v1.50 CI-SPEED-AND-RELIABILITY
 
 - [ ] **CIMEAS-03:** Maintainers can replay the final before/after comparison from saved inputs and a documented calculation, with failures, cancellations, reruns, sample sizes, and limitations disclosed.
 - [ ] **CISPEED-01:** Contributors receive the required PR CI result at least 20% faster by median elapsed time than the newly captured baseline, using a comparison method fixed before optimization.
 - [ ] **CISPEED-02:** The same comparison shows no increase in total runner time per comparable PR or in the 95th-percentile wait for the required PR CI result.
-- [ ] **CIREL-01:** The flaky failures selected from current measurements are reproduced and fixed with deterministic regression checks and repeat runs, without increasing blanket retries or replacing readiness with sleeps.
-- [ ] **CIREL-02:** Useful test coverage and required-check names remain intact; injected failures, cancellations, missing expected jobs, and unexpected skips still prevent a green required gate. Any proposed redundant-check removal needs a recorded coverage comparison before it is accepted.
 - [ ] **CIDX-01:** Contributors can run the relevant updated CI checks locally through documented commands that agree with the CI execution paths, preserving `mix ci` as the contributor entry point.
 - [ ] **CIDX-02:** A failed updated CI check reports the failed test or command and the reproduction information it needs, with retained logs/traces and random seed when applicable.
 
@@ -1374,3 +1377,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-10-12 after starting v1.50 CI-SPEED-AND-RELIABILITY with user-confirmed scope.*
 
 *Last updated: 2026-10-12 after Phase 252 implementation and verification; Phase 253 discussion is next.*
+
+*Last updated: 2026-10-23 after Phase 253 implementation and final verification; Phase 254 discussion is next.*

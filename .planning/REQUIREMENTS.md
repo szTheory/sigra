@@ -20,7 +20,7 @@
 
 ### Reliability
 
-- [ ] **CIREL-01:** The flaky failures selected from current measurements are reproduced and fixed with deterministic regression checks and repeat runs, without increasing blanket retries or replacing readiness with sleeps.
+- [x] **CIREL-01:** The flaky failures selected from current measurements are reproduced and fixed with deterministic regression checks and repeat runs, without increasing blanket retries or replacing readiness with sleeps.
 - [x] **CIREL-02:** Useful test coverage and required-check names remain intact; injected failures, cancellations, missing expected jobs, and unexpected skips still prevent a green required gate. Any proposed redundant-check removal needs a recorded coverage comparison before it is accepted.
 
 ### Contributor experience
@@ -69,7 +69,7 @@ The user confirmed all nine requirements and approved the four-phase roadmap. Ea
 | CIMEAS-03 | Phase 255 | Pending |
 | CISPEED-01 | Phase 254 | Pending |
 | CISPEED-02 | Phase 254 | Pending |
-| CIREL-01 | Phase 253 | Pending |
+| CIREL-01 | Phase 253 | Complete |
 | CIREL-02 | Phase 253 | Complete |
 | CIDX-01 | Phase 255 | Pending |
 | CIDX-02 | Phase 255 | Pending |
