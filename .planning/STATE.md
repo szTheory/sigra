@@ -3,23 +3,23 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-last_updated: "2026-10-23T00:46:01.143401+00:00"
-state_head: b63fb33e665d1a48c7dbcb124a21a09043cb4722
+last_updated: "2026-10-23T00:58:30.129393+00:00"
+state_head: eb2e23a14cc079a6539d8c037810e543e97c4658
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 189
   completed_plans: 87
   percent: 25
-last_activity: 2026-10-22 - Source-pinned post-fix bundle verified offline; new local runtime approval pending
+last_activity: 2026-10-22 - Nine fresh Linux post-fix registration runs passed; integration/phase verification remain
 milestone_status: active
-workflow_step: phase253_postfix_bundle_awaiting_local_runtime_approval
+workflow_step: phase253_nine_postfix_runs_passed_integration_preparation_next
 verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: not_started
 next_command: "$gsd-debug continue phase253-registration-timeout"
 resume_command: "$gsd-debug continue phase253-registration-timeout"
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
 roadmap_approved: true
@@ -152,25 +152,22 @@ last_activity_desc: Exact PostgreSQL image and original tools prepared; no brows
 
 # Current position
 
-Phase253 is incomplete. Product fix `a87664733` disables example hot code reloading in CI. The controlled loader/reloader schedule produces the original Ecto.Queryable error; its occurrence in the historical CI job remains inferred. CIREL-02 is complete and unchanged.
+All nine approved fresh Linux registration runs passed on product `a87664733`: three desktop, three mobile, three dark; zero retries/skips. Setup through cleanup took226.5seconds. Each run received registration save, inserted the account and submitted login. The original Ecto.Queryable error did not recur. All18owned containers were removed. No CI or GitHub request ran.
 
-The exact candidate Linux validation bundle is prepared at `.planning/execution/253-registration-postfix/README.md`. Fifteen runner tests pass. The example compiles; its endpoint has no reloader and retains LiveView. Three configuration tests pass with each seed101/202/303 in separate Linux processes. Source export, dependency integrity, native list-only selection and the real unapproved-command refusal pass. No app, database, browser or CI started during preparation.
+Product implementation and targeted validation are complete. CIREL-01 and Phase253 remain incomplete: normal integration coverage on the fixed source, remaining controls review and canonical phase verification are still needed. CIREL-02 remains complete and unchanged. The exact historical CI loader schedule remains inferred; these runs used x64 emulation and fresh seeded databases.
 
 ## Next action
 
-Approve or decline the new proposal: nine fresh local Linux invocations, three per affected project, one original failing board per invocation, zero retries, first-failure stop, 1200seconds including cleanup. No CI launch or GitHub request. All old approvals and nine expired slots remain closed.
+`$gsd-debug continue phase253-registration-timeout` — review existing integration evidence and prepare the smallest missing source-pinned integration check offline. No user action is needed for that preparation. Do not run browsers/CI, create a numbered repair plan, or repeat this completed scope.
 
-Proposal SHA256: `f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06`.
-
-After exact scoped approval: `$gsd-debug continue phase253-registration-timeout`. Execute the existing prepared command once: `python3 .planning/execution/253-registration-postfix/validate.py --run`. Do not create another numbered plan, rebuild an equivalent bundle or scan empty gap plans.
-
-Targeted passes would still leave normal integration coverage and a review of all CIREL-01 criteria before whole-phase verification. Implementation/local preparation is complete; runtime and phase verification are incomplete.
+The approved nine-run allowance is consumed. All nine old expired slots and every earlier stopped attempt/approval remain unchanged. Do not ask for another runtime decision before its concrete bundle is checked.
 
 ## Evidence and recovery
 
-- Product: `a87664733`; controlled experiment: `b6a607da3`.
-- Prepared bundle: `b63fb33e665d1a48c7dbcb124a21a09043cb4722`; checks: `.planning/execution/253-registration-postfix/CHECKS.json`.
-- Prior exact shared state is recoverable at `bd22e1c08d19bdd3de8c56f0ca9d865b15af12b8`; read-back identities: `.planning/execution/253-registration-postfix/prior-state.json`. Historical state narrative remains there; no historical attempt, receipt or acceptance limit is replaced.
-- Phase counts remain183 plans,81 completed implementation plans,29 stopped attempts,73 without summaries. No numbered successor was added.
+- Actual result: `.planning/execution/253-registration-postfix/RESULT.json`; raw evidence commit `eb2e23a14cc079a6539d8c037810e543e97c4658`.
+- Approval: `61d24b90e`; once-only reservation: `2473ecfa7`.
+- Fix: `a87664733`; controlled component failure/control: `b6a607da3`.
+- Prior exact shared state: `1725ef1d9e4cb7df0bfbe295c9d2f90746f71027`; read-back: `.planning/execution/253-registration-postfix/CLOSEOUT-STATE.json`. Prior bytes were checked immediately before replacement.
+- Phase counts remain183plans,81completed implementation plans,29stopped attempts,73without summaries. No successor plan was added.
 
-Phase254 readiness was checked with `init.plan-phase 254`: pending, no context/research/plans. After actual253 completion, recheck and use `$gsd-discuss-phase 254`. No later phase has started.
+Phase254 readiness was rechecked with `init.plan-phase 254`: pending, no context/research/plans. After actual253completion, recheck and use `$gsd-discuss-phase 254`. No later phase has started.
