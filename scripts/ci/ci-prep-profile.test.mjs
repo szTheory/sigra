@@ -11,6 +11,12 @@ test('profile CLI accepts source-bound preparation comparison mode', () => {
   });
 });
 
+test('profile CLI accepts workflow-derived workload mode and required map path', () => {
+  assert.deepEqual(parseArgs(['--root', '.', '--mode', 'workload', '--workload-map', 'map.json', '--output', 'integration.json']), {
+    root: '.', mode: 'workload', workloadMap: 'map.json', output: 'integration.json', checkOnly: false,
+  });
+});
+
 test('profile command extraction follows the checked action source', () => {
   const action = `runs:\n  steps:\n    - name: Fetch and compile example\n      run: |\n        set -euo pipefail\n        mix deps.get\n        mix compile --warnings-as-errors\n    - name: Install Playwright dependencies\n      run: npm ci\n`;
   assert.deepEqual(parseActionSteps(action), {
