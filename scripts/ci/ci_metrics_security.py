@@ -654,9 +654,14 @@ def derive_attempt_job_costs(attempt_jobs: dict) -> dict:
     }
 
 
-def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str]) -> dict:
+def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str], *, attempt: int | None = None) -> dict:
     """Bind required checks to native jobs and derive the last successful completion."""
-    errors, by_attempt, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, checks, required)
+    if attempt is None:
+        errors, by_attempt, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, checks, required)
+        origin_field = "created_at"
+    else:
+        errors, by_attempt, _ = bind_required_checks_by_attempt(run, {str(attempt): jobs_by_attempt.get(str(attempt), [])}, checks, required)
+        origin_field = "run_started_at" if run.get("run_started_at") else "queued_at"
     if errors:
         return {"seconds": None, "missing_contexts": list(required), "diagnostics": errors}
     successes = {}
@@ -665,7 +670,7 @@ def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[d
             if check.get("status") == "completed" and check.get("conclusion") == "success":
                 try:
                     completed = _utc(check["completed_at"])
-                    created = _utc(run["created_at"])
+                    created = _utc(run[origin_field])
                     seconds = (completed - created).total_seconds()
                     if seconds < 0:
                         continue
@@ -673,13 +678,17 @@ def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[d
                     continue
                 successes[name] = max(successes.get(name, 0.0), seconds)
     missing = sorted(set(required) - set(successes))
-    return {"seconds": None if missing else round(max(successes.values()), 6), "missing_contexts": missing, "diagnostics": []}
+    diagnostics = []
+    if attempt is not None and not run.get(origin_field):
+        diagnostics.append("attempt_queue_or_start_origin_missing")
+    return {"seconds": None if missing or diagnostics else round(max(successes.values()), 6), "missing_contexts": missing, "diagnostics": diagnostics}
 
 
-def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, required_contexts: list[str]) -> dict:
+def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, required_contexts: list[str], *, run_attempt: int | None = None) -> dict:
     """Replay cost and wait only from authenticated family files already collected."""
     root = pathlib.Path(bundle).resolve()
-    family = root / "raw" / "families" / str(run_id)
+    sample_id = str(run_id) if run_attempt is None else f"{run_id}-attempt-{run_attempt}"
+    family = root / "raw" / "families" / sample_id
     try:
         detail_path = family / "manifest.json"
         detail = json.loads(detail_path.read_text())
@@ -688,11 +697,12 @@ def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, require
         if not _matches(run_path, detail.get("source_run_sha256")):
             raise ValueError("comparison_run_hash_mismatch")
         run = json.loads(run_bytes)
-        if str(run.get("id")) != str(run_id) or detail.get("detail_status") != "complete":
+        if (str(run.get("id")) != str(run_id) or detail.get("detail_status") != "complete"
+                or (run_attempt is not None and run.get("run_attempt") != run_attempt)):
             raise ValueError("comparison_family_detail_incomplete")
         jobs_by_attempt = {}
         for attempt, ref in sorted((detail.get("attempt_jobs") or {}).items(), key=lambda item: int(item[0])):
-            expected_rel = f"raw/families/{run_id}/jobs-attempt-{attempt}.json"
+            expected_rel = f"raw/families/{sample_id}/jobs-attempt-{attempt}.json"
             rel = ref.get("path")
             if rel != expected_rel:
                 raise ValueError("comparison_attempt_path_invalid")
@@ -712,9 +722,10 @@ def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, require
         if not isinstance(checks, list):
             raise ValueError("comparison_check_runs_invalid")
         cost = derive_attempt_job_costs(jobs_by_attempt)
-        wait = derive_required_result_wait(run, jobs_by_attempt, checks, required_contexts)
+        wait = derive_required_result_wait(run, jobs_by_attempt, checks, required_contexts, attempt=run_attempt)
         return {"status": "complete", "run_id": run_id, "conclusion": run.get("conclusion"),
-                "created_at": run.get("created_at"), "head_sha": run.get("head_sha"),
+                "created_at": run.get("created_at"), "run_attempt": run.get("run_attempt"),
+                "attempt_origin_at": (run.get("run_started_at") or run.get("queued_at")) if run_attempt is not None else run.get("created_at"), "head_sha": run.get("head_sha"),
                 "runner_seconds": cost["total_seconds"], "runner_known_subtotal_seconds": cost["known_subtotal_seconds"],
                 "runner_unknown_jobs": cost["unknown_jobs"], "runner_diagnostics": cost["diagnostics"],
                 "attempt_costs": cost["attempts"], "required_result_wait_seconds": wait["seconds"],
@@ -733,6 +744,9 @@ def comparison_contract_sha256(contract: dict) -> str:
 def validate_comparison_plan(contract: dict) -> list[str]:
     """Validate the immutable Phase 254 execution copy before runs are registered."""
     diagnostics = []
+    sample_identity = contract.get("sample_identity")
+    if sample_identity not in (None, "run_id+run_attempt"):
+        diagnostics.append("comparison_sample_identity_invalid")
     schedule = contract.get("comparison_schedule")
     reservations = contract.get("family_reservations") or []
     if contract.get("status") != "ready" or contract.get("pair_count") != 20 or contract.get("primary_family_count") != 40:
@@ -753,6 +767,15 @@ def validate_comparison_plan(contract: dict) -> list[str]:
     reservation_keys = [(row.get("pair_id"), row.get("family_role")) for row in reservations if isinstance(row, dict)]
     if reservation_keys != expected or len({row.get("reservation_id") for row in reservations if isinstance(row, dict)}) != 40:
         diagnostics.append("comparison_reservations_do_not_match_schedule")
+    if sample_identity == "run_id+run_attempt":
+        identities = [(str(row.get("run_id")), row.get("run_attempt")) for row in reservations]
+        if any(not str(row.get("run_id", "")).isdigit() or type(row.get("run_attempt")) is not int or row["run_attempt"] < 1 for row in reservations):
+            diagnostics.append("comparison_attempt_mapping_invalid")
+        if len(identities) != len(set(identities)):
+            diagnostics.append("comparison_attempt_mapping_duplicate")
+        instrumentation=contract.get("instrumentation_identity") or {}
+        if not all(isinstance(instrumentation.get(key),str) and instrumentation.get(key) for key in ("exunit","playwright")):
+            diagnostics.append("comparison_attempt_instrumentation_identity_missing")
     if contract.get("maximum_pair_start_gap_seconds") != 1800:
         diagnostics.append("comparison_pair_start_bound_invalid")
     prep = contract.get("preparation_compatibility")
@@ -785,10 +808,14 @@ def validate_comparison_schedule(contract: dict, registrations: list[dict]) -> l
             diagnostics.append("comparison_registration_order_invalid")
         if row.get("reservation_id") != reservation.get("reservation_id"):
             diagnostics.append("comparison_registration_reservation_invalid")
+        if contract.get("sample_identity") == "run_id+run_attempt" and (
+                str(row.get("run_id")) != str(reservation.get("run_id"))
+                or row.get("run_attempt") != reservation.get("run_attempt")):
+            diagnostics.append("comparison_registration_attempt_mapping_invalid")
     starts = {}
     for row in registrations:
         try:
-            starts.setdefault(row.get("pair_id"), []).append(_utc(row.get("created_at")))
+            starts.setdefault(row.get("pair_id"), []).append(_utc(row.get("attempt_origin_at") if contract.get("sample_identity") == "run_id+run_attempt" else row.get("created_at")))
         except (TypeError, ValueError):
             diagnostics.append("comparison_registration_created_at_invalid")
     for pair_id, values in starts.items():
@@ -796,6 +823,10 @@ def validate_comparison_schedule(contract: dict, registrations: list[dict]) -> l
             diagnostics.append("comparison_pair_start_not_ordered")
         if len(values) == 2 and (values[1] - values[0]).total_seconds() > 1800:
             diagnostics.append("comparison_pair_start_gap_exceeded")
+    if contract.get("sample_identity") == "run_id+run_attempt":
+        identities = [(str(row.get("run_id")), row.get("run_attempt")) for row in registrations]
+        if len(identities) != len(set(identities)):
+            diagnostics.append("comparison_registration_attempt_duplicate")
     return sorted(set(diagnostics))
 
 
@@ -818,10 +849,18 @@ def validate_comparison_registration_ledger(contract: dict, ledger: dict) -> lis
             raw = base64.b64decode(row.get("api_run_response_b64", ""), validate=True)
             api_run = json.loads(raw)
             expected_sha = contract.get("baseline_application_sha") if row.get("family_role") == "before" else (contract.get("candidate_identity") or {}).get("application_sha")
+            attempt_scoped = contract.get("sample_identity") == "run_id+run_attempt"
+            expected_attempt = reservation.get("run_attempt") if reservation else None
+            expected_run_id = reservation.get("run_id") if reservation else None
+            attempt_origin = api_run.get("run_started_at") or api_run.get("queued_at")
             valid = (hashlib.sha256(raw).hexdigest() == row.get("api_run_sha256")
                      and str(api_run.get("id")) == str(row.get("run_id"))
                      and api_run.get("status") in ("queued", "in_progress") and api_run.get("conclusion") is None
                      and api_run.get("created_at") == row.get("created_at") and api_run.get("head_sha") == expected_sha
+                     and (not attempt_scoped or (api_run.get("run_attempt") == expected_attempt == row.get("run_attempt")
+                          and str(expected_run_id) == str(row.get("run_id"))
+                          and attempt_origin == row.get("attempt_origin_at") and bool(attempt_origin)
+                          and row.get("sample_id") == f"{row.get('run_id')}-attempt-{row.get('run_attempt')}"))
                      and api_run.get("event") == "pull_request" and api_run.get("path") == ".github/workflows/ci.yml"
                      and len(api_run.get("pull_requests") or []) == 1
                      and api_run["pull_requests"][0].get("head", {}).get("sha") == expected_sha)
@@ -845,7 +884,9 @@ def comparison_registered_runs(contract: dict, ledger: dict, role: str) -> list[
     if not rows:
         raise ValueError("comparison_role_has_no_registered_runs")
     return [{"reservation_id": row["reservation_id"], "pair_id": row["pair_id"],
-             "family_role": role, "run_id": row["run_id"], "created_at": row["created_at"],
+             "family_role": role, "run_id": row["run_id"], "run_attempt": row.get("run_attempt"),
+             "sample_id": f"{row['run_id']}-attempt-{row['run_attempt']}" if row.get("run_attempt") is not None else str(row["run_id"]),
+             "attempt_origin_at": row.get("attempt_origin_at"), "created_at": row["created_at"],
              "head_sha": row["head_sha"], "pull_request_head_sha": row["pull_request_head_sha"],
              "pull_request_base_sha": row["pull_request_base_sha"],
              "pull_request_number": row["pull_request_number"]} for row in rows]
@@ -861,6 +902,10 @@ def validate_registered_run_observation(registration: dict, api_run: dict) -> li
     if len(prs) != 1:
         return ["comparison_run_pull_request_identity_invalid"]
     pr = prs[0]
+    if registration.get("run_attempt") is not None:
+        origin = api_run.get("run_started_at") or api_run.get("queued_at")
+        expected = expected and api_run.get("run_attempt") == registration.get("run_attempt")
+        expected = expected and origin == registration.get("attempt_origin_at") and bool(origin)
     expected = expected and pr.get("number") == registration.get("pull_request_number")
     expected = expected and pr.get("head", {}).get("sha") == registration.get("pull_request_head_sha")
     expected = expected and pr.get("base", {}).get("sha") == registration.get("pull_request_base_sha")
@@ -873,10 +918,12 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
     if len(reservations) != 1:
         raise ValueError("comparison_reservation_unknown_or_duplicate")
     reservation = reservations[0]
+    attempt_scoped = contract.get("sample_identity") == "run_id+run_attempt"
     expected_sha = contract.get("baseline_application_sha") if reservation.get("family_role") == "before" else (contract.get("candidate_identity") or {}).get("application_sha")
     try:
         start, end = _utc(contract["window"]["start_utc"]), _utc(contract["window"]["end_utc"])
         created = _utc(api_run["created_at"])
+        attempt_origin = _utc(api_run.get("run_started_at") or api_run.get("queued_at")) if attempt_scoped else created
     except (KeyError, TypeError, ValueError):
         raise ValueError("comparison_run_identity_or_window_invalid")
     pull_requests = api_run.get("pull_requests") or []
@@ -885,22 +932,33 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
             or api_run.get("status") not in ("queued", "in_progress") or api_run.get("conclusion") is not None
             or not re.fullmatch(r"[0-9a-f]{64}", api_run_sha256 or "")
             or api_run.get("path") != ".github/workflows/ci.yml" or api_run.get("head_sha") != expected_sha
-            or not start <= created <= end or reservation.get("pair_id") is None):
+            or (not attempt_scoped and not start <= created <= end)
+            or (attempt_scoped and (api_run.get("run_attempt") != reservation.get("run_attempt")
+                or str(api_run.get("id")) != str(reservation.get("run_id"))
+                or not (api_run.get("run_started_at") or api_run.get("queued_at"))
+                or not start <= attempt_origin <= end))
+            or reservation.get("pair_id") is None):
         raise ValueError("comparison_run_identity_does_not_match_reservation")
     pr = pull_requests[0]
     if pr.get("head", {}).get("sha") != expected_sha:
         raise ValueError("comparison_run_pull_request_head_mismatch")
+    if (reservation.get("pull_request_number") is not None and pr.get("number") != reservation.get("pull_request_number")):
+        raise ValueError("comparison_run_pull_request_number_mismatch")
+    if (reservation.get("pull_request_base_sha") is not None and pr.get("base", {}).get("sha") != reservation.get("pull_request_base_sha")):
+        raise ValueError("comparison_run_pull_request_base_mismatch")
     previous_rows = (ledger or {}).get("records", [])
     if contract.get("comparison_schedule"):
         plan_errors = validate_comparison_plan(contract)
         if plan_errors:
             raise ValueError(plan_errors[0])
-        schedule_errors = validate_comparison_schedule(contract, previous_rows + [{"reservation_id": reservation_id, "pair_id": reservation.get("pair_id"), "family_role": reservation.get("family_role"), "created_at": api_run.get("created_at")}])
+        schedule_row={"reservation_id": reservation_id, "pair_id": reservation.get("pair_id"), "family_role": reservation.get("family_role"), "created_at": api_run.get("created_at")}
+        if attempt_scoped: schedule_row.update({"run_id": api_run.get("id"), "run_attempt": api_run.get("run_attempt"), "attempt_origin_at": (api_run.get("run_started_at") or api_run.get("queued_at"))})
+        schedule_errors = validate_comparison_schedule(contract, previous_rows + [schedule_row])
         if schedule_errors:
             raise ValueError(schedule_errors[0])
     if (ledger and ledger.get("contract_sha256") != comparison_contract_sha256(contract)):
         raise ValueError("comparison_registration_contract_hash_mismatch")
-    if any(x.get("reservation_id") == reservation_id or str(x.get("run_id")) == str(api_run["id"]) for x in previous_rows):
+    if any(x.get("reservation_id") == reservation_id or (str(x.get("run_id")) == str(api_run["id"]) and (not attempt_scoped or x.get("run_attempt") == api_run.get("run_attempt"))) for x in previous_rows):
         raise ValueError("comparison_registration_duplicate")
     raw_api = api_run_response_bytes if api_run_response_bytes is not None else json.dumps(api_run, sort_keys=True, separators=(",", ":")).encode()
     if hashlib.sha256(raw_api).hexdigest() != api_run_sha256:
@@ -915,6 +973,7 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
         "pair_id": reservation["pair_id"],
         "family_role": reservation["family_role"],
         "run_id": api_run["id"],
+        **({"run_attempt": api_run["run_attempt"], "attempt_origin_at": api_run.get("run_started_at") or api_run.get("queued_at"), "sample_id": f"{api_run['id']}-attempt-{api_run['run_attempt']}"} if attempt_scoped else {}),
         "created_at": api_run["created_at"],
         "event": api_run["event"],
         "workflow_path": api_run["path"],
@@ -935,7 +994,7 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
     registration_ledger = registration_ledger or {"contract_sha256": comparison_contract_sha256(contract), "records": contract.get("family_registrations") or []}
     registrations = registration_ledger.get("records") or []
     reserved = {(x.get("pair_id"), x.get("family_role")): x for x in reservations}
-    runs = {str(x.get("id")): x for x in source_runs if x.get("event") == "pull_request"}
+    runs = {(str(x.get("id")), x.get("run_attempt")): x for x in source_runs if x.get("event") == "pull_request"}
     diagnostics = []
     if contract.get("comparison_schedule"):
         diagnostics.extend(validate_comparison_plan(contract))
@@ -992,18 +1051,22 @@ def validate_comparison_reservations(contract: dict, families: list[dict], sourc
         if key in seen:
             diagnostics.append("comparison_family_reservation_duplicate")
         seen.add(key)
+        attempt_scoped = contract.get("sample_identity") == "run_id+run_attempt"
         try:
-            created = _utc(family.get("created_at"))
+            created = _utc(family.get("attempt_origin_at") if attempt_scoped else family.get("created_at"))
         except (TypeError, ValueError):
             diagnostics.append("comparison_family_created_at_invalid")
             continue
-        run = runs.get(str(family.get("run_id")))
+        run_attempt = family.get("run_attempt") if attempt_scoped else None
+        run = runs.get((str(family.get("run_id")), run_attempt)) if attempt_scoped else next((value for (runid, _), value in runs.items() if runid == str(family.get("run_id"))), None)
         expected_sha = contract.get("baseline_application_sha") if family.get("family_role") == "before" else (contract.get("candidate_identity") or {}).get("application_sha")
         if (family.get("run_id") != registration.get("run_id")
                 or family.get("pair_id") != registration.get("pair_id")
                 or family.get("family_role") != registration.get("family_role")
-                or family.get("created_at") != registration.get("created_at")
-                or not run or run.get("created_at") != family.get("created_at")
+                or (family.get("created_at") != registration.get("created_at"))
+                or (attempt_scoped and (family.get("run_attempt") != registration.get("run_attempt") or family.get("attempt_origin_at") != registration.get("attempt_origin_at")))
+                or not run or (not attempt_scoped and run.get("created_at") != family.get("created_at"))
+                or (attempt_scoped and run.get("run_started_at") != family.get("attempt_origin_at") and run.get("queued_at") != family.get("attempt_origin_at"))
                 or run.get("head_sha") != expected_sha or run.get("detail_status") != "complete"
                 or registration.get("head_sha") != expected_sha or registration.get("pull_request_head_sha") != expected_sha
                 or not re.fullmatch(r"[0-9a-f]{64}", registration.get("api_run_sha256") or "")):

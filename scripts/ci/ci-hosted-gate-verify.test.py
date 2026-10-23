@@ -3232,7 +3232,7 @@ class ComparisonFamilyOriginTests(unittest.TestCase):
         (family / "run.json").write_bytes(run_bytes)
         refs = {}
         for attempt in (1, 2):
-            jobs = [{"id": run_id * 10 + index, "run_id": run_id, "run_attempt": attempt,
+            jobs = [{"id": run_id * 100 + attempt * 10 + index, "run_id": run_id, "run_attempt": attempt,
                 "head_sha": sha, "name": context, "conclusion": "success"} for index, context in enumerate(self.CONTEXTS, 1)]
             data = json.dumps({"jobs": jobs}, sort_keys=True).encode()
             path = family / f"jobs-attempt-{attempt}.json"
@@ -3240,7 +3240,7 @@ class ComparisonFamilyOriginTests(unittest.TestCase):
             refs[str(attempt)] = {"path": f"raw/families/{run_id}/{path.name}", "sha256": hashlib.sha256(data).hexdigest()}
         checks = []
         for index, context in enumerate(self.CONTEXTS, 1):
-            checks.append({"name": context, "external_id": str(run_id * 10 + index), "head_sha": sha,
+            checks.append({"name": context, "external_id": str(run_id * 100 + 20 + index), "head_sha": sha,
                 "status": "completed", "conclusion": "success", "app": {"slug": "github-actions"}})
         checks_bytes = json.dumps({"check_runs": checks}, sort_keys=True).encode()
         (family / "check-runs.json").write_bytes(checks_bytes)
@@ -3281,6 +3281,69 @@ class ComparisonFamilyOriginTests(unittest.TestCase):
             rejected = subprocess.run(command, capture_output=True, text=True)
             self.assertNotEqual(rejected.returncode, 0)
             self.assertIn("digest mismatch", rejected.stderr)
+
+    def test_attempt_scoped_origin_uses_isolated_raw_path_and_rejects_cross_attempt_jobs(self):
+        import hashlib
+        import shutil
+        with tempfile.TemporaryDirectory(prefix="comparison-attempt-origin-") as directory:
+            root, registration_path = self.fixture(Path(directory))
+            old = root / "raw" / "families" / "98765"
+            new = root / "raw" / "families" / "98765-attempt-2"
+            shutil.move(str(old), str(new))
+            run_path = new / "run.json"
+            run = json.loads(run_path.read_text())
+            run.update({"run_started_at": "2026-10-13T01:00:00Z", "created_at": "2026-10-12T22:33:57Z"})
+            run_bytes = json.dumps(run, sort_keys=True).encode()
+            run_path.write_bytes(run_bytes)
+            jobs_path = new / "jobs-attempt-2.json"
+            jobs = json.loads(jobs_path.read_text())
+            refs = {"2": {"path": "raw/families/98765-attempt-2/jobs-attempt-2.json", "sha256": hashlib.sha256(jobs_path.read_bytes()).hexdigest()}}
+            checks_path = new / "check-runs.json"
+            checks = json.loads(checks_path.read_text())
+            checks_path.write_text(json.dumps(checks, sort_keys=True))
+            evidence_path = new / "artifact-evidence.json"
+            import zipfile
+            native_evidence=[]
+            for index, owner in enumerate(("admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"), 1):
+                archive_path=new/"artifacts"/f"{777+index}.zip"
+                with zipfile.ZipFile(archive_path,"w") as archive: archive.writestr("execution-record.json","{}")
+                archive_sha=hashlib.sha256(archive_path.read_bytes()).hexdigest()
+                native_evidence.append({"artifact":{"id":777+index,"name":f"browser-execution-{owner}-98765-2","expired":False,
+                    "digest":"sha256:"+archive_sha,"workflow_run":{"id":98765,"head_sha":"a"*40,"repository_id":1207487684}},
+                    "result":{"status":"accepted","archive_sha256":archive_sha}})
+            evidence_path.write_text(json.dumps(native_evidence,sort_keys=True))
+            manifest = json.loads((new / "manifest.json").read_text())
+            manifest.update({"sample_id": "98765-attempt-2", "run_attempt": 2,
+                "source_run_sha256": hashlib.sha256(run_bytes).hexdigest(), "attempt_jobs": refs,
+                "check_runs_sha256": hashlib.sha256(checks_path.read_bytes()).hexdigest(),
+                "artifact_evidence": {"path": "raw/families/98765-attempt-2/artifact-evidence.json", "sha256": hashlib.sha256(evidence_path.read_bytes()).hexdigest()}})
+            (new / "manifest.json").write_text(json.dumps(manifest))
+            registration = json.loads(registration_path.read_text())
+            registration.update({"run_attempt": 2, "sample_id": "98765-attempt-2", "attempt_origin_at": "2026-10-13T01:00:00Z"})
+            registration_path.write_text(json.dumps(registration))
+            command = [sys.executable, str(VERIFY), "--mode", "comparison-family", "--evidence", str(root),
+                "--registration", str(registration_path), "--required-contexts", json.dumps(self.CONTEXTS)]
+            accepted = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(accepted.returncode, 0, accepted.stderr)
+            self.assertEqual("2", json.loads(accepted.stdout)["run_attempt"])
+            checks["check_runs"][0]["external_id"] = str(98765 * 100 + 11)
+            checks_path.write_text(json.dumps(checks, sort_keys=True))
+            manifest["check_runs_sha256"] = hashlib.sha256(checks_path.read_bytes()).hexdigest()
+            (new / "manifest.json").write_text(json.dumps(manifest))
+            rejected = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("required check is not bound", rejected.stderr)
+            checks["check_runs"][0]["external_id"] = str(98765 * 100 + 21)
+            checks_path.write_text(json.dumps(checks, sort_keys=True))
+            manifest["check_runs_sha256"] = hashlib.sha256(checks_path.read_bytes()).hexdigest()
+            artifact_evidence=json.loads(evidence_path.read_text())
+            artifact_evidence[0]["artifact"]["name"]="browser-execution-admin_behavior-98765-1"
+            evidence_path.write_text(json.dumps(artifact_evidence,sort_keys=True))
+            manifest["artifact_evidence"]["sha256"]=hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+            (new / "manifest.json").write_text(json.dumps(manifest))
+            rejected_artifact = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(rejected_artifact.returncode, 0)
+            self.assertIn("exact five native artifacts", rejected_artifact.stderr)
 
     def test_comparison_origin_binds_repository_name_id_and_artifact_repository(self):
         import hashlib

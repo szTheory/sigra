@@ -299,6 +299,34 @@ PATH="$TMP/gh-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --register-co
 jq -e '.status=="registered" and .run_id=="777"' "$TMP/register-out.json" >/dev/null
 jq -e '.records as $r | ($r|length)==1 and $r[0].run_id==777 and $r[0].pull_request_number==331 and ($r[0]|has("conclusion")|not) and ($r[0].record_sha256|length)==64' "$TMP/register-ledger.json" >/dev/null
 jq -e '.status=="complete" and .request_count==2' "$TMP/register-ledger.json.requests.json" >/dev/null
+python3 - "$ROOT" "$TMP/contract.json" "$TMP/attempt-register-contract.json" "$TMP/attempt-register-ledger.json" "$TMP/attempt-request-budget.json" <<'PY'
+import json,pathlib,sys
+sys.path.insert(0,str(pathlib.Path(sys.argv[1])/'scripts/ci'))
+from ci_metrics_security import comparison_contract_sha256,initialize_comparison_request_budget
+contract_path,out_path,ledger_path,budget_path=map(pathlib.Path,sys.argv[2:])
+contract=json.loads(contract_path.read_text()); contract['sample_identity']='run_id+run_attempt'
+contract['instrumentation_identity']={'exunit':'synthetic-exunit-v1','playwright':'synthetic-playwright-v1'}
+for i,row in enumerate(contract['family_reservations']):
+    row['run_id']=777 if i==0 else 10000+i
+    row['run_attempt']=2 if i==0 else 1
+out_path.write_text(json.dumps(contract,sort_keys=True))
+ledger_path.write_text(json.dumps({'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':comparison_contract_sha256(contract),'records':[]}))
+initialize_comparison_request_budget(contract,budget_path)
+PY
+cat >"$TMP/attempt-gh-bin-gh" <<'GH'
+#!/usr/bin/env bash
+case "${4:-}" in
+  rate_limit) echo '{"resources":{"core":{"remaining":5000,"reset":1900000000}}}';;
+  /repos/szTheory/sigra/actions/runs/777/attempts/2) echo '{"id":777,"run_attempt":2,"run_started_at":"2026-10-13T10:00:00Z","event":"pull_request","path":".github/workflows/ci.yml","head_sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","created_at":"2026-10-12T08:00:00Z","status":"queued","conclusion":null,"pull_requests":[{"number":331,"head":{"sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"base":{"sha":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}}]}';;
+  *) exit 2;;
+esac
+GH
+chmod +x "$TMP/attempt-gh-bin-gh"
+mkdir -p "$TMP/attempt-gh-bin"; cp "$TMP/attempt-gh-bin-gh" "$TMP/attempt-gh-bin/gh"
+PATH="$TMP/attempt-gh-bin:$PATH" bash "$ROOT/scripts/ci/ci-run-metrics.sh" --register-comparison-run --contract "$TMP/attempt-register-contract.json" --registrations "$TMP/attempt-register-ledger.json" --request-budget-ledger "$TMP/attempt-request-budget.json" --reservation-id r-pair-01-before --run-id 777 >"$TMP/attempt-register.out"
+jq -e '.status=="registered" and .run_id=="777"' "$TMP/attempt-register.out" >/dev/null
+jq -e '.records|length==1 and .[0].run_attempt==2 and .[0].attempt_origin_at=="2026-10-13T10:00:00Z" and .[0].created_at=="2026-10-12T08:00:00Z" and .[0].sample_id=="777-attempt-2"' "$TMP/attempt-register-ledger.json" >/dev/null
+jq -e 'any(.records[];.endpoint=="/repos/szTheory/sigra/actions/runs/777/attempts/2")' "$TMP/attempt-request-budget.json" >/dev/null
 mkdir -p "$TMP/producer-fixture"
 python3 - "$TMP/producer-fixture" <<'PY'
 import base64,hashlib,json,pathlib,sys

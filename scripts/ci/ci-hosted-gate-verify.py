@@ -1865,7 +1865,10 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             "comparison required contexts must be the exact five unique checks")
     run_id = str(registration.get("run_id"))
     require(run_id.isdigit(), "comparison registration run ID is invalid")
-    family_prefix=f"raw/families/{run_id}/"
+    attempt_scoped = type(registration.get("run_attempt")) is int
+    attempt = registration.get("run_attempt") if attempt_scoped else None
+    sample_id = f"{run_id}-attempt-{attempt}" if attempt_scoped else run_id
+    family_prefix=f"raw/families/{sample_id}/"
     manifest, _ = read(family_prefix + "manifest.json")
     require(manifest.get("schema_version") == "sigra.ci-run-metrics/family-detail-v1"
             and manifest.get("detail_status") == "complete", "comparison family detail is incomplete")
@@ -1875,6 +1878,10 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             and run.get("path") == registration.get("workflow_path")
             and run.get("head_sha") == registration.get("head_sha"),
             "collected run origin differs from early registration")
+    if attempt_scoped:
+        attempt_origin = run.get("run_started_at") or run.get("queued_at")
+        require(run.get("run_attempt") == attempt and attempt_origin == registration.get("attempt_origin_at")
+                and bool(attempt_origin), "collected attempt or authenticated queue/start origin differs from registration")
     repository = run.get("repository") or {}
     require(repository.get("full_name") == REPOSITORY and repository.get("id") == REPOSITORY_ID,
             "comparison run repository identity mismatch")
@@ -1890,7 +1897,7 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             "pull request repositories differ from measured run repository")
     attempt_refs = manifest.get("attempt_jobs")
     require(isinstance(attempt_refs, dict) and attempt_refs, "all raw attempt job receipts are required")
-    expected_attempts=set(map(str,range(1,int(run.get("run_attempt") or 1)+1)))
+    expected_attempts={str(attempt)} if attempt_scoped else set(map(str,range(1,int(run.get("run_attempt") or 1)+1)))
     require(set(attempt_refs)==expected_attempts, "one or more original/retry attempt job receipts are missing")
     jobs_by_attempt = {}
     for attempt, ref in attempt_refs.items():
@@ -1934,12 +1941,16 @@ def verify_comparison_family_origin(family_directory, registration, required_con
     evidence, _ = read(evidence_ref.get("path"), evidence_ref.get("sha256"))
     require(isinstance(evidence, list) and evidence, "raw artifact evidence is empty")
     artifacts = []
+    artifact_names = []
     for entry in evidence:
         artifact, result = entry.get("artifact") or {}, entry.get("result") or {}
-        require(str((artifact.get("workflow_run") or {}).get("id")) == run_id
+        artifact_run=(artifact.get("workflow_run") or {})
+        require(str(artifact_run.get("id")) == run_id
                 and (artifact.get("workflow_run") or {}).get("head_sha") == registration.get("head_sha")
                 and (artifact.get("workflow_run") or {}).get("repository_id") == REPOSITORY_ID,
                 "artifact API origin differs from registered run")
+        if attempt_scoped and artifact_run.get("run_attempt") is not None:
+            require(artifact_run.get("run_attempt") == attempt, "artifact API origin belongs to another run attempt")
         if result.get("status") == "accepted":
             artifact_id = str(artifact.get("id"))
             require(artifact_id.isdigit() and artifact.get("expired") is False
@@ -1952,7 +1963,13 @@ def verify_comparison_family_origin(family_directory, registration, required_con
                     and (artifact.get("digest") or "").removeprefix("sha256:") == archive_digest,
                     "artifact archive differs from API digest or collector receipt")
             artifacts.append(artifact_id)
+            if isinstance(artifact.get("name"), str): artifact_names.append(artifact["name"])
     require(artifacts, "no digest-verified artifact was retained for the comparison family")
+    if attempt_scoped:
+        expected_names = sorted(f"browser-execution-{owner}-{run_id}-{attempt}" for owner in
+            ("admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"))
+        require(sorted(name for name in artifact_names if name.startswith("browser-execution-")) == expected_names,
+                "the exact five native artifacts for the registered run attempt are required")
     merge_sha=run.get("merge_commit_sha")
     require(merge_sha is None or (isinstance(merge_sha,str) and SHA40.fullmatch(merge_sha)),
             "workflow run merge SHA is malformed")

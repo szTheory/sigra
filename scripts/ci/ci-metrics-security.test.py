@@ -382,6 +382,78 @@ class SecurityContractsTest(unittest.TestCase):
             completed_raw=json.dumps(completed,sort_keys=True,separators=(",",":")).encode()
             register_comparison_run(contract,"reserve-1",completed,api_run_sha256=hashlib.sha256(completed_raw).hexdigest(),api_run_response_bytes=completed_raw)
 
+    def test_attempt_scoped_registrations_bind_attempt_and_attempt_start(self):
+        schedule=[]; reservations=[]
+        for pair in range(1,21):
+            roles=("before","after") if pair%2 else ("after","before")
+            for role in roles:
+                slot={"pair_id":f"pair-{pair:02d}","family_role":role}
+                schedule.append(slot); reservations.append({"reservation_id":f"r-{pair}-{role}",**slot,"run_id":77+pair,"run_attempt":pair*2+(0 if role=="before" else 1)})
+        reservations[0].update({"reservation_id":"r1","run_id":77,"run_attempt":2})
+        reservations[1].update({"reservation_id":"r2","run_id":77,"run_attempt":3})
+        contract={"status":"ready","sample_identity":"run_id+run_attempt","baseline_application_sha":"a"*40,
+                  "candidate_identity":{"application_sha":"a"*40,"workflow_revision":"a"*40,"workload_revision_sha256":"c"*64,"workflow_file_sha256":"d"*64},
+                  "window":{"start_utc":"2026-10-12T10:00:00Z","end_utc":"2026-10-14T10:00:00Z"},
+                  "family_reservations":reservations,"comparison_schedule":schedule,
+                  "maximum_pair_start_gap_seconds":1800,"pair_count":20,"primary_family_count":40,
+                  "instrumentation_identity":{"exunit":"ci-exunit/v1","playwright":"ci-playwright/v1"},
+                  "preparation_compatibility":{"baseline_cache_stratum":"warm","candidate_cache_stratum":"warm","runner_image_policy":"same"}}
+        ledger=None
+        for reservation_id,attempt,started in (("r1",2,"2026-10-13T01:00:00Z"),("r2",3,"2026-10-13T01:10:00Z")):
+            run={"id":77,"run_attempt":attempt,"run_started_at":started,"event":"pull_request","path":".github/workflows/ci.yml",
+                 "head_sha":"a"*40,"created_at":"2026-10-12T22:33:57Z","status":"in_progress","conclusion":None,
+                 "pull_requests":[{"number":331,"head":{"sha":"a"*40},"base":{"sha":"b"*40}}]}
+            raw=json.dumps(run,sort_keys=True,separators=(",",":")).encode()
+            ledger=register_comparison_run(contract,reservation_id,run,ledger,hashlib.sha256(raw).hexdigest(),raw)
+        self.assertEqual([(77,2),(77,3)],[(r["run_id"],r["run_attempt"]) for r in ledger["records"]])
+        self.assertEqual([],validate_comparison_registration_ledger(contract,ledger))
+        self.assertEqual([2,3],[r["run_attempt"] for r in comparison_registered_runs(contract,ledger,"before") + comparison_registered_runs(contract,ledger,"after")])
+        bad=dict(ledger); bad["records"]=[dict(ledger["records"][0],run_attempt=1)] + ledger["records"][1:]
+        self.assertIn("comparison_registration_identity_invalid",validate_comparison_registration_ledger(contract,bad))
+        with self.assertRaisesRegex(ValueError,"duplicate"):
+            schedule_free={k:v for k,v in contract.items() if k!="comparison_schedule"}
+            same=ledger["records"][0]
+            api=json.loads(base64.b64decode(same["api_run_response_b64"]))
+            raw=json.dumps(api,sort_keys=True,separators=(",",":")).encode()
+            first=register_comparison_run(schedule_free,"r1",api,api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw)
+            register_comparison_run(schedule_free,"r1",api,first,hashlib.sha256(raw).hexdigest(),raw)
+        too_many=ledger["records"]+[dict(ledger["records"][-1],sequence=2)]*39
+        self.assertIn("comparison_registration_late_or_extra",validate_comparison_schedule(contract,too_many))
+
+    def test_attempt_wait_uses_attempt_started_at_and_attempt_cost_only(self):
+        from ci_metrics_security import derive_required_result_wait, derive_attempt_job_costs
+        run={"id":77,"run_attempt":3,"run_started_at":"2026-10-13T01:00:00Z","created_at":"2026-10-12T22:33:57Z","head_sha":"a"*40,"repository":{"id":1207487684}}
+        job={"id":88,"run_id":77,"run_attempt":3,"head_sha":"a"*40,"name":"Required","conclusion":"success",
+             "started_at":"2026-10-13T01:00:00Z","completed_at":"2026-10-13T01:02:00Z"}
+        check={"id":99,"external_id":"88","name":"Required","head_sha":"a"*40,"status":"completed","conclusion":"success",
+               "completed_at":"2026-10-13T01:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":777}}
+        wait=derive_required_result_wait(run,{"3":[job]},[check],["Required"],attempt=3)
+        self.assertEqual(120,wait["seconds"])
+        self.assertEqual(120,derive_attempt_job_costs({"3":[job]})["total_seconds"])
+        self.assertIsNone(derive_required_result_wait({k:v for k,v in run.items() if k!="run_started_at"},{"3":[job]},[check],["Required"],attempt=3)["seconds"])
+        wrong=dict(check,external_id="100")
+        self.assertIsNone(derive_required_result_wait(run,{"3":[job]},[wrong],["Required"],attempt=3)["seconds"])
+
+    def test_raw_attempt_family_costs_do_not_include_prior_attempt_or_original_created_at(self):
+        from ci_metrics_security import derive_comparison_family_costs
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp); family=root/"raw/families/77-attempt-3"; family.mkdir(parents=True)
+            run={"id":77,"run_attempt":3,"run_started_at":"2026-10-13T01:00:00Z","created_at":"2026-10-12T22:33:57Z","head_sha":"a"*40,"conclusion":"success","repository":{"id":1207487684}}
+            (family/"run.json").write_text(json.dumps(run,sort_keys=True))
+            job={"id":88,"run_id":77,"run_attempt":3,"head_sha":"a"*40,"name":"Required","conclusion":"success","started_at":"2026-10-13T01:00:00Z","completed_at":"2026-10-13T01:02:00Z"}
+            jobs_bytes=json.dumps({"jobs":[job]},sort_keys=True).encode(); jobs_path=family/"jobs-attempt-3.json"; jobs_path.write_bytes(jobs_bytes)
+            check={"id":99,"external_id":"88","name":"Required","head_sha":"a"*40,"status":"completed","conclusion":"success","completed_at":"2026-10-13T01:02:00Z","app":{"slug":"github-actions"},"check_suite":{"id":777}}
+            checks_bytes=json.dumps({"check_runs":[check]},sort_keys=True).encode(); (family/"check-runs.json").write_bytes(checks_bytes)
+            manifest={"detail_status":"complete","source_run_sha256":hashlib.sha256((family/"run.json").read_bytes()).hexdigest(),
+                "attempt_jobs":{"3":{"path":"raw/families/77-attempt-3/jobs-attempt-3.json","sha256":hashlib.sha256(jobs_bytes).hexdigest()}},
+                "check_runs_sha256":hashlib.sha256(checks_bytes).hexdigest()}
+            (family/"manifest.json").write_text(json.dumps(manifest))
+            result=derive_comparison_family_costs(root,77,["Required"],run_attempt=3)
+            self.assertEqual(120,result["runner_seconds"])
+            self.assertEqual(120,result["required_result_wait_seconds"])
+            self.assertEqual("2026-10-13T01:00:00Z",result["attempt_origin_at"])
+            self.assertEqual([3],[row["attempt"] for row in result["attempt_costs"]])
+
     def test_rerun_failed_reused_job_ids_are_counted_once(self):
         attempts = {
             "1": [{"id": 1, "seconds": 10}, {"id": 2, "seconds": 20}],

@@ -91,6 +91,7 @@ BASELINE_FILE=""
 BASELINE_SOURCE_BUNDLE=""
 COLLECT_COMPARISON=false
 COMPARISON_ROLE=""
+COMPARISON_ATTEMPT_SCOPED=false
 REQUEST_BUDGET_LEDGER=""
 COMPARISON_RUNS_FILE=""
 API_BUDGET_OWNER=""
@@ -678,9 +679,13 @@ collect_window() {
       while IFS= read -r registration; do
         [[ -n "$registration" ]] || continue
         id="$(jq -r '.run_id' <<<"$registration")"
-        API_BUDGET_OWNER="run:${id}"
-        page_file="$tmp/${name}-run-${id}.json"
-        api_get "/repos/${REPO}/actions/runs/${id}" "$page_file" || { API_STOP_REASON="${API_STOP_REASON:-registered_run_unavailable}"; break; }
+        attempt="$(jq -r '.run_attempt // empty' <<<"$registration")"
+        sample_id="$(jq -r '.sample_id // .run_id' <<<"$registration")"
+        API_BUDGET_OWNER="sample:${id}:${attempt:-legacy}"
+        page_file="$tmp/${name}-run-${sample_id}.json"
+        endpoint="/repos/${REPO}/actions/runs/${id}"
+        [[ -z "$attempt" ]] || endpoint+="/attempts/${attempt}"
+        api_get "$endpoint" "$page_file" || { API_STOP_REASON="${API_STOP_REASON:-registered_run_unavailable}"; break; }
         PYTHONPATH="$ROOT/scripts/ci" python3 - "$registration" "$page_file" <<'PY' || { API_STOP_REASON="registered_run_identity_mismatch"; break; }
 import json,pathlib,sys
 from ci_metrics_security import validate_registered_run_observation
@@ -688,8 +693,8 @@ registration=json.loads(sys.argv[1]); run=json.loads(pathlib.Path(sys.argv[2]).r
 errors=validate_registered_run_observation(registration,run)
 if errors: raise SystemExit(','.join(errors))
 PY
-        jq -cn --slurpfile prior "$selected_file" --slurpfile run "$page_file" '$prior[0]+[$run[0]]' >"$selected_file.tmp" && mv "$selected_file.tmp" "$selected_file"
-        jq -cn --arg id "$id" --arg sha "$(sha256_file "$page_file")" --slurpfile prior "$pages_file" '$prior[0]+[{registered_run_id:($id|tonumber),response_sha256:$sha}]' >"$pages_file.tmp" && mv "$pages_file.tmp" "$pages_file"
+        jq -cn --arg sample_id "$sample_id" --argjson attempt "${attempt:-0}" --slurpfile prior "$selected_file" --slurpfile run "$page_file" '$prior[0]+[($run[0]+{comparison_sample_id:$sample_id,comparison_attempt:(if $attempt==0 then null else $attempt end)})]' >"$selected_file.tmp" && mv "$selected_file.tmp" "$selected_file"
+        jq -cn --arg id "$id" --arg sample_id "$sample_id" --arg sha "$(sha256_file "$page_file")" --slurpfile prior "$pages_file" '$prior[0]+[{registered_run_id:($id|tonumber),sample_id:$sample_id,response_sha256:$sha}]' >"$pages_file.tmp" && mv "$pages_file.tmp" "$pages_file"
       done < <(jq -c '.[]' "$COMPARISON_RUNS_FILE")
       total="$(jq 'length' "$selected_file")"
       jq -n --arg cutoff "$CUTOFF" --arg population "$name" --arg since "$since" --argjson total "$total" --slurpfile selected "$selected_file" --slurpfile pages "$pages_file" '{population:$population,event:"pull_request",branch:null,created_window:{after:$since,before:$cutoff},api_total_count:$total,population_capped:false,population_exhausted:true,selected_run_ids:[$selected[0][].id],runs:$selected[0],pages:$pages[0],detail_status:"pending",selection_source:"authenticated_comparison_registrations"}' >"$out"
@@ -729,7 +734,7 @@ PY
   }
 
   collect_attempt_details() {
-    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt measurement_target
+    local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt measurement_target sample_id attempt_first
     local selected_file="$tmp/all-selected-runs.json" failed_file="$tmp/failed-selected-runs.json" priority_file="$tmp/prioritized-runs.json" enrichments_file="$tmp/family-enrichments.json"
     jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]' >"$selected_file"
     jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' "$selected_file" >"$failed_file"
@@ -750,15 +755,23 @@ PY
       event="$(jq -r '.run.event' <<<"$row")"
       run="$(jq -c '.run' <<<"$row")"
       attempts="$(jq -r '.run.run_attempt // 1' <<<"$row")"
+      sample_id="$(jq -r '.run.comparison_sample_id // .run.id' <<<"$row")"
+      if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]]; then
+        attempts="$(jq -r '.run.comparison_attempt // empty' <<<"$row")"
+        [[ "$attempts" =~ ^[1-9][0-9]*$ ]] || { API_STOP_REASON="comparison_attempt_missing"; break; }
+        attempt_first="$attempts"
+      else attempt_first=1; fi
       if [[ ! "$id" =~ ^[0-9]+$ || ! "$attempts" =~ ^[1-9][0-9]*$ ]] || (( attempts > 100 )); then
         jq -cn --slurpfile prior "$enrichments_file" --argjson id "${id:-0}" '$prior[0] + [{run_id:$id,detail_status:"invalid_run_attempt_count",attempt_jobs:{},changed_paths_status:"unknown",workload:"unknown",diagnostics:["run_identity_or_attempt_count_invalid"]}]' >"$enrichments_file.tmp"
         mv "$enrichments_file.tmp" "$enrichments_file"
         continue
       fi
-      family_dir="$stage/raw/families/$id"
+      family_dir="$stage/raw/families/$sample_id"
       mkdir -p "$family_dir"
-      printf '%s\n' "$run" >"$family_dir/run.json"
-      needed="$attempts"
+      if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]]; then
+        jq -c 'del(.comparison_sample_id,.comparison_attempt)' <<<"$run" >"$family_dir/run.json"
+      else printf '%s\n' "$run" >"$family_dir/run.json"; fi
+      needed=1
       # Reserve a bounded pass for the twelve newest failed families: at most
       # one artifact metadata read, and the initial request plus three possible
       # redirects for each artifact and failed-job log.
@@ -770,14 +783,14 @@ PY
       fi
       jobs_status=complete
       attempts_json='{}'
-      for ((attempt=1; attempt<=attempts; attempt++)); do
+      for ((attempt=attempt_first; attempt<=attempts; attempt++)); do
         jobs_file="$tmp/family-${id}-attempt-${attempt}-jobs.json"
         if ! api_get "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" "$jobs_file"; then
           jobs_status="${API_STOP_REASON:-attempt_jobs_unavailable}"
           break
         fi
         cp "$jobs_file" "$family_dir/jobs-attempt-${attempt}.json"
-        attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$family_dir/jobs-attempt-${attempt}.json")" --arg endpoint "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" '$prior + {($attempt|tostring):{path:$path,sha256:$hash,endpoint:$endpoint}}')"
+        attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$sample_id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$family_dir/jobs-attempt-${attempt}.json")" --arg endpoint "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" '$prior + {($attempt|tostring):{path:$path,sha256:$hash,endpoint:$endpoint}}')"
       done
       paths_status=unavailable
       changed_path_pages='[]'
@@ -794,7 +807,7 @@ PY
           jq -cn --slurpfile before "$paths_file" --slurpfile current "$changed_file" '$before[0] + $current[0]' >"$paths_file.tmp"
           mv "$paths_file.tmp" "$paths_file"
           cp "$changed_file" "$family_dir/changed-paths-page-${page}.json"
-          changed_path_pages="$(jq -cn --argjson prior "$changed_path_pages" --argjson page "$page" --arg path "raw/families/$id/changed-paths-page-${page}.json" --arg sha256 "$(sha256_file "$family_dir/changed-paths-page-${page}.json")" '$prior + [{page:$page,path:$path,sha256:$sha256}]')"
+          changed_path_pages="$(jq -cn --argjson prior "$changed_path_pages" --argjson page "$page" --arg path "raw/families/$sample_id/changed-paths-page-${page}.json" --arg sha256 "$(sha256_file "$family_dir/changed-paths-page-${page}.json")" '$prior + [{page:$page,path:$path,sha256:$sha256}]')"
           (( $(jq 'length' "$changed_file") == 100 )) || { paths_status=complete; break; }
           (( API_REQUESTS + 1 + reserve <= 600 )) || { paths_status=detail_unavailable_budget; break; }
           page=$((page+1))
@@ -815,7 +828,7 @@ PY
       local diagnostic="[]" artifact_meta="$tmp/family-${id}-artifacts.json" artifact_record='{}' log_record='{}' job_id artifact_row artifact_id expected_digest artifact_zip="$family_dir/timing-artifact.zip" artifact_out="$family_dir/timing" artifact_status
       if jq -e --argjson id "$id" '[.[] | select(.run.id==$id)]|length>0' "$failed_file" >/dev/null; then
         if api_get "/repos/${REPO}/actions/runs/${id}/artifacts?per_page=100" "$artifact_meta"; then
-            jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
+            jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha,run_attempt:.workflow_run.run_attempt,repository_id:.workflow_run.repository_id}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
           artifact_row="$(jq -c '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|test-results|report")))][0] // empty' "$artifact_meta")"
           if [[ -n "$artifact_row" ]]; then
             artifact_id="$(jq -r '.id' <<<"$artifact_row")"
@@ -845,7 +858,7 @@ PY
         if [[ "$job_id" =~ ^[1-9][0-9]*$ ]] && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/jobs/${job_id}/logs" "$tmp/job-${id}.log" "job-log:${id}"; then
           redact_log_file "$tmp/job-${id}.log" "$family_dir/failed-job.log"
           local log_hash; log_hash="$(sha256_file "$family_dir/failed-job.log")"
-          log_record="$(jq -cn --arg hash "$log_hash" --arg path "raw/families/$id/failed-job.log" '{status:"retained_redacted",path:$path,sha256:$hash}')"
+          log_record="$(jq -cn --arg hash "$log_hash" --arg path "raw/families/$sample_id/failed-job.log" '{status:"retained_redacted",path:$path,sha256:$hash}')"
         else
           log_record="$(jq -cn --arg reason "${API_STOP_REASON:-diagnostics_unknown}" '{status:"diagnostics_unknown",diagnostic:$reason}')"
           # A failed diagnostic excerpt is recorded as unknown, but it does not
@@ -866,7 +879,7 @@ PY
           cp "$tmp/family-${id}-check-runs.json" "$check_file"
         else jq -n --arg reason "${API_STOP_REASON:-check_runs_unavailable}" '{status:"unknown",reason:$reason}' >"$check_file"; fi
         if api_get "/repos/${REPO}/actions/runs/${id}/artifacts?per_page=100" "$artifact_meta"; then
-          jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
+          jq '{total_count,artifacts:[.artifacts[]? | {id,name,size_in_bytes,expired,digest,created_at,expires_at,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha,run_attempt:.workflow_run.run_attempt,repository_id:.workflow_run.repository_id}}]}' "$artifact_meta" >"$family_dir/artifacts-metadata.json"
           printf '[]\n' >"$artifact_manifest"
           while IFS= read -r artifact_row_target; do
             [[ -n "$artifact_row_target" ]] || continue
@@ -875,17 +888,19 @@ PY
             target_zip="$target_artifacts/${target_artifact_id}.zip"
             target_dir="$target_artifacts/${target_artifact_id}"
             target_extract='{"status":"unknown","diagnostic":"artifact_not_downloaded"}'
-            if jq -e --argjson run "$run" '.expired!=true and (.id|type)=="number" and (.digest|test("^sha256:[0-9a-f]{64}$")) and (.workflow_run.id|tostring)==($run.id|tostring) and .workflow_run.head_sha==$run.head_sha' <<<"$artifact_row_target" >/dev/null \
+            local artifact_attempt_ok=true
+            if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]] && ! jq -e --argjson attempt "$attempts" '(.workflow_run.run_attempt==$attempt) or (.name|test("-[0-9]+-"+($attempt|tostring)+"$"))' <<<"$artifact_row_target" >/dev/null; then artifact_attempt_ok=false; fi
+            if [[ "$artifact_attempt_ok" == true ]] && jq -e --argjson run "$run" '.expired!=true and (.id|type)=="number" and (.digest|test("^sha256:[0-9a-f]{64}$")) and (.workflow_run.id|tostring)==($run.id|tostring) and .workflow_run.head_sha==$run.head_sha' <<<"$artifact_row_target" >/dev/null \
               && api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${target_artifact_id}/zip" "$target_zip" "artifact:${id}:${target_artifact_id}"; then
               target_hash="sha256:$(sha256_file "$target_zip")"
               if [[ "$target_hash" == "$target_digest" ]] && extract_timing_archive "$target_zip" "$target_dir" >"$tmp/target-extract-${target_artifact_id}.json" 2>"$tmp/target-extract-${target_artifact_id}.err"; then
-                target_extract="$(jq -cn --arg archive_sha256 "${target_hash#sha256:}" --arg path "raw/families/${id}/artifacts/${target_artifact_id}" --slurpfile extraction "$tmp/target-extract-${target_artifact_id}.json" '$extraction[0] + {status:"accepted",archive_sha256:$archive_sha256,path:$path}')"
+                target_extract="$(jq -cn --arg archive_sha256 "${target_hash#sha256:}" --arg path "raw/families/${sample_id}/artifacts/${target_artifact_id}" --slurpfile extraction "$tmp/target-extract-${target_artifact_id}.json" '$extraction[0] + {status:"accepted",archive_sha256:$archive_sha256,path:$path}')"
               else target_extract="$(jq -cn --arg reason "$(if [[ "$target_hash" != "$target_digest" ]]; then echo artifact_digest_mismatch; else cat "$tmp/target-extract-${target_artifact_id}.err"; fi)" '{status:"unknown",diagnostic:$reason}')"; rm -rf "$target_zip" "$target_dir"; fi
             else target_extract="$(jq -cn --arg reason "${API_STOP_REASON:-artifact_identity_or_digest_invalid}" '{status:"unknown",diagnostic:$reason}')"; fi
             jq -cn --slurpfile prior "$artifact_manifest" --argjson artifact "$artifact_row_target" --argjson result "$target_extract" '$prior[0] + [{artifact:$artifact,result:$result}]' >"$artifact_manifest.tmp" && mv "$artifact_manifest.tmp" "$artifact_manifest"
             artifact_index=$((artifact_index+1))
             [[ -z "$API_STOP_REASON" ]] || break
-          done < <(jq -c '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|measurement-metadata")))] | sort_by(.name,.id) | .[]' "$artifact_meta")
+          done < <(jq -c --argjson attempt "$attempts" --argjson attempt_scoped "$COMPARISON_ATTEMPT_SCOPED" '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|measurement-metadata|browser-execution"))) | select(($attempt_scoped|not) or (.workflow_run.run_attempt==$attempt) or (.name|test("-[0-9]+-"+($attempt|tostring)+"$")))] | sort_by(.name,.id) | .[]' "$artifact_meta")
         else jq -n --arg reason "${API_STOP_REASON:-artifact_metadata_unavailable}" '{status:"unknown",reason:$reason}' >"$artifact_manifest"; fi
         while IFS= read -r producer_meta; do
           [[ -s "$producer_meta" ]] || continue
@@ -905,7 +920,7 @@ PY
               producer_tree_sha="$(jq -r '.commit.tree.sha // empty' "$producer_dir/commit.json")"
               producer_parent_valid="$(jq -c --arg sha "$producer_sha" --argjson run "$run" '.sha==$sha and ([.parents[].sha]|sort)==([$run.pull_requests[0].head.sha,$run.pull_requests[0].base.sha]|sort) and ($run.pull_requests|length)==1' "$producer_dir/commit.json")"
               if [[ "$producer_parent_valid" == true ]] && jq -e --arg tree "$producer_tree_sha" --arg workflow "$(git hash-object "$workflow_content")" '.sha==$tree and any(.tree[]; .path==".github/workflows/ci.yml" and .type=="blob" and .sha==$workflow)' "$producer_dir/tree.json" >/dev/null; then
-                producer_refs="$(jq -cn --arg sha "$producer_sha" --arg c "raw/families/${id}/producer-source/${producer_sha}/commit.json" --arg ch "$(sha256_file "$producer_dir/commit.json")" --arg t "raw/families/${id}/producer-source/${producer_sha}/tree.json" --arg th "$(sha256_file "$producer_dir/tree.json")" --arg w "raw/families/${id}/producer-source/${producer_sha}/ci.yml" --arg wh "$(sha256_file "$workflow_content")" --arg raw "raw/families/${id}/producer-source/${producer_sha}/workflow-content.json" --arg rh "$(sha256_file "$producer_dir/workflow-content.json")" --argjson prior "$producer_refs" '$prior + {($sha):{commit_path:$c,commit_sha256:$ch,tree_path:$t,tree_sha256:$th,workflow_path:$w,workflow_sha256:$wh,workflow_api_path:$raw,workflow_api_sha256:$rh}}')"
+                producer_refs="$(jq -cn --arg sha "$producer_sha" --arg c "raw/families/${sample_id}/producer-source/${producer_sha}/commit.json" --arg ch "$(sha256_file "$producer_dir/commit.json")" --arg t "raw/families/${sample_id}/producer-source/${producer_sha}/tree.json" --arg th "$(sha256_file "$producer_dir/tree.json")" --arg w "raw/families/${sample_id}/producer-source/${producer_sha}/ci.yml" --arg wh "$(sha256_file "$workflow_content")" --arg raw "raw/families/${sample_id}/producer-source/${producer_sha}/workflow-content.json" --arg rh "$(sha256_file "$producer_dir/workflow-content.json")" --argjson prior "$producer_refs" '$prior + {($sha):{commit_path:$c,commit_sha256:$ch,tree_path:$t,tree_sha256:$th,workflow_path:$w,workflow_sha256:$wh,workflow_api_path:$raw,workflow_api_sha256:$rh}}')"
               else api_stop producer_source_origin_unverified "" "$producer_sha"; fi
             else api_stop producer_workflow_content_unavailable "" "$producer_sha"; fi
           fi
@@ -913,8 +928,8 @@ PY
         done < <(find "$target_artifacts" -mindepth 2 -maxdepth 2 -name ci-measurement-metadata.json -type f 2>/dev/null | sort)
       fi
       details_file="$tmp/family-${id}-detail.json"
-      jq -cn --argjson id "$id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --slurpfile paths "$paths_file" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_paths_status:$paths_status,changed_paths:$paths[0],changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}' >"$details_file" || fail "family_detail_json_invalid:${id}"
-      jq -n --slurpfile detail "$details_file" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --arg metadata_hash "$(if [[ -s "$family_dir/artifacts-metadata.json" ]]; then sha256_file "$family_dir/artifacts-metadata.json"; fi)" --argjson attempts "$attempts_json" --argjson producer_refs "$producer_refs" --argjson changed_path_pages "$changed_path_pages" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,source_run_sha256:$run_hash,attempt_jobs:$attempts,changed_path_pages:$changed_path_pages,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_metadata_sha256:(if $metadata_hash=="" then null else $metadata_hash end),artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),producer_commits:$producer_refs,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
+      jq -cn --argjson id "$id" --arg sample_id "$sample_id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --slurpfile paths "$paths_file" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,sample_id:$sample_id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_path_pages:[],changed_paths_status:$paths_status,changed_paths:$paths[0],changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}' >"$details_file" || fail "family_detail_json_invalid:${id}"
+      jq -n --slurpfile detail "$details_file" --arg sample_id "$sample_id" --argjson attempt "$attempts" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$sample_id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --arg metadata_hash "$(if [[ -s "$family_dir/artifacts-metadata.json" ]]; then sha256_file "$family_dir/artifacts-metadata.json"; fi)" --argjson attempts "$attempts_json" --argjson producer_refs "$producer_refs" --argjson changed_path_pages "$changed_path_pages" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,sample_id:$sample_id,run_attempt:$attempt,source_run_sha256:$run_hash,attempt_jobs:$attempts,changed_path_pages:$changed_path_pages,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_metadata_sha256:(if $metadata_hash=="" then null else $metadata_hash end),artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),producer_commits:$producer_refs,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
       jq -cn --slurpfile prior "$enrichments_file" --slurpfile detail "$details_file" '$prior[0] + [$detail[0]]' >"$enrichments_file.tmp"
       mv "$enrichments_file.tmp" "$enrichments_file"
       api_write_ledger collecting
@@ -922,7 +937,7 @@ PY
     done <<<"$(jq -c '.[]' "$priority_file")"
     for population_name in pull_request push_main schedule; do
       local population_file="$stage/raw/populations/${population_name}.json"
-      jq --slurpfile details "$enrichments_file" '.runs |= map(. as $r | . + ([$details[0][] | select(.run_id==$r.id)][0] // {detail_status:"detail_unavailable_budget",workload:"unknown",attempt_jobs:{}}))' "$population_file" >"$population_file.tmp" && mv "$population_file.tmp" "$population_file"
+      jq --slurpfile details "$enrichments_file" '.runs |= map(. as $r | . + ([$details[0][] | select((.sample_id != null and .sample_id==$r.comparison_sample_id) or (.sample_id == null and .run_id==$r.id))][0] // {detail_status:"detail_unavailable_budget",workload:"unknown",attempt_jobs:{}}))' "$population_file" >"$population_file.tmp" && mv "$population_file.tmp" "$population_file"
     done
   }
 
@@ -976,6 +991,7 @@ collect_comparison() {
   [[ -s "$CONTRACT_FILE" && -s "$REGISTRATIONS_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$SOURCE_BUNDLE" ]] || fail "--collect-comparison requires --contract, --registrations, --request-budget-ledger and --source-bundle"
   [[ "$COMPARISON_ROLE" == before || "$COMPARISON_ROLE" == after ]] || fail "--comparison-role must be before or after"
   local tmp contract_window_end contract_hash registration_hash budget_hash
+  COMPARISON_ATTEMPT_SCOPED="$(jq -r '.sample_identity == "run_id+run_attempt"' "$CONTRACT_FILE")"
   tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-comparison-collect.XXXXXX")"
   COMPARISON_RUNS_FILE="$tmp/registered-runs.json"
   if ! PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" "$COMPARISON_ROLE" "$COMPARISON_RUNS_FILE" <<'PY'
@@ -1026,6 +1042,74 @@ PY
   CUTOFF="$contract_window_end"
   API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:preflight"
   collect_window
+  if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]]; then
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$SOURCE_BUNDLE" "$CONTRACT_FILE" "$COMPARISON_RUNS_FILE" "$COMPARISON_ROLE" <<'PY' || fail "attempt_scoped_raw_family_materialization_failed"
+import hashlib,json,pathlib,sys
+root=pathlib.Path(sys.argv[1]).resolve(); contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
+registrations=json.loads(pathlib.Path(sys.argv[3]).read_text()); role=sys.argv[4]
+expected_sha=contract.get('baseline_application_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('application_sha')
+workflow_sha=contract.get('baseline_workflow_sha256') if role=='before' else (contract.get('candidate_identity') or {}).get('workflow_file_sha256')
+workload_sha=contract.get('baseline_workload_revision_sha256') if role=='before' else (contract.get('candidate_identity') or {}).get('workload_revision_sha256')
+instrument=contract.get('instrumentation_identity') or {}
+if not expected_sha or not workflow_sha or not workload_sha or not instrument.get('exunit') or not instrument.get('playwright'):
+    raise SystemExit('frozen_attempt_source_or_instrumentation_identity_missing')
+families=[]
+for registration in registrations:
+    sample_id=registration['sample_id']; run_id=str(registration['run_id']); attempt=int(registration['run_attempt'])
+    family=root/'raw'/'families'/sample_id; run=json.loads((family/'run.json').read_text())
+    detail=json.loads((family/'manifest.json').read_text())
+    if str(run.get('id'))!=run_id or run.get('run_attempt')!=attempt or run.get('head_sha')!=expected_sha or detail.get('detail_status')!='complete':
+        raise SystemExit(f'raw_attempt_identity_or_detail_invalid:{sample_id}')
+    if not (run.get('run_started_at') or run.get('queued_at')) or (run.get('run_started_at') or run.get('queued_at'))!=registration.get('attempt_origin_at'):
+        raise SystemExit(f'raw_attempt_origin_missing_or_changed:{sample_id}')
+    attempt_ref=(detail.get('attempt_jobs') or {}).get(str(attempt))
+    if not isinstance(attempt_ref,dict) or attempt_ref.get('path')!=f'raw/families/{sample_id}/jobs-attempt-{attempt}.json':
+        raise SystemExit(f'raw_attempt_jobs_missing:{sample_id}')
+    jobs_file=(root/attempt_ref['path']).resolve()
+    if root not in jobs_file.parents or hashlib.sha256(jobs_file.read_bytes()).hexdigest()!=attempt_ref.get('sha256'):
+        raise SystemExit(f'raw_attempt_jobs_hash_invalid:{sample_id}')
+    jobs=json.loads(jobs_file.read_text()).get('jobs')
+    if not isinstance(jobs,list) or any(str(j.get('run_id'))!=run_id or j.get('run_attempt')!=attempt or j.get('head_sha')!=expected_sha for j in jobs):
+        raise SystemExit(f'raw_attempt_job_origin_invalid:{sample_id}')
+    evidence_ref=detail.get('artifact_evidence') or {}
+    evidence_path=(root/evidence_ref.get('path','')).resolve()
+    if root not in evidence_path.parents or not evidence_path.is_file() or hashlib.sha256(evidence_path.read_bytes()).hexdigest()!=evidence_ref.get('sha256'):
+        raise SystemExit(f'raw_attempt_artifact_evidence_missing:{sample_id}')
+    evidence=json.loads(evidence_path.read_text()); metadata=[]
+    for row in evidence:
+        artifact=row.get('artifact') or {}; result=row.get('result') or {}; artifact_name=artifact.get('name') or ''
+        if result.get('status')!='accepted': continue
+        api_attempt=(artifact.get('workflow_run') or {}).get('run_attempt')
+        if api_attempt is not None and api_attempt!=attempt: raise SystemExit(f'artifact_other_attempt:{sample_id}:{artifact_name}')
+        aid=str(artifact.get('id','')); extracted=family/'artifacts'/aid
+        if not aid.isdigit() or not extracted.is_dir(): continue
+        for path in extracted.rglob('ci-measurement-metadata.json'):
+            meta=json.loads(path.read_text()); meta_attempt=str(meta.get('run_attempt',''))
+            job_name=meta.get('job_name'); seam=meta.get('matrix_seam')
+            expected_job=f'Example Playwright shard ({seam})' if job_name=='Example Playwright shard' and seam else job_name
+            matching=[job for job in jobs if job.get('name')==expected_job]
+            if (str(meta.get('run_id'))!=run_id or meta_attempt!=str(attempt) or meta.get('source_sha')!=expected_sha
+                    or meta.get('event')!='pull_request' or len(matching)!=1 or matching[0].get('conclusion')!='success'):
+                raise SystemExit(f'attempt_measurement_metadata_origin_invalid:{sample_id}:{artifact_name}')
+            metadata.append((meta,artifact_name))
+    if not metadata: raise SystemExit(f'attempt_measurement_metadata_missing:{sample_id}')
+    producer=[(m,n) for m,n in metadata if m.get('job_name')=='Library tests shard' or m.get('job_name')=='Example Playwright shard']
+    if not any(m.get('job_name')=='Library tests shard' for m,_ in producer) or not all(any(m.get('job_name')=='Example Playwright shard' and m.get('matrix_seam')==owner for m,_ in producer) for owner in ('admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase')):
+        raise SystemExit(f'attempt_measurement_owner_metadata_incomplete:{sample_id}')
+    images=sorted({json.dumps({'runner_os':m.get('runner_os'),'runner_arch':m.get('runner_arch'),'runner_image':m.get('runner_image')},sort_keys=True,separators=(',',':')) for m,_ in producer})
+    caches=[value for m,_ in producer for value in (m.get('cache_outcome') or {}).values()]
+    warm=bool(caches) and all(value in ('hit',True) for value in caches)
+    families.append({'reservation_id':registration['reservation_id'],'pair_id':registration['pair_id'],'family_role':role,'run_id':int(run_id),
+        'run_attempt':attempt,'sample_id':sample_id,'created_at':run.get('created_at'),'attempt_origin_at':registration['attempt_origin_at'],
+        'conclusion':run.get('conclusion'),'workload':detail.get('workload'),'workload_sha':workload_sha,'workflow_sha256':workflow_sha,
+        'runner_class':images,'runner_image':images,'cache_stratum':'warm' if warm else 'not_warm',
+        'exunit_instrumentation':instrument['exunit'],'playwright_instrumentation':instrument['playwright'],'attempts':[]})
+manifest_path=root/'manifest.json'; manifest=json.loads(manifest_path.read_text())
+manifest['comparison_families']=families
+manifest['measured_pr_identity']={'application_sha':expected_sha,'workflow_revision':expected_sha,'workflow_file_sha256':workflow_sha,'workload_revision_sha256':workload_sha}
+manifest_path.write_text(json.dumps(manifest,sort_keys=True,separators=(',',':'))+'\n')
+PY
+  fi
   # Run the independent hosted-origin verifier against every retained raw family.
   # This is separate from snapshot hash replay and binds early registration, PR
   # head/base, all attempts, required checks, and artifact API/archive origins.
@@ -1263,23 +1347,26 @@ run_preflight() {
 
 register_comparison_run() {
   [[ -s "$CONTRACT_FILE" && -n "$REGISTRATIONS_FILE" && "$RUN_ID" =~ ^[1-9][0-9]*$ && -n "$RESERVATION_ID" ]] || fail "comparison registration requires --contract, --registrations, --reservation-id and --run-id"
-  python3 - "$CONTRACT_FILE" "$RESERVATION_ID" <<'PY' || fail "comparison registration reservation or predeclared window invalid"
+  python3 - "$CONTRACT_FILE" "$RESERVATION_ID" "$RUN_ID" <<'PY' || fail "comparison registration reservation or predeclared window invalid"
 import json,pathlib,sys
 c=json.loads(pathlib.Path(sys.argv[1]).read_text())
-if c.get('status')!='ready' or len([r for r in c.get('family_reservations',[]) if r.get('reservation_id')==sys.argv[2]])!=1:
+matches=[r for r in c.get('family_reservations',[]) if r.get('reservation_id')==sys.argv[2]]
+if c.get('status')!='ready' or len(matches)!=1:
     raise SystemExit(1)
+r=matches[0]
+if c.get('sample_identity')=='run_id+run_attempt' and (str(r.get('run_id'))!=sys.argv[3] or type(r.get('run_attempt')) is not int or r['run_attempt']<1): raise SystemExit(1)
 w=c.get('window') or {}
 if not w.get('start_utc') or not w.get('end_utc') or (c.get('candidate_identity') or {}).get('status'):
     raise SystemExit(1)
 PY
   if jq -e 'has("comparison_schedule")' "$CONTRACT_FILE" >/dev/null; then
     [[ -n "$REQUEST_BUDGET_LEDGER" ]] || fail "scheduled comparison registration requires --request-budget-ledger"
-    python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" <<'PY' || fail "request_budget_ledger_contract_or_readback_invalid"
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" <<'PY' || fail "request_budget_ledger_contract_or_readback_invalid"
 import json,pathlib,sys
 from ci_metrics_security import initialize_comparison_request_budget
 initialize_comparison_request_budget(json.loads(pathlib.Path(sys.argv[1]).read_text()),pathlib.Path(sys.argv[2]))
 PY
-    API_BUDGET_OWNER="run:${RUN_ID}"
+    API_BUDGET_OWNER="sample:${RUN_ID}:$(jq -r --arg rid "$RESERVATION_ID" '.family_reservations[]|select(.reservation_id==$rid)|.run_attempt // "legacy"' "$CONTRACT_FILE")"
   fi
   local tmp run_file output_tmp
   REGISTER_LOCK="${REGISTRATIONS_FILE}.lock"
@@ -1292,7 +1379,11 @@ PY
   API_TEMP_DIR="$tmp"
   trap 'api_cleanup; rm -rf "$REGISTER_LOCK"' EXIT INT TERM HUP
   api_get rate_limit "$tmp/rate-limit.json" || fail "comparison registration rate preflight blocked"
-  api_get "/repos/${REPO}/actions/runs/${RUN_ID}" "$run_file" || fail "comparison run identity unavailable"
+  local run_endpoint registered_attempt
+  registered_attempt="$(jq -r --arg rid "$RESERVATION_ID" 'if .sample_identity=="run_id+run_attempt" then (.family_reservations[]|select(.reservation_id==$rid)|.run_attempt) else empty end' "$CONTRACT_FILE")"
+  run_endpoint="/repos/${REPO}/actions/runs/${RUN_ID}"
+  [[ -z "$registered_attempt" ]] || run_endpoint+="/attempts/${registered_attempt}"
+  api_get "$run_endpoint" "$run_file" || fail "comparison run identity unavailable"
   PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" "$RESERVATION_ID" "$run_file" "$output_tmp" <<'PY'
 import hashlib,json,os,pathlib,sys
 from ci_metrics_security import register_comparison_run
@@ -2080,7 +2171,12 @@ if registrations:
     origin_results=[]
     for label, data in [('before',before),('after',after)]:
         for row in data.get('comparison_families') or []:
-            registration=registration_by_run.get(str(row.get('run_id')))
+            registration=(
+                (next((candidate for candidate in registrations.get('records',[]) if candidate.get('reservation_id')==row.get('reservation_id')),None)
+                 if row.get('reservation_id') else None)
+                or next((candidate for candidate in registrations.get('records',[]) if str(candidate.get('run_id'))==str(row.get('run_id'))
+                         and candidate.get('run_attempt')==row.get('run_attempt')),None)
+                or registration_by_run.get(str(row.get('run_id'))))
             if registration is None:
                 issue(label+'_family_registration_missing',row.get('run_id')); continue
             result=subprocess.run([sys.executable,str(project_root/'scripts/ci/ci-hosted-gate-verify.py'),
@@ -2119,7 +2215,8 @@ try:
                 owner_map.write_text(json.dumps({'schema_version':'sigra.browser-coverage-map/v1','rows':owner_rows},separators=(',',':')))
                 native_dirs=[]
                 for label,family_row in [('before',b),('after',a)]:
-                    family_dir=bundle_paths[label]/'raw'/'families'/str(family_row.get('run_id'))/'artifacts'
+                    raw_sample_id=(f"{family_row.get('run_id')}-attempt-{family_row.get('run_attempt')}" if contract.get('sample_identity')=='run_id+run_attempt' else str(family_row.get('run_id')))
+                    family_dir=bundle_paths[label]/'raw'/'families'/raw_sample_id/'artifacts'
                     descriptors=list(family_dir.rglob('coverage-source.json')) if family_dir.is_dir() else []
                     matches=[]
                     for descriptor in descriptors:
@@ -2128,7 +2225,7 @@ try:
                         if doc.get('owner')==owner and doc.get('seam')==owner: matches.append((descriptor.parent,doc))
                     if len(matches)!=1: raise ValueError(f'{label}_native_descriptor_count:{pair_id}:{owner}:{len(matches)}')
                     native_dir,descriptor=matches[0]
-                    raw_run=json.loads((bundle_paths[label]/'raw'/'families'/str(family_row.get('run_id'))/'run.json').read_text())
+                    raw_run=json.loads((bundle_paths[label]/'raw'/'families'/raw_sample_id/'run.json').read_text())
                     if descriptor.get('source_sha')!=raw_run.get('head_sha'):
                         raise ValueError(f'{label}_native_descriptor_source_mismatch:{pair_id}:{owner}')
                     native_dirs.append(native_dir)
@@ -2150,7 +2247,7 @@ for label, data in [('before',before),('after',after)]:
     seen=set()
     for row in rows:
         if contract.get('comparison_schedule'):
-            raw=derive_comparison_family_costs(bundle_paths[label],row.get('run_id'),contract.get('required_contexts') or data.get('required_contexts') or [])
+            raw=derive_comparison_family_costs(bundle_paths[label],row.get('run_id'),contract.get('required_contexts') or data.get('required_contexts') or [],run_attempt=row.get('run_attempt') if contract.get('sample_identity')=='run_id+run_attempt' else None)
             if raw.get('status')!='complete': issue(label+'_raw_family_invalid',{'run_id':row.get('run_id'),'diagnostics':raw.get('diagnostics')}); continue
             row={**row,'created_at':raw.get('created_at'),'conclusion':raw.get('conclusion'),
                  'required_result_wait_seconds':raw.get('required_result_wait_seconds'),
