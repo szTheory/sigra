@@ -2,23 +2,25 @@
 gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
-status: ready_to_discuss
-last_updated: "2026-10-23T15:17:23.454208+00:00"
-state_head: 70729a937a74ca11fe9b84f733563e738209d452
+status: ready_to_plan
+last_updated: "2026-10-23T15:43:27.944993+00:00"
+state_head: 0dba02334afb80017b5a623f390f79d48fc4a810
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 189
   completed_plans: 87
   percent: 50
-last_activity: 2026-10-23 - Phase 253 completed and verified; Phase 254 discussion next
+last_activity: 2026-10-23 - Phase 254 discussion complete; planning next
 milestone_status: active
-workflow_step: phase253_complete_phase254_discussion_next
-verification_status: passed
+workflow_step: phase254_context_complete_planning_next
+verification_status: not_started
 phase252_verification_status: passed
 phase253_verification_status: passed
-next_command: "$gsd-discuss-phase 254"
-resume_command: "$gsd-discuss-phase 254"
+phase254_implementation_status: not_started
+phase254_verification_status: not_started
+next_command: "$gsd-plan-phase 254"
+resume_command: "$gsd-plan-phase 254"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 requirements_approved: true
@@ -69,14 +71,14 @@ phase253_control_recovery_task_count: 22
 phase253_ready_plans: []
 phase253_load_recovery_plan_count: 12
 phase253_load_recovery_task_count: 26
-resume_file: null
+resume_file: .planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md
 phase253_current_execution_addendum: .planning/execution/253-CONTINUATION.json
 phase253_historical_plan_count: 183
 phase253_superseded_never_executed: 73
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
-stopped_at: Phase 253 complete and verified; Phase 254 discussion next
-last_activity_desc: Final phase gates and6/6verification passed;  no new browser or CI run
+stopped_at: Phase 254 context captured; implementation and verification not started
+last_activity_desc: Four specialist analyses; exact baseline sources recovered and digests verified; no browser or CI run
 ---
 
 # Current position
@@ -87,7 +89,7 @@ The proof includes a controlled real-component loader/reloader reproduction and 
 
 ## Next action
 
-`$gsd-discuss-phase 254` — Speed Up the Measured Slow Jobs. After253completion, `init.plan-phase 254` reports pending status, no context, research or plans, and no prerequisite blocker. Phase 254 has not started. Historical partial UAT and older report maintenance do not block this route.
+`$gsd-plan-phase 254` — Speed Up the Measured Slow Jobs. Discussion captured a coherent researched direction in `.planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md`. Fresh `init.plan-phase 254` sees context, no research/plans and no prerequisite blocker. Exact baseline source refs and bundle/workflow/workload digests passed offline checks (`.planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-PREFLIGHT.json`). Candidate/cache preparation and the fixed hosted comparison remain unstarted. Phase254 implementation and verification are not complete. Historical report maintenance does not block this route.
 
 ## Preserved history and limits
 
@@ -101,5 +103,5 @@ See `.planning/PROJECT.md` (updated 2026-10-23). Current focus: measured CI spee
 
 ## Session continuity
 
-Stopped at: Phase 253 complete and verified; Phase 254 discussion next.
-Resume file: None.
+Stopped at: Phase254 discussion complete; planning next.
+Resume file: `.planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md`.

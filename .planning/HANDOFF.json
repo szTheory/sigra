@@ -1,39 +1,42 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-23T15:17:23.454208+00:00",
-  "updated_at": "2026-10-23T15:17:23.454208+00:00",
-  "status": "ready_to_discuss",
+  "timestamp": "2026-10-23T15:43:11.128793+00:00",
+  "updated_at": "2026-10-23T15:43:11.128793+00:00",
+  "status": "ready_to_plan",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "current_phase": 254,
-  "current": "Phase 253 implementation and final verification complete:6/6 outcomes; CIREL-01 and CIREL-02 satisfied. Existing evidence includes9 targeted registration passes,108 integration passes,22 native controls and6 hosted gate scenarios. No new browser or CI run was started for final review.",
-  "next_command": "$gsd-discuss-phase 254",
-  "resume_command": "$gsd-discuss-phase 254",
-  "resume_file": null,
-  "next_action": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker.",
+  "current": "Phase253 implementation and verification remain complete. Phase254 discussion is complete with researched delegated defaults and exact baseline source preflight passed. Phase254 implementation, hosted comparison and phase verification have not started.",
+  "next_command": "$gsd-plan-phase 254",
+  "resume_command": "$gsd-plan-phase 254",
+  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md",
+  "next_action": "Phase253 remains complete and verified. Phase254 context is captured; init.plan-phase254 sees context, no research/plans and no prerequisite blocker. Exact baseline source/digests passed offline checks; candidate/cache preparation and fixed hosted comparison remain unstarted.",
   "route": {
-    "status": "ready_to_discuss_next_phase",
-    "next_command": "$gsd-discuss-phase 254",
-    "resume_command": "$gsd-discuss-phase 254",
+    "status": "ready_to_plan",
+    "next_command": "$gsd-plan-phase 254",
+    "resume_command": "$gsd-plan-phase 254",
     "conditional": false,
-    "reason": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker.",
-    "readiness": ".planning/execution/253-final-gates/phase254-readiness.json",
+    "reason": "Phase253 remains complete and verified. Phase254 context is captured; init.plan-phase254 sees context, no research/plans and no prerequisite blocker. Exact baseline source/digests passed offline checks; candidate/cache preparation and fixed hosted comparison remain unstarted.",
+    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
     "historical_verification_is_forward_blocker": false
   },
   "current_routing": {
-    "status": "ready_to_discuss_next_phase",
-    "next_command": "$gsd-discuss-phase 254",
-    "resume_command": "$gsd-discuss-phase 254",
+    "status": "ready_to_plan",
+    "next_command": "$gsd-plan-phase 254",
+    "resume_command": "$gsd-plan-phase 254",
     "conditional": false,
-    "reason": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker.",
-    "readiness": ".planning/execution/253-final-gates/phase254-readiness.json",
+    "reason": "Phase253 remains complete and verified. Phase254 context is captured; init.plan-phase254 sees context, no research/plans and no prerequisite blocker. Exact baseline source/digests passed offline checks; candidate/cache preparation and fixed hosted comparison remain unstarted.",
+    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
     "historical_verification_is_forward_blocker": false
   },
   "workflow": {
     "phase253_implementation_status": "complete",
     "phase253_verification_status": "passed",
-    "next_required_gate": "Phase254 context discussion",
-    "phase254_started": false
+    "next_required_gate": "Phase254 planning with recovered baseline refs and fixed comparison contract",
+    "phase254_started": true,
+    "phase254_context_status": "complete",
+    "phase254_implementation_status": "not_started",
+    "phase254_verification_status": "not_started"
   },
   "phase253_canonical_verification": {
     "status": "passed",
@@ -77,7 +80,7 @@
   },
   "historical_verification_is_forward_blocker": false,
   "new_browser_or_ci_authorized": false,
-  "state_head": "70729a937a74ca11fe9b84f733563e738209d452",
+  "state_head": "0dba02334afb80017b5a623f390f79d48fc4a810",
   "preservation": {
     "prior_commit": "70729a937a74ca11fe9b84f733563e738209d452",
     "identity_record": ".planning/execution/253-final-gates/completion-prior-state.json",
@@ -88,5 +91,21 @@
     "retirements": ".planning/execution/253-final-review/RETIREMENTS.json",
     "original_failed_results_unchanged": true,
     "old_allowances_remain_consumed": true
+  },
+  "phase254_evidence": {
+    "context": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md",
+    "baseline_preflight": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-PREFLIGHT.json",
+    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
+    "discussion_log": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-DISCUSSION-LOG.md",
+    "baseline_refs": [
+      "refs/gsd/phase254/baseline-application",
+      "refs/gsd/phase254/baseline-producer"
+    ],
+    "remaining_before_acceptance": [
+      "Freeze candidate/workload and pair identities",
+      "Declare cache preparation and image compatibility",
+      "Predeclare window and schedule; preserve all fixed budgets"
+    ],
+    "hosted_runs_started": false
   }
 }

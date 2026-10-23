@@ -33,7 +33,7 @@ cannot resolve.
 
 **Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
 
-**Current step:** Phases 252 and 253 are implemented and verified. CIMEAS-01/02 and CIREL-01/02 are satisfied. Phase 253 verified 6/6 with the current controlled reproduction, post-fix runs and honest gate evidence. Phase 254 is pending without context, research or plans. Next: `$gsd-discuss-phase 254`. Five requirements remain pending.
+**Current step:** Phases 252 and 253 are implemented and verified. CIMEAS-01/02 and CIREL-01/02 are satisfied. Phase 253 verified 6/6 with the current controlled reproduction, post-fix runs and honest gate evidence. Phase 254 discussion is complete with researched delegated defaults and exact baseline source recovery. Implementation, hosted comparison and phase verification have not started. Next: `$gsd-plan-phase 254`. Five requirements remain pending.
 
 **Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
 

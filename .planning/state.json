@@ -2,7 +2,7 @@
   "contract": "1.0.0",
   "flavor": "core",
   "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
-  "status": "ready_to_discuss",
+  "status": "ready_to_plan",
   "phases": [
     {
       "number": "252",
@@ -24,10 +24,12 @@
     {
       "number": "254",
       "name": "Speed Up the Measured Slow Jobs",
-      "status": "pending",
-      "has_context": false,
+      "status": "ready_to_plan",
+      "has_context": true,
       "has_research": false,
-      "plan_count": 0
+      "plan_count": 0,
+      "implementation_status": "not_started",
+      "verification_status": "not_started"
     },
     {
       "number": "255",
@@ -38,26 +40,26 @@
   "current_phase": 254,
   "current_phase_name": "Speed Up the Measured Slow Jobs",
   "next": {
-    "command": "$gsd-discuss-phase 254",
+    "command": "$gsd-plan-phase 254",
     "conditional": false,
-    "label": "Discuss Phase254 \u2014 Speed Up the Measured Slow Jobs",
-    "reason": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker."
+    "label": "Plan Phase254 \u2014 Speed Up the Measured Slow Jobs",
+    "reason": "Phase253 remains complete and verified. Phase254 context is captured; init.plan-phase254 sees context, no research/plans and no prerequisite blocker. Exact baseline source/digests passed offline checks; candidate/cache preparation and fixed hosted comparison remain unstarted."
   },
-  "next_command": "$gsd-discuss-phase 254",
-  "resume_command": "$gsd-discuss-phase 254",
-  "resume_file": null,
-  "next_action": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker.",
+  "next_command": "$gsd-plan-phase 254",
+  "resume_command": "$gsd-plan-phase 254",
+  "resume_file": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md",
+  "next_action": "Phase253 remains complete and verified. Phase254 context is captured; init.plan-phase254 sees context, no research/plans and no prerequisite blocker. Exact baseline source/digests passed offline checks; candidate/cache preparation and fixed hosted comparison remain unstarted.",
   "next_command_conditional": false,
   "current_routing": {
-    "status": "ready_to_discuss_next_phase",
-    "next_command": "$gsd-discuss-phase 254",
-    "resume_command": "$gsd-discuss-phase 254",
+    "status": "ready_to_plan",
+    "next_command": "$gsd-plan-phase 254",
+    "resume_command": "$gsd-plan-phase 254",
     "conditional": false,
-    "reason": "Phase253 passed; Phase254 is pending without context, research or plans, and init.plan-phase254 reports no prerequisite blocker.",
-    "readiness": ".planning/execution/253-final-gates/phase254-readiness.json",
+    "reason": "Phase253 remains complete and verified. Phase254 context is captured; init.plan-phase254 sees context, no research/plans and no prerequisite blocker. Exact baseline source/digests passed offline checks; candidate/cache preparation and fixed hosted comparison remain unstarted.",
+    "readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-READINESS.json",
     "historical_verification_is_forward_blocker": false
   },
-  "workflow_step": "phase253_complete_phase254_discussion_next",
+  "workflow_step": "phase254_context_complete_planning_next",
   "phase253_implementation_status": "complete",
   "phase253_verification_status": "passed",
   "phase253_requirements_completed": [
@@ -91,8 +93,8 @@
   },
   "phase253_current_blocker": null,
   "historical_verification_is_forward_blocker": false,
-  "updated_at": "2026-10-23T15:17:23.454208+00:00",
-  "last_updated": "2026-10-23T15:17:23.454208+00:00",
-  "state_head": "70729a937a74ca11fe9b84f733563e738209d452",
-  "stopped_at": "Phase253 complete and verified; Phase254 discussion next; Phase254 not started."
+  "updated_at": "2026-10-23T15:43:11.128793+00:00",
+  "last_updated": "2026-10-23T15:43:11.128793+00:00",
+  "state_head": "0dba02334afb80017b5a623f390f79d48fc4a810",
+  "stopped_at": "Phase254 discussion complete; implementation and verification not started"
 }

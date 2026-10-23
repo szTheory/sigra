@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 253 --gaps-only — Execute reviewed plans 178–180, starting with 178. Both requirements and phase verification remain open.
+**Next command:** $gsd-plan-phase 254 — Discussion and exact baseline source preflight are complete. Phase253 remains complete and verified. Phase254 implementation, hosted comparison and phase verification have not started. Historical Phase253 route text below is retained history.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -347,7 +347,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252 is complete. Phase253 has no incomplete active plans and is ready for final verification;81implementations,29halts and73retired unused recipes remain distinct. Phase254/255 remain pending.
+**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 context is ready for planning; implementation/verification remain pending. Phase255 remains pending.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
