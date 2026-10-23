@@ -173,6 +173,116 @@ class AttemptEvaluation(unittest.TestCase):
         self.assertEqual(metrics["native_parity"]["origin_status"], "passed")
         self.assertEqual(len(metrics["native_parity"]["comparisons"]), 100)
 
+    def test_offline_assembly_preserves_all_twenty_pairs_and_rejects_duplicate_or_tampered_inputs(self):
+        from ci_metrics_security import assemble_comparison_snapshots
+        assembled = {}
+        for role in ('before','after'):
+            chunks = []
+            for index in range(2):
+                chunk = self.root/f'chunk-{role}-{index}'
+                shutil.copytree(self.root/role,chunk)
+                manifest = json.loads((chunk/'manifest.json').read_text())
+                manifest['comparison_families'] = manifest['comparison_families'][index*10:(index+1)*10]
+                keep = {row['sample_id'] for row in manifest['comparison_families']}
+                for family in (chunk/'raw/families').iterdir():
+                    if family.name not in keep: shutil.rmtree(family)
+                population = json.loads((chunk/'raw/populations/pull_request.json').read_text())
+                population['runs'] = [r for r in population['runs'] if f"{r['id']}-attempt-{r['run_attempt']}" in keep]
+                population['api_total_count'] = len(population['runs'])
+                write(chunk/'raw/populations/pull_request.json',population)
+                manifest['populations']['pull_request'] = population
+                manifest['source_sha256']['pull_request'] = digest(chunk/'raw/populations/pull_request.json')
+                manifest['comparison_collection'] = {'role':role,'contract_sha256':comparison_contract_sha256(self.contract),
+                    'origin_status':'passed','registered_runs':[],'origin_verification':[]}
+                write(chunk/'manifest.json',manifest)
+                chunks.append(chunk)
+            index_path = self.root/f'assembly-index-{role}.json'
+            write(index_path,[{'path':str(path),'manifest_sha256':digest(path/'manifest.json')} for path in chunks])
+            output = self.root/f'assembled-{role}'
+            result = subprocess.run(['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--assemble-comparison',
+                '--contract',str(self.root/'contract.json'),'--source-pages',str(index_path),'--source-bundle',str(output)],
+                cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertEqual(json.loads(result.stdout),{'status':'assembled','samples':20,'acquisition_passes':2,'network_requests':0})
+            assembled[role]=output
+            with self.assertRaisesRegex(ValueError,'duplicate'):
+                assemble_comparison_snapshots(self.contract,[chunks[0],chunks[0]],self.root/f'duplicate-{role}')
+            raw = next((chunks[0]/'raw/families').glob('*/run.json'))
+            original = raw.read_bytes(); raw.write_bytes(original+b' ')
+            with self.assertRaisesRegex(ValueError,'input_hash_invalid'):
+                assemble_comparison_snapshots(self.contract,chunks,self.root/f'tampered-{role}')
+            raw.write_bytes(original)
+        report=self.evaluate(before=assembled['before'],after=assembled['after'])
+        self.assertEqual(report['status'],'pass',report['diagnostics'])
+        self.assertEqual(report['metrics']['native_parity']['origins_verified'],40)
+        self.assertEqual(report['metrics']['baseline_runner_seconds'],1000)
+        self.assertEqual(report['metrics']['candidate_runner_seconds'],500)
+
+    def test_measured_trigger_requires_durable_previous_bytes_and_is_once_only(self):
+        from ci_metrics_security import verify_durable_attempt_capture, validate_next_comparison_trigger
+        project=self.root/'trigger-project'
+        (project/'scripts/ci').mkdir(parents=True)
+        for name in ('ci-run-metrics.sh','ci_metrics_security.py'):
+            shutil.copy2(ROOT/'scripts/ci'/name,project/'scripts/ci'/name)
+        capture=project/'capture'
+        shutil.copytree(self.root/'before',capture)
+        manifest=json.loads((capture/'manifest.json').read_text())
+        manifest['comparison_collection']={'origin_status':'passed'}
+        write(capture/'manifest.json',manifest)
+        def git(*args):
+            return subprocess.check_output(['git',*args],cwd=project,text=True,stderr=subprocess.DEVNULL).strip()
+        git('init');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+        git('add','capture');git('commit','-m','retain previous attempts')
+        commit=git('rev-parse','HEAD');ref='refs/evidence/fixture-previous-attempt'
+        git('update-ref',ref,commit)
+        receipt={'capture_path':'capture','ref':ref,'commit':commit,
+            'files':{str(path.relative_to(project)):digest(path) for path in capture.rglob('*') if path.is_file()}}
+        source='a'*40
+        verify_durable_attempt_capture(receipt,project,9001,3,source)
+        invalid=json.loads(json.dumps(receipt));invalid['files'].pop(next(iter(invalid['files'])))
+        with self.assertRaisesRegex(ValueError,'file_set_incomplete'):
+            verify_durable_attempt_capture(invalid,project,9001,3,source)
+        contract=json.loads(json.dumps(self.contract))
+        current=datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)-datetime.timedelta(seconds=1)
+        contract['window']={'start_utc':current.isoformat().replace('+00:00','Z'),
+            'end_utc':(current+datetime.timedelta(hours=48)).isoformat().replace('+00:00','Z')}
+        for index,row in enumerate(contract['family_reservations']):
+            row['run_attempt']=100+index
+        reservation=contract['family_reservations'][0];reservation['run_attempt']=4
+        endpoint='/repos/szTheory/sigra/actions/runs/9001/rerun'
+        contract.update(authorized_mutations=[endpoint],maximum_mutations=40)
+        prior=json.loads((capture/'raw/families/9001-attempt-3/run.json').read_text())
+        selected=validate_next_comparison_trigger(contract,reservation['reservation_id'],None,prior,receipt,project)
+        self.assertEqual(selected['run_attempt'],4)
+        with self.assertRaisesRegex(ValueError,'not_next_reserved_slot'):
+            validate_next_comparison_trigger(contract,contract['family_reservations'][1]['reservation_id'],None,prior,receipt,project)
+        with self.assertRaisesRegex(ValueError,'previous_attempt_changed_or_failed'):
+            validate_next_comparison_trigger(contract,reservation['reservation_id'],None,{**prior,'conclusion':'failure'},receipt,project)
+        write(project/'contract.json',contract);write(project/'receipt.json',receipt)
+        transport=project/'bin';transport.mkdir()
+        stub=transport/'gh'
+        stub.write_text('''#!/usr/bin/env python3
+import json,os,pathlib,sys
+args=sys.argv[1:];endpoint=args[args.index('--method')+2]
+root=pathlib.Path(os.environ['TRIGGER_FIXTURE'])
+with (root/'transport.jsonl').open('a') as out:out.write(json.dumps(args)+'\\n')
+if endpoint=='rate_limit':print(json.dumps({'resources':{'core':{'remaining':5000,'reset':2000000000}}}))
+elif args[args.index('--method')+1]=='POST':print('{}')
+else:print((root/'prior.json').read_text())
+''')
+        stub.chmod(0o755);write(project/'prior.json',prior)
+        env={**os.environ,'PATH':str(transport)+os.pathsep+os.environ['PATH'],'TRIGGER_FIXTURE':str(project)}
+        for index in range(2):
+            result=subprocess.run(['bash',str(project/'scripts/ci/ci-run-metrics.sh'),'--bounded-request',endpoint,
+                '--request-method','POST','--comparison-role','before','--reservation-id',reservation['reservation_id'],
+                '--contract',str(project/'contract.json'),'--registrations',str(project/'registrations.json'),
+                '--capture-receipt',str(project/'receipt.json'),'--request-budget-ledger',str(project/'budget.json'),
+                '--output',str(project/f'trigger-{index}.json')],cwd=project,env=env,capture_output=True,text=True,timeout=30)
+            if index==0:self.assertEqual(result.returncode,0,result.stderr)
+            else:self.assertNotEqual(result.returncode,0)
+        calls=[json.loads(line) for line in (project/'transport.jsonl').read_text().splitlines()]
+        self.assertEqual(sum(row[row.index('--method')+1]=='POST' for row in calls),1)
+
     def test_twenty_valid_attempt_pairs_preserve_a_measured_miss(self):
         import datetime
         after = self.root / "after-miss"
@@ -466,6 +576,18 @@ else:
                             capture_output=True, text=True, timeout=30)
                         self.assertEqual(failed_log.returncode, 0, failed_log.stderr)
                         self.assertIn('authentication required', (root / 'container-failure.log').read_text())
+                        failed_job['conclusion']='cancelled'
+                        write(root/'cancelled-job-receipt.json',{'jobs':[failed_job]})
+                        annotations=root/'timeout-annotations.json'
+                        write(annotations,[{'annotation_level':'failure','message':'The job has exceeded the maximum execution time of 30m0s'}])
+                        write(Path(str(annotations)+'.requests.json'),{'requests':[f"/repos/szTheory/sigra/check-runs/{failed_job['id']}/annotations"]})
+                        timeout_command=['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--collect-failed-job-log',str(failed_job['id']),
+                            '--failed-job-receipt',str(root/'cancelled-job-receipt.json'),'--contract',str(root/'acquisition-contract.json'),
+                            '--request-budget-ledger',str(root/'budget.json'),'--output',str(root/'timeout.log')]
+                        denied=subprocess.run(timeout_command,cwd=ROOT,env=environment,capture_output=True,text=True,timeout=30)
+                        self.assertNotEqual(denied.returncode,0)
+                        allowed=subprocess.run(timeout_command+['--timeout-annotations',str(annotations)],cwd=ROOT,env=environment,capture_output=True,text=True,timeout=30)
+                        self.assertEqual(allowed.returncode,0,allowed.stderr)
                     pair_runs.append(raw_run.parent)
                 # Verify actual derived native bytes through the existing comparator for every owner.
                 for owner in OWNERS:
@@ -494,6 +616,40 @@ else:
             finally:
                 map_path.unlink(missing_ok=True)
                 parity_path.unlink(missing_ok=True)
+
+
+class ApprovedInventoryAmendment(unittest.TestCase):
+    def test_same_image_set_does_not_hide_images_swapped_between_browser_owners(self):
+        from ci_metrics_security import comparison_runner_images
+        def row(owner,version):
+            return {'job_name':'Example Playwright shard','matrix_seam':owner,'runner_os':'Linux','runner_arch':'X64',
+                    'runner_image':{'image_os':'ubuntu24','image_version':version}}
+        before=[row('design_gallery','new'),row('demo_showcase','old')]
+        after=[row('design_gallery','old'),row('demo_showcase','new')]
+        self.assertEqual({r['runner_image']['image_version'] for r in before},{r['runner_image']['image_version'] for r in after})
+        self.assertNotEqual(comparison_runner_images(before),comparison_runner_images(after))
+
+    def test_only_the_explicitly_approved_workflow_change_can_reuse_the_original_inventory(self):
+        from ci_metrics_security import comparison_native_inventories, validate_profiled_receipt_sources
+        path=ROOT/'.planning/execution/254-rebaseline-preparation/NATIVE-INVENTORY-CONTRACT.json'
+        contract=json.loads(path.read_text())
+        retained_receipt=json.loads((ROOT/'.planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8-PARITY-RECEIPT.json').read_text())
+        validate_profiled_receipt_sources(contract,retained_receipt,ROOT)
+        invalid_receipt={**retained_receipt,'candidate_source_sha':'0'*40}
+        with self.assertRaisesRegex(ValueError,'source_equivalence_missing'):
+            validate_profiled_receipt_sources(contract,invalid_receipt,ROOT)
+        for role in ('before','after'):
+            inventories=comparison_native_inventories(contract,role,ROOT)
+            self.assertEqual(len(inventories),5)
+            self.assertTrue(all(row['workflow_authorization_sha256'] for row in inventories.values()))
+            invalid=json.loads(json.dumps(contract))
+            invalid['native_coverage_comparison']['source_equivalence'][role]['authorization_sha256']='0'*64
+            with self.assertRaisesRegex(ValueError,'inventory_digest_invalid'):
+                comparison_native_inventories(invalid,role,ROOT)
+            invalid=json.loads(json.dumps(contract))
+            invalid['native_coverage_comparison'].pop('source_equivalence')
+            with self.assertRaisesRegex(ValueError,'amendment_not_approved'):
+                comparison_native_inventories(invalid,role,ROOT)
 
 
 class BoundedPreparation(unittest.TestCase):

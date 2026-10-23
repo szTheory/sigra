@@ -99,8 +99,11 @@ BOUNDED_REQUEST=""
 REQUEST_METHOD="GET"
 REQUEST_BODY=""
 COLLECT_PREPARATION=false
+ASSEMBLE_COMPARISON=false
+CAPTURE_RECEIPT_FILE=""
 FAILED_JOB_ID=""
 FAILED_JOB_RECEIPT=""
+TIMEOUT_ANNOTATIONS=""
 API_BUDGET_OWNER=""
 API_STARTED=0
 API_REQUESTS=0
@@ -150,8 +153,11 @@ while [[ $# -gt 0 ]]; do
     --request-budget-ledger) REQUEST_BUDGET_LEDGER="$2"; shift 2;;
     --bounded-request) BOUNDED_REQUEST="$2"; shift 2;;
     --collect-preparation) COLLECT_PREPARATION=true; shift;;
+    --assemble-comparison) ASSEMBLE_COMPARISON=true; shift;;
+    --capture-receipt) CAPTURE_RECEIPT_FILE="$2"; shift 2;;
     --collect-failed-job-log) FAILED_JOB_ID="$2"; shift 2;;
     --failed-job-receipt) FAILED_JOB_RECEIPT="$2"; shift 2;;
+    --timeout-annotations) TIMEOUT_ANNOTATIONS="$2"; shift 2;;
     --request-method) REQUEST_METHOD="$2"; shift 2;;
     --request-body) REQUEST_BODY="$2"; shift 2;;
     --replay) REPLAY=true; shift;;
@@ -1077,7 +1083,10 @@ receipt_path=(root/receipt_relative).resolve()
 if root not in receipt_path.parents or not receipt_path.is_file() or not isinstance(receipt_expected,str) or hashlib.sha256(receipt_path.read_bytes()).hexdigest()!=receipt_expected: raise SystemExit(1)
 receipt=json.loads(receipt_path.read_text())
 if receipt.get('schema_version')!='sigra.browser-parity-receipt/v1' or receipt.get('status')!='passed' or receipt.get('owner_integration_status')!='profiled' or receipt.get('mapping_sha256')!=expected: raise SystemExit(1)
-if receipt.get('baseline_source_sha')!=contract.get('baseline_application_sha') or receipt.get('candidate_source_sha')!=contract.get('candidate_identity',{}).get('application_sha') or receipt.get('event')!='pull_request': raise SystemExit(1)
+if receipt.get('event')!='pull_request': raise SystemExit(1)
+sys.path.insert(0,str(root/'scripts/ci'))
+from ci_metrics_security import validate_profiled_receipt_sources
+validate_profiled_receipt_sources(contract,receipt,root)
 comparisons=receipt.get('owners')
 owners={'admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}
 if not isinstance(comparisons,list) or len(comparisons)!=5 or {row.get('owner') for row in comparisons}!=owners or any(row.get('status')!='passed' for row in comparisons): raise SystemExit(1)
@@ -1107,7 +1116,7 @@ import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1]).resolve(); contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 registrations=json.loads(pathlib.Path(sys.argv[3]).read_text()); role=sys.argv[4]
 project_root=pathlib.Path(sys.argv[5]).resolve()
-from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding
+from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding, comparison_runner_images
 inventories=comparison_native_inventories(contract,role,project_root)
 expected_sha=contract.get('baseline_application_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('application_sha')
 expected_producer_sha=(contract.get('baseline_identity') or {}).get('producer_source_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('producer_source_sha')
@@ -1183,14 +1192,16 @@ for registration in registrations:
         raw_report=reports[0].read_bytes(); (output/'report.json').write_bytes(raw_report)
         (output/'selection.json').write_bytes(inventory['selection'])
         updated={**descriptor,'source_sha':expected_sha,'inventory_source_sha':inventory['inventory_source_sha'],
+            'workflow_sha256':workflow_sha,'inventory_workflow_sha256':descriptor['workflow_sha256'],
+            'workflow_amendment_authorization_sha256':inventory.get('workflow_authorization_sha256'),
             'reports':[{**retained,'source_sha':expected_sha,'path':'report.json','selection_path':'selection.json','sha256':hashlib.sha256(raw_report).hexdigest(),'selection_sha256':hashlib.sha256(inventory['selection']).hexdigest()}]}
         (output/'coverage-source.json').write_text(json.dumps(updated,sort_keys=True,separators=(',',':')))
         derived.append({'owner':owner,'artifact_id':artifact['id'],'report_member_path':str(reports[0].relative_to(root)),
             'directory':str(output.relative_to(root)),'file_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in output.iterdir()}})
     detail['derived_native_coverage']=derived
     (family/'manifest.json').write_text(json.dumps(detail,sort_keys=True,separators=(',',':')))
-    images=sorted({json.dumps({'runner_os':m.get('runner_os'),'runner_arch':m.get('runner_arch'),'runner_image':m.get('runner_image')},sort_keys=True,separators=(',',':')) for m,_ in producer})
-    caches=[value for m,_ in producer for value in (m.get('cache_outcome') or {}).values()]
+    images=comparison_runner_images([m for m,_ in producer])
+    caches=[value for m,_ in metadata for value in (m.get('cache_outcome') or {}).values()]
     warm=bool(caches) and all(value in ('hit',True) for value in caches)
     families.append({'reservation_id':registration['reservation_id'],'pair_id':registration['pair_id'],'family_role':role,'run_id':int(run_id),
         'run_attempt':attempt,'sample_id':sample_id,'created_at':run.get('created_at'),'attempt_origin_at':registration['attempt_origin_at'],
@@ -2109,15 +2120,37 @@ if [[ "$MODE" != "wall" && "$MODE" != "jobspan" ]]; then
   fail "unknown --mode: ${MODE} (expected wall|jobspan)"
 fi
 
+if [[ "$ASSEMBLE_COMPARISON" == true ]]; then
+  [[ -s "$CONTRACT_FILE" && -s "$SOURCE_PAGES" && -n "$SOURCE_BUNDLE" ]] || fail "assembly_requires_contract_snapshot_index_and_new_destination"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$SOURCE_PAGES" "$SOURCE_BUNDLE" <<'PY'
+import json,pathlib,hashlib,sys
+from ci_metrics_security import assemble_comparison_snapshots
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text()); rows=json.loads(pathlib.Path(sys.argv[2]).read_text())
+paths=[]
+for row in rows:
+    root=pathlib.Path(row['path']).resolve()
+    if hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()!=row['manifest_sha256']: raise ValueError('assembly_manifest_digest_invalid')
+    paths.append(root)
+print(json.dumps(assemble_comparison_snapshots(contract,paths,pathlib.Path(sys.argv[3])),sort_keys=True))
+PY
+  exit $?
+fi
+
 if [[ -n "$FAILED_JOB_ID" ]]; then
   [[ -s "$CONTRACT_FILE" && -s "$FAILED_JOB_RECEIPT" && -n "$REQUEST_BUDGET_LEDGER" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "failed_job_log_inputs_missing"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$FAILED_JOB_RECEIPT" "$FAILED_JOB_ID" <<'PY' || fail "failed_job_log_identity_invalid"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$FAILED_JOB_RECEIPT" "$FAILED_JOB_ID" "$TIMEOUT_ANNOTATIONS" <<'PY' || fail "failed_job_log_identity_invalid"
 import json,pathlib,sys
 from ci_metrics_security import initialize_comparison_request_budget
 c=json.loads(pathlib.Path(sys.argv[1]).read_text()); initialize_comparison_request_budget(c,pathlib.Path(sys.argv[2]))
 jobs=json.loads(pathlib.Path(sys.argv[3]).read_text()).get('jobs',[])
 matches=[job for job in jobs if str(job.get('id'))==sys.argv[4]]
-if len(matches)!=1 or matches[0].get('conclusion') not in ('failure','timed_out'): raise SystemExit(1)
+if len(matches)!=1: raise SystemExit(1)
+if matches[0].get('conclusion') not in ('failure','timed_out'):
+    if matches[0].get('conclusion')!='cancelled' or not sys.argv[5]: raise SystemExit(1)
+    annotations=pathlib.Path(sys.argv[5]); rows=json.loads(annotations.read_text())
+    requests=json.loads(pathlib.Path(str(annotations)+'.requests.json').read_text()).get('requests') or []
+    endpoint=f'/repos/szTheory/sigra/check-runs/{sys.argv[4]}/annotations'
+    if endpoint not in requests or not any(row.get('annotation_level')=='failure' and 'exceeded the maximum execution time' in row.get('message','') for row in rows): raise SystemExit(1)
 job=matches[0]; baseline=c['baseline_identity']
 if not ((job.get('run_id')==baseline.get('run_id',job.get('run_id')) and job.get('run_attempt')==baseline['preparation_attempt'] and job.get('head_sha')==c['baseline_application_sha'])
         or job.get('head_sha')==c['candidate_identity']['application_sha']): raise SystemExit(1)
@@ -2181,13 +2214,16 @@ fi
 
 if [[ -n "$BOUNDED_REQUEST" ]]; then
   [[ -s "$CONTRACT_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "bounded_request_requires_contract_budget_and_new_output"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$BOUNDED_REQUEST" "$REQUEST_METHOD" "$REQUEST_BODY" "$COMPARISON_ROLE" <<'PY' || fail "bounded_request_not_authorized"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$BOUNDED_REQUEST" "$REQUEST_METHOD" "$REQUEST_BODY" "$COMPARISON_ROLE" "$RESERVATION_ID" <<'PY' || fail "bounded_request_not_authorized"
 import json,pathlib,re,sys
-c=json.loads(pathlib.Path(sys.argv[1]).read_text()); endpoint,method,body,role=sys.argv[2:]
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); endpoint,method,body,role,reservation_id=sys.argv[2:]
 if method=='GET':
     if not (endpoint=='rate_limit' or endpoint.startswith('/repos/szTheory/sigra/')): raise SystemExit(1)
 elif method=='POST':
     if endpoint not in c.get('authorized_mutations',[]) or not (endpoint=='/repos/szTheory/sigra/pulls' or re.fullmatch(r'/repos/szTheory/sigra/actions/runs/[1-9][0-9]*/rerun',endpoint)): raise SystemExit(1)
+    if c.get('sample_identity')=='run_id+run_attempt':
+        matches=[row for row in c.get('family_reservations',[]) if row.get('reservation_id')==reservation_id]
+        if len(matches)!=1 or body or endpoint!=f"/repos/szTheory/sigra/actions/runs/{matches[0]['run_id']}/rerun" or (role and role!=matches[0]['family_role']): raise SystemExit(1)
     if endpoint.endswith('/pulls'):
         payload=json.loads(pathlib.Path(body).read_text())
         if payload.get('draft') is not True or payload.get('base')!='main' or not payload.get('head','').startswith('evidence/phase254-'): raise SystemExit(1)
@@ -2209,13 +2245,25 @@ PY
   if [[ "$BOUNDED_REQUEST" != rate_limit ]]; then
     api_get rate_limit "$API_TEMP_DIR/rate.json" || fail "bounded_request_rate_preflight_blocked"
   fi
+  if [[ "$REQUEST_METHOD" == POST ]] && jq -e '.sample_identity=="run_id+run_attempt"' "$CONTRACT_FILE" >/dev/null; then
+    [[ -n "$REGISTRATIONS_FILE" && -s "$CAPTURE_RECEIPT_FILE" ]] || fail "measured_trigger_requires_registration_ledger_and_previous_capture_receipt"
+    measured_run="$(jq -r --arg rid "$RESERVATION_ID" '.family_reservations[]|select(.reservation_id==$rid)|.run_id' "$CONTRACT_FILE")"
+    api_get "/repos/${REPO}/actions/runs/${measured_run}" "${DIAGNOSIS_OUTPUT}.previous-run.json" || fail "measured_trigger_previous_run_unavailable"
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$RESERVATION_ID" "$REGISTRATIONS_FILE" "${DIAGNOSIS_OUTPUT}.previous-run.json" "$CAPTURE_RECEIPT_FILE" "$ROOT" <<'PY' || fail "measured_trigger_prerequisite_failed_no_rerun_sent"
+import json,pathlib,sys
+from ci_metrics_security import validate_next_comparison_trigger
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); registrations=pathlib.Path(sys.argv[3])
+validate_next_comparison_trigger(c,sys.argv[2],json.loads(registrations.read_text()) if registrations.exists() else None,
+    json.loads(pathlib.Path(sys.argv[4]).read_text()),json.loads(pathlib.Path(sys.argv[5]).read_text()),pathlib.Path(sys.argv[6]))
+PY
+  fi
   if [[ "$REQUEST_METHOD" == POST ]]; then
-    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" "$COMPARISON_ROLE" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" "$COMPARISON_ROLE" "$RESERVATION_ID" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
 import hashlib,json,pathlib,sys,time
 from ci_metrics_security import _comparison_budget_read,_comparison_budget_append
 c=json.loads(pathlib.Path(sys.argv[1]).read_text()); path=pathlib.Path(sys.argv[2]); ledger=_comparison_budget_read(path,c)
 prior=[row for row in ledger['records'] if row.get('kind')=='mutation']
-key=sys.argv[5] if c.get('preparation_order') else sys.argv[3]
+key=sys.argv[6] if c.get('sample_identity')=='run_id+run_attempt' else sys.argv[5] if c.get('preparation_order') else sys.argv[3]
 if len(prior)>=c.get('maximum_mutations',0) or any(row.get('mutation_key',row['endpoint'])==key for row in prior): raise SystemExit(1)
 if c.get('preparation_order') and (len(prior)>=len(c['preparation_order']) or c['preparation_order'][len(prior)]!=key): raise SystemExit(1)
 _comparison_budget_append(path,ledger,{'kind':'mutation','endpoint':sys.argv[3], 'at_epoch':int(time.time()),

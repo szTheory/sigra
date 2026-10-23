@@ -195,6 +195,161 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
     return sorted(set(diagnostics))
 
 
+def assemble_comparison_snapshots(contract: dict, inputs: list[pathlib.Path], destination: pathlib.Path) -> dict:
+    """Combine already retained attempts offline; never reacquire or replace a sample."""
+    import copy
+    import shutil
+    destination = pathlib.Path(destination)
+    if not inputs or destination.exists():
+        raise ValueError("comparison_assembly_inputs_or_destination_invalid")
+    manifests = []
+    sample_ids, reservations = set(), set()
+    frozen_keys = ("repository", "workflow", "source_sha", "workflow_sha256", "workflow_blob_sha",
+                   "source_file_sha256", "required_contexts", "required_rule_provenance", "active_rulesets", "measured_pr_identity")
+    for item in inputs:
+        root = pathlib.Path(item).resolve()
+        if any(path.is_symlink() for path in root.rglob('*')) or verify_snapshot_hashes(root):
+            raise ValueError("comparison_assembly_input_hash_invalid")
+        manifest = json.loads((root/'manifest.json').read_text())
+        collection = manifest.get('comparison_collection') or {}
+        if (manifest.get('status') != 'complete' or not manifest.get('comparison_families')
+                or collection.get('contract_sha256') != comparison_contract_sha256(contract)
+                or collection.get('role') not in ('before', 'after')):
+            raise ValueError("comparison_assembly_input_identity_invalid")
+        if manifests:
+            first = manifests[0][1]
+            if (any(manifest.get(key) != first.get(key) for key in frozen_keys)
+                    or collection['role'] != first['comparison_collection']['role']):
+                raise ValueError("comparison_assembly_source_or_rules_changed")
+            for name in ('effective-rules.json','branch-protection.json','rulesets.json'):
+                if (root/'raw'/name).read_bytes() != (manifests[0][0]/'raw'/name).read_bytes():
+                    raise ValueError("comparison_assembly_raw_rules_changed")
+        expected = set()
+        for family in manifest['comparison_families']:
+            sample = f"{family['run_id']}-attempt-{family['run_attempt']}" if contract.get('sample_identity')=='run_id+run_attempt' else str(family['run_id'])
+            reservation = family.get('reservation_id')
+            if sample in sample_ids or not reservation or reservation in reservations or family.get('family_role') != collection['role']:
+                raise ValueError("comparison_assembly_duplicate_or_wrong_role")
+            sample_ids.add(sample); reservations.add(reservation); expected.add(sample)
+        if {path.name for path in (root/'raw/families').iterdir()} != expected:
+            raise ValueError("comparison_assembly_family_set_invalid")
+        manifests.append((root, manifest))
+    first_root, first = manifests[0]
+    shutil.copytree(first_root, destination)
+    shutil.rmtree(destination/'raw/families')
+    (destination/'raw/families').mkdir()
+    output = copy.deepcopy(first)
+    output['comparison_families'] = []
+    requests, acquisitions, registrations, origins = [], [], [], []
+    populations = {}
+    for index, (root, manifest) in enumerate(manifests):
+        retained = destination/'raw/acquisition-passes'/f'{index:02d}'
+        retained.mkdir(parents=True)
+        for name in ('manifest.json','request-ledger.json','selection-ledger.json'):
+            shutil.copy2(root/name, retained/name)
+        shutil.copytree(root/'raw/populations',retained/'populations')
+        acquisitions.append({'manifest_path':str((retained/'manifest.json').relative_to(destination)),
+                             'manifest_sha256':_digest(retained/'manifest.json'), 'input_directory':str(root)})
+        for path in (root/'raw/families').iterdir():
+            shutil.copytree(path,destination/'raw/families'/path.name)
+        output['comparison_families'].extend(manifest['comparison_families'])
+        requests.extend(json.loads((root/'request-ledger.json').read_text()).get('requests') or [])
+        collection = manifest['comparison_collection']
+        registrations.extend(collection.get('registered_runs') or [])
+        origins.extend(collection.get('origin_verification') or [])
+        for name in ('pull_request','push_main','schedule','manual','release_push'):
+            doc = json.loads((root/'raw/populations'/f'{name}.json').read_text())
+            if name not in populations:
+                populations[name] = {**doc,'runs':[],'pages':[],'selected_run_ids':[],'api_total_count':0}
+            combined = populations[name]
+            combined['runs'].extend(doc.get('runs') or [])
+            combined['pages'].extend(doc.get('pages') or [])
+            combined['selected_run_ids'].extend(doc.get('selected_run_ids') or [r['id'] for r in doc.get('runs') or []])
+            combined['api_total_count'] += doc.get('api_total_count') or 0
+    def save(path, value):
+        path.write_text(json.dumps(value,sort_keys=True,separators=(',',':'))+'\n')
+    save(destination/'request-ledger.json',{'status':'complete','request_count':len(requests),'requests':requests,
+                                          'acquisition_passes':acquisitions,'network_requests_during_assembly':0})
+    save(destination/'selection-ledger.json',{'schema_version':'sigra.ci-run-metrics/selection-ledger-v1',
+        'cutoff_utc':first['cutoff_utc'],'populations':list(populations.values()),'acquisition_passes':acquisitions})
+    for name, doc in populations.items():
+        save(destination/'raw/populations'/f'{name}.json',doc)
+        output['source_sha256'][name] = _digest(destination/'raw/populations'/f'{name}.json')
+        output['populations'][name] = doc if name in ('pull_request','push_main','schedule') else {'population':name,'event':doc.get('event'),'records':doc['runs'],'api_total_count':doc['api_total_count']}
+    output['source_sha256']['request_ledger'] = _digest(destination/'request-ledger.json')
+    output['source_sha256']['selection_ledger'] = _digest(destination/'selection-ledger.json')
+    output['request_count'] = len(requests)
+    output['captured_at_utc'] = max(m['captured_at_utc'] for _,m in manifests)
+    output['comparison_collection'].update(registered_runs=registrations,origin_verification=origins,
+        origin_status='passed' if all(m['comparison_collection'].get('origin_status')=='passed' for _,m in manifests) else 'insufficient_data',
+        acquisition_passes=acquisitions,network_requests_during_assembly=0)
+    save(destination/'manifest.json',output)
+    issues = verify_snapshot_hashes(destination)
+    if issues:
+        raise ValueError('comparison_assembly_output_invalid:'+','.join(issues))
+    return {'status':'assembled','samples':len(sample_ids),'acquisition_passes':len(manifests),'network_requests':0}
+
+
+def verify_durable_attempt_capture(receipt: dict, root: pathlib.Path, run_id: int, attempt: int, source: str) -> None:
+    """A rerun may not hide an earlier attempt until its complete bytes are recoverable."""
+    import subprocess
+    root = pathlib.Path(root).resolve()
+    relative = receipt.get('capture_path','')
+    capture = (root/relative).resolve()
+    ref, commit = receipt.get('ref',''), receipt.get('commit','')
+    if (not relative or not capture.is_relative_to(root) or not capture.is_dir()
+            or not ref.startswith('refs/evidence/') or not re.fullmatch('[0-9a-f]{40}',commit)
+            or any(path.is_symlink() for path in capture.rglob('*'))):
+        raise ValueError('previous_attempt_capture_receipt_invalid')
+    def git(*args):
+        return subprocess.check_output(['git','-C',str(root),*args],stderr=subprocess.DEVNULL)
+    if git('rev-parse','--verify',ref).decode().strip() != commit:
+        raise ValueError('previous_attempt_capture_ref_changed')
+    files = {path.relative_to(root).as_posix():path for path in capture.rglob('*') if path.is_file()}
+    recorded = receipt.get('files') or {}
+    prefix = pathlib.Path(relative).as_posix().rstrip('/')+'/'
+    if set(files) != {name for name in recorded if name.startswith(prefix)}:
+        raise ValueError('previous_attempt_capture_file_set_incomplete')
+    for name,path in files.items():
+        if not _matches(path,recorded.get(name)) or hashlib.sha256(git('show',ref+':'+name)).hexdigest()!=recorded[name]:
+            raise ValueError('previous_attempt_capture_readback_failed')
+    if verify_snapshot_hashes(capture):
+        raise ValueError('previous_attempt_capture_hashes_invalid')
+    run = json.loads((capture/f'raw/families/{run_id}-attempt-{attempt}/run.json').read_text())
+    manifest = json.loads((capture/'manifest.json').read_text())
+    origin_file = capture/'preparation-origin-verification.json'
+    origins_valid = (manifest.get('comparison_collection') or {}).get('origin_status')=='passed'
+    if origin_file.is_file():
+        origins_valid = json.loads(origin_file.read_text()).get('status')=='origin_verified'
+    if (manifest.get('status')!='complete' or not origins_valid or run.get('id')!=run_id or run.get('run_attempt')!=attempt
+            or run.get('head_sha')!=source or run.get('status')!='completed' or run.get('conclusion')!='success'):
+        raise ValueError('previous_attempt_capture_not_successful_and_verified')
+
+
+def validate_next_comparison_trigger(contract: dict, reservation_id: str, registrations: dict | None,
+                                     prior_run: dict, receipt: dict, root: pathlib.Path, *, now=None) -> dict:
+    """Check the exact next reserved attempt, previous result, window and durable capture."""
+    import datetime
+    if contract.get('sample_identity')!='run_id+run_attempt' or validate_comparison_plan(contract):
+        raise ValueError('comparison_trigger_plan_invalid')
+    if registrations is not None and validate_comparison_registration_ledger(contract,registrations):
+        raise ValueError('comparison_trigger_registration_invalid')
+    rows = (registrations or {}).get('records') or []
+    reservations = contract.get('family_reservations') or []
+    if len(rows)>=len(reservations) or reservations[len(rows)].get('reservation_id')!=reservation_id:
+        raise ValueError('comparison_trigger_not_next_reserved_slot')
+    reservation = reservations[len(rows)]
+    current = now or datetime.datetime.now(datetime.timezone.utc)
+    if not _utc(contract['window']['start_utc']) <= current <= _utc(contract['window']['end_utc']):
+        raise ValueError('comparison_trigger_outside_frozen_window')
+    source = contract['baseline_application_sha'] if reservation['family_role']=='before' else contract['candidate_identity']['application_sha']
+    if (prior_run.get('id')!=reservation['run_id'] or prior_run.get('run_attempt')!=reservation['run_attempt']-1
+            or prior_run.get('head_sha')!=source or prior_run.get('status')!='completed' or prior_run.get('conclusion')!='success'):
+        raise ValueError('comparison_trigger_previous_attempt_changed_or_failed')
+    verify_durable_attempt_capture(receipt,root,reservation['run_id'],reservation['run_attempt']-1,source)
+    return reservation
+
+
 def validate_check_bindings(run: dict, attempt: int, jobs: list[dict], checks: list[dict], required: list[str]) -> list[str]:
     errors, by_attempt, _ = bind_required_checks_by_attempt(run, {str(attempt): jobs}, checks, required)
     if errors:
@@ -296,8 +451,47 @@ def comparison_native_inventories(contract: dict, role: str, root: pathlib.Path)
             raise ValueError("comparison_inventory_digest_invalid:" + name)
         return path.read_bytes()
 
+    def approved_workflow_equivalence(inventory_source, descriptor, actual_hash):
+        proof = ((contract.get('native_coverage_comparison') or {}).get('source_equivalence') or {}).get(role) or {}
+        if proof.get('inventory_source_sha') != inventory_source or proof.get('amended_source_sha') != source:
+            raise ValueError('comparison_inventory_workflow_amendment_not_approved')
+        authority = json.loads(retained(proof, 'authorization'))
+        snapshots = json.loads(retained(proof, 'snapshots'))
+        proposal_path = (root/authority.get('proposal_path','')).resolve()
+        if (authority.get('status') != 'approved' or not proposal_path.is_relative_to(root)
+                or not _matches(proposal_path, authority.get('proposal_sha256'))):
+            raise ValueError('comparison_inventory_amendment_authority_invalid')
+        proposal = json.loads(proposal_path.read_text())
+        snapshot = (snapshots.get('sources') or {}).get(role) or {}
+        if (snapshot.get('application_sha') != source or snapshot.get('workflow_sha256') != actual_hash
+                or snapshot.get('tree_sha') != git('rev-parse',source+'^{tree}').decode().strip()
+                or hashlib.sha256(git('show',inventory_source+':.github/workflows/ci.yml')).hexdigest() != descriptor.get('workflow_sha256')):
+            raise ValueError('comparison_inventory_amended_source_mismatch')
+        if role == 'before':
+            patch = (root/proposal.get('patch_path','')).resolve()
+            if (snapshot.get('reviewed_source') != inventory_source or not patch.is_relative_to(root)
+                    or not _matches(patch, authority.get('approved_patch_sha256'))
+                    or proposal.get('proposed_workflow_sha256') != actual_hash
+                    or proposal.get('original_workflow_sha256') != descriptor.get('workflow_sha256')):
+                raise ValueError('comparison_inventory_baseline_patch_mismatch')
+            changed = git('diff','--name-only',inventory_source,source).decode().splitlines()
+            fixture = 'test/sigra/planning/phase_232_playwright_economics_test.exs'
+            if changed != ['.github/workflows/ci.yml',fixture]:
+                raise ValueError('comparison_inventory_unapproved_baseline_changes')
+            old = git('show',inventory_source+':'+fixture)
+            expected = old.replace(b'assert shard =~ "image: public.ecr.aws/docker/library/postgres:15"',b'assert shard =~ "image: postgres:15"')
+            if git('show',source+':'+fixture) != expected:
+                raise ValueError('comparison_inventory_baseline_fixture_changed')
+        else:
+            reviewed = proposal.get('proposed_candidate_local_source_commit')
+            if (snapshot.get('reviewed_source') != reviewed
+                    or git('rev-parse',source+'^{tree}') != git('rev-parse',reviewed+'^{tree}')):
+                raise ValueError('comparison_inventory_candidate_not_reviewed')
+        return proof['authorization_sha256']
+
     result = {}
     for owner, row in rows.items():
+        approval = None
         descriptor = json.loads(retained(row, "descriptor"))
         selection = retained(row, "selection")
         inventory_source = row.get("inventory_source_sha")
@@ -309,8 +503,12 @@ def comparison_native_inventories(contract: dict, role: str, root: pathlib.Path)
             for field, path in (("workflow_sha256", ".github/workflows/ci.yml"),
                                 ("configuration_sha256", "test/example/priv/playwright/playwright.config.ts"),
                                 ("lock_sha256", "test/example/priv/playwright/package-lock.json")):
-                if hashlib.sha256(git("show", source + ":" + path)).hexdigest() != descriptor.get(field):
-                    raise ValueError("comparison_inventory_source_input_changed:" + field)
+                actual_hash = hashlib.sha256(git("show", source + ":" + path)).hexdigest()
+                if actual_hash != descriptor.get(field):
+                    if field == 'workflow_sha256':
+                        approval = approved_workflow_equivalence(inventory_source, descriptor, actual_hash)
+                    else:
+                        raise ValueError("comparison_inventory_source_input_changed:" + field)
         except subprocess.CalledProcessError as error:
             raise ValueError("comparison_inventory_source_unavailable") from error
         if (descriptor.get("schema_version") != "sigra.browser-coverage-source/v1"
@@ -318,8 +516,40 @@ def comparison_native_inventories(contract: dict, role: str, root: pathlib.Path)
                 or descriptor.get("source_sha") != inventory_source or len(descriptor.get("reports") or []) != 1
                 or descriptor["reports"][0].get("selection_sha256") != hashlib.sha256(selection).hexdigest()):
             raise ValueError("comparison_inventory_descriptor_invalid:" + owner)
-        result[owner] = {"descriptor": descriptor, "selection": selection, "inventory_source_sha": inventory_source}
+        result[owner] = {"descriptor": descriptor, "selection": selection, "inventory_source_sha": inventory_source,
+                         "workflow_authorization_sha256": approval}
     return result
+
+
+def comparison_runner_images(metadata: list[dict]) -> dict:
+    """Match images by the work they execute; equal image sets can hide owner drift."""
+    result = {}
+    for row in metadata:
+        owner = row.get('matrix_seam')
+        key = f"{row.get('job_name')} ({owner})" if owner else row.get('job_name')
+        image = row.get('runner_image') or {}
+        if (not key or key in result or not row.get('runner_os') or not row.get('runner_arch')
+                or not image.get('image_os') or not image.get('image_version')):
+            raise ValueError('comparison_runner_image_missing_or_duplicate_owner')
+        result[key] = {'runner_os':row['runner_os'],'runner_arch':row['runner_arch'],
+                       'image_os':image['image_os'],'image_version':image['image_version']}
+    return result
+
+
+def validate_profiled_receipt_sources(contract: dict, receipt: dict, root: pathlib.Path) -> None:
+    """Keep a historical profiling receipt intact while checking an approved source amendment."""
+    expected = {'before':contract.get('baseline_application_sha'),
+                'after':(contract.get('candidate_identity') or {}).get('application_sha')}
+    observed = {'before':receipt.get('baseline_source_sha'),'after':receipt.get('candidate_source_sha')}
+    if expected == observed:
+        return
+    proofs = ((contract.get('native_coverage_comparison') or {}).get('source_equivalence') or {})
+    for role in ('before','after'):
+        if (proofs.get(role) or {}).get('inventory_source_sha') != observed[role]:
+            raise ValueError('profiled_receipt_source_equivalence_missing')
+        inventories = comparison_native_inventories(contract,role,root)
+        if not all(row.get('workflow_authorization_sha256') for row in inventories.values()):
+            raise ValueError('profiled_receipt_amended_source_not_approved')
 
 
 def validate_producer_commit(source_sha: str, commit: dict, run: dict) -> list[str]:
