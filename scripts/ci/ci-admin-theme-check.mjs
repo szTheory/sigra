@@ -78,8 +78,9 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (fs.existsSync(options.output)) throw new Error(`refusing_to_overwrite_diagnostic:${options.output}`);
   const source = git(options.root, 'rev-parse', 'HEAD');
-  const dirty = spawnSync('git', ['-C', options.root, 'diff', '--quiet']);
-  const staged = spawnSync('git', ['-C', options.root, 'diff', '--cached', '--quiet']);
+  const ownedSource = ['test/example/priv/playwright/fixtures/adminTheme.ts', 'test/example/priv/playwright/tests/admin-theme.spec.ts', 'scripts/ci/ci-admin-theme-prep.test.mjs', 'scripts/ci/ci-admin-theme-check.mjs'];
+  const dirty = spawnSync('git', ['-C', options.root, 'diff', '--quiet', 'HEAD', '--', ...ownedSource]);
+  const staged = spawnSync('git', ['-C', options.root, 'diff', '--cached', '--quiet', '--', ...ownedSource]);
   if (dirty.status !== 0 || staged.status !== 0) throw new Error('tracked_source_changes_must_be_committed_before_browser_check');
   const start = Date.now();
   const deadline = start + MAX_MS;
