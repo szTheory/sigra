@@ -1,0 +1,659 @@
+{
+  "schema_version": "sigra.phase254.prep-profile/v1",
+  "captured_at": "2026-10-23T16:55:46.189Z",
+  "source_sha": "588497a4db5a5ab09ebb7e150f059f09f838943e",
+  "status": "profiled",
+  "scopes": {
+    "admin_behavior": {
+      "schema_version": "sigra.phase254.prep-profile-scope/v1",
+      "captured_at": "2026-10-23T16:53:31.260Z",
+      "status": "profiled",
+      "source_sha": "588497a4db5a5ab09ebb7e150f059f09f838943e",
+      "scope": "admin_behavior",
+      "components": [
+        {
+          "name": "disposable-checkout",
+          "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/repo\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/repo\" checkout --quiet --detach 588497a4db5a5ab09ebb7e150f059f09f838943e",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 1083,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/disposable-checkout.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "dependency-fetch",
+          "command": "set -euo pipefail\nmix deps.get",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 2047,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/dependency-fetch.log",
+          "log_sha256": "7dd05e62e409aa97ab9fb67bcf65f20e36ab9b8144b43496fbfe3f8417a5149b"
+        },
+        {
+          "name": "example-compilation",
+          "command": "set -euo pipefail\nmix compile --warnings-as-errors",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 19347,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/example-compilation.log",
+          "log_sha256": "cff099e084541e645e2374ce1de85062339947af00f434414c67c5be57caef4d"
+        },
+        {
+          "name": "database-mix-ecto-create",
+          "command": "set -euo pipefail\nmix ecto.create",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 747,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/database-mix-ecto-create.log",
+          "log_sha256": "7eabe0d4fb0baa5f83b9483a6a5073e8d238c87642ae2cc62deda6bef114d609"
+        },
+        {
+          "name": "database-mix-ecto-migrate",
+          "command": "set -euo pipefail\nmix ecto.migrate",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 982,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/database-mix-ecto-migrate.log",
+          "log_sha256": "99620ebbec5693ba4dcef98aec05cc63eacec588b2b639ee61beac11788607a8"
+        },
+        {
+          "name": "database-mix-run-priv-repo-seeds-exs",
+          "command": "set -euo pipefail\nmix run priv/repo/seeds.exs",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 1149,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/database-mix-run-priv-repo-seeds-exs.log",
+          "log_sha256": "44ddd732b1eb635cfc18dedd82a28cda1c267f23ae2b200f243f722c5d5f0fc9"
+        },
+        {
+          "name": "npm-ci",
+          "command": "set -euo pipefail\nnpm ci",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 1152,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/npm-ci.log",
+          "log_sha256": "c9b7246c3d70428a323367556133eda0889ddd49e2e87ded71428075475e59c8"
+        },
+        {
+          "name": "playwright-browser-install",
+          "command": "set -euo pipefail\nset -euo pipefail\nif [ \"$CACHE_HIT\" = \"true\" ]; then\n  npx playwright install-deps $BROWSERS\nelse\n  npx playwright install --with-deps $BROWSERS\nfi",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 27670,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/playwright-browser-install.log",
+          "log_sha256": "730e8bd7b35a187d244a64a4a95a4a29340a1c7629cfc8f2e3ec231d3baf3684"
+        },
+        {
+          "name": "app-readiness",
+          "command": [
+            "for i in $(seq 1 30); do",
+            "  if curl -sf \"$BASE_URL/\" > /dev/null; then",
+            "  sleep 1",
+            "  curl --fail --silent --output /dev/null \"$BASE_URL$path\" \\"
+          ],
+          "exit_code": 0,
+          "status": "measured",
+          "duration_ms": 1057,
+          "http_status": 200
+        },
+        {
+          "name": "route-warming",
+          "status": "measured",
+          "exit_code": 0,
+          "routes": [
+            {
+              "route": "/admin/users",
+              "http_status": 302,
+              "exit_code": 0,
+              "duration_ms": 2,
+              "status": "measured"
+            }
+          ]
+        },
+        {
+          "name": "database-cleanup",
+          "command": "mix ecto.drop --quiet",
+          "exit_code": 1,
+          "signal": null,
+          "error": null,
+          "duration_ms": 782,
+          "status": "failed",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/database-cleanup.log",
+          "log_sha256": "869c6206f23ff6db626cf4c5c388e264500b701e45e12c041e333cc7136df23b",
+          "log_excerpt": "** (Mix) the application :example has a different value set for key ExampleWeb.Endpoint during runtime compared to compile time. Since this application environment entry was marked as compile time, this difference can lead to different behavior than expected:\n\n  * Compile time value was set to: [url: [host: \"localhost\"], adapter: Bandit.PhoenixAdapter, render_errors: [formats: [html: ExampleWeb.ErrorHTML, json: ExampleWeb.ErrorJSON], layout: false], pubsub_server: Example.PubSub, live_view: [signing_salt: \"cZ8qNLxr\"], http: [ip: {127, 0, 0, 1}, port: 4141], check_origin: false, code_reloader: false, reloadable_apps: [:example, :sigra], debug_errors: true, secret_key_base: \"mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi\", watchers: [], live_reload: [web_console_logger: true, patterns: [~r/priv\\/static\\/(?!uploads\\/).*\\.(js|css|png|jpeg|jpg|gif|svg)$/E, ~r/priv\\/gettext\\/.*\\.po$/E, ~r/lib\\/example_web\\/router\\.ex$/E, ~r/lib\\/example_web\\/(controllers|live|components)\\/.*\\.(ex|heex)$/E]]]\n  * Runtime value was set to: [url: [host: \"localhost\"], adapter: Bandit.PhoenixAdapter, render_errors: [formats: [html: ExampleWeb.ErrorHTML, json: ExampleWeb.ErrorJSON], layout: false], pubsub_server: Example.PubSub, live_view: [signing_salt: \"cZ8qNLxr\"], http: [ip: {127, 0, 0, 1}, port: 4141], check_origin: false, code_reloader: true, reloadable_apps: [:example, :sigra], debug_errors: true, secret_key_base: \"mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi\", watchers: [], live_reload: [web_console_logger: true, patterns: [~r/priv\\/static\\/(?!uploads\\/).*\\.(js|css|png|jpeg|jpg|gif|svg)$/E, ~r/priv\\/gettext\\/.*\\.po$/E, ~r/lib\\/example_web\\/router\\.ex$/E, ~r/lib\\/example_web\\/(controllers|live|components)\\/.*\\.(ex|heex)$/E]]]\n\nTo fix this error, you might:\n\n  * Make the runtime value match the compile time one\n\n  * Recompile your project. If the misconfigured application is a dependency, you may need to run \"mix deps.clean example --build\"\n\n  * Alternatively, you can disable this check. If you are using releases, you can set :validate_compile_env to false in your release configuration. If you are using Mix to start your system, you can pass the --no-validate-compile-env flag\n\n\n",
+          "recovered_by": "database-cleanup-recovery"
+        },
+        {
+          "name": "database-cleanup-recovery",
+          "command": "dropdb --if-exists sigra_254_admin_behavior_33127",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 53,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-IIEwUV/logs/database-cleanup-recovery.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "native_github_timings": {
+        "setup_beam": {
+          "status": "unknown",
+          "reason": "GitHub Actions setup-beam step timing is not available in a local checkout"
+        },
+        "cache_restoration": {
+          "status": "unknown",
+          "reason": "GitHub Actions cache restoration timing is not available in a local checkout"
+        }
+      },
+      "acceptance": "development evidence only; not a hosted speed result and does not renew acceptance allowance",
+      "source": {
+        "source_sha": "588497a4db5a5ab09ebb7e150f059f09f838943e",
+        "source_dirty": false,
+        "action_sha256": "074bb63f04f84bf3cff749e854e0dff1942d3ab50c7655d8827786d936ef696f",
+        "workflow_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+        "scope": "admin_behavior",
+        "browser_selection": [
+          "chromium"
+        ],
+        "cache_identity": "cold task-local cache; no GitHub restore cache",
+        "cold_warm_identity": {
+          "current_run": "cold",
+          "warm_run": "not_run; task-local cache was not reused"
+        },
+        "instrumentation": {
+          "comparison_rule": "Use the same instrumentation identities on both runner paths. Preserve overhead disclosures; do not subtract overhead estimates from the improvement target.",
+          "exunit": {
+            "current_full_pr_overhead": {
+              "overhead_us": null,
+              "reason": "single instrumented hosted run; no paired same-selection uninstrumented run",
+              "status": "unmeasured"
+            },
+            "historical_overhead": {
+              "method": "median of five paired whole-mix-process elapsed-time differences (instrumented minus uninstrumented)",
+              "overhead_us": -60547,
+              "source": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
+              "status": "measured"
+            },
+            "identity": "Sigra.TestSupport.CiTimingFormatter/v1"
+          },
+          "playwright": {
+            "identity": "ci-playwright-report.mjs/playwright-json-1.59.1",
+            "overhead_ms": null,
+            "reason": "paired same-selection runs not recorded",
+            "status": "unmeasured"
+          }
+        },
+        "native_github_timings": {
+          "source_file": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
+          "source_file_sha256": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89",
+          "run_id": 38144377407,
+          "run_attempt": 1,
+          "job_id": 114484588723,
+          "outer_boot_action_step": {
+            "name": "Boot isolated example app",
+            "started_at": "2026-10-11T13:45:18Z",
+            "completed_at": "2026-10-11T13:46:18Z",
+            "duration_seconds": 60,
+            "status": "measured_outer_composite_step_only"
+          },
+          "setup_beam_internal": {
+            "status": "unknown",
+            "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+          },
+          "cache_restore_internal": {
+            "status": "unknown",
+            "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+          }
+        },
+        "phase253_candidate_behavior": [
+          {
+            "file": "ci-registration-setup-diagnostic.mjs",
+            "sha256": "9e23a0d5ab53e8ab8a2714601dac57de650bee011afd85fcad7739cee876deeb",
+            "phase": 253,
+            "cost": {
+              "status": "unknown",
+              "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+            }
+          },
+          {
+            "file": "ci-playwright-report.mjs",
+            "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+            "phase": 253,
+            "cost": {
+              "status": "unknown",
+              "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+            }
+          },
+          {
+            "file": "ci-registration-recovery.mjs",
+            "sha256": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+            "phase": 253,
+            "cost": {
+              "status": "unknown",
+              "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+            }
+          }
+        ],
+        "database": "sigra_254_admin_behavior_33127",
+        "port": 4141
+      },
+      "toolchain": {
+        "node": "v20.18.1",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "erlang": "28",
+        "playwright": "1.59.1"
+      },
+      "started_at": "2026-10-23T16:53:31.260Z",
+      "started_epoch": 1792774411260,
+      "completed_at": "2026-10-23T16:54:28.721Z",
+      "duration_ms": 57461,
+      "cleanup": {
+        "server_stopped": true,
+        "database_drop_recorded": true,
+        "task_local_cache_removed": true
+      }
+    },
+    "non_admin_smoke": {
+      "schema_version": "sigra.phase254.prep-profile-scope/v1",
+      "captured_at": "2026-10-23T16:54:31.437Z",
+      "status": "profiled",
+      "source_sha": "588497a4db5a5ab09ebb7e150f059f09f838943e",
+      "scope": "non_admin_smoke",
+      "components": [
+        {
+          "name": "disposable-checkout",
+          "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/repo\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/repo\" checkout --quiet --detach 588497a4db5a5ab09ebb7e150f059f09f838943e",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 1069,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/disposable-checkout.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "dependency-fetch",
+          "command": "set -euo pipefail\nmix deps.get",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 2110,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/dependency-fetch.log",
+          "log_sha256": "32e11841250f0246f5ed04193b45713e082eda2a980170fdefe994d7bf8c9b8f"
+        },
+        {
+          "name": "example-compilation",
+          "command": "set -euo pipefail\nmix compile --warnings-as-errors",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 20013,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/example-compilation.log",
+          "log_sha256": "3b804a49b7f85653789a511fe86ea36647f276b6559d2158e4cdee424e7ac56b"
+        },
+        {
+          "name": "database-mix-ecto-create",
+          "command": "set -euo pipefail\nmix ecto.create",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 811,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/database-mix-ecto-create.log",
+          "log_sha256": "7eabe0d4fb0baa5f83b9483a6a5073e8d238c87642ae2cc62deda6bef114d609"
+        },
+        {
+          "name": "database-mix-ecto-migrate",
+          "command": "set -euo pipefail\nmix ecto.migrate",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 1157,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/database-mix-ecto-migrate.log",
+          "log_sha256": "8e1af1219cbd92681ff4ea02dbcb15d7a0949638f8e45ec88454b92322a68f93"
+        },
+        {
+          "name": "database-mix-run-priv-repo-seeds-exs",
+          "command": "set -euo pipefail\nmix run priv/repo/seeds.exs",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 1047,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/database-mix-run-priv-repo-seeds-exs.log",
+          "log_sha256": "23591420b00fd5ee1a5cf632263f35770fd3034ebd633d596a30b2421e6dfbbe"
+        },
+        {
+          "name": "npm-ci",
+          "command": "set -euo pipefail\nnpm ci",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 1162,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/npm-ci.log",
+          "log_sha256": "effd90a519c3be46e22c64cc55a93845283acf5aa589a8c8b7fc981aaa6052e5"
+        },
+        {
+          "name": "playwright-browser-install",
+          "command": "set -euo pipefail\nset -euo pipefail\nif [ \"$CACHE_HIT\" = \"true\" ]; then\n  npx playwright install-deps $BROWSERS\nelse\n  npx playwright install --with-deps $BROWSERS\nfi",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 36488,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/playwright-browser-install.log",
+          "log_sha256": "e988b256d95652295d572d361d19cfaeee68bdccb8e4c903cf9db7a9a83bb241"
+        },
+        {
+          "name": "app-readiness",
+          "command": [
+            "for i in $(seq 1 30); do",
+            "  if curl -sf \"$BASE_URL/\" > /dev/null; then",
+            "  sleep 1",
+            "  curl --fail --silent --output /dev/null \"$BASE_URL$path\" \\"
+          ],
+          "exit_code": 0,
+          "status": "measured",
+          "duration_ms": 1063,
+          "http_status": 200
+        },
+        {
+          "name": "route-warming",
+          "status": "measured",
+          "exit_code": 0,
+          "routes": [
+            {
+              "route": "/users/log_in",
+              "http_status": 200,
+              "exit_code": 0,
+              "duration_ms": 10,
+              "status": "measured"
+            }
+          ]
+        },
+        {
+          "name": "database-cleanup",
+          "command": "mix ecto.drop --quiet",
+          "exit_code": 1,
+          "signal": null,
+          "error": null,
+          "duration_ms": 730,
+          "status": "failed",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/database-cleanup.log",
+          "log_sha256": "9e26c0a7c2607786b9ea35e042bfdf5dacbbb841a6ef71fa7225680173a05f3e",
+          "log_excerpt": "** (Mix) the application :example has a different value set for key ExampleWeb.Endpoint during runtime compared to compile time. Since this application environment entry was marked as compile time, this difference can lead to different behavior than expected:\n\n  * Compile time value was set to: [url: [host: \"localhost\"], adapter: Bandit.PhoenixAdapter, render_errors: [formats: [html: ExampleWeb.ErrorHTML, json: ExampleWeb.ErrorJSON], layout: false], pubsub_server: Example.PubSub, live_view: [signing_salt: \"cZ8qNLxr\"], http: [ip: {127, 0, 0, 1}, port: 4142], check_origin: false, code_reloader: false, reloadable_apps: [:example, :sigra], debug_errors: true, secret_key_base: \"mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi\", watchers: [], live_reload: [web_console_logger: true, patterns: [~r/priv\\/static\\/(?!uploads\\/).*\\.(js|css|png|jpeg|jpg|gif|svg)$/E, ~r/priv\\/gettext\\/.*\\.po$/E, ~r/lib\\/example_web\\/router\\.ex$/E, ~r/lib\\/example_web\\/(controllers|live|components)\\/.*\\.(ex|heex)$/E]]]\n  * Runtime value was set to: [url: [host: \"localhost\"], adapter: Bandit.PhoenixAdapter, render_errors: [formats: [html: ExampleWeb.ErrorHTML, json: ExampleWeb.ErrorJSON], layout: false], pubsub_server: Example.PubSub, live_view: [signing_salt: \"cZ8qNLxr\"], http: [ip: {127, 0, 0, 1}, port: 4142], check_origin: false, code_reloader: true, reloadable_apps: [:example, :sigra], debug_errors: true, secret_key_base: \"mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi\", watchers: [], live_reload: [web_console_logger: true, patterns: [~r/priv\\/static\\/(?!uploads\\/).*\\.(js|css|png|jpeg|jpg|gif|svg)$/E, ~r/priv\\/gettext\\/.*\\.po$/E, ~r/lib\\/example_web\\/router\\.ex$/E, ~r/lib\\/example_web\\/(controllers|live|components)\\/.*\\.(ex|heex)$/E]]]\n\nTo fix this error, you might:\n\n  * Make the runtime value match the compile time one\n\n  * Recompile your project. If the misconfigured application is a dependency, you may need to run \"mix deps.clean example --build\"\n\n  * Alternatively, you can disable this check. If you are using releases, you can set :validate_compile_env to false in your release configuration. If you are using Mix to start your system, you can pass the --no-validate-compile-env flag\n\n\n",
+          "recovered_by": "database-cleanup-recovery"
+        },
+        {
+          "name": "database-cleanup-recovery",
+          "command": "dropdb --if-exists sigra_254_non_admin_smoke_34089",
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "duration_ms": 61,
+          "status": "measured",
+          "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-uuCDsR/logs/database-cleanup-recovery.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "native_github_timings": {
+        "setup_beam": {
+          "status": "unknown",
+          "reason": "GitHub Actions setup-beam step timing is not available in a local checkout"
+        },
+        "cache_restoration": {
+          "status": "unknown",
+          "reason": "GitHub Actions cache restoration timing is not available in a local checkout"
+        }
+      },
+      "acceptance": "development evidence only; not a hosted speed result and does not renew acceptance allowance",
+      "source": {
+        "source_sha": "588497a4db5a5ab09ebb7e150f059f09f838943e",
+        "source_dirty": false,
+        "action_sha256": "074bb63f04f84bf3cff749e854e0dff1942d3ab50c7655d8827786d936ef696f",
+        "workflow_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+        "scope": "non_admin_smoke",
+        "browser_selection": [
+          "chromium",
+          "webkit"
+        ],
+        "cache_identity": "cold task-local cache; no GitHub restore cache",
+        "cold_warm_identity": {
+          "current_run": "cold",
+          "warm_run": "not_run; task-local cache was not reused"
+        },
+        "instrumentation": {
+          "comparison_rule": "Use the same instrumentation identities on both runner paths. Preserve overhead disclosures; do not subtract overhead estimates from the improvement target.",
+          "exunit": {
+            "current_full_pr_overhead": {
+              "overhead_us": null,
+              "reason": "single instrumented hosted run; no paired same-selection uninstrumented run",
+              "status": "unmeasured"
+            },
+            "historical_overhead": {
+              "method": "median of five paired whole-mix-process elapsed-time differences (instrumented minus uninstrumented)",
+              "overhead_us": -60547,
+              "source": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
+              "status": "measured"
+            },
+            "identity": "Sigra.TestSupport.CiTimingFormatter/v1"
+          },
+          "playwright": {
+            "identity": "ci-playwright-report.mjs/playwright-json-1.59.1",
+            "overhead_ms": null,
+            "reason": "paired same-selection runs not recorded",
+            "status": "unmeasured"
+          }
+        },
+        "native_github_timings": {
+          "source_file": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
+          "source_file_sha256": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89",
+          "run_id": 38144377407,
+          "run_attempt": 1,
+          "job_id": 114484588723,
+          "outer_boot_action_step": {
+            "name": "Boot isolated example app",
+            "started_at": "2026-10-11T13:45:18Z",
+            "completed_at": "2026-10-11T13:46:18Z",
+            "duration_seconds": 60,
+            "status": "measured_outer_composite_step_only"
+          },
+          "setup_beam_internal": {
+            "status": "unknown",
+            "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+          },
+          "cache_restore_internal": {
+            "status": "unknown",
+            "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+          }
+        },
+        "phase253_candidate_behavior": [
+          {
+            "file": "ci-registration-setup-diagnostic.mjs",
+            "sha256": "9e23a0d5ab53e8ab8a2714601dac57de650bee011afd85fcad7739cee876deeb",
+            "phase": 253,
+            "cost": {
+              "status": "unknown",
+              "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+            }
+          },
+          {
+            "file": "ci-playwright-report.mjs",
+            "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+            "phase": 253,
+            "cost": {
+              "status": "unknown",
+              "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+            }
+          },
+          {
+            "file": "ci-registration-recovery.mjs",
+            "sha256": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+            "phase": 253,
+            "cost": {
+              "status": "unknown",
+              "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+            }
+          }
+        ],
+        "database": "sigra_254_non_admin_smoke_34089",
+        "port": 4142
+      },
+      "toolchain": {
+        "node": "v20.18.1",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "erlang": "28",
+        "playwright": "1.59.1"
+      },
+      "started_at": "2026-10-23T16:54:31.437Z",
+      "started_epoch": 1792774471437,
+      "completed_at": "2026-10-23T16:55:38.576Z",
+      "duration_ms": 67139,
+      "cleanup": {
+        "server_stopped": true,
+        "database_drop_recorded": true,
+        "task_local_cache_removed": true
+      }
+    }
+  },
+  "cost_interpretation": "Observed command durations are distinct from possible savings. Regex buckets, the 293-second outer boot bucket and test_execution:5 are not component profiles.",
+  "native_github_timings": {
+    "source_file": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
+    "source_file_sha256": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89",
+    "run_id": 38144377407,
+    "run_attempt": 1,
+    "job_id": 114484588723,
+    "outer_boot_action_step": {
+      "name": "Boot isolated example app",
+      "started_at": "2026-10-11T13:45:18Z",
+      "completed_at": "2026-10-11T13:46:18Z",
+      "duration_seconds": 60,
+      "status": "measured_outer_composite_step_only"
+    },
+    "setup_beam_internal": {
+      "status": "unknown",
+      "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+    },
+    "cache_restore_internal": {
+      "status": "unknown",
+      "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+    }
+  },
+  "instrumentation_costs": {
+    "comparison_rule": "Use the same instrumentation identities on both runner paths. Preserve overhead disclosures; do not subtract overhead estimates from the improvement target.",
+    "exunit": {
+      "current_full_pr_overhead": {
+        "overhead_us": null,
+        "reason": "single instrumented hosted run; no paired same-selection uninstrumented run",
+        "status": "unmeasured"
+      },
+      "historical_overhead": {
+        "method": "median of five paired whole-mix-process elapsed-time differences (instrumented minus uninstrumented)",
+        "overhead_us": -60547,
+        "source": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
+        "status": "measured"
+      },
+      "identity": "Sigra.TestSupport.CiTimingFormatter/v1"
+    },
+    "playwright": {
+      "identity": "ci-playwright-report.mjs/playwright-json-1.59.1",
+      "overhead_ms": null,
+      "reason": "paired same-selection runs not recorded",
+      "status": "unmeasured"
+    }
+  },
+  "phase253_candidate_behavior": [
+    {
+      "file": "ci-registration-setup-diagnostic.mjs",
+      "sha256": "9e23a0d5ab53e8ab8a2714601dac57de650bee011afd85fcad7739cee876deeb",
+      "phase": 253,
+      "cost": {
+        "status": "unknown",
+        "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+      }
+    },
+    {
+      "file": "ci-playwright-report.mjs",
+      "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+      "phase": 253,
+      "cost": {
+        "status": "unknown",
+        "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+      }
+    },
+    {
+      "file": "ci-registration-recovery.mjs",
+      "sha256": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+      "phase": 253,
+      "cost": {
+        "status": "unknown",
+        "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+      }
+    }
+  ],
+  "hosted_comparison_runs_started": false,
+  "acceptance_status": "not_started",
+  "speed_target_claimed": false,
+  "source_readiness": {
+    "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-SOURCE-READINESS.json",
+    "sha256": "9cbf26c7f3c1b4bf77b3ac62d11e3e32f540fe7c863450de15c2af34741914c3",
+    "status": "ready",
+    "source_identities": [
+      {
+        "identity": "application_sha",
+        "sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "retained_ref": "refs/gsd/phase254/baseline-application"
+      },
+      {
+        "identity": "producer_source_sha",
+        "sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+        "retained_ref": "refs/gsd/phase254/baseline-producer"
+      }
+    ]
+  },
+  "baseline_cache_vector": {
+    "Example Playwright shard:admin_behavior": {
+      "browser_binaries": "hit",
+      "example_deps": "hit"
+    },
+    "Example Playwright shard:admin_checkpoints": {
+      "browser_binaries": "hit",
+      "example_deps": "hit"
+    },
+    "Example Playwright shard:demo_showcase": {
+      "browser_binaries": "hit",
+      "example_deps": "hit"
+    },
+    "Example Playwright shard:design_gallery": {
+      "browser_binaries": "hit",
+      "example_deps": "hit"
+    },
+    "Example Playwright shard:non_admin_smoke": {
+      "browser_binaries": "hit",
+      "example_deps": "hit"
+    },
+    "Library tests shard": {
+      "library_deps": "hit"
+    }
+  }
+}
