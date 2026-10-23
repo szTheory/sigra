@@ -115,6 +115,7 @@ empty={'schema_version':'sigra.ci-comparison-registration/v1','contract_sha256':
 (root/'empty-registrations.json').write_text(json.dumps(empty))
 PY
 run_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/contract.json" --registrations "$TMP/registrations.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --baseline-source-bundle "$TMP/baseline-source-bundle.tar.gz" --format json; }
+run_perf_eval() { bash "$ROOT/scripts/ci/ci-run-metrics.sh" --evaluate-comparison --contract "$TMP/performance-contract.json" --before-bundle "$TMP/before" --after-bundle "$TMP/after" --baseline-source-bundle "$TMP/baseline-source-bundle.tar.gz" --format json; }
 mkdir -p "$TMP/no-network-bin"
 cat >"$TMP/no-network-bin/gh" <<'GH'
 #!/usr/bin/env bash
@@ -157,6 +158,67 @@ assert sum(row.get('kind')=='request' for row in data['records'])==600
 PY
 run_eval >"$TMP/pass.json"
 jq -e '.status=="pass" and .performance_verdict=="pass" and .metrics.native_parity.status=="passed" and .metrics.native_parity.origin_status=="passed" and (.metrics.native_parity.comparisons|length)==100 and .metrics.pair_count==20 and .metrics.comparable_successful_pairs==20 and .metrics.baseline_median_seconds==210.5 and .metrics.baseline_p95_seconds==219 and .metrics.candidate_median_seconds==105 and .metrics.candidate_p95_seconds==109 and .metrics.baseline_runner_seconds==1400 and .metrics.candidate_runner_seconds==900 and (.metrics.overhead_disclosure.playwright.status=="unmeasured")' "$TMP/pass.json" >/dev/null
+cp -R "$TMP/before" "$TMP/before-original"
+cp -R "$TMP/after" "$TMP/after-original"
+cp "$TMP/contract.json" "$TMP/contract-original.json"
+python3 - "$TMP/contract.json" "$TMP/performance-contract.json" <<'PY'
+import json,pathlib,sys
+data=json.loads(pathlib.Path(sys.argv[1]).read_text()); data['native_coverage_comparison']['mapping_sha256']='0'*64
+pathlib.Path(sys.argv[2]).write_text(json.dumps(data))
+PY
+write_variant() {
+  python3 - "$TMP/before" "$TMP/after" "$1" <<'PY'
+import datetime,hashlib,json,pathlib,sys
+before,after=map(pathlib.Path,sys.argv[1:3]); variant=sys.argv[3]
+def read_time(value): return datetime.datetime.fromisoformat(value.replace('Z','+00:00'))
+def write_bundle(bundle,role,pair,wait=None,runner_seconds=None):
+    run_id=(1000 if role=='before' else 2000)+pair; family=bundle/'raw/families'/str(run_id)
+    jobs_path=family/'jobs-attempt-2.json'; check_path=family/'check-runs.json'; manifest_path=family/'manifest.json'
+    jobs=json.loads(jobs_path.read_text()); checks=json.loads(check_path.read_text()); manifest=json.loads(manifest_path.read_text())
+    created=read_time(json.loads((family/'run.json').read_text())['created_at'])
+    for job in jobs['jobs']:
+        match=next(check for check in checks['check_runs'] if check['external_id']==str(job['id']))
+        if wait is not None:
+            end=created+datetime.timedelta(seconds=wait)
+            job['completed_at']=end.isoformat().replace('+00:00','Z'); match['completed_at']=job['completed_at']
+            start=end-datetime.timedelta(seconds=5 if role=='after' else 10)
+            job['started_at']=start.isoformat().replace('+00:00','Z'); match['started_at']=job['started_at']
+        duration=runner_seconds
+        if duration is not None:
+            start=read_time(job['completed_at'])-datetime.timedelta(seconds=duration)
+            job['started_at']=start.isoformat().replace('+00:00','Z'); match['started_at']=job['started_at']
+    jobs_path.write_text(json.dumps(jobs,sort_keys=True)); check_path.write_text(json.dumps(checks,sort_keys=True))
+    manifest['attempt_jobs']['2']['sha256']=hashlib.sha256(jobs_path.read_bytes()).hexdigest()
+    manifest['check_runs_sha256']=hashlib.sha256(check_path.read_bytes()).hexdigest()
+    manifest_path.write_text(json.dumps(manifest,sort_keys=True))
+if variant=='wait_median_miss':
+    for pair in range(1,21): write_bundle(after,'after',pair,wait=200+pair)
+elif variant=='p95_miss':
+    write_bundle(after,'after',19,wait=300)
+    write_bundle(after,'after',20,wait=301)
+elif variant=='runner_miss': write_bundle(after,'after',20,runner_seconds=200)
+elif variant=='equality':
+    write_bundle(before,'before',11,wait=210)
+    for pair in range(1,21): write_bundle(after,'after',pair,wait=int((200+pair)*.8))
+else: raise SystemExit('unknown performance variant')
+PY
+}
+write_variant wait_median_miss
+run_perf_eval >"$TMP/wait-median-miss.json"
+jq -e '.status=="insufficient_data" and .performance_verdict=="miss" and .metrics.candidate_median_seconds>.8*.metrics.baseline_median_seconds and .metrics.candidate_p95_seconds<=.metrics.baseline_p95_seconds and .metrics.candidate_runner_seconds<=.metrics.baseline_runner_seconds' "$TMP/wait-median-miss.json" >/dev/null
+rm -rf "$TMP/before" "$TMP/after"; cp -R "$TMP/before-original" "$TMP/before"; cp -R "$TMP/after-original" "$TMP/after"
+write_variant p95_miss
+run_perf_eval >"$TMP/p95-miss.json"
+jq -e '.performance_verdict=="miss" and .metrics.candidate_median_seconds<=.8*.metrics.baseline_median_seconds and .metrics.candidate_p95_seconds>.metrics.baseline_p95_seconds and .metrics.candidate_runner_seconds<=.metrics.baseline_runner_seconds' "$TMP/p95-miss.json" >/dev/null
+rm -rf "$TMP/before" "$TMP/after"; cp -R "$TMP/before-original" "$TMP/before"; cp -R "$TMP/after-original" "$TMP/after"
+write_variant runner_miss
+run_perf_eval >"$TMP/runner-miss.json"
+jq -e '.performance_verdict=="miss" and .metrics.candidate_median_seconds<=.8*.metrics.baseline_median_seconds and .metrics.candidate_p95_seconds<=.metrics.baseline_p95_seconds and .metrics.candidate_runner_seconds>.metrics.baseline_runner_seconds' "$TMP/runner-miss.json" >/dev/null
+rm -rf "$TMP/before" "$TMP/after"; cp -R "$TMP/before-original" "$TMP/before"; cp -R "$TMP/after-original" "$TMP/after"
+write_variant equality
+run_perf_eval >"$TMP/threshold-equality.json"
+jq -e '.performance_verdict=="pass" and .metrics.candidate_median_seconds==.8*.metrics.baseline_median_seconds and .metrics.candidate_p95_seconds<=.metrics.baseline_p95_seconds and .metrics.candidate_runner_seconds<=.metrics.baseline_runner_seconds' "$TMP/threshold-equality.json" >/dev/null
+mv "$TMP/contract-original.json" "$TMP/contract.json"
 printf 'substituted baseline' >"$TMP/baseline-source-bundle.tar.gz"
 run_eval >"$TMP/baseline-bundle-mismatch.json"
 jq -e '.status=="insufficient_data" and any(.diagnostics[];.reason=="baseline_source_bundle_hash_mismatch")' "$TMP/baseline-bundle-mismatch.json" >/dev/null
