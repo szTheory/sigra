@@ -47,6 +47,9 @@ test('--check-only validates without writing an output record', () => {
     const run = spawnSync(process.execPath, [script, '--root', root, '--contract', contract, '--bundle', bundle, '--output', output, '--check-only'], { encoding: 'utf8' });
     assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
     assert.equal(requireExists(output), false);
+    const withoutOutput = spawnSync(process.execPath, [script, '--root', root, '--contract', contract, '--bundle', bundle, '--check-only'], { encoding: 'utf8' });
+    assert.equal(withoutOutput.status, 0, `${withoutOutput.stdout}\n${withoutOutput.stderr}`);
+    assert.equal(JSON.parse(withoutOutput.stdout).status, 'ready');
   } finally { rmSync(temp, { recursive: true, force: true }); }
 });
 

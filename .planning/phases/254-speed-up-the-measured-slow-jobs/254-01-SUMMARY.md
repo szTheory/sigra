@@ -30,7 +30,8 @@ key-decisions:
 patterns-established:
   - "A dependent CI optimization plan can check the exact frozen source identities before doing implementation work."
   - "Preparation step failures retain their exit and duration even when cleanup recovery succeeds."
-requirements-completed: [CISPEED-01, CISPEED-02]
+requirements-completed: []
+requirements-supported: [CISPEED-01, CISPEED-02]
 coverage:
   - id: D1
     description: Frozen source preflight checks both exact commits, retained refs, tree, archive, workflow and six workload file digests.

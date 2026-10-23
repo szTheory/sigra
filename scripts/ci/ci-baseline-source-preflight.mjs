@@ -20,7 +20,7 @@ function args(argv) {
     else if (['--root', '--contract', '--bundle', '--output'].includes(argv[i]) && argv[i + 1]) result[argv[i].slice(2)] = argv[++i];
     else throw new Error(`unknown_or_incomplete_argument:${argv[i]}`);
   }
-  for (const key of ['root', 'contract', 'bundle', 'output']) if (!result[key]) throw new Error(`missing_argument:--${key}`);
+  for (const key of ['root', 'contract', 'bundle', ...(result.checkOnly ? [] : ['output'])]) if (!result[key]) throw new Error(`missing_argument:--${key}`);
   return result;
 }
 function git(root, ...cmd) {
