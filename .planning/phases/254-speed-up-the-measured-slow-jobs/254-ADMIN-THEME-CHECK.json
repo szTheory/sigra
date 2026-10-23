@@ -2,15 +2,20 @@
   "schema_version": "sigra.phase254.admin-theme-check/v1",
   "status": "blocked",
   "mode": "tracer",
-  "source_sha": "bc70855f6c61d2145d46e10b5a512642f037ab5c",
-  "started_at": "2026-10-23T17:24:25.953Z",
+  "source_sha": "1ec4925512e5e31df22b4ef64c79bedf42df9906",
+  "started_at": "2026-10-23T17:25:36.071Z",
   "limits": {
     "max_duration_seconds": 1200,
     "max_workers": 1,
     "retries": 0,
     "hosted_runs": 0
   },
-  "source_digests": {},
+  "source_digests": {
+    "test/example/priv/playwright/fixtures/adminTheme.ts": "ea0b97a5abb65a6e7850e5a1afa666416848cc81b326513322b4639cf4c7ee06",
+    "test/example/priv/playwright/tests/admin-theme.spec.ts": "35fe564d38f8df14d1a4fd19b964c397168344088f7707edd8462b6ecdb05259",
+    "test/example/priv/playwright/playwright.config.ts": "e20b8cc4e2e4496aadaca8545054f3d30c7143a4488bbab1ccb49a3107a5ed56",
+    "test/example/priv/playwright/package-lock.json": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5"
+  },
   "commands": [
     {
       "name": "checkout-clone",
@@ -21,61 +26,191 @@
         "--shared",
         "--no-checkout",
         "/Users/jon/projects/sigra",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/repo"
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/repo"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 22,
+      "duration_ms": 25,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/logs/clone.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/clone.log"
     },
     {
       "name": "source-checkout",
       "command": [
         "git",
         "-C",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/repo",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/repo",
         "checkout",
         "--quiet",
         "--detach",
-        "bc70855f6c61d2145d46e10b5a512642f037ab5c"
+        "1ec4925512e5e31df22b4ef64c79bedf42df9906"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1094,
+      "duration_ms": 1336,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/logs/checkout.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/checkout.log"
     },
     {
-      "name": "initialize-isolated-postgres",
+      "name": "postgres-readiness",
       "command": [
-        "initdb",
-        "-D",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/postgres",
-        "-U",
+        "psql",
+        "-d",
         "postgres",
-        "--auth-local=trust",
-        "--auth-host=trust",
-        "--no-instructions"
+        "-Atqc",
+        "select 1"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 20,
+      "log_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/postgres-health.log"
+    },
+    {
+      "name": "dependency-fetch",
+      "command": [
+        "mix",
+        "deps.get",
+        "--check-locked"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 2243,
+      "log_sha256": "fab332ef79088f50f208763e795599ad1c4fc85d5a32271fb017999826c822c1",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/dependency-fetch.log"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 19698,
+      "log_sha256": "32aad9d119a000416190bbc6271c0344f8c1e9d9cc6e08a8bd06277230a75ce8",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/compile.log"
+    },
+    {
+      "name": "pinned-playwright-dependencies",
+      "command": [
+        "npm",
+        "ci"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 784,
+      "log_sha256": "3b806d30f8eb5bccbc4a5fe7fd3f9ae82cc0a28ca01a9250d10ff37c0caac246",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/npm-ci.log"
+    },
+    {
+      "name": "chromium-install",
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "install",
+        "chromium"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 29686,
+      "log_sha256": "068df522aa88c94c2fce39827682f01aaf8815c655ed2e987437e24f1d595d77",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/browser-install.log"
+    },
+    {
+      "name": "1-tracer-topbar-database-create",
+      "command": [
+        "mix",
+        "ecto.create",
+        "--quiet"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 825,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/1-tracer-topbar-database-create.log"
+    },
+    {
+      "name": "1-tracer-topbar-database-migrate",
+      "command": [
+        "mix",
+        "ecto.migrate",
+        "--quiet"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 957,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/1-tracer-topbar-database-migrate.log"
+    },
+    {
+      "name": "1-tracer-topbar-database-seed",
+      "command": [
+        "mix",
+        "run",
+        "priv/repo/seeds.exs"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1044,
+      "log_sha256": "541dcff2944edaeae3265af6d618c28b3652f986f4a71b45478417b79ec7754d",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-IjpQSO/logs/1-tracer-topbar-seeds.log"
+    }
+  ],
+  "browser_invocations": [
+    {
+      "name": "tracer-topbar",
+      "selected_title": "renders stable topbar controls and overview notice before deferred app JS",
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "tests/admin-theme.spec.ts",
+        "--project=chromium",
+        "--workers=1",
+        "--retries=0",
+        "--grep",
+        "^renders stable topbar controls and overview notice before deferred app JS$"
       ],
       "exit_code": 1,
       "signal": null,
-      "error": null,
-      "duration_ms": 771,
-      "log_sha256": "3daaa19738b428f35dd342e2f142505b1139126ac7a3368076b218411e83f2be",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/logs/postgres-init.log"
+      "duration_ms": 431,
+      "log_sha256": "10430d4abdbd108757550247ef54aa526417db51010e4fcac2d0bf16fe54e830",
+      "native_report_sha256": "55fa69e67f7c887307508b56932e2c335fb0b6159e1fdb3dff506f6a71fd12cf",
+      "native_report_status": {
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0
+      },
+      "safe_state": null,
+      "status": "failed"
     }
   ],
-  "browser_invocations": [],
-  "state_controls": [],
+  "state_controls": [
+    {
+      "name": "1-tracer-topbar-app-readiness",
+      "passed": true,
+      "http_status": 200,
+      "database_identity": "sigra_254_theme_57906_1_tracer_topbar"
+    }
+  ],
   "interpretation": "Local browser development diagnostics only; these results do not prove the CISPEED hosted median, p95, or runner-cost targets.",
   "failure": {
-    "message": "isolated_postgres_init_failed:1"
+    "message": "browser_invocation_failed:tracer-topbar:exit_1"
   },
-  "completed_at": "2026-10-23T17:24:27.863Z",
-  "duration_seconds": 2,
+  "completed_at": "2026-10-23T17:26:35.519Z",
+  "duration_seconds": 59,
   "cleanup": {
     "checkout_removed": true,
     "scoped_temp_removed": true
