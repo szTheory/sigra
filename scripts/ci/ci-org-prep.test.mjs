@@ -19,7 +19,7 @@ test('registered owner helper proves authenticated zero-organization state witho
   const helper = source.match(/async function assertAuthenticatedZeroOrganizationState\([\s\S]*?\n\}/)?.[0];
   assert.ok(helper, 'missing helper-return authentication assertion');
   assert.match(helper, /page\.request\.get\('\/organizations',\s*\{\s*maxRedirects:\s*0\s*\}\)/);
-  assert.match(helper, /response\.status\(\),\s*200/);
+  assert.match(helper, /expect\(response\.status\(\)\)\.toBe\(200\)/);
   assert.match(helper, /Create your first organization/);
 
   const ownerCalls = source.match(/await assertAuthenticatedZeroOrganizationState\(page\);/g) ?? [];
@@ -30,7 +30,7 @@ test('new-user owner starts organization creation directly after the authenticat
   const block = testBlock('organization invitations: new user accepts through the mailbox signup path');
   assert.match(block, /await registerAndConfirmUser\(page, ownerEmail, ownerPassword\);\s*await assertAuthenticatedZeroOrganizationState\(page\);\s*await createOrganizationFromZeroState/);
   assert.doesNotMatch(block, /await logInIfNeeded\(page, ownerEmail, ownerPassword\);/);
-  assert.match(block, /await inviteePage\.getByRole\('button', \{ name: `Create account & join \$\{orgName\}` \}\)\.click\(\);/);
+  assert.match(block, /await inviteePage\s*\.getByRole\('button', \{ name: `Create account & join \$\{orgName\}` \}\)\s*\.click\(\);/);
   assert.match(block, /await inviteePage\.fill\('#login_form input\[name="user\[email\]"\]'[\s\S]*?await inviteePage\.goto\(`\/organizations\/\$\{orgSlug\}\/members`\)/);
   assert.match(block, /pending-invitations-section/);
 });
