@@ -67,3 +67,7 @@ The installed index sees eight summaries and zero incomplete plans, including on
 Prior shared state and roadmap are recoverable at `f2cd83578701b4d212c7b4fc955d50179e867880` via `refs/gsd/phase254/state-before-hosted-halt`. Exact path/status/blob/hash and read-back results: `.planning/execution/254-final-state-prior.json`. Earlier wave-3 state preservation is recorded in `.planning/execution/254-state-before-wave3.json`.
 
 Phase 253 remains complete and verified at 6/6. Its 81 implementations, 29 halts and 73 retired unused plans remain distinct; old stopped attempts and allowances are unchanged. Canonical report: `.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md`. Its recovery history remains under `.planning/execution/253-final-gates/` and `.planning/execution/253-final-review/`.
+
+## Proposed unblock — awaiting decision
+
+The original baseline PR workflow can potentially be rerun at its original commit/ref. The current distinct-run-ID rule prevents using those reruns as forty registered observations. `.planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json` proposes an explicit amendment: attempt-scoped samples and timing, unchanged twenty-pair thresholds/window, plus at most two separate preparation invocations within60minutes/600HTTPrequests. No method or budget approval is inferred from this proposal. The original baseline rerun deadline is 2026-11-11T22:33:57+00:00. No scheduled notification was created; this session has no usable scheduling controls.

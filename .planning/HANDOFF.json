@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "timestamp": "2026-10-23T19:53:39.202034+00:00",
-  "updated_at": "2026-10-23T19:53:39.202034+00:00",
+  "updated_at": "2026-10-23T20:01:41.313172+00:00",
   "status": "blocked",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -137,5 +137,12 @@
     "extra_preparation_runs_authorized": false,
     "previous_phase253_allowances": "unchanged; not reused",
     "baseline_method_changed": false
+  },
+  "phase254_unblock_decision": {
+    "status": "awaiting_user_decision",
+    "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
+    "original_method_unchanged": true,
+    "notification_created": false,
+    "original_baseline_rerun_deadline_utc": "2026-11-11T22:33:57+00:00"
   }
 }
