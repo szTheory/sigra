@@ -285,6 +285,13 @@ test('coverage CLI accepts identical native product identities and rejects equal
       { before: ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'],
         after: ['chromium', 'tests/admin-behavior.spec.ts', ['tests/admin-behavior.spec.ts'], 'spec-0', 'actual useful case'], owner: 'admin_behavior', kind: 'product' },
     ] }));
+    const descriptorPath = join(after, 'coverage-source.json');
+    const descriptor = JSON.parse(readFileSync(descriptorPath, 'utf8'));
+    descriptor.reports[0].path = '../outside.json';
+    writeFileSync(descriptorPath, JSON.stringify(descriptor));
+    assert.notEqual(compareCoverage(before, after, mapping).status, 0, 'coverage report traversal must fail');
+    descriptor.reports[0].path = 'native.json';
+    writeFileSync(descriptorPath, JSON.stringify(descriptor));
     const same = compareCoverage(before, after, mapping);
     assert.equal(same.status, 0, same.stderr);
     assert.equal(JSON.parse(same.stdout).status, 'passed');

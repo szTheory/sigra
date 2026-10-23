@@ -12,7 +12,7 @@ const identityKeys = ['run_id', 'run_attempt', 'source_sha', 'event', 'workflow_
 function requireValue(condition, message) { if (!condition) throw new Error(message); }
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
-function confinedJSON(directory, path) {
+function confinedDocument(directory, path) {
   requireValue(typeof path === 'string' && path.length > 0 && !path.includes('\\') &&
     !path.split('/').some((part) => part === '..' || part === '' || part === '.'), 'unsafe report path');
   const anchor = realpathSync(directory);
@@ -27,7 +27,12 @@ function confinedJSON(directory, path) {
   }
   const stat = lstatSync(destination);
   requireValue(stat.isFile() && stat.size > 0 && stat.size <= 64 * 1024 * 1024, 'empty or oversized report');
-  return JSON.parse(readFileSync(destination, 'utf8'));
+  const bytes = readFileSync(destination);
+  return { value: JSON.parse(bytes.toString('utf8')), bytes };
+}
+
+function confinedJSON(directory, path) {
+  return confinedDocument(directory, path).value;
 }
 
 export function bodyPolicy(seam, event, workflow = readFileSync(resolve(root, '.github/workflows/ci.yml'), 'utf8')) {
@@ -149,12 +154,12 @@ function verifyCoverageSource(directory) {
   for (const ref of descriptor.reports) {
     requireValue(typeof ref.path === 'string' && typeof ref.selection_path === 'string', 'coverage native report reference invalid');
     requireValue(ref.source_sha === descriptor.source_sha, 'coverage report source origin mismatch');
-    for (const [path, key] of [[ref.path, 'sha256'], [ref.selection_path, 'selection_sha256']]) {
-      const bytes = readFileSync(resolve(directory, path));
+    const reportDoc = confinedDocument(directory, ref.path);
+    const selectionDoc = confinedDocument(directory, ref.selection_path);
+    const report = reportDoc.value;
+    const selection = selectionDoc.value;
+    for (const [path, key, bytes] of [[ref.path, 'sha256', reportDoc.bytes], [ref.selection_path, 'selection_sha256', selectionDoc.bytes]])
       requireValue(/^[0-9a-f]{64}$/.test(ref[key] ?? '') && digest(bytes) === ref[key], `coverage report digest mismatch: ${path}`);
-    }
-    const report = readCoverageJSON(directory, ref.path);
-    const selection = readCoverageJSON(directory, ref.selection_path);
     const selected = selectionRows(selection);
     const actual = normalizedProductRows(report, { seam: descriptor.seam, invocation: ref.path });
     requireValue(actual.length > 0 && selected.length > 0, 'empty coverage selection or native result');
