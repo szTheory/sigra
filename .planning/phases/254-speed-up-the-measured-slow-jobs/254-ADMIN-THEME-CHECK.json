@@ -2,8 +2,8 @@
   "schema_version": "sigra.phase254.admin-theme-check/v1",
   "status": "blocked",
   "mode": "tracer",
-  "source_sha": "8a12a761c70e02f8c3d226129e163a2a3a392257",
-  "started_at": "2026-10-23T17:23:45.517Z",
+  "source_sha": "bc70855f6c61d2145d46e10b5a512642f037ab5c",
+  "started_at": "2026-10-23T17:24:25.953Z",
   "limits": {
     "max_duration_seconds": 1200,
     "max_workers": 1,
@@ -21,41 +21,60 @@
         "--shared",
         "--no-checkout",
         "/Users/jon/projects/sigra",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/repo"
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/repo"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 24,
+      "duration_ms": 22,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/logs/clone.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/logs/clone.log"
     },
     {
       "name": "source-checkout",
       "command": [
         "git",
         "-C",
-        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/repo",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/repo",
         "checkout",
         "--quiet",
         "--detach",
-        "8a12a761c70e02f8c3d226129e163a2a3a392257"
+        "bc70855f6c61d2145d46e10b5a512642f037ab5c"
       ],
       "exit_code": 0,
       "signal": null,
       "error": null,
-      "duration_ms": 1464,
+      "duration_ms": 1094,
       "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-MLi1Dx/logs/checkout.log"
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/logs/checkout.log"
+    },
+    {
+      "name": "initialize-isolated-postgres",
+      "command": [
+        "initdb",
+        "-D",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/postgres",
+        "-U",
+        "postgres",
+        "--auth-local=trust",
+        "--auth-host=trust",
+        "--no-instructions"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "error": null,
+      "duration_ms": 771,
+      "log_sha256": "3daaa19738b428f35dd342e2f142505b1139126ac7a3368076b218411e83f2be",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin-theme-piYDXC/logs/postgres-init.log"
     }
   ],
   "browser_invocations": [],
   "state_controls": [],
   "interpretation": "Local browser development diagnostics only; these results do not prove the CISPEED hosted median, p95, or runner-cost targets.",
   "failure": {
-    "message": "pinned_toolchain_mismatch:v20.18.1/"
+    "message": "isolated_postgres_init_failed:1"
   },
-  "completed_at": "2026-10-23T17:23:47.109Z",
+  "completed_at": "2026-10-23T17:24:27.863Z",
   "duration_seconds": 2,
   "cleanup": {
     "checkout_removed": true,
