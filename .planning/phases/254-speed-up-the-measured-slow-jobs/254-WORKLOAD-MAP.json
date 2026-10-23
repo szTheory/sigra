@@ -36,7 +36,7 @@
   "candidate_result_source": {
     "status": "verified_native_reports",
     "source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
-    "integration_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-VERIFIED6.json",
+    "integration_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8.json",
     "native_directory": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE"
   },
   "owners": [

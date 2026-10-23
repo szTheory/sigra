@@ -217,11 +217,34 @@ function writeCoverageSource(directory, { owner, sourceSha, workflowSha, configu
 }
 
 function runCoverageComparison(root, beforeDirectory, afterDirectory, mappingPath) {
+  const started = Number(process.hrtime.bigint()) / 1e6;
   const comparison = spawnSync(process.execPath, [path.join(root, 'scripts/ci/ci-browser-records.mjs'), '--compare-coverage',
     '--before-directory', beforeDirectory, '--after-directory', afterDirectory, '--mapping', mappingPath],
   { cwd: root, encoding: 'utf8', timeout: 30_000 });
   if (comparison.status !== 0) throw new Error(`native_parity_compare_failed:${(comparison.stderr ?? comparison.stdout ?? '').trim().slice(0, 1000)}`);
-  return JSON.parse(comparison.stdout);
+  return { ...JSON.parse(comparison.stdout), duration_ms: Math.round(Number(process.hrtime.bigint()) / 1e6 - started) };
+}
+
+export function transferNativeEvidence(root, references, destination) {
+  const started = Number(process.hrtime.bigint()) / 1e6;
+  fs.mkdirSync(destination, { recursive: true });
+  const files = [];
+  for (const reference of references) {
+    const relativePath = reference.path;
+    if (typeof relativePath !== 'string' || path.isAbsolute(relativePath) || relativePath.split(/[\\/]/).includes('..')) throw new Error('native_evidence_transfer_path_invalid');
+    const source = path.resolve(root, relativePath);
+    const original = fs.readFileSync(source);
+    const originalHash = hash(original);
+    if (originalHash !== reference.sha256) throw new Error(`native_evidence_transfer_source_digest_mismatch:${relativePath}`);
+    const output = path.join(destination, path.basename(relativePath));
+    fs.copyFileSync(source, output);
+    const copied = fs.readFileSync(output);
+    const copiedHash = hash(copied);
+    if (copiedHash !== originalHash) throw new Error(`native_evidence_transfer_copy_digest_mismatch:${relativePath}`);
+    files.push({ path: relativePath, sha256: copiedHash, bytes: copied.length });
+  }
+  return { status: 'measured', duration_ms: Math.round(Number(process.hrtime.bigint()) / 1e6 - started),
+    bytes: files.reduce((sum, file) => sum + file.bytes, 0), files };
 }
 
 export function sanitizeLog(log) {
@@ -674,6 +697,8 @@ async function runWorkload(options) {
         const baselineReportName = path.basename(ownerMapping.baseline.report);
         const candidateExpectedFiles = Object.fromEntries((ownerRecord?.native_reports ?? []).map((entry) => [path.basename(entry.path), entry.sha256]));
         const baselineExpectedFiles = { [baselineReportName]: ownerMapping.baseline.sha256, [baselineSelection.file]: baselineSelection.sha256 };
+        const transfer = transferNativeEvidence(path.dirname(reportRoot), ownerRecord?.native_reports ?? [], path.join(scratch, 'native-evidence-transfer', owner));
+        ownerRecord.native_evidence_transfer = transfer;
         const baselineDirectory = path.join(beforeRoot, owner);
         const candidateDirectory = path.join(reportRoot, owner);
         writeCoverageSource(baselineDirectory, { owner, sourceSha: map.baseline.application_sha,
@@ -722,7 +747,10 @@ async function runWorkload(options) {
     fs.writeFileSync(mapPath, `${JSON.stringify(nativeMap, null, 2)}\n`);
     const mappingSha = hash(fs.readFileSync(mapPath));
     result.workload_map_sha256 = mappingSha;
-    result.parity = { status: mapStatus ? 'passed' : 'blocked', mapping_sha256: mappingSha, owners: comparisons };
+    result.parity = { status: mapStatus ? 'passed' : 'blocked', mapping_sha256: mappingSha, owners: comparisons,
+      validation_duration_ms: comparisons.reduce((sum, item) => sum + (item.result?.duration_ms ?? 0), 0),
+      transfer_duration_ms: result.owner_runs.reduce((sum, owner) => sum + (owner.native_evidence_transfer?.duration_ms ?? 0), 0),
+      transfer_bytes: result.owner_runs.reduce((sum, owner) => sum + (owner.native_evidence_transfer?.bytes ?? 0), 0) };
     result.native_parity_receipt = { schema_version: 'sigra.browser-parity-receipt/v1', status: result.parity.status,
       mapping_sha256: mappingSha, baseline_source_sha: map.baseline.application_sha, candidate_source_sha: sourceSha,
       event: result.comparison_event, workflow_sha256: result.workflow_sha256,

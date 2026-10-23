@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { browserOwnerBaseURL, buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, parseWorkflowBrowserOwners, runMeasuredCommand, runMeasuredProcess, sanitizeLog, versionFromOutput } from './ci-prep-profile.mjs';
+import { browserOwnerBaseURL, buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, parseWorkflowBrowserOwners, runMeasuredCommand, runMeasuredProcess, sanitizeLog, transferNativeEvidence, versionFromOutput } from './ci-prep-profile.mjs';
 
 test('profile CLI accepts source-bound preparation comparison mode', () => {
   assert.deepEqual(parseArgs(['--root', '.', '--scope', 'admin_behavior', '--mode', 'compare-preparation', '--output', 'setup.json']), {
@@ -65,6 +66,22 @@ test('measured process passes shell metacharacters as literal arguments', () => 
     assert.equal(result.exit_code, 0);
     assert.equal(readFileSync(result.log_path, 'utf8'), literal);
     assert.equal(existsSync(marker), false);
+  } finally { rmSync(temp, { recursive: true, force: true }); }
+});
+
+test('native evidence transfer measures bytes and verifies the exact source digest', () => {
+  const temp = mkdtempSync(path.join(os.tmpdir(), 'prep-profile-transfer-'));
+  try {
+    const source = path.join(temp, 'native.json');
+    const destination = path.join(temp, 'transferred');
+    const bytes = Buffer.from('{"native":true}\n');
+    writeFileSync(source, bytes);
+    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    const result = transferNativeEvidence(temp, [{ path: 'native.json', sha256 }], destination);
+    assert.equal(result.status, 'measured');
+    assert.equal(result.bytes, bytes.length);
+    assert.equal(result.files[0].sha256, sha256);
+    assert.throws(() => transferNativeEvidence(temp, [{ path: 'native.json', sha256: '0'.repeat(64) }], path.join(temp, 'bad')), /source_digest_mismatch/);
   } finally { rmSync(temp, { recursive: true, force: true }); }
 });
 
