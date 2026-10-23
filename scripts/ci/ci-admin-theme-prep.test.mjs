@@ -24,3 +24,12 @@ test('admin theme fixture setup uses anonymous registration and deletes auth byt
   assert.match(source, /rmSync\(.*storagePath/s);
   assert.doesNotMatch(source, /catch\s*\([^)]*\)\s*\{\s*\/\/\s*ignore/s);
 });
+
+test('browser runner drops only a database it created when a browser invocation fails', () => {
+  const runnerPath = new URL('./ci-admin-theme-check.mjs', import.meta.url);
+  const source = fs.readFileSync(runnerPath, 'utf8');
+
+  assert.match(source, /if \(dbName && dbOwned && cleanupContext\)/);
+  assert.match(source, /dropdb', \['--if-exists', dbName\]/);
+  assert.match(source, /database-drop-after-failure/);
+});

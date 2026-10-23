@@ -106,6 +106,7 @@ async function main() {
   let dbOwned = false;
   let failure = null;
   let browserPath = null;
+  let cleanupContext = null;
   let nodePath = process.env.PATH;
   let port = null;
   try {
@@ -139,6 +140,7 @@ async function main() {
     fs.mkdirSync(env.PLAYWRIGHT_BROWSERS_PATH, { recursive: true });
     const example = path.join(checkout, 'test/example');
     const playwright = path.join(example, 'priv/playwright');
+    cleanupContext = { example, env };
     for (const [name, command] of [['dependency-fetch', ['deps.get', '--check-locked']], ['compile', ['compile', '--warnings-as-errors']]]) {
       const result = run('mix', command, { cwd: example, env, log: path.join(logs, `${name}.log`) }, deadline);
       record.commands.push({ name, ...result }); save();
@@ -236,6 +238,14 @@ async function main() {
     record.status = 'blocked';
   } finally {
     if (app) await stopProcess(app);
+    if (dbName && dbOwned && cleanupContext) {
+      const drop = run('dropdb', ['--if-exists', dbName], { cwd: cleanupContext.example, env: cleanupContext.env, log: path.join(logs, 'database-drop-after-failure.log') }, deadline);
+      record.commands.push({ name: 'database-drop-after-failure', ...drop });
+      record.cleanup = { ...(record.cleanup ?? {}), database_name: dbName, database_drop_exit: drop.exit_code, database_restored: drop.exit_code === 0 };
+      if (drop.exit_code !== 0 && !failure) { failure = 'owned_database_cleanup_failed'; record.status = 'blocked'; record.failure = { message: failure }; }
+      if (drop.exit_code === 0) { dbName = null; dbOwned = false; }
+      save();
+    }
     record.completed_at = new Date().toISOString();
     record.duration_seconds = Math.round((Date.now() - start) / 1000);
     fs.rmSync(temp, { recursive: true, force: true });
