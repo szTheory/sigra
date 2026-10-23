@@ -1,0 +1,1225 @@
+{
+  "schema": "sigra.phase253.hermetic-live-audit/v1",
+  "audit_head": "3d8ef2a47605bb981ee6acb7c706af711cf726b9",
+  "matcher": {
+    "files": [
+      "scripts/ci/ci-hosted-transport.py",
+      "scripts/ci/ci-gate-canary.sh",
+      "scripts/ci/ci-pr-proof.sh",
+      "scripts/ci/ci-git-publication.py",
+      "scripts/ci/ci-hosted-gate-verify.py"
+    ],
+    "skip": "blank lines, lines whose first non-space character is #, and text inside triple-quoted strings",
+    "literal_strip": "a quoted literal that contains whitespace and neither == nor != (a message, not a compared value) is replaced by an empty literal before matching",
+    "topic": "hermetic|HERMETIC|test_origin|test_ca_file|[\\\"']live[\\\"']|synthetic|API_HOST|dryrun_window|DRYRUN_WINDOW_PREFIX",
+    "condition": "^\\s*(if|elif|while|assert)\\b|\\bif\\b.*\\belse\\b|==|!=|\\[\\[|jq -e|\\bnot in\\b|\\band\\b|\\bor\\b|\\brequire\\(",
+    "selector": "require_live_origin|--require-live-origin",
+    "selector_excludes": "add_argument\\(|^\\s*def ",
+    "rule": "a line is a site when condition and topic both match its stripped code, or when selector matches it and selector_excludes does not; a site is keyed by file, its exact stripped source line (anchor) and the 1-based occurrence of that exact line in the file"
+  },
+  "match_counts": {
+    "scripts/ci/ci-hosted-transport.py": 25,
+    "scripts/ci/ci-gate-canary.sh": 6,
+    "scripts/ci/ci-pr-proof.sh": 2,
+    "scripts/ci/ci-git-publication.py": 8,
+    "scripts/ci/ci-hosted-gate-verify.py": 28
+  },
+  "rows": [
+    {
+      "id": "transport-262",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if allocation.get(\"mode\") != \"hermetic-test\":",
+      "occurrence": 1,
+      "line": 262,
+      "hermetic_behavior": "A hermetic allocation may use the test_probe/test_page routes, on its exact local HTTPS origin only.",
+      "live_behavior": "A live allocation refuses every test-only route with test_origin_rejected before any socket.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::LivePolicyAllocationTests.test_live_allocation_refuses_every_test_only_route"
+        ]
+      }
+    },
+    {
+      "id": "transport-274",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "hermetic_collector = allocation.get(\"mode\") == \"hermetic-test\" and allocation.get(\"allocation_kind\") == \"production\"",
+      "occurrence": 1,
+      "line": 274,
+      "hermetic_behavior": "A hermetic production allocation routes the PR collector's routes to its local origin.",
+      "live_behavior": "False for every live allocation, so no route is redirected to a test origin.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com",
+          "scripts/ci/ci-git-publication.test.py::test_git_object_tree_route_is_live_repo_bound_and_post_only",
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_token_reaches_api_github_only_and_the_shim_refused_nothing"
+        ]
+      }
+    },
+    {
+      "id": "transport-277",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "hermetic_canary = (allocation.get(\"mode\") == \"hermetic-test\" and allocation.get(\"allocation_kind\") == \"canary\"",
+      "occurrence": 1,
+      "line": 277,
+      "hermetic_behavior": "A hermetic canary-kind allocation routes every canary route to its local origin (253-101).",
+      "live_behavior": "False for every live allocation; canary routes stay on api.github.com:443.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com"
+        ]
+      }
+    },
+    {
+      "id": "transport-278",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "and route_id in HERMETIC_CANARY_ROUTES)",
+      "occurrence": 1,
+      "line": 278,
+      "hermetic_behavior": "Limits the hermetic canary rerouting to HERMETIC_CANARY_ROUTES.",
+      "live_behavior": "Not evaluated: the expression short-circuits on mode == hermetic-test.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com"
+        ]
+      }
+    },
+    {
+      "id": "transport-279",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "hermetic_collector = hermetic_collector or hermetic_canary",
+      "occurrence": 1,
+      "line": 279,
+      "hermetic_behavior": "Either hermetic flag sends the route to the local origin.",
+      "live_behavior": "Both flags are false, so hermetic_collector stays false.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com",
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_token_reaches_api_github_only_and_the_shim_refused_nothing"
+        ]
+      }
+    },
+    {
+      "id": "transport-280",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if (git_object_route or hermetic_collector) and allocation.get(\"mode\") == \"hermetic-test\":",
+      "occurrence": 1,
+      "line": 280,
+      "hermetic_behavior": "Git object and hermetic collector/canary routes resolve to the validated local HTTPS origin.",
+      "live_behavior": "Skipped; the live elif resolves the route to api.github.com:443.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com",
+          "scripts/ci/ci-git-publication.test.py::test_git_object_tree_route_is_live_repo_bound_and_post_only",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_allocation_is_really_live"
+        ]
+      }
+    },
+    {
+      "id": "transport-286",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "elif allocation.get(\"mode\") == \"live\":",
+      "occurrence": 1,
+      "line": 286,
+      "hermetic_behavior": "Not reached for a hermetic allocation whose route matched the hermetic branch.",
+      "live_behavior": "Every route of a live allocation resolves to api.github.com:443.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com",
+          "scripts/ci/ci-git-publication.test.py::test_git_object_tree_route_is_live_repo_bound_and_post_only",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_allocation_is_really_live"
+        ]
+      }
+    },
+    {
+      "id": "transport-291",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if allocation.get(\"mode\") != \"live\" and not ((git_object_route or hermetic_collector) and allocation.get(\"mode\") == \"hermetic-test\"):",
+      "occurrence": 1,
+      "line": 291,
+      "hermetic_behavior": "Refuses a non-git, non-collector route under a hermetic allocation (live allocation required).",
+      "live_behavior": "Passes: a live allocation may use every typed GitHub route.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_allocation_is_really_live",
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_token_reaches_api_github_only_and_the_shim_refused_nothing"
+        ]
+      }
+    },
+    {
+      "id": "transport-455",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if mode not in {\"live\", \"hermetic-test\"}:",
+      "occurrence": 1,
+      "line": 455,
+      "hermetic_behavior": "hermetic-test is an accepted allocation mode.",
+      "live_behavior": "live is an accepted allocation mode; any other mode is refused with allocation_mode.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_allocation_is_really_live",
+          "scripts/ci/ci-hosted-transport.test.py::LivePolicyAllocationTests.test_live_unknown_allocation_mode_is_refused"
+        ]
+      }
+    },
+    {
+      "id": "transport-461",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "allowed = common | test_only if mode == \"hermetic-test\" else common",
+      "occurrence": 1,
+      "line": 461,
+      "hermetic_behavior": "A hermetic allocation may carry test_origin and test_ca_file.",
+      "live_behavior": "A live allocation may carry only the common fields; test fields are unapproved.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_allocation_is_really_live"
+        ]
+      }
+    },
+    {
+      "id": "transport-464",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if mode == \"live\" and set(allocation) & test_only:",
+      "occurrence": 1,
+      "line": 464,
+      "hermetic_behavior": "Not reached for hermetic allocations.",
+      "live_behavior": "A live allocation naming test_origin or test_ca_file is refused with test_origin_rejected.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com"
+        ]
+      }
+    },
+    {
+      "id": "transport-479",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "min_requests = 0 if mode == \"hermetic-test\" else 1",
+      "occurrence": 1,
+      "line": 479,
+      "hermetic_behavior": "A hermetic canary allocation may have max_requests 0.",
+      "live_behavior": "A live canary allocation needs at least one request.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::LivePolicyAllocationTests.test_live_canary_max_requests_is_one_through_117_while_hermetic_may_be_zero"
+        ]
+      }
+    },
+    {
+      "id": "transport-483",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "elif mode == \"live\":",
+      "occurrence": 1,
+      "line": 483,
+      "hermetic_behavior": "Not reached for hermetic canary allocations (else branch, same range).",
+      "live_behavior": "A live canary allocation's max_requests must be within 1..117.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::LivePolicyAllocationTests.test_live_canary_max_requests_is_one_through_117_while_hermetic_may_be_zero",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com"
+        ]
+      }
+    },
+    {
+      "id": "transport-507",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if mode == \"live\":",
+      "occurrence": 1,
+      "line": 507,
+      "hermetic_behavior": "Not reached; a hermetic allocation instead needs its test origin and CA.",
+      "live_behavior": "A live allocation needs a unique download_hosts list of only pipelines.actions.githubusercontent.com and productionresultssaN.blob.core.windows.net.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::LivePolicyAllocationTests.test_live_download_hosts_must_be_a_unique_list_of_trusted_hosts_only",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_allocation_is_really_live"
+        ]
+      }
+    },
+    {
+      "id": "transport-515",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "elif not allocation.get(\"test_origin\") or not allocation.get(\"test_ca_file\"):",
+      "occurrence": 1,
+      "line": 515,
+      "hermetic_behavior": "A hermetic allocation without test_origin or test_ca_file is refused.",
+      "live_behavior": "Not reached: the live branch above validates download_hosts instead.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_allocation_is_really_live",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com"
+        ]
+      }
+    },
+    {
+      "id": "transport-570",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if allocation.get(\"mode\") == \"hermetic-test\":",
+      "occurrence": 1,
+      "line": 570,
+      "hermetic_behavior": "The TLS context additionally trusts the allocation's test CA file, which must exist.",
+      "live_behavior": "The default system-trust TLS context is used, with SNI on the real host names.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host",
+          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_follow_to_pipelines_host_without_authorization"
+        ],
+        "residual_risk": "the live-policy shim patches ssl.create_default_context to trust the local fake's CA, so validation of GitHub's real certificate chain against the system trust store only runs in a hosted window"
+      }
+    },
+    {
+      "id": "transport-594",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if allocation.get(\"mode\") != \"hermetic-test\":",
+      "occurrence": 2,
+      "line": 594,
+      "hermetic_behavior": "A hermetic allocation is exempt from the live origin rule (the 253-104 blind spot).",
+      "live_behavior": "Hop 0 must be api.github.com:443; a later hop must be an approved trusted download host on a download route.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_direct_destination_calls_outside_the_live_hop_rule_are_refused_before_the_predebit",
+          "scripts/ci/ci-hosted-transport.test.py::test_direct_destination_call_on_a_fresh_window_leaves_no_ledger",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host"
+        ]
+      }
+    },
+    {
+      "id": "transport-599",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if host != API_HOST or port != 443:",
+      "occurrence": 1,
+      "line": 599,
+      "hermetic_behavior": "Not reached for hermetic allocations.",
+      "live_behavior": "Hop 0 (or no destination) to any host or port other than api.github.com:443 is origin_rejected.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_direct_destination_calls_outside_the_live_hop_rule_are_refused_before_the_predebit",
+          "scripts/ci/ci-hosted-transport.test.py::test_direct_destination_call_on_a_fresh_window_leaves_no_ledger",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host"
+        ]
+      }
+    },
+    {
+      "id": "transport-664",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if host == API_HOST:",
+      "occurrence": 1,
+      "line": 664,
+      "hermetic_behavior": "The local origin is never api.github.com, so no token is read or sent.",
+      "live_behavior": "The token is read and sent only to api.github.com, never to a download host; none is authentication_unavailable.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host",
+          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_follow_to_pipelines_host_without_authorization",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_same_live_allocation_without_overrides_gets_past_the_refusal"
+        ]
+      }
+    },
+    {
+      "id": "transport-673",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "headers = {\"Accept\": \"application/vnd.github+json\" if host == API_HOST else \"application/json\",",
+      "occurrence": 1,
+      "line": 673,
+      "hermetic_behavior": "The local origin gets Accept: application/json.",
+      "live_behavior": "api.github.com gets the GitHub JSON media type and a download host gets application/json.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_accept_header_is_github_json_on_api_github_com_and_plain_json_on_the_download_host"
+        ]
+      }
+    },
+    {
+      "id": "transport-816",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if allocation.get(\"mode\") == \"hermetic-test\":",
+      "occurrence": 2,
+      "line": 816,
+      "hermetic_behavior": "A redirect must stay on the exact local test origin and port.",
+      "live_behavior": "A redirect must go to a trusted download host present in download_hosts (elif branch).",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_an_untrusted_host_is_refused_before_its_socket",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_a_lookalike_host_is_refused_before_its_socket",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_port_8443_is_refused_before_its_socket",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_a_policy_trusted_host_absent_from_download_hosts_is_refused",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_api_github_com_is_refused_because_it_is_never_a_download_host",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host",
+          "scripts/ci/ci-hosted-transport.test.py::test_run_logs_follow_to_pipelines_host_without_authorization"
+        ]
+      }
+    },
+    {
+      "id": "transport-818",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if host != test_origin.hostname or port != test_origin.port:",
+      "occurrence": 1,
+      "line": 818,
+      "hermetic_behavior": "A redirect off the exact local origin is redirect_rejected.",
+      "live_behavior": "Not reached: the live elif applies the trusted download-host predicate.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_an_untrusted_host_is_refused_before_its_socket",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_a_lookalike_host_is_refused_before_its_socket",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_port_8443_is_refused_before_its_socket",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_a_policy_trusted_host_absent_from_download_hosts_is_refused",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_redirect_to_api_github_com_is_refused_because_it_is_never_a_download_host",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host"
+        ]
+      }
+    },
+    {
+      "id": "transport-998",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if allocation.get(\"mode\") == \"hermetic-test\" and request.get(\"route_id\") == \"test_page\":",
+      "occurrence": 1,
+      "line": 998,
+      "hermetic_behavior": "A test_page Link must name the next typed local /page/N route.",
+      "live_behavior": "Not reached: live Links are checked by the api.github.com rule below.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_pagination_follows_an_api_github_com_next_link_as_a_second_charged_api_request",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_pagination_refuses_every_link_off_api_github_com_or_off_the_route_before_a_second_request"
+        ]
+      }
+    },
+    {
+      "id": "transport-1005",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if allocation.get(\"mode\") == \"hermetic-test\":",
+      "occurrence": 3,
+      "line": 1005,
+      "hermetic_behavior": "A hermetic Link must stay on the exact local origin and advance one page of the same route.",
+      "live_behavior": "Not reached: live Links are checked by the api.github.com rule below.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_pagination_follows_an_api_github_com_next_link_as_a_second_charged_api_request",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_pagination_refuses_every_link_off_api_github_com_or_off_the_route_before_a_second_request"
+        ]
+      }
+    },
+    {
+      "id": "transport-1018",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "if parsed.scheme != \"https\" or parsed.hostname != API_HOST or parsed.port not in (None, 443) or parsed.username or parsed.password or parsed.fragment:",
+      "occurrence": 1,
+      "line": 1018,
+      "hermetic_behavior": "Not reached for hermetic allocations.",
+      "live_behavior": "A Link must stay on https://api.github.com:443, keep the approved route path and advance exactly one page.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_pagination_follows_an_api_github_com_next_link_as_a_second_charged_api_request",
+          "scripts/ci/ci-hosted-transport.test.py::test_live_pagination_refuses_every_link_off_api_github_com_or_off_the_route_before_a_second_request"
+        ]
+      }
+    },
+    {
+      "id": "transport-948-supplementary",
+      "file": "scripts/ci/ci-hosted-transport.py",
+      "anchor": "parsed = urlsplit(f\"https://{API_HOST}{_route(current, allocation)[3]}\")",
+      "occurrence": 1,
+      "line": 948,
+      "supplementary": true,
+      "supplementary_reason": "named by the plan (fetch_pages rules page); it uses API_HOST without a condition, so the matcher does not select it",
+      "hermetic_behavior": "A full first rules page synthesizes a page-2 URL used only as the cycle key; the request itself is routed by _route to the local origin.",
+      "live_behavior": "The same synthesized api.github.com URL; page 2 is a charged request to api.github.com.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-transport.test.py::test_live_full_first_rules_page_is_followed_by_one_charged_second_rules_page_on_api_github_com"
+        ]
+      }
+    },
+    {
+      "id": "canary-356",
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "anchor": "if jq -e '.mode == \"hermetic-test\"' \"$LIVE_ALLOCATION\" >/dev/null 2>&1; then HERMETIC=true; fi",
+      "occurrence": 1,
+      "line": 356,
+      "hermetic_behavior": "A hermetic-test allocation sets HERMETIC=true.",
+      "live_behavior": "HERMETIC stays false for a live allocation.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_test_override_is_refused_with_a_live_allocation_before_any_request",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_same_live_allocation_without_overrides_gets_past_the_refusal"
+        ]
+      }
+    },
+    {
+      "id": "canary-357",
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "anchor": "if [[ \"$HERMETIC\" != true ]]; then",
+      "occurrence": 1,
+      "line": 357,
+      "hermetic_behavior": "Hermetic mode accepts the SIGRA_CANARY_TEST_* poll, discovery and journal overrides.",
+      "live_behavior": "Any SIGRA_CANARY_TEST_* variable stops the driver before any request or evidence.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_test_override_is_refused_with_a_live_allocation_before_any_request",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_same_live_allocation_without_overrides_gets_past_the_refusal"
+        ]
+      }
+    },
+    {
+      "id": "canary-372",
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "anchor": "[[ \"$HERMETIC\" != true ]] || EVIDENCE_CHANNEL=hermetic-https",
+      "occurrence": 1,
+      "line": 372,
+      "hermetic_behavior": "The evidence channel is hermetic-https (synthetic only).",
+      "live_behavior": "The evidence channel is github-api; a live-policy dry run is labelled synthetic only by its 253-dryrun- window. Had the channel been hermetic-https, the verifier would demand hermetic-unverified and a server journal and reject every live-policy scenario.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_scenario_and_the_separate_verifier_pass_synthetic"
+        ],
+        "summary_assertions": [
+          "\"scenarios\"",
+          "\"verifier\""
+        ]
+      }
+    },
+    {
+      "id": "canary-411",
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "anchor": "if jq -e '.mode == \"live\"' \"$LIVE_ALLOCATION\" >/dev/null; then",
+      "occurrence": 1,
+      "line": 411,
+      "hermetic_behavior": "The publication receipt is verified without --require-live-origin and REF_STATE is hermetic-unverified.",
+      "live_behavior": "The receipt must pass --require-live-origin and REF_STATE becomes verified.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_live_publication_is_actual_github_verified_and_labelled_with_its_dry_run_window",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_live_publication_is_verified_and_the_evidence_stays_synthetic"
+        ],
+        "summary_assertions": [
+          "\"fixture_ref_state\"",
+          "\"origin_kind\""
+        ]
+      }
+    },
+    {
+      "id": "canary-412",
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "anchor": "python3 \"$PUBLISHER\" --verify-publication \"$PUBLICATION_RECEIPT\" --require-live-origin >/dev/null \\",
+      "occurrence": 1,
+      "line": 412,
+      "hermetic_behavior": "Not reached for hermetic allocations.",
+      "live_behavior": "The live receipt is verified with --require-live-origin before REF_STATE=verified.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_live_publication_is_actual_github_verified_and_labelled_with_its_dry_run_window"
+        ],
+        "summary_assertions": [
+          "\"fixture_ref_state\"",
+          "\"origin_kind\""
+        ]
+      }
+    },
+    {
+      "id": "canary-642",
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "anchor": "if [[ \"$HERMETIC\" == true && -n \"${SIGRA_CANARY_TEST_SERVER_JOURNAL:-}\" && -f \"$SIGRA_CANARY_TEST_SERVER_JOURNAL\" ]]; then",
+      "occurrence": 1,
+      "line": 642,
+      "hermetic_behavior": "A hermetic window retains the local server's journal in the evidence.",
+      "live_behavior": "No journal is retained (no test override may be set); the verifier treats the journal as absent.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_live_discovery_and_poll_waits_are_requested_unchanged",
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_scenario_and_the_separate_verifier_pass_synthetic"
+        ],
+        "summary_assertions": [
+          "\"test_overrides\"",
+          "\"verifier\""
+        ]
+      }
+    },
+    {
+      "id": "pr-proof-132",
+      "file": "scripts/ci/ci-pr-proof.sh",
+      "anchor": "publisher.verify_publication(receipt_path, bool(args.require_live_origin))",
+      "occurrence": 1,
+      "line": 132,
+      "hermetic_behavior": "--prepare without --require-live-origin accepts a hermetic receipt; with it, refuses it (tested).",
+      "live_behavior": "With --require-live-origin an actual-github receipt is accepted and preparation continues.",
+      "coverage": {
+        "kind": "justified",
+        "refs": [],
+        "justification": "The line only forwards the flag to ci-git-publication.verify_publication. That function's live acceptance of an actual-github receipt with require_live_origin is tested in scripts/ci/ci-git-publication.test.py::test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities; its hermetic refusal through this exact line is tested by ci-pr-proof.test.sh::test_prepare_rejects_a_hermetic_publication_origin_when_live_acceptance_is_required, which proves the flag arrives as True; and the live-policy PR universe runs --prepare on an actual-github receipt (LivePolicyPRTests).",
+        "residual_risk": "No offline test runs ci-pr-proof.sh --prepare with the flag AND an actual-github receipt together, so a defect that appears only in that combination inside prepare() would first surface in the 253-114 hosted window."
+      }
+    },
+    {
+      "id": "pr-proof-457",
+      "file": "scripts/ci/ci-pr-proof.sh",
+      "anchor": "\"synthetic\": self.allocation.get(\"mode\") == \"hermetic-test\", \"freeze\": self.freeze,",
+      "occurrence": 1,
+      "line": 457,
+      "hermetic_behavior": "The PR evidence is labelled synthetic.",
+      "live_behavior": "The PR evidence is labelled synthetic false; the verifier's dry-run window guard labels a live-policy run.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic"
+        ],
+        "summary_assertions": [
+          "evidence[\"synthetic\"], False",
+          "\"synthetic_pr_family_verified\""
+        ]
+      }
+    },
+    {
+      "id": "publication-628",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "if allocation.get(\"mode\") == \"live\":",
+      "occurrence": 1,
+      "line": 628,
+      "hermetic_behavior": "A hermetic allocation's ledger is labelled hermetic and never acceptable as live proof.",
+      "live_behavior": "A live allocation's ledger must be all api.github.com and complete to be labelled actual-github.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities",
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_docs_only_family_publishes_its_objects_through_the_live_origin_and_verifies_as_synthetic",
+          "scripts/ci/ci-git-publication.test.py::test_live_allocation_with_an_all_api_complete_ledger_is_actual_github_with_its_window",
+          "scripts/ci/ci-git-publication.test.py::test_live_allocation_refuses_any_non_api_publication_host_or_incomplete_transaction"
+        ]
+      }
+    },
+    {
+      "id": "publication-629",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "if hosts != [API_HOST] or any(tx.get(\"state\") != \"complete\" for tx in transactions):",
+      "occurrence": 1,
+      "line": 629,
+      "hermetic_behavior": "Not reached for hermetic allocations.",
+      "live_behavior": "A non-GitHub host or an incomplete transaction raises PublicationError.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities",
+          "scripts/ci/ci-git-publication.test.py::test_live_allocation_with_an_all_api_complete_ledger_is_actual_github_with_its_window",
+          "scripts/ci/ci-git-publication.test.py::test_live_allocation_refuses_any_non_api_publication_host_or_incomplete_transaction"
+        ]
+      }
+    },
+    {
+      "id": "publication-731",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "if freeze_path is None and allocation.get(\"mode\") == \"live\":",
+      "occurrence": 1,
+      "line": 731,
+      "hermetic_behavior": "A hermetic publish may run without a freeze.",
+      "live_behavior": "A live allocation refuses to publish without the reviewed freeze and its canary section approval.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::test_publish_with_a_freeze_needs_the_canary_section_approval_and_a_live_allocation_needs_a_freeze"
+        ]
+      }
+    },
+    {
+      "id": "publication-879",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "result = {\"schema_version\": RECEIPT_SCHEMA, \"status\": ACTUAL_STATUS if actual else HERMETIC_STATUS,",
+      "occurrence": 1,
+      "line": 879,
+      "hermetic_behavior": "The receipt status is published-local-fixture.",
+      "live_behavior": "The receipt status is published-actual-github with production_publish_performed true.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_the_live_publication_is_actual_github_verified_and_labelled_with_its_dry_run_window",
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_universe_uses_live_publication_and_production_allocations_with_no_test_fields"
+        ],
+        "summary_assertions": [
+          "\"origin_kind\"",
+          "receipt[\"origin\"][\"kind\"], \"actual-github\""
+        ]
+      }
+    },
+    {
+      "id": "publication-909",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "or status not in (HERMETIC_STATUS, ACTUAL_STATUS) or value.get(\"production_publish_performed\") is not actual",
+      "occurrence": 1,
+      "line": 909,
+      "hermetic_behavior": "A published-local-fixture receipt with production_publish_performed false passes the shape check.",
+      "live_behavior": "A published-actual-github receipt with production_publish_performed true passes the shape check.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities"
+        ]
+      }
+    },
+    {
+      "id": "publication-912",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "if require_live_origin and not actual:",
+      "occurrence": 1,
+      "line": 912,
+      "hermetic_behavior": "With require_live_origin a hermetic receipt is refused (live acceptance).",
+      "live_behavior": "With require_live_origin an actual-github receipt continues to full verification.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities"
+        ]
+      }
+    },
+    {
+      "id": "publication-982",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "if allocation.get(\"mode\") != \"live\" or {\"test_origin\", \"test_ca_file\"} & set(allocation):",
+      "occurrence": 1,
+      "line": 982,
+      "hermetic_behavior": "Not reached: only actual receipts re-open their allocation.",
+      "live_behavior": "An actual-github receipt bound to a hermetic allocation is refused.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities"
+        ]
+      }
+    },
+    {
+      "id": "publication-1497",
+      "file": "scripts/ci/ci-git-publication.py",
+      "anchor": "verify_publication(Path(args.verify_publication), args.require_live_origin)",
+      "occurrence": 1,
+      "line": 1497,
+      "hermetic_behavior": "--verify-publication without the flag checks a hermetic receipt.",
+      "live_behavior": "--verify-publication --require-live-origin checks an actual-github receipt through the CLI.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-git-publication.test.py::test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities"
+        ]
+      }
+    },
+    {
+      "id": "verifier-80",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "return isinstance(origin, dict) and origin.get(\"channel\") == HERMETIC_CHANNEL",
+      "occurrence": 1,
+      "line": 80,
+      "hermetic_behavior": "hermetic-https evidence is hermetic_canary.",
+      "live_behavior": "github-api (or channel-less) evidence is not hermetic_canary.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_local_dispatch_url_is_read_as_api_github_com_only_for_hermetic_https_evidence"
+        ]
+      }
+    },
+    {
+      "id": "verifier-93",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if isinstance(window, str) and window.startswith(DRYRUN_WINDOW_PREFIX):",
+      "occurrence": 1,
+      "line": 93,
+      "hermetic_behavior": "Not specific to hermetic evidence.",
+      "live_behavior": "A 253-dryrun- window marks live-policy evidence synthetic; a real hosted window is not flagged.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_real_canary_window_is_not_flagged",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_every_canary_mode_result_on_a_dryrun_window_is_synthetic_live_policy_dry_run"
+        ]
+      }
+    },
+    {
+      "id": "verifier-100",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if not any(dryrun_window(evidence) for evidence in evidences):",
+      "occurrence": 1,
+      "line": 100,
+      "hermetic_behavior": "Not specific to hermetic evidence.",
+      "live_behavior": "A PR result on a real window is returned unchanged; on a dry-run window it becomes synthetic.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_pr_pair_on_a_dryrun_window_is_synthetic_even_when_both_families_look_live",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_pr_family_result_on_a_dryrun_window_is_synthetic_and_wired_into_verify_pr_family"
+        ]
+      }
+    },
+    {
+      "id": "verifier-104",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "status=status if status.startswith(\"synthetic_\") else \"synthetic_\" + status)",
+      "occurrence": 1,
+      "line": 104,
+      "hermetic_behavior": "Not specific to hermetic evidence.",
+      "live_behavior": "A dry-run PR status gains the synthetic_ prefix exactly once.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_pr_pair_on_a_dryrun_window_is_synthetic_even_when_both_families_look_live",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_pr_family_result_on_a_dryrun_window_is_synthetic_and_wired_into_verify_pr_family"
+        ]
+      }
+    },
+    {
+      "id": "verifier-109",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if not hermetic_canary(evidence) or not isinstance(url, str):",
+      "occurrence": 1,
+      "line": 109,
+      "hermetic_behavior": "A local-origin URL is read as its api.github.com equivalent.",
+      "live_behavior": "The URL is returned unchanged, so a local URL in live evidence fails the dispatch identity check.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_local_dispatch_url_is_read_as_api_github_com_only_for_hermetic_https_evidence"
+        ]
+      }
+    },
+    {
+      "id": "verifier-119",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if not hermetic_canary(evidence):",
+      "occurrence": 1,
+      "line": 119,
+      "hermetic_behavior": "A copy of the evidence with ledger URLs normalized to api.github.com is returned.",
+      "live_behavior": "The evidence is returned unchanged (only verify_canary_checks' hermetic branch calls api_view today).",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_api_view_returns_live_evidence_unchanged_and_rewrites_only_hermetic_evidence"
+        ]
+      }
+    },
+    {
+      "id": "verifier-147",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if origin.get(\"channel\") == \"hermetic-https\":",
+      "occurrence": 1,
+      "line": 170,
+      "hermetic_behavior": "An independent server journal is required, one row per transaction.",
+      "live_behavior": "A journal is optional; when present it must still match every transaction.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_scenario_and_the_separate_verifier_pass_synthetic"
+        ],
+        "summary_assertions": [
+          "\"verifier\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-new-195",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if not hermetic_canary(evidence):",
+      "occurrence": 2,
+      "line": 195,
+      "hermetic_behavior": "Hermetic-https evidence skips the live host rule (its hosts are the local origin, reconciled by the journal).",
+      "live_behavior": "Every transaction must pass verify_live_transaction_host: hop 0 on api.github.com, a redirect hop on a trusted download host only, https on 443, and a host field agreeing with the URL.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_live_canary_transactions_hop_zero_on_api_github_com_and_later_hops_on_trusted_download_hosts_only",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_hermetic_https_canary_evidence_is_unaffected_by_the_live_host_rule",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_the_halted_r8_live_ledger_rows_satisfy_the_live_host_rule"
+        ]
+      }
+    },
+    {
+      "id": "verifier-645",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "require(record.get(\"synthetic\") is True, \"synthetic command receipt must be labeled synthetic\")",
+      "occurrence": 1,
+      "line": 670,
+      "hermetic_behavior": "The canary result record must be labelled synthetic (the fixture's tiny command).",
+      "live_behavior": "Identical: the record is the synthetic tiny-command receipt in a live window too.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_scenario_and_the_separate_verifier_pass_synthetic"
+        ],
+        "summary_assertions": [
+          "\"scenarios\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-677",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "wanted_ref_state = \"hermetic-unverified\" if hermetic_canary(evidence) else \"verified\"",
+      "occurrence": 1,
+      "line": 702,
+      "hermetic_behavior": "Hermetic evidence must say fixture_ref_state hermetic-unverified.",
+      "live_behavior": "Live evidence must say verified (the driver's live read-back).",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified"
+        ]
+      }
+    },
+    {
+      "id": "verifier-950",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "hermetic = allocation[\"mode\"] == \"hermetic-test\"",
+      "occurrence": 1,
+      "line": 975,
+      "hermetic_behavior": "hermetic is true for a hermetic-test production allocation.",
+      "live_behavior": "hermetic is false for a live production allocation.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic"
+        ],
+        "summary_assertions": [
+          "evidence[\"synthetic\"], False",
+          "\"synthetic_pr_family_verified\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-951",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "require(evidence.get(\"synthetic\") is hermetic, \"synthetic label must match the allocation origin (local HTTPS is synthetic, never live)\")",
+      "occurrence": 1,
+      "line": 976,
+      "hermetic_behavior": "The evidence must be labelled synthetic.",
+      "live_behavior": "The evidence must be labelled synthetic false.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic"
+        ],
+        "summary_assertions": [
+          "evidence[\"synthetic\"], False"
+        ]
+      }
+    },
+    {
+      "id": "verifier-968",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if hermetic:",
+      "occurrence": 1,
+      "line": 993,
+      "hermetic_behavior": "Every transaction must be on the local test origin's host.",
+      "live_behavior": "Every transaction must be on api.github.com or a frozen download host (else branch).",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_live_pr_ledger_on_api_github_com_and_a_frozen_download_host_verifies",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_live_pr_transaction_on_any_other_host_is_rejected"
+        ]
+      }
+    },
+    {
+      "id": "verifier-969",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "require(tx.get(\"host\") == urlsplit(allocation[\"test_origin\"]).hostname, \"synthetic transaction left the local origin\")",
+      "occurrence": 1,
+      "line": 994,
+      "hermetic_behavior": "A transaction off the local origin is refused.",
+      "live_behavior": "Not reached: the live else branch applies the api.github.com/download_hosts rule.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_live_pr_ledger_on_api_github_com_and_a_frozen_download_host_verifies",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_live_pr_transaction_on_any_other_host_is_rejected"
+        ]
+      }
+    },
+    {
+      "id": "verifier-991",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if hermetic:",
+      "occurrence": 2,
+      "line": 1016,
+      "hermetic_behavior": "The local server journal is required and reconciled, and no Authorization may reach it.",
+      "live_behavior": "No journal is required; an optional journal must have one row per transaction.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic"
+        ],
+        "summary_assertions": [
+          "evidence[\"server_journal\"]"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1014",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "hermetic = allocation[\"mode\"] == \"hermetic-test\"",
+      "occurrence": 2,
+      "line": 1039,
+      "hermetic_behavior": "hermetic is true for a hermetic-test production allocation.",
+      "live_behavior": "hermetic is false; the check view keeps the ledger URLs as recorded.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_required_check_failure_on_the_pr_head_is_rejected_on_the_live_check_view"
+        ],
+        "summary_assertions": [
+          "checks[0][\"url\"].startswith(\"https://api.github.com/\")"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1015",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "origin = f\"https://{urlsplit(allocation['test_origin']).hostname}\" if hermetic else None",
+      "occurrence": 1,
+      "line": 1040,
+      "hermetic_behavior": "The local origin prefix to rewrite is computed.",
+      "live_behavior": "No origin is computed (None).",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_required_check_failure_on_the_pr_head_is_rejected_on_the_live_check_view"
+        ],
+        "summary_assertions": [
+          "checks[0][\"url\"].startswith(\"https://api.github.com/\")"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1021",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if hermetic and row[\"url\"].startswith(origin):",
+      "occurrence": 1,
+      "line": 1046,
+      "hermetic_behavior": "Local-origin URLs are rewritten to api.github.com for the check view.",
+      "live_behavior": "No rewrite: live URLs are already api.github.com.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_required_check_failure_on_the_pr_head_is_rejected_on_the_live_check_view"
+        ],
+        "summary_assertions": [
+          "checks[0][\"url\"].startswith(\"https://api.github.com/\")"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1369",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "return dryrun_pr_result({\"status\": \"synthetic_pr_family_verified\" if evidence[\"synthetic\"] else \"pr_family_verified\", \"family\": family,",
+      "occurrence": 1,
+      "line": 1394,
+      "hermetic_behavior": "Hermetic evidence verifies as synthetic_pr_family_verified.",
+      "live_behavior": "Live evidence verifies as pr_family_verified, and dryrun_pr_result relabels a dry-run window synthetic.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic"
+        ],
+        "summary_assertions": [
+          "\"synthetic_pr_family_verified\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-1403",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "return dryrun_pr_result({\"status\": \"synthetic_pr_pair_verified\" if not first[\"accepted_live\"] else \"pr_pair_verified\",",
+      "occurrence": 1,
+      "line": 1428,
+      "hermetic_behavior": "A hermetic pair verifies as synthetic_pr_pair_verified.",
+      "live_behavior": "A live pair verifies as pr_pair_verified, relabelled synthetic on a dry-run window.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_pair_is_one_allocation_one_append_only_window_within_120_requests"
+        ],
+        "summary_assertions": [
+          "\"synthetic_pr_pair_verified\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-1462",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if hermetic_canary(evidence):",
+      "occurrence": 1,
+      "line": 1487,
+      "hermetic_behavior": "Checks are hydrated on an api.github.com view of the evidence and the result is synthetic.",
+      "live_behavior": "Checks are hydrated (if absent) and verified on the evidence itself.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_scenario_and_the_separate_verifier_pass_synthetic"
+        ],
+        "summary_assertions": [
+          "\"scenarios\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-1482",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if hermetic_canary(evidence) or dryrun_window(evidence):",
+      "occurrence": 1,
+      "line": 1507,
+      "hermetic_behavior": "The matrix result is synthetic.",
+      "live_behavior": "A live-policy dry-run matrix is synthetic through its window; a real live window is not.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-gate-canary-dryrun.test.py::test_every_scenario_and_the_separate_verifier_pass_synthetic"
+        ],
+        "summary_assertions": [
+          "\"verifier\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-1634",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if hermetic_canary(canary):",
+      "occurrence": 1,
+      "line": 1659,
+      "hermetic_behavior": "A hermetic canary link is a synthetic gap.",
+      "live_behavior": "A live canary link adds no hermetic gap.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_every_linked_live_proof_present_and_reopened_is_accepted",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_completion_with_real_window_ids_is_not_flagged"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1652",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "synthetic = synthetic or not pr_result[\"accepted_live\"]",
+      "occurrence": 1,
+      "line": 1677,
+      "hermetic_behavior": "A synthetic PR pair marks completion synthetic.",
+      "live_behavior": "A live-accepted pair does not; a dry-run pair (accepted_live false) does.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_completion_on_the_dry_run_window_is_a_synthetic_gap_and_never_accepted"
+        ],
+        "summary_assertions": [
+          "result[\"status\"], \"open\""
+        ]
+      }
+    },
+    {
+      "id": "verifier-1664",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if dryrun_window(document):",
+      "occurrence": 1,
+      "line": 1689,
+      "hermetic_behavior": "Not specific to hermetic evidence.",
+      "live_behavior": "Every link on a 253-dryrun- window is a synthetic gap; real windows are not.",
+      "coverage": {
+        "kind": "live-policy-gate",
+        "refs": [
+          "scripts/ci/ci-pr-proof.test.sh::test_live_policy_completion_on_the_dry_run_window_is_a_synthetic_gap_and_never_accepted"
+        ],
+        "summary_assertions": [
+          "dry-run window cannot satisfy live acceptance"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1674",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "complete = not synthetic and len(opened) == len(LINKS)",
+      "occurrence": 1,
+      "line": 1699,
+      "hermetic_behavior": "Synthetic evidence can never be complete.",
+      "live_behavior": "Complete only when nothing is synthetic and every link is present.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_every_linked_live_proof_present_and_reopened_is_accepted",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_completion_with_real_window_ids_is_not_flagged"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1725",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "if hermetic_canary(evidence):",
+      "occurrence": 2,
+      "line": 1750,
+      "hermetic_behavior": "A CLI result on hermetic evidence is synthetic with channel hermetic-https.",
+      "live_behavior": "Not hermetic: falls to the dry-run window check.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_real_canary_window_is_not_flagged",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_every_canary_mode_result_on_a_dryrun_window_is_synthetic_live_policy_dry_run"
+        ]
+      }
+    },
+    {
+      "id": "verifier-1729",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "elif dryrun_window(evidence):",
+      "occurrence": 1,
+      "line": 1754,
+      "hermetic_behavior": "Not reached for hermetic evidence.",
+      "live_behavior": "A live-policy dry run is synthetic with channel live-policy-dry-run; a real window is unlabelled.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_a_real_canary_window_is_not_flagged",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_every_canary_mode_result_on_a_dryrun_window_is_synthetic_live_policy_dry_run"
+        ]
+      }
+    },
+    {
+      "id": "verifier-128-supplementary",
+      "file": "scripts/ci/ci-hosted-gate-verify.py",
+      "anchor": "def verify_transport_v2(evidence):",
+      "occurrence": 1,
+      "line": 151,
+      "supplementary": true,
+      "supplementary_reason": "the planned live canary host rule (253-110): verify_transport_v2 has no host condition at all, so the missing branch is recorded against the function",
+      "hermetic_behavior": "Hermetic evidence is reconciled against its independent local server journal.",
+      "live_behavior": "Before 253-110 no transaction host was checked, so a live canary ledger with a hop-0 blob host or an untrusted hop-1 host verified; now every non-hermetic transaction passes verify_live_transaction_host.",
+      "coverage": {
+        "kind": "offline-live-test",
+        "refs": [
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_live_canary_transactions_hop_zero_on_api_github_com_and_later_hops_on_trusted_download_hosts_only",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_hermetic_https_canary_evidence_is_unaffected_by_the_live_host_rule",
+          "scripts/ci/ci-hosted-gate-verify.test.py::test_the_halted_r8_live_ledger_rows_satisfy_the_live_host_rule"
+        ]
+      }
+    }
+  ]
+}

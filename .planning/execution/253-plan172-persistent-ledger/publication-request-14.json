@@ -1,0 +1,9 @@
+{
+  "method": "POST",
+  "route_id": "create_ref",
+  "category": "publication",
+  "body": {
+    "ref": "refs/heads/gsd/253-replan-proof-5e13621e5-candidate",
+    "sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd"
+  }
+}

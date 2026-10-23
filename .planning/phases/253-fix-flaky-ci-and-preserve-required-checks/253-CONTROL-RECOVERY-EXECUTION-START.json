@@ -1,0 +1,22 @@
+{
+  "schema": "sigra.phase253.control-recovery-execution-start/v1",
+  "prior_sdk_commit": "6bb702c06d1426f9ddb20dde8a5d437c907f4973",
+  "original_history_commit": "87c730051bd15f3c7d4d327445f2c48ad1c2b3de",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "current_plan": "253-26",
+  "preservation": [
+    {
+      "path": ".planning/STATE.md",
+      "prior_commit": "6bb702c06d1426f9ddb20dde8a5d437c907f4973",
+      "sha256": "f107ea26bd5cb384dceb712edf8e6123b10dfe5002109608d6db285dc827fb01",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "prior_commit": "6bb702c06d1426f9ddb20dde8a5d437c907f4973",
+      "sha256": "e858b156d72151cf1a857882b7f33f7b43974d5c8ee61de5bfe17c1a3bc852b0",
+      "readback_exact": true
+    }
+  ],
+  "phase_verification": "not_started"
+}

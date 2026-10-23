@@ -1,0 +1,47 @@
+[
+  {
+    "path": ".planning/STATE.md",
+    "commit": "4f4647983673423fb6d57cfa1a71790350949098",
+    "blob": "b39a06420371904676f401b2ab1accf8e2933e5e",
+    "sha256": "47a47a290f0751dd2788899ef1218c5fcb861933a11e61bbcc97a9dcaebe9343",
+    "bytes": 21284,
+    "readback_exact": true,
+    "status": "clean"
+  },
+  {
+    "path": ".planning/state.json",
+    "commit": "4f4647983673423fb6d57cfa1a71790350949098",
+    "blob": "b79de55bdc59ff4af0bec8330119a9c3f0c0abe8",
+    "sha256": "6d52e5870b0d4a61db63300714bfdfce9480d6f4555cfe7f560253d42bd81ede",
+    "bytes": 74394,
+    "readback_exact": true,
+    "status": "clean"
+  },
+  {
+    "path": ".planning/HANDOFF.json",
+    "commit": "4f4647983673423fb6d57cfa1a71790350949098",
+    "blob": "5f8873f93ad77b6e191be24392e223be168097c0",
+    "sha256": "e43bb1023c007d081cf7d86205f354d26227f4b4daf96f9a49f41ad5b70cae31",
+    "bytes": 133599,
+    "readback_exact": true,
+    "status": "clean"
+  },
+  {
+    "path": ".planning/ROADMAP.md",
+    "commit": "4f4647983673423fb6d57cfa1a71790350949098",
+    "blob": "5cad57d116e718d3dc5650dc5ab8d37bf7941e9d",
+    "sha256": "56c638368cd142567582088aa6de6117716f22457d3952189b1f10d29f5d1658",
+    "bytes": 21687,
+    "readback_exact": true,
+    "status": "clean"
+  },
+  {
+    "path": ".planning/config.json",
+    "commit": "4f4647983673423fb6d57cfa1a71790350949098",
+    "blob": "28b9a0eb48854c3fb099af92c865fc9322311369",
+    "sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+    "bytes": 1821,
+    "readback_exact": true,
+    "status": "clean"
+  }
+]

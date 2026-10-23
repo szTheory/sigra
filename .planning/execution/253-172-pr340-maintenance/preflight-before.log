@@ -1,0 +1,24 @@
+test_shared_operator_reads_do_not_replace_the_full_preflight (253-pr340-pr-tests.OperatorPreflightHandoffTests) ... ERROR
+
+======================================================================
+ERROR: test_shared_operator_reads_do_not_replace_the_full_preflight (253-pr340-pr-tests.OperatorPreflightHandoffTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/253-pr340-pr-tests.py", line 3491, in test_shared_operator_reads_do_not_replace_the_full_preflight
+    result = verifier.verify_pr_pair(normal, docs)
+  File "/Users/jon/projects/sigra/scripts/ci/ci-hosted-gate-verify.py", line 991, in wrapper
+    return function(*args, **kwargs)
+  File "/Users/jon/projects/sigra/scripts/ci/ci-hosted-gate-verify.py", line 1580, in verify_pr_pair
+    first = verify_pr_family(normal, "normal", captured_normal)
+  File "/Users/jon/projects/sigra/scripts/ci/ci-hosted-gate-verify.py", line 991, in wrapper
+    return function(*args, **kwargs)
+  File "/Users/jon/projects/sigra/scripts/ci/ci-hosted-gate-verify.py", line 1326, in verify_pr_family
+    require(sum(1 for tx in shared if tx["route_id"] == "branch_protection") == 1
+  File "/Users/jon/projects/sigra/scripts/ci/ci-hosted-gate-verify.py", line 48, in require
+    raise VerificationError(message)
+gate_verify.VerificationError: exactly one shared fresh preflight is required
+
+----------------------------------------------------------------------
+Ran 1 test in 11.026s
+
+FAILED (errors=1)

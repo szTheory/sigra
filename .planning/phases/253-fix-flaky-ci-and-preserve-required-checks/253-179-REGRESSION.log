@@ -1,0 +1,772 @@
+179 attempt marker created; launch acceptance.sh once in the authorized root shell
+PERMISSION-PREFLIGHT {"schema":"sigra.phase253.git-permission-probe/v1","source_commit":"3197421e08f2af060c0a03f8b91cf6b298f641e1","shell_pid":61419,"git_common_dir":"/Users/jon/projects/sigra/.git","object_dir":"/Users/jon/projects/sigra/.git/objects","command":["git","hash-object","-w","--stdin"],"object_oid":"0eedbdb5b0b856b19325c158ad3e71261eb9f025","payload_sha256":"9e39cf94721785ca982448bd42bc1761c13bb9eac696b87b1353a77887fa2c98","readback_sha256":"9e39cf94721785ca982448bd42bc1761c13bb9eac696b87b1353a77887fa2c98","payload_bytes":77,"write_exit":0,"read_exit":0,"readback":"exact"}
+ACCEPTANCE-PID 61419
+ACCEPTANCE-SOURCE 3197421e08f2af060c0a03f8b91cf6b298f641e1
+PROJECTION {"status":"ready-local-proposal","server_parent_sha":"09df342a82e03c3d5d40173c912b70e827f7eadc","projection":{"binary_blob_requests":0,"complete_product_delta_dropped":false,"fixed_non_tree_requests":12,"largest_tree_body_bytes":2093852,"max_requests":24,"max_tree_body_bytes":2097152,"parent_preflight_requests":1,"projected_total_requests":17,"tree_request_count":4},"tree_requests":[{"base_tree_sha":"817de2441c7b03dff93cfff89296c9c2f345d289","binary_blobs":0,"body_bytes":2093852,"changed_entries":40,"name":"candidate-part-01","sequence":1,"tree_sha":"fe60d9402429791c010882b7c3a957e6ac247ab8","variant":"candidate"},{"base_tree_sha":"fe60d9402429791c010882b7c3a957e6ac247ab8","binary_blobs":0,"body_bytes":2090083,"changed_entries":38,"name":"candidate-part-02","sequence":2,"tree_sha":"92812dc242be0d3908ffb2b71de84bd507934cb2","variant":"candidate"},{"base_tree_sha":"92812dc242be0d3908ffb2b71de84bd507934cb2","binary_blobs":0,"body_bytes":1528292,"changed_entries":120,"name":"candidate-part-03","sequence":3,"tree_sha":"b5dbdac1ebe21637865c2156116503b4f84bf58a","variant":"candidate"},{"base_tree_sha":"b5dbdac1ebe21637865c2156116503b4f84bf58a","binary_blobs":0,"body_bytes":17686,"changed_entries":1,"name":"fixture","sequence":1,"tree_sha":"6f2198146ef5cc684775f08244001ee5132f0710","variant":"fixture"}],"main_freshness":{"candidate_parent_is_fetched_main":true,"fetched_at_utc":"2026-10-19T03:43:56Z","fetched_main_sha":"09df342a82e03c3d5d40173c912b70e827f7eadc","merge_preflight":{"base":"09df342a82e03c3d5d40173c912b70e827f7eadc","clean":true,"conflicts":[],"exit":0,"head":"315dc82dc2c2399ff5713cc6ac9391010839cd10"},"record_path":".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-MAIN-FETCH-R12.json","record_sha256":"35fd1543a87d7abfe50949b1d1b616c3afd18f868e7382de871028681515b90e"}}
+HERMETIC-GATE {"allocation":{"allocation_kind":"canary","download_hosts":[],"fields":["allocation_kind","bound_documents","category_limits","download_hosts","max_elapsed_seconds","max_hops","max_pages","max_requests","max_response_bytes","mode","repository","schema_version","source_sha256","test_ca_file","test_origin","window_id"],"max_hops":2,"max_pages":3,"max_requests":117,"mode":"hermetic-test","window_id":"253-101-dry-run-67286"},"authorization":{"api_with":0,"api_without":0,"blob_with":0,"results_receiver_with":0},"evidence_diagnostics":null,"evidence_has_preflight":true,"evidence_status":null,"first_poll_delays":[0.754,0.916,1.222,1.016,0.943,1.157,1.27],"freeze_plan":"253-91","invocations":[{"exit":0,"mode":"publish-only","requests":17,"requests_by_category":{"publication":17},"retained_preflight_reverified":false,"stop":null},{"exit":0,"mode":"full-pass","requests":18,"requests_by_category":{"artifact_downloads":2,"artifact_metadata":1,"attempt_jobs":1,"dispatch":1,"pre_watch_rate":1,"preflight":7,"publication":1,"run_discovery":1,"terminal_polls":3},"retained_preflight_reverified":false,"stop":null},{"exit":0,"mode":"remaining","requests":60,"requests_by_category":{"artifact_downloads":8,"artifact_metadata":5,"attempt_jobs":6,"cancellation":1,"dispatch":6,"failure_logs":6,"pre_watch_rate":6,"publication":1,"run_discovery":6,"terminal_polls":15},"retained_preflight_reverified":true,"stop":null}],"journal_requests":95,"link_form_override":null,"live_hops":[{"category":"artifact_downloads","hop_ordinal":1,"host":"localhost","route":"artifact_zip","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"localhost","route":"artifact_zip","status":200},{"category":"failure_logs","hop_ordinal":1,"host":"localhost","route":"run_logs","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"localhost","route":"artifact_zip","status":200},{"category":"failure_logs","hop_ordinal":1,"host":"localhost","route":"run_logs","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"localhost","route":"artifact_zip","status":200},{"category":"failure_logs","hop_ordinal":1,"host":"localhost","route":"run_logs","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"localhost","route":"artifact_zip","status":200}],"mode":"hermetic","modeled_elapsed_seconds":270.6,"paginated_reads":[{"next_link_forms":["repos"],"pages":3,"route":"check_runs"}],"preflight_copies":["253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-check-runs.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-effective-rules.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-legacy-protection.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-rate.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-registered-workflow.json"],"problems":[],"publication":{"fixture_ref_state":"hermetic-unverified","origin_kind":"hermetic","origin_window_id":"253-101-dry-run-67286","status":"published-local-fixture","verifier_dryrun_window":false},"requested_sleeps":{"discovery":[],"other":[],"poll":[]},"requests_by_category":{"artifact_downloads":10,"artifact_metadata":6,"attempt_jobs":7,"cancellation":1,"dispatch":7,"failure_logs":6,"pre_watch_rate":7,"preflight":7,"publication":19,"run_discovery":7,"terminal_polls":18},"requests_by_route":{"artifact_zip":10,"branch_protection":1,"cancel_run":1,"check_runs":3,"create_ref":2,"dispatch":7,"get_ref":6,"git_create_commit":2,"git_create_tree":4,"git_get_blob":2,"git_get_commit":3,"rate_limit":8,"rules_main":1,"run":18,"run_artifacts":6,"run_jobs":7,"run_logs":6,"workflow":1,"workflow_runs":7},"requests_total":95,"response_shape":{"artifacts_checked":33,"cancelled_reference":{".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json":"6980e6e58cf086d77bc1b7583d93ae1c46703e523baeb6c01a341046572a82de",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json":"79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018"},"cancelled_run_checked":true,"jobs_checked":45,"log_reference":{".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json":"3b0dd91e85612a973012bbcdadcc925afa3b1dc5cbe4b95a1c5349c6ed226c33",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-BODIES-R11-PROBE.json":"3b8d5bf4cc0af7fcf302fe3897eaeef3e2219de0822a98d871032c9f4b6c9523",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json":"6980e6e58cf086d77bc1b7583d93ae1c46703e523baeb6c01a341046572a82de",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json":"79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018"},"mismatch_count":0,"mismatches":[],"ok":true,"reference":{"path":".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json","sequences":{"artifacts":29,"jobs":28,"listing":25,"run":27},"sha256":"9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01"},"run_logs_chains_checked":3,"run_logs_checked":true,"runs_checked":46,"scenarios_checked":["actual-failure","cancelled","docs-only","full-pass","missing-seam","unexpected-skip","verifier"],"steps_checked":177,"verifier_run_checked":true},"scenarios":["full-pass","docs-only","actual-failure","missing-seam","unexpected-skip","cancelled"],"seeded_r10_refs_changed":false,"seeded_r11_refs_changed":false,"seeded_r12_refs_changed":false,"seeded_r8_refs_changed":false,"seeded_r9_refs_changed":false,"shim_connect_hosts":[],"shim_refusals":[],"status":"passed","stop":null,"synthetic":true,"test_overrides":["SIGRA_CANARY_TEST_DISCOVERY_WAIT_SECONDS","SIGRA_CANARY_TEST_POLL_SECONDS","SIGRA_CANARY_TEST_SERVER_JOURNAL"],"verifier":{"detail":null,"status":"passed"},"verifier_job":{"dispatch":{"actual_status":204,"input_key_count":5,"input_unicode_scalars":15974,"input_utf8_bytes":15974,"sequence":89},"matrix_payload_chars":15756,"matrix_payload_limit":64511,"model":"scenario-set","result":"scenario_set_complete"},"verifier_job_model":"scenario-set","violations":[]}
+LIVE-POLICY-GATE {"allocation":{"allocation_kind":"canary","download_hosts":["pipelines.actions.githubusercontent.com","productionresultssa0.blob.core.windows.net","productionresultssa1.blob.core.windows.net","productionresultssa2.blob.core.windows.net","productionresultssa3.blob.core.windows.net","productionresultssa4.blob.core.windows.net","productionresultssa5.blob.core.windows.net","productionresultssa6.blob.core.windows.net","productionresultssa7.blob.core.windows.net","productionresultssa8.blob.core.windows.net","productionresultssa9.blob.core.windows.net","productionresultssa10.blob.core.windows.net","productionresultssa11.blob.core.windows.net","productionresultssa12.blob.core.windows.net","productionresultssa13.blob.core.windows.net","productionresultssa14.blob.core.windows.net","productionresultssa15.blob.core.windows.net","productionresultssa16.blob.core.windows.net","productionresultssa17.blob.core.windows.net","productionresultssa18.blob.core.windows.net","productionresultssa19.blob.core.windows.net","productionresultssa20.blob.core.windows.net","productionresultssa21.blob.core.windows.net","productionresultssa22.blob.core.windows.net","productionresultssa23.blob.core.windows.net","productionresultssa24.blob.core.windows.net","productionresultssa25.blob.core.windows.net","productionresultssa26.blob.core.windows.net","productionresultssa27.blob.core.windows.net","productionresultssa28.blob.core.windows.net","productionresultssa29.blob.core.windows.net","productionresultssa30.blob.core.windows.net","productionresultssa31.blob.core.windows.net","productionresultssa32.blob.core.windows.net","productionresultssa33.blob.core.windows.net","productionresultssa34.blob.core.windows.net","productionresultssa35.blob.core.windows.net","productionresultssa36.blob.core.windows.net","productionresultssa37.blob.core.windows.net","productionresultssa38.blob.core.windows.net","productionresultssa39.blob.core.windows.net","productionresultssa40.blob.core.windows.net","results-receiver.actions.githubusercontent.com"],"fields":["allocation_kind","bound_documents","category_limits","download_hosts","max_elapsed_seconds","max_hops","max_pages","max_requests","max_response_bytes","mode","repository","schema_version","source_sha256","window_id"],"max_hops":2,"max_pages":10,"max_requests":117,"mode":"live","window_id":"253-dryrun-live-policy-62688"},"authorization":{"api_with":87,"api_without":0,"blob_with":0,"results_receiver_with":0},"evidence_diagnostics":null,"evidence_has_preflight":true,"evidence_status":null,"first_poll_delays":[1.075,1.046,1.099,1.151,1.179,1.378,1.223],"freeze_plan":"253-91","invocations":[{"exit":0,"mode":"publish-only","requests":17,"requests_by_category":{"publication":17},"retained_preflight_reverified":false,"stop":null},{"exit":0,"mode":"full-pass","requests":18,"requests_by_category":{"artifact_downloads":2,"artifact_metadata":1,"attempt_jobs":1,"dispatch":1,"pre_watch_rate":1,"preflight":7,"publication":1,"run_discovery":1,"terminal_polls":3},"retained_preflight_reverified":false,"stop":null},{"exit":0,"mode":"remaining","requests":60,"requests_by_category":{"artifact_downloads":8,"artifact_metadata":5,"attempt_jobs":6,"cancellation":1,"dispatch":6,"failure_logs":6,"pre_watch_rate":6,"publication":1,"run_discovery":6,"terminal_polls":15},"retained_preflight_reverified":true,"stop":null}],"journal_requests":95,"link_form_override":null,"live_hops":[{"category":"artifact_downloads","hop_ordinal":1,"host":"productionresultssa17.blob.core.windows.net","route":"artifact_zip","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"productionresultssa17.blob.core.windows.net","route":"artifact_zip","status":200},{"category":"failure_logs","hop_ordinal":1,"host":"results-receiver.actions.githubusercontent.com","route":"run_logs","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"productionresultssa17.blob.core.windows.net","route":"artifact_zip","status":200},{"category":"failure_logs","hop_ordinal":1,"host":"results-receiver.actions.githubusercontent.com","route":"run_logs","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"productionresultssa17.blob.core.windows.net","route":"artifact_zip","status":200},{"category":"failure_logs","hop_ordinal":1,"host":"results-receiver.actions.githubusercontent.com","route":"run_logs","status":200},{"category":"artifact_downloads","hop_ordinal":1,"host":"productionresultssa17.blob.core.windows.net","route":"artifact_zip","status":200}],"mode":"live-policy","modeled_elapsed_seconds":201.0,"paginated_reads":[{"next_link_forms":["repositories-id"],"pages":3,"route":"check_runs"}],"preflight_copies":["253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-check-runs.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-effective-rules.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-legacy-protection.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-rate.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-registered-workflow.json"],"problems":[],"publication":{"fixture_ref_state":"verified","origin_kind":"actual-github","origin_window_id":"253-dryrun-live-policy-62688","status":"published-actual-github","verifier_dryrun_window":true},"requested_sleeps":{"discovery":[20,20,20,20,20,20,20],"other":[],"poll":[60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60]},"requests_by_category":{"artifact_downloads":10,"artifact_metadata":6,"attempt_jobs":7,"cancellation":1,"dispatch":7,"failure_logs":6,"pre_watch_rate":7,"preflight":7,"publication":19,"run_discovery":7,"terminal_polls":18},"requests_by_route":{"artifact_zip":10,"branch_protection":1,"cancel_run":1,"check_runs":3,"create_ref":2,"dispatch":7,"get_ref":6,"git_create_commit":2,"git_create_tree":4,"git_get_blob":2,"git_get_commit":3,"rate_limit":8,"rules_main":1,"run":18,"run_artifacts":6,"run_jobs":7,"run_logs":6,"workflow":1,"workflow_runs":7},"requests_total":95,"response_shape":{"artifacts_checked":33,"cancelled_reference":{".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json":"6980e6e58cf086d77bc1b7583d93ae1c46703e523baeb6c01a341046572a82de",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json":"79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018"},"cancelled_run_checked":true,"jobs_checked":45,"log_reference":{".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json":"3b0dd91e85612a973012bbcdadcc925afa3b1dc5cbe4b95a1c5349c6ed226c33",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-BODIES-R11-PROBE.json":"3b8d5bf4cc0af7fcf302fe3897eaeef3e2219de0822a98d871032c9f4b6c9523",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json":"6980e6e58cf086d77bc1b7583d93ae1c46703e523baeb6c01a341046572a82de",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json":"79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018"},"mismatch_count":0,"mismatches":[],"ok":true,"reference":{"path":".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json","sequences":{"artifacts":29,"jobs":28,"listing":25,"run":27},"sha256":"9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01"},"run_logs_chains_checked":3,"run_logs_checked":true,"runs_checked":46,"scenarios_checked":["actual-failure","cancelled","docs-only","full-pass","missing-seam","unexpected-skip","verifier"],"steps_checked":177,"verifier_run_checked":true},"scenarios":["full-pass","docs-only","actual-failure","missing-seam","unexpected-skip","cancelled"],"seeded_r10_refs_changed":false,"seeded_r11_refs_changed":false,"seeded_r12_refs_changed":false,"seeded_r8_refs_changed":false,"seeded_r9_refs_changed":false,"shim_connect_hosts":["api.github.com","productionresultssa17.blob.core.windows.net","results-receiver.actions.githubusercontent.com"],"shim_refusals":[],"status":"passed","stop":null,"synthetic":true,"test_overrides":[],"verifier":{"detail":null,"status":"passed"},"verifier_job":{"dispatch":{"actual_status":204,"input_key_count":5,"input_unicode_scalars":15846,"input_utf8_bytes":15846,"sequence":89},"executed_jobs":35,"matrix_payload_chars":15628,"matrix_payload_limit":64511,"model":"verify_sources","result":"sources_verified","scenarios":["full-pass","docs-only","actual-failure","missing-seam","unexpected-skip","cancelled"]},"verifier_job_model":"verify_sources","violations":[]}
+PAGED-FULL-PASS {"allocation":{"allocation_kind":"canary","download_hosts":["pipelines.actions.githubusercontent.com","productionresultssa0.blob.core.windows.net","productionresultssa1.blob.core.windows.net","productionresultssa2.blob.core.windows.net","productionresultssa3.blob.core.windows.net","productionresultssa4.blob.core.windows.net","productionresultssa5.blob.core.windows.net","productionresultssa6.blob.core.windows.net","productionresultssa7.blob.core.windows.net","productionresultssa8.blob.core.windows.net","productionresultssa9.blob.core.windows.net","productionresultssa10.blob.core.windows.net","productionresultssa11.blob.core.windows.net","productionresultssa12.blob.core.windows.net","productionresultssa13.blob.core.windows.net","productionresultssa14.blob.core.windows.net","productionresultssa15.blob.core.windows.net","productionresultssa16.blob.core.windows.net","productionresultssa17.blob.core.windows.net","productionresultssa18.blob.core.windows.net","productionresultssa19.blob.core.windows.net","productionresultssa20.blob.core.windows.net","productionresultssa21.blob.core.windows.net","productionresultssa22.blob.core.windows.net","productionresultssa23.blob.core.windows.net","productionresultssa24.blob.core.windows.net","productionresultssa25.blob.core.windows.net","productionresultssa26.blob.core.windows.net","productionresultssa27.blob.core.windows.net","productionresultssa28.blob.core.windows.net","productionresultssa29.blob.core.windows.net","productionresultssa30.blob.core.windows.net","productionresultssa31.blob.core.windows.net","productionresultssa32.blob.core.windows.net","productionresultssa33.blob.core.windows.net","productionresultssa34.blob.core.windows.net","productionresultssa35.blob.core.windows.net","productionresultssa36.blob.core.windows.net","productionresultssa37.blob.core.windows.net","productionresultssa38.blob.core.windows.net","productionresultssa39.blob.core.windows.net","productionresultssa40.blob.core.windows.net","results-receiver.actions.githubusercontent.com"],"fields":["allocation_kind","bound_documents","category_limits","download_hosts","max_elapsed_seconds","max_hops","max_pages","max_requests","max_response_bytes","mode","repository","schema_version","source_sha256","window_id"],"max_hops":2,"max_pages":10,"max_requests":117,"mode":"live","window_id":"253-dryrun-live-policy-28050"},"authorization":{"api_with":36,"api_without":0,"blob_with":0,"results_receiver_with":0},"evidence_diagnostics":null,"evidence_has_preflight":true,"evidence_status":null,"first_poll_delays":[1.261],"freeze_plan":"253-91","invocations":[{"exit":0,"mode":"publish-only","requests":17,"requests_by_category":{"publication":17},"retained_preflight_reverified":false,"stop":null},{"exit":0,"mode":"full-pass","requests":20,"requests_by_category":{"artifact_downloads":2,"artifact_metadata":2,"attempt_jobs":2,"dispatch":1,"pre_watch_rate":1,"preflight":7,"publication":1,"run_discovery":1,"terminal_polls":3},"retained_preflight_reverified":false,"stop":null}],"journal_requests":37,"link_form_override":null,"live_hops":[{"category":"artifact_downloads","hop_ordinal":1,"host":"productionresultssa17.blob.core.windows.net","route":"artifact_zip","status":200}],"mode":"live-policy","modeled_elapsed_seconds":160.6,"paginated_reads":[{"next_link_forms":["repositories-id"],"pages":3,"route":"check_runs"},{"next_link_forms":["repositories-id"],"pages":2,"route":"run_jobs"},{"next_link_forms":["repositories-id"],"pages":2,"route":"run_artifacts"}],"preflight_copies":["253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-check-runs.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-effective-rules.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-legacy-protection.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-rate.json","253-DRYRUN-CANARY-EVIDENCE-PREFLIGHT-registered-workflow.json"],"problems":[],"publication":{"fixture_ref_state":"verified","origin_kind":"actual-github","origin_window_id":"253-dryrun-live-policy-28050","status":"published-actual-github","verifier_dryrun_window":true},"requested_sleeps":{"discovery":[20],"other":[],"poll":[60,60,60]},"requests_by_category":{"artifact_downloads":2,"artifact_metadata":2,"attempt_jobs":2,"dispatch":1,"pre_watch_rate":1,"preflight":7,"publication":18,"run_discovery":1,"terminal_polls":3},"requests_by_route":{"artifact_zip":2,"branch_protection":1,"check_runs":3,"create_ref":2,"dispatch":1,"get_ref":5,"git_create_commit":2,"git_create_tree":4,"git_get_blob":2,"git_get_commit":3,"rate_limit":2,"rules_main":1,"run":3,"run_artifacts":2,"run_jobs":2,"workflow":1,"workflow_runs":1},"requests_total":37,"response_shape":{"artifacts_checked":6,"cancelled_reference":{".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json":"6980e6e58cf086d77bc1b7583d93ae1c46703e523baeb6c01a341046572a82de",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json":"79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018"},"cancelled_run_checked":false,"jobs_checked":7,"log_reference":{".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json":"3b0dd91e85612a973012bbcdadcc925afa3b1dc5cbe4b95a1c5349c6ed226c33",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-BODIES-R11-PROBE.json":"3b8d5bf4cc0af7fcf302fe3897eaeef3e2219de0822a98d871032c9f4b6c9523",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-EVIDENCE-R11-PROBE.json":"6980e6e58cf086d77bc1b7583d93ae1c46703e523baeb6c01a341046572a82de",".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-HTTP-LEDGER-R11-PROBE.json":"79e8b4d320c410e9179aa610a614b8c4fa97d4aada692e004484134b59e10018"},"mismatch_count":0,"mismatches":[],"ok":true,"reference":{"path":".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json","sequences":{"artifacts":29,"jobs":28,"listing":25,"run":27},"sha256":"9c3d7659981a3be0e2592d09d670e4ab0dfc8084771a8ce51d8d1075a5f34e01"},"run_logs_chains_checked":0,"run_logs_checked":false,"runs_checked":4,"scenarios_checked":["full-pass"],"steps_checked":30,"verifier_run_checked":false},"scenarios":["full-pass"],"seeded_r10_refs_changed":false,"seeded_r11_refs_changed":false,"seeded_r12_refs_changed":false,"seeded_r8_refs_changed":false,"seeded_r9_refs_changed":false,"shim_connect_hosts":["api.github.com","productionresultssa17.blob.core.windows.net"],"shim_refusals":[],"status":"passed","stop":null,"synthetic":true,"test_overrides":[],"verifier":{"status":"pending"},"verifier_job":null,"verifier_job_model":"verify_sources","violations":[]}
+SUITE-START hermetic-live-audit
+test_every_row_records_both_behaviours_and_a_known_coverage_kind (__main__.AuditCompletenessTests.test_every_row_records_both_behaviours_and_a_known_coverage_kind) ... ok
+test_no_gap_rows (__main__.AuditCompletenessTests.test_no_gap_rows) ... ok
+test_the_audit_head_is_a_commit_of_this_checkout (__main__.AuditCompletenessTests.test_the_audit_head_is_a_commit_of_this_checkout) ... ok
+test_the_committed_record_is_complete_and_current (__main__.AuditCompletenessTests.test_the_committed_record_is_complete_and_current) ... ok
+test_the_matcher_finds_sites_in_all_five_files (__main__.AuditCompletenessTests.test_the_matcher_finds_sites_in_all_five_files) ... ok
+test_control_a_changed_matcher_fails (__main__.AuditPositiveControls.test_control_a_changed_matcher_fails) ... ok
+test_control_a_gap_row_is_reported (__main__.AuditPositiveControls.test_control_a_gap_row_is_reported) ... ok
+test_control_a_hermetic_only_test_cited_as_live_coverage_fails (__main__.AuditPositiveControls.test_control_a_hermetic_only_test_cited_as_live_coverage_fails) ... ok
+test_control_a_justified_row_without_residual_risk_fails (__main__.AuditPositiveControls.test_control_a_justified_row_without_residual_risk_fails) ... ok
+test_control_a_live_policy_gate_row_without_its_summary_assertion_fails (__main__.AuditPositiveControls.test_control_a_live_policy_gate_row_without_its_summary_assertion_fails) ... ok
+test_control_a_ref_to_a_nonexistent_test_fails (__main__.AuditPositiveControls.test_control_a_ref_to_a_nonexistent_test_fails) ... ok
+test_control_a_removed_row_fails (__main__.AuditPositiveControls.test_control_a_removed_row_fails) ... ok
+test_control_a_stale_anchor_and_a_moved_line_fail (__main__.AuditPositiveControls.test_control_a_stale_anchor_and_a_moved_line_fail) ... ok
+test_control_an_added_hermetic_branch_fails (__main__.AuditPositiveControls.test_control_an_added_hermetic_branch_fails) ... ok
+test_control_a_fabricated_pr_create_sample_backs_nothing (__main__.FieldsBackedPositiveControls.test_control_a_fabricated_pr_create_sample_backs_nothing) ... ok
+test_control_a_reasoned_field_on_a_real_shape_row_needs_a_residual_risk (__main__.FieldsBackedPositiveControls.test_control_a_reasoned_field_on_a_real_shape_row_needs_a_residual_risk) ... ok
+test_control_an_unbacked_meta_or_header_field_fails (__main__.FieldsBackedPositiveControls.test_control_an_unbacked_meta_or_header_field_fails) ... ok
+test_control_pr_create_without_mergeable_state_fails (__main__.FieldsBackedPositiveControls.test_control_pr_create_without_mergeable_state_fails) ... ok
+test_control_pr_read_without_the_mergeability_fields_fails (__main__.FieldsBackedPositiveControls.test_control_pr_read_without_the_mergeability_fields_fails) ... ok
+test_every_pr_row_lists_every_key_the_code_reads (__main__.FieldsBackedTests.test_every_pr_row_lists_every_key_the_code_reads) ... ok
+test_real_r11_cancel_run_matches_the_typed_route (__main__.FieldsBackedTests.test_real_r11_cancel_run_matches_the_typed_route) ... ok
+test_real_r11_pr_create_body_carries_every_consumed_key (__main__.FieldsBackedTests.test_real_r11_pr_create_body_carries_every_consumed_key) ... ok
+test_real_r11_pull_request_discovery_bodies_are_empty (__main__.FieldsBackedTests.test_real_r11_pull_request_discovery_bodies_are_empty) ... ok
+test_control_a_new_pr_body_read_in_the_collector_is_caught (__main__.PRBodyKeysTrackTheCodeTests.test_control_a_new_pr_body_read_in_the_collector_is_caught) ... ok
+test_every_listed_key_is_read_by_the_code (__main__.PRBodyKeysTrackTheCodeTests.test_every_listed_key_is_read_by_the_code) ... ok
+test_every_pr_body_read_in_the_code_is_listed (__main__.PRBodyKeysTrackTheCodeTests.test_every_pr_body_read_in_the_code_is_listed) ... ok
+test_control_a_removed_route_set_is_loud (__main__.PaginationRulePositiveControls.test_control_a_removed_route_set_is_loud) ... ok
+test_control_a_route_added_to_fetch_pages_needs_the_link_fields (__main__.PaginationRulePositiveControls.test_control_a_route_added_to_fetch_pages_needs_the_link_fields) ... ok
+test_control_an_unknown_link_form_fails (__main__.PaginationRulePositiveControls.test_control_an_unknown_link_form_fails) ... ok
+test_control_another_repository_id_fails (__main__.PaginationRulePositiveControls.test_control_another_repository_id_fails) ... ok
+test_control_check_runs_without_page_ordinal_fails (__main__.PaginationRulePositiveControls.test_control_check_runs_without_page_ordinal_fails) ... ok
+test_control_fakes_without_the_repositories_id_form_fail (__main__.PaginationRulePositiveControls.test_control_fakes_without_the_repositories_id_form_fail) ... ok
+test_control_fakes_without_the_repository_id_fail (__main__.PaginationRulePositiveControls.test_control_fakes_without_the_repository_id_fail) ... ok
+test_control_no_link_in_any_ledger_is_reported_as_vacuous (__main__.PaginationRulePositiveControls.test_control_no_link_in_any_ledger_is_reported_as_vacuous) ... ok
+test_control_rules_main_without_header_link_fails (__main__.PaginationRulePositiveControls.test_control_rules_main_without_header_link_fails) ... ok
+test_r12_sequence_21_yields_the_repositories_id_form (__main__.PaginationRuleTests.test_r12_sequence_21_yields_the_repositories_id_form) ... ok
+test_the_committed_record_passes_both_pagination_rules (__main__.PaginationRuleTests.test_the_committed_record_passes_both_pagination_rules) ... ok
+test_the_paginated_route_set_is_read_from_the_transport (__main__.PaginationRuleTests.test_the_paginated_route_set_is_read_from_the_transport) ... ok
+test_control_a_probe_locator_on_the_wrong_sequence_fails (__main__.ProbeObservedRoutePositiveControls.test_control_a_probe_locator_on_the_wrong_sequence_fails) ... ok
+test_control_no_probe_ledger_is_reported_as_vacuous (__main__.ProbeObservedRoutePositiveControls.test_control_no_probe_ledger_is_reported_as_vacuous) ... ok
+test_control_shape_run_logs_reverted_to_justified_fails (__main__.ProbeObservedRoutePositiveControls.test_control_shape_run_logs_reverted_to_justified_fails) ... ok
+test_control_shape_run_logs_without_its_probe_sample_fails (__main__.ProbeObservedRoutePositiveControls.test_control_shape_run_logs_without_its_probe_sample_fails) ... ok
+test_live_probe_job_logs_hop0_matches_the_typed_download_route (__main__.ProbeObservedRouteTests.test_live_probe_job_logs_hop0_matches_the_typed_download_route) ... ok
+test_probe_observed_routes_are_not_justified (__main__.ProbeObservedRouteTests.test_probe_observed_routes_are_not_justified) ... ok
+test_every_github_transport_route_and_both_workflow_sources_have_exactly_one_row (__main__.ResponseShapeCompletenessTests.test_every_github_transport_route_and_both_workflow_sources_have_exactly_one_row) ... ok
+test_no_response_shape_row_is_a_gap_and_every_justified_row_states_its_risk (__main__.ResponseShapeCompletenessTests.test_no_response_shape_row_is_a_gap_and_every_justified_row_states_its_risk) ... ok
+test_resolution_reads_real_bytes_and_refuses_an_absent_field (__main__.ResponseShapeCompletenessTests.test_resolution_reads_real_bytes_and_refuses_an_absent_field) ... ok
+test_control_a_changed_real_sample_hash_fails (__main__.ResponseShapePositiveControls.test_control_a_changed_real_sample_hash_fails) ... ok
+test_control_a_compared_field_absent_from_its_real_samples_without_a_reason_fails (__main__.ResponseShapePositiveControls.test_control_a_compared_field_absent_from_its_real_samples_without_a_reason_fails) ... ok
+test_control_a_consumer_symbol_that_no_longer_exists_fails (__main__.ResponseShapePositiveControls.test_control_a_consumer_symbol_that_no_longer_exists_fails) ... ok
+test_control_a_hermetic_only_test_cited_as_real_shape_coverage_fails (__main__.ResponseShapePositiveControls.test_control_a_hermetic_only_test_cited_as_real_shape_coverage_fails) ... ok
+test_control_a_justified_field_that_does_resolve_is_reported (__main__.ResponseShapePositiveControls.test_control_a_justified_field_that_does_resolve_is_reported) ... ok
+test_control_a_justified_row_without_residual_risk_fails (__main__.ResponseShapePositiveControls.test_control_a_justified_row_without_residual_risk_fails) ... ok
+test_control_a_locator_on_another_route_fails (__main__.ResponseShapePositiveControls.test_control_a_locator_on_another_route_fails) ... ok
+test_control_a_locator_with_another_status_fails (__main__.ResponseShapePositiveControls.test_control_a_locator_with_another_status_fails) ... ok
+test_control_a_ref_to_a_nonexistent_test_fails (__main__.ResponseShapePositiveControls.test_control_a_ref_to_a_nonexistent_test_fails) ... ok
+test_control_a_removed_route_row_fails (__main__.ResponseShapePositiveControls.test_control_a_removed_route_row_fails) ... ok
+test_control_a_response_shape_gap_row_is_reported_by_the_gap_rule (__main__.ResponseShapePositiveControls.test_control_a_response_shape_gap_row_is_reported_by_the_gap_rule) ... ok
+test_control_an_added_transport_route_without_a_row_fails (__main__.ResponseShapePositiveControls.test_control_an_added_transport_route_without_a_row_fails) ... ok
+test_control_changed_real_sample_bytes_fail (__main__.ResponseShapePositiveControls.test_control_changed_real_sample_bytes_fail) ... ok
+test_control_a_window_locator_on_the_wrong_sequence_fails (__main__.WindowObservedRoutePositiveControls.test_control_a_window_locator_on_the_wrong_sequence_fails) ... ok
+test_control_cancel_run_reverted_to_justified_fails (__main__.WindowObservedRoutePositiveControls.test_control_cancel_run_reverted_to_justified_fails) ... ok
+test_control_no_window_ledger_is_reported_as_vacuous (__main__.WindowObservedRoutePositiveControls.test_control_no_window_ledger_is_reported_as_vacuous) ... ok
+test_control_pr_create_without_its_window_sample_fails (__main__.WindowObservedRoutePositiveControls.test_control_pr_create_without_its_window_sample_fails) ... ok
+test_every_real_sample_is_a_committed_file (__main__.WindowObservedRouteTests.test_every_real_sample_is_a_committed_file) ... ok
+test_window_observed_routes_rest_on_their_window_bytes (__main__.WindowObservedRouteTests.test_window_observed_routes_rest_on_their_window_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 66 tests in 67.579s
+
+OK
+SUITE-PASS hermetic-live-audit
+SUITE-START git-publication
+test_a_halted_window_and_rerun_flags_are_refused_before_any_request (__main__.LiveModeApprovalTests.test_a_halted_window_and_rerun_flags_are_refused_before_any_request) ... ok
+test_build_freeze_plan_defaults_to_253_91_and_accepts_only_a_plan_id_override (__main__.LiveModeApprovalTests.test_build_freeze_plan_defaults_to_253_91_and_accepts_only_a_plan_id_override) ... ok
+test_canary_artifact_extraction_enforces_the_zip_limits (__main__.LiveModeApprovalTests.test_canary_artifact_extraction_enforces_the_zip_limits) ... ok
+test_check_freeze_enforces_expired_reruns_native_target_bounds_and_categories (__main__.LiveModeApprovalTests.test_check_freeze_enforces_expired_reruns_native_target_bounds_and_categories) ... ok
+test_check_only_applies_the_revision_policy_without_approval_or_network (__main__.LiveModeApprovalTests.test_check_only_applies_the_revision_policy_without_approval_or_network) ... ok
+test_compact_matrix_payload_is_bounded_gzip_base64_and_decodes_with_the_verifier (__main__.LiveModeApprovalTests.test_compact_matrix_payload_is_bounded_gzip_base64_and_decodes_with_the_verifier) ... ok
+test_every_live_mode_refuses_without_the_committed_canary_section_approval_before_any_request (__main__.LiveModeApprovalTests.test_every_live_mode_refuses_without_the_committed_canary_section_approval_before_any_request) ... ok
+test_first_transaction_follows_the_recorded_action_approval (__main__.LiveModeApprovalTests.test_first_transaction_follows_the_recorded_action_approval) ... ok
+test_mutations_outside_the_approved_canary_section_are_refused (__main__.LiveModeApprovalTests.test_mutations_outside_the_approved_canary_section_are_refused) ... ok
+test_a_hermetic_allocation_is_labelled_hermetic_whatever_its_hosts (__main__.LiveOriginDerivationTests.test_a_hermetic_allocation_is_labelled_hermetic_whatever_its_hosts) ... ok
+test_live_allocation_refuses_any_non_api_publication_host_or_incomplete_transaction (__main__.LiveOriginDerivationTests.test_live_allocation_refuses_any_non_api_publication_host_or_incomplete_transaction) ... ok
+test_live_allocation_with_an_all_api_complete_ledger_is_actual_github_with_its_window (__main__.LiveOriginDerivationTests.test_live_allocation_with_an_all_api_complete_ledger_is_actual_github_with_its_window) ... ok
+test_a_record_that_is_not_a_fetched_r12_record_or_disagrees_with_local_main_is_refused_with_no_output (__main__.MainFreshnessTests.test_a_record_that_is_not_a_fetched_r12_record_or_disagrees_with_local_main_is_refused_with_no_output) ... ok
+test_a_stale_server_parent_on_the_reproduced_253_134_shape_is_refused_with_no_output (__main__.MainFreshnessTests.test_a_stale_server_parent_on_the_reproduced_253_134_shape_is_refused_with_no_output) ... ok
+test_an_r12_freeze_refuses_a_manifest_without_a_clean_main_freshness_on_its_server_parent (__main__.MainFreshnessTests.test_an_r12_freeze_refuses_a_manifest_without_a_clean_main_freshness_on_its_server_parent) ... ok
+test_check_freeze_rehashes_the_main_record_and_never_reads_origin_main (__main__.MainFreshnessTests.test_check_freeze_rehashes_the_main_record_and_never_reads_origin_main) ... ok
+test_earlier_pairs_build_freezes_without_a_main_record_exactly_as_before (__main__.MainFreshnessTests.test_earlier_pairs_build_freezes_without_a_main_record_exactly_as_before) ... ok
+test_merge_preflight_reports_conflicting_paths_clean_children_and_raises_on_unknown_objects (__main__.MainFreshnessTests.test_merge_preflight_reports_conflicting_paths_clean_children_and_raises_on_unknown_objects) ... ok
+test_the_recorded_fresh_main_as_server_parent_is_ready_with_a_clean_main_freshness (__main__.MainFreshnessTests.test_the_recorded_fresh_main_as_server_parent_is_ready_with_a_clean_main_freshness) ... ok
+test_a_tolerated_stripped_message_with_a_different_sha_is_still_rejected (__main__.PublicationTests.test_a_tolerated_stripped_message_with_a_different_sha_is_still_rejected) ... ok
+test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback (__main__.PublicationTests.test_actual_measured_https_uploads_local_only_objects_before_create_only_ref_readback) ... ok
+test_actual_server_rejects_create_ref_for_a_local_only_unknown_commit (__main__.PublicationTests.test_actual_server_rejects_create_ref_for_a_local_only_unknown_commit) ... ok
+test_actual_transport_publishes_full_multifile_delta_through_bounded_tree_chain (__main__.PublicationTests.test_actual_transport_publishes_full_multifile_delta_through_bounded_tree_chain) ... ok
+test_blob_route_rejects_invalid_base64_without_transmitting (__main__.PublicationTests.test_blob_route_rejects_invalid_base64_without_transmitting) ... ok
+test_changed_product_worktree_status_blocks_preparation (__main__.PublicationTests.test_changed_product_worktree_status_blocks_preparation) ... ok
+test_changed_server_tree_sha_stops_before_commit_or_ref (__main__.PublicationTests.test_changed_server_tree_sha_stops_before_commit_or_ref) ... ok
+test_commit_message_matches_accepts_only_equality_or_one_stripped_newline (__main__.PublicationTests.test_commit_message_matches_accepts_only_equality_or_one_stripped_newline) ... ok
+test_commit_route_rejects_signed_or_unknown_header_representation (__main__.PublicationTests.test_commit_route_rejects_signed_or_unknown_header_representation) ... ok
+test_commit_route_requires_second_resolution_utc_metadata_and_final_newline (__main__.PublicationTests.test_commit_route_requires_second_resolution_utc_metadata_and_final_newline) ... ok
+test_create_race_is_counted_and_never_retried_or_patched (__main__.PublicationTests.test_create_race_is_counted_and_never_retried_or_patched) ... ok
+test_dirty_config_with_changed_bytes_and_no_exact_preservation_ref_is_rejected (__main__.PublicationTests.test_dirty_config_with_changed_bytes_and_no_exact_preservation_ref_is_rejected) ... ok
+test_empty_null_single_and_forged_manifest_inputs_are_rejected (__main__.PublicationTests.test_empty_null_single_and_forged_manifest_inputs_are_rejected) ... ok
+test_every_other_commit_message_readback_is_rejected_after_charge_without_a_ref (__main__.PublicationTests.test_every_other_commit_message_readback_is_rejected_after_charge_without_a_ref) ... ok
+test_exact_existing_ref_is_reused_only_with_matching_manifest_and_window_receipt (__main__.PublicationTests.test_exact_existing_ref_is_reused_only_with_matching_manifest_and_window_receipt) ... ok
+test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes (__main__.PublicationTests.test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes) ... ok
+test_existing_wrong_ref_is_never_overwritten (__main__.PublicationTests.test_existing_wrong_ref_is_never_overwritten) ... ok
+test_git_object_route_rejects_short_uppercase_and_nonhex_sha (__main__.PublicationTests.test_git_object_route_rejects_short_uppercase_and_nonhex_sha) ... ok
+test_git_object_tree_route_is_live_repo_bound_and_post_only (__main__.PublicationTests.test_git_object_tree_route_is_live_repo_bound_and_post_only) ... ok
+test_hermetic_git_object_route_is_restricted_to_local_https_origin (__main__.PublicationTests.test_hermetic_git_object_route_is_restricted_to_local_https_origin) ... ok
+test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain (__main__.PublicationTests.test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain) ... ok
+test_lost_ref_readback_keeps_created_ref_and_never_replays_create (__main__.PublicationTests.test_lost_ref_readback_keeps_created_ref_and_never_replays_create) ... ok
+test_manifest_rejects_broken_tree_base_chain_and_over_budget_chain (__main__.PublicationTests.test_manifest_rejects_broken_tree_base_chain_and_over_budget_chain) ... ok
+test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit (__main__.PublicationTests.test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit) ... ok
+test_preserved_config_clean_committed_config_uses_ordinary_clean_path (__main__.PublicationTests.test_preserved_config_clean_committed_config_uses_ordinary_clean_path) ... ok
+test_preserved_config_does_not_allow_dirty_product_source (__main__.PublicationTests.test_preserved_config_does_not_allow_dirty_product_source) ... ok
+test_preserved_config_independent_byte_and_trailing_newline_drift_is_rejected (__main__.PublicationTests.test_preserved_config_independent_byte_and_trailing_newline_drift_is_rejected) ... ok
+test_preserved_config_missing_preservation_ref_is_rejected (__main__.PublicationTests.test_preserved_config_missing_preservation_ref_is_rejected) ... ok
+test_preserved_config_ref_pointing_at_different_bytes_is_rejected (__main__.PublicationTests.test_preserved_config_ref_pointing_at_different_bytes_is_rejected) ... ok
+test_preserved_config_staged_exact_bytes_are_rejected (__main__.PublicationTests.test_preserved_config_staged_exact_bytes_are_rejected) ... ok
+test_publication_also_accepts_a_server_that_echoes_the_commit_message_verbatim (__main__.PublicationTests.test_publication_also_accepts_a_server_that_echoes_the_commit_message_verbatim) ... ok
+test_ref_creation_body_enforces_scoped_namespace_and_full_sha (__main__.PublicationTests.test_ref_creation_body_enforces_scoped_namespace_and_full_sha) ... ok
+test_tampered_commit_readback_metadata_is_rejected_after_charge (__main__.PublicationTests.test_tampered_commit_readback_metadata_is_rejected_after_charge) ... ok
+test_tree_request_wire_body_is_capped_at_two_mib (__main__.PublicationTests.test_tree_request_wire_body_is_capped_at_two_mib) ... ok
+test_tree_route_allows_explicit_null_sha_deletion (__main__.PublicationTests.test_tree_route_allows_explicit_null_sha_deletion) ... ok
+test_tree_route_rejects_absolute_traversal_empty_segment_and_nul_path (__main__.PublicationTests.test_tree_route_rejects_absolute_traversal_empty_segment_and_nul_path) ... ok
+test_tree_route_rejects_nul_text_and_accepts_executable_mode (__main__.PublicationTests.test_tree_route_rejects_nul_text_and_accepts_executable_mode) ... ok
+test_unknown_parent_is_a_counted_preflight_stop_before_any_upload (__main__.PublicationTests.test_unknown_parent_is_a_counted_preflight_stop_before_any_upload) ... ok
+test_wrapped_github_blob_base64_is_accepted_and_a_changed_wrapped_byte_is_rejected (__main__.PublicationTests.test_wrapped_github_blob_base64_is_accepted_and_a_changed_wrapped_byte_is_rejected) ... ok
+test_an_r10_identity_moves_every_candidate_and_fixture_ref_to_the_r10_names (__main__.R10RefPairTests.test_an_r10_identity_moves_every_candidate_and_fixture_ref_to_the_r10_names) ... ok
+test_build_freeze_accepts_r10_and_the_cli_refuses_a_fifth_pair_naming_all_four (__main__.R10RefPairTests.test_build_freeze_accepts_r10_and_the_cli_refuses_a_fifth_pair_naming_all_four) ... ok
+test_check_freeze_refuses_r10_mixed_with_r9_r8_or_legacy (__main__.R10RefPairTests.test_check_freeze_refuses_r10_mixed_with_r9_r8_or_legacy) ... ok
+test_every_earlier_freeze_still_replays_with_the_fourth_pair_present (__main__.R10RefPairTests.test_every_earlier_freeze_still_replays_with_the_fourth_pair_present) ... ok
+test_freeze_r9_replays_its_recorded_section_digests_exactly (__main__.R10RefPairTests.test_freeze_r9_replays_its_recorded_section_digests_exactly) ... ok
+test_r10_publication_creates_only_the_r10_refs_and_leaves_seeded_r8_and_r9_refs_untouched (__main__.R10RefPairTests.test_r10_publication_creates_only_the_r10_refs_and_leaves_seeded_r8_and_r9_refs_untouched) ... ok
+test_r9_freeze_publication_stops_on_seeded_r9_refs_at_another_sha_with_no_ref_changed (__main__.R10RefPairTests.test_r9_freeze_publication_stops_on_seeded_r9_refs_at_another_sha_with_no_ref_changed) ... ok
+test_an_r11_identity_moves_every_candidate_and_fixture_ref_to_the_r11_names (__main__.R11RefPairTests.test_an_r11_identity_moves_every_candidate_and_fixture_ref_to_the_r11_names) ... ok
+test_build_freeze_accepts_r11_and_the_cli_refuses_a_sixth_pair_naming_all_five (__main__.R11RefPairTests.test_build_freeze_accepts_r11_and_the_cli_refuses_a_sixth_pair_naming_all_five) ... ok
+test_check_freeze_refuses_r11_mixed_with_r10_r9_r8_or_legacy (__main__.R11RefPairTests.test_check_freeze_refuses_r11_mixed_with_r10_r9_r8_or_legacy) ... ok
+test_every_earlier_freeze_still_replays_with_the_fifth_pair_present (__main__.R11RefPairTests.test_every_earlier_freeze_still_replays_with_the_fifth_pair_present) ... ok
+test_freeze_r10_replays_its_recorded_section_digests_exactly (__main__.R11RefPairTests.test_freeze_r10_replays_its_recorded_section_digests_exactly) ... ok
+test_r10_freeze_publication_stops_on_seeded_r10_refs_at_another_sha_with_no_ref_changed (__main__.R11RefPairTests.test_r10_freeze_publication_stops_on_seeded_r10_refs_at_another_sha_with_no_ref_changed) ... ok
+test_r11_publication_creates_only_the_r11_refs_and_leaves_seeded_r8_r9_and_r10_refs_untouched (__main__.R11RefPairTests.test_r11_publication_creates_only_the_r11_refs_and_leaves_seeded_r8_r9_and_r10_refs_untouched) ... ok
+test_an_r12_identity_moves_every_candidate_and_fixture_ref_to_the_r12_names (__main__.R12RefPairTests.test_an_r12_identity_moves_every_candidate_and_fixture_ref_to_the_r12_names) ... ok
+test_build_freeze_accepts_r12_and_the_cli_refuses_a_seventh_pair_naming_all_six (__main__.R12RefPairTests.test_build_freeze_accepts_r12_and_the_cli_refuses_a_seventh_pair_naming_all_six) ... ok
+test_check_freeze_refuses_r12_mixed_with_an_earlier_pair (__main__.R12RefPairTests.test_check_freeze_refuses_r12_mixed_with_an_earlier_pair) ... ok
+test_freeze_r11_and_every_earlier_freeze_replay_their_recorded_digests_with_the_sixth_pair_present (__main__.R12RefPairTests.test_freeze_r11_and_every_earlier_freeze_replay_their_recorded_digests_with_the_sixth_pair_present) ... ok
+test_positive_control_an_r11_publication_stops_on_the_seeded_real_r11_refs_with_no_ref_changed (__main__.R12RefPairTests.test_positive_control_an_r11_publication_stops_on_the_seeded_real_r11_refs_with_no_ref_changed) ... ok
+test_r12_is_a_known_pair_and_every_mixed_or_unknown_pair_is_refused (__main__.R12RefPairTests.test_r12_is_a_known_pair_and_every_mixed_or_unknown_pair_is_refused) ... ok
+test_r12_publication_creates_only_the_r12_refs_beside_the_four_seeded_earlier_pairs (__main__.R12RefPairTests.test_r12_publication_creates_only_the_r12_refs_beside_the_four_seeded_earlier_pairs) ... ok
+test_the_seed_table_is_the_eight_real_refs_from_the_committed_records (__main__.R12RefPairTests.test_the_seed_table_is_the_eight_real_refs_from_the_committed_records) ... ok
+test_an_r13_freeze_carries_the_r13_canary_table_and_an_r12_freeze_the_legacy_one (__main__.R13RefPairTests.test_an_r13_freeze_carries_the_r13_canary_table_and_an_r12_freeze_the_legacy_one) ... ok
+test_an_r13_freeze_needs_a_clean_main_freshness_on_its_server_parent_and_binds_the_record (__main__.R13RefPairTests.test_an_r13_freeze_needs_a_clean_main_freshness_on_its_server_parent_and_binds_the_record) ... ok
+test_an_r13_freeze_without_a_main_record_is_refused_and_writes_nothing (__main__.R13RefPairTests.test_an_r13_freeze_without_a_main_record_is_refused_and_writes_nothing) ... ok
+test_an_r13_identity_moves_every_candidate_and_fixture_ref_to_the_r13_names (__main__.R13RefPairTests.test_an_r13_identity_moves_every_candidate_and_fixture_ref_to_the_r13_names) ... ok
+test_check_freeze_rehashes_the_r13_main_record (__main__.R13RefPairTests.test_check_freeze_rehashes_the_r13_main_record) ... ok
+test_positive_control_an_r12_publication_stops_on_the_seeded_real_r12_refs_with_no_ref_changed (__main__.R13RefPairTests.test_positive_control_an_r12_publication_stops_on_the_seeded_real_r12_refs_with_no_ref_changed) ... ok
+test_r13_is_a_known_pair_and_every_mixed_or_unknown_pair_is_refused (__main__.R13RefPairTests.test_r13_is_a_known_pair_and_every_mixed_or_unknown_pair_is_refused) ... ok
+test_r13_publication_creates_only_the_r13_refs_beside_the_five_seeded_earlier_pairs (__main__.R13RefPairTests.test_r13_publication_creates_only_the_r13_refs_beside_the_five_seeded_earlier_pairs) ... ok
+test_the_main_freshness_guard_keys_on_one_pair_set_naming_r12_and_r13 (__main__.R13RefPairTests.test_the_main_freshness_guard_keys_on_one_pair_set_naming_r12_and_r13) ... ok
+test_the_r13_canary_table_moves_eight_requests_from_the_expired_retry_to_preflight_and_nothing_else (__main__.R13RefPairTests.test_the_r13_canary_table_moves_eight_requests_from_the_expired_retry_to_preflight_and_nothing_else) ... ok
+test_the_seed_table_is_the_ten_real_refs_from_the_committed_records (__main__.R13RefPairTests.test_the_seed_table_is_the_ten_real_refs_from_the_committed_records) ... ok
+test_an_r9_identity_moves_every_candidate_and_fixture_ref_to_the_r9_names (__main__.R9RefPairTests.test_an_r9_identity_moves_every_candidate_and_fixture_ref_to_the_r9_names) ... ok
+test_build_freeze_accepts_r9_and_the_cli_refuses_a_fourth_pair (__main__.R9RefPairTests.test_build_freeze_accepts_r9_and_the_cli_refuses_a_fourth_pair) ... ok
+test_check_freeze_refuses_r9_mixed_with_r8_or_legacy (__main__.R9RefPairTests.test_check_freeze_refuses_r9_mixed_with_r8_or_legacy) ... ok
+test_freeze_r8_replays_its_recorded_section_digests_exactly (__main__.R9RefPairTests.test_freeze_r8_replays_its_recorded_section_digests_exactly) ... ok
+test_r8_freeze_publication_stops_on_seeded_r8_refs_at_another_sha_with_no_ref_changed (__main__.R9RefPairTests.test_r8_freeze_publication_stops_on_seeded_r8_refs_at_another_sha_with_no_ref_changed) ... ok
+test_r9_publication_creates_only_the_r9_refs_and_leaves_seeded_r8_refs_untouched (__main__.R9RefPairTests.test_r9_publication_creates_only_the_r9_refs_and_leaves_seeded_r8_refs_untouched) ... ok
+test_the_unused_canary_branch_alias_is_gone (__main__.R9RefPairTests.test_the_unused_canary_branch_alias_is_gone) ... ok
+test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field (__main__.RealPublicationShapeTests.test_live_r9_real_publication_ledger_proves_every_receipt_identity_and_readback_field) ... ok
+test_live_real_shape_compact_matrix_fits_and_round_trips (__main__.RealShapeCompactMatrixTests.test_live_real_shape_compact_matrix_fits_and_round_trips) ... ok
+test_an_r8_identity_moves_every_candidate_and_fixture_ref_and_a_mixed_identity_is_refused (__main__.RefPairTests.test_an_r8_identity_moves_every_candidate_and_fixture_ref_and_a_mixed_identity_is_refused) ... ok
+test_both_earlier_freezes_replay_their_recorded_section_digests_exactly (__main__.RefPairTests.test_both_earlier_freezes_replay_their_recorded_section_digests_exactly) ... ok
+test_build_freeze_selects_the_pair_refuses_unknown_pairs_and_accepts_three_digit_plans (__main__.RefPairTests.test_build_freeze_selects_the_pair_refuses_unknown_pairs_and_accepts_three_digit_plans) ... ok
+test_check_freeze_refuses_a_mixed_pair_or_a_third_name (__main__.RefPairTests.test_check_freeze_refuses_a_mixed_pair_or_a_third_name) ... ok
+test_exactly_seven_ref_pairs_exist_and_legacy_is_the_default (__main__.RefPairTests.test_exactly_seven_ref_pairs_exist_and_legacy_is_the_default) ... ok
+test_legacy_freeze_publication_stops_on_seeded_refs_at_another_sha_with_no_ref_changed (__main__.RefPairTests.test_legacy_freeze_publication_stops_on_seeded_refs_at_another_sha_with_no_ref_changed) ... ok
+test_r8_publication_creates_only_the_r8_refs_end_to_end_and_leaves_seeded_legacy_refs_untouched (__main__.RefPairTests.test_r8_publication_creates_only_the_r8_refs_end_to_end_and_leaves_seeded_legacy_refs_untouched) ... ok
+test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities (__main__.RegisteredPublicationTests.test_actual_github_origin_needs_live_allocation_hosts_and_server_derived_identities) ... ok
+test_canary_publish_only_drives_the_publisher_end_to_end_and_records_the_approval_first (__main__.RegisteredPublicationTests.test_canary_publish_only_drives_the_publisher_end_to_end_and_records_the_approval_first) ... ok
+test_hermetic_and_legacy_origins_are_rejected_by_live_acceptance (__main__.RegisteredPublicationTests.test_hermetic_and_legacy_origins_are_rejected_by_live_acceptance) ... ok
+test_publish_docs_publishes_only_the_frozen_docs_variants_within_fourteen_requests (__main__.RegisteredPublicationTests.test_publish_docs_publishes_only_the_frozen_docs_variants_within_fourteen_requests) ... ok
+test_publish_docs_refuses_every_unapproved_or_wrongly_scoped_approval_before_any_request (__main__.RegisteredPublicationTests.test_publish_docs_refuses_every_unapproved_or_wrongly_scoped_approval_before_any_request) ... ok
+test_publish_with_a_freeze_needs_the_canary_section_approval_and_a_live_allocation_needs_a_freeze (__main__.RegisteredPublicationTests.test_publish_with_a_freeze_needs_the_canary_section_approval_and_a_live_allocation_needs_a_freeze) ... ok
+test_registered_ci_yml_fixture_child_changes_exactly_the_registered_workflow_and_is_published (__main__.RegisteredPublicationTests.test_registered_ci_yml_fixture_child_changes_exactly_the_registered_workflow_and_is_published) ... ok
+test_unregistered_workflow_path_and_missing_fixture_are_rejected_at_preparation (__main__.RegisteredPublicationTests.test_unregistered_workflow_path_and_missing_fixture_are_rejected_at_preparation) ... ok
+test_validate_frozen_product_source_accepts_planning_only_descendants_and_rejects_product_changes (__main__.RegisteredPublicationTests.test_validate_frozen_product_source_accepts_planning_only_descendants_and_rejects_product_changes) ... ok
+test_a_publication_receipt_stays_verifiable_after_later_requests_join_the_shared_ledger (__main__.ReviewRemediationTests.test_a_publication_receipt_stays_verifiable_after_later_requests_join_the_shared_ledger) ... ok
+test_a_recorded_window_start_is_never_moved_by_a_retry (__main__.ReviewRemediationTests.test_a_recorded_window_start_is_never_moved_by_a_retry) ... ok
+test_live_modes_work_from_another_directory_with_relative_paths (__main__.ReviewRemediationTests.test_live_modes_work_from_another_directory_with_relative_paths) ... ok
+test_publish_docs_applies_the_full_freeze_policy_before_any_request (__main__.ReviewRemediationTests.test_publish_docs_applies_the_full_freeze_policy_before_any_request) ... ok
+test_publish_only_marks_nothing_verified_for_a_hermetic_allocation_and_requires_live_origin_otherwise (__main__.ReviewRemediationTests.test_publish_only_marks_nothing_verified_for_a_hermetic_allocation_and_requires_live_origin_otherwise) ... ok
+test_publish_only_refuses_evidence_without_a_recorded_window_start (__main__.ReviewRemediationTests.test_publish_only_refuses_evidence_without_a_recorded_window_start) ... ok
+test_relative_evidence_and_ledger_paths_are_anchored_where_the_script_was_invoked (__main__.ReviewRemediationTests.test_relative_evidence_and_ledger_paths_are_anchored_where_the_script_was_invoked) ... ok
+test_the_canary_script_never_depends_on_ripgrep_for_a_guard (__main__.ReviewRemediationTests.test_the_canary_script_never_depends_on_ripgrep_for_a_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 124 tests in 289.539s
+
+OK
+
+real-shape compact matrix: 34764 characters, limit 64511, margin 29747
+real R9 full-pass receipt alone: 7300 characters
+SUITE-PASS git-publication
+SUITE-START hosted-transport
+test_actual_http_200_and_404_reconcile_to_independent_v2_verdict (__main__.HostedTransportWireTests.test_actual_http_200_and_404_reconcile_to_independent_v2_verdict) ... ok
+test_all_redirect_statuses_are_measured_without_automatic_follow (__main__.HostedTransportWireTests.test_all_redirect_statuses_are_measured_without_automatic_follow) ... ok
+test_concurrent_requests_cannot_overspend_the_last_slot (__main__.HostedTransportWireTests.test_concurrent_requests_cannot_overspend_the_last_slot) ... ok
+test_connection_failure_still_spends_a_pending_sequence (__main__.HostedTransportWireTests.test_connection_failure_still_spends_a_pending_sequence) ... ok
+test_declined_budget_never_reaches_the_https_server (__main__.HostedTransportWireTests.test_declined_budget_never_reaches_the_https_server) ... ok
+test_exact_core_threshold_is_terminal (__main__.HostedTransportWireTests.test_exact_core_threshold_is_terminal) ... ok
+test_git_object_post_records_body_facts_without_retaining_source_content (__main__.HostedTransportWireTests.test_git_object_post_records_body_facts_without_retaining_source_content) ... ok
+test_live_allocation_rejects_hermetic_test_origin_before_socket_use (__main__.HostedTransportWireTests.test_live_allocation_rejects_hermetic_test_origin_before_socket_use) ... ok
+test_native_statuses_are_retained_without_inference (__main__.HostedTransportWireTests.test_native_statuses_are_retained_without_inference) ... ok
+test_pages_are_explicit_charged_requests_and_cycles_stop_at_the_frozen_limit (__main__.HostedTransportWireTests.test_pages_are_explicit_charged_requests_and_cycles_stop_at_the_frozen_limit) ... ok
+test_rate_and_auth_hard_stops_prevent_a_later_network_request (__main__.HostedTransportWireTests.test_rate_and_auth_hard_stops_prevent_a_later_network_request) ... ok
+test_redirect_budget_exhaustion_charges_only_the_frozen_hops (__main__.HostedTransportWireTests.test_redirect_budget_exhaustion_charges_only_the_frozen_hops) ... ok
+test_redirects_are_individually_charged_and_signed_query_is_not_retained (__main__.HostedTransportWireTests.test_redirects_are_individually_charged_and_signed_query_is_not_retained) ... ok
+test_shell_startup_charges_before_one_real_https_response (__main__.HostedTransportWireTests.test_shell_startup_charges_before_one_real_https_response) ... ok
+test_two_page_response_charges_both_wire_requests (__main__.HostedTransportWireTests.test_two_page_response_charges_both_wire_requests) ... ok
+test_unapproved_redirect_is_stopped_before_a_second_socket_request (__main__.HostedTransportWireTests.test_unapproved_redirect_is_stopped_before_a_second_socket_request) ... ok
+test_live_allocation_refuses_every_test_only_route (__main__.LivePolicyAllocationTests.test_live_allocation_refuses_every_test_only_route) ... ok
+test_live_canary_max_requests_is_one_through_117_while_hermetic_may_be_zero (__main__.LivePolicyAllocationTests.test_live_canary_max_requests_is_one_through_117_while_hermetic_may_be_zero) ... ok
+test_live_download_hosts_admit_results_receiver_by_exact_name_only (__main__.LivePolicyAllocationTests.test_live_download_hosts_admit_results_receiver_by_exact_name_only) ... ok
+test_live_download_hosts_must_be_a_unique_list_of_trusted_hosts_only (__main__.LivePolicyAllocationTests.test_live_download_hosts_must_be_a_unique_list_of_trusted_hosts_only) ... ok
+test_live_unknown_allocation_mode_is_refused (__main__.LivePolicyAllocationTests.test_live_unknown_allocation_mode_is_refused) ... ok
+test_trusted_download_host_scopes_results_receiver_to_run_logs_hop_one (__main__.LivePolicyAllocationTests.test_trusted_download_host_scopes_results_receiver_to_run_logs_hop_one) ... ok
+test_direct_destination_call_on_a_fresh_window_leaves_no_ledger (__main__.LivePolicyRedirectTests.test_direct_destination_call_on_a_fresh_window_leaves_no_ledger) ... ok
+test_direct_destination_calls_outside_the_live_hop_rule_are_refused_before_the_predebit (__main__.LivePolicyRedirectTests.test_direct_destination_calls_outside_the_live_hop_rule_are_refused_before_the_predebit) ... ok
+test_direct_results_receiver_destination_outside_run_logs_hop_one_is_refused_before_the_predebit (__main__.LivePolicyRedirectTests.test_direct_results_receiver_destination_outside_run_logs_hop_one_is_refused_before_the_predebit) ... ok
+test_hermetic_pagination_still_refuses_the_repositories_id_form_and_accepts_its_repos_form (__main__.LivePolicyRedirectTests.test_hermetic_pagination_still_refuses_the_repositories_id_form_and_accepts_its_repos_form) ... ok
+test_live_accept_header_is_github_json_on_api_github_com_and_plain_json_on_the_download_host (__main__.LivePolicyRedirectTests.test_live_accept_header_is_github_json_on_api_github_com_and_plain_json_on_the_download_host) ... ok
+test_live_allocation_is_really_live (__main__.LivePolicyRedirectTests.test_live_allocation_is_really_live) ... ok
+test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host (__main__.LivePolicyRedirectTests.test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host) ... ok
+test_live_check_runs_read_follows_three_repositories_id_pages_but_requests_only_the_approved_route (__main__.LivePolicyRedirectTests.test_live_check_runs_read_follows_three_repositories_id_pages_but_requests_only_the_approved_route) ... ok
+test_live_full_first_rules_page_is_followed_by_one_charged_second_rules_page_on_api_github_com (__main__.LivePolicyRedirectTests.test_live_full_first_rules_page_is_followed_by_one_charged_second_rules_page_on_api_github_com) ... ok
+test_live_max_hops_one_with_two_redirects_stops_with_redirect_budget_exhausted (__main__.LivePolicyRedirectTests.test_live_max_hops_one_with_two_redirects_stops_with_redirect_budget_exhausted) ... ok
+test_live_pagination_follows_an_api_github_com_next_link_as_a_second_charged_api_request (__main__.LivePolicyRedirectTests.test_live_pagination_follows_an_api_github_com_next_link_as_a_second_charged_api_request) ... ok
+test_live_pagination_refuses_every_link_off_api_github_com_or_off_the_route_before_a_second_request (__main__.LivePolicyRedirectTests.test_live_pagination_refuses_every_link_off_api_github_com_or_off_the_route_before_a_second_request) ... ok
+test_live_probe_observed_run_logs_chain_is_followed (__main__.LivePolicyRedirectTests.test_live_probe_observed_run_logs_chain_is_followed) ... ok
+test_live_r10_seq47_results_receiver_location_is_followed_without_authorization (__main__.LivePolicyRedirectTests.test_live_r10_seq47_results_receiver_location_is_followed_without_authorization) ... ok
+test_live_redirect_over_http_is_refused_before_its_socket (__main__.LivePolicyRedirectTests.test_live_redirect_over_http_is_refused_before_its_socket) ... ok
+test_live_redirect_to_a_lookalike_host_is_refused_before_its_socket (__main__.LivePolicyRedirectTests.test_live_redirect_to_a_lookalike_host_is_refused_before_its_socket) ... ok
+test_live_redirect_to_a_policy_trusted_host_absent_from_download_hosts_is_refused (__main__.LivePolicyRedirectTests.test_live_redirect_to_a_policy_trusted_host_absent_from_download_hosts_is_refused) ... ok
+test_live_redirect_to_an_untrusted_host_is_refused_before_its_socket (__main__.LivePolicyRedirectTests.test_live_redirect_to_an_untrusted_host_is_refused_before_its_socket) ... ok
+test_live_redirect_to_api_github_com_is_refused_because_it_is_never_a_download_host (__main__.LivePolicyRedirectTests.test_live_redirect_to_api_github_com_is_refused_because_it_is_never_a_download_host) ... ok
+test_live_redirect_to_port_8443_is_refused_before_its_socket (__main__.LivePolicyRedirectTests.test_live_redirect_to_port_8443_is_refused_before_its_socket) ... ok
+test_live_redirect_with_userinfo_or_fragment_is_refused_before_its_socket (__main__.LivePolicyRedirectTests.test_live_redirect_with_userinfo_or_fragment_is_refused_before_its_socket) ... ok
+test_live_repositories_id_form_covers_workflow_runs_and_run_jobs_pagination (__main__.LivePolicyRedirectTests.test_live_repositories_id_form_covers_workflow_runs_and_run_jobs_pagination) ... ok
+test_live_repositories_id_form_refuses_every_other_id_route_host_page_or_query_before_a_second_request (__main__.LivePolicyRedirectTests.test_live_repositories_id_form_refuses_every_other_id_route_host_page_or_query_before_a_second_request) ... ok
+test_live_results_receiver_error_status_is_the_final_non_200_receipt (__main__.LivePolicyRedirectTests.test_live_results_receiver_error_status_is_the_final_non_200_receipt) ... ok
+test_live_results_receiver_redirect_to_a_trusted_blob_host_is_followed_at_hop_two (__main__.LivePolicyRedirectTests.test_live_results_receiver_redirect_to_a_trusted_blob_host_is_followed_at_hop_two) ... ok
+test_live_results_receiver_redirect_to_itself_or_an_untrusted_host_halts (__main__.LivePolicyRedirectTests.test_live_results_receiver_redirect_to_itself_or_an_untrusted_host_halts) ... ok
+test_repository_id_constant_equals_the_committed_real_repository_id (__main__.LivePolicyRedirectTests.test_repository_id_constant_equals_the_committed_real_repository_id) ... ok
+test_results_receiver_absent_from_download_hosts_reproduces_the_253_122_refusal (__main__.LivePolicyRedirectTests.test_results_receiver_absent_from_download_hosts_reproduces_the_253_122_refusal) ... ok
+test_results_receiver_lookalikes_are_refused_before_their_socket (__main__.LivePolicyRedirectTests.test_results_receiver_lookalikes_are_refused_before_their_socket) ... ok
+test_results_receiver_on_artifact_zip_is_refused_before_its_socket (__main__.LivePolicyRedirectTests.test_results_receiver_on_artifact_zip_is_refused_before_its_socket) ... ok
+test_results_receiver_on_job_logs_is_refused_before_its_socket (__main__.LivePolicyRedirectTests.test_results_receiver_on_job_logs_is_refused_before_its_socket) ... ok
+test_results_receiver_port_scheme_userinfo_and_fragment_are_refused_before_their_socket (__main__.LivePolicyRedirectTests.test_results_receiver_port_scheme_userinfo_and_fragment_are_refused_before_their_socket) ... ok
+test_run_logs_retained_pre_r11_pipelines_predicate_without_authorization (__main__.LivePolicyRedirectTests.test_run_logs_retained_pre_r11_pipelines_predicate_without_authorization) ... ok
+test_shim_refuses_an_unmapped_destination_positive_control (__main__.LivePolicyRedirectTests.test_shim_refuses_an_unmapped_destination_positive_control) ... ok
+test_253_102_create_ref_accepts_both_r8_names_under_the_unchanged_namespace_rule (__main__.TypedAllocationWireTests.test_253_102_create_ref_accepts_both_r8_names_under_the_unchanged_namespace_rule) ... ok
+test_253_102_pr_heads_are_exactly_the_two_candidates_and_the_docs_head (__main__.TypedAllocationWireTests.test_253_102_pr_heads_are_exactly_the_two_candidates_and_the_docs_head) ... ok
+test_253_111_create_ref_accepts_both_r9_names_under_the_unchanged_namespace_rule (__main__.TypedAllocationWireTests.test_253_111_create_ref_accepts_both_r9_names_under_the_unchanged_namespace_rule) ... ok
+test_253_111_pr_create_accepts_the_r9_candidate_and_refuses_the_r9_fixture_and_a_fourth_name (__main__.TypedAllocationWireTests.test_253_111_pr_create_accepts_the_r9_candidate_and_refuses_the_r9_fixture_and_a_fourth_name) ... ok
+test_253_119_create_ref_accepts_both_r10_names_under_the_unchanged_namespace_rule (__main__.TypedAllocationWireTests.test_253_119_create_ref_accepts_both_r10_names_under_the_unchanged_namespace_rule) ... ok
+test_253_119_pr_create_accepts_the_r10_candidate_and_refuses_the_r10_fixture_and_a_fifth_name (__main__.TypedAllocationWireTests.test_253_119_pr_create_accepts_the_r10_candidate_and_refuses_the_r10_fixture_and_a_fifth_name) ... ok
+test_253_130_create_ref_accepts_both_r11_names_under_the_unchanged_namespace_rule (__main__.TypedAllocationWireTests.test_253_130_create_ref_accepts_both_r11_names_under_the_unchanged_namespace_rule) ... ok
+test_253_130_pr_create_accepts_the_r11_candidate_and_refuses_the_r11_fixture_and_a_sixth_name (__main__.TypedAllocationWireTests.test_253_130_pr_create_accepts_the_r11_candidate_and_refuses_the_r11_fixture_and_a_sixth_name) ... ok
+test_253_137_create_ref_accepts_both_r12_names_under_the_unchanged_namespace_rule (__main__.TypedAllocationWireTests.test_253_137_create_ref_accepts_both_r12_names_under_the_unchanged_namespace_rule) ... ok
+test_253_137_pr_create_accepts_the_r12_candidate_and_refuses_the_r12_fixture_and_a_seventh_name (__main__.TypedAllocationWireTests.test_253_137_pr_create_accepts_the_r12_candidate_and_refuses_the_r12_fixture_and_a_seventh_name) ... ok
+test_253_166_create_ref_accepts_both_r13_names_under_the_unchanged_namespace_rule (__main__.TypedAllocationWireTests.test_253_166_create_ref_accepts_both_r13_names_under_the_unchanged_namespace_rule) ... ok
+test_253_166_pr_create_accepts_the_r13_candidate_and_refuses_the_r13_fixture_and_an_eighth_name (__main__.TypedAllocationWireTests.test_253_166_pr_create_accepts_the_r13_candidate_and_refuses_the_r13_fixture_and_an_eighth_name) ... ok
+test_a_dispatch_receipt_and_ledger_row_carry_the_exact_transmitted_input_metrics (__main__.TypedAllocationWireTests.test_a_dispatch_receipt_and_ledger_row_carry_the_exact_transmitted_input_metrics) ... ok
+test_a_kindless_legacy_hermetic_allocation_still_needs_a_live_allocation_for_non_git_routes (__main__.TypedAllocationWireTests.test_a_kindless_legacy_hermetic_allocation_still_needs_a_live_allocation_for_non_git_routes) ... ok
+test_bound_document_digests_are_checked_before_any_network_io (__main__.TypedAllocationWireTests.test_bound_document_digests_are_checked_before_any_network_io) ... ok
+test_canary_wire_boundary_charges_exactly_117_then_stops_without_a_118th_socket_request (__main__.TypedAllocationWireTests.test_canary_wire_boundary_charges_exactly_117_then_stops_without_a_118th_socket_request) ... ok
+test_category_predebit_stops_before_the_wire_and_never_resets_via_parent_or_family (__main__.TypedAllocationWireTests.test_category_predebit_stops_before_the_wire_and_never_resets_via_parent_or_family) ... ok
+test_changed_limits_or_window_cannot_continue_an_existing_ledger (__main__.TypedAllocationWireTests.test_changed_limits_or_window_cannot_continue_an_existing_ledger) ... ok
+test_hermetic_canary_allocation_naming_a_non_local_origin_is_refused (__main__.TypedAllocationWireTests.test_hermetic_canary_allocation_naming_a_non_local_origin_is_refused) ... ok
+test_hermetic_canary_allocation_routes_every_canary_route_to_its_local_origin (__main__.TypedAllocationWireTests.test_hermetic_canary_allocation_routes_every_canary_route_to_its_local_origin) ... ok
+test_hermetic_canary_non_git_routes_are_answered_by_the_local_https_server_without_credentials (__main__.TypedAllocationWireTests.test_hermetic_canary_non_git_routes_are_answered_by_the_local_https_server_without_credentials) ... ok
+test_hermetic_canary_routing_keeps_the_category_predebit_and_the_117_cap (__main__.TypedAllocationWireTests.test_hermetic_canary_routing_keeps_the_category_predebit_and_the_117_cap) ... ok
+test_kind_ceilings_are_separate_and_unknown_or_oversized_allocations_fail_before_io (__main__.TypedAllocationWireTests.test_kind_ceilings_are_separate_and_unknown_or_oversized_allocations_fail_before_io) ... ok
+test_legacy_canary_hermetic_allocation_still_rejects_pr_collector_routes (__main__.TypedAllocationWireTests.test_legacy_canary_hermetic_allocation_still_rejects_pr_collector_routes) ... ok
+test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com (__main__.TypedAllocationWireTests.test_live_canary_allocation_still_sends_every_canary_route_only_to_api_github_com) ... ok
+test_missing_or_unknown_category_is_rejected_when_limits_are_frozen (__main__.TypedAllocationWireTests.test_missing_or_unknown_category_is_rejected_when_limits_are_frozen) ... ok
+test_pr_collector_routes_build_only_typed_repository_scoped_paths (__main__.TypedAllocationWireTests.test_pr_collector_routes_build_only_typed_repository_scoped_paths) ... ok
+test_pr_collector_routes_reject_unsafe_parameters_bodies_and_queries (__main__.TypedAllocationWireTests.test_pr_collector_routes_reject_unsafe_parameters_bodies_and_queries) ... ok
+test_production_wire_boundary_charges_exactly_120_with_every_frozen_category (__main__.TypedAllocationWireTests.test_production_wire_boundary_charges_exactly_120_with_every_frozen_category) ... ok
+
+----------------------------------------------------------------------
+Ran 85 tests in 56.498s
+
+OK
+SUITE-PASS hosted-transport
+SUITE-START shape-probe
+test_check_only_refuses_an_allocation_without_results_receiver (__main__.ProbeRefusalTests.test_check_only_refuses_an_allocation_without_results_receiver) ... ok
+test_check_only_refuses_each_allocation_field_that_differs_from_the_request_list (__main__.ProbeRefusalTests.test_check_only_refuses_each_allocation_field_that_differs_from_the_request_list) ... ok
+test_check_requests_refuses_each_missing_or_altered_field (__main__.ProbeRefusalTests.test_check_requests_refuses_each_missing_or_altered_field) ... ok
+test_live_probe_refuses_a_hermetic_test_allocation_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_a_hermetic_test_allocation_before_any_socket) ... ok
+test_live_probe_refuses_a_post_method_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_a_post_method_before_any_socket) ... ok
+test_live_probe_refuses_a_production_allocation_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_a_production_allocation_before_any_socket) ... ok
+test_live_probe_refuses_a_rejected_approval_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_a_rejected_approval_before_any_socket) ... ok
+test_live_probe_refuses_a_requests_file_edited_after_approval_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_a_requests_file_edited_after_approval_before_any_socket) ... ok
+test_live_probe_refuses_a_scoped_ref_in_a_parameter_query_or_id_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_a_scoped_ref_in_a_parameter_query_or_id_before_any_socket) ... ok
+test_live_probe_refuses_bound_documents_without_the_approval_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_bound_documents_without_the_approval_before_any_socket) ... ok
+test_live_probe_refuses_category_limits_that_differ_from_the_request_list_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_category_limits_that_differ_from_the_request_list_before_any_socket) ... ok
+test_live_probe_refuses_every_write_ref_pr_and_unlisted_route_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_every_write_ref_pr_and_unlisted_route_before_any_socket) ... ok
+test_live_probe_refuses_follow_on_job_logs_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_follow_on_job_logs_before_any_socket) ... ok
+test_live_probe_refuses_records_that_already_exist_before_any_socket (__main__.ProbeRefusalTests.test_live_probe_refuses_records_that_already_exist_before_any_socket) ... ok
+test_the_driver_imports_no_http_client_of_its_own (__main__.ProbeRefusalTests.test_the_driver_imports_no_http_client_of_its_own) ... ok
+test_live_probe_halts_on_an_untrusted_hop_and_keeps_partial_records (__main__.ProbeRehearsalTests.test_live_probe_halts_on_an_untrusted_hop_and_keeps_partial_records) ... ok
+test_live_probe_large_body_keeps_only_digest_and_head_sample (__main__.ProbeRehearsalTests.test_live_probe_large_body_keeps_only_digest_and_head_sample) ... ok
+test_live_probe_records_a_results_receiver_to_blob_chain (__main__.ProbeRehearsalTests.test_live_probe_records_a_results_receiver_to_blob_chain) ... ok
+test_live_probe_records_the_seq47_chain_to_results_receiver (__main__.ProbeRehearsalTests.test_live_probe_records_the_seq47_chain_to_results_receiver) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 20.510s
+
+OK
+SUITE-PASS shape-probe
+SUITE-START pr-proof
+test_core_rate_floor_is_a_terminal_stop_before_any_later_request (__main__.CollectorFaultTests.test_core_rate_floor_is_a_terminal_stop_before_any_later_request) ... ok
+test_never_finishing_run_stops_at_the_frozen_poll_allocation_without_extra_requests (__main__.CollectorFaultTests.test_never_finishing_run_stops_at_the_frozen_poll_allocation_without_extra_requests) ... ok
+test_refused_pr_creation_preserves_the_charged_failure_and_is_never_accepted (__main__.CollectorFaultTests.test_refused_pr_creation_preserves_the_charged_failure_and_is_never_accepted) ... ok
+test_a_partial_publication_writes_the_receipt_with_complete_false_before_the_stop (__main__.DocsPublicationReceiptTests.test_a_partial_publication_writes_the_receipt_with_complete_false_before_the_stop) ... ok
+test_an_existing_receipt_is_never_overwritten_and_nothing_is_requested (__main__.DocsPublicationReceiptTests.test_an_existing_receipt_is_never_overwritten_and_nothing_is_requested) ... ok
+test_the_already_published_path_writes_the_same_rows (__main__.DocsPublicationReceiptTests.test_the_already_published_path_writes_the_same_rows) ... ok
+test_the_normal_family_rejects_the_flag_before_any_request (__main__.DocsPublicationReceiptTests.test_the_normal_family_rejects_the_flag_before_any_request) ... ok
+test_the_publishing_path_writes_the_receipt_from_the_ledger_rows (__main__.DocsPublicationReceiptTests.test_the_publishing_path_writes_the_receipt_from_the_ledger_rows) ... ok
+test_live_docs_commit_readback_tolerates_exactly_one_stripped_trailing_newline (__main__.LivePolicyPRTests.test_live_docs_commit_readback_tolerates_exactly_one_stripped_trailing_newline) ... ok
+test_live_policy_completion_on_the_dry_run_window_is_a_synthetic_gap_and_never_accepted (__main__.LivePolicyPRTests.test_live_policy_completion_on_the_dry_run_window_is_a_synthetic_gap_and_never_accepted) ... ok
+test_live_policy_docs_only_family_publishes_its_objects_through_the_live_origin_and_verifies_as_synthetic (__main__.LivePolicyPRTests.test_live_policy_docs_only_family_publishes_its_objects_through_the_live_origin_and_verifies_as_synthetic) ... ok
+test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic (__main__.LivePolicyPRTests.test_live_policy_normal_family_collects_and_verifies_end_to_end_as_synthetic) ... ok
+test_live_policy_normal_producer_zips_take_one_302_hop_from_api_to_the_trusted_blob_host (__main__.LivePolicyPRTests.test_live_policy_normal_producer_zips_take_one_302_hop_from_api_to_the_trusted_blob_host) ... ok
+test_live_policy_pair_is_one_allocation_one_append_only_window_within_120_requests (__main__.LivePolicyPRTests.test_live_policy_pair_is_one_allocation_one_append_only_window_within_120_requests) ... 253-109 live counts: {"categories": {"artifact_downloads": 20, "artifact_metadata": 2, "attempt_jobs": 2, "docs_publication": 14, "native_checks": 2, "pr_create": 2, "pr_identity": 8, "pre_watch_rate": 2, "preflight": 4, "run_discovery": 4, "terminal_polls": 6}, "combined": 66, "docs-only": 39, "hop1": {"docs-only": 5, "normal": 5}, "normal": 27}
+ok
+test_live_policy_token_and_host_rules_hold_across_both_families (__main__.LivePolicyPRTests.test_live_policy_token_and_host_rules_hold_across_both_families) ... ok
+test_live_policy_token_reaches_api_github_only_and_the_shim_refused_nothing (__main__.LivePolicyPRTests.test_live_policy_token_reaches_api_github_only_and_the_shim_refused_nothing) ... ok
+test_live_policy_universe_uses_live_publication_and_production_allocations_with_no_test_fields (__main__.LivePolicyPRTests.test_live_policy_universe_uses_live_publication_and_production_allocations_with_no_test_fields) ... ok
+test_live_policy_waits_are_requested_at_the_frozen_interval_and_only_slept_scaled (__main__.LivePolicyPRTests.test_live_policy_waits_are_requested_at_the_frozen_interval_and_only_slept_scaled) ... ok
+test_live_required_check_failure_on_the_pr_head_is_rejected_on_the_live_check_view (__main__.LivePolicyPRTests.test_live_required_check_failure_on_the_pr_head_is_rejected_on_the_live_check_view) ... ok
+test_live_policy_r10_normal_family_verifies_as_synthetic_with_the_r10_head_and_r8_r9_refs_untouched (__main__.LivePolicyR10PRTests.test_live_policy_r10_normal_family_verifies_as_synthetic_with_the_r10_head_and_r8_r9_refs_untouched) ... ok
+test_live_policy_r11_normal_family_verifies_as_synthetic_with_the_r11_head_and_r8_r9_r10_refs_untouched (__main__.LivePolicyR11PRTests.test_live_policy_r11_normal_family_verifies_as_synthetic_with_the_r11_head_and_r8_r9_r10_refs_untouched) ... ok
+test_live_policy_r12_normal_family_verifies_as_synthetic_with_the_r12_head_and_r8_to_r11_refs_untouched (__main__.LivePolicyR12PRTests.test_live_policy_r12_normal_family_verifies_as_synthetic_with_the_r12_head_and_r8_to_r11_refs_untouched) ... ok
+test_live_policy_r13_normal_family_verifies_as_synthetic_with_the_r13_head_and_r8_to_r12_refs_untouched (__main__.LivePolicyR13PRTests.test_live_policy_r13_normal_family_verifies_as_synthetic_with_the_r13_head_and_r8_to_r12_refs_untouched) ... ok
+test_live_policy_r9_normal_family_verifies_as_synthetic_with_the_r9_head_and_r8_refs_untouched (__main__.LivePolicyR9PRTests.test_live_policy_r9_normal_family_verifies_as_synthetic_with_the_r9_head_and_r8_refs_untouched) ... ok
+test_the_fixed_transport_copy_completes_the_live_normal_family (__main__.LivePolicySensitivityTests.test_the_fixed_transport_copy_completes_the_live_normal_family) ... 253-109 sensitivity fix live: {"exit": 0}
+ok
+test_the_hermetic_universe_with_the_pre_fix_transport_is_recorded_not_gated (__main__.LivePolicySensitivityTests.test_the_hermetic_universe_with_the_pre_fix_transport_is_recorded_not_gated) ... 253-109 sensitivity pre-fix hermetic: {"exit": 0, "stop": null, "hop1_hosts": ["localhost"]}
+ok
+test_the_pre_fix_transport_stops_the_live_normal_family_at_the_first_artifact_hop_with_origin_rejected (__main__.LivePolicySensitivityTests.test_the_pre_fix_transport_stops_the_live_normal_family_at_the_first_artifact_hop_with_origin_rejected) ... 253-109 sensitivity pre-fix live: {"exit": 1, "stop": "artifact_zip: ci-hosted-transport: origin_rejected: live transport is restricted to api.github.com"}
+ok
+test_the_redirect_fix_commit_is_resolved_by_its_unique_subject_and_equals_the_253_107_record (__main__.LivePolicySensitivityTests.test_the_redirect_fix_commit_is_resolved_by_its_unique_subject_and_equals_the_253_107_record) ... ok
+test_a_changed_or_missing_bound_document_stops_the_collector_before_any_request (__main__.PRProofContractTests.test_a_changed_or_missing_bound_document_stops_the_collector_before_any_request) ... ok
+test_browser_policy_owner_rejects_wrong_record_identity_and_wrong_workflow_source (__main__.PRProofContractTests.test_browser_policy_owner_rejects_wrong_record_identity_and_wrong_workflow_source) ... ok
+test_check_only_makes_no_request_and_rejects_changed_bindings_and_wrong_allocations (__main__.PRProofContractTests.test_check_only_makes_no_request_and_rejects_changed_bindings_and_wrong_allocations) ... ok
+test_cli_verify_modes_agree_with_the_python_verifier (__main__.PRProofContractTests.test_cli_verify_modes_agree_with_the_python_verifier) ... ok
+test_complete_synthetic_normal_and_docs_chain_verifies_against_independent_server_receipts (__main__.PRProofContractTests.test_complete_synthetic_normal_and_docs_chain_verifies_against_independent_server_receipts) ... ok
+test_completion_cli_keeps_synthetic_chain_open_and_never_accepts_it (__main__.PRProofContractTests.test_completion_cli_keeps_synthetic_chain_open_and_never_accepts_it) ... ok
+test_docs_base_must_be_one_trigger_only_child_of_the_exact_candidate (__main__.PRProofContractTests.test_docs_base_must_be_one_trigger_only_child_of_the_exact_candidate) ... ok
+test_docs_commit_readback_tolerates_exactly_one_stripped_trailing_newline (__main__.PRProofContractTests.test_docs_commit_readback_tolerates_exactly_one_stripped_trailing_newline) ... ok
+test_docs_exemption_requires_the_actual_pull_request_classifier_and_docs_flag (__main__.PRProofContractTests.test_docs_exemption_requires_the_actual_pull_request_classifier_and_docs_flag) ... ok
+test_docs_publication_must_use_exactly_the_reserved_requests_and_frozen_objects (__main__.PRProofContractTests.test_docs_publication_must_use_exactly_the_reserved_requests_and_frozen_objects) ... ok
+test_every_removed_evidence_field_fails_closed_instead_of_crashing_or_passing (__main__.PRProofContractTests.test_every_removed_evidence_field_fails_closed_instead_of_crashing_or_passing) ... ok
+test_job_inventory_classifier_and_library_owner_are_required (__main__.PRProofContractTests.test_job_inventory_classifier_and_library_owner_are_required) ... ok
+test_ledger_allocation_journal_and_origin_tampering_is_rejected (__main__.PRProofContractTests.test_ledger_allocation_journal_and_origin_tampering_is_rejected) ... ok
+test_native_check_app_revision_name_and_job_bindings_are_exact (__main__.PRProofContractTests.test_native_check_app_revision_name_and_job_bindings_are_exact) ... ok
+test_normal_diff_must_include_nondoc_paths_and_docs_diff_must_be_the_one_file (__main__.PRProofContractTests.test_normal_diff_must_include_nondoc_paths_and_docs_diff_must_be_the_one_file) ... ok
+test_pair_rejects_budget_reset_prefix_divergence_and_reused_prs (__main__.PRProofContractTests.test_pair_rejects_budget_reset_prefix_divergence_and_reused_prs) ... ok
+test_prepare_rejects_missing_or_foreign_publication_proof (__main__.PRProofContractTests.test_prepare_rejects_missing_or_foreign_publication_proof) ... ok
+test_producer_inventory_empty_null_single_duplicate_and_variant_sets_fail (__main__.PRProofContractTests.test_producer_inventory_empty_null_single_duplicate_and_variant_sets_fail) ... ok
+test_producer_zip_bytes_digest_members_and_records_are_independently_checked (__main__.PRProofContractTests.test_producer_zip_bytes_digest_members_and_records_are_independently_checked) ... ok
+test_wrong_pr_head_base_draft_and_merge_identities_are_rejected (__main__.PRProofContractTests.test_wrong_pr_head_base_draft_and_merge_identities_are_rejected) ... ok
+test_wrong_run_event_source_workflow_and_conclusion_are_rejected (__main__.PRProofContractTests.test_wrong_run_event_source_workflow_and_conclusion_are_rejected) ... ok
+test_zip_intake_rejects_traversal_links_duplicates_nested_and_trailing_streams (__main__.PRProofContractTests.test_zip_intake_rejects_traversal_links_duplicates_nested_and_trailing_streams) ... ok
+test_a_clean_advance_is_clean_and_moved (__main__.PrMainPreflightTests.test_a_clean_advance_is_clean_and_moved) ... ok
+test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1 (__main__.PrMainPreflightTests.test_a_conflicting_advance_is_conflicted_with_its_paths_and_exits_1) ... ok
+test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing (__main__.PrMainPreflightTests.test_a_current_main_absent_locally_or_a_pre_r12_freeze_writes_nothing) ... ok
+test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1 (__main__.PrMainPreflightTests.test_a_main_that_does_not_descend_from_the_frozen_main_is_rewritten_and_exits_1) ... ok
+test_a_moved_main_without_a_main_preflight_is_refused_before_any_request (__main__.PrMainPreflightTests.test_a_moved_main_without_a_main_preflight_is_refused_before_any_request) ... ok
+test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document (__main__.PrMainPreflightTests.test_an_unmoved_main_is_clean_and_equals_the_independently_computed_document) ... ok
+test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request (__main__.PrMainPreflightTests.test_conflicted_rewritten_foreign_or_unresolvable_preflights_are_refused_before_any_request) ... ok
+test_the_output_is_exclusive_create (__main__.PrMainPreflightTests.test_the_output_is_exclusive_create) ... ok
+test_a_clean_moved_main_collects_both_families_inside_the_production_budget (__main__.PrMergeabilityCollectionTests.test_a_clean_moved_main_collects_both_families_inside_the_production_budget) ... ok
+test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests (__main__.PrMergeabilityCollectionTests.test_a_conflicting_r12_pr_stops_with_the_merge_conflict_verdict_after_eight_requests) ... 253-139 conflicted-head-replay: {"exit": 1, "requests": 8, "stderr_tail": [], "stop": "pull request #101 has merge conflicts with its base (mergeable false, mergeable_state dirty); GitHub creates no pull_request run for it"}
+ok
+test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict (__main__.PrMergeabilityCollectionTests.test_a_mergeable_r12_pr_without_a_run_stops_with_the_third_verdict) ... 253-139 no-run-while-mergeable: {"exit": 1, "requests": 8, "stderr_tail": [], "stop": "no pull_request run although pull request #101 is mergeable (mergeable_state clean)"}
+ok
+test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict (__main__.PrMergeabilityCollectionTests.test_an_r12_pr_whose_mergeability_is_unknown_stops_with_the_unknown_verdict) ... 253-139 mergeability-unknown: {"exit": 1, "requests": 8, "stderr_tail": [], "stop": "pull request #101 mergeability is still unknown (mergeable null, mergeable_state unknown); GitHub has not created a pull_request run for it"}
+ok
+test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create (__main__.PrMergeabilityCollectionTests.test_main_moving_again_between_the_preflight_and_pr_creation_stops_after_pr_create) ... 253-139 moved-twice: {"exit": 1, "requests": 5, "stderr_tail": [], "stop": "main moved between the step-0 preflight and PR creation: the created PR base is 86467b3e31a55d2a2146392f1c6aa7e1d07022df, the preflight current_main is 1456cfdae7dabddb883f1ea20d9fdd5c9e23d4fa"}
+ok
+test_the_transport_table_and_the_budget_document_are_unchanged (__main__.PrMergeabilityCollectionTests.test_the_transport_table_and_the_budget_document_are_unchanged) ... ok
+test_a_pr_head_with_101_check_runs_fails_closed_after_one_check_runs_request (__main__.PrPaginatedListingsTests.test_a_pr_head_with_101_check_runs_fails_closed_after_one_check_runs_request) ... 253-165 head-101: collector exit 0, stop None, routes after check_runs ['run_artifacts', 'artifact_zip', 'artifact_zip', 'artifact_zip', 'artifact_zip', 'artifact_zip', 'artifact_zip', 'artifact_zip', 'artifact_zip', 'artifact_zip', 'artifact_zip']
+ok
+test_hermetic_normal_family_follows_two_local_repos_form_pages_inside_the_production_table (__main__.PrPaginatedListingsTests.test_hermetic_normal_family_follows_two_local_repos_form_pages_inside_the_production_table) ... 253-165 hermetic paged counts: {"artifact_downloads": 20, "artifact_metadata": 3, "attempt_jobs": 3, "docs_publication": 14, "native_checks": 2, "pr_create": 2, "pr_identity": 8, "pre_watch_rate": 2, "preflight": 4, "run_discovery": 4, "terminal_polls": 6}
+ok
+test_live_policy_normal_family_follows_two_repositories_id_pages_inside_the_production_table (__main__.PrPaginatedListingsTests.test_live_policy_normal_family_follows_two_repositories_id_pages_inside_the_production_table) ... 253-165 live paged counts: {"artifact_downloads": 20, "artifact_metadata": 3, "attempt_jobs": 3, "docs_publication": 14, "native_checks": 2, "pr_create": 2, "pr_identity": 8, "pre_watch_rate": 2, "preflight": 4, "run_discovery": 4, "terminal_polls": 6}
+ok
+test_a_manifest_without_main_freshness_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_manifest_without_main_freshness_is_refused) ... ok
+test_a_record_whose_bytes_differ_from_the_manifest_binding_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_bytes_differ_from_the_manifest_binding_is_refused) ... ok
+test_a_record_whose_main_moved_past_the_server_parent_is_refused (__main__.PrPrepareMainFreshnessTests.test_a_record_whose_main_moved_past_the_server_parent_is_refused) ... ok
+test_pre_r12_universes_prepare_without_main_record_exactly_as_before (__main__.PrPrepareMainFreshnessTests.test_pre_r12_universes_prepare_without_main_record_exactly_as_before) ... ok
+test_the_r12_freeze_records_a_clean_mergeability_preflight_and_binds_the_record (__main__.PrPrepareMainFreshnessTests.test_the_r12_freeze_records_a_clean_mergeability_preflight_and_binds_the_record) ... ok
+test_the_r12_normal_head_requires_main_record (__main__.PrPrepareMainFreshnessTests.test_the_r12_normal_head_requires_main_record) ... ok
+test_an_r10_freeze_yields_the_r10_head_and_the_normal_family_verifies_beside_seeded_r8_and_r9_refs (__main__.R10RefPairTests.test_an_r10_freeze_yields_the_r10_head_and_the_normal_family_verifies_beside_seeded_r8_and_r9_refs) ... ok
+test_an_r10_or_r9_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request (__main__.R10RefPairTests.test_an_r10_or_r9_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request) ... ok
+test_an_r9_freeze_still_yields_the_r9_head (__main__.R10RefPairTests.test_an_r9_freeze_still_yields_the_r9_head) ... ok
+test_prepare_refuses_an_r10_receipt_with_a_fifth_name_a_fixture_head_or_a_mixed_pair (__main__.R10RefPairTests.test_prepare_refuses_an_r10_receipt_with_a_fifth_name_a_fixture_head_or_a_mixed_pair) ... ok
+test_an_r10_freeze_still_yields_the_r10_head (__main__.R11RefPairTests.test_an_r10_freeze_still_yields_the_r10_head) ... ok
+test_an_r11_freeze_yields_the_r11_head_and_the_normal_family_verifies_beside_seeded_r8_r9_and_r10_refs (__main__.R11RefPairTests.test_an_r11_freeze_yields_the_r11_head_and_the_normal_family_verifies_beside_seeded_r8_r9_and_r10_refs) ... ok
+test_an_r11_or_r10_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request (__main__.R11RefPairTests.test_an_r11_or_r10_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request) ... ok
+test_prepare_refuses_an_r11_receipt_with_a_sixth_name_a_fixture_head_or_a_mixed_pair (__main__.R11RefPairTests.test_prepare_refuses_an_r11_receipt_with_a_sixth_name_a_fixture_head_or_a_mixed_pair) ... ok
+test_an_r11_freeze_still_yields_the_r11_head (__main__.R12RefPairTests.test_an_r11_freeze_still_yields_the_r11_head) ... ok
+test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs (__main__.R12RefPairTests.test_an_r12_freeze_yields_the_r12_head_and_the_normal_family_verifies_beside_seeded_r8_r9_r10_and_r11_refs) ... ok
+test_an_r12_or_r11_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request (__main__.R12RefPairTests.test_an_r12_or_r11_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request) ... ok
+test_check_only_refuses_an_r14_normal_head_and_accepts_the_r12_head (__main__.R12RefPairTests.test_check_only_refuses_an_r14_normal_head_and_accepts_the_r12_head) ... ok
+test_prepare_refuses_an_r12_receipt_with_a_seventh_name_a_fixture_head_or_a_mixed_pair (__main__.R12RefPairTests.test_prepare_refuses_an_r12_receipt_with_a_seventh_name_a_fixture_head_or_a_mixed_pair) ... ok
+test_a_frozen_r14_normal_head_is_refused_by_the_collector_before_any_request (__main__.R13RefPairTests.test_a_frozen_r14_normal_head_is_refused_by_the_collector_before_any_request) ... ok
+test_an_r13_freeze_yields_the_r13_head_and_the_normal_family_verifies_beside_seeded_r8_to_r12_refs (__main__.R13RefPairTests.test_an_r13_freeze_yields_the_r13_head_and_the_normal_family_verifies_beside_seeded_r8_to_r12_refs) ... ok
+test_check_only_refuses_an_r14_normal_head_and_accepts_the_r13_head (__main__.R13RefPairTests.test_check_only_refuses_an_r14_normal_head_and_accepts_the_r13_head) ... ok
+test_prepare_refuses_an_r13_receipt_with_an_r14_name_a_fixture_head_or_a_mixed_pair (__main__.R13RefPairTests.test_prepare_refuses_an_r13_receipt_with_an_r14_name_a_fixture_head_or_a_mixed_pair) ... ok
+test_the_r12_refusal_text_is_unchanged (__main__.R13RefPairTests.test_the_r12_refusal_text_is_unchanged) ... ok
+test_the_r13_normal_head_requires_main_record (__main__.R13RefPairTests.test_the_r13_normal_head_requires_main_record) ... ok
+test_an_r8_freeze_still_yields_the_r8_head (__main__.R9RefPairTests.test_an_r8_freeze_still_yields_the_r8_head) ... ok
+test_an_r9_freeze_yields_the_r9_head_and_the_normal_family_verifies_beside_seeded_r8_refs (__main__.R9RefPairTests.test_an_r9_freeze_yields_the_r9_head_and_the_normal_family_verifies_beside_seeded_r8_refs) ... ok
+test_an_r9_or_r8_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request (__main__.R9RefPairTests.test_an_r9_or_r8_pr_head_disagreeing_with_the_revision_freeze_is_refused_before_any_request) ... ok
+test_prepare_refuses_an_r9_receipt_with_a_fourth_name_a_fixture_head_or_a_mixed_pair (__main__.R9RefPairTests.test_prepare_refuses_an_r9_receipt_with_a_fourth_name_a_fixture_head_or_a_mixed_pair) ... ok
+test_a_legacy_freeze_still_yields_the_legacy_head (__main__.RefPairTests.test_a_legacy_freeze_still_yields_the_legacy_head) ... ok
+test_a_pr_head_that_disagrees_with_the_revision_freeze_candidate_is_refused_before_any_request (__main__.RefPairTests.test_a_pr_head_that_disagrees_with_the_revision_freeze_candidate_is_refused_before_any_request) ... ok
+test_an_r8_freeze_yields_the_r8_head_and_the_normal_family_verifies_beside_seeded_legacy_refs (__main__.RefPairTests.test_an_r8_freeze_yields_the_r8_head_and_the_normal_family_verifies_beside_seeded_legacy_refs) ... ok
+test_check_only_accepts_only_the_seven_candidate_names_as_the_normal_head (__main__.RefPairTests.test_check_only_accepts_only_the_seven_candidate_names_as_the_normal_head) ... ok
+test_prepare_refuses_a_receipt_naming_a_third_candidate_or_the_fixture_as_candidate (__main__.RefPairTests.test_prepare_refuses_a_receipt_naming_a_third_candidate_or_the_fixture_as_candidate) ... ok
+test_a_freeze_that_fails_the_full_policy_is_refused_even_with_a_matching_approval (__main__.SectionApprovalTests.test_a_freeze_that_fails_the_full_policy_is_refused_even_with_a_matching_approval) ... ok
+test_docs_objects_in_the_ledger_are_reused_only_when_they_are_the_complete_frozen_publication (__main__.SectionApprovalTests.test_docs_objects_in_the_ledger_are_reused_only_when_they_are_the_complete_frozen_publication) ... ok
+test_docs_only_collection_reuses_docs_objects_already_published_in_the_shared_ledger (__main__.SectionApprovalTests.test_docs_only_collection_reuses_docs_objects_already_published_in_the_shared_ledger) ... ok
+test_every_live_family_mode_refuses_each_unapproved_or_wrongly_scoped_approval_before_any_request (__main__.SectionApprovalTests.test_every_live_family_mode_refuses_each_unapproved_or_wrongly_scoped_approval_before_any_request) ... ok
+test_existing_evidence_is_never_overwritten_by_a_later_collection (__main__.SectionApprovalTests.test_existing_evidence_is_never_overwritten_by_a_later_collection) ... ok
+test_pr_create_that_differs_from_the_approved_section_is_refused_before_any_request (__main__.SectionApprovalTests.test_pr_create_that_differs_from_the_approved_section_is_refused_before_any_request) ... ok
+test_prepare_and_check_only_stay_network_free_and_need_no_approval (__main__.SectionApprovalTests.test_prepare_and_check_only_stay_network_free_and_need_no_approval) ... ok
+test_prepare_rejects_a_hermetic_publication_origin_when_live_acceptance_is_required (__main__.SectionApprovalTests.test_prepare_rejects_a_hermetic_publication_origin_when_live_acceptance_is_required) ... ok
+test_the_action_approval_record_is_written_before_the_first_request (__main__.SectionApprovalTests.test_the_action_approval_record_is_written_before_the_first_request) ... ok
+
+----------------------------------------------------------------------
+Ran 110 tests in 407.994s
+
+OK
+SUITE-PASS pr-proof
+SUITE-START hosted-gate-verify
+test_cli_refuses_the_253_113_receipt_only_edit (__main__.CanaryBindingTests.test_cli_refuses_the_253_113_receipt_only_edit) ... ok
+test_legacy_mode_and_verify_sources_on_a_compact_matrix_are_unchanged (__main__.CanaryBindingTests.test_legacy_mode_and_verify_sources_on_a_compact_matrix_are_unchanged) ... ok
+test_live_r9_real_full_pass_receipt_binds_to_its_ledger (__main__.CanaryBindingTests.test_live_r9_real_full_pass_receipt_binds_to_its_ledger) ... ok
+test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix (__main__.CanaryBindingTests.test_tampered_receipts_and_ledgers_are_refused_with_the_binding_prefix) ... ok
+test_the_separate_verifier_receipt_binds_to_its_own_ledger_rows (__main__.CanaryBindingTests.test_the_separate_verifier_receipt_binds_to_its_own_ledger_rows) ... ok
+test_a_duplicate_required_name_on_a_pr_head_is_still_refused (__main__.CanaryCheckSourceTests.test_a_duplicate_required_name_on_a_pr_head_is_still_refused) ... ok
+test_a_stored_duplicate_count_that_differs_from_the_measured_runs_is_refused (__main__.CanaryCheckSourceTests.test_a_stored_duplicate_count_that_differs_from_the_measured_runs_is_refused) ... ok
+test_candidate_bound_or_wrong_sha_check_runs_are_rejected (__main__.CanaryCheckSourceTests.test_candidate_bound_or_wrong_sha_check_runs_are_rejected) ... ok
+test_check_source_must_be_the_server_parent_of_the_rehashed_publication_receipt (__main__.CanaryCheckSourceTests.test_check_source_must_be_the_server_parent_of_the_rehashed_publication_receipt) ... ok
+test_identity_consistent_duplicate_on_the_server_parent_is_accepted_and_counted (__main__.CanaryCheckSourceTests.test_identity_consistent_duplicate_on_the_server_parent_is_accepted_and_counted) ... ok
+test_pr_family_view_still_requires_five_successful_checks_on_its_head (__main__.CanaryCheckSourceTests.test_pr_family_view_still_requires_five_successful_checks_on_its_head) ... ok
+test_preflight_cli_rejects_the_superseded_candidate_bound_contract (__main__.CanaryCheckSourceTests.test_preflight_cli_rejects_the_superseded_candidate_bound_contract) ... ok
+test_producer_count_app_and_source_identity_are_still_enforced (__main__.CanaryCheckSourceTests.test_producer_count_app_and_source_identity_are_still_enforced) ... ok
+test_server_parent_duplicates_need_int_run_ids (__main__.CanaryCheckSourceTests.test_server_parent_duplicates_need_int_run_ids) ... ok
+test_server_parent_duplicates_with_differing_apps_are_refused (__main__.CanaryCheckSourceTests.test_server_parent_duplicates_with_differing_apps_are_refused) ... ok
+test_server_parent_identity_accepts_any_conclusion_and_records_it_literally (__main__.CanaryCheckSourceTests.test_server_parent_identity_accepts_any_conclusion_and_records_it_literally) ... ok
+test_server_parent_runs_must_carry_the_frozen_source_head_sha (__main__.CanaryCheckSourceTests.test_server_parent_runs_must_carry_the_frozen_source_head_sha) ... ok
+test_help_describes_only_bounded_scenarios (__main__.CanaryCliTests.test_help_describes_only_bounded_scenarios) ... ok
+test_a_hermetic_canary_link_is_a_synthetic_gap_and_never_makes_cirel_02_accepted (__main__.CompletionContractTests.test_a_hermetic_canary_link_is_a_synthetic_gap_and_never_makes_cirel_02_accepted) ... ok
+test_cause_less_no_flake_and_causeless_acceptance_are_rejected (__main__.CompletionContractTests.test_cause_less_no_flake_and_causeless_acceptance_are_rejected) ... ok
+test_each_missing_proof_leaves_an_honest_open_record_and_fails_strict_completion (__main__.CompletionContractTests.test_each_missing_proof_leaves_an_honest_open_record_and_fails_strict_completion) ... ok
+test_embedded_acceptance_claims_are_ignored_and_contradictions_rejected (__main__.CompletionContractTests.test_embedded_acceptance_claims_are_ignored_and_contradictions_rejected) ... ok
+test_every_linked_live_proof_present_and_reopened_is_accepted (__main__.CompletionContractTests.test_every_linked_live_proof_present_and_reopened_is_accepted) ... ok
+test_frozen_source_links_are_reopened_and_must_still_match (__main__.CompletionContractTests.test_frozen_source_links_are_reopened_and_must_still_match) ... ok
+test_hash_mismatch_unreadable_and_malformed_links_are_errors_not_open_records (__main__.CompletionContractTests.test_hash_mismatch_unreadable_and_malformed_links_are_errors_not_open_records) ... ok
+test_old_failures_chronology_order_and_http_count_stay_literal_limitations (__main__.CompletionContractTests.test_old_failures_chronology_order_and_http_count_stay_literal_limitations) ... ok
+test_publication_receipt_rejection_and_one_sided_pr_evidence_fail_closed (__main__.CompletionContractTests.test_publication_receipt_rejection_and_one_sided_pr_evidence_fail_closed) ... ok
+test_strict_native_checker_failure_and_empty_records_reject (__main__.CompletionContractTests.test_strict_native_checker_failure_and_empty_records_reject) ... ok
+test_synthetic_pr_evidence_and_budget_resets_cannot_be_accepted (__main__.CompletionContractTests.test_synthetic_pr_evidence_and_budget_resets_cannot_be_accepted) ... ok
+test_the_real_runner_proves_the_disposition_route_and_strict_acceptance_still_rejects (__main__.CompletionDispositionEndToEndTests.test_the_real_runner_proves_the_disposition_route_and_strict_acceptance_still_rejects) ... ok
+test_a_missing_or_synthetic_link_blocks_dispositioned_and_leaves_cirel_02_open (__main__.CompletionDispositionTests.test_a_missing_or_synthetic_link_blocks_dispositioned_and_leaves_cirel_02_open) ... ok
+test_a_rejected_disposition_raises (__main__.CompletionDispositionTests.test_a_rejected_disposition_raises) ... ok
+test_a_single_disposition_link_is_rejected (__main__.CompletionDispositionTests.test_a_single_disposition_link_is_rejected) ... ok
+test_embedded_acceptance_claims_on_a_dispositioned_record_are_contradicted (__main__.CompletionDispositionTests.test_embedded_acceptance_claims_on_a_dispositioned_record_are_contradicted) ... ok
+test_require_accepted_still_fails_on_a_dispositioned_record (__main__.CompletionDispositionTests.test_require_accepted_still_fails_on_a_dispositioned_record) ... ok
+test_strict_exit_other_than_three_is_never_dispositioned (__main__.CompletionDispositionTests.test_strict_exit_other_than_three_is_never_dispositioned) ... ok
+test_strict_rejection_without_disposition_links_raises_exactly_as_before (__main__.CompletionDispositionTests.test_strict_rejection_without_disposition_links_raises_exactly_as_before) ... ok
+test_the_cli_flags_are_mutually_exclusive (__main__.CompletionDispositionTests.test_the_cli_flags_are_mutually_exclusive) ... ok
+test_the_disposition_checker_argv_is_the_runner_predicate_and_the_strict_argv_is_untouched (__main__.CompletionDispositionTests.test_the_disposition_checker_argv_is_the_runner_predicate_and_the_strict_argv_is_untouched) ... ok
+test_the_disposition_route_is_dispositioned_not_accepted (__main__.CompletionDispositionTests.test_the_disposition_route_is_dispositioned_not_accepted) ... ok
+test_the_disposition_route_needs_an_open_diagnosis_incomplete_acceptance_record (__main__.CompletionDispositionTests.test_the_disposition_route_needs_an_open_diagnosis_incomplete_acceptance_record) ... ok
+test_the_strict_accepted_route_is_unchanged_and_ignores_unused_disposition_links (__main__.CompletionDispositionTests.test_the_strict_accepted_route_is_unchanged_and_ignores_unused_disposition_links) ... ok
+test_unknown_link_keys_are_still_rejected (__main__.CompletionDispositionTests.test_unknown_link_keys_are_still_rejected) ... ok
+test_with_the_production_checker_the_disposition_links_are_bound_to_the_reviewed_paths (__main__.CompletionDispositionTests.test_with_the_production_checker_the_disposition_links_are_bound_to_the_reviewed_paths) ... ok
+test_without_a_flag_the_record_stays_open_with_honest_requirement_statuses (__main__.CompletionDispositionTests.test_without_a_flag_the_record_stays_open_with_honest_requirement_statuses) ... ok
+test_an_absolute_path_that_resolves_to_a_different_file_is_rejected (__main__.CompletionLoadLinkBindingTests.test_an_absolute_path_that_resolves_to_a_different_file_is_rejected) ... ok
+test_an_injected_checker_keeps_its_tmp_path_fixtures (__main__.CompletionLoadLinkBindingTests.test_an_injected_checker_keeps_its_tmp_path_fixtures) ... ok
+test_halted_v1_r2_r3_r4_and_253_40_native_evidence_is_rejected_before_the_checker_runs (__main__.CompletionLoadLinkBindingTests.test_halted_v1_r2_r3_r4_and_253_40_native_evidence_is_rejected_before_the_checker_runs) ... ok
+test_load_checks_argv_is_unchanged (__main__.CompletionLoadLinkBindingTests.test_load_checks_argv_is_unchanged) ... ok
+test_the_acceptance_link_is_bound_to_the_acceptance_evidence_path (__main__.CompletionLoadLinkBindingTests.test_the_acceptance_link_is_bound_to_the_acceptance_evidence_path) ... ok
+test_the_r5_native_evidence_and_the_acceptance_evidence_are_accepted_through_the_production_checker (__main__.CompletionLoadLinkBindingTests.test_the_r5_native_evidence_and_the_acceptance_evidence_are_accepted_through_the_production_checker) ... ok
+test_only_the_frozen_message_or_one_stripped_trailing_newline_matches (__main__.DocsCommitMessageToleranceTests.test_only_the_frozen_message_or_one_stripped_trailing_newline_matches) ... ok
+test_docs_base_may_only_add_the_exact_named_branch_allowance (__main__.DocsWorkflowRelationTests.test_docs_base_may_only_add_the_exact_named_branch_allowance) ... ok
+test_a_real_canary_window_is_not_flagged (__main__.DryRunWindowGuardTests.test_a_real_canary_window_is_not_flagged) ... ok
+test_canary_matrix_result_on_a_dryrun_window_is_synthetic (__main__.DryRunWindowGuardTests.test_canary_matrix_result_on_a_dryrun_window_is_synthetic) ... ok
+test_completion_gaps_every_live_link_on_a_dryrun_window (__main__.DryRunWindowGuardTests.test_completion_gaps_every_live_link_on_a_dryrun_window) ... ok
+test_completion_with_real_window_ids_is_not_flagged (__main__.DryRunWindowGuardTests.test_completion_with_real_window_ids_is_not_flagged) ... ok
+test_every_canary_mode_result_on_a_dryrun_window_is_synthetic_live_policy_dry_run (__main__.DryRunWindowGuardTests.test_every_canary_mode_result_on_a_dryrun_window_is_synthetic_live_policy_dry_run) ... ok
+test_hermetic_evidence_keeps_its_hermetic_https_channel (__main__.DryRunWindowGuardTests.test_hermetic_evidence_keeps_its_hermetic_https_channel) ... ok
+test_pr_family_result_on_a_dryrun_window_is_synthetic_and_wired_into_verify_pr_family (__main__.DryRunWindowGuardTests.test_pr_family_result_on_a_dryrun_window_is_synthetic_and_wired_into_verify_pr_family) ... ok
+test_pr_pair_on_a_dryrun_window_is_synthetic_even_when_both_families_look_live (__main__.DryRunWindowGuardTests.test_pr_pair_on_a_dryrun_window_is_synthetic_even_when_both_families_look_live) ... ok
+test_transport_cli_end_to_end_labels_a_dryrun_window_and_not_a_real_one (__main__.DryRunWindowGuardTests.test_transport_cli_end_to_end_labels_a_dryrun_window_and_not_a_real_one) ... ok
+test_live_probe_cancelled_run_fixture_matches_the_recorded_shape (__main__.FixtureShapeFidelityTests.test_live_probe_cancelled_run_fixture_matches_the_recorded_shape) ... ok
+test_verifier_fixtures_match_the_recorded_github_shapes (__main__.FixtureShapeFidelityTests.test_verifier_fixtures_match_the_recorded_github_shapes) ... ok
+test_accepts_matching_fixture_origin_and_retained_digest (__main__.HostedGateVerifierTests.test_accepts_matching_fixture_origin_and_retained_digest) ... ok
+test_final_matrix_checks_separate_verifier_and_recounts_executions (__main__.HostedGateVerifierTests.test_final_matrix_checks_separate_verifier_and_recounts_executions) ... ok
+test_mocked_dispatch_poll_artifact_independent_verifier_path (__main__.HostedGateVerifierTests.test_mocked_dispatch_poll_artifact_independent_verifier_path) ... ok
+test_reconciles_actual_transport_transactions_and_dispatch_input_bounds (__main__.HostedGateVerifierTests.test_reconciles_actual_transport_transactions_and_dispatch_input_bounds) ... ok
+test_rejects_hidden_page_redirect_and_rate_limited_transport (__main__.HostedGateVerifierTests.test_rejects_hidden_page_redirect_and_rate_limited_transport) ... ok
+test_rejects_honest_skip_verdict_for_a_different_logical_event (__main__.HostedGateVerifierTests.test_rejects_honest_skip_verdict_for_a_different_logical_event) ... ok
+test_rejects_missing_or_expired_artifact_and_altered_digest (__main__.HostedGateVerifierTests.test_rejects_missing_or_expired_artifact_and_altered_digest) ... ok
+test_rejects_negative_boolean_or_underreported_budget (__main__.HostedGateVerifierTests.test_rejects_negative_boolean_or_underreported_budget) ... ok
+test_rejects_oversized_artifact_and_extra_archive_member (__main__.HostedGateVerifierTests.test_rejects_oversized_artifact_and_extra_archive_member) ... ok
+test_rejects_result_bytes_not_present_in_digest_checked_archive (__main__.HostedGateVerifierTests.test_rejects_result_bytes_not_present_in_digest_checked_archive) ... ok
+test_rejects_running_or_wrong_origin_auxiliary_verifier (__main__.HostedGateVerifierTests.test_rejects_running_or_wrong_origin_auxiliary_verifier) ... ok
+test_rejects_self_attested_artifact_and_malformed_json (__main__.HostedGateVerifierTests.test_rejects_self_attested_artifact_and_malformed_json) ... ok
+test_rejects_wrong_fixture_workflow_identity_and_unexpected_job (__main__.HostedGateVerifierTests.test_rejects_wrong_fixture_workflow_identity_and_unexpected_job) ... ok
+test_rejects_wrong_run_attempt_and_source_identity (__main__.HostedGateVerifierTests.test_rejects_wrong_run_attempt_and_source_identity) ... ok
+test_sources_can_pass_before_separate_verifier_but_matrix_cannot (__main__.HostedGateVerifierTests.test_sources_can_pass_before_separate_verifier_but_matrix_cannot) ... ok
+test_a_live_pr_ledger_labelled_synthetic_is_rejected (__main__.LivePRTransportHostTests.test_a_live_pr_ledger_labelled_synthetic_is_rejected) ... ok
+test_a_live_pr_ledger_on_api_github_com_and_a_frozen_download_host_verifies (__main__.LivePRTransportHostTests.test_a_live_pr_ledger_on_api_github_com_and_a_frozen_download_host_verifies) ... ok
+test_a_live_pr_transaction_on_any_other_host_is_rejected (__main__.LivePRTransportHostTests.test_a_live_pr_transaction_on_any_other_host_is_rejected) ... ok
+test_api_view_returns_live_evidence_unchanged_and_rewrites_only_hermetic_evidence (__main__.LivePRTransportHostTests.test_api_view_returns_live_evidence_unchanged_and_rewrites_only_hermetic_evidence) ... ok
+test_blob_and_pipelines_hops_are_unchanged (__main__.LiveResultsReceiverHostTests.test_blob_and_pipelines_hops_are_unchanged) ... ok
+test_live_r10_seq47_results_receiver_hop_is_a_trusted_run_logs_hop (__main__.LiveResultsReceiverHostTests.test_live_r10_seq47_results_receiver_hop_is_a_trusted_run_logs_hop) ... ok
+test_results_receiver_lookalikes_port_and_scheme_are_refused (__main__.LiveResultsReceiverHostTests.test_results_receiver_lookalikes_port_and_scheme_are_refused) ... ok
+test_results_receiver_off_run_logs_hop_one_is_refused (__main__.LiveResultsReceiverHostTests.test_results_receiver_off_run_logs_hop_one_is_refused) ... ok
+test_a_page_gap_is_not_one_contiguous_page_set (__main__.MultiPageCheckSourceTests.test_a_page_gap_is_not_one_contiguous_page_set) ... ok
+test_a_union_shorter_than_total_count_is_refused (__main__.MultiPageCheckSourceTests.test_a_union_shorter_than_total_count_is_refused) ... ok
+test_legacy_single_sequence_evidence_shape_is_still_accepted (__main__.MultiPageCheckSourceTests.test_legacy_single_sequence_evidence_shape_is_still_accepted) ... ok
+test_more_pages_than_ceil_total_count_is_a_wrong_page_count (__main__.MultiPageCheckSourceTests.test_more_pages_than_ceil_total_count_is_a_wrong_page_count) ... ok
+test_more_pages_than_the_allocation_max_pages_is_refused (__main__.MultiPageCheckSourceTests.test_more_pages_than_the_allocation_max_pages_is_refused) ... ok
+test_one_page_set_below_100_runs_is_accepted_on_both_paths (__main__.MultiPageCheckSourceTests.test_one_page_set_below_100_runs_is_accepted_on_both_paths) ... ok
+test_pr_head_stop_one_page_of_100_runs_with_total_count_101_needs_another_charged_page (__main__.MultiPageCheckSourceTests.test_pr_head_stop_one_page_of_100_runs_with_total_count_101_needs_another_charged_page) ... ok
+test_single_page_short_read_needs_another_charged_page (__main__.MultiPageCheckSourceTests.test_single_page_short_read_needs_another_charged_page) ... ok
+test_three_page_209_run_server_parent_set_is_hydrated_and_verified (__main__.MultiPageCheckSourceTests.test_three_page_209_run_server_parent_set_is_hydrated_and_verified) ... ok
+test_three_page_set_passes_verify_canary_checks_with_the_bound_publication_receipt (__main__.MultiPageCheckSourceTests.test_three_page_set_passes_verify_canary_checks_with_the_bound_publication_receipt) ... ok
+test_total_count_differing_between_pages_is_refused (__main__.MultiPageCheckSourceTests.test_total_count_differing_between_pages_is_refused) ... ok
+test_two_of_three_pages_is_a_short_read_that_needs_another_charged_page (__main__.MultiPageCheckSourceTests.test_two_of_three_pages_is_a_short_read_that_needs_another_charged_page) ... ok
+test_two_separate_page_one_reads_are_not_one_contiguous_page_set (__main__.MultiPageCheckSourceTests.test_two_separate_page_one_reads_are_not_one_contiguous_page_set) ... ok
+test_verify_refuses_a_retained_sequence_set_with_a_gap_or_a_short_read (__main__.MultiPageCheckSourceTests.test_verify_refuses_a_retained_sequence_set_with_a_gap_or_a_short_read) ... ok
+test_a_clean_matching_preflight_passes_moved_or_not (__main__.PRBasePreflightTests.test_a_clean_matching_preflight_passes_moved_or_not) ... ok
+test_docs_only_records_not_applicable_and_a_claimed_main_preflight_is_refused (__main__.PRBasePreflightTests.test_docs_only_records_not_applicable_and_a_claimed_main_preflight_is_refused) ... ok
+test_pre_r12_normal_evidence_is_not_inspected (__main__.PRBasePreflightTests.test_pre_r12_normal_evidence_is_not_inspected) ... ok
+test_r12_normal_evidence_without_a_clean_matching_preflight_is_refused (__main__.PRBasePreflightTests.test_r12_normal_evidence_without_a_clean_matching_preflight_is_refused) ... ok
+test_verify_pr_family_applies_the_base_preflight_check_after_the_created_pr_identity (__main__.PRBasePreflightTests.test_verify_pr_family_applies_the_base_preflight_check_after_the_created_pr_identity) ... ok
+test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses (__main__.PRRealShapeTests.test_live_attempt_jobs_and_run_jobs_share_one_job_schema_in_real_responses) ... ok
+test_live_ci_yml_provides_every_job_name_the_pr_verifier_requires (__main__.PRRealShapeTests.test_live_ci_yml_provides_every_job_name_the_pr_verifier_requires) ... ok
+test_live_matrix_expansion_matches_the_names_github_reported_for_a_real_pull_request_run (__main__.PRRealShapeTests.test_live_matrix_expansion_matches_the_names_github_reported_for_a_real_pull_request_run) ... ok
+test_live_r9_preflight_responses_satisfy_the_canary_driver_reads (__main__.PRRealShapeTests.test_live_r9_preflight_responses_satisfy_the_canary_driver_reads) ... ok
+test_live_real_pr_check_runs_link_each_required_check_to_its_attempt_job (__main__.PRRealShapeTests.test_live_real_pr_check_runs_link_each_required_check_to_its_attempt_job) ... ok
+test_253_102_normal_head_is_one_of_the_seven_candidate_names_and_docs_refs_stay_exact (__main__.PRVerifierContractTests.test_253_102_normal_head_is_one_of_the_seven_candidate_names_and_docs_refs_stay_exact) ... ok
+test_253_111_the_dryrun_window_marker_never_matches_a_real_window_id (__main__.PRVerifierContractTests.test_253_111_the_dryrun_window_marker_never_matches_a_real_window_id) ... ok
+test_253_119_the_r10_candidate_is_a_normal_head_and_nothing_else_r10_is_accepted (__main__.PRVerifierContractTests.test_253_119_the_r10_candidate_is_a_normal_head_and_nothing_else_r10_is_accepted) ... ok
+test_253_130_the_r11_candidate_is_a_normal_head_and_nothing_else_r11_is_accepted (__main__.PRVerifierContractTests.test_253_130_the_r11_candidate_is_a_normal_head_and_nothing_else_r11_is_accepted) ... ok
+test_253_137_the_r12_candidate_is_a_normal_head_and_nothing_else_r12_is_accepted (__main__.PRVerifierContractTests.test_253_137_the_r12_candidate_is_a_normal_head_and_nothing_else_r12_is_accepted) ... ok
+test_253_166_the_r13_candidate_is_a_normal_head_and_nothing_else_r13_is_accepted (__main__.PRVerifierContractTests.test_253_166_the_r13_candidate_is_a_normal_head_and_nothing_else_r13_is_accepted) ... ok
+test_empty_null_and_wrongly_labeled_pr_inputs_never_verify (__main__.PRVerifierContractTests.test_empty_null_and_wrongly_labeled_pr_inputs_never_verify) ... ok
+test_pr_cli_requires_known_modes_and_both_evidence_files (__main__.PRVerifierContractTests.test_pr_cli_requires_known_modes_and_both_evidence_files) ... ok
+test_the_five_required_names_are_exact_utf8_byte_strings (__main__.PRVerifierContractTests.test_the_five_required_names_are_exact_utf8_byte_strings) ... ok
+test_cancellation_scenario_has_a_stalled_producer_and_no_verdict_job (__main__.RegisteredFixtureTests.test_cancellation_scenario_has_a_stalled_producer_and_no_verdict_job) ... ok
+test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture (__main__.RegisteredFixtureTests.test_fixture_is_dispatch_only_read_only_and_pins_the_same_actions_as_the_superseded_fixture) ... ok
+test_native_sources_fail_and_pass_exactly_as_each_scenario_requires (__main__.RegisteredFixtureTests.test_native_sources_fail_and_pass_exactly_as_each_scenario_requires) ... ok
+test_separate_verifier_accepts_a_compact_matrix_and_rejects_wrong_ref_blob_source_or_origin (__main__.RegisteredFixtureTests.test_separate_verifier_accepts_a_compact_matrix_and_rejects_wrong_ref_blob_source_or_origin) ... ok
+test_the_existing_evidence_verifiers_tolerate_the_extra_action_approval_key (__main__.RegisteredFixtureTests.test_the_existing_evidence_verifiers_tolerate_the_extra_action_approval_key) ... ok
+test_bare_name_with_bound_display_title_is_accepted (__main__.RunIdentityTests.test_bare_name_with_bound_display_title_is_accepted) ... ok
+test_every_wrong_title_is_refused_with_the_identity_message (__main__.RunIdentityTests.test_every_wrong_title_is_refused_with_the_identity_message) ... ok
+test_live_first_canary_run_title_is_accepted (__main__.RunIdentityTests.test_live_first_canary_run_title_is_accepted) ... ok
+test_live_r8_real_run_poll_title_is_accepted (__main__.RunIdentityTests.test_live_r8_real_run_poll_title_is_accepted) ... ok
+test_live_r9_cli_accepts_the_real_full_pass_evidence_offline (__main__.RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline) ... ok
+test_live_r9_real_full_pass_run_is_accepted (__main__.RunIdentityTests.test_live_r9_real_full_pass_run_is_accepted) ... ok
+test_separate_verifier_requires_its_own_verifier_title (__main__.RunIdentityTests.test_separate_verifier_requires_its_own_verifier_title) ... ok
+test_unchanged_run_checks_keep_refusing (__main__.RunIdentityTests.test_unchanged_run_checks_keep_refusing) ... ok
+test_an_unexpanded_or_empty_producer_that_was_not_skipped_is_refused (__main__.SkippedProducerFormTests.test_an_unexpanded_or_empty_producer_that_was_not_skipped_is_refused) ... ok
+test_any_other_producer_form_is_refused (__main__.SkippedProducerFormTests.test_any_other_producer_form_is_refused) ... ok
+test_each_of_the_four_skipped_producer_forms_is_accepted (__main__.SkippedProducerFormTests.test_each_of_the_four_skipped_producer_forms_is_accepted) ... ok
+test_a_local_dispatch_url_is_read_as_api_github_com_only_for_hermetic_https_evidence (__main__.V2VerifierContractTests.test_a_local_dispatch_url_is_read_as_api_github_com_only_for_hermetic_https_evidence) ... ok
+test_dispatch_metrics_are_bound_to_exact_transmitted_request_bytes (__main__.V2VerifierContractTests.test_dispatch_metrics_are_bound_to_exact_transmitted_request_bytes) ... ok
+test_dispatch_metrics_follow_the_transmitted_input_order_not_the_sorted_ledger_copy (__main__.V2VerifierContractTests.test_dispatch_metrics_follow_the_transmitted_input_order_not_the_sorted_ledger_copy) ... ok
+test_dispatch_serializer_uses_typed_unicode_scalars_and_separate_byte_limit (__main__.V2VerifierContractTests.test_dispatch_serializer_uses_typed_unicode_scalars_and_separate_byte_limit) ... ok
+test_fresh_rules_require_complete_exact_five_native_sources (__main__.V2VerifierContractTests.test_fresh_rules_require_complete_exact_five_native_sources) ... ok
+test_hermetic_https_canary_evidence_is_unaffected_by_the_live_host_rule (__main__.V2VerifierContractTests.test_hermetic_https_canary_evidence_is_unaffected_by_the_live_host_rule) ... ok
+test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified (__main__.V2VerifierContractTests.test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified) ... ok
+test_live_canary_transactions_hop_zero_on_api_github_com_and_later_hops_on_trusted_download_hosts_only (__main__.V2VerifierContractTests.test_live_canary_transactions_hop_zero_on_api_github_com_and_later_hops_on_trusted_download_hosts_only) ... ok
+test_matrix_gzip_decoder_rejects_truncated_concatenated_and_trailing_streams (__main__.V2VerifierContractTests.test_matrix_gzip_decoder_rejects_truncated_concatenated_and_trailing_streams) ... ok
+test_new_acceptance_modes_reject_historical_v1_while_legacy_remains_disclosable (__main__.V2VerifierContractTests.test_new_acceptance_modes_reject_historical_v1_while_legacy_remains_disclosable) ... ok
+test_rejects_duplicate_symlink_and_trailing_zip_streams (__main__.V2VerifierContractTests.test_rejects_duplicate_symlink_and_trailing_zip_streams) ... /opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/zipfile/__init__.py:1721: UserWarning: Duplicate name: 'canary-result.json'
+  return self._open_to_write(zinfo, force_zip64=force_zip64)
+ok
+test_rejects_zip_local_header_that_disagrees_with_central_metadata (__main__.V2VerifierContractTests.test_rejects_zip_local_header_that_disagrees_with_central_metadata) ... ok
+test_repeated_page_one_requests_pass_and_a_later_page_must_follow_its_predecessor (__main__.V2VerifierContractTests.test_repeated_page_one_requests_pass_and_a_later_page_must_follow_its_predecessor) ... ok
+test_the_halted_r8_live_ledger_rows_satisfy_the_live_host_rule (__main__.V2VerifierContractTests.test_the_halted_r8_live_ledger_rows_satisfy_the_live_host_rule) ... ok
+test_v2_transport_reconciles_receipt_status_headers_and_digests (__main__.V2VerifierContractTests.test_v2_transport_reconciles_receipt_status_headers_and_digests) ... ok
+
+----------------------------------------------------------------------
+Ran 151 tests in 28.422s
+
+OK
+
+ci.yml expanded job names (30): ["Release ref guard", "Detect docs-only change", "Fast checks (milestone/installer/contracts/snapshot/ledger guards)", "Install golden + idempotency contract (subprocess harness)", "Library tests shard", "Library tests", "Library tests (dep-off \u2014 Threadline absent)", "Example unit smoke (ExUnit + ConnTest)", "Install smoke (fresh phx.new + sigra.install)", "Upgrade smoke (published source series -> local candidate)", "Passkeys manual fallback smoke", "Install matrix (flag combinations)", "Install matrix (flag combinations) (--no-passkeys)", "Install matrix (flag combinations) (--no-organizations)", "Install matrix (flag combinations) (--no-organizations --no-passkeys)", "Passkeys opt-out smoke", "Example HTTP smoke (boot + curl critical routes)", "Example Playwright shard (admin_behavior)", "Example Playwright shard (admin_checkpoints)", "Example Playwright shard (design_gallery)", "Example Playwright shard (non_admin_smoke)", "Example Playwright shard (demo_showcase)", "Example Playwright smoke (full lifecycle)", "Generated admin Playwright smoke", "ci-gate", "Notify on red ci-gate (release-lane-rot)", "Recapture admin-design baselines (in-CI)", "Recapture admin-checkpoint baselines (in-CI)", "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)", "Nightly probe (forced-failure self-test)"]
+SUITE-PASS hosted-gate-verify
+SUITE-START gate-canary-flow
+test_malformed_api_endpoints_fail_closed_without_a_transport_call (__main__.CanaryMalformedEndpointTests.test_malformed_api_endpoints_fail_closed_without_a_transport_call) ... ok
+test_malformed_download_urls_fail_closed_without_a_transport_call (__main__.CanaryMalformedEndpointTests.test_malformed_download_urls_fail_closed_without_a_transport_call) ... ok
+test_preflight_accepts_identity_consistent_duplicates_on_the_server_parent (__main__.CanaryPreflightCheckSourceTests.test_preflight_accepts_identity_consistent_duplicates_on_the_server_parent) ... ok
+test_preflight_reads_check_sources_from_the_frozen_server_parent (__main__.CanaryPreflightCheckSourceTests.test_preflight_reads_check_sources_from_the_frozen_server_parent) ... ok
+test_preflight_records_identity_without_requiring_success (__main__.CanaryPreflightCheckSourceTests.test_preflight_records_identity_without_requiring_success) ... ok
+test_preflight_refuses_a_missing_or_malformed_check_source_before_any_request (__main__.CanaryPreflightCheckSourceTests.test_preflight_refuses_a_missing_or_malformed_check_source_before_any_request) ... ok
+test_preflight_rejects_missing_duplicated_or_foreign_identity (__main__.CanaryPreflightCheckSourceTests.test_preflight_rejects_missing_duplicated_or_foreign_identity) ... ok
+test_extracted_functions_were_found (__main__.CanaryRouteMappingTests.test_extracted_functions_were_found) ... ok
+test_route_artifact_zip_download (__main__.CanaryRouteMappingTests.test_route_artifact_zip_download) ... ok
+test_route_branch_protection (__main__.CanaryRouteMappingTests.test_route_branch_protection) ... ok
+test_route_check_runs (__main__.CanaryRouteMappingTests.test_route_check_runs) ... ok
+test_route_get_ref (__main__.CanaryRouteMappingTests.test_route_get_ref) ... ok
+test_route_rate_limit (__main__.CanaryRouteMappingTests.test_route_rate_limit) ... ok
+test_route_rules_main (__main__.CanaryRouteMappingTests.test_route_rules_main) ... ok
+test_route_run (__main__.CanaryRouteMappingTests.test_route_run) ... ok
+test_route_run_artifacts (__main__.CanaryRouteMappingTests.test_route_run_artifacts) ... ok
+test_route_run_jobs (__main__.CanaryRouteMappingTests.test_route_run_jobs) ... ok
+test_route_run_logs_download (__main__.CanaryRouteMappingTests.test_route_run_logs_download) ... ok
+test_route_suite_covers_every_typed_get_route (__main__.CanaryRouteMappingTests.test_route_suite_covers_every_typed_get_route) ... ok
+test_route_workflow (__main__.CanaryRouteMappingTests.test_route_workflow) ... ok
+test_route_workflow_runs (__main__.CanaryRouteMappingTests.test_route_workflow_runs) ... ok
+test_a_negative_source_concluding_success_still_fails (__main__.DispatchScenarioErrexitTests.test_a_negative_source_concluding_success_still_fails) ... ok
+test_every_expected_outcome_returns_success_under_errexit (__main__.DispatchScenarioErrexitTests.test_every_expected_outcome_returns_success_under_errexit) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 2.039s
+
+OK
+SUITE-PASS gate-canary-flow
+SUITE-START full-dryrun
+test_every_category_of_the_default_run_is_within_the_frozen_table_and_retry_is_unused (__main__.AccountingTests.test_every_category_of_the_default_run_is_within_the_frozen_table_and_retry_is_unused) ... ok
+test_one_more_poll_than_the_category_allows_halts_with_a_budget_message (__main__.AccountingTests.test_one_more_poll_than_the_category_allows_halts_with_a_budget_message) ... ok
+test_cancelled_shape_drift_fault_fails_the_gate (__main__.CancelledShapeTests.test_cancelled_shape_drift_fault_fails_the_gate) ... ok
+test_fake_cancelled_run_matches_the_probe_recorded_shape (__main__.CancelledShapeTests.test_fake_cancelled_run_matches_the_probe_recorded_shape) ... ok
+test_the_two_legacy_refs_stop_publish_only_with_no_ref_updated (__main__.CreateOnlyTests.test_the_two_legacy_refs_stop_publish_only_with_no_ref_updated) ... ok
+test_hermetic_paged_listings_follow_two_repos_form_pages_end_to_end (__main__.DryRunPagedListingsTests.test_hermetic_paged_listings_follow_two_repos_form_pages_end_to_end) ... ok
+test_live_policy_paged_listings_follow_two_repositories_id_pages_end_to_end (__main__.DryRunPagedListingsTests.test_live_policy_paged_listings_follow_two_repositories_id_pages_end_to_end) ... ok
+test_paged_listings_with_the_repos_link_form_knob_is_refused (__main__.DryRunPagedListingsTests.test_paged_listings_with_the_repos_link_form_knob_is_refused) ... ok
+test_the_fake_pages_are_the_unpaged_listing_split_in_half_with_githubs_link_rels (__main__.DryRunPagedListingsTests.test_the_fake_pages_are_the_unpaged_listing_split_in_half_with_githubs_link_rels) ... ok
+test_hermetic_full_gate_retains_the_three_page_preflight_within_preflight_seven (__main__.DryRunPaginatedCheckRunsTests.test_hermetic_full_gate_retains_the_three_page_preflight_within_preflight_seven) ... ok
+test_hermetic_quick_gate_reads_three_repos_form_pages_within_preflight_seven (__main__.DryRunPaginatedCheckRunsTests.test_hermetic_quick_gate_reads_three_repos_form_pages_within_preflight_seven) ... ok
+test_live_policy_full_gate_retains_the_three_page_preflight_within_preflight_seven (__main__.DryRunPaginatedCheckRunsTests.test_live_policy_full_gate_retains_the_three_page_preflight_within_preflight_seven) ... ok
+test_live_policy_quick_gate_reads_three_repositories_id_pages_within_preflight_seven (__main__.DryRunPaginatedCheckRunsTests.test_live_policy_quick_gate_reads_three_repositories_id_pages_within_preflight_seven) ... ok
+test_the_fake_serves_209_runs_over_100_100_9_with_githubs_link_rels (__main__.DryRunPaginatedCheckRunsTests.test_the_fake_serves_209_runs_over_100_100_9_with_githubs_link_rels) ... ok
+test_the_retained_preflight_is_exactly_one_contiguous_check_runs_read (__main__.DryRunPaginatedCheckRunsTests.test_the_retained_preflight_is_exactly_one_contiguous_check_runs_read)
+The driver's real retained_preflight, run on window ledgers: only one contiguous 1..n read of one commit with ... ok
+test_a_manifest_stripped_of_main_freshness_is_refused_inside_the_same_clone (__main__.DryRunR12MainRecordTests.test_a_manifest_stripped_of_main_freshness_is_refused_inside_the_same_clone) ... ok
+test_earlier_pairs_get_no_synthetic_record_main_freshness_or_binding (__main__.DryRunR12MainRecordTests.test_earlier_pairs_get_no_synthetic_record_main_freshness_or_binding) ... ok
+test_the_r12_clone_commits_a_synthetic_main_record_bound_to_its_server_parent (__main__.DryRunR12MainRecordTests.test_the_r12_clone_commits_a_synthetic_main_record_bound_to_its_server_parent) ... ok
+test_the_real_checkout_refs_never_move_and_the_clone_ref_is_its_own (__main__.DryRunR12MainRecordTests.test_the_real_checkout_refs_never_move_and_the_clone_ref_is_its_own) ... ok
+test_a_manifest_stripped_of_main_freshness_is_refused_for_r13_inside_the_same_clone (__main__.DryRunR13MainRecordTests.test_a_manifest_stripped_of_main_freshness_is_refused_for_r13_inside_the_same_clone) ... ok
+test_the_main_freshness_pair_set_names_r12_and_r13 (__main__.DryRunR13MainRecordTests.test_the_main_freshness_pair_set_names_r12_and_r13) ... ok
+test_the_r13_clone_commits_a_synthetic_main_record_bound_to_its_server_parent (__main__.DryRunR13MainRecordTests.test_the_r13_clone_commits_a_synthetic_main_record_bound_to_its_server_parent) ... ok
+test_the_real_checkout_refs_never_move (__main__.DryRunR13MainRecordTests.test_the_real_checkout_refs_never_move) ... ok
+test_unknown_paths_queries_bodies_and_credentials_are_refused_and_recorded (__main__.FakeGitHubStrictnessTests.test_unknown_paths_queries_bodies_and_credentials_are_refused_and_recorded) ... ok
+test_every_served_job_step_and_artifact_has_the_recorded_github_shape (__main__.FullSequenceTests.test_every_served_job_step_and_artifact_has_the_recorded_github_shape) ... ok
+test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run (__main__.FullSequenceTests.test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run) ... ok
+test_the_default_run_completes_every_scenario_the_cancel_and_the_verifier (__main__.FullSequenceTests.test_the_default_run_completes_every_scenario_the_cancel_and_the_verifier) ... ok
+test_the_run_is_synthetic_and_reconciled_against_the_server_journal (__main__.FullSequenceTests.test_the_run_is_synthetic_and_reconciled_against_the_server_journal) ... ok
+test_a_route_refused_by_the_transport_marks_the_evidence_halted (__main__.HaltMarkingTests.test_a_route_refused_by_the_transport_marks_the_evidence_halted) ... ok
+test_a_verifier_failure_marks_the_evidence_halted (__main__.HaltMarkingTests.test_a_verifier_failure_marks_the_evidence_halted) ... ok
+test_a_pre_146_transport_refuses_the_default_live_link_form_at_preflight_page_2 (__main__.HistoricalTransportLinkFormTests.test_a_pre_146_transport_refuses_the_default_live_link_form_at_preflight_page_2) ... ok
+test_the_knob_is_refused_outside_its_scope (__main__.HistoricalTransportLinkFormTests.test_the_knob_is_refused_outside_its_scope) ... ok
+test_every_test_override_is_refused_with_a_live_allocation_before_any_request (__main__.LiveOverrideRefusalTests.test_every_test_override_is_refused_with_a_live_allocation_before_any_request) ... ok
+test_the_same_live_allocation_without_overrides_gets_past_the_refusal (__main__.LiveOverrideRefusalTests.test_the_same_live_allocation_without_overrides_gets_past_the_refusal) ... ok
+test_an_r8_pair_publication_stops_on_the_seeded_r8_refs_with_no_ref_created (__main__.LivePolicyCreateOnlyTests.test_an_r8_pair_publication_stops_on_the_seeded_r8_refs_with_no_ref_created) ... ok
+test_artifact_zip_is_a_302_on_api_github_com_then_a_200_on_the_blob_host (__main__.LivePolicyFullPassTests.test_artifact_zip_is_a_302_on_api_github_com_then_a_200_on_the_blob_host) ... ok
+test_live_policy_publish_only_and_full_pass_pass_end_to_end (__main__.LivePolicyFullPassTests.test_live_policy_publish_only_and_full_pass_pass_end_to_end) ... ok
+test_the_allocation_is_live_with_the_trusted_hosts_and_no_test_fields (__main__.LivePolicyFullPassTests.test_the_allocation_is_live_with_the_trusted_hosts_and_no_test_fields) ... ok
+test_the_live_publication_is_actual_github_verified_and_labelled_with_its_dry_run_window (__main__.LivePolicyFullPassTests.test_the_live_publication_is_actual_github_verified_and_labelled_with_its_dry_run_window) ... ok
+test_the_shim_refused_nothing_and_the_fake_recorded_no_violation (__main__.LivePolicyFullPassTests.test_the_shim_refused_nothing_and_the_fake_recorded_no_violation) ... ok
+test_the_token_reaches_every_api_request_and_no_blob_request (__main__.LivePolicyFullPassTests.test_the_token_reaches_every_api_request_and_no_blob_request) ... ok
+test_every_category_is_within_the_frozen_table_and_reconciled_with_the_fake (__main__.LivePolicyFullSequenceTests.test_every_category_is_within_the_frozen_table_and_reconciled_with_the_fake) ... ok
+test_every_download_is_a_302_hop_then_a_200_on_its_recorded_download_host (__main__.LivePolicyFullSequenceTests.test_every_download_is_a_302_hop_then_a_200_on_its_recorded_download_host) ... ok
+test_every_scenario_and_the_separate_verifier_pass_synthetic (__main__.LivePolicyFullSequenceTests.test_every_scenario_and_the_separate_verifier_pass_synthetic) ... ok
+test_every_served_job_step_and_artifact_has_the_recorded_github_shape (__main__.LivePolicyFullSequenceTests.test_every_served_job_step_and_artifact_has_the_recorded_github_shape) ... ok
+test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run (__main__.LivePolicyFullSequenceTests.test_every_served_run_has_the_recorded_github_shape_including_the_verifier_run) ... ok
+test_the_live_discovery_and_poll_waits_are_requested_unchanged (__main__.LivePolicyFullSequenceTests.test_the_live_discovery_and_poll_waits_are_requested_unchanged) ... ok
+test_the_live_publication_is_verified_and_the_evidence_stays_synthetic (__main__.LivePolicyFullSequenceTests.test_the_live_publication_is_verified_and_the_evidence_stays_synthetic) ... ok
+test_the_seeded_r8_refs_never_move (__main__.LivePolicyFullSequenceTests.test_the_seeded_r8_refs_never_move) ... ok
+test_the_token_shim_and_fake_stay_clean_over_the_whole_sequence (__main__.LivePolicyFullSequenceTests.test_the_token_shim_and_fake_stay_clean_over_the_whole_sequence) ... ok
+test_the_verifier_job_ran_verify_sources_on_the_compact_matrix (__main__.LivePolicyFullSequenceTests.test_the_verifier_job_ran_verify_sources_on_the_compact_matrix) ... ok
+test_a_route_refused_by_the_transport_marks_the_evidence_halted (__main__.LivePolicyHaltMarkingTests.test_a_route_refused_by_the_transport_marks_the_evidence_halted) ... ok
+test_a_verifier_failure_marks_the_evidence_halted (__main__.LivePolicyHaltMarkingTests.test_a_verifier_failure_marks_the_evidence_halted) ... ok
+test_the_five_preflight_copies_sit_next_to_the_explicit_evidence (__main__.PreflightOnceTests.test_the_five_preflight_copies_sit_next_to_the_explicit_evidence) ... ok
+test_the_second_invocation_issues_zero_preflight_requests_and_reverifies_the_retained_preflight (__main__.PreflightOnceTests.test_the_second_invocation_issues_zero_preflight_requests_and_reverifies_the_retained_preflight) ... ok
+test_the_window_ledger_holds_one_contiguous_three_page_check_runs_read_within_the_preflight_category (__main__.PreflightOnceTests.test_the_window_ledger_holds_one_contiguous_three_page_check_runs_read_within_the_preflight_category) ... ok
+test_the_ref_pair_help_is_truthful_and_names_the_publishers_ref_pairs (__main__.RefPairHelpTests.test_the_ref_pair_help_is_truthful_and_names_the_publishers_ref_pairs) ... ok
+test_both_quick_gates_report_a_passing_response_shape (__main__.ResponseShapeTests.test_both_quick_gates_report_a_passing_response_shape) ... ok
+test_fake_run_object_matches_the_recorded_github_shape (__main__.ResponseShapeTests.test_fake_run_object_matches_the_recorded_github_shape) ... ok
+test_job_step_and_artifact_shape_checks_refuse_the_pre_253_117_fake_shapes (__main__.ResponseShapeTests.test_job_step_and_artifact_shape_checks_refuse_the_pre_253_117_fake_shapes) ... ok
+test_response_shape_fault_fails_the_gate (__main__.ResponseShapeTests.test_response_shape_fault_fails_the_gate) ... ok
+test_fake_log_redirect_matches_the_probe_recorded_chain (__main__.RunLogsShapeTests.test_fake_log_redirect_matches_the_probe_recorded_chain) ... ok
+test_run_logs_legacy_blob_fault_fails_the_gate (__main__.RunLogsShapeTests.test_run_logs_legacy_blob_fault_fails_the_gate) ... ok
+test_an_r10_named_run_with_the_r10_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing (__main__.SeededR10RefsTests.test_an_r10_named_run_with_the_r10_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing) ... ok
+test_an_r11_quick_gate_with_all_three_earlier_pairs_seeded_passes_in_both_modes_and_moves_none (__main__.SeededR10RefsTests.test_an_r11_quick_gate_with_all_three_earlier_pairs_seeded_passes_in_both_modes_and_moves_none) ... ok
+test_seeded_scoped_refs_merges_exactly_the_requested_pairs (__main__.SeededR10RefsTests.test_seeded_scoped_refs_merges_exactly_the_requested_pairs) ... ok
+test_the_seeded_r10_pair_is_freeze_r10s_commits_and_r8_r9_are_unchanged (__main__.SeededR10RefsTests.test_the_seeded_r10_pair_is_freeze_r10s_commits_and_r8_r9_are_unchanged) ... ok
+test_an_r11_named_run_with_the_r11_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing (__main__.SeededR11RefsTests.test_an_r11_named_run_with_the_r11_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing) ... ok
+test_an_r12_quick_gate_with_all_four_earlier_pairs_seeded_passes_in_both_modes_and_moves_none (__main__.SeededR11RefsTests.test_an_r12_quick_gate_with_all_four_earlier_pairs_seeded_passes_in_both_modes_and_moves_none) ... ok
+test_seeded_scoped_refs_merges_exactly_the_requested_pairs_including_r11 (__main__.SeededR11RefsTests.test_seeded_scoped_refs_merges_exactly_the_requested_pairs_including_r11) ... ok
+test_the_seeded_r11_pair_is_freeze_r11s_commits_and_r8_r9_r10_are_unchanged (__main__.SeededR11RefsTests.test_the_seeded_r11_pair_is_freeze_r11s_commits_and_r8_r9_r10_are_unchanged) ... ok
+test_an_r12_named_run_with_the_r12_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing (__main__.SeededR12RefsTests.test_an_r12_named_run_with_the_r12_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing) ... ok
+test_an_r13_quick_gate_with_all_five_earlier_pairs_seeded_passes_in_both_modes_and_moves_none (__main__.SeededR12RefsTests.test_an_r13_quick_gate_with_all_five_earlier_pairs_seeded_passes_in_both_modes_and_moves_none) ... ok
+test_seeded_scoped_refs_merges_exactly_the_requested_pairs_including_r12 (__main__.SeededR12RefsTests.test_seeded_scoped_refs_merges_exactly_the_requested_pairs_including_r12) ... ok
+test_the_seeded_r12_pair_is_freeze_r12s_commits_and_r8_to_r11_are_unchanged (__main__.SeededR12RefsTests.test_the_seeded_r12_pair_is_freeze_r12s_commits_and_r8_to_r11_are_unchanged) ... ok
+test_an_r10_quick_gate_with_both_earlier_pairs_seeded_passes_in_both_modes_and_moves_neither (__main__.SeededR9RefsTests.test_an_r10_quick_gate_with_both_earlier_pairs_seeded_passes_in_both_modes_and_moves_neither) ... ok
+test_an_r9_named_run_with_the_r9_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing (__main__.SeededR9RefsTests.test_an_r9_named_run_with_the_r9_refs_seeded_stops_on_the_first_get_ref_and_moves_nothing) ... ok
+test_the_seeded_pairs_are_the_real_github_shas_and_r8_is_unchanged (__main__.SeededR9RefsTests.test_the_seeded_pairs_are_the_real_github_shas_and_r8_is_unchanged) ... ok
+test_check_source_candidate (__main__.SensitivityControlTests.test_check_source_candidate) ... ok
+test_discovery_race (__main__.SensitivityControlTests.test_discovery_race) ... ok
+test_errexit_tail (__main__.SensitivityControlTests.test_errexit_tail) ... ok
+test_halt_unmarked (__main__.SensitivityControlTests.test_halt_unmarked) ... ok
+test_preflight_repeat (__main__.SensitivityControlTests.test_preflight_repeat) ... ok
+test_the_frozen_r7_driver_fails_at_the_check_runs_preflight_before_any_verifier_call (__main__.SensitivityControlTests.test_the_frozen_r7_driver_fails_at_the_check_runs_preflight_before_any_verifier_call) ... ok
+test_a_three_second_visibility_delay_is_found_by_one_listing_after_the_discovery_wait (__main__.TimingModelTests.test_a_three_second_visibility_delay_is_found_by_one_listing_after_the_discovery_wait) ... ok
+test_the_modeled_polls_count_from_a_first_poll_after_one_interval (__main__.TimingModelTests.test_the_modeled_polls_count_from_a_first_poll_after_one_interval) ... ok
+test_the_fix_is_not_the_latest_fix_253_107_commit (__main__.TransportSensitivityTests.test_the_fix_is_not_the_latest_fix_253_107_commit) ... ok
+test_the_hermetic_mode_result_for_the_pre_fix_transport_is_recorded (__main__.TransportSensitivityTests.test_the_hermetic_mode_result_for_the_pre_fix_transport_is_recorded) ... 
+hermetic --transport-from 375b4113805618e48a925d2841ca66545987a2f4^: exit 0, status passed, stop None
+ok
+test_the_pre_fix_transport_fails_the_live_policy_gate_at_artifact_zip_with_origin_rejected (__main__.TransportSensitivityTests.test_the_pre_fix_transport_fails_the_live_policy_gate_at_artifact_zip_with_origin_rejected) ... ok
+test_the_redirect_fix_transport_passes_the_same_gate (__main__.TransportSensitivityTests.test_the_redirect_fix_transport_passes_the_same_gate) ... ok
+
+----------------------------------------------------------------------
+Ran 90 tests in 5907.914s
+
+OK
+FULL-DRYRUN-COUNT 90
+SUITE-PASS full-dryrun
+SUITE-START gate-canary-shell
+ci-gate-canary: local fixture contract passed
+ci-gate-canary tests passed (synthetic fixture repo; no active phase refs or ledgers)
+SUITE-PASS gate-canary-shell
+SUITE-START gate-canary-recovery
+test_expected_watch_failure_returns_without_changing_errexit (__main__.CanaryRecoveryTests.test_expected_watch_failure_returns_without_changing_errexit) ... ok
+test_fixture_uses_actual_github_identity_as_input_only (__main__.CanaryRecoveryTests.test_fixture_uses_actual_github_identity_as_input_only) ... ok
+test_halted_evidence_with_reviewed_freeze_stops_before_any_github_command (__main__.CanaryRecoveryTests.test_halted_evidence_with_reviewed_freeze_stops_before_any_github_command) ... ok
+test_missing_recovery_freeze_refuses_before_any_github_command (__main__.CanaryRecoveryTests.test_missing_recovery_freeze_refuses_before_any_github_command) ... ok
+test_terminal_run_is_captured_with_stale_temp_names_present (__main__.CanaryRecoveryTests.test_terminal_run_is_captured_with_stale_temp_names_present) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.291s
+
+OK
+SUITE-PASS gate-canary-recovery
+
+VERIFY-EXIT 0

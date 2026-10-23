@@ -1,0 +1,11 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "section": "docs_and_prs",
+  "section_sha256": "34bf9bd67ffbbf9bc4ac48dcc4e60f7ee57f29ac334777bd2cf120e80723e15a",
+  "decision": "approve",
+  "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+  "decision_text": "yes i approve",
+  "approved_at_epoch": 1792632257,
+  "expires_epoch": 1792718657
+}

@@ -1,0 +1,501 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.72kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mcr.microsoft.com/playwright@sha256:eac9b0a5312cdab40ee8c2429df5bf19bffdccf8f3bf3c42268e173f97541645
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [ 1/11] FROM mcr.microsoft.com/playwright@sha256:eac9b0a5312cdab40ee8c2429df5bf19bffdccf8f3bf3c42268e173f97541645
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 332.59kB 0.1s done
+#5 DONE 0.1s
+
+#6 [ 5/11] COPY source /work
+#6 CACHED
+
+#7 [ 3/11] COPY assets /assets
+#7 CACHED
+
+#8 [ 4/11] RUN cd /assets && sha256sum -c SHA256SUMS &&     mkdir -p /opt/otp /opt/elixir /opt/node &&     tar -xzf otp.tar.gz --strip-components=1 -C /opt/otp && /opt/otp/Install -minimal /opt/otp &&     unzip -q elixir.zip -d /opt/elixir &&     tar -xJf node.tar.xz --strip-components=1 -C /opt/node && rm -rf /assets
+#8 CACHED
+
+#9 [ 6/11] COPY full-prefix.config.ts /work/test/example/priv/playwright/.phase253-linux.config.ts
+#9 CACHED
+
+#10 [ 2/11] RUN apt-get update && apt-get install -y --no-install-recommends     build-essential git unzip libncurses6 libsctp1 && rm -rf /var/lib/apt/lists/*
+#10 CACHED
+
+#11 [ 7/11] WORKDIR /work/test/example
+#11 CACHED
+
+#12 [ 8/11] RUN mix local.hex --force && mix local.rebar --force &&     mix deps.get && mix compile --warnings-as-errors
+#12 2.390 * creating /root/.mix/archives/hex-2.5.4
+#12 4.272 * creating /root/.mix/elixir/1-19-otp-28/rebar3
+#12 6.498 Resolving Hex dependencies...
+#12 6.679 Resolution completed in 0.176s
+#12 6.708 Unchanged:
+#12 6.708   argon2_elixir 4.1.3
+#12 6.710   asn1_compiler 0.1.1
+#12 6.710   assent 0.3.1
+#12 6.710   bandit 1.10.4 VULNERABLE!
+#12 6.710     EEF-CVE-2026-39805 (MEDIUM)
+#12 6.710     aka: CVE-2026-39805, GHSA-c67r-gc9j-2qf7
+#12 6.710     CL.CL HTTP request smuggling via duplicate Content-Length in bandit
+#12 6.710     https://osv.dev/vulnerability/EEF-CVE-2026-39805
+#12 6.710 
+#12 6.711     EEF-CVE-2026-42788 (MEDIUM)
+#12 6.711     aka: CVE-2026-42788, GHSA-q6v9-r226-v65f
+#12 6.711     HTTP/2 frame size limit checked after body is buffered in bandit
+#12 6.711     https://osv.dev/vulnerability/EEF-CVE-2026-42788
+#12 6.711 
+#12 6.711     EEF-CVE-2026-39807 (MEDIUM)
+#12 6.711     aka: CVE-2026-39807, GHSA-375f-4r2h-f99j
+#12 6.711     Client-supplied URI scheme trusted without transport verification in bandit
+#12 6.711     https://osv.dev/vulnerability/EEF-CVE-2026-39807
+#12 6.711 
+#12 6.711     EEF-CVE-2026-39804 (HIGH)
+#12 6.711     aka: CVE-2026-39804, GHSA-frh3-6pv6-rc8j
+#12 6.711     WebSocket permessage-deflate inflate has no output-size cap in bandit
+#12 6.711     https://osv.dev/vulnerability/EEF-CVE-2026-39804
+#12 6.711 
+#12 6.711     EEF-CVE-2026-39803 (HIGH)
+#12 6.711     aka: CVE-2026-39803, GHSA-9q9q-324x-93r2
+#12 6.711     HTTP/1 chunked body reader ignores length cap in bandit
+#12 6.711     https://osv.dev/vulnerability/EEF-CVE-2026-39803
+#12 6.711 
+#12 6.711     EEF-CVE-2026-39806 (HIGH)
+#12 6.711     aka: CVE-2026-39806, GHSA-rf5q-vwxw-gmrf
+#12 6.711     HTTP/1 chunked decoder infinite loop on requests with trailer fields in bandit
+#12 6.711     https://osv.dev/vulnerability/EEF-CVE-2026-39806
+#12 6.712 
+#12 6.712     EEF-CVE-2026-42786 (HIGH)
+#12 6.712     aka: CVE-2026-42786, GHSA-pf94-94m9-536p
+#12 6.712     WebSocket fragmented message reassembly unbounded in bandit
+#12 6.712     https://osv.dev/vulnerability/EEF-CVE-2026-42786
+#12 6.712 
+#12 6.712     EEF-CVE-2026-74836 (HIGH)
+#12 6.712     aka: CVE-2026-74836, GHSA-xj8g-532w-jv94
+#12 6.712     HTTP/2 connection-window starvation pins Plug processes indefinitely in Bandit
+#12 6.712     https://osv.dev/vulnerability/EEF-CVE-2026-74836
+#12 6.712 
+#12 6.712     EEF-CVE-2026-75484 (MEDIUM)
+#12 6.712     aka: CVE-2026-75484, GHSA-x3gh-xhj4-3vq8
+#12 6.712     HTTP/2 header field values containing CR, LF or NUL are passed to the application unvalidated in Bandit
+#12 6.712     https://osv.dev/vulnerability/EEF-CVE-2026-75484
+#12 6.712 
+#12 6.712     EEF-CVE-2026-105659 (HIGH)
+#12 6.712     aka: CVE-2026-105659, GHSA-69m6-wcv4-rwcf
+#12 6.712     HTTP/2 blocked-send deadlines reset on every WINDOW_UPDATE, letting a trickle pin stream processes indefinitely in Bandit
+#12 6.712     https://osv.dev/vulnerability/EEF-CVE-2026-105659
+#12 6.712 
+#12 6.712     EEF-CVE-2026-105660 (MEDIUM)
+#12 6.712     aka: CVE-2026-105660, GHSA-v53v-9hvg-37jf
+#12 6.712     Unvalidated HTTP/1 request-target authority lets a client choose conn.host and conn.port in Bandit
+#12 6.712     https://osv.dev/vulnerability/EEF-CVE-2026-105660
+#12 6.713   cbor 1.0.2
+#12 6.713   cc_precompiler 0.1.11
+#12 6.713   cloak 1.1.4 VULNERABLE!
+#12 6.713     EEF-CVE-2026-95105 (HIGH)
+#12 6.713     aka: CVE-2026-95105
+#12 6.713     Cloak AES-CTR cipher lacks ciphertext authentication, allowing chosen-plaintext forgery by bit flipping
+#12 6.713     https://osv.dev/vulnerability/EEF-CVE-2026-95105
+#12 6.713   cloak_ecto 1.3.0 VULNERABLE!
+#12 6.713     EEF-CVE-2026-94206 (MEDIUM)
+#12 6.713     aka: CVE-2026-94206
+#12 6.713     Cloak PBKDF2 field ignores the configured iteration count and runs only :size rounds
+#12 6.713     https://osv.dev/vulnerability/EEF-CVE-2026-94206
+#12 6.713   comeonin 5.5.1
+#12 6.713   db_connection 2.9.0
+#12 6.713   decimal 2.3.0 VULNERABLE!
+#12 6.713     EEF-CVE-2026-32686 (MEDIUM)
+#12 6.713     aka: CVE-2026-32686, GHSA-rhv4-8758-jx7v
+#12 6.713     Unbounded exponent in decimal enables unauthenticated DoS
+#12 6.713     https://osv.dev/vulnerability/EEF-CVE-2026-32686
+#12 6.713 
+#12 6.713     EEF-CVE-2026-97853 (MEDIUM)
+#12 6.713     aka: CVE-2026-97853, GHSA-6c27-994x-c52f
+#12 6.713     Unbounded allocation in decimal Decimal.round/3 driven by the places argument enables DoS
+#12 6.713     https://osv.dev/vulnerability/EEF-CVE-2026-97853
+#12 6.713   dns_cluster 0.2.0
+#12 6.713   ecto 3.13.5
+#12 6.713   ecto_sql 3.13.5
+#12 6.713   elixir_make 0.9.0
+#12 6.713   eqrcode 0.2.1
+#12 6.713   expo 1.1.1
+#12 6.713   file_system 1.1.1
+#12 6.713   fine 0.1.6
+#12 6.713   flop 0.26.3
+#12 6.713   flop_phoenix 0.26.0
+#12 6.713   gettext 1.0.2
+#12 6.713   hammer 7.3.0
+#12 6.713   hpax 1.0.3 VULNERABLE!
+#12 6.713     EEF-CVE-2026-58226 (HIGH)
+#12 6.713     aka: CVE-2026-58226, GHSA-jj2p-32j7-whj2
+#12 6.713     Unauthenticated denial-of-service via unbounded HPACK integer decoding in hpax
+#12 6.713     https://osv.dev/vulnerability/EEF-CVE-2026-58226
+#12 6.713   idna 6.1.1
+#12 6.713   jason 1.4.4
+#12 6.714   joken 2.6.2
+#12 6.714   jose 1.11.12
+#12 6.714   lazy_html 0.1.11 VULNERABLE!
+#12 6.714     EEF-CVE-2026-92106 (LOW)
+#12 6.714     aka: CVE-2026-92106, GHSA-8rqp-v692-v82q
+#12 6.714     lazy_html serializes SVG and MathML style and script text unescaped, allowing mutation XSS
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-92106
+#12 6.714   mime 2.0.7
+#12 6.714   mox 1.2.0
+#12 6.714   nimble_csv 1.3.0
+#12 6.714   nimble_options 1.1.1
+#12 6.714   nimble_ownership 1.0.2
+#12 6.714   nimble_totp 1.0.0
+#12 6.714   oban 2.21.1
+#12 6.714   phoenix 1.8.5 VULNERABLE!
+#12 6.714     EEF-CVE-2026-56811 (HIGH)
+#12 6.714     aka: CVE-2026-56811, GHSA-6983-jfq8-485w
+#12 6.714     Phoenix transports do not limit channel joins per connection, enabling process-exhaustion denial of service
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-56811
+#12 6.714 
+#12 6.714     EEF-CVE-2026-32689 (HIGH)
+#12 6.714     aka: CVE-2026-32689, GHSA-628h-q48j-jr6q
+#12 6.714     Long-poll NDJSON body splitting causes unbounded memory allocation in Phoenix
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-32689
+#12 6.714 
+#12 6.714     EEF-CVE-2026-56812 (MEDIUM)
+#12 6.714     aka: CVE-2026-56812, GHSA-63mc-hw7g-86rr
+#12 6.714     Phoenix JavaScript presence client crashes on presence keys colliding with Object.prototype members in Presence.syncState/syncDiff
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-56812
+#12 6.714   phoenix_ecto 4.7.0
+#12 6.714   phoenix_html 4.3.0
+#12 6.714   phoenix_live_reload 1.6.2
+#12 6.714   phoenix_live_view 1.1.28 VULNERABLE!
+#12 6.714     EEF-CVE-2026-64941 (LOW)
+#12 6.714     aka: CVE-2026-64941, GHSA-36m4-rm57-3prf
+#12 6.714     Open redirect in Phoenix.LiveView.validate_local_url!/2 via ASCII tab, LF and CR
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-64941
+#12 6.714   phoenix_pubsub 2.2.0
+#12 6.714   phoenix_template 1.0.4
+#12 6.714   plug 1.19.1 VULNERABLE!
+#12 6.714     EEF-CVE-2026-54892 (HIGH)
+#12 6.714     aka: CVE-2026-54892, GHSA-j43x-5hjq-rgxf
+#12 6.714     Plug: quadratic-time decoding of nested query/body parameters enables denial of service
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-54892
+#12 6.714 
+#12 6.714     EEF-CVE-2026-8468 (HIGH)
+#12 6.714     aka: CVE-2026-8468, GHSA-468c-vq7p-gh64
+#12 6.714     Unbounded buffer accumulation in multipart header parsing causes denial of service in plug
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-8468
+#12 6.714 
+#12 6.714     EEF-CVE-2026-56813 (LOW)
+#12 6.714     aka: CVE-2026-56813, GHSA-wpmj-jh88-rpgm
+#12 6.714     Cookie attribute injection in Plug.Conn.Cookies.encode/2
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-56813
+#12 6.714 
+#12 6.714     EEF-CVE-2026-56814 (MEDIUM)
+#12 6.714     aka: CVE-2026-56814, GHSA-95qv-c9g9-rm63
+#12 6.714     Plug: multipart :length limit is not charged for part headers, enabling unbounded temp-file creation (denial of service)
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-56814
+#12 6.714   plug_crypto 2.1.1
+#12 6.714   postgrex 0.22.0 VULNERABLE!
+#12 6.714     EEF-CVE-2026-66838 (MEDIUM)
+#12 6.714     aka: CVE-2026-66838, GHSA-3gww-3f36-2388
+#12 6.714     SQL injection via the :comment option in Postgrex.stream/4
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-66838
+#12 6.714 
+#12 6.714     EEF-CVE-2026-32687 (HIGH)
+#12 6.714     aka: CVE-2026-32687, GHSA-r73h-97w8-m54h
+#12 6.714     SQL injection via channel name in Postgrex.Notifications.listen/3 and unlisten/3
+#12 6.714     https://osv.dev/vulnerability/EEF-CVE-2026-32687
+#12 6.715 
+#12 6.715     EEF-CVE-2026-58225 (LOW)
+#12 6.715     aka: CVE-2026-58225, GHSA-4mw9-4qgj-m97w
+#12 6.715     SQL injection via unescaped dollar-quote in Postgrex.Notifications reconnect replay causes notification denial of service
+#12 6.715     https://osv.dev/vulnerability/EEF-CVE-2026-58225
+#12 6.715   swoosh 1.25.0 VULNERABLE!
+#12 6.715     EEF-CVE-2026-54893 (LOW)
+#12 6.715     aka: CVE-2026-54893, GHSA-754j-98wh-57rf
+#12 6.715     Email-derived URL path injection in the Swoosh Microsoft Graph adapter
+#12 6.715     https://osv.dev/vulnerability/EEF-CVE-2026-54893
+#12 6.715   telemetry 1.4.1
+#12 6.715   telemetry_metrics 1.1.0
+#12 6.715   telemetry_poller 1.3.0
+#12 6.715   thousand_island 1.4.3
+#12 6.715   threadline 0.6.0
+#12 6.715   unicode_util_compat 0.7.1
+#12 6.715   wax_ 0.7.0
+#12 6.715   websock 0.5.3
+#12 6.715   websock_adapter 0.5.9
+#12 6.715   x509 0.9.2
+#12 6.723 * Getting phoenix (Hex package)
+#12 7.150 * Getting phoenix_ecto (Hex package)
+#12 7.190 * Getting ecto_sql (Hex package)
+#12 7.201 * Getting postgrex (Hex package)
+#12 7.212 * Getting phoenix_html (Hex package)
+#12 7.356 * Getting phoenix_live_reload (Hex package)
+#12 7.360 * Getting phoenix_live_view (Hex package)
+#12 7.409 * Getting lazy_html (Hex package)
+#12 7.414 * Getting telemetry_metrics (Hex package)
+#12 7.420 * Getting telemetry_poller (Hex package)
+#12 7.428 * Getting gettext (Hex package)
+#12 7.433 * Getting jason (Hex package)
+#12 7.436 * Getting dns_cluster (Hex package)
+#12 7.439 * Getting bandit (Hex package)
+#12 7.448 * Getting swoosh (Hex package)
+#12 7.461 * Getting oban (Hex package)
+#12 7.471 * Getting hammer (Hex package)
+#12 7.475 * Getting assent (Hex package)
+#12 7.481 * Getting joken (Hex package)
+#12 7.484 * Getting eqrcode (Hex package)
+#12 7.487 * Getting mox (Hex package)
+#12 7.490 * Getting threadline (Hex package)
+#12 7.507 * Getting nimble_csv (Hex package)
+#12 7.510 * Getting plug (Hex package)
+#12 7.527 * Getting telemetry (Hex package)
+#12 7.541 * Getting mime (Hex package)
+#12 7.548 * Getting plug_crypto (Hex package)
+#12 7.554 * Getting nimble_ownership (Hex package)
+#12 7.562 * Getting jose (Hex package)
+#12 7.602 * Getting idna (Hex package)
+#12 7.609 * Getting unicode_util_compat (Hex package)
+#12 7.613 * Getting hpax (Hex package)
+#12 7.615 * Getting thousand_island (Hex package)
+#12 7.620 * Getting websock (Hex package)
+#12 7.622 * Getting expo (Hex package)
+#12 7.628 * Getting cc_precompiler (Hex package)
+#12 7.630 * Getting elixir_make (Hex package)
+#12 7.633 * Getting fine (Hex package)
+#12 7.636 * Getting phoenix_template (Hex package)
+#12 7.639 * Getting file_system (Hex package)
+#12 7.643 * Getting db_connection (Hex package)
+#12 7.648 * Getting decimal (Hex package)
+#12 7.651 * Getting ecto (Hex package)
+#12 7.666 * Getting phoenix_pubsub (Hex package)
+#12 7.670 * Getting websock_adapter (Hex package)
+#12 7.672 * Getting flop (Hex package)
+#12 7.677 * Getting flop_phoenix (Hex package)
+#12 7.680 * Getting nimble_options (Hex package)
+#12 7.683 * Getting argon2_elixir (Hex package)
+#12 7.688 * Getting comeonin (Hex package)
+#12 7.690 * Getting nimble_totp (Hex package)
+#12 7.693 * Getting cloak_ecto (Hex package)
+#12 7.698 * Getting wax_ (Hex package)
+#12 7.703 * Getting asn1_compiler (Hex package)
+#12 7.705 * Getting cbor (Hex package)
+#12 7.708 * Getting x509 (Hex package)
+#12 7.713 * Getting cloak (Hex package)
+#12 7.718 Found packages with security advisories, see above for details
+#12 7.718 You have added/upgraded packages you could sponsor, run `mix hex.sponsor` to learn more
+#12 8.654 ==> file_system
+#12 8.655 Compiling 7 files (.ex)
+#12 8.777 Generated file_system app
+#12 8.790 ==> mime
+#12 8.790 Compiling 1 file (.ex)
+#12 8.852 Generated mime app
+#12 8.866 ==> x509
+#12 8.866 Compiling 24 files (.ex)
+#12 9.149 Generated x509 app
+#12 9.167 ==> nimble_options
+#12 9.167 Compiling 3 files (.ex)
+#12 9.348 Generated nimble_options app
+#12 9.361 ==> comeonin
+#12 9.361 Compiling 3 files (.ex)
+#12 9.376 Generated comeonin app
+#12 9.387 ==> plug_crypto
+#12 9.387 Compiling 5 files (.ex)
+#12 9.447 Generated plug_crypto app
+#12 9.459 ==> hpax
+#12 9.459 Compiling 4 files (.ex)
+#12 9.688 Generated hpax app
+#12 9.787 ==> jose
+#12 9.787 Compiling 113 files (.erl)
+#12 10.59 Compiling 8 files (.ex)
+#12 10.72 Generated jose app
+#12 10.74 ==> assent
+#12 10.74 Compiling 38 files (.ex)
+#12 10.92 Generated assent app
+#12 10.95 ==> nimble_csv
+#12 10.95 Compiling 1 file (.ex)
+#12 11.08 Generated nimble_csv app
+#12 11.09 ==> asn1_compiler
+#12 11.09 Compiling 1 file (.ex)
+#12 11.13     warning: :asn1ct.compile/2 is undefined (module :asn1ct is not available or is yet to be defined)
+#12 11.13     │
+#12 11.13  74 │       :asn1ct.compile(to_charlist(input), options)
+#12 11.13     │               ~
+#12 11.13     │
+#12 11.13     └─ lib/mix/tasks/compile.asn1.ex:74:15: Mix.Tasks.Compile.Asn1.run/1
+#12 11.13 
+#12 11.13 Generated asn1_compiler app
+#12 11.15 ==> elixir_make
+#12 11.15 Compiling 8 files (.ex)
+#12 11.20 Generated elixir_make app
+#12 11.22 ==> argon2_elixir
+#12 11.27 mkdir -p /work/test/example/_build/dev/lib/argon2_elixir/priv
+#12 11.28 cc -g -O3 -pthread -Wall -I"/opt/otp/erts-16.4/include" -Iargon2/include -Iargon2/src -Ic_src -shared -fPIC -fvisibility=hidden -Wl,-soname,libargon2.so.0 argon2/src/argon2.c argon2/src/core.c argon2/src/blake2/blake2b.c argon2/src/thread.c argon2/src/encoding.c argon2/src/ref.c c_src/argon2_nif.c -o /work/test/example/_build/dev/lib/argon2_elixir/priv/argon2_nif.so
+#12 14.19 Compiling 3 files (.ex)
+#12 14.21 Generated argon2_elixir app
+#12 14.22 ==> decimal
+#12 14.22 Compiling 4 files (.ex)
+#12 14.49 Generated decimal app
+#12 14.50 ==> jason
+#12 14.50 Compiling 10 files (.ex)
+#12 15.21 Generated jason app
+#12 15.22 ==> nimble_totp
+#12 15.22 Compiling 1 file (.ex)
+#12 15.25 Generated nimble_totp app
+#12 15.76 ==> example
+#12 15.76 ===> Analyzing applications...
+#12 15.83 ===> Compiling unicode_util_compat
+#12 16.55 ===> Analyzing applications...
+#12 16.71 ===> Compiling idna
+#12 20.20 ===> Analyzing applications...
+#12 20.26 ===> Compiling telemetry
+#12 20.67 ==> telemetry_metrics
+#12 20.67 Compiling 7 files (.ex)
+#12 20.72 Generated telemetry_metrics app
+#12 21.24 ==> example
+#12 21.24 ===> Analyzing applications...
+#12 21.28 ===> Compiling telemetry_poller
+#12 21.55 ==> thousand_island
+#12 21.55 Compiling 18 files (.ex)
+#12 21.65 Generated thousand_island app
+#12 21.67 ==> db_connection
+#12 21.67 Compiling 18 files (.ex)
+#12 21.99 Generated db_connection app
+#12 22.01 ==> ecto
+#12 22.01 Compiling 56 files (.ex)
+#12 23.28 Generated ecto app
+#12 23.33 ==> flop
+#12 23.33 Compiling 17 files (.ex)
+#12 23.63 Generated flop app
+#12 23.64 ==> cbor
+#12 23.64 Compiling 5 files (.ex)
+#12 23.80 Generated cbor app
+#12 23.81 ==> wax_
+#12 23.81 Compiling 3 files (.asn1)
+#12 23.88 Compiling 3 files (.erl)
+#12 24.02 Compiling 25 files (.ex)
+#12 24.23 Generated wax_ app
+#12 24.25 ==> phoenix_html
+#12 24.25 Compiling 6 files (.ex)
+#12 24.39 Generated phoenix_html app
+#12 24.40 ==> phoenix_template
+#12 24.40 Compiling 4 files (.ex)
+#12 24.46 Generated phoenix_template app
+#12 24.47 ==> expo
+#12 24.47 Compiling 2 files (.erl)
+#12 24.67 Compiling 22 files (.ex)
+#12 24.80 Generated expo app
+#12 24.82 ==> gettext
+#12 24.82 Compiling 18 files (.ex)
+#12 24.95 Generated gettext app
+#12 24.97 ==> phoenix_pubsub
+#12 24.97 Compiling 12 files (.ex)
+#12 25.15 Generated phoenix_pubsub app
+#12 25.16 ==> cloak
+#12 25.16 Compiling 14 files (.ex)
+#12 25.22 Generated cloak app
+#12 25.23 ==> dns_cluster
+#12 25.23 Compiling 1 file (.ex)
+#12 25.28 Generated dns_cluster app
+#12 25.30 ==> plug
+#12 25.30 Compiling 1 file (.erl)
+#12 25.37 Compiling 42 files (.ex)
+#12 26.36 Generated plug app
+#12 26.39 ==> postgrex
+#12 26.39 Compiling 69 files (.ex)
+#12 28.75 Generated postgrex app
+#12 28.78 ==> phoenix_ecto
+#12 28.78 Compiling 7 files (.ex)
+#12 28.88 Generated phoenix_ecto app
+#12 28.91 ==> ecto_sql
+#12 28.91 Compiling 25 files (.ex)
+#12 29.33 Generated ecto_sql app
+#12 29.35 ==> oban
+#12 29.35 Compiling 65 files (.ex)
+#12 29.80 Generated oban app
+#12 29.84 ==> joken
+#12 29.84 Compiling 8 files (.ex)
+#12 29.93 Generated joken app
+#12 29.94 ==> hammer
+#12 29.94 Compiling 11 files (.ex)
+#12 30.00 Generated hammer app
+#12 30.02 ==> eqrcode
+#12 30.02 Compiling 10 files (.ex)
+#12 30.19 Generated eqrcode app
+#12 30.20 ==> websock
+#12 30.20 Compiling 1 file (.ex)
+#12 30.21 Generated websock app
+#12 30.23 ==> bandit
+#12 30.23 Compiling 54 files (.ex)
+#12 30.67 Generated bandit app
+#12 30.71 ==> swoosh
+#12 30.71 Compiling 59 files (.ex)
+#12 31.15 Generated swoosh app
+#12 31.18 ==> websock_adapter
+#12 31.18 Compiling 4 files (.ex)
+#12 31.21 Generated websock_adapter app
+#12 31.24 ==> phoenix
+#12 31.24 Compiling 74 files (.ex)
+#12 31.97 Generated phoenix app
+#12 32.00 ==> phoenix_live_reload
+#12 32.00 Compiling 5 files (.ex)
+#12 32.07 Generated phoenix_live_reload app
+#12 32.09 ==> phoenix_live_view
+#12 32.09 Compiling 49 files (.ex)
+#12 33.26 Generated phoenix_live_view app
+#12 33.32 ==> threadline
+#12 33.32 Compiling 83 files (.ex)
+#12 34.27 Generated threadline app
+#12 34.31 ==> flop_phoenix
+#12 34.31 Compiling 6 files (.ex)
+#12 35.04 Generated flop_phoenix app
+#12 35.06 ==> cloak_ecto
+#12 35.06 Compiling 23 files (.ex)
+#12 35.13 Generated cloak_ecto app
+#12 35.15 ==> sigra
+#12 35.15 Compiling 161 files (.ex)
+#12 36.60 Generated sigra app
+#12 36.86 ==> example
+#12 36.86 Compiling 75 files (.ex)
+#12 38.30 Generated example app
+#12 DONE 38.4s
+
+#13 [ 9/11] WORKDIR /work/test/example/priv/playwright
+#13 DONE 0.0s
+
+#14 [10/11] RUN mkdir -p /diagnostic && npm ci && node node_modules/playwright/cli.js test tests/admin-eval.spec.ts     --config=.phase253-linux.config.ts --list --reporter=json > /diagnostic/collection.json
+#14 1.639 npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+#14 2.740 
+#14 2.740 added 52 packages, and audited 53 packages in 2s
+#14 2.740 
+#14 2.740 22 packages are looking for funding
+#14 2.740   run `npm fund` for details
+#14 2.749 
+#14 2.749 1 high severity vulnerability
+#14 2.749 
+#14 2.749 To address all issues, run:
+#14 2.749   npm audit fix
+#14 2.749 
+#14 2.749 Run `npm audit` for details.
+#14 DONE 4.0s
+
+#15 [11/11] COPY in_container.py /diagnostic/in_container.py
+#15 DONE 0.0s
+
+#16 exporting to image
+#16 exporting layers
+#16 exporting layers 0.6s done
+#16 writing image sha256:7fd5ba690ab4093f9846bc53e2974e563f2c20fb80145c4558965fae3aa45531 done
+#16 naming to docker.io/library/sigra-phase253-registration-linux:original-4ff6c50e4
+#16 naming to docker.io/library/sigra-phase253-registration-linux:original-4ff6c50e4 done
+#16 DONE 0.6s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/p9qepmre93i7wlv297rkcl8gn

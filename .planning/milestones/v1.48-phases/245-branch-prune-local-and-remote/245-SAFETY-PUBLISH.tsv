@@ -1,0 +1,3 @@
+side	ref	oid	type	reason
+safety-publish	refs/tags/archive/local-main-pre-235-recovery	f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972	commit	Publish the required local archive safety tag at the exact same tag namespace because it is absent on origin.
+safety-publish	refs/heads/safety/local-main-before-release-cleanup-20260831	04ae0ba753e4f0613df5b3f840955018742ffbb9	commit	Restore the required safety branch from its exact captured local origin-tracking identity because the live origin branch is absent.

@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "repository": "szTheory/sigra",
+  "plan": "250-08",
+  "captured_at": "2026-10-10T19:57:59Z",
+  "status": "blocked",
+  "decision": {
+    "status": "not_asked_no_eligible_tuple",
+    "candidate_tuple": null,
+    "scope": null,
+    "reason": "No tuple joins its own exact source, corrected mobile-browser predicate, dry-run, and readiness record."
+  },
+  "capture_integrity": {
+    "immutable_commit_fetch": {
+      "method": "git fetch --no-tags origin <full-sha>",
+      "branch_refs_changed": false,
+      "objects_verified_locally": [
+        "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+        "64071b81a131fcfe4068a91d4814da478f13b084"
+      ],
+      "github_commit_and_tree_api_match_git": true
+    },
+    "live_ref_rechecks": {
+      "before": {
+        "observed_at": "2026-10-10T19:57:49Z",
+        "main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+        "main_tree_sha": "6700e27a728867043693f798b1f68c1add50e263",
+        "pr_224": {
+          "state": "closed",
+          "head_sha": "64071b81a131fcfe4068a91d4814da478f13b084",
+          "base_sha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+          "updated_at": "2026-10-09T02:35:03Z"
+        },
+        "open_pr_numbers": [219, 266, 267, 268, 269, 271, 272, 273, 274, 275, 283, 302, 306, 307, 308, 309]
+      },
+      "after": {
+        "observed_at": "2026-10-10T19:59:32Z",
+        "main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+        "main_tree_sha": "6700e27a728867043693f798b1f68c1add50e263",
+        "pr_224": {
+          "state": "closed",
+          "head_sha": "64071b81a131fcfe4068a91d4814da478f13b084",
+          "base_sha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+          "updated_at": "2026-10-09T02:35:03Z"
+        },
+        "open_pr_numbers": [219, 266, 267, 268, 269, 271, 272, 273, 274, 275, 283, 302, 306, 307, 308, 309]
+      },
+      "stable": true,
+      "prior_reconciliation_main_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+      "interpretation": "The historical 6b2 snapshot and current 34f7 main are separate observations; no live value was substituted into a historical tuple."
+    },
+    "source_digests": {
+      "reconciliation": {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+        "sha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4"
+      },
+      "rebind_proposal": {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json",
+        "sha256": "980ba5e413efc7ad0b594a44771af2b3f15bac2fdcabfa88aa3db4bf1bcc9452"
+      },
+      "saved_readiness": {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+        "sha256": "7464b4e00c9a3082887ae1ff83c43414b807eda1e653274ca5bad79c1dca0fc8",
+        "bytes": 5073274,
+        "git_blob": "1b4a6dfec97836e8b38923584c3245b31e4f049d"
+      },
+      "saved_dry_run_receipt": {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+        "sha256": "8a8707d3b719eb7a91db0df159be9a1c61e8df9f659025b0a8dba2e442d9c418",
+        "bytes": 1645,
+        "git_blob": "146f65bd13df0e5f74cd777cb09a0da6158bdc06"
+      },
+      "saved_diff_baseline": {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+        "sha256": "e15da5ef72ebc78f3fce21e55e12e6b9b019b72869f85905141eae1bc8680e12",
+        "git_blob": "c87eeb19e79b4e19d34ff522c487894c8cb3c558"
+      },
+      "validation_narrative": {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+        "sha256": "2912eda576c523ecb8f18224a5908dfc67c0f9bb4f749e8ec88936c252017f47"
+      }
+    }
+  },
+  "diff_method": "git diff --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color --diff-algorithm=myers --src-prefix=a/ --dst-prefix=b/ <reviewed-base> <candidate> --; sha256 and byte count over exact output",
+  "tuples": [
+    {
+      "label": "saved-readiness-parent",
+      "tuple": {
+        "candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+      },
+      "candidate_commit": {
+        "parent_sha": "efc562e76eb8ee04516afa23028018ac2dc8716b",
+        "tree_sha": "885495b08239bb39c9d069bc68baf18ef32a21a4",
+        "github_commit_api_verified": true,
+        "github_tree_api_verified": true,
+        "source_blobs": {
+          ".release-please-manifest.json": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+          "CHANGELOG.md": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+          "README.md": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+          "guides/introduction/upgrading-to-v1.6.md": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+          "mix.exs": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+          "test/example/priv/playwright/tests/organizations.spec.ts": "c1b7f52fbd263d801351f0c82e472f0262284b73"
+        }
+      },
+      "raw_diff": {
+        "algorithm": "git-diff-raw-v1",
+        "sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
+        "bytes": 8372,
+        "matches_saved_baseline": true
+      },
+      "ci": {
+        "run_id": 37800067568,
+        "attempt": 1,
+        "head_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "workflow": ".github/workflows/ci.yml",
+        "conclusion": "success",
+        "ci_gate_job": {"id": 113393261532, "name": "ci-gate", "conclusion": "success"},
+        "mobile_browser_job": {"id": 113389661426, "name": "Example Playwright shard (non_admin_smoke)", "conclusion": "success"},
+        "run_url": "https://github.com/szTheory/sigra/actions/runs/37800067568"
+      },
+      "browser_evidence": {
+        "exact_candidate_browser_source": "retrievable",
+        "artifact_id": 11560970694,
+        "artifact_name": "example-playwright-non_admin_smoke-37800067568",
+        "artifact_file": "playwright-report/index.html",
+        "artifact_file_sha256": "804779b1ae6f7e7da8ee3a2c5fe43bb6585a740dd7110242b81953e021c8f9d4",
+        "embedded_report_archive_sha256": "ab2f6424671de75bed5f047c94fa28a56fb7323bb06c2e98adb26f2e0e67b822",
+        "report_json_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-PARENT-MOBILE-PLAYWRIGHT-REPORT.json",
+        "report_json_sha256": "4c774b9d2439abd608213f381ee93f178127d16b1f926ad1f0cc06632a560db3",
+        "report_json_bytes": 17161,
+        "report_stats": {"total": 16, "expected": 16, "unexpected": 0, "flaky": 0, "skipped": 0},
+        "organization_suite": {"total": 6, "expected": 6, "unexpected": 0, "flaky": 0, "skipped": 0, "mobile_tests": 3},
+        "project_names": ["chromium", "mobile"],
+        "mobile_project_device": "iPhone 13",
+        "report_pr_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "report_run_id": 37800067568,
+        "report_merge_commit": "7d65b0cf3a9b9ad3eca6a8aac32936e7b23f5ef1",
+        "report_candidate_spec_blob": "c1b7f52fbd263d801351f0c82e472f0262284b73",
+        "corrected_spec_blob_required_by_247_09": "030317814796f8265fc738cab05d80f344ceaa10",
+        "satisfies_corrected_browser_predicate": false
+      },
+      "dry_run": {
+        "run_id": 37803817504,
+        "attempt": 1,
+        "artifact_id": 11562076974,
+        "artifact_name": "phase-247-hex-dry-run-receipt",
+        "artifact_file_sha256": "8a8707d3b719eb7a91db0df159be9a1c61e8df9f659025b0a8dba2e442d9c418",
+        "candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "started_at": "2026-10-08T15:49:20Z",
+        "finished_at": "2026-10-08T15:51:07Z",
+        "verdict": "passed",
+        "downloaded_artifact_matches_saved_receipt": true
+      },
+      "readiness": {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+        "record_sha256": "7464b4e00c9a3082887ae1ff83c43414b807eda1e653274ca5bad79c1dca0fc8",
+        "recorded_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "recorded_reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "recorded_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "recorded_status": "ready",
+        "recorded_exact_head_ci_run": 37800067568,
+        "recorded_inventory": {"open_pull_requests": 14, "inherited_commits": 400, "inherited_paths": 1301},
+        "independent_verification": "gaps_found_one_must_have_missing_corrected_registration_wait"
+      },
+      "route_status": "blocked",
+      "evidence_ids": ["parent-commit-tree", "parent-source-blobs", "parent-diff-baseline", "parent-ci-run", "parent-mobile-job", "parent-mobile-artifact", "parent-dry-run-artifact", "saved-parent-readiness"],
+      "missing": ["The parent artifact tests the pre-fix organizations spec blob c1b7f52fbd263d801351f0c82e472f0262284b73. Plan 247-09 requires the corrected exact-source predicate at blob 030317814796f8265fc738cab05d80f344ceaa10 and explicitly rejects treating READY-01 as ready under the obsolete d76 evidence."]
+    },
+    {
+      "label": "corrected-child-supplement",
+      "tuple": {
+        "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+        "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+      },
+      "candidate_commit": {
+        "parent_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "tree_sha": "23b752cb53f9b63368d04649fb3953a0fd617905",
+        "github_commit_api_verified": true,
+        "github_tree_api_verified": true,
+        "source_blobs": {
+          ".release-please-manifest.json": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+          "CHANGELOG.md": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+          "README.md": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+          "guides/introduction/upgrading-to-v1.6.md": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+          "mix.exs": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+          "test/example/priv/playwright/tests/organizations.spec.ts": "030317814796f8265fc738cab05d80f344ceaa10"
+        }
+      },
+      "raw_diff": {
+        "algorithm": "git-diff-raw-v1",
+        "sha256": "85020173c21fded708030b7422bb00ddd1510a073010122e6cf5364527772ec4",
+        "bytes": 9906,
+        "saved_baseline_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "matches_saved_baseline": false
+      },
+      "ci": {
+        "run_id": 37819712610,
+        "attempt": 1,
+        "head_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+        "workflow": ".github/workflows/ci.yml",
+        "conclusion": "success",
+        "ci_gate_job": {"id": 113460909183, "name": "ci-gate", "conclusion": "success"},
+        "mobile_browser_job": {"id": 113457384448, "name": "Example Playwright shard (non_admin_smoke)", "conclusion": "success"},
+        "run_url": "https://github.com/szTheory/sigra/actions/runs/37819712610"
+      },
+      "browser_evidence": {
+        "classification": "supplemental_child_evidence_only",
+        "exact_candidate_browser_source": "retrievable",
+        "artifact_id": 11568802881,
+        "artifact_name": "example-playwright-non_admin_smoke-37819712610",
+        "artifact_file_sha256": "a8b6a56feed0b46ec05f780b0cc8626ca6cc32d66ec670dbec9ec564d1fb3283",
+        "embedded_report_archive_sha256": "fc7b16cd697c8d10a19c0c72953e666df26535c39f3948654d0948d0017abff3",
+        "report_json_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-CHILD-SUPPLEMENTAL-MOBILE-PLAYWRIGHT-REPORT.json",
+        "report_json_sha256": "11cd478a7a3fd11ca9850abb6be9113974040574903e52ebf069c1d0c4f5d8fa",
+        "report_json_bytes": 31797,
+        "report_stats": {"total": 16, "expected": 16, "unexpected": 0, "flaky": 0, "skipped": 0},
+        "organization_suite": {"total": 6, "expected": 6, "unexpected": 0, "flaky": 0, "skipped": 0, "mobile_tests": 3},
+        "project_names": ["chromium", "mobile"],
+        "mobile_project_device": "iPhone 13",
+        "report_pr_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "report_run_id": 37819712610,
+        "report_merge_commit": "8749f6abd2e5c456a7dfb4a3ba3a0bca4006c9d1",
+        "report_candidate_spec_blob": "030317814796f8265fc738cab05d80f344ceaa10",
+        "local_browser_result": "blocked_host_appkit; no local browser proof claimed",
+        "satisfies_corrected_browser_predicate": true
+      },
+      "dry_run": {
+        "matching_receipt_present": false,
+        "only_available_receipt": 37803817504,
+        "only_available_receipt_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f"
+      },
+      "readiness": {
+        "matching_ledger_present": false,
+        "only_available_ledger_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f"
+      },
+      "route_status": "blocked",
+      "evidence_ids": ["child-commit-tree", "child-source-blobs", "child-ci-run", "child-mobile-job", "child-mobile-artifact", "child-corrected-spec"],
+      "missing": ["No authenticated dry-run receipt is bound to candidate 0e773d3614a242e4fbcdd34c418ecb8a307703d6.", "No final readiness ledger is bound to candidate 0e773d3614a242e4fbcdd34c418ecb8a307703d6.", "The parent dry-run and readiness records are immutable evidence for d76d7f2306f6099063a80a420d2d8a4e04c7785f and cannot be transferred to the child."]
+    },
+    {
+      "label": "later-closed-pr-main-observation",
+      "tuple": {
+        "candidate_sha": "64071b81a131fcfe4068a91d4814da478f13b084",
+        "reviewed_base_sha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+        "main_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5"
+      },
+      "candidate_commit": {
+        "parent_sha": "6c7cffbdbe3b8f83a2e900b701808bab0d6bd887",
+        "tree_sha": "9ed3247a85d2981983688b8ddc7b35b317bae9b8",
+        "github_commit_api_verified": true,
+        "github_tree_api_verified": true,
+        "source_blobs": {
+          ".release-please-manifest.json": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+          "CHANGELOG.md": "05f78db47df5639a33f8d075e273de5b045e175e",
+          "README.md": "2e8ed620f770807327d84f6dfbd2017091ee5ba4",
+          "mix.exs": "8fc0d839419ef7b738cfdd5dac5ea792fc608dad",
+          "test/example/priv/playwright/tests/organizations.spec.ts": "c1b7f52fbd263d801351f0c82e472f0262284b73"
+        }
+      },
+      "raw_diff": {
+        "algorithm": "git-diff-raw-v1",
+        "sha256": "2737d384e86ba5e35305667956c07ae414ce6ef9e24175e768acc4aabb8ae033",
+        "bytes": 13343,
+        "saved_baseline_present": false
+      },
+      "ci_runs_on_exact_head": [
+        {"run_id": 37873262237, "event": "push", "attempt": 1, "conclusion": "success"},
+        {"run_id": 37873265854, "event": "pull_request", "attempt": 1, "conclusion": "success"}
+      ],
+      "pull_request": {"number": 224, "state": "closed", "head_sha": "64071b81a131fcfe4068a91d4814da478f13b084", "base_sha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756"},
+      "route_status": "blocked",
+      "evidence_ids": ["later-head-commit-tree", "later-head-source-blobs", "later-exact-head-ci-run-identities", "closed-pr-observation"],
+      "missing": ["No matching authenticated dry-run receipt or final readiness ledger was found for this tuple.", "The PR is closed and the current main snapshot 34f7fd8e47c4b356ef97656f3213a2e749017f2a differs from the historical 6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5 observation.", "No browser artifact was recovered for this tuple; the parent and child browser reports remain tied to their own run heads."]
+    }
+  ],
+  "eligible_tuples": [],
+  "ready_02_observation": {
+    "current_open_pr_count": 16,
+    "current_open_pr_numbers": [219, 266, 267, 268, 269, 271, 272, 273, 274, 275, 283, 302, 306, 307, 308, 309],
+    "saved_readiness_open_pr_count": 14,
+    "fresh_current_disposition_join": "missing",
+    "inherited_work_preservation_join": "missing",
+    "status": "blocked"
+  },
+  "blockers": [
+    {
+      "id": "parent_browser_source_predicate_mismatch",
+      "message": "The parent exact-head artifact is retrievable and passes 3 mobile organization tests, but it ran the pre-fix organizations spec blob c1b7f52fbd263d801351f0c82e472f0262284b73. Plan 247-09 requires the corrected source blob 030317814796f8265fc738cab05d80f344ceaa10 and explicitly says d76 evidence cannot restore READY-01."
+    },
+    {
+      "id": "child_dry_run_and_readiness_missing",
+      "message": "Child CI 37819712610 provides supplemental corrected mobile-browser evidence, while the only authenticated dry-run and saved readiness ledger are both bound to the parent d76 tuple."
+    },
+    {
+      "id": "later_tuple_evidence_missing",
+      "message": "Later closed PR #224 head 64071b81a131fcfe4068a91d4814da478f13b084 has its own successful CI identities but no matching dry-run, readiness ledger, or recovered browser artifact."
+    },
+    {
+      "id": "ready_02_fresh_population_join_missing",
+      "message": "Current open PR population has 16 entries versus the saved readiness population of 14; no fresh complete dispositions or inherited-work preservation identities are present."
+    },
+    {
+      "id": "no_complete_ready_route",
+      "message": "No immutable candidate/base/main tuple has every required source-bound READY-01 join. Do not ask for exact-tuple approval from this packet."
+    }
+  ],
+  "verification": {
+    "verify_247_readiness_tests": {"status": "passed", "passed": 14, "failed": 0},
+    "validate_release_readiness_tests": {"status": "passed", "passed": 25, "failed": 0},
+    "eligible_tuple_gate": {"status": "blocked_expected", "eligible_tuples": 0, "reason": "No tuple passed all exact joins."}
+  },
+  "supporting_report_files": [
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-PARENT-MOBILE-PLAYWRIGHT-REPORT.json",
+      "sha256": "4c774b9d2439abd608213f381ee93f178127d16b1f926ad1f0cc06632a560db3",
+      "bytes": 17161,
+      "source_artifact_id": 11560970694
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-CHILD-SUPPLEMENTAL-MOBILE-PLAYWRIGHT-REPORT.json",
+      "sha256": "11cd478a7a3fd11ca9850abb6be9113974040574903e52ebf069c1d0c4f5d8fa",
+      "bytes": 31797,
+      "source_artifact_id": 11568802881
+    }
+  ]
+}

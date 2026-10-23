@@ -1,0 +1,1248 @@
+[info] Running ExampleWeb.Endpoint with Bandit 1.10.4 at 127.0.0.1:25311 (http)
+[info] Access ExampleWeb.Endpoint at http://localhost:25311
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: %{}
+  Pipelines: [:browser]
+[info] Sent 200 in 40ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 19ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "di9PCxVMDhQoSUUGCRRbIUUHISY3BE010Z9nLac-X-vmNr8puWhit3yl", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "FuveY-m9pd3kGfcQ0PIOC74Y"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "DDQsFRRgBHAmNFYJKQMTOUMfBwtucngGJAZpMMiIVPebnephsOND-EL_", "_target" => ["user", "email"], "user" => %{"email" => "platform-admin+sigra-253-control-desktop-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 4ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "DDQsFRRgBHAmNFYJKQMTOUMfBwtucngGJAZpMMiIVPebnephsOND-EL_", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-desktop-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 199µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "DDQsFRRgBHAmNFYJKQMTOUMfBwtucngGJAZpMMiIVPebnephsOND-EL_", "user" => %{"email" => "platform-admin+sigra-253-control-desktop-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=1.1ms queue=2.4ms idle=1001.5ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-desktop-held-positive@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.7ms idle=1011.1ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=3.6ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["platform-admin+sigra-253-control-desktop-held-positive@example.test", false, 0, "$argon2id$v=19$m=4096,t=2,p=4$YpeDcp9Y1cGvEukTObALTQ$oLBWS1ih4KHDrlzDswVvkrTAmXPyFRUFaYM8cRoi2Fw", ~U[2026-10-14 17:25:51Z], ~U[2026-10-14 17:25:51Z], ~U[2026-10-14 17:25:51Z], "76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.8ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.7ms idle=648.8ms
+begin []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] QUERY OK source="user_tokens" db=1.6ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm", <<113, 125, 133, 122, 48, 60, 48, 149, 142, 165, 126, 42, 147, 199, 221, 202, 26, 146, 47, 200, 26, 35, 132, 60, 91, 252, 6, 149, 77, 167, 243, 18>>, "76002eec-df0e-4f2a-932b-ee43bd6973ca", "platform-admin+sigra-253-control-desktop-held-positive@example.test", ~U[2026-10-14 17:25:51Z], "9949f372-b471-4533-baf1-f3029b36c1a9"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="user_tokens" db=0.5ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm_code", <<92, 202, 219, 224, 6, 89, 127, 183, 158, 118, 234, 252, 97, 36, 2, 140, 201, 52, 63, 68, 117, 186, 40, 22, 80, 234, 215, 244, 250, 192, 242, 113>>, "76002eec-df0e-4f2a-932b-ee43bd6973ca", "platform-admin+sigra-253-control-desktop-held-positive@example.test", ~U[2026-10-14 17:25:51Z], "2ac8dee0-7a60-4974-811a-81c3ea39e9d9"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=1.0ms
+commit []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] Replied in 68ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "DDQsFRRgBHAmNFYJKQMTOUMfBwtucngGJAZpMMiIVPebnephsOND-EL_", "user" => %{"email" => "platform-admin+sigra-253-control-desktop-held-positive@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.0ms queue=1.0ms idle=930.0ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-desktop-held-positive@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK db=0.5ms idle=936.2ms
+begin []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_events" db=0.6ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [%{method: "password"}, "auth.login.success", "user", "76002eec-df0e-4f2a-932b-ee43bd6973ca", "success", "76002eec-df0e-4f2a-932b-ee43bd6973ca", "76002eec-df0e-4f2a-932b-ee43bd6973ca", ~U[2026-10-14 17:25:51.885455Z], ~U[2026-10-14 17:25:51.887013Z], "85d78dec-bcf9-4a8d-af02-e888989e99b4"]
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK db=0.6ms
+commit []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_actions" db=1.9ms queue=0.8ms idle=945.0ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.success", :ok, "85d78dec-bcf9-4a8d-af02-e888989e99b4", %Threadline.Semantics.ActorRef{type: :user, id: "76002eec-df0e-4f2a-932b-ee43bd6973ca"}, ~U[2026-10-14 17:25:51.893635Z], "881d179e-3f53-4cd6-ad28-bc84d6998dfa"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=0.7ms queue=1.0ms idle=954.1ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85[0m
+[debug] QUERY OK source="user_sessions" db=1.1ms queue=0.7ms idle=956.0ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["standard", "76002eec-df0e-4f2a-932b-ee43bd6973ca", ~U[2026-10-14 17:25:51.904580Z], <<208, 126, 55, 212, 89, 245, 155, 40, 179, 72, 103, 234, 47, 50, 117, 165, 158, 132, 200, 175, 169, 87, 178, 209, 244, 38, 159, 1, 253, 63, 149, 98>>, ~U[2026-10-14 17:25:51.904580Z], "32445a86-cf37-4600-9441-dad1887f420d"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.9ms queue=0.7ms idle=344.5ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=1.3ms queue=0.8ms idle=320.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{type: :standard, session_id: "32445a86-cf37-4600-9441-dad1887f420d", active_organization_id: nil}, "session.create", "user", "76002eec-df0e-4f2a-932b-ee43bd6973ca", "success", "76002eec-df0e-4f2a-932b-ee43bd6973ca", ~U[2026-10-14 17:25:51.913965Z], ~U[2026-10-14 17:25:51.914047Z], "d9256bd3-2294-4950-8e28-3c57135ef80c"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=1.0ms queue=0.7ms idle=313.4ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "d9256bd3-2294-4950-8e28-3c57135ef80c", %Threadline.Semantics.ActorRef{type: :user, id: "76002eec-df0e-4f2a-932b-ee43bd6973ca"}, ~U[2026-10-14 17:25:51.916426Z], "4e38fb59-0ba7-47d9-9e95-c9c80d4ce1bc"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=2.0ms queue=0.8ms idle=49.2ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["standard", "127.0.0.1", "76002eec-df0e-4f2a-932b-ee43bd6973ca", ~U[2026-10-14 17:25:51.918845Z], "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", <<255, 108, 130, 212, 232, 154, 61, 73, 166, 1, 174, 13, 21, 179, 55, 131, 254, 240, 45, 184, 160, 96, 139, 93, 134, 128, 148, 117, 132, 3, 30, 158>>, ~U[2026-10-14 17:25:51.918845Z], "9017cca5-a41e-4a92-bec1-35d5191039df"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=2.1ms idle=49.9ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.9ms queue=0.5ms idle=43.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{type: :standard, session_id: "9017cca5-a41e-4a92-bec1-35d5191039df", active_organization_id: nil}, "session.create", "user", "76002eec-df0e-4f2a-932b-ee43bd6973ca", "success", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", "127.0.0.1", "76002eec-df0e-4f2a-932b-ee43bd6973ca", ~U[2026-10-14 17:25:51.924170Z], ~U[2026-10-14 17:25:51.924267Z], "34dfbaea-7b6d-4d4f-94ff-5f688658bf02"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=1.5ms queue=0.6ms idle=36.7ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "34dfbaea-7b6d-4d4f-94ff-5f688658bf02", %Threadline.Semantics.ActorRef{type: :user, id: "76002eec-df0e-4f2a-932b-ee43bd6973ca"}, ~U[2026-10-14 17:25:51.925965Z], "16fa161d-2a70-4f79-8f9e-b7a051a12485"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 55ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=2.0ms queue=0.6ms idle=256.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<255, 108, 130, 212, 232, 154, 61, 73, 166, 1, 174, 13, 21, 179, 55, 131, 254, 240, 45, 184, 160, 96, 139, 93, 134, 128, 148, 117, 132, 3, 30, 158>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.5ms queue=0.4ms idle=252.3ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=0.6ms queue=0.7ms idle=255.8ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=0.4ms queue=0.7ms idle=256.0ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=0.8ms queue=0.5ms idle=253.9ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[info] Sent 200 in 19ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 12µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "IQkUPWUvOVQxCVhhAFgDbSsAOzsmPBoOR8KZUMi2zQiYt7F8lEASRJM6", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "s1_g0bPfKX18toEUGEzhtvW8", "live_socket_id" => "users_sessions:T09WR25kLU1sOWxQUEUwY1hnaVZvelIyVGFyUW9YMEVWYXFQYXFxVDZiMA==", "user_token" => "OOVGnd-Ml9lPPE0cXgiVozR2TarQoX0EVaqPaqqT6b0"}
+[debug] QUERY OK source="user_sessions" db=1.5ms idle=535.9ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<255, 108, 130, 212, 232, 154, 61, 73, 166, 1, 174, 13, 21, 179, 55, 131, 254, 240, 45, 184, 160, 96, 139, 93, 134, 128, 148, 117, 132, 3, 30, 158>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.8ms idle=535.9ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=1.9ms idle=534.8ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=1.2ms idle=306.5ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=1.2ms idle=306.3ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["76002eec-df0e-4f2a-932b-ee43bd6973ca"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[debug] Replied in 9ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 10µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "HBtZO2kRFjw0GgwBGwY9BHx4JnEjA0VQdB7nXEPhLoVQtAN2K2iGV7p3", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "xYnU1TFTxuZPoGs67JO6u45c"}
+[debug] Replied in 1ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "Hng1LicrBAE_f0EveVEkLkgHIRwzeAZ6THLYvhmoSGyyMcML-rSnX7D4", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "J0ywQCinl88V42ibeurrkOBN"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "M35LJygnWh9fX21gQ38iBEg2FCsfOTELyN2Pyd3q3gU6wMKf-CfYtvsE", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-desktop-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 142µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "M35LJygnWh9fX21gQ38iBEg2FCsfOTELyN2Pyd3q3gU6wMKf-CfYtvsE", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-desktop-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 175µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "M35LJygnWh9fX21gQ38iBEg2FCsfOTELyN2Pyd3q3gU6wMKf-CfYtvsE", "user" => %{"email" => "platform-admin+sigra-253-control-desktop-collision@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=2.3ms idle=1689.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-desktop-collision@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.6ms idle=1693.3ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.5ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["platform-admin+sigra-253-control-desktop-collision@example.test", false, 0, "$argon2id$v=19$m=4096,t=2,p=4$k74h1WVYP5eNsnej/fC3xA$47alR3/DZPfEQH0CNz0n+kMD2B6GSR8/rIRqaGpgSrE", ~U[2026-10-14 17:25:57Z], ~U[2026-10-14 17:25:57Z], ~U[2026-10-14 17:25:57Z], "0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.5ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.4ms idle=1696.0ms
+begin []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] QUERY OK source="user_tokens" db=0.9ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm", <<89, 231, 123, 145, 92, 117, 4, 193, 243, 200, 190, 140, 6, 73, 52, 186, 115, 220, 112, 9, 73, 10, 212, 199, 163, 101, 105, 23, 180, 136, 252, 153>>, "0ffc60b1-6792-4506-bd87-d3c61b7c4756", "platform-admin+sigra-253-control-desktop-collision@example.test", ~U[2026-10-14 17:25:57Z], "3bcea617-b96b-4e0d-8f34-d932d3f33e12"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="user_tokens" db=0.5ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm_code", <<204, 67, 202, 141, 203, 13, 63, 25, 19, 142, 196, 255, 30, 76, 9, 32, 129, 42, 250, 65, 238, 175, 20, 203, 243, 212, 70, 97, 246, 179, 164, 221>>, "0ffc60b1-6792-4506-bd87-d3c61b7c4756", "platform-admin+sigra-253-control-desktop-collision@example.test", ~U[2026-10-14 17:25:57Z], "165ae3a2-204b-42ac-aeb8-03104943310a"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=0.5ms
+commit []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] Replied in 14ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "M35LJygnWh9fX21gQ38iBEg2FCsfOTELyN2Pyd3q3gU6wMKf-CfYtvsE", "user" => %{"email" => "platform-admin+sigra-253-control-desktop-collision@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.6ms idle=800.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-desktop-collision@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="organizations" db=1.8ms idle=801.7ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK db=1.7ms idle=397.2ms
+begin []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_events" db=0.6ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [%{method: "password"}, "auth.login.success", "user", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", "success", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", ~U[2026-10-14 17:25:58.039443Z], ~U[2026-10-14 17:25:58.039545Z], "b580650f-06e2-4200-9eb9-110cf4d2cc48"]
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK db=1.4ms
+commit []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_actions" db=1.1ms queue=0.6ms idle=397.3ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.success", :ok, "b580650f-06e2-4200-9eb9-110cf4d2cc48", %Threadline.Semantics.ActorRef{type: :user, id: "0ffc60b1-6792-4506-bd87-d3c61b7c4756"}, ~U[2026-10-14 17:25:58.041904Z], "29481699-62b3-41d8-a698-4dab964391fe"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=1.7ms idle=395.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85[0m
+[debug] QUERY OK source="user_sessions" db=1.5ms queue=0.5ms idle=97.4ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["standard", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", ~U[2026-10-14 17:25:58.045774Z], <<153, 76, 57, 193, 101, 73, 148, 213, 14, 4, 119, 219, 204, 254, 149, 166, 72, 200, 31, 111, 134, 159, 185, 172, 21, 181, 232, 65, 112, 44, 109, 225>>, ~U[2026-10-14 17:25:58.045774Z], "cbf0a25c-e30f-4e02-aea2-c4dd38ad6cdb"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.6ms idle=99.7ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=2.8ms queue=0.5ms idle=100.6ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{type: :standard, session_id: "cbf0a25c-e30f-4e02-aea2-c4dd38ad6cdb", active_organization_id: nil}, "session.create", "user", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", "success", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", ~U[2026-10-14 17:25:58.048815Z], ~U[2026-10-14 17:25:58.048900Z], "d331cc84-d181-4eda-8647-5f574d2a4354"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=1.3ms queue=1.0ms idle=25.7ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "d331cc84-d181-4eda-8647-5f574d2a4354", %Threadline.Semantics.ActorRef{type: :user, id: "0ffc60b1-6792-4506-bd87-d3c61b7c4756"}, ~U[2026-10-14 17:25:58.052556Z], "853a5af8-7d59-4435-b1d9-cfa82a07dc52"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=2.1ms queue=1.1ms idle=27.0ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["standard", "127.0.0.1", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", ~U[2026-10-14 17:25:58.055370Z], "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", <<124, 189, 150, 131, 54, 127, 48, 104, 149, 3, 138, 116, 121, 93, 250, 20, 104, 132, 255, 34, 99, 19, 166, 238, 122, 50, 86, 250, 200, 76, 110, 66>>, ~U[2026-10-14 17:25:58.055370Z], "a6fab239-2b41-43bb-b83a-34bf09ae14ef"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=1.2ms idle=25.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=1.0ms queue=1.5ms idle=22.9ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{type: :standard, session_id: "a6fab239-2b41-43bb-b83a-34bf09ae14ef", active_organization_id: nil}, "session.create", "user", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", "success", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", "127.0.0.1", "0ffc60b1-6792-4506-bd87-d3c61b7c4756", ~U[2026-10-14 17:25:58.060312Z], ~U[2026-10-14 17:25:58.060418Z], "9e3e7861-dbf8-4512-bfed-67524f1db4f0"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=1.0ms idle=21.5ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "9e3e7861-dbf8-4512-bfed-67524f1db4f0", %Threadline.Semantics.ActorRef{type: :user, id: "0ffc60b1-6792-4506-bd87-d3c61b7c4756"}, ~U[2026-10-14 17:25:58.063265Z], "a66ac12d-d002-4d64-b653-750d4ef6c036"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 35ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=1.1ms idle=228.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<124, 189, 150, 131, 54, 127, 48, 104, 149, 3, 138, 116, 121, 93, 250, 20, 104, 132, 255, 34, 99, 19, 166, 238, 122, 50, 86, 250, 200, 76, 110, 66>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=1.5ms idle=228.9ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=1.1ms idle=227.5ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=2.2ms idle=226.1ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=2.6ms idle=224.7ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[info] Sent 200 in 12ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "Hj4ldEE7CF4CJh4GNGcAXQtWAnEVXFwRnMsGw_GsxVHCM1_8repGe5qI", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "psV36dO-zpVEyV_ey3r6pi-X", "live_socket_id" => "users_sessions:T2NhWEJ1TkdOcHZzVDR5eTdublF1TXA1X3NQTlpWMmc0S3M3VVdrZENZMA==", "user_token" => "OcaXBuNGNpvsT4yy7nnQuMp5_sPNZV2g4Ks7UWkdCY0"}
+[debug] QUERY OK source="user_sessions" db=1.4ms idle=483.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<124, 189, 150, 131, 54, 127, 48, 104, 149, 3, 138, 116, 121, 93, 250, 20, 104, 132, 255, 34, 99, 19, 166, 238, 122, 50, 86, 250, 200, 76, 110, 66>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=1.1ms idle=482.2ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=0.4ms idle=482.7ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=1.0ms idle=277.4ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=2.3ms idle=276.1ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["0ffc60b1-6792-4506-bd87-d3c61b7c4756"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[debug] Replied in 9ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "HAoyMQFeBw4QBzMOITN2HhADY0YQNBEiHEBDbhVwUJgltD1RUJZuvBfe", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "TOpuc6QyEMTbUwGLEI93fvwG"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "ZQQIP1FSHxA3fG0RNxF-Cx0kCAcfJ0F11KxJ2dNir19sbf9GXm14yQ62", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-desktop-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 186µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "ZQQIP1FSHxA3fG0RNxF-Cx0kCAcfJ0F11KxJ2dNir19sbf9GXm14yQ62", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-desktop-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 187µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "ZQQIP1FSHxA3fG0RNxF-Cx0kCAcfJ0F11KxJ2dNir19sbf9GXm14yQ62", "user" => %{"email" => "platform-admin+sigra-253-control-desktop-collision@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=2.2ms idle=1064.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-desktop-collision@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] Replied in 4ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 10µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "WgMdSSAtWRQwVXgSXBxLI2tAYBxiMwtZ77YqLzict21beR-AS16F5Dck", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "m4D8lW0wDgIp9Nfb8qVZWwh2"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "WW0AeilnagAxPx0ETjYwJXFIBi8bOARh4YDBE0ZwuXTtwxVGI9PuLOlS", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-desktop-forced-trace-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 138µs
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "WW0AeilnagAxPx0ETjYwJXFIBi8bOARh4YDBE0ZwuXTtwxVGI9PuLOlS", "user" => %{"email" => "platform-admin+sigra-253-control-desktop-forced-trace-positive@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.8ms idle=1017.4ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-desktop-forced-trace-positive@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="audit_events" db=0.8ms queue=0.5ms idle=714.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","outcome","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7) [%{reason: "unknown_email"}, "auth.login.failure", "user", "failure", ~U[2026-10-14 17:26:00.368251Z], ~U[2026-10-14 17:26:00.368332Z], "88815c9a-8490-462e-b341-6bcf4c5b4d17"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=1.6ms queue=0.6ms idle=713.8ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.failure", :error, "88815c9a-8490-462e-b341-6bcf4c5b4d17", %Threadline.Semantics.ActorRef{type: :anonymous, id: nil}, ~U[2026-10-14 17:26:00.369849Z], "d87e97ed-b8e0-4120-ba0b-1f826b931354"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 10ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 6ms
+[info] POST /users/log_in/passkey/options
+[debug] Processing with ExampleWeb.SessionController.passkey_authentication_options/2
+  Parameters: %{"conditional" => "true"}
+  Pipelines: [:browser_passkey_options, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 6ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 12µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "O1QZS1Q3AAQSMHJPJE9aMBFiShc5M3BiJ9TxgyKCxa9vfybBV6-uOXIV", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "qmM33NKGjQK9B68rGTgbvk94"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "IDkCBB4IOyw5EjEMGlhuE3IMDFsxKE9uQTO7-FpkSCz5XnVa5Xk9GCvZ", "_target" => ["user", "email"], "user" => %{"email" => "platform-admin+sigra-253-control-mobile-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 154µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "IDkCBB4IOyw5EjEMGlhuE3IMDFsxKE9uQTO7-FpkSCz5XnVa5Xk9GCvZ", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-mobile-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 264µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "IDkCBB4IOyw5EjEMGlhuE3IMDFsxKE9uQTO7-FpkSCz5XnVa5Xk9GCvZ", "user" => %{"email" => "platform-admin+sigra-253-control-mobile-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=3.4ms idle=1604.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-mobile-held-positive@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.4ms idle=1608.9ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.6ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["platform-admin+sigra-253-control-mobile-held-positive@example.test", false, 0, "$argon2id$v=19$m=4096,t=2,p=4$lkR2uh6kmxCP+v8txlvF/A$9dI4alIhl04UY9SRq3W4aHK7ezBbV6IHWBam1yE2N3E", ~U[2026-10-14 17:26:05Z], ~U[2026-10-14 17:26:05Z], ~U[2026-10-14 17:26:05Z], "53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.8ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.4ms idle=1611.8ms
+begin []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] QUERY OK source="user_tokens" db=0.7ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm", <<57, 16, 35, 56, 66, 39, 228, 154, 61, 222, 126, 17, 22, 12, 211, 0, 184, 200, 143, 22, 133, 119, 23, 197, 153, 201, 109, 170, 58, 245, 46, 87>>, "53719775-2c86-4296-ab27-18a9182e4f8a", "platform-admin+sigra-253-control-mobile-held-positive@example.test", ~U[2026-10-14 17:26:05Z], "b102edfc-ff7d-44e6-a307-1185cd8c7e53"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="user_tokens" db=0.4ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm_code", <<247, 70, 215, 116, 31, 167, 103, 199, 24, 254, 172, 236, 168, 17, 82, 10, 20, 67, 237, 111, 253, 81, 12, 20, 97, 95, 218, 97, 21, 124, 36, 183>>, "53719775-2c86-4296-ab27-18a9182e4f8a", "platform-admin+sigra-253-control-mobile-held-positive@example.test", ~U[2026-10-14 17:26:05Z], "e0873bcd-c95c-4a3d-bbf4-13a498a33d06"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=0.6ms
+commit []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] Replied in 14ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "IDkCBB4IOyw5EjEMGlhuE3IMDFsxKE9uQTO7-FpkSCz5XnVa5Xk9GCvZ", "user" => %{"email" => "platform-admin+sigra-253-control-mobile-held-positive@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.5ms idle=1875.4ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-mobile-held-positive@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="organizations" db=2.4ms idle=1878.4ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK db=0.6ms idle=1881.0ms
+begin []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_events" db=0.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [%{method: "password"}, "auth.login.success", "user", "53719775-2c86-4296-ab27-18a9182e4f8a", "success", "53719775-2c86-4296-ab27-18a9182e4f8a", "53719775-2c86-4296-ab27-18a9182e4f8a", ~U[2026-10-14 17:26:05.830540Z], ~U[2026-10-14 17:26:05.830618Z], "98bbc44f-bb33-4b0d-ac13-c09a1f35358c"]
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK db=0.6ms
+commit []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_actions" db=0.7ms idle=1271.0ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.success", :ok, "98bbc44f-bb33-4b0d-ac13-c09a1f35358c", %Threadline.Semantics.ActorRef{type: :user, id: "53719775-2c86-4296-ab27-18a9182e4f8a"}, ~U[2026-10-14 17:26:05.832454Z], "dcfa46a5-3614-4049-adb6-33a963d1ed5d"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=1.0ms idle=1269.6ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85[0m
+[debug] QUERY OK source="user_sessions" db=0.9ms queue=0.4ms idle=278.0ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["standard", "53719775-2c86-4296-ab27-18a9182e4f8a", ~U[2026-10-14 17:26:05.834361Z], <<141, 153, 198, 210, 66, 212, 135, 99, 121, 120, 4, 158, 21, 67, 246, 218, 0, 42, 103, 183, 150, 43, 222, 239, 157, 157, 32, 163, 229, 70, 139, 197>>, ~U[2026-10-14 17:26:05.834361Z], "e75cf600-68d5-4680-9628-3c5c620965e4"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=2.1ms idle=275.2ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=1.1ms idle=274.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{type: :standard, session_id: "e75cf600-68d5-4680-9628-3c5c620965e4", active_organization_id: nil}, "session.create", "user", "53719775-2c86-4296-ab27-18a9182e4f8a", "success", "53719775-2c86-4296-ab27-18a9182e4f8a", ~U[2026-10-14 17:26:05.838059Z], ~U[2026-10-14 17:26:05.838115Z], "b01a90ac-36fd-43cb-980e-06f9e3537301"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.9ms queue=0.7ms idle=22.0ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "b01a90ac-36fd-43cb-980e-06f9e3537301", %Threadline.Semantics.ActorRef{type: :user, id: "53719775-2c86-4296-ab27-18a9182e4f8a"}, ~U[2026-10-14 17:26:05.839412Z], "01b7e1e6-3592-46fb-99b3-3e40d212df42"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=0.6ms queue=0.4ms idle=22.2ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["standard", "127.0.0.1", "53719775-2c86-4296-ab27-18a9182e4f8a", ~U[2026-10-14 17:26:05.841643Z], "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1", <<87, 188, 66, 8, 101, 133, 2, 195, 113, 215, 44, 11, 161, 2, 255, 91, 47, 178, 1, 155, 213, 22, 103, 118, 210, 239, 3, 230, 232, 157, 11, 186>>, ~U[2026-10-14 17:26:05.841643Z], "8897dc9d-bb5e-4bd3-a03c-e5d97720c034"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.5ms idle=17.1ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.5ms queue=0.4ms idle=13.8ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{type: :standard, session_id: "8897dc9d-bb5e-4bd3-a03c-e5d97720c034", active_organization_id: nil}, "session.create", "user", "53719775-2c86-4296-ab27-18a9182e4f8a", "success", "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1", "127.0.0.1", "53719775-2c86-4296-ab27-18a9182e4f8a", ~U[2026-10-14 17:26:05.843547Z], ~U[2026-10-14 17:26:05.843605Z], "62ffba51-197f-4fd3-b1de-e4fb82a4d208"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.6ms queue=0.6ms idle=12.3ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "62ffba51-197f-4fd3-b1de-e4fb82a4d208", %Threadline.Semantics.ActorRef{type: :user, id: "53719775-2c86-4296-ab27-18a9182e4f8a"}, ~U[2026-10-14 17:26:05.844754Z], "add22e55-f04d-40af-adcf-231256c89877"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 25ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=1.0ms idle=215.9ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<87, 188, 66, 8, 101, 133, 2, 195, 113, 215, 44, 11, 161, 2, 255, 91, 47, 178, 1, 155, 213, 22, 103, 118, 210, 239, 3, 230, 232, 157, 11, 186>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.4ms idle=214.9ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=0.4ms idle=214.6ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=2.2ms idle=213.3ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=2.4ms idle=213.9ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[info] Sent 200 in 10ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 13µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "f0ZlaXo6aDk0A04CLB5gJy88WQY0KUg285P-WNEUG3-jDz-xxok6wSpa", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "Gs5D-t-ls0chhdM_WS20Cz8W", "live_socket_id" => "users_sessions:LXhSSWtMU1A1eC1WM19MVFpaMExKaFpLTDZWQkY2SXlvazRKUDYyUlJJOA==", "user_token" => "-xRIkLSP5x-V3_LTZZ0LJhZKL6VBF6Iyok4JP62RRI8"}
+[debug] QUERY OK source="user_sessions" db=4.0ms idle=512.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<87, 188, 66, 8, 101, 133, 2, 195, 113, 215, 44, 11, 161, 2, 255, 91, 47, 178, 1, 155, 213, 22, 103, 118, 210, 239, 3, 230, 232, 157, 11, 186>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=11.2ms idle=515.6ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=5.4ms idle=526.1ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=0.7ms idle=331.1ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=1.4ms idle=330.3ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["53719775-2c86-4296-ab27-18a9182e4f8a"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[debug] Replied in 26ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 10µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "HWsLOAczEDMCFTwuFH0BGxglXFoVBgND-FGaoufzWcnky8gmhki0S3Z6", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "0-LYhFvIUvREmEfvpN5jF5Yu"}
+[debug] Replied in 1ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 12µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "EFEwThgEeCYTcS1zMEgdP3MsRxY1ARUdr5Z4zbIuC8AFyx-vCO7FpfZp", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "bdjzbf1SPIl5I00I0cpPEgOm"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "JC8_IAwrQD8BeFpqe2FGAmc5KDNzFCkHFKUZnMqlQ16_2QvKWZXc6sfj", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-mobile-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 126µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "JC8_IAwrQD8BeFpqe2FGAmc5KDNzFCkHFKUZnMqlQ16_2QvKWZXc6sfj", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-mobile-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 155µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "JC8_IAwrQD8BeFpqe2FGAmc5KDNzFCkHFKUZnMqlQ16_2QvKWZXc6sfj", "user" => %{"email" => "platform-admin+sigra-253-control-mobile-collision@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=1.3ms idle=1425.4ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-mobile-collision@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.3ms idle=1428.0ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.5ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["platform-admin+sigra-253-control-mobile-collision@example.test", false, 0, "$argon2id$v=19$m=4096,t=2,p=4$k2OsUe+8pR+GKNS3VSB1ag$Zg1wDeoJPzkoMG0OBoEp4iEgB6G9YavT++BmWw05XlY", ~U[2026-10-14 17:26:12Z], ~U[2026-10-14 17:26:12Z], ~U[2026-10-14 17:26:12Z], "e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.4ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.3ms idle=447.3ms
+begin []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] QUERY OK source="user_tokens" db=0.5ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm", <<63, 219, 32, 27, 89, 228, 142, 209, 78, 5, 246, 134, 182, 22, 87, 248, 133, 90, 216, 217, 126, 158, 104, 33, 22, 113, 36, 53, 184, 47, 221, 3>>, "e738200a-51fa-4f5f-9c7f-b57ed04b6313", "platform-admin+sigra-253-control-mobile-collision@example.test", ~U[2026-10-14 17:26:12Z], "129934f7-af89-4add-8981-1ebe5b9a3002"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="user_tokens" db=0.3ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm_code", <<246, 34, 237, 37, 238, 244, 234, 185, 174, 5, 33, 36, 140, 226, 139, 126, 26, 243, 221, 102, 26, 113, 48, 23, 123, 241, 42, 209, 194, 144, 196, 226>>, "e738200a-51fa-4f5f-9c7f-b57ed04b6313", "platform-admin+sigra-253-control-mobile-collision@example.test", ~U[2026-10-14 17:26:12Z], "f7f40580-8f67-499b-ba19-70a7af705dad"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=0.4ms
+commit []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] Replied in 10ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "JC8_IAwrQD8BeFpqe2FGAmc5KDNzFCkHFKUZnMqlQ16_2QvKWZXc6sfj", "user" => %{"email" => "platform-admin+sigra-253-control-mobile-collision@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.2ms idle=709.8ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-mobile-collision@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="organizations" db=1.7ms idle=712.7ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK db=0.3ms idle=714.5ms
+begin []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_events" db=0.8ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [%{method: "password"}, "auth.login.success", "user", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", "success", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", ~U[2026-10-14 17:26:12.664608Z], ~U[2026-10-14 17:26:12.664688Z], "7e227a3b-58e5-4f7d-b1b4-9b1502ebac85"]
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK db=0.7ms
+commit []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_actions" db=0.6ms idle=718.0ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.success", :ok, "7e227a3b-58e5-4f7d-b1b4-9b1502ebac85", %Threadline.Semantics.ActorRef{type: :user, id: "e738200a-51fa-4f5f-9c7f-b57ed04b6313"}, ~U[2026-10-14 17:26:12.667704Z], "3487513b-b9e1-44f7-ac58-ee64bb84751f"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=1.0ms idle=718.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85[0m
+[debug] QUERY OK source="user_sessions" db=0.6ms queue=0.3ms idle=293.2ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["standard", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", ~U[2026-10-14 17:26:12.669646Z], <<80, 151, 142, 98, 227, 227, 149, 231, 142, 168, 155, 69, 57, 117, 226, 249, 30, 231, 239, 175, 142, 93, 191, 202, 191, 54, 16, 55, 60, 31, 67, 15>>, ~U[2026-10-14 17:26:12.669646Z], "517c9354-8e77-47d0-949d-f5a8d83f8d8f"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=1.1ms idle=291.2ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=1.0ms queue=0.6ms idle=290.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{type: :standard, session_id: "517c9354-8e77-47d0-949d-f5a8d83f8d8f", active_organization_id: nil}, "session.create", "user", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", "success", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", ~U[2026-10-14 17:26:12.671943Z], ~U[2026-10-14 17:26:12.672004Z], "d296f1f1-75ea-41e9-b155-c0682859e0d0"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.6ms idle=21.4ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "d296f1f1-75ea-41e9-b155-c0682859e0d0", %Threadline.Semantics.ActorRef{type: :user, id: "e738200a-51fa-4f5f-9c7f-b57ed04b6313"}, ~U[2026-10-14 17:26:12.673863Z], "cd0dbc30-e0ad-4e87-8c6d-925d06e96271"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=1.2ms queue=0.5ms idle=20.9ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["standard", "127.0.0.1", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", ~U[2026-10-14 17:26:12.674933Z], "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1", <<79, 136, 222, 25, 86, 92, 148, 112, 246, 83, 90, 0, 138, 26, 253, 29, 128, 31, 130, 125, 47, 6, 212, 40, 20, 85, 158, 209, 215, 84, 109, 35>>, ~U[2026-10-14 17:26:12.674933Z], "1952b370-1c20-4cd2-8827-1a07f5d098b5"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.9ms idle=16.1ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.9ms queue=0.7ms idle=13.7ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{type: :standard, session_id: "1952b370-1c20-4cd2-8827-1a07f5d098b5", active_organization_id: nil}, "session.create", "user", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", "success", "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1", "127.0.0.1", "e738200a-51fa-4f5f-9c7f-b57ed04b6313", ~U[2026-10-14 17:26:12.677805Z], ~U[2026-10-14 17:26:12.677867Z], "83c1a071-84ba-4c28-851c-e1af8e061855"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.9ms idle=12.1ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "83c1a071-84ba-4c28-851c-e1af8e061855", %Threadline.Semantics.ActorRef{type: :user, id: "e738200a-51fa-4f5f-9c7f-b57ed04b6313"}, ~U[2026-10-14 17:26:12.679665Z], "73118c9e-06a7-43d2-abc4-e488f9f27706"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 24ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=0.6ms idle=214.9ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<79, 136, 222, 25, 86, 92, 148, 112, 246, 83, 90, 0, 138, 26, 253, 29, 128, 31, 130, 125, 47, 6, 212, 40, 20, 85, 158, 209, 215, 84, 109, 35>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=1.6ms idle=214.5ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=1.1ms idle=214.9ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=1.1ms idle=215.3ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=0.9ms idle=214.3ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[info] Sent 200 in 9ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 12µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "VhYGHTMDDyolChMHLmd8LxtxRQk3ZwIBnP1MFezDqlgLH-5foD6Ao4Zg", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "8F7PufunTftKfJIIt5sHXSXf", "live_socket_id" => "users_sessions:TGdsSm1jVEowd0NueUxuYzYtSVZPTGtibUJ6TnpjZzFUTTZUMkRKNkdXaw==", "user_token" => "LglJmcTJ0wCnyLnc6-IVOLkbmBzNzcg1TM6T2DJ6GWk"}
+[debug] QUERY OK source="user_sessions" db=1.5ms idle=503.4ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<79, 136, 222, 25, 86, 92, 148, 112, 246, 83, 90, 0, 138, 26, 253, 29, 128, 31, 130, 125, 47, 6, 212, 40, 20, 85, 158, 209, 215, 84, 109, 35>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=1.1ms idle=503.4ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=1.3ms idle=504.1ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=1.3ms idle=305.8ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=1.0ms idle=305.5ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["e738200a-51fa-4f5f-9c7f-b57ed04b6313"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[debug] Replied in 9ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "AhoCNXAUXyY9CwMxIA8AAgJeIxVRMHNkWrKZD_oLdxkTtnHkdft_9GBP", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "UhIo4K0jYsheTaHif8WJhw14"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "AwcdIwRyeDMbAhALPFcqJjdhbiEfRXBlVoTL09HYBqxnh6bOQY9kw2AQ", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-mobile-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 124µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "AwcdIwRyeDMbAhALPFcqJjdhbiEfRXBlVoTL09HYBqxnh6bOQY9kw2AQ", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-mobile-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 159µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "AwcdIwRyeDMbAhALPFcqJjdhbiEfRXBlVoTL09HYBqxnh6bOQY9kw2AQ", "user" => %{"email" => "platform-admin+sigra-253-control-mobile-collision@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=0.7ms idle=782.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-mobile-collision@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] Replied in 2ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "OWsxACcCSCJdWygQCy9ULDwgPgRFOwYFL3gacu1c80wGxD1mtHnR1NCF", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "uXVaDwyAek_WskeAHhPVtuEC"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "Ihk_JSMTKwU6GWoIEQ5SGxAYEhMwMxMqWAiDgdRD_r5_be7ZXpBEDFVi", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-mobile-forced-trace-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 148µs
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "Ihk_JSMTKwU6GWoIEQ5SGxAYEhMwMxMqWAiDgdRD_r5_be7ZXpBEDFVi", "user" => %{"email" => "platform-admin+sigra-253-control-mobile-forced-trace-positive@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.8ms idle=1225.4ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-mobile-forced-trace-positive@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="audit_events" db=1.3ms queue=1.0ms idle=1213.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","outcome","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7) [%{reason: "unknown_email"}, "auth.login.failure", "user", "failure", ~U[2026-10-14 17:26:15.179029Z], ~U[2026-10-14 17:26:15.179113Z], "7a7267b6-38ed-4dd5-8327-3f4ef4aed960"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.9ms idle=749.2ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.failure", :error, "7a7267b6-38ed-4dd5-8327-3f4ef4aed960", %Threadline.Semantics.ActorRef{type: :anonymous, id: nil}, ~U[2026-10-14 17:26:15.181732Z], "f3c41e6d-33fb-4abd-953d-9723f5ae65b8"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 10ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 10µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "RQNTOyg9UE1zHCNbPFYUIml3PBZACHh_4WaWjkg4KyViu4SJ-DwTsGO3", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "qT2lBV7y8eu2IbGhD3KB3O7L"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "AQVRWQphX0h3Iz97Fhp2IDd1MXBme2gbpQc5H7h1OFJI_x1HsFz2U4_W", "_target" => ["user", "email"], "user" => %{"email" => "platform-admin+sigra-253-control-dark-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 153µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "AQVRWQphX0h3Iz97Fhp2IDd1MXBme2gbpQc5H7h1OFJI_x1HsFz2U4_W", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-dark-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 154µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "AQVRWQphX0h3Iz97Fhp2IDd1MXBme2gbpQc5H7h1OFJI_x1HsFz2U4_W", "user" => %{"email" => "platform-admin+sigra-253-control-dark-held-positive@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=0.9ms idle=1874.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-dark-held-positive@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.4ms idle=1877.1ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.5ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["platform-admin+sigra-253-control-dark-held-positive@example.test", false, 0, "$argon2id$v=19$m=4096,t=2,p=4$WtoQeoO0KDqlC8wwagee3g$MtgvQ/+seD4HRMFAxFkwLHYx3tkbi1bdJRmQS4pOv7I", ~U[2026-10-14 17:26:18Z], ~U[2026-10-14 17:26:18Z], ~U[2026-10-14 17:26:18Z], "0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.7ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.4ms idle=1879.8ms
+begin []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] QUERY OK source="user_tokens" db=1.5ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm", <<208, 150, 52, 222, 65, 47, 145, 254, 42, 201, 66, 110, 89, 246, 41, 202, 155, 223, 84, 83, 32, 125, 218, 52, 50, 26, 150, 170, 137, 154, 181, 241>>, "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", "platform-admin+sigra-253-control-dark-held-positive@example.test", ~U[2026-10-14 17:26:18Z], "cc46fbb6-d527-49f3-ad64-e14f3732b8b1"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="user_tokens" db=0.4ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm_code", <<56, 235, 214, 89, 121, 80, 56, 144, 166, 70, 218, 191, 26, 32, 196, 4, 228, 98, 27, 71, 183, 104, 38, 106, 175, 8, 236, 6, 130, 221, 236, 188>>, "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", "platform-admin+sigra-253-control-dark-held-positive@example.test", ~U[2026-10-14 17:26:18Z], "9c3d7a7f-cde3-4ec1-9e18-5775a7453355"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=0.4ms
+commit []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] Replied in 12ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "AQVRWQphX0h3Iz97Fhp2IDd1MXBme2gbpQc5H7h1OFJI_x1HsFz2U4_W", "user" => %{"email" => "platform-admin+sigra-253-control-dark-held-positive@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=0.7ms idle=266.2ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-dark-held-positive@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="organizations" db=0.6ms idle=153.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK db=0.3ms idle=153.6ms
+begin []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [%{method: "password"}, "auth.login.success", "user", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", "success", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", ~U[2026-10-14 17:26:19.104584Z], ~U[2026-10-14 17:26:19.104634Z], "978a9ceb-9047-482f-94fb-3b950a2eb9b7"]
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK db=0.6ms
+commit []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_actions" db=0.7ms queue=0.5ms idle=155.7ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.success", :ok, "978a9ceb-9047-482f-94fb-3b950a2eb9b7", %Threadline.Semantics.ActorRef{type: :user, id: "0c5e21b9-b6a5-4841-b43d-b779101b7ccd"}, ~U[2026-10-14 17:26:19.106267Z], "c44f988f-fdbe-42eb-9abf-d996198d7f64"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=1.0ms idle=157.2ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85[0m
+[debug] QUERY OK source="user_sessions" db=0.7ms queue=0.5ms idle=158.4ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["standard", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", ~U[2026-10-14 17:26:19.108903Z], <<65, 119, 245, 36, 92, 214, 131, 59, 184, 174, 3, 178, 9, 16, 210, 211, 73, 46, 73, 39, 116, 40, 115, 219, 34, 112, 228, 32, 240, 170, 205, 13>>, ~U[2026-10-14 17:26:19.108903Z], "a2ae14ea-efd5-4574-b7bf-7f089f4feb89"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.6ms idle=159.7ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=1.1ms queue=0.6ms idle=160.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{type: :standard, session_id: "a2ae14ea-efd5-4574-b7bf-7f089f4feb89", active_organization_id: nil}, "session.create", "user", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", "success", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", ~U[2026-10-14 17:26:19.110972Z], ~U[2026-10-14 17:26:19.111024Z], "9249d0e7-0453-4ec3-8297-e783aaf5b83f"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.5ms idle=18.7ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "9249d0e7-0453-4ec3-8297-e783aaf5b83f", %Threadline.Semantics.ActorRef{type: :user, id: "0c5e21b9-b6a5-4841-b43d-b779101b7ccd"}, ~U[2026-10-14 17:26:19.112872Z], "4e48126b-97ca-457d-ba9a-f30b49be3d84"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=0.7ms queue=0.3ms idle=17.6ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["standard", "127.0.0.1", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", ~U[2026-10-14 17:26:19.113773Z], "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", <<44, 32, 212, 191, 148, 174, 191, 129, 53, 30, 237, 255, 237, 126, 163, 184, 122, 133, 176, 125, 60, 191, 123, 115, 126, 145, 161, 50, 91, 239, 12, 61>>, ~U[2026-10-14 17:26:19.113773Z], "8ebe10fa-1eb3-4079-b03f-677573ef52fa"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.7ms idle=13.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.7ms queue=0.7ms idle=11.7ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{type: :standard, session_id: "8ebe10fa-1eb3-4079-b03f-677573ef52fa", active_organization_id: nil}, "session.create", "user", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", "success", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", "127.0.0.1", "0c5e21b9-b6a5-4841-b43d-b779101b7ccd", ~U[2026-10-14 17:26:19.115812Z], ~U[2026-10-14 17:26:19.115850Z], "19e9796e-9c64-4af5-8131-9146a3f18a63"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.7ms idle=11.2ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "19e9796e-9c64-4af5-8131-9146a3f18a63", %Threadline.Semantics.ActorRef{type: :user, id: "0c5e21b9-b6a5-4841-b43d-b779101b7ccd"}, ~U[2026-10-14 17:26:19.117424Z], "91426cf3-520b-46e5-906f-75728110a7b7"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 20ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=0.6ms idle=216.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<44, 32, 212, 191, 148, 174, 191, 129, 53, 30, 237, 255, 237, 126, 163, 184, 122, 133, 176, 125, 60, 191, 123, 115, 126, 145, 161, 50, 91, 239, 12, 61>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.4ms idle=216.5ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=0.4ms idle=215.7ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=0.6ms idle=215.5ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=2.2ms idle=214.7ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[info] Sent 200 in 8ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "XRo7PXQBRkAaVQU4ETIWaQR4dR8YPCB6jwoh6y--_0jmHqNYIMFiNODK", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "7mTUBxkmEeoUYCX0M53vVsd1", "live_socket_id" => "users_sessions:NmFIc0w3dU5NOTBBajNKQ2I0cWYwYnQtTzRqbE9EeEo3TEQ4VE5ZbzV6bw==", "user_token" => "6aHsL7uNM90Aj3JCb4qf0bt-O4jlODxJ7LD8TNYo5zo"}
+[debug] QUERY OK source="user_sessions" db=1.5ms idle=466.3ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<44, 32, 212, 191, 148, 174, 191, 129, 53, 30, 237, 255, 237, 126, 163, 184, 122, 133, 176, 125, 60, 191, 123, 115, 126, 145, 161, 50, 91, 239, 12, 61>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.7ms idle=466.4ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=2.0ms idle=466.8ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=2.5ms idle=265.3ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=0.6ms idle=266.4ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["0c5e21b9-b6a5-4841-b43d-b779101b7ccd"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[debug] Replied in 10ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 12µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "cwVzfhUNA1tnSh8pZkUIEjN6GSR2BAQOJ5CO8a183zfb1-WUyNLHCtrZ", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "9001-l2cT0yKWh_GJ4Ul5pvT"}
+[debug] Replied in 1ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 10µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "J1kIGAUrCgIDAGVvAW02GV4FUSN5EzQHk0oiDDXHd0S6wXqZoB2R8zWp", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "LigqAoRJg06Yv5GC1GcqAicw"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "Bg82EDErMz4oZmIcDmZ_cmB0FCkkDCs-JfQapDatOVTExS81Q3wXeeHI", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-dark-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 145µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "Bg82EDErMz4oZmIcDmZ_cmB0FCkkDCs-JfQapDatOVTExS81Q3wXeeHI", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-dark-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 264µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "Bg82EDErMz4oZmIcDmZ_cmB0FCkkDCs-JfQapDatOVTExS81Q3wXeeHI", "user" => %{"email" => "platform-admin+sigra-253-control-dark-collision@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=3.0ms idle=1295.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-dark-collision@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.7ms idle=1299.9ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=1.0ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["platform-admin+sigra-253-control-dark-collision@example.test", false, 0, "$argon2id$v=19$m=4096,t=2,p=4$pLDYj4Il0CaVTHpV9NAGCg$UYnP6NJMpgMrd+HQlTIwu9mZB+TdKLG27SucR+VttPQ", ~U[2026-10-14 17:26:25Z], ~U[2026-10-14 17:26:25Z], ~U[2026-10-14 17:26:25Z], "2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.7ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.3ms idle=1303.5ms
+begin []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] QUERY OK source="user_tokens" db=1.1ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm", <<237, 63, 92, 94, 237, 252, 98, 19, 43, 18, 161, 231, 123, 123, 164, 237, 64, 246, 241, 82, 79, 121, 211, 27, 131, 160, 18, 153, 77, 112, 253, 82>>, "2c16d8df-1587-492e-83a8-99d8177e0feb", "platform-admin+sigra-253-control-dark-collision@example.test", ~U[2026-10-14 17:26:25Z], "447d698d-3515-4dfb-9ece-26af839c2ad4"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="user_tokens" db=0.5ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm_code", <<1, 214, 122, 164, 7, 134, 202, 167, 249, 218, 227, 42, 25, 239, 52, 127, 101, 154, 104, 202, 152, 96, 128, 24, 16, 176, 153, 22, 120, 90, 72, 164>>, "2c16d8df-1587-492e-83a8-99d8177e0feb", "platform-admin+sigra-253-control-dark-collision@example.test", ~U[2026-10-14 17:26:25Z], "a27c5027-1d51-4973-98e9-e5b8f003e820"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=0.6ms
+commit []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] Replied in 16ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "Bg82EDErMz4oZmIcDmZ_cmB0FCkkDCs-JfQapDatOVTExS81Q3wXeeHI", "user" => %{"email" => "platform-admin+sigra-253-control-dark-collision@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=0.6ms idle=1247.1ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-dark-collision@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="organizations" db=0.5ms idle=634.1ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK db=0.5ms idle=634.8ms
+begin []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_events" db=1.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [%{method: "password"}, "auth.login.success", "user", "2c16d8df-1587-492e-83a8-99d8177e0feb", "success", "2c16d8df-1587-492e-83a8-99d8177e0feb", "2c16d8df-1587-492e-83a8-99d8177e0feb", ~U[2026-10-14 17:26:25.585893Z], ~U[2026-10-14 17:26:25.585952Z], "27ab1183-d7a2-417c-a416-fcccd0e13258"]
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK db=0.7ms
+commit []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_actions" db=0.7ms queue=0.7ms idle=638.2ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.success", :ok, "27ab1183-d7a2-417c-a416-fcccd0e13258", %Threadline.Semantics.ActorRef{type: :user, id: "2c16d8df-1587-492e-83a8-99d8177e0feb"}, ~U[2026-10-14 17:26:25.588665Z], "d14a973d-0591-4e1a-a3e5-0cf3de2f5dbe"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=0.5ms idle=639.9ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85[0m
+[debug] QUERY OK source="user_sessions" db=0.5ms queue=0.3ms idle=342.3ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["standard", "2c16d8df-1587-492e-83a8-99d8177e0feb", ~U[2026-10-14 17:26:25.590946Z], <<101, 46, 72, 217, 23, 41, 93, 67, 175, 162, 144, 71, 82, 222, 151, 96, 68, 197, 84, 118, 218, 201, 40, 249, 35, 223, 115, 226, 25, 181, 174, 125>>, ~U[2026-10-14 17:26:25.590946Z], "216fceed-e174-422e-8a41-3577a8df3bbe"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.4ms idle=338.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.8ms queue=0.3ms idle=334.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{type: :standard, session_id: "216fceed-e174-422e-8a41-3577a8df3bbe", active_organization_id: nil}, "session.create", "user", "2c16d8df-1587-492e-83a8-99d8177e0feb", "success", "2c16d8df-1587-492e-83a8-99d8177e0feb", ~U[2026-10-14 17:26:25.592463Z], ~U[2026-10-14 17:26:25.592514Z], "7ac64988-0f49-4d76-b66b-83c0428bf4f3"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.5ms idle=16.7ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "7ac64988-0f49-4d76-b66b-83c0428bf4f3", %Threadline.Semantics.ActorRef{type: :user, id: "2c16d8df-1587-492e-83a8-99d8177e0feb"}, ~U[2026-10-14 17:26:25.593866Z], "cb37e2e4-887b-4c6f-beac-f7b8b90486dd"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=0.8ms queue=0.3ms idle=16.1ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["standard", "127.0.0.1", "2c16d8df-1587-492e-83a8-99d8177e0feb", ~U[2026-10-14 17:26:25.594750Z], "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", <<68, 231, 23, 239, 146, 184, 146, 252, 100, 225, 157, 249, 52, 214, 36, 185, 156, 159, 111, 107, 192, 198, 174, 148, 179, 103, 62, 62, 166, 126, 166, 139>>, ~U[2026-10-14 17:26:25.594750Z], "139b79e2-a8a5-4dfb-8443-8f0c47a44191"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.5ms idle=12.7ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.6ms queue=0.4ms idle=11.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{type: :standard, session_id: "139b79e2-a8a5-4dfb-8443-8f0c47a44191", active_organization_id: nil}, "session.create", "user", "2c16d8df-1587-492e-83a8-99d8177e0feb", "success", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", "127.0.0.1", "2c16d8df-1587-492e-83a8-99d8177e0feb", ~U[2026-10-14 17:26:25.596659Z], ~U[2026-10-14 17:26:25.596708Z], "a8c38ef4-3433-4319-9547-7f169dd8bfbf"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.5ms idle=9.4ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "a8c38ef4-3433-4319-9547-7f169dd8bfbf", %Threadline.Semantics.ActorRef{type: :user, id: "2c16d8df-1587-492e-83a8-99d8177e0feb"}, ~U[2026-10-14 17:26:25.597957Z], "526f82ef-b200-4fbd-a317-7f5f74243682"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 18ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=0.5ms idle=234.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<68, 231, 23, 239, 146, 184, 146, 252, 100, 225, 157, 249, 52, 214, 36, 185, 156, 159, 111, 107, 192, 198, 174, 148, 179, 103, 62, 62, 166, 126, 166, 139>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.3ms idle=234.9ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=0.4ms idle=234.5ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=0.4ms idle=234.3ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=1.7ms idle=233.3ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[info] Sent 200 in 7ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 14µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "CFAhCTdWZlchKQoLPhsVBxdnXnkcTyJdE4pSn46gcoHmMcy5B878w9M6", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "MdQZYbP0BFBfsxl2U_iAkvok", "live_socket_id" => "users_sessions:eU5kTXFmYXIwdm50Z1NWeDczQUFMTFhxalYyZV9CRDZydzgtMGtQUm9lMA==", "user_token" => "yNdMqfar0vntgSVx73AALLXqjV2e_BD6rw8-0kPRoe0"}
+[debug] QUERY OK source="user_sessions" db=0.7ms idle=497.4ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<68, 231, 23, 239, 146, 184, 146, 252, 100, 225, 157, 249, 52, 214, 36, 185, 156, 159, 111, 107, 192, 198, 174, 148, 179, 103, 62, 62, 166, 126, 166, 139>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.4ms idle=497.1ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=1.4ms idle=497.4ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=1.5ms idle=276.1ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=1.0ms idle=276.0ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["2c16d8df-1587-492e-83a8-99d8177e0feb"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[debug] Replied in 8ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 2ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "PCtyNypVKCEdB0JCFR8CagIkHSoiPSY7pi1bl2JRO12qBJuXmfgxmlAW", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "LBCUFgbsR6p3WUw2oBzROQgl"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "BAUcZBQyFEc3ezJxOwdEVhY1FWUXAQ0EHG_1RUv4eMBBlR3dywo7XPjh", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-dark-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 167µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "BAUcZBQyFEc3ezJxOwdEVhY1FWUXAQ0EHG_1RUv4eMBBlR3dywo7XPjh", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+sigra-253-control-dark-collision@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 184µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "BAUcZBQyFEc3ezJxOwdEVhY1FWUXAQ0EHG_1RUv4eMBBlR3dywo7XPjh", "user" => %{"email" => "platform-admin+sigra-253-control-dark-collision@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=0.8ms idle=859.4ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+sigra-253-control-dark-collision@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] Replied in 3ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 11µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "KXFIfhRAIRIjAmsMZAk0PWIlXU13EjkQdCyLM0eSbEZFPfwkSf39Eyqx", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "M212YpDAAG1J4oCV1Cnt2kHh"}
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "fVsBZx4jDQ8XFHw9f0IiAGcIPDtkRjFQ0i0UGSINVSMwK-aVVKROV-y8", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+sigra-253-control-dark-forced-trace-positive@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 130µs
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "fVsBZx4jDQ8XFHw9f0IiAGcIPDtkRjFQ0i0UGSINVSMwK-aVVKROV-y8", "user" => %{"email" => "platform-admin+sigra-253-control-dark-forced-trace-positive@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=0.6ms idle=1150.1ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+sigra-253-control-dark-forced-trace-positive@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="audit_events" db=0.6ms queue=0.4ms idle=1147.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","outcome","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7) [%{reason: "unknown_email"}, "auth.login.failure", "user", "failure", ~U[2026-10-14 17:26:28.102507Z], ~U[2026-10-14 17:26:28.102571Z], "4ee4f632-5cbd-496b-880e-202eb0ea2203"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.8ms idle=853.5ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.failure", :error, "4ee4f632-5cbd-496b-880e-202eb0ea2203", %Threadline.Semantics.ActorRef{type: :anonymous, id: nil}, ~U[2026-10-14 17:26:28.103897Z], "5992c3ee-3861-48b8-b511-157dae2b267b"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 7ms
+[info] GET /users/log_in
+[debug] Processing with ExampleWeb.SessionController.new/2
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] POST /users/log_in/passkey/options
+[debug] Processing with ExampleWeb.SessionController.passkey_authentication_options/2
+  Parameters: %{"conditional" => "true"}
+  Pipelines: [:browser_passkey_options, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 1ms
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 3ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 12µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "Rx4dail7KXlVJhk_GS5wBDkUPghoHhwzqrd5_5qT9nMZiF44jfoAQySp", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "6ly_vNX-lHTephD0SrQI9gOC"}
+[debug] Replied in 2ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "VwhIaykgCGBdCzYSI1BzAxJKZSBjDXgKad14_nPM1CbwS873A84iZj7I", "_target" => ["user", "email"], "user" => %{"_unused_password" => "[FILTERED]", "email" => "platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 129µs
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "VwhIaykgCGBdCzYSI1BzAxJKZSBjDXgKad14_nPM1CbwS873A84iZj7I", "_target" => ["user", "password"], "user" => %{"email" => "platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test", "password" => "[FILTERED]"}}
+[debug] Replied in 138µs
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: %{"_csrf_token" => "VwhIaykgCGBdCzYSI1BzAxJKZSBjDXgKad14_nPM1CbwS873A84iZj7I", "user" => %{"email" => "platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test", "password" => "[FILTERED]"}}
+[debug] QUERY OK source="users" db=1.5ms idle=1570.4ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.5ms idle=1573.6ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.7ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test", false, 0, "$argon2id$v=19$m=4096,t=2,p=4$/ZrQVmTgc5A90bfylzE10w$FD85s7uvkYvzteych667CEAanuFHDHyVnlIb484MKYg", ~U[2026-10-14 17:26:31Z], ~U[2026-10-14 17:26:31Z], ~U[2026-10-14 17:26:31Z], "5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.9ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.5ms idle=1576.2ms
+begin []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] QUERY OK source="user_tokens" db=0.6ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm", <<121, 145, 85, 244, 110, 213, 74, 120, 6, 158, 171, 236, 96, 253, 96, 220, 16, 39, 57, 229, 27, 49, 140, 104, 159, 170, 50, 56, 35, 23, 220, 255>>, "5642bc42-3130-45ec-9890-797b068f60b6", "platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test", ~U[2026-10-14 17:26:31Z], "2fd52d19-038d-46a5-955e-87eeb6418c4e"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="user_tokens" db=0.5ms
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["confirm_code", <<148, 53, 111, 175, 88, 55, 237, 156, 137, 29, 22, 16, 75, 51, 197, 196, 134, 51, 119, 235, 25, 58, 152, 217, 71, 85, 67, 81, 47, 77, 149, 189>>, "5642bc42-3130-45ec-9890-797b068f60b6", "platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test", ~U[2026-10-14 17:26:31Z], "207fbf30-4a2c-406f-b6fe-e8de6294d8c3"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=0.7ms
+commit []
+[90m↳ Example.Accounts.insert_confirmation_tokens!/2, at: lib/example/accounts.ex:403[0m
+[debug] Replied in 11ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: %{"_action" => "registered", "_csrf_token" => "VwhIaykgCGBdCzYSI1BzAxJKZSBjDXgKad14_nPM1CbwS873A84iZj7I", "user" => %{"email" => "platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test", "password" => "[FILTERED]"}}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.1ms idle=1834.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["platform-admin+ev-mv8dt81e-dark-1-0-w9ecv2@example.test"]
+[90m↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511[0m
+[debug] QUERY OK source="organizations" db=1.1ms idle=1837.3ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK db=0.5ms idle=1838.6ms
+begin []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_events" db=0.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [%{method: "password"}, "auth.login.success", "user", "5642bc42-3130-45ec-9890-797b068f60b6", "success", "5642bc42-3130-45ec-9890-797b068f60b6", "5642bc42-3130-45ec-9890-797b068f60b6", ~U[2026-10-14 17:26:31.790092Z], ~U[2026-10-14 17:26:31.790149Z], "9c8ed7c4-cc0c-4343-9696-a3b611189349"]
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK db=0.8ms
+commit []
+[90m↳ Sigra.Auth.login_success_password_path/8, at: lib/sigra/auth.ex:463[0m
+[debug] QUERY OK source="audit_actions" db=0.8ms idle=1183.9ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["auth.login.success", :ok, "9c8ed7c4-cc0c-4343-9696-a3b611189349", %Threadline.Semantics.ActorRef{type: :user, id: "5642bc42-3130-45ec-9890-797b068f60b6"}, ~U[2026-10-14 17:26:31.792228Z], "9a08add0-25c2-458c-93e4-ded58ec92303"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=1.8ms idle=1183.2ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85[0m
+[debug] QUERY OK source="user_sessions" db=1.3ms queue=0.6ms idle=272.3ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["standard", "5642bc42-3130-45ec-9890-797b068f60b6", ~U[2026-10-14 17:26:31.795137Z], <<63, 43, 11, 53, 223, 84, 224, 53, 15, 225, 86, 93, 91, 50, 181, 40, 180, 19, 253, 157, 192, 88, 31, 115, 86, 108, 190, 102, 76, 56, 4, 183>>, ~U[2026-10-14 17:26:31.795137Z], "862d9a18-bd07-404d-acf9-fc85b9ee0c63"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.5ms idle=270.2ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.5ms queue=0.5ms idle=268.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{type: :standard, session_id: "862d9a18-bd07-404d-acf9-fc85b9ee0c63", active_organization_id: nil}, "session.create", "user", "5642bc42-3130-45ec-9890-797b068f60b6", "success", "5642bc42-3130-45ec-9890-797b068f60b6", ~U[2026-10-14 17:26:31.797905Z], ~U[2026-10-14 17:26:31.797960Z], "4a7a8aa9-3fdd-400c-9bd9-fd37708f4e3d"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.5ms idle=19.9ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "4a7a8aa9-3fdd-400c-9bd9-fd37708f4e3d", %Threadline.Semantics.ActorRef{type: :user, id: "5642bc42-3130-45ec-9890-797b068f60b6"}, ~U[2026-10-14 17:26:31.799199Z], "9be77edc-94ed-4d9e-87b4-671eb22f2e09"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[debug] QUERY OK source="user_sessions" db=0.5ms idle=18.9ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ["standard", "127.0.0.1", "5642bc42-3130-45ec-9890-797b068f60b6", ~U[2026-10-14 17:26:31.800079Z], "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", <<128, 221, 120, 106, 2, 213, 85, 22, 181, 217, 238, 66, 14, 98, 26, 3, 240, 219, 185, 38, 223, 61, 169, 136, 183, 227, 189, 89, 245, 24, 90, 105>>, ~U[2026-10-14 17:26:31.800079Z], "65cdf88f-e37a-4f59-8863-6a330e7bac48"]
+[90m↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42[0m
+[debug] QUERY OK source="organizations" db=0.3ms idle=13.9ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061[0m
+[debug] QUERY OK source="audit_events" db=0.8ms queue=1.6ms idle=11.7ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{type: :standard, session_id: "65cdf88f-e37a-4f59-8863-6a330e7bac48", active_organization_id: nil}, "session.create", "user", "5642bc42-3130-45ec-9890-797b068f60b6", "success", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36", "127.0.0.1", "5642bc42-3130-45ec-9890-797b068f60b6", ~U[2026-10-14 17:26:31.801151Z], ~U[2026-10-14 17:26:31.801178Z], "b086eeb8-dfb3-4ae8-b3c6-767244b616b7"]
+[90m↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191[0m
+[debug] QUERY OK source="audit_actions" db=0.6ms idle=11.6ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) ["session.create", :ok, "b086eeb8-dfb3-4ae8-b3c6-767244b616b7", %Threadline.Semantics.ActorRef{type: :user, id: "5642bc42-3130-45ec-9890-797b068f60b6"}, ~U[2026-10-14 17:26:31.803780Z], "ded46d8f-6034-4fa7-b0bf-32d19f5c4a57"]
+[90m↳ Threadline.record_action/2, at: lib/threadline.ex:49[0m
+[info] Sent 302 in 22ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=1.4ms idle=223.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<128, 221, 120, 106, 2, 213, 85, 22, 181, 217, 238, 66, 14, 98, 26, 3, 240, 219, 185, 38, 223, 61, 169, 136, 183, 227, 189, 89, 245, 24, 90, 105>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.8ms idle=224.6ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=0.6ms idle=224.8ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=0.7ms idle=224.8ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=0.8ms idle=224.9ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[info] Sent 200 in 9ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 14µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "ERw4YhkTJgEjGgA4MgsyGCwqGzgBF3NLuiL-jkp1bvRLK2kkNKSpFGK2", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "dutOsxV0AlRty9YsbaHHGP8y", "live_socket_id" => "users_sessions:QXplQk1xS3czVnh4MWl2VXdOSDdrQ3lFWGhCZGllMFRYZXVzcWVVcXFNRQ==", "user_token" => "AzeBMqKw3Vxx1ivUwNH7kCyEXhBdie0TXeusqeUqqME"}
+[debug] QUERY OK source="user_sessions" db=0.6ms idle=576.7ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<128, 221, 120, 106, 2, 213, 85, 22, 181, 217, 238, 66, 14, 98, 26, 3, 240, 219, 185, 38, 223, 61, 169, 136, 183, 227, 189, 89, 245, 24, 90, 105>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.5ms idle=575.0ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] QUERY OK source="user_passkeys" db=1.1ms idle=575.2ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35[0m
+[debug] QUERY OK source="user_identities" db=0.3ms idle=365.5ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36[0m
+[debug] QUERY OK source="organization_memberships" db=0.4ms idle=364.3ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37[0m
+[debug] Replied in 6ms
+[info] GET /admin/_design
+[debug] Processing with ExampleWeb.Admin.DesignGalleryLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[debug] QUERY OK source="user_sessions" db=0.6ms idle=1085.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<128, 221, 120, 106, 2, 213, 85, 22, 181, 217, 238, 66, 14, 98, 26, 3, 240, 219, 185, 38, 223, 61, 169, 136, 183, 227, 189, 89, 245, 24, 90, 105>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.6ms idle=1085.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[info] Sent 200 in 12ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 13µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: %{"_csrf_token" => "CSpNChc3HQAOJB85SEocKzdZLnsTBn9Um_9EdOK0OHMM1sEXU8f3TVG-", "_live_referer" => "undefined", "_mount_attempts" => "0", "_mounts" => "0", "_track_static" => %{"0" => "http://127.0.0.1:25311/assets/default.css", "1" => "http://127.0.0.1:25311/assets/sigra_admin.css", "2" => "http://127.0.0.1:25311/assets/css/app.css", "3" => "http://127.0.0.1:25311/assets/js/app.js"}, "vsn" => "2.0.0"}
+[debug] MOUNT ExampleWeb.Admin.DesignGalleryLive
+  Parameters: %{}
+  Session: %{"_csrf_token" => "dutOsxV0AlRty9YsbaHHGP8y", "live_socket_id" => "users_sessions:QXplQk1xS3czVnh4MWl2VXdOSDdrQ3lFWGhCZGllMFRYZXVzcWVVcXFNRQ==", "user_token" => "AzeBMqKw3Vxx1ivUwNH7kCyEXhBdie0TXeusqeUqqME"}
+[debug] QUERY OK source="user_sessions" db=0.8ms idle=1350.3ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [<<128, 221, 120, 106, 2, 213, 85, 22, 181, 217, 238, 66, 14, 98, 26, 3, 240, 219, 185, 38, 223, 61, 169, 136, 183, 227, 189, 89, 245, 24, 90, 105>>]
+[90m↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57[0m
+[debug] QUERY OK source="users" db=0.4ms idle=999.1ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) ["5642bc42-3130-45ec-9890-797b068f60b6"]
+[90m↳ Example.Accounts.get_user_and_session_by_token/1, at: lib/example/accounts.ex:317[0m
+[debug] Replied in 3ms
+[notice] SIGTERM received - shutting down
+

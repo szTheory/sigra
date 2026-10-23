@@ -1,0 +1,43 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.49 — RELEASE-1.6.0",
+  "phases": [
+    {
+      "number": "246",
+      "name": "Generated Confirmation Recovery",
+      "status": "complete"
+    },
+    {
+      "number": "247",
+      "name": "Release Candidate and Repository Readiness",
+      "status": "complete"
+    },
+    {
+      "number": "248",
+      "name": "Exact-Source Release Gate",
+      "status": "complete"
+    },
+    {
+      "number": "249",
+      "name": "Publish and Prove Sigra 1.6.0",
+      "status": "complete"
+    },
+    {
+      "number": "250",
+      "name": "Close v1.49 audit gaps",
+      "status": "complete"
+    },
+    {
+      "number": "251",
+      "name": "Close READY-01 and READY-02 release readiness gaps",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:execute-phase 251",
+    "label": "Execute Phase 251 after plan checker",
+    "reason": "Structure and frontmatter checks pass for both Phase 251 plans, decision coverage is 6/6, command-path checks have zero blockers/warnings (not applicable), failure-direction checks are ok, and the exact candidate paths resolve. The v1.6 guide is absent at the published tag and remains a READY-01 finding. The independent plan checker is pending. After it passes, execute the two plans: Task 1 records separate READY-01 and READY-02 source feasibility, including candidate tuple 0e773d3614a242e4fbcdd34c418ecb8a307703d6 / d135cbce343947499a0810736c500ef5f1cb5c32 / a494f3ee3878da93aab4f70712ffddeefd77a802 and published tag v1.6.0 at 9e80cb78d6374b1ed4074d5fef6b613fee879dca. READY-01 also requires matching package metadata, release manifest/config, changelog, HexDocs source reference, and adopter notes for shipped changes, compatibility, generated-host action/no-action, and the ~> 1.6.0 update/check path. Missing/mismatched READY-01 evidence leaves it unsatisfied but does not block READY-02 when its own source slice is ready. Stop after the feasibility JSON only if neither requirement slice is capture-ready."
+  },
+  "updated_at": "2026-10-11T19:43:12Z"
+}

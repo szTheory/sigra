@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:14:21Z",
+  "repository_head": "9ccec6c5b89f6417d1c2320603c9efd3be8983a6",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status_at_capture": " M .planning/HANDOFF.json",
+      "sha256": "4d9b65552689e9318a619a56c2bd03da3d503c80b070106560ff4047af5f4692",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/HANDOFF.json",
+      "recovery_sha256": "4d9b65552689e9318a619a56c2bd03da3d503c80b070106560ff4047af5f4692",
+      "bytes": 62054
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status_at_capture": " M .planning/STATE.md",
+      "sha256": "db9c0dab9531f6993c3f3382bc0b69c838773a953b2792c2caf5023a9772acde",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/STATE.md",
+      "recovery_sha256": "db9c0dab9531f6993c3f3382bc0b69c838773a953b2792c2caf5023a9772acde",
+      "bytes": 168573
+    },
+    {
+      "path": ".planning/state.json",
+      "status_at_capture": " M .planning/state.json",
+      "sha256": "a7205906ec762d57c67b8c3018510405695833a3edbde68c9e313a201faf35d0",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/state.json",
+      "recovery_sha256": "a7205906ec762d57c67b8c3018510405695833a3edbde68c9e313a201faf35d0",
+      "bytes": 4108
+    },
+    {
+      "path": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+      "status_at_capture": "clean",
+      "sha256": "0d4f94d5899946476b63a264f8ee474a3b0e5fd2a09b0a0dc04c1b6f59e45801",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+      "recovery_sha256": "0d4f94d5899946476b63a264f8ee474a3b0e5fd2a09b0a0dc04c1b6f59e45801",
+      "bytes": 23848
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "status_at_capture": "clean",
+      "sha256": "1b497dcd95cd0dd9691e29924be1b0627b5982466f771648ed79c97ffce4d464",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "recovery_sha256": "1b497dcd95cd0dd9691e29924be1b0627b5982466f771648ed79c97ffce4d464",
+      "bytes": 12154
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "status_at_capture": "clean",
+      "sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "recovery_sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4",
+      "bytes": 6272
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs",
+      "status_at_capture": "clean",
+      "sha256": "259a61d6c22c390cff6aea64424bf0cc9379f4ba9a42bc23b03555732cce0800",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs",
+      "recovery_sha256": "259a61d6c22c390cff6aea64424bf0cc9379f4ba9a42bc23b03555732cce0800",
+      "bytes": 47332
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs",
+      "status_at_capture": "clean",
+      "sha256": "1e6969f18a24725af3b80be73a3297ecb2a9b85f4b1dfc229a2d91cdaa6eb9a1",
+      "recovery_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs",
+      "recovery_sha256": "1e6969f18a24725af3b80be73a3297ecb2a9b85f4b1dfc229a2d91cdaa6eb9a1",
+      "bytes": 24074
+    }
+  ]
+}

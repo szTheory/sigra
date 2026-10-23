@@ -1,0 +1,149 @@
+{
+  "milestone": "v1.49",
+  "newly_acknowledged": 2,
+  "previously_acknowledged": 52,
+  "unrelated_open_items_retained": 30,
+  "policy": "Only current Phase251 gap records acknowledged; their own verdicts stay gaps_found. Unrelated backlog, older phases, and quick tasks stay unchanged.",
+  "acknowledged_items": [
+    {
+      "category": "verification_gaps",
+      "phase": "251",
+      "file": "251-VERIFICATION-PRESERVED-20261011T2129Z.md",
+      "status": "gaps_found",
+      "meaning": "Known unfinished check accepted for moving on; not a pass."
+    },
+    {
+      "category": "verification_gaps",
+      "phase": "251",
+      "file": "251-VERIFICATION.md",
+      "status": "gaps_found",
+      "meaning": "Known unfinished check accepted for moving on; not a pass."
+    }
+  ],
+  "body_bytes_unchanged": true,
+  "fresh_checks": {
+    "packet": {
+      "valid": true,
+      "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+      "capture_id": "phase251-939607ff3f17e03b22aa",
+      "capture_id_matches": true,
+      "verdicts_match": true
+    },
+    "audit": {
+      "valid": true,
+      "errors": [],
+      "status": "gaps_found",
+      "score": {
+        "requirements": "8/9",
+        "phases": "4/6",
+        "integration": "4/5",
+        "flows": "3/4"
+      },
+      "blockerCount": 16
+    }
+  },
+  "after_audit": {
+    "scanned_at": "2026-10-12T13:22:43.450Z",
+    "has_open_items": true,
+    "counts": {
+      "debug_sessions": 0,
+      "quick_tasks": 1,
+      "threads": 0,
+      "todos": 26,
+      "seeds": 0,
+      "uat_gaps": 0,
+      "verification_gaps": 1,
+      "context_questions": 0,
+      "deferred_items": 2,
+      "total": 30
+    },
+    "acknowledged": {
+      "debug_sessions": 0,
+      "quick_tasks": 5,
+      "threads": 0,
+      "todos": 43,
+      "seeds": 1,
+      "uat_gaps": 1,
+      "verification_gaps": 2,
+      "context_questions": 0,
+      "deferred_items": 2,
+      "total": 54
+    },
+    "items": {
+      "debug_sessions": [],
+      "quick_tasks": [
+        {
+          "slug": "260923-uqh-add-deterministic-offline-regression-cov",
+          "date": "",
+          "status": "missing",
+          "description": ""
+        }
+      ],
+      "threads": [],
+      "todos": [
+        {
+          "filename": "2026-09-15-admin-eval-render-isolated-red-has-no-consumer.md",
+          "priority": "",
+          "area": "",
+          "summary": "# An isolated `admin_eval_render` failure notifies nobody, and it skips the browser cache"
+        },
+        {
+          "filename": "2026-09-15-admin-eval-webkit-registration-flake-recurrence.md",
+          "priority": "",
+          "area": "testing",
+          "summary": "## What"
+        },
+        {
+          "filename": "2026-09-15-composite-action-outside-supply-chain-guards.md",
+          "priority": "",
+          "area": "",
+          "summary": "# Phase 232's composite action sits outside both Phase 234 supply-chain guards"
+        },
+        {
+          "filename": "2026-09-15-gate-05-ledger-scope-and-manifest-contradiction.md",
+          "priority": "",
+          "area": "",
+          "summary": "# GATE-05 ownership ledger: Playwright-scoped, missing 230/234, contradicts the skip manifest"
+        },
+        {
+          "filename": "2026-09-15-generated-confirm-routes-unreachable-both-session-states.md",
+          "priority": "",
+          "area": "auth",
+          "summary": "## Problem"
+        },
+        {
+          "_remainder_count": 21,
+          "filename": "",
+          "priority": "",
+          "area": "",
+          "summary": ""
+        }
+      ],
+      "seeds": [],
+      "uat_gaps": [],
+      "verification_gaps": [
+        {
+          "phase": "245",
+          "file": "245-VERIFICATION.md",
+          "status": "gaps_found",
+          "archived_milestone": "v1.48"
+        }
+      ],
+      "context_questions": [],
+      "deferred_items": [
+        {
+          "phase": "240",
+          "file": "deferred-items.md",
+          "text": "Deferred (out of scope for Plan 240-01)  - **`Sigra.Audit.Forwarders.ThreadlineTest` \u2014 6 local failures in `MIX_ENV=test mix ci`.** Every failure is `** (UndefinedFunctionError) function Sigra.Audit.Forwarders.Threadline.attach/1 is undefined (module Sigra.Audit.Forwarders.Threadline is not available)` at `test/sigra/audit/forwarders/threadline_test.exs:136`. Observed 2026-09-18 on `main` at `04e94a86..2ca65989`. **Provably unrelated to this plan**: `git diff --name-only 04e94a86..HEAD` lists exactly three files \u2014 `.github/workflows/ci.yml`, `scripts/ci/ensure-github-pages-legacy-branch.sh`, `scripts/ci/ensure-github-pages-legacy-branch.test.sh` \u2014 and no Elixir source, test, or config file changed, so a module-availability failure cannot originate here. Reproduces identically on two consecutive warm-build runs; the optional `:threadline` dep (`mix.exs:120`, `~> 0.5`, locked at 0.7.0) recompiles on every invocation, which points at a local optional-dep load-order artifact rather than a source defect. Needs its own investigation (does it reproduce in CI?).",
+          "archived_milestone": "v1.48"
+        },
+        {
+          "phase": "244",
+          "file": "deferred-items.md",
+          "text": "The existing `undici@7.28.0` transitive dependency is reported vulnerable by the registry audit (high severity; fix available). It was already present in the pre-plan lockfile and is outside the isolated Playwright-only version update. status: open **Found during:** Plan 244-02 candidate install **Evidence:** `npm audit --json` in the candidate reports GHSA-4cwx-7wf7-3272 and additional advisories; lockfile baseline also resolves `undici@7.28.0`.",
+          "archived_milestone": "v1.48"
+        }
+      ]
+    }
+  }
+}

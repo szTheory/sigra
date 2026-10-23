@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "ready",
+  "captured_at": "2026-10-11T11:10:47Z",
+  "repository": "szTheory/sigra",
+  "default_branch": "main",
+  "target_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+  "actions_enabled": true,
+  "artifact_retention_days": 90,
+  "artifact_retention_maximum_days": 90,
+  "required_retention_days": 30,
+  "workflows": {
+    "canary": {
+      "id": 380517407,
+      "path": ".github/workflows/release-receipt-canary.yml"
+    },
+    "controller": {
+      "id": 380517406,
+      "path": ".github/workflows/release-receipt-canary-controller.yml"
+    },
+    "observer": {
+      "id": 379162190,
+      "path": ".github/workflows/release-run-observer.yml"
+    }
+  },
+  "default_workflow_permissions": "read",
+  "controller_authority": "actions:write; contents:read",
+  "source_authority": "actions:read; contents:read",
+  "observer_authority": "actions:read; contents:read",
+  "credential_values_recorded": false,
+  "dispatch_attempted": false
+}

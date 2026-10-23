@@ -1,0 +1,77 @@
+{
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "status": "five_integration_groups_passed_phase_review_pending",
+  "groups": [
+    {
+      "seam": "admin_behavior",
+      "containers": [
+        "sigra253-integration-1792718631054023000-pg",
+        "sigra253-integration-1792718631054023000-app"
+      ],
+      "status": "passed",
+      "cleanup_complete": true,
+      "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+      "container_exit": 0,
+      "browser_invocations": 1,
+      "cleanup_errors": []
+    },
+    {
+      "seam": "admin_checkpoints",
+      "containers": [
+        "sigra253-integration-1792718790514721000-pg",
+        "sigra253-integration-1792718790514721000-app"
+      ],
+      "status": "passed",
+      "cleanup_complete": true,
+      "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+      "container_exit": 0,
+      "browser_invocations": 1,
+      "cleanup_errors": []
+    },
+    {
+      "seam": "design_gallery",
+      "containers": [
+        "sigra253-integration-1792718928621295000-pg",
+        "sigra253-integration-1792718928621295000-app"
+      ],
+      "status": "passed",
+      "cleanup_complete": true,
+      "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+      "container_exit": 0,
+      "browser_invocations": 1,
+      "cleanup_errors": []
+    },
+    {
+      "seam": "non_admin_smoke",
+      "containers": [
+        "sigra253-integration-1792719113701483000-pg",
+        "sigra253-integration-1792719113701483000-app"
+      ],
+      "status": "passed",
+      "cleanup_complete": true,
+      "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+      "container_exit": 0,
+      "browser_invocations": 1,
+      "cleanup_errors": []
+    },
+    {
+      "seam": "demo_showcase",
+      "containers": [
+        "sigra253-integration-1792719238370453000-pg",
+        "sigra253-integration-1792719238370453000-app"
+      ],
+      "status": "passed",
+      "cleanup_complete": true,
+      "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+      "container_exit": 0,
+      "browser_invocations": 1,
+      "cleanup_errors": []
+    }
+  ],
+  "browser_invocations": 5,
+  "ci_launches": 0,
+  "github_requests": 0,
+  "phase_complete": false,
+  "duration_seconds": 640.673505542014,
+  "within_limit": true
+}

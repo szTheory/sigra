@@ -1,0 +1,53 @@
+{
+  "schema": "sigra.phase253.plan182.task1.diagnostics.v1",
+  "plan": "253-182",
+  "task": 1,
+  "status": "halted_terminal_bounded_test_failure",
+  "pre_edit_red": {
+    "run": false,
+    "reason": "The test file was edited before the first focused test invocation; no pre-edit red result exists."
+  },
+  "runs": [
+    {
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "exit_code": 1,
+      "tests_run": 1,
+      "failures": 3,
+      "transcript": "253-182-TASK1-FAILED-01.log",
+      "direct_process_capture": false,
+      "source_sha256_at_invocation": null,
+      "observed": [
+        "The 25-to-22 mutation reached the validator and was refused, but expected reason 25 halt set did not match actual stale-count refusal.",
+        "The pin mutation was refused by the exact original-derived owner contract, but the expected reason was too narrow.",
+        "The hosted-link mutation was checked through an entry-stage fixture and refused because that fixture required exactly two amended plans; it did not reach the intended hosted-link semantic refusal."
+      ]
+    },
+    {
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "exit_code": 1,
+      "tests_run": 1,
+      "failures": 1,
+      "transcript": "253-182-TASK1-FAILED-02.log",
+      "direct_process_capture": false,
+      "source_sha256_at_invocation": null,
+      "observed": [
+        "The remaining 22-halt assertion expected 25 halt set; actual refusal was 169 executable reconciliation assertion has a stale count."
+      ]
+    }
+  ],
+  "current_test_source": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    "sha256_after_second_run": "161768f0490d0d1a629d13d7a23e49ea33219ecf724235a6d9aa0f455b1c553d",
+    "source_sha256_uncertainty": "The digest was measured after the second invocation and is incorrectly conflated with both run-time identities in an earlier message. Neither invocation-time digest was recorded; do not treat this value as an invocation source binding."
+  },
+  "missing_evidence": [
+    "No mandatory pre-edit RED output.",
+    "Neither process output was captured directly to a file; both logs are labeled transcript reconstructions.",
+    "No per-invocation test source digest."
+  ],
+  "terminal_policy": "Stop after the bounded two failing focused invocations; no additional test run or source edit is authorized by this task execution.",
+  "acceptance_179_attempted": false,
+  "plan_180_bridge_attempted": false,
+  "hosted_or_external_action": false,
+  "commits_created_by_executor": []
+}

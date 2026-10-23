@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "phase": 249,
+  "recorded_at": "2026-10-09T14:51:11.669Z",
+  "command": "node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+  "exit_code": 0,
+  "test_file_sha256": "15cc2f505367a0aa28083b327505c1d39dc77d27853492d7dad96e7033b1895d",
+  "summary": {
+    "tests": 40,
+    "suites": 0,
+    "passed": 40,
+    "failed": 0
+  },
+  "output_sha256": "dd5b6ef44984cff89bfd10eba5575b6d5210ee719875232f5a2f1fe51609878e",
+  "plan": "06",
+  "task": 1,
+  "stage": "green"
+}

@@ -1,0 +1,12 @@
+{
+  "phase_number": "254",
+  "phase_status": "Pending",
+  "has_context": false,
+  "has_research": false,
+  "has_plans": false,
+  "plan_count": 0,
+  "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 254",
+  "exit_code": 0,
+  "next_after_actual_253_completion": "$gsd-discuss-phase 254",
+  "phase_started": false
+}

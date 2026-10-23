@@ -1,0 +1,13 @@
+{
+  "command": "node --test --test-reporter=tap scripts/ci/ci-registration-recovery.test.mjs",
+  "exit_code": 0,
+  "total": 27,
+  "suites": 0,
+  "passed": 27,
+  "failed": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "duration_ms": 3281.434834,
+  "tap_sha256": "045655235a0f8d824bb4d2a2a299d93f713a3372140fe8eb9dc65ed9147963e5"
+}

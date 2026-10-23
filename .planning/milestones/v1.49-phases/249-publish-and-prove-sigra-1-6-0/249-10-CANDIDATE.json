@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "phase": 249,
+  "plan": "10",
+  "recorded_at": "2026-10-09T21:19:32Z",
+  "status": "ready-for-plan-11",
+  "candidate": {
+    "worktree": "/private/tmp/sigra-phase-249-09-candidate",
+    "branch": "gsd/phase-249-09-candidate",
+    "base_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "plan_09_head_sha": "72fc10449577f63974d068c5aba8c4b3ce99052e",
+    "head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
+    "clean": true,
+    "changed_path_count": 15,
+    "changed_paths": [
+      ".github/ci-skip-manifest.tsv",
+      ".github/workflows/ci.yml",
+      ".github/workflows/release-please.yml",
+      ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+      "doc/llms.txt",
+      "scripts/ci/check-docs-index.sh",
+      "scripts/ci/check-docs-index.test.sh",
+      "scripts/ci/honest-skip-verdict.sh",
+      "scripts/ci/honest-skip-verdict.test.sh",
+      "scripts/ci/refresh-release-docs.sh",
+      "scripts/ci/refresh-release-docs.test.sh",
+      "scripts/ci/release-public-proof.sh",
+      "scripts/ci/release-public-proof.test.sh",
+      "test/sigra/planning/phase_232_playwright_economics_test.exs",
+      "test/sigra/planning/phase_249_release_docs_contract_test.exs"
+    ],
+    "pushed": true,
+    "pull_request_opened": true
+  },
+  "release_receipt": {
+    "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+    "sha256": "c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5",
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "package_source_ci_run_id": "37875238741",
+    "package_source_ci_head_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+  },
+  "internal_review": {
+    "status": "passed",
+    "reviewed_head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
+    "finding_fixed": "GitHub Actions CI exhausted Docker Hub anonymous pulls while many jobs started postgres:15 concurrently. CI and Release Please now use the Docker Official Images mirror at public.ecr.aws/docker/library/postgres:15.",
+    "regression_coverage": "Updated the Phase 232 workflow contract to assert the exact mirrored image; the Phase 232 and Phase 248/249 workflow contracts pass locally, and actionlint passes for both changed workflows."
+  },
+  "verification": [
+    {
+      "command": "bash scripts/ci/refresh-release-docs.test.sh",
+      "result": "pass",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "command": "bash scripts/ci/release-candidate-preflight.test.sh",
+      "result": "pass",
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "command": "bash scripts/ci/release-public-proof.test.sh",
+      "result": "pass",
+      "passed": 44,
+      "failed": 0
+    },
+    {
+      "command": "bash scripts/ci/check-docs-index.test.sh",
+      "result": "pass",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "command": "MIX_ENV=test mix test test/sigra/planning/phase_249_release_docs_contract_test.exs test/sigra/planning/phase_248_release_gate_contract_test.exs",
+      "result": "pass",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "command": "MIX_ENV=test mix ci",
+      "result": "pass",
+      "runner": "outside command sandbox; isolated MIX_HOME with phx_new 1.8.8 and ephemeral Postgres",
+      "summary": "33 doctests, 3 properties, 2636 tests, 0 failures; 12 skipped; golden install 19 tests and Threadline-off 65 tests passed"
+    },
+    {
+      "command": "MIX_ENV=dev mix docs --warnings-as-errors && bash scripts/ci/check-docs-index.sh",
+      "result": "pass"
+    },
+    {
+      "command": "actionlint -shellcheck= .github/workflows/release-please.yml .github/workflows/release-pr-automerge.yml .github/workflows/ci.yml",
+      "result": "pass"
+    },
+    {
+      "command": "bash -n all eight candidate CI scripts; shellcheck --exclude=SC2016,SC2034 all eight candidate CI scripts",
+      "result": "pass"
+    }
+  ],
+  "known_baseline": [
+    "Plain actionlint reports six ShellCheck warnings in unchanged ci.yml; these were independently present on protected-main base e2fa303017364c7e496c3c620f7b709c8e90c8fb.",
+    "Plain ShellCheck reports intentional SC2016 jq-string notices and the existing unused WORKTREE_CLEAN assignment in release-public-proof.sh; no other findings remain when those two codes are excluded."
+  ],
+  "preservation": {
+    "command": "node .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs --ledger .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json --mode preservation",
+    "valid": true,
+    "blocked": false,
+    "closeout_status": "accepted-with-recorded-loss",
+    "accepted_loss_count": 1
+  },
+  "before_plan_11": [
+    "Resolve live protected main and confirm the fourteen-path candidate base remains current.",
+    "Refresh the complete PR/worktree inventory and revalidate preservation before push/open."
+  ],
+  "plan11_revision": {
+    "reason": "The first exact-head CI run failed on Docker Hub 429 unauthenticated pull limits; one retry reproduced the failure on the unchanged head.",
+    "failed_run_id": "37991965472",
+    "failed_run_attempt": 2,
+    "prior_plan10_candidate": {
+      "head_sha": "10246c8dbcc2acd3c49432844e84a34ae0bd01c1",
+      "changed_path_count": 14,
+      "changed_paths": [
+        ".github/ci-skip-manifest.tsv",
+        ".github/workflows/ci.yml",
+        ".github/workflows/release-please.yml",
+        ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+        "doc/llms.txt",
+        "scripts/ci/check-docs-index.sh",
+        "scripts/ci/check-docs-index.test.sh",
+        "scripts/ci/honest-skip-verdict.sh",
+        "scripts/ci/honest-skip-verdict.test.sh",
+        "scripts/ci/refresh-release-docs.sh",
+        "scripts/ci/refresh-release-docs.test.sh",
+        "scripts/ci/release-public-proof.sh",
+        "scripts/ci/release-public-proof.test.sh",
+        "test/sigra/planning/phase_249_release_docs_contract_test.exs"
+      ],
+      "artifact_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json",
+      "artifact_sha256": "2da48e803e5bda7c46ebef76f685c3689a71d260f808377db6e13b52ef37afc1",
+      "preservation_ref": "refs/phase-249-candidate/plan-10-reviewed",
+      "preservation_commit_sha": "db5efef66ab7add527b3ce48d18d5d1321b8fc56"
+    },
+    "revised_head_sha": "4e631d895caa1e02108e05ed9d68069990ca305f",
+    "scope_adjustment": "Added one directly related Phase 232 workflow-contract test path so CI asserts the public mirror rather than Docker Hub. All original fourteen candidate paths remain unchanged."
+  }
+}

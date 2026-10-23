@@ -1,0 +1,11 @@
+{
+  "decision": "approve",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "bundle_sha256": "75b5fd26c059a6083257e0aa68377561ec1ebc62a26c80e1e305849404c95c06",
+  "decision_text": "i approve",
+  "approved_at_epoch": 1792620628,
+  "expires_epoch": 1792707028,
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "section": "canary",
+  "section_sha256": "0e2e8388ce95ac47181aaee1a04a865b3cb66c59e321f7dc2bf3b090b3096669"
+}

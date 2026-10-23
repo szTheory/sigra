@@ -1,0 +1,55 @@
+{
+  "schema": "sigra.gsd.plan-check/v1",
+  "phase": "253-fix-flaky-ci-and-preserve-required-checks",
+  "plan": "253-183",
+  "status": "issues_found",
+  "plans_checked": 1,
+  "issues": [
+    {
+      "plan": "253-183",
+      "dimension": "task_completeness",
+      "severity": "blocker",
+      "required_property": "Each finite corrective test run referenced by the execution contract has an explicit executable command, a separately captured result, and a defined success condition.",
+      "description": "The execution contract allocates Task 1 GREEN, up to one diagnosed correction plus final GREEN, Task 2 RED/GREEN/correction/final GREEN, and Task 3 correction recovery slots, but the task verification elements specify only Task 1 baseline RED and first GREEN groups, Task 2 RED and first GREEN groups, and Task 3 full suite/validators/review. No command or acceptance condition invokes the named correction groups or Task 3's six-test recovery group. If a first GREEN fails, the plan says to run a correction and final check, but the executor has no exact command or asserted outcome for those reserved slots.",
+      "task": null,
+      "fix_hint": "Make every reserved correction/recovery slot executable and state how its captured exit/native result determines whether the next slot may run."
+    },
+    {
+      "plan": "253-183",
+      "dimension": "task_completeness",
+      "severity": "blocker",
+      "required_property": "A task's automated verification path must recognize its explicitly required expected RED result as successful evidence while still failing on an unintended result.",
+      "description": "Task 1 requires its first automated command to exit 1 with one native failure as the mandatory pre-edit RED, and Task 2 similarly requires a two-test failing RED. Those commands appear as ordinary <automated> verifications in the task, while the plan specifies expected output under <fails_when> and does not define a wrapper or evidence consumer that converts only the exact expected RED into a successful verification result. As written, a runner treating automated-command nonzero exits as task failure will halt before GREEN, or a runner requiring the command to pass will reject the intended RED.",
+      "task": 1,
+      "fix_hint": "Define an executable capture/check path that preserves the raw nonzero invocation and returns success only when the exact expected RED signature, source identity, and capture requirements match; apply the same rule to Task 2's expected RED."
+    },
+    {
+      "plan": "253-183",
+      "dimension": "context_compliance",
+      "severity": "info",
+      "required_property": "An unresolved phase requirement or decision remains clearly identified as unresolved and is not represented as satisfied by the plan.",
+      "description": "The plan explicitly says CIREL-01's unclassified edge remains unresolved and keeps the requirement partial_not_reproduced, while the roadmap requires either reproduced/fixed selected failures or an adequately supported no-flake path before completion. This is an honest scope boundary for this gap-repair plan, not evidence that the phase requirement is complete; retain it as open through later plans and phase verification.",
+      "task": null,
+      "fix_hint": "Keep CIREL-01 open and make the downstream reproduction or supported no-flake disposition an explicit prerequisite to phase acceptance."
+    }
+  ],
+  "probe_results": {
+    "verify_paths": {
+      "status": "not_applicable",
+      "readError": null,
+      "note": "All listed 253-183 command rows are not_applicable in the mandatory probe output; no path verdict was derived manually."
+    },
+    "failing_directions": {
+      "status": "ok",
+      "readError": null,
+      "note": "No blocker or warning rows are reported for 253-183 commands in the supplied probe output."
+    }
+  },
+  "summary": {
+    "blockers": 2,
+    "warnings": 0,
+    "info": 1,
+    "recommendation": "Revise the executable task/verification contract before execution."
+  },
+  "verification_boundary": "This is pre-execution plan review only. Implementation and whole-phase verification remain incomplete; CIREL-01 is partial_not_reproduced, CIREL-02 is unaccepted, and phase verification is not_started."
+}

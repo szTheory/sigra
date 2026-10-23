@@ -1,0 +1,9 @@
+Compiling 113 files (.erl)
+Compiling 8 files (.ex)
+
+== Compilation error in file lib/jose/jwt.ex ==
+** (RuntimeError) error parsing file /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-jose-path.0vOHlb/build/lib/jose/include/jose_jwt.hrl, got: {:error, :enoent}
+    (elixir 1.19.5) lib/record/extractor.ex:88: Record.Extractor.read_file/2
+    (elixir 1.19.5) lib/record/extractor.ex:54: Record.Extractor.extract_record/2
+    lib/jose/jwt.ex:41: (module)
+    lib/jose/jwt.ex:3: (file)

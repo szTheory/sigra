@@ -1,0 +1,188 @@
+{
+  "schema": "sigra.phase253.registration-offline-diagnosis/v1",
+  "status": "original_server_failure_identified_upstream_loader_cause_unconfirmed",
+  "original": {
+    "run_id": 38205503164,
+    "attempt": 1,
+    "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+    "archive_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+    "log_sha256": "9eb5c33dd861f310f06d3ab5f559c14d05952d09d6203faf668ad478b76c3a0c",
+    "native_failed_ordinal": 161,
+    "save_events": 192,
+    "login_posts": 191,
+    "successful_user_inserts": 191,
+    "selected_and_neighbors": [
+      {
+        "ordinal": 160,
+        "first_log_line": 29424,
+        "last_log_line": 29587,
+        "email_sha256": "58fa36a25673ad11310ec58efa4356dbb28b8c002d191cc3184e5a2928047cbc",
+        "email_generated_at_ms": 1791782129580,
+        "project_suffix": "dark",
+        "project_sequence": 32,
+        "retry": 0,
+        "login_posts": 1,
+        "user_inserts": 1,
+        "confirmation_token_inserts": 2,
+        "queryable_exception": false
+      },
+      {
+        "ordinal": 161,
+        "first_log_line": 29588,
+        "last_log_line": 29637,
+        "email_sha256": "941e8831b2e46537044ee3ab21c1acdc1f1b4ba742f538425819c76179cbd513",
+        "email_generated_at_ms": 1791782136572,
+        "project_suffix": "dark",
+        "project_sequence": 33,
+        "retry": 0,
+        "login_posts": 0,
+        "user_inserts": 0,
+        "confirmation_token_inserts": 0,
+        "queryable_exception": true
+      },
+      {
+        "ordinal": 162,
+        "first_log_line": 29638,
+        "last_log_line": 29801,
+        "email_sha256": "467c70b708412443016d6ca9099cf1fd07dbb085e85998313d929b3cb3ee9851",
+        "email_generated_at_ms": 1791782148907,
+        "project_suffix": "dark",
+        "project_sequence": 1,
+        "retry": 0,
+        "login_posts": 1,
+        "user_inserts": 1,
+        "confirmation_token_inserts": 2,
+        "queryable_exception": false
+      }
+    ],
+    "stack": [
+      {
+        "log_line": 29591,
+        "text": "** (UndefinedFunctionError) function Ecto.Queryable.to_query/1 is undefined (module Ecto.Queryable is not available)"
+      },
+      {
+        "log_line": 29592,
+        "text": "    (ecto 3.13.5) Ecto.Queryable.to_query(Example.Accounts.User)"
+      },
+      {
+        "log_line": 29593,
+        "text": "    (ecto 3.13.5) lib/ecto/query/builder/filter.ex:96: Ecto.Query.Builder.Filter.apply/3"
+      },
+      {
+        "log_line": 29594,
+        "text": "    (ecto 3.13.5) lib/ecto/changeset.ex:2741: Ecto.Changeset.unsafe_validate_unique/4"
+      },
+      {
+        "log_line": 29595,
+        "text": "    (example 0.1.0) lib/example/accounts/user.ex:90: Example.Accounts.User.maybe_validate_unique_email/2"
+      },
+      {
+        "log_line": 29596,
+        "text": "    (example 0.1.0) lib/example/accounts/user.ex:52: Example.Accounts.User.registration_changeset/3"
+      },
+      {
+        "log_line": 29597,
+        "text": "    (sigra 1.7.2) lib/sigra/auth.ex:230: Sigra.Auth.register_user_multi/2"
+      },
+      {
+        "log_line": 29598,
+        "text": "    (sigra 1.7.2) lib/sigra/auth.ex:155: anonymous fn/3 in Sigra.Auth.register/3"
+      },
+      {
+        "log_line": 29599,
+        "text": "    (sigra 1.7.2) lib/sigra/telemetry.ex:221: anonymous fn/2 in Sigra.Telemetry.span/3"
+      },
+      {
+        "log_line": 29600,
+        "text": "    (telemetry 1.4.1) /home/runner/work/sigra/sigra/test/example/deps/telemetry/src/telemetry.erl:359: :telemetry.span/3"
+      },
+      {
+        "log_line": 29601,
+        "text": "    (example 0.1.0) lib/example/accounts.ex:102: Example.Accounts.register_user/2"
+      },
+      {
+        "log_line": 29602,
+        "text": "    (example 0.1.0) lib/example_web/live/registration_live.ex:112: ExampleWeb.RegistrationLive.handle_event/3"
+      },
+      {
+        "log_line": 29603,
+        "text": "    (phoenix_live_view 1.1.28) lib/phoenix_live_view/channel.ex:530: anonymous fn/3 in Phoenix.LiveView.Channel.view_handle_event/3"
+      },
+      {
+        "log_line": 29604,
+        "text": "    (telemetry 1.4.1) /home/runner/work/sigra/sigra/test/example/deps/telemetry/src/telemetry.erl:359: :telemetry.span/3"
+      },
+      {
+        "log_line": 29605,
+        "text": "    (phoenix_live_view 1.1.28) lib/phoenix_live_view/channel.ex:260: Phoenix.LiveView.Channel.handle_info/2"
+      },
+      {
+        "log_line": 29606,
+        "text": "    (stdlib 7.3) gen_server.erl:2434: :gen_server.try_handle_info/3"
+      },
+      {
+        "log_line": 29607,
+        "text": "    (stdlib 7.3) gen_server.erl:2420: :gen_server.handle_msg/3"
+      },
+      {
+        "log_line": 29608,
+        "text": "    (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3"
+      }
+    ],
+    "selected_account_time_within_native_test": true
+  },
+  "linux": {
+    "log_sha256": "ffe9e9366c6406afc27330ce14c8ed62652cf7e95571acf3d33a6a049fdabb73",
+    "save_events": 161,
+    "login_posts": 161,
+    "successful_user_inserts": 161,
+    "queryable_exceptions": 0,
+    "selected_flow": {
+      "ordinal": 161,
+      "first_log_line": 26276,
+      "last_log_line": 26422,
+      "email_sha256": "85467631f7f631943ebeaea7b2c62d3edd4aab37405b2e96b1a4b40b074dc8a9",
+      "email_generated_at_ms": 1792706514793,
+      "project_suffix": "dark",
+      "project_sequence": 33,
+      "retry": 0,
+      "login_posts": 1,
+      "user_inserts": 1,
+      "confirmation_token_inserts": 2,
+      "queryable_exception": false
+    },
+    "report": ".planning/execution/253-registration-linux/RESULT.json"
+  },
+  "established": "Registration save161 crashed in email uniqueness validation before inserting an account or triggering the login POST. The missing POST and browser timeout follow this crash.",
+  "unproved": "Why Ecto.Queryable was unavailable at that instant; original log has no module load/delete trace.",
+  "reloader_hypothesis": "Development reloading purges consolidated protocols; source supports this candidate but both isolated concurrency probes passed.",
+  "local_probes": [
+    {
+      "script": "purge_probe.exs",
+      "script_sha256": "dcd7caa9ec9ed023e7a07e80b1946cda10954e58f102b1781d08079ccd81dabd",
+      "log": "purge-probe.log",
+      "log_sha256": "9f105eb086f8d70b8d47ac06dffef8fd7d6ae5afeec9768173d8ea23c2ede433",
+      "control_passes": 2000,
+      "concurrent_passes": 40000,
+      "module_error_reproduced": false,
+      "local_development_only": true
+    },
+    {
+      "script": "loaded_purge_probe.exs",
+      "script_sha256": "3c3d2a4d3042522f63251afb629b34faf55828b1fe35186cee476e81ef0f7f72",
+      "log": "loaded-purge-probe.log",
+      "log_sha256": "82e86cdca66995602c2f6b937be5687bcc27df62d05826f8459491d9119b3031",
+      "control_passes": 2000,
+      "concurrent_passes": 400000,
+      "module_error_reproduced": false,
+      "local_development_only": true
+    }
+  ],
+  "candidate_fix_applied": false,
+  "CIREL_01": "incomplete",
+  "CIREL_02": "complete_unchanged",
+  "phase_complete": false,
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0
+}

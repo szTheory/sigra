@@ -1,0 +1,23 @@
+E..
+======================================================================
+ERROR: test_compare_patch_with_escaped_quote_must_remain_json (__main__.JsonReceiptRegression.test_compare_patch_with_escaped_quote_must_remain_json)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/sigra253-171-reproduce.py", line 18, in test_compare_patch_with_escaped_quote_must_remain_json
+    json.loads(out) # fails at the escaped closing quote, like actual seq 19
+    ~~~~~~~~~~^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 69 (char 68)
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+FAILED (errors=1)

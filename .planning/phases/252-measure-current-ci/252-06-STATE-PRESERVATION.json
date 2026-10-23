@@ -1,0 +1,16 @@
+{
+  "purpose": "Preserve the exact SDK-generated plan-advance transition before restoring the curated Phase 252 verification route.",
+  "preserved_ref": "2c50a2a213a7ca52f2733e694e4b8bc4a630796f",
+  "preserved_commit": "2c50a2a213a7ca52f2733e694e4b8bc4a630796f",
+  "readback_verified": true,
+  "preserved_paths": [
+    {"path": ".planning/STATE.md", "sha256": "0764b5bb4d3d29b8fdf8782a6822245979a86c85cb10969db414cf43fb9d6589"},
+    {"path": ".planning/state.json", "sha256": "c9812c47a4964b99b9333bd4e63e8c72947a7773725d551c57efd97a4f69e878"},
+    {"path": ".planning/ROADMAP.md", "sha256": "0b3492fb03a384cbe454f8ef90a81ed9a7a423db2ef57ff8b8a362e7207dffd9"}
+  ],
+  "prior_clean_state_sha256": {
+    ".planning/STATE.md": "c3509323eb490abc533998e203a48df53a0655d6362d7dee4ae25fad9b5524f7",
+    ".planning/state.json": "6c6f6886fa207f5b1e288409f432e0ee0dddb04d90a251d13ce03e45f469feeb",
+    ".planning/ROADMAP.md": "527ada8c9028fb5d2618fc8734e9e5c724c8cab889f81c2ac70ea0a130be1dad"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": "sigra.phase253.load-target-disposition-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon (operator), recorded by executor from checkpoint response",
+  "decision_text": "Approve (Recommended)",
+  "disposition_sha256": "6afcc1a77b604bee7438195f3bc70e67336753afe345ea157c6c9c275d87a140",
+  "acceptance_evidence_sha256": "f95393e39c2fc7d039556d627429de4a61af37a7aae69b9f40afbd0ef4988fc7",
+  "recorded_at": "2026-10-14T23:41:42.691Z"
+}

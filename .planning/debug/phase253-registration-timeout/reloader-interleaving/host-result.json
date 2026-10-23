@@ -1,0 +1,10 @@
+{
+  "kind": "offline_controlled_interleaving",
+  "script_sha256": "c99da8ebeb1e62e5a87f03cf20dca1ea32653b5b39bce69cf94d3cfb59bcabd7",
+  "reloader_script_sha256": "f0691dfb1ded1b0e68893406e5880429442c5fb73231811161749f83981b70f5",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0,
+  "exit_code": 1,
+  "duration_seconds": 0.670312083006138
+}

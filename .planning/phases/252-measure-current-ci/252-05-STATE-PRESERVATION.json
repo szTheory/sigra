@@ -1,0 +1,18 @@
+{
+  "purpose": "Preserve the exact SDK-generated transition before reconciling curated forward-route prose and state.json next-command metadata.",
+  "pre_preservation_head": "6354cc45d68e5bdf852f6081939b2d3dd94ff5a4",
+  "preservation_commit": "428183e85",
+  "readback_verified": true,
+  "post_preservation_source_status": "clean",
+  "post_preservation_sha256": {
+    ".planning/STATE.md": "147f9d188a96aaddb47ba6cc4cf562f0ecde1ac49de4d65a6bdb1b335b6a6862",
+    ".planning/state.json": "54435fe948cf3388595bdfe696da4be04ec58464c6f59e23f13eb0542143ab03",
+    ".planning/ROADMAP.md": "527ada8c9028fb5d2618fc8734e9e5c724c8cab889f81c2ac70ea0a130be1dad"
+  },
+  "files": [
+    {"path":".planning/STATE.md","status":"modified","sha256":"147f9d188a96aaddb47ba6cc4cf562f0ecde1ac49de4d65a6bdb1b335b6a6862"},
+    {"path":".planning/state.json","status":"modified","sha256":"54435fe948cf3388595bdfe696da4be04ec58464c6f59e23f13eb0542143ab03"},
+    {"path":".planning/ROADMAP.md","status":"modified","sha256":"527ada8c9028fb5d2618fc8734e9e5c724c8cab889f81c2ac70ea0a130be1dad"}
+  ],
+  "preservation_method": "committed exact working-tree bytes and verified each path with git show read-back"
+}

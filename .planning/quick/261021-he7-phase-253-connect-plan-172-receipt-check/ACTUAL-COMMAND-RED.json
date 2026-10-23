@@ -1,0 +1,15 @@
+{
+  "head": "17d79ca4ca7270b78510e67e40f0e3bfdb5de2d5",
+  "argv": [
+    "python3",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py",
+    "verify-receipt",
+    "--consumer",
+    "168"
+  ],
+  "command_from_plan": "python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py verify-receipt --consumer 168",
+  "plan_sha256": "2ab1e5c8ca4e0158ea1d5a7b0eacd3b349fb34740955319d44b995f26c516296",
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "v2 bridge refused: bridge amendment hash differs: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md\n"
+}

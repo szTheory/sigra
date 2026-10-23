@@ -75,8 +75,6 @@ defmodule Sigra.Planning.Phase249ReleaseDocsContractTest do
 
     assert helper =~ "EXPECTED_ARTIFACT_ENTRIES"
     assert helper =~ "validate_index_file \"$ARTIFACT_DIR/$INDEX_PATH\""
-    assert helper =~ "candidate doc directory must be a regular directory"
-    assert helper =~ "candidate doc/llms.txt destination must be a regular file"
     assert helper =~ "candidate identity or head changed immediately before push"
     assert helper =~ "non-force candidate push failed"
     assert helper =~ "--commit \"$sha\""

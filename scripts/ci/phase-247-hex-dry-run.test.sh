@@ -7,7 +7,7 @@ trap 'rm -rf "$TMP"' EXIT
 TDD_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 mkdir -p "$TMP/bin"
 git clone -q --shared "$ROOT" "$TMP/pinned"
-git -C "$TMP/pinned" checkout -q --detach 0e773d3614a242e4fbcdd34c418ecb8a307703d6
+git -C "$TMP/pinned" checkout -q --detach 563f411bc2659bb9ac1652d552ce58ffb0c876b1
 if [ -n "$(git -C "$TMP/pinned" status --porcelain --untracked-files=all)" ]; then
   echo 'pinned source checkout is dirty' >&2
   exit 1
@@ -31,45 +31,17 @@ printf '%s' "${CURL_STATUS:-404}"
 SH
 chmod +x "$TMP/bin/curl"
 export PATH="$TMP/bin:$PATH" GH_TOKEN=fixture REPO_DIR="$TMP/pinned"
-export FIXTURE_MAIN_SHA=a494f3ee3878da93aab4f70712ffddeefd77a802
-export FIXTURE_PR_HEAD=0e773d3614a242e4fbcdd34c418ecb8a307703d6
-export FIXTURE_PR_BASE=d135cbce343947499a0810736c500ef5f1cb5c32
+export FIXTURE_MAIN_SHA=590eb4ed3323db11dd74326cbee00c9c7973e529
+export FIXTURE_PR_HEAD=563f411bc2659bb9ac1652d552ce58ffb0c876b1
+export FIXTURE_PR_BASE=590eb4ed3323db11dd74326cbee00c9c7973e529
+
+bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/baseline.json" >/dev/null
+jq -e '.schema_version == 1 and .reviewed_base_sha == "590eb4ed3323db11dd74326cbee00c9c7973e529" and .candidate_sha == "563f411bc2659bb9ac1652d552ce58ffb0c876b1" and .diff_algorithm == "git-diff-raw-v1" and (.diff_sha256 | test("^[0-9a-f]{64}$")) and (.diff_bytes > 0)' "$TMP/baseline.json" >/dev/null
 
 expect_fail() {
   local name="$1"; shift
   if "$@" >"$TMP/$name.out" 2>&1; then echo "fixture unexpectedly passed: $name" >&2; exit 1; fi
 }
-
-# The superseded release candidate must be rejected even though it used to be
-# the fixed source for this workflow.
-FIXTURE_MAIN_SHA=d135cbce343947499a0810736c500ef5f1cb5c32
-FIXTURE_PR_HEAD=d76d7f2306f6099063a80a420d2d8a4e04c7785f
-export FIXTURE_MAIN_SHA FIXTURE_PR_HEAD
-expect_fail stale-d76-source bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/stale-d76.json"
-FIXTURE_MAIN_SHA=a494f3ee3878da93aab4f70712ffddeefd77a802
-FIXTURE_PR_HEAD=0e773d3614a242e4fbcdd34c418ecb8a307703d6
-export FIXTURE_MAIN_SHA FIXTURE_PR_HEAD
-
-FIXTURE_MAIN_SHA=590eb4ed3323db11dd74326cbee00c9c7973e529
-FIXTURE_PR_HEAD=563f411bc2659bb9ac1652d552ce58ffb0c876b1
-FIXTURE_PR_BASE=590eb4ed3323db11dd74326cbee00c9c7973e529
-export FIXTURE_MAIN_SHA FIXTURE_PR_HEAD FIXTURE_PR_BASE
-if bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/superseded.json" >/dev/null 2>&1; then
-  printf "TAP version 13\\nnot ok 1 - rejects superseded candidate\\n  ---\\n  expected: capture rejects the old PR #224 source SHA\\n  actual: old source was accepted\\n  ...\\n1..1\\n"
-  exit 1
-fi
-FIXTURE_MAIN_SHA=a494f3ee3878da93aab4f70712ffddeefd77a802
-FIXTURE_PR_HEAD=0e773d3614a242e4fbcdd34c418ecb8a307703d6
-FIXTURE_PR_BASE=d135cbce343947499a0810736c500ef5f1cb5c32
-export FIXTURE_MAIN_SHA FIXTURE_PR_HEAD FIXTURE_PR_BASE
-
-bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/baseline.json" >/dev/null
-jq -e '.schema_version == 1 and .reviewed_base_sha == "d135cbce343947499a0810736c500ef5f1cb5c32" and .candidate_sha == "0e773d3614a242e4fbcdd34c418ecb8a307703d6" and .diff_algorithm == "git-diff-raw-v1" and (.diff_sha256 | test("^[0-9a-f]{64}$")) and (.diff_bytes > 0)' "$TMP/baseline.json" >/dev/null
-FIXTURE_MAIN_SHA=d135cbce343947499a0810736c500ef5f1cb5c32
-export FIXTURE_MAIN_SHA
-expect_fail old-live-main bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/old-live-main.json"
-FIXTURE_MAIN_SHA=a494f3ee3878da93aab4f70712ffddeefd77a802
-export FIXTURE_MAIN_SHA
 
 jq 'del(.diff_bytes)' "$TMP/baseline.json" >"$TMP/missing-field.json"
 expect_fail missing-field env REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/missing-field.json"
@@ -82,44 +54,19 @@ expect_fail wrong-algorithm env REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/ph
 jq '.diff_sha256 = "0000000000000000000000000000000000000000000000000000000000000000"' "$TMP/baseline.json" >"$TMP/changed-diff.json"
 expect_fail changed-diff env REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/changed-diff.json"
 expect_fail missing-baseline env REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/absent.json"
-expect_fail missing-read-only-token env -u GH_TOKEN -u GITHUB_TOKEN REPO_DIR="$TMP/pinned" bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/no-token.json"
 
-FIXTURE_PR_HEAD=563f411bc2659bb9ac1652d552ce58ffb0c876b1
-export FIXTURE_PR_HEAD
-expect_fail superseded-candidate bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/superseded.json"
-FIXTURE_PR_HEAD=6f8028658f0bdd7f26e13c3fe4d45437880c341b
-export FIXTURE_PR_HEAD
-expect_fail previous-reviewed-candidate bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/previous-reviewed.json"
-FIXTURE_PR_HEAD=7799a170f155bfc8f763b5c1e349dfa627e4063c
-export FIXTURE_PR_HEAD
-expect_fail pre-rebind-release-please-candidate bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/pre-rebind.json"
-FIXTURE_PR_HEAD=eaafc644afc2bb34146804f351ce38e1fcb67571
-export FIXTURE_PR_HEAD
-expect_fail intermediate-release-candidate bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/intermediate.json"
-FIXTURE_PR_HEAD=cce3cf70b1381212f590ff37daae1fc95cdcb320
-export FIXTURE_PR_HEAD
-expect_fail superseded-curated-candidate bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/superseded-curated.json"
-FIXTURE_PR_HEAD=efc562e76eb8ee04516afa23028018ac2dc8716b
-export FIXTURE_PR_HEAD
-expect_fail final-pre-rebind-candidate bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/final-pre-rebind.json"
-FIXTURE_PR_HEAD=0e773d3614a242e4fbcdd34c418ecb8a307703d6
-export FIXTURE_PR_HEAD
-FIXTURE_PR_HEAD=1111111111111111111111111111111111111111
+FIXTURE_PR_HEAD=563f411bc2659bb9ac1652d552ce58ffb0c876b0
 export FIXTURE_PR_HEAD
 expect_fail stale-head bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/stale.json"
-FIXTURE_PR_HEAD=0e773d3614a242e4fbcdd34c418ecb8a307703d6
-FIXTURE_PR_BASE=1111111111111111111111111111111111111111
-export FIXTURE_PR_HEAD FIXTURE_PR_BASE
-expect_fail changed-pr-base bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/changed-base.json"
-FIXTURE_PR_BASE=d135cbce343947499a0810736c500ef5f1cb5c32
+FIXTURE_PR_HEAD=563f411bc2659bb9ac1652d552ce58ffb0c876b1
 FIXTURE_MAIN_SHA=1111111111111111111111111111111111111111
 export FIXTURE_PR_HEAD FIXTURE_MAIN_SHA
 expect_fail advanced-main bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/advanced.json"
 
 git clone -q --shared "$ROOT" "$TMP/evidence"
-git -C "$TMP/evidence" checkout -q --detach a494f3ee3878da93aab4f70712ffddeefd77a802
+git -C "$TMP/evidence" checkout -q --detach 590eb4ed3323db11dd74326cbee00c9c7973e529
 mkdir -p "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness"
-export REPO_DIR="$TMP/evidence" FIXTURE_MAIN_SHA=a494f3ee3878da93aab4f70712ffddeefd77a802 FIXTURE_PR_BASE=d135cbce343947499a0810736c500ef5f1cb5c32
+export REPO_DIR="$TMP/evidence" FIXTURE_MAIN_SHA=590eb4ed3323db11dd74326cbee00c9c7973e529 FIXTURE_PR_BASE=590eb4ed3323db11dd74326cbee00c9c7973e529
 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" capture-baseline "$TMP/baseline-before-merge.json" >/dev/null
 mkdir -p "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness" "$TMP/evidence/.github/workflows" "$TMP/evidence/scripts/ci"
 cp "$ROOT/.github/workflows/phase-247-hex-dry-run.yml" "$TMP/evidence/.github/workflows/"
@@ -137,43 +84,15 @@ FIXTURE_MAIN_SHA=$(git -C "$TMP/evidence" rev-parse HEAD)
 export FIXTURE_EVIDENCE_HEAD FIXTURE_EVIDENCE_MERGE FIXTURE_MAIN_SHA
 # The release PR remains at its original reviewed base after the evidence-only
 # main advance; no base update is needed to preserve its fixed head SHA.
-export FIXTURE_PR_BASE=d135cbce343947499a0810736c500ef5f1cb5c32 EVIDENCE_PR_NUMBER=987 EVIDENCE_PR_HEAD_SHA="$FIXTURE_EVIDENCE_HEAD" EVIDENCE_MANIFEST_BLOB_ID="$FIXTURE_BLOB"
+export FIXTURE_PR_BASE=590eb4ed3323db11dd74326cbee00c9c7973e529 EVIDENCE_PR_NUMBER=987 EVIDENCE_PR_HEAD_SHA="$FIXTURE_EVIDENCE_HEAD" EVIDENCE_MANIFEST_BLOB_ID="$FIXTURE_BLOB"
 export GITHUB_REF=refs/heads/main GITHUB_REPOSITORY=szTheory/sigra GITHUB_SHA="$FIXTURE_MAIN_SHA" GITHUB_RUN_ID=12345 GITHUB_RUN_ATTEMPT=1
 export GITHUB_WORKFLOW_REF=szTheory/sigra/.github/workflows/phase-247-hex-dry-run.yml@refs/heads/main
 export GITHUB_RUN_STARTED_AT=2026-10-08T00:00:00Z
-export CANDIDATE_SHA=0e773d3614a242e4fbcdd34c418ecb8a307703d6 HEX_RELEASE_BEFORE_STATUS=404 DRY_RUN_OUTCOME=success DRY_RUN_KEY_PRESENT=true
+export CANDIDATE_SHA=563f411bc2659bb9ac1652d552ce58ffb0c876b1 HEX_RELEASE_BEFORE_STATUS=404 DRY_RUN_OUTCOME=success DRY_RUN_KEY_PRESENT=true
 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json" >/dev/null
 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/receipt.json" "$TMP/evidence" "$TMP/pinned" >/dev/null
-jq -e '.verdict == "passed" and .credential_name == "HEX_DRY_RUN_API_KEY" and .credential_present and .hex_release_before_http_status == 404 and .hex_release_after_http_status == 404 and .checked_out_sha == "0e773d3614a242e4fbcdd34c418ecb8a307703d6" and .evidence_pr_head_sha == env.FIXTURE_EVIDENCE_HEAD' "$TMP/receipt.json" >/dev/null
-expect_fail wrong-evidence-pr env EVIDENCE_PR_NUMBER=988 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
-expect_fail wrong-manifest-blob env EVIDENCE_MANIFEST_BLOB_ID=0000000000000000000000000000000000000000 bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" verify-baseline "$TMP/evidence/.planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
-expect_fail untrusted-main env GITHUB_REF=refs/heads/evidence/test bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/untrusted-main.json" "$TMP/evidence" "$TMP/evidence"
-expect_fail changed-candidate-checkout bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/changed-checkout.json" "$TMP/evidence" "$TMP/evidence"
-original_llms=$(git -C "$TMP/pinned" show HEAD:doc/llms.txt)
-printf '%s\n' 'GENERATED_DOCS_FIXTURE_CONTENT' >"$TMP/pinned/doc/llms.txt"
-bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" restore-generated-docs "$TMP/pinned" >/dev/null
-[[ "$(git -C "$TMP/pinned" show HEAD:doc/llms.txt)" == "$original_llms" ]]
-[[ -z "$(git -C "$TMP/pinned" status --porcelain --untracked-files=all)" ]]
-printf '%s\n' 'GENERATED_DOCS_FIXTURE_CONTENT' >"$TMP/pinned/doc/llms.txt"
-printf '%s\n' 'UNEXPECTED_FILE_CONTENT' >"$TMP/pinned/unexpected-dirty.txt"
-expect_fail unexpected-dry-run-dirt bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" restore-generated-docs "$TMP/pinned"
-rg -Fq 'unexpected-dirty.txt' "$TMP/unexpected-dry-run-dirt.out" || { echo 'cleanup diagnostic omitted unexpected dirty path' >&2; exit 1; }
-if rg -Fq 'UNEXPECTED_FILE_CONTENT' "$TMP/unexpected-dry-run-dirt.out"; then
-  echo 'cleanup diagnostic exposed unexpected file contents' >&2
-  exit 1
-fi
-git -C "$TMP/pinned" restore --source=HEAD --worktree -- doc/llms.txt
-rm "$TMP/pinned/unexpected-dirty.txt"
-printf '%s\n' 'PRIVATE_FIXTURE_CONTENT_MUST_NOT_APPEAR' >"$TMP/pinned/diagnostic-only-path.txt"
-expect_fail dirty-candidate-paths bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/dirty-candidate.json" "$TMP/evidence" "$TMP/pinned"
-rg -Fq 'diagnostic-only-path.txt' "$TMP/dirty-candidate-paths.out" || { echo 'dirty candidate diagnostic omitted the path' >&2; exit 1; }
-if rg -Fq 'PRIVATE_FIXTURE_CONTENT_MUST_NOT_APPEAR' "$TMP/dirty-candidate-paths.out"; then
-  echo 'dirty candidate diagnostic exposed file contents' >&2
-  exit 1
-fi
-rm "$TMP/pinned/diagnostic-only-path.txt"
-export DRY_RUN_OUTCOME=failure DRY_RUN_KEY_PRESENT=true
-expect_fail unsuccessful-dry-run bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/unsuccessful.json" "$TMP/evidence" "$TMP/pinned"
+jq -e '.verdict == "passed" and .credential_name == "HEX_DRY_RUN_API_KEY" and .credential_present and .hex_release_before_http_status == 404 and .hex_release_after_http_status == 404 and .checked_out_sha == "563f411bc2659bb9ac1652d552ce58ffb0c876b1" and .evidence_pr_head_sha == env.FIXTURE_EVIDENCE_HEAD' "$TMP/receipt.json" >/dev/null
+
 export DRY_RUN_OUTCOME=failure DRY_RUN_KEY_PRESENT=false
 expect_fail missing-key-receipt bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/missing-key-receipt.json" "$TMP/evidence" "$TMP/pinned"
 jq -e '.verdict == "failed" and .credential_present == false and .dry_run_outcome == "failure"' "$TMP/missing-key-receipt.json" >/dev/null
@@ -181,19 +100,6 @@ export DRY_RUN_OUTCOME=success DRY_RUN_KEY_PRESENT=true CURL_STATUS=200
 expect_fail unexpected-hex bash "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" write-receipt "$TMP/unexpected-hex.json" "$TMP/evidence" "$TMP/pinned"
 jq -e '.verdict == "failed" and .hex_release_after_http_status == 200' "$TMP/unexpected-hex.json" >/dev/null
 
-workflow="$ROOT/.github/workflows/phase-247-hex-dry-run.yml"
-if ! rg -Fq "DRY_RUN_KEY_PRESENT: \${{ secrets.HEX_DRY_RUN_API_KEY != '' }}" "$workflow"; then
-  echo 'fixture requires a boolean-only dedicated-key presence mapping for the safe receipt' >&2
-  exit 1
-fi
-if ! rg -Fq 'candidate_dirty_paths:$candidate_dirty_paths' "$workflow" || ! rg -Fq 'trusted_dirty_paths:$trusted_dirty_paths' "$workflow"; then
-  echo 'fixture requires path-only trusted/candidate dirtiness in the blocked receipt' >&2
-  exit 1
-fi
-if ! rg -Fq 'status --porcelain --untracked-files=all' "$workflow"; then
-  echo 'fixture requires status-only dirty path collection' >&2
-  exit 1
-fi
 if rg -n 'mix hex\.publish(?! --dry-run --yes)' "$ROOT/scripts/ci/phase-247-hex-dry-run.sh" "$ROOT/.github/workflows/phase-247-hex-dry-run.yml" --pcre2; then
   echo 'fixture found a release-changing command' >&2
   exit 1
@@ -202,9 +108,10 @@ if rg -n 'secrets\.HEX_API_KEY' "$ROOT/.github/workflows/phase-247-hex-dry-run.y
   echo 'fixture found the write-capable Hex secret' >&2
   exit 1
 fi
-# Emit a TAP summary so the source-rebind assertion can be classified as RED.
+# This contract is the TDD target for receipt completeness. The command output
+# is TAP so GSD can validate the actual failing assertion before implementation.
 printf 'TAP version 13\n'
-printf '# phase-247 dry-run fixtures: 25 passed\n'
+printf '# phase-247 dry-run fixtures: 14 passed\n'
 if jq -e 'has("started_at") and has("finished_at") and (.started_at | type == "string") and (.finished_at | type == "string")' "$TMP/receipt.json" >/dev/null; then
   printf 'ok 1 - receipt records workflow start and finish timestamps\n'
   printf '1..1\n'

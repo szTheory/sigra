@@ -1,0 +1,115 @@
+{
+  "schema": "sigra.phase253.load-recovery-assumptions/v1",
+  "status": "planning_contract",
+  "native_execution": 0,
+  "github_requests": 0,
+  "requirements_status": {
+    "CIREL-01": "open",
+    "CIREL-02": "open"
+  },
+  "phase_verification_status": "not_started",
+  "discovery": {
+    "level": 1,
+    "method": "Existing exact pinned source/metadata and Node20.18.1 primary docs; no new package/API choice",
+    "graph": "disabled",
+    "package_install": "none"
+  },
+  "fallback_edges": [
+    {
+      "requirement_id": "CIREL-01",
+      "category": "unclassified",
+      "status": "unresolved",
+      "flagged": true,
+      "reason": "The generic probe supplies no concrete edge; actual historical selected cause and missing preceding-order evidence must be assessed in41, never inferred from loader/control/current passes.",
+      "plan": 41
+    },
+    {
+      "requirement_id": "CIREL-02",
+      "category": "empty",
+      "status": "resolved",
+      "verification": "explicit",
+      "acceptance": "Null/empty/single/duplicate exact-five producer inventories reject before a green gate.",
+      "plan": 42
+    },
+    {
+      "requirement_id": "CIREL-02",
+      "category": "encoding",
+      "status": "resolved",
+      "verification": "explicit",
+      "acceptance": "Required names/project/test/seam identities compare exact UTF-8 bytes; Unicode/case/whitespace near misses reject without normalization.",
+      "plan": 42
+    }
+  ],
+  "probe_equality": {
+    "surfaced": 3,
+    "explicit_truths": 2,
+    "backstop_truths": 0,
+    "flagged_unresolved": 1
+  },
+  "prohibitions": {
+    "serializer": "/Users/jon/.codex/gsd-core/bin/lib/probe-core.cjs projectProhibitions",
+    "items": [
+      {
+        "statement": "Historical failed native/hosted outcomes must not be rewritten as successful execution or hidden by disposition.",
+        "status": "resolved",
+        "verification": "test",
+        "reason": "Fallback recall; descriptor-less and flagged-unverified until independently evidenced."
+      },
+      {
+        "statement": "Missing selected cause, tests, reports or hosted origin must not become accepted proof through a budget reset, retry or human waiver.",
+        "status": "resolved",
+        "verification": "test",
+        "reason": "Fallback recall; descriptor-less and flagged-unverified until independently evidenced."
+      }
+    ],
+    "descriptorless": true,
+    "downstream_disposition": "flagged-unverified",
+    "owner_plan": 47
+  },
+  "assumption_delta": {
+    "noun": "original finite reservation identity and frozen project/title selections",
+    "decision": "no-change",
+    "rationale": "Repack only the unspent multi-project control slot; physical unit remains one Playwright CLI process, actual engine/worker/context lifecycle separate; no new signature or slot."
+  },
+  "unresolved_runtime_facts": [
+    {
+      "item": "Historical selected registration cause and missing preceding-order log",
+      "resolution": "41 actual source-bound assessment; incomplete proof halts accepted-only chain",
+      "no_auto_pass": true
+    },
+    {
+      "item": "New loader expression survives actual pinned transformation and complete spec collection",
+      "resolution": "36 executable Node20 test using actual pinned transform/loader before native work"
+    },
+    {
+      "item": "Four remaining windows actually fit setup/app/control/query/cleanup deadlines",
+      "resolution": "40 actual monotonic receipts; first unexpected result/overrun halts; no extra slot/retry"
+    },
+    {
+      "item": "Real hosted current credentials/rate/registered path/checks/server objects",
+      "resolution": "45 fresh measured preflight within117 requests; failure retains closed window"
+    },
+    {
+      "item": "Real normal/docs PR checks/merge source/complete producer reports/classifier",
+      "resolution": "46 actual independent origin proof within shared120"
+    },
+    {
+      "item": "Installed SDK permits full unfiltered verification after18 honest new disposition summaries",
+      "resolution": "43 actual isolated SDK/filter route tests and47 root final active index; impossible route records durable SDK blocker"
+    },
+    {
+      "item": "Descriptor-less fallback prohibitions independently evidenced",
+      "resolution": "Whole-phase verification preserves flagged-unverified status until its own evidence confirms them; no automatic dismissal/human waiver"
+    }
+  ],
+  "preservation": {
+    "start_head": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+    "capture_commit": "6308a7815c6749746f029b92fbfaf1cc5c83edba",
+    "existing_planning_paths": 424,
+    "root_owned_tracking": true,
+    "before_draft_revision": "Commit/preserve exact bytes, verify readback, then recheck status/hash"
+  },
+  "next_implementation_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_after_root_accepted_dispositions": "$gsd-execute-phase 253",
+  "phase254_started": false
+}

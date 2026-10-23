@@ -1,0 +1,763 @@
+{
+  "schema_version": 1,
+  "kind": "planning_routing_checks_not_phase_verification",
+  "phase": 252,
+  "checked_at": "2026-10-12T17:13:49.159780+00:00",
+  "all_passed": true,
+  "check_count": 49,
+  "checks": [
+    {
+      "name": "state_validate",
+      "passed": true,
+      "details": {
+        "valid": true,
+        "warnings": [],
+        "scope": "complete"
+      }
+    },
+    {
+      "name": "execution_readiness",
+      "passed": true,
+      "details": {
+        "executor_model": "gpt-6-luna",
+        "verifier_model": "gpt-6-luna",
+        "tdd_mode": false,
+        "commit_docs": true,
+        "sub_repos": [],
+        "parallelization": true,
+        "context_window": 200000,
+        "branching_strategy": "none",
+        "phase_branch_template": "gsd/phase-{phase}-{slug}",
+        "milestone_branch_template": "gsd/{milestone}-{slug}",
+        "verifier_enabled": true,
+        "phase_found": true,
+        "phase_dir": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci",
+        "phase_number": "252",
+        "padded_phase": "252",
+        "phase_name": "Measure Current CI",
+        "phase_slug": "measure-current-ci",
+        "phase_req_ids": "CIMEAS-01, CIMEAS-02",
+        "plans": [
+          "252-01-PLAN.md",
+          "252-02-PLAN.md",
+          "252-03-PLAN.md",
+          "252-04-PLAN.md",
+          "252-05-PLAN.md",
+          "252-06-PLAN.md"
+        ],
+        "summaries": [],
+        "incomplete_plans": [
+          "252-01-PLAN.md",
+          "252-02-PLAN.md",
+          "252-03-PLAN.md",
+          "252-04-PLAN.md",
+          "252-05-PLAN.md",
+          "252-06-PLAN.md"
+        ],
+        "plan_count": 6,
+        "incomplete_count": 6,
+        "threat_id_duplicates": [],
+        "threat_id_duplicate_count": 0,
+        "halted_plans": [],
+        "blocked_by": {},
+        "runnable_plans": [
+          "252-01-PLAN.md",
+          "252-02-PLAN.md",
+          "252-03-PLAN.md",
+          "252-04-PLAN.md",
+          "252-05-PLAN.md",
+          "252-06-PLAN.md"
+        ],
+        "runnable_count": 6,
+        "branch_name": null,
+        "milestone_version": "v1.50",
+        "milestone_name": "CI-SPEED-AND-RELIABILITY",
+        "milestone_slug": "ci-speed-and-reliability",
+        "state_exists": true,
+        "roadmap_exists": true,
+        "config_exists": true,
+        "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+        "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+        "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+        "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+        "section_manifest": {
+          "workflow": "execute-phase",
+          "included": [],
+          "excluded": [
+            "partial-wave",
+            "gap-closure-artifacts",
+            "regression-gate"
+          ],
+          "read": []
+        },
+        "project_root": "/Users/jon/projects/sigra",
+        "agents_installed": true,
+        "missing_agents": [],
+        "agents_dir": "/Users/jon/.codex/agents",
+        "agent_runtime": "codex",
+        "project_title": "Sigra"
+      }
+    },
+    {
+      "name": "all_current_routes",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "resume_routes",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "six_plans_four_waves",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "implementation_not_started",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "nine_requirements_still_unchecked",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "validation_draft_no_execution_claim",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "decision_coverage",
+      "passed": true,
+      "details": {
+        "passed": true,
+        "skipped": false,
+        "total": 21,
+        "covered": 21,
+        "uncovered": [],
+        "message": "All trackable CONTEXT.md decisions are covered by plans."
+      }
+    },
+    {
+      "name": "post_plan_gap",
+      "passed": true,
+      "details": {
+        "block": false,
+        "passed": true,
+        "enabled": true,
+        "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIMEAS-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIMEAS-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n\n\u2713 All 23 items covered by plans\n",
+        "summary": "\u2713 All 23 items covered by plans",
+        "counts": {
+          "total": 23,
+          "covered": 23,
+          "uncovered": 0
+        },
+        "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIMEAS-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIMEAS-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n\n\u2713 All 23 items covered by plans\n"
+      }
+    },
+    {
+      "name": "api_coverage",
+      "passed": true,
+      "details": {
+        "block": false,
+        "passed": true,
+        "coverage_present": true,
+        "matrix": "COVERAGE.md",
+        "counts": {
+          "surface": 16,
+          "integrate": 11,
+          "optout": 5
+        },
+        "message": "api-coverage: matrix present (16 capabilities, 5 opt-out)"
+      }
+    },
+    {
+      "name": "verify_paths",
+      "passed": true,
+      "details": {
+        "status": "not_applicable",
+        "commands": [
+          {
+            "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-01-PLAN.md",
+            "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-01-PLAN.md",
+            "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-02-PLAN.md",
+            "task": "Task 1: Collect three event populations and all attempts under the fixed snapshot window"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-02-PLAN.md",
+            "task": "Task 2: Enforce request, time and rate budgets with interruption-safe ledgers"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-02-PLAN.md",
+            "task": "Task 3: Retain bounded logs and timing artifacts only from their producing run"
+          },
+          {
+            "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-03-PLAN.md",
+            "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter"
+          },
+          {
+            "command": "bash scripts/ci/ci-exunit-timing.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-03-PLAN.md",
+            "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics"
+          },
+          {
+            "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-04-PLAN.md",
+            "task": "Task 1: Produce one JSON report per existing Playwright invocation"
+          },
+          {
+            "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-04-PLAN.md",
+            "task": "Task 2: Normalize browser results and flag incomplete reports"
+          },
+          {
+            "command": "node --test scripts/ci/ci-measure-workflow.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-05-PLAN.md",
+            "task": "Task 1: Retain timing and cache provenance from the existing CI owners"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-05-PLAN.md",
+            "task": "Task 2: Rank source-backed critical wait and summed runner costs"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-05-PLAN.md",
+            "task": "Task 3: Produce a bounded current failure-signature shortlist"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-06-PLAN.md",
+            "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-06-PLAN.md",
+            "task": "Task 2: Freeze the later matched comparison and test all outcome arithmetic"
+          },
+          {
+            "command": "bash scripts/ci/ci-measure-report.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "252-06-PLAN.md",
+            "task": "Task 3: Publish a concise source-linked baseline and reproducible commands"
+          }
+        ],
+        "counts": {
+          "blocker": 0,
+          "warning": 0,
+          "total": 15
+        },
+        "readError": null
+      }
+    },
+    {
+      "name": "failure_directions",
+      "passed": true,
+      "details": {
+        "status": "ok",
+        "commands": [
+          {
+            "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "The preflight has no durable status/diagnostic, an early live request bypasses the guard, an over-limit/rate-stopped request occurs, the hermetic collect/replay path differs or calls gh during replay, or the command exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-01-PLAN.md",
+            "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "Changed-rule, name-collision, multi-revision, hash-mismatch or missing-timestamp fixtures produce a successful measurement or the command exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-01-PLAN.md",
+            "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "The fixed-cutoff fixture includes the 101st run, loses an attempt, merges events, guesses workload, or the suite exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-02-PLAN.md",
+            "task": "Task 1: Collect three event populations and all attempts under the fixed snapshot window"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "The budget fixtures issue an over-limit call, retry a 403/429, lose an interrupted ledger, permit concurrent mutation, contact gh during replay, or the suite exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-02-PLAN.md",
+            "task": "Task 2: Enforce request, time and rate budgets with interruption-safe ledgers"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "Wrong-run artifact, digest mismatch, unvalidated redirect, path traversal, expiry, over-limit ZIP or secret-bearing ledger fixture is accepted, or the suite exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-02-PLAN.md",
+            "task": "Task 3: Retain bounded logs and timing artifacts only from their producing run"
+          },
+          {
+            "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs",
+            "statement": "Event contract or opt-out behavior differs, the test process fails, or a missing local PostgreSQL prerequisite makes the command nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-03-PLAN.md",
+            "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter"
+          },
+          {
+            "command": "bash scripts/ci/ci-exunit-timing.test.sh",
+            "statement": "The deliberate test failure exits zero, unwritable or partial timing output is accepted as complete, or the shell contract exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-03-PLAN.md",
+            "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics"
+          },
+          {
+            "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+            "statement": "The config lacks the native JSON output or changes list/HTML, one-worker, serial or zero-retry settings, or the Node test exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-04-PLAN.md",
+            "task": "Task 1: Produce one JSON report per existing Playwright invocation"
+          },
+          {
+            "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+            "statement": "Any missing/partial/duplicate fixture is accepted complete, equal-duration rows merge or reorder nondeterministically, or the test exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-04-PLAN.md",
+            "task": "Task 2: Normalize browser results and flag incomplete reports"
+          },
+          {
+            "command": "node --test scripts/ci/ci-measure-workflow.test.mjs",
+            "statement": "The static contract finds a changed required name, missing timing upload/metadata, changed seam selection, retry increase, missing failure-retention condition, or the Node test exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-05-PLAN.md",
+            "task": "Task 1: Retain timing and cache provenance from the existing CI owners"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "Replay merges equal records, changes tie order, counts unknown as zero, combines cache strata or mixes wall and runner sums, or the suite exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-05-PLAN.md",
+            "task": "Task 2: Rank source-backed critical wait and summed runner costs"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "The fixture shortlist exceeds three signatures/twelve families, treats a lone red run as a flake, labels missing logs as no flake, merges cancellation with test failure, or the suite exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-05-PLAN.md",
+            "task": "Task 3: Produce a bounded current failure-signature shortlist"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+            "statement": "The bundle or baseline is absent/stale/source-mismatched, an available event has no complete eligible observation, no complete instrumented full PR exists, or the command exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-06-PLAN.md",
+            "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh",
+            "statement": "The [1..20] fixture produces median other than 10.5 or p95 other than 19, a lost/replaced family or favorable-window extension passes, unknown/miss becomes pass, or the suite exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-06-PLAN.md",
+            "task": "Task 2: Freeze the later matched comparison and test all outcome arithmetic"
+          },
+          {
+            "command": "bash scripts/ci/ci-measure-report.test.sh",
+            "statement": "Fixture report omits source/replay commands, merges populations, turns unknown into zero/success, changes between repeated generations, or the script exits nonzero.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "252-06-PLAN.md",
+            "task": "Task 3: Publish a concise source-linked baseline and reproducible commands"
+          }
+        ],
+        "counts": {
+          "blocker": 0,
+          "warning": 0,
+          "total": 15
+        },
+        "readError": null
+      }
+    },
+    {
+      "name": "252-01-PLAN.md_schema",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-01-PLAN.md_structure",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-02-PLAN.md_schema",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-02-PLAN.md_structure",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-03-PLAN.md_schema",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-03-PLAN.md_structure",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-04-PLAN.md_schema",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-04-PLAN.md_structure",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-05-PLAN.md_schema",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-05-PLAN.md_structure",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-06-PLAN.md_schema",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "252-06-PLAN.md_structure",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-01-PLAN.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-02-PLAN.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-03-PLAN.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-04-PLAN.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-05-PLAN.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-06-PLAN.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-RESEARCH.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-CONTEXT.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-PATTERNS.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "review_hash_252-VALIDATION.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "prior_readback_.planning/STATE.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "prior_readback_.planning/state.json",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "prior_readback_.planning/HANDOFF.json",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "prior_readback_.planning/PROJECT.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "prior_readback_.planning/v1.50-START.json",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "prior_readback_.planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "branch_unchanged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "unchanged_AGENTS.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "unchanged_.planning/REQUIREMENTS.md",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "unchanged_.planning/config.json",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "planning_only_changes",
+      "passed": true,
+      "details": [
+        ".planning/HANDOFF.json",
+        ".planning/PROJECT.md",
+        ".planning/ROADMAP.md",
+        ".planning/STATE.md",
+        ".planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        ".planning/phases/252-measure-current-ci/252-02-PLAN.md",
+        ".planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        ".planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        ".planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        ".planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        ".planning/phases/252-measure-current-ci/252-PATTERNS.md",
+        ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-02.md",
+        ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
+        ".planning/phases/252-measure-current-ci/252-PLAN-CHECK.md",
+        ".planning/phases/252-measure-current-ci/252-PLANNING-CHECKS.json",
+        ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+        ".planning/phases/252-measure-current-ci/252-RESEARCH.md",
+        ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+        ".planning/phases/252-measure-current-ci/COVERAGE.md",
+        ".planning/phases/252-measure-current-ci/edge-coverage-resolved.json",
+        ".planning/research/.cache/0e5107af0c59aeccd287d52ef1d0c2d731633a1434d580441e4de5efbbd3fc08.json",
+        ".planning/research/.cache/33b98cde21be67d0fa330c6f5bf184d7a94388656016a4f2b2c811f38d554724.json",
+        ".planning/research/.cache/f64270c0fd44d06e2cc8ed42e12313986e4ace17af82e58a4381c2137c52b0ba.json",
+        ".planning/state.json",
+        ".planning/v1.50-START.json"
+      ]
+    },
+    {
+      "name": "no_external_actions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "diff_check",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "no_auto_execution",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "planning_complete": true,
+  "implementation_status": "not_started",
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-execute-phase 252",
+  "source_head": "e94f63f25269def2d381ffc9627c84439562bf71"
+}

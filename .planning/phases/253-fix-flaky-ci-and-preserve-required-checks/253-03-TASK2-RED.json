@@ -1,0 +1,10 @@
+{
+  "command": "bash scripts/ci/honest-skip-verdict.test.sh --unit-contract",
+  "exitCode": 1,
+  "output": "test_unit_body_omission_cannot_produce_green (__main__.UnitOwner.test_unit_body_omission_cannot_produce_green) ... FAIL\ntest_unit_negative_outcomes_are_preserved (__main__.UnitOwner.test_unit_negative_outcomes_are_preserved) ... ok\ntest_unit_result_is_owned_by_actual_verdict (__main__.UnitOwner.test_unit_result_is_owned_by_actual_verdict) ... ok\n\n======================================================================\nFAIL: test_unit_body_omission_cannot_produce_green (__main__.UnitOwner.test_unit_body_omission_cannot_produce_green)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<stdin>\", line 18, in test_unit_body_omission_cannot_produce_green\nAssertionError: 0 == 0 : a dropped unit-result argument must fail ownership parity\n\n----------------------------------------------------------------------\nRan 3 tests in 0.836s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_unit_body_omission_cannot_produce_green",
+  "targetFile": "scripts/ci/honest-skip-verdict.test.sh",
+  "expected": "dropped unit result fails workflow/verdict parity",
+  "actual": "script returned success for workflow missing unit argument",
+  "semanticAssessment": "Mutated actual workflow keeps dependency but drops unit argument; native verdict returns green, triggering planned assertion."
+}

@@ -1,0 +1,637 @@
+{
+  "schema_version": 1,
+  "phase": 249,
+  "plan": "06",
+  "repository": "szTheory/sigra",
+  "recorded_at": "2026-10-09T14:53:22.539Z",
+  "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+  "package_source_ci": {
+    "run_id": "37875238741",
+    "attempt": 2,
+    "head_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "url": "https://github.com/szTheory/sigra/actions/runs/37875238741",
+    "workflow": ".github/workflows/ci.yml",
+    "ci_gate_job_id": "113654406257",
+    "ci_gate_conclusion": "success",
+    "ci_gate_url": "https://github.com/szTheory/sigra/actions/runs/37875238741/job/113654406257"
+  },
+  "final_main_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+  "final_main_ci": {
+    "workflow": ".github/workflows/ci.yml",
+    "run_id": "37885162032",
+    "attempt": 1,
+    "url": "https://github.com/szTheory/sigra/actions/runs/37885162032",
+    "head_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "conclusion": "success",
+    "ci_gate": {
+      "job_id": "113675089364",
+      "url": "https://github.com/szTheory/sigra/actions/runs/37885162032/job/113675089364",
+      "head_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+      "conclusion": "success"
+    }
+  },
+  "receipt": {
+    "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+    "blob_sha": null,
+    "sha256": null
+  },
+  "public_release": {
+    "verdict": "passed",
+    "hex_url": "https://hex.pm/packages/sigra/1.6.0",
+    "versioned_docs_url": "https://sigra.hexdocs.pm/1.6.0/Sigra.html",
+    "source_href": "https://github.com/sztheory/sigra/blob/v1.6.0/lib/sigra.ex#L1",
+    "source_commit_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+  },
+  "closeout_ledger_sha256": "e71dfbfbb333ae173561971d70979184e4851c10ff6d8f1e7318987c4a65e28d",
+  "inventory_fingerprint_sha256": "b4d409ba62766ea26773771e56d707a10877da2322240def0907309aaa947af0",
+  "inventory": {
+    "worktree_count": 5,
+    "pull_request_count": 14,
+    "dirty_path_count": 96,
+    "worktree_read_status": "complete",
+    "pull_request_read_status": "complete"
+  },
+  "verdict": "blocked",
+  "errors": [
+    {
+      "code": "promotion_not_merged",
+      "message": "The scoped promotion record does not contain a verified protected-main merge."
+    },
+    {
+      "code": "final_main_receipt_missing",
+      "message": "The sanitized release receipt is absent from current protected main."
+    }
+  ],
+  "blockers": [
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".github/workflows/ci.yml",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".github/workflows/phase-244-playwright-measure.yml",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".github/workflows/phase-247-hex-dry-run.yml",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/HANDOFF.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/debug/plan-245-37-admission.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-04-SUMMARY.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CURRENT-SOURCE-REVIEW.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-tdd-red-evidence.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-FINAL-RECOVERY-AMENDMENT.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-RESUME-NOTES.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-BLOCKED.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-TASK-2-POST-EVIDENCE-HEAD-CHANGE.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-SUMMARY.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-11-SUMMARY.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-REVIEW.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-SECURITY.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-UI-REVIEW.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/248-exact-source-release-gate/248-ENVIRONMENT-SECRETS-RECEIPT.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/phases/248-exact-source-release-gate/248-USER-SETUP.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260923-uqh-add-deterministic-offline-regression-cov/260923-uqh-PLAN.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-PLAN.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-VERIFICATION.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-BLOCKED.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/MIX-CI-RETRY.log",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-PLAN.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-VERIFICATION.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-BLOCKED.md",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/0486d1d6b877276938751e306e6cb6d19746cfe782f00f42c22437172ffd9174.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/0bbfb6e330ef46a6df4de1244ba95a7f122aee9e921f542ecc3d04947181ed57.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/16c1fce20c4cdd7fcf4adaa46e7b19404e74097d5a3c692554099a7b58b694c0.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/1939fe0e54d70d87e56c72f6b607e46b11aecdf90abb479782509d5e7a46b158.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/1a4d5d7391104508714eb1be8d154891424f86b774505e96b176e32e287ebc64.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/23f4dd319046e507126a31595d974600f474ee51f9e0569b9763d02f8934e692.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/301891c26546f2daf42b168e895bc6894f5d7ac7b8867e4849b474f4fa7269ab.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/3ee958e5022fbfdec32a656d5e1d878456bf176c022fc33af59bd6b4fb353536.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/481f96c95581eb59db1ac303b9b887f8af82fe32bbb177356a7fa95c4d756e3e.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/5bd9969942aa77ff33f30d3700a54abe68dd78ba4dd649d7a20a301db517b474.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/60a2683c630b84642c8d55f47ff69e9de9973efedd27fa150ac00104ef2ebaf8.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/61103ccafd906ea44a0777470751db3085a310411c137b35151836bb7a0813e5.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/68fd0ca248db8bd6d9e2ae0c0c90e17de522ef80c71d7a0648a1586bfcc8ecf8.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/6e91399c4044f9ab1025720aff83e32c4bfb6782d9946055ccccc8890ad4be2d.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/7d49970d3aa51d95afa9ad50dbcf62b3d6b1944459d5a0d27b3c62dce1d37fe8.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/837b16ab152220277f09223d470c81ba31348566f726a9970b67460b55afa933.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/84d241e9757d5130f8fc976387028f53230d72e17e9894888e5d2d151621be98.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/8cdf0118d8cbfd6a11deb9f71928e20689a2217e998f421a6b1cae849fa724c4.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/912404c9acd26e8b87e584a6fac0c85af887c81caf4097ede313017562e6fbfe.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/91c0e7c6ac3912dfa6e9ae0de301c8385f169f7d3936c3d3a7eb4c4d1e2f0a78.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/a56ec50dd0a738d70e378796e417b83854e602e3a487ae08bf23583ee5249f44.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/a62d34d9091cb2b15c78fc3402ecf481f314e1ecf1fa4e2394e9695d8a7f96cf.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/bd2e38fb5b783ff6830d61167d6da4af89abd610cd651324ea170ac0e0f32a9c.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/cbe978b9cd3322b346d4b80f3d9a68ad18bea438f9ea17f7c1377f873296a75d.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/cc5072d5d87881354a1c2c8471bb4f8d3e1d276b693919d1d8d3223a96beda3a.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/d3f634cf31fa5d089740b16718e9005c8a601e9ea1c2730eb395d6aa80f51930.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/eafe412a349a99fd0852781ffab77ab2f9cdb347045db3821aef7634af4b80f4.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/research/.cache/ed0f3ecdac0460eb9afa673a640fbd0e12bd9e5b97d195e5c0792958a358768a.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": ".planning/ui-reviews/.gitignore",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/capture-phase-241-final-head.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/capture-phase-241-final-head.test.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/measure-playwright-drift.mjs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/measure-playwright-drift.test.mjs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/phase-247-hex-dry-run.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/phase-247-hex-dry-run.test.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/playwright-cache-key-guard.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/playwright-cache-key-guard.test.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/run-playwright-drift.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/sigra-dep-off.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/ci/test-sigra-dep-off.sh",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/maintainers/validate-milestone-cleanup-audit.mjs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "scripts/maintainers/validate-milestone-cleanup-audit.test.mjs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "test/example/priv/playwright/package-lock.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "test/example/priv/playwright/package.json",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/Users/jon/projects/sigra",
+      "path": "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+      "state": "blocked",
+      "reason": "The shared checkout contains concurrent Phase 241/244/247/248 evidence, CI, package, planning, and maintenance changes. Git status and content hashes identify the bytes, but do not prove a safe destination or individual owner; keep this path untouched and blocked until Plan 05 verifies a path-scoped preservation ref."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase-246-03-ci",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-03-SUMMARY.md",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase-246-03-ci",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase-246-03-ci",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase-246-03-ci",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-VALIDATION.md",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase246-verification",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW-DISPOSITION.md",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase246-verification",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW.md",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase246-verification",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-SECURITY.md",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    },
+    {
+      "worktree_path": "/private/tmp/sigra-phase246-verification",
+      "path": ".planning/phases/246-generated-confirmation-recovery/246-UI-REVIEW.md",
+      "state": "blocked",
+      "reason": "This path is uncommitted Phase 246 review/evidence material on a dedicated worktree. Preserve it at its exact current path; Plan 05 must verify a durable path-scoped ref before any cleanup or clean-state claim."
+    }
+  ]
+}

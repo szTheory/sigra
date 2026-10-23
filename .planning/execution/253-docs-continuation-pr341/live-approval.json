@@ -1,0 +1,9 @@
+{
+  "schema": "sigra.phase253.docs-continuation-approval/v1",
+  "decision": "approve",
+  "scope": "docs-only",
+  "bundle_sha256": "477a5d356078c8294650e82e2aab8f7ecfa87a1a251f3a7bf5f85f6acb6af42b",
+  "decision_text": "yeah i approve",
+  "approved_at_epoch": 1792635651,
+  "expires_epoch": 1792722051
+}

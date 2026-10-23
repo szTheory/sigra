@@ -1,0 +1,72 @@
+{
+  "allocation_kind": "canary",
+  "bound_documents": [
+    {
+      "path": ".planning/execution/253-plan172-repaired-source/bundle.json",
+      "sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS.md",
+      "sha256": "87964f4234975c64967023f5ad37780c5bb29c871c704a5d2644fb3c8fe2fa0c"
+    }
+  ],
+  "category_limits": {
+    "preflight": 5,
+    "publication": 19
+  },
+  "download_hosts": [
+    "pipelines.actions.githubusercontent.com",
+    "productionresultssa0.blob.core.windows.net",
+    "productionresultssa1.blob.core.windows.net",
+    "productionresultssa2.blob.core.windows.net",
+    "productionresultssa3.blob.core.windows.net",
+    "productionresultssa4.blob.core.windows.net",
+    "productionresultssa5.blob.core.windows.net",
+    "productionresultssa6.blob.core.windows.net",
+    "productionresultssa7.blob.core.windows.net",
+    "productionresultssa8.blob.core.windows.net",
+    "productionresultssa9.blob.core.windows.net",
+    "productionresultssa10.blob.core.windows.net",
+    "productionresultssa11.blob.core.windows.net",
+    "productionresultssa12.blob.core.windows.net",
+    "productionresultssa13.blob.core.windows.net",
+    "productionresultssa14.blob.core.windows.net",
+    "productionresultssa15.blob.core.windows.net",
+    "productionresultssa16.blob.core.windows.net",
+    "productionresultssa17.blob.core.windows.net",
+    "productionresultssa18.blob.core.windows.net",
+    "productionresultssa19.blob.core.windows.net",
+    "productionresultssa20.blob.core.windows.net",
+    "productionresultssa21.blob.core.windows.net",
+    "productionresultssa22.blob.core.windows.net",
+    "productionresultssa23.blob.core.windows.net",
+    "productionresultssa24.blob.core.windows.net",
+    "productionresultssa25.blob.core.windows.net",
+    "productionresultssa26.blob.core.windows.net",
+    "productionresultssa27.blob.core.windows.net",
+    "productionresultssa28.blob.core.windows.net",
+    "productionresultssa29.blob.core.windows.net",
+    "productionresultssa30.blob.core.windows.net",
+    "productionresultssa31.blob.core.windows.net",
+    "productionresultssa32.blob.core.windows.net",
+    "productionresultssa33.blob.core.windows.net",
+    "productionresultssa34.blob.core.windows.net",
+    "productionresultssa35.blob.core.windows.net",
+    "productionresultssa36.blob.core.windows.net",
+    "productionresultssa37.blob.core.windows.net",
+    "productionresultssa38.blob.core.windows.net",
+    "productionresultssa39.blob.core.windows.net",
+    "productionresultssa40.blob.core.windows.net",
+    "results-receiver.actions.githubusercontent.com"
+  ],
+  "max_elapsed_seconds": 3600,
+  "max_hops": 2,
+  "max_pages": 12,
+  "max_requests": 24,
+  "max_response_bytes": 4194304,
+  "mode": "live",
+  "repository": "szTheory/sigra",
+  "schema_version": "sigra.phase253.http-allocation/v1",
+  "source_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
+  "window_id": "gsd/253-replan-proof-5e13621e5-publication-1"
+}

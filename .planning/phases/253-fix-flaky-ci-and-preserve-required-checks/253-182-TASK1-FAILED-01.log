@@ -1,0 +1,57 @@
+RECONSTRUCTED FROM TOOL TRANSCRIPT — NOT A DIRECT PROCESS CAPTURE
+
+Command:
+python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits
+
+Exit: 1
+Tests run: 1
+Source chronology: This was run after editing the test to apply the 25-to-22 mutation at validation time. There was no pre-edit run. The output below is transcribed from the tool response; no output file was captured directly.
+
+Observed output:
+test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) ...
+  test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='22-halt') ... FAIL
+  test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='174-pin') ... FAIL
+  test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='hosted-link') ... FAIL
+
+======================================================================
+FAIL: test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='22-halt')
+----------------------------------------------------------------------
+successor.ContractError: 169 executable reconciliation assertion has a stale count
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 976, in test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits
+    with self.assertRaisesRegex(successor.ContractError, reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "25 halt set" does not match "169 executable reconciliation assertion has a stale count"
+
+======================================================================
+FAIL: test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='174-pin')
+----------------------------------------------------------------------
+successor.ContractError: 169 ownership table or other instruction bytes differ from the exact original-derived amendment
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 976, in test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits
+    with self.assertRaisesRegex(successor.ContractError, reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "historical" does not match "169 ownership table or other instruction bytes differ from the exact original-derived amendment"
+
+======================================================================
+FAIL: test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='hosted-link')
+----------------------------------------------------------------------
+successor.ContractError: entry bridge must scope exactly 2 amended plans
+
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 976, in test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits
+    with self.assertRaisesRegex(successor.ContractError, reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "amendment hash" does not match "entry bridge must scope exactly 2 amended plans"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.563s
+
+FAILED (failures=3)

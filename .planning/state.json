@@ -1,63 +1,58 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 — CLEAN-BASELINE",
+  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
-      "number": "236",
-      "name": "Flake Root Cause",
+      "number": "252",
+      "name": "Measure Current CI",
       "status": "complete"
     },
     {
-      "number": "237",
-      "name": "Clean Working Tree + Pages + `lib/` Docs",
+      "number": "253",
+      "name": "Fix Flaky CI and Preserve Required Checks",
       "status": "complete"
     },
     {
-      "number": "238",
-      "name": "Tag Guard, Then Tag Deletion",
-      "status": "complete"
+      "number": "254",
+      "name": "Speed Up the Measured Slow Jobs",
+      "status": "in_progress",
+      "implementation_status": "complete",
+      "comparison_status": "blocked_not_started",
+      "verification_status": "pending"
     },
     {
-      "number": "239",
-      "name": "`priv/templates/` Sweep + Re-bless",
-      "status": "pending"
-    },
-    {
-      "number": "240",
-      "name": "Green-Main Evidence + Honest Pages Script",
-      "status": "pending"
-    },
-    {
-      "number": "241",
-      "name": "Debt Retirement + Leakage Guard",
-      "status": "pending"
-    },
-    {
-      "number": "242",
-      "name": "Hex Retire + Docs Revert + Cut 1.5.1",
-      "status": "pending"
-    },
-    {
-      "number": "243",
-      "name": "Queue Drain + Todo Triage",
-      "status": "pending"
-    },
-    {
-      "number": "244",
-      "name": "`@playwright/test` Bump, Alone",
-      "status": "pending"
-    },
-    {
-      "number": "245",
-      "name": "Branch Prune",
+      "number": "255",
+      "name": "Make Failures Reproducible and Report the Result",
       "status": "pending"
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 239 of 10 · 30% · executing"
+    "command": "$gsd-execute-phase 254",
+    "label": "Continue the existing hosted checkpoint after baseline proof",
+    "reason": "Continue the approved rerun amendment on existing Plan08.",
+    "conditional": false,
+    "condition": "First establish an allowed current real-PR path whose actual merge/source/workflow trees match the frozen baseline. Then continue the existing Plan 254-08 checkpoint; do not create replacement samples, reset budgets, or redispatch Plans 01-07."
   },
-  "updated_at": "2026-09-17T20:27:06.884Z"
+  "updated_at": "2026-10-23T21:09:52.686054+00:00",
+  "phase254": {
+    "completed_plans": 7,
+    "halted_plans": [
+      "254-08"
+    ],
+    "total_plans": 8,
+    "implementation_status": "complete",
+    "comparison_status": "blocked_not_started",
+    "verification_status": "pending",
+    "resume_plan": "254-08",
+    "resume_task": "254-08-01",
+    "continuation": ".planning/execution/254-CONTINUATION.json",
+    "state_preservation": "f2cd83578701b4d212c7b4fc955d50179e867880"
+  },
+  "phase254_unblock_decision": {
+    "status": "approved",
+    "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
+    "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
+    "notification_created": false
+  }
 }
