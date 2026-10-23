@@ -571,15 +571,13 @@ jobs:
             _build
           key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
           restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
-      - name: Install Hex + Rebar
-        run: |
-          mix local.hex --force
-          mix local.rebar --force
       # phx_new archive is required by test/sigra/install/golden_diff_test.exs
       # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
       # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
       - name: Install phx_new archive
         run: mix archive.install --force hex phx_new 1.8.8
+      # mix ci checks formatting before its locked dependency check. Keep this
+      # fetch for cold cache runs so formatter imports are available first.
       - name: Fetch library deps
         run: mix deps.get
       - name: Prepare timing output directory

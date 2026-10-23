@@ -16,7 +16,10 @@ function assertLibrarySetupContract(source, mixSource = mixProject) {
   assert.ok(job.includes(setupBeamPin), 'setup-beam must retain the reviewed exact pin');
   assert.doesNotMatch(job, /install-hex:\s*false|install-rebar:\s*false/, 'setup-beam defaults must not be disabled');
   assert.doesNotMatch(job, /(?:^|\n)\s*(?:MIX_HOME|HEX_HOME):/, 'the job must not redirect tool homes after setup');
-  assert.doesNotMatch(job, /mix local\.(?:hex|rebar)|mix deps\.get\s*$/m, 'the job must not repeat setup-beam installs or the mix ci dependency fetch');
+  assert.doesNotMatch(job, /mix local\.(?:hex|rebar)/, 'the job must not repeat setup-beam installs');
+  const fetchIndex = job.indexOf('run: mix deps.get');
+  const ciIndex = job.search(/^\s+run: mix ci\s*$/m);
+  assert.ok(fetchIndex >= 0 && fetchIndex < ciIndex, 'dependencies must be present before mix ci formats source on a cold cache');
   assert.equal((job.match(/^\s+run: mix ci\s*$/gm) ?? []).length, 1, 'the required library owner must invoke mix ci exactly once');
   assert.match(mixSource, /"deps\.get --check-locked"/, 'mix ci must retain locked dependency verification');
   assert.match(mixSource, /"deps\.unlock --check-unused"/, 'mix ci must retain the unused dependency check');
@@ -27,16 +30,16 @@ test('library job relies on pinned setup-beam defaults and its sole mix ci depen
   assert.match(libraryJob, /run: mix ci/);
 });
 
-test('library setup contract rejects unique source mutations, including misleading comments', () => {
+test('library setup contract rejects unique source mutations regardless of step label', () => {
+  const mutateLibraryJob = (mutator) => workflow.replace(libraryJob, mutator(libraryJob));
   const variants = [
-    workflow.replace(setupBeamPin, 'erlef/setup-beam@other-pin'),
-    workflow.replace('run: mix ci', 'run: mix ci\n      # mix local.hex is already done'),
-    workflow.replace('run: mix ci', 'run: mix local.hex --force\n      run: mix ci'),
-    workflow.replace('run: mix ci', 'run: mix deps.get\n      run: mix ci'),
-    workflow.replace('run: mix ci', 'env:\n          HEX_HOME: /tmp/hex\n        run: mix ci'),
-    workflow.replace('run: mix ci', 'run: mix ci\n      run: mix ci'),
+    mutateLibraryJob((job) => job.replace(setupBeamPin, 'erlef/setup-beam@other-pin')),
+    mutateLibraryJob((job) => job.replace('      - name: Install phx_new archive', '      - name: unrelated setup label\n        run: mix local.hex --force\n      - name: Install phx_new archive')),
+    mutateLibraryJob((job) => job.replace('        run: mix ci', '      env:\n        HEX_HOME: /tmp/hex\n        run: mix ci')),
+    mutateLibraryJob((job) => job.replace('        run: mix ci', '        run: mix ci\n      - name: duplicate library owner\n        run: mix ci')),
+    mutateLibraryJob((job) => job.replace(/      - name: Fetch library deps\n        run: mix deps.get\n/, '')),
   ];
-  for (const variant of variants) assert.throws(() => assertLibrarySetupContract(variant), 'a unique invalid source mutation must fail');
+  variants.forEach((variant, index) => assert.throws(() => assertLibrarySetupContract(variant), `invalid source mutation ${index + 1} must fail`));
   assert.throws(() => assertLibrarySetupContract(workflow, mixProject.replace('"deps.get --check-locked"', '"deps.get"')));
   assert.throws(() => assertLibrarySetupContract(workflow, mixProject.replace('"deps.unlock --check-unused"', '"compile"')));
 });
