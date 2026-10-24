@@ -2,6 +2,7 @@
 """Assertions for the native Mix CI receiver observer."""
 
 import importlib.util
+import hashlib
 import json
 import os
 import pathlib
@@ -9,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 
 
 SPEC = importlib.util.spec_from_file_location("ci_mix_receivers", "scripts/ci/ci-mix-receivers.py")
@@ -36,6 +38,99 @@ class MixReceiverReportTest(unittest.TestCase):
             self.assertEqual("A.one", report["ordinary"]["tests"][0]["test_id"])
             self.assertIn("legs/scaffold/exunit.json", {row["path"] for row in report["missing_reports"]})
             self.assertTrue((root / "legs/ordinary/exunit.json").is_file(), "finalize must not remove child reports")
+
+    def test_real_receiver_child_report_survives_exit_and_is_finalized(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-receiver-child-") as temp:
+            root = pathlib.Path(temp)
+            env = os.environ.copy()
+            env["SIGRA_CI_RECEIVER_OUTPUT"] = str(root)
+            child = (
+                "import json,os,pathlib; "
+                "pathlib.Path(os.environ['SIGRA_EXUNIT_TIMING_JSON']).write_text(json.dumps({"
+                "'seed': 73, 'tests': [{'test_id': 'Native.actual', 'status': 'passed'}], "
+                "'complete': True, 'failed_count': 0, 'failed_test_ids': []}))"
+            )
+            leg = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.py"), "leg", "ordinary", "--",
+                 sys.executable, "-c", child], cwd=ROOT, env=env, capture_output=True, text=True,
+                check=False, timeout=10,
+            )
+            report_path = root / "legs/ordinary/exunit.json"
+            self.assertEqual(0, leg.returncode, leg.stdout + leg.stderr)
+            self.assertTrue(report_path.is_file(), "receiver child output must survive process completion")
+            finalized = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.py"), "finalize",
+                 "--output", str(root), "--report-output", str(root / "MIX-RECEIVERS.json"), "--primary-exit", "0"],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(1, finalized.returncode, "success cannot qualify when expected receiver files are missing")
+            assembled = json.loads((root / "MIX-RECEIVERS.json").read_text())
+            self.assertEqual(73, assembled["ordinary"]["seed"])
+            self.assertEqual("Native.actual", assembled["ordinary"]["tests"][0]["test_id"])
+            self.assertEqual(0, assembled["leg_command_records"]["ordinary"]["primary_exit_code"])
+
+            manifest_path = root / "manifest.json"
+            manifest = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-diagnostics-canary.py"), "manifest",
+                 "--invocation-root", str(root), "--output", str(manifest_path),
+                 "--invocation-id", "library-123-1", "--source-sha", "a" * 40,
+                 "--run-id", "123", "--run-attempt", "1", "--job-id", "library_tests_shard",
+                 "--seam", "library_ci", "--file", "MIX-RECEIVERS.json=report"],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(0, manifest.returncode, manifest.stdout + manifest.stderr)
+            staged_path = root / "safe.zip"
+            staged = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-diagnostic-bundle.py"), "stage",
+                 "--invocation-root", str(root), "--manifest", str(manifest_path), "--output", str(staged_path)],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(0, staged.returncode, staged.stdout + staged.stderr)
+            verified = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-diagnostic-bundle.py"), "verify",
+                 "--bundle", str(staged_path), "--manifest", str(manifest_path)],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(0, verified.returncode, verified.stdout + verified.stderr)
+            manifest_data = json.loads(manifest_path.read_text())
+            self.assertEqual(hashlib.sha256((root / "MIX-RECEIVERS.json").read_bytes()).hexdigest(),
+                             manifest_data["files"][0]["sha256"])
+            (root / "MIX-RECEIVERS.json").write_text(json.dumps({"debug": "ghp_1234567890123456789012345678"}))
+            unsafe_manifest_path = root / "unsafe-manifest.json"
+            unsafe_manifest = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-diagnostics-canary.py"), "manifest",
+                 "--invocation-root", str(root), "--output", str(unsafe_manifest_path),
+                 "--invocation-id", "library-123-1", "--source-sha", "a" * 40,
+                 "--run-id", "123", "--run-attempt", "1", "--job-id", "library_tests_shard",
+                 "--seam", "library_ci", "--file", "MIX-RECEIVERS.json=report"],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(0, unsafe_manifest.returncode, unsafe_manifest.stdout + unsafe_manifest.stderr)
+            unsafe_stage = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-diagnostic-bundle.py"), "stage",
+                 "--invocation-root", str(root), "--manifest", str(unsafe_manifest_path),
+                 "--output", str(root / "unsafe.zip")],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(0, unsafe_stage.returncode, unsafe_stage.stdout + unsafe_stage.stderr)
+            self.assertIn("secret_sentinel_detected", unsafe_stage.stdout)
+            with zipfile.ZipFile(root / "unsafe.zip") as archive:
+                self.assertNotIn(b"ghp_1234567890123456789012345678", archive.read("bundle-manifest.json"))
+
+    def test_finalize_keeps_primary_failure_when_receivers_are_unavailable(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-receiver-failed-") as temp:
+            root = pathlib.Path(temp)
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.py"), "finalize",
+                 "--output", str(root), "--report-output", str(root / "MIX-RECEIVERS.json"),
+                 "--primary-exit", "42"],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            report = json.loads((root / "MIX-RECEIVERS.json").read_text())
+            self.assertEqual(42, report["primary_exit_code"])
+            self.assertEqual("failure", report["primary_status"])
+            self.assertTrue(report["missing_reports"])
 
     def test_plan_native_cli_accepts_a_report_file_output(self):
         result = subprocess.run(
@@ -114,10 +209,12 @@ class MixReceiverReportTest(unittest.TestCase):
                 ["elixir", "-e", "IO.puts(:code.lib_dir(:elixir))"], text=True, timeout=10
             ).strip()
             installed_root = pathlib.Path(elixir_lib).parent.parent
-            hex_archive = installed_root / ".mix/archives/hex-2.6.0"
+            archives_installed = installed_root / ".mix/archives"
+            hex_versions = sorted(archives_installed.glob("hex-*"))
+            self.assertTrue(hex_versions, f"installed Hex archive is missing under {archives_installed}")
             archives = pathlib.Path(mix_home) / "archives"
             archives.mkdir()
-            os.symlink(hex_archive, archives / "hex-2.6.0")
+            os.symlink(hex_versions[-1], archives / hex_versions[-1].name)
             env = os.environ.copy()
             env["MIX_ENV"] = "test"
             env["MIX_HOME"] = mix_home

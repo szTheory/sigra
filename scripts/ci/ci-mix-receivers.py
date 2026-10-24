@@ -136,6 +136,75 @@ def record_leg(name: str, argv: list[str]) -> int:
     return result.returncode
 
 
+def finalize_reports(output: pathlib.Path, report_output: pathlib.Path, primary_exit: int | None) -> tuple[dict, bool]:
+    """Assemble persistent native reports without rerunning any CI commands."""
+    root = output.resolve()
+    reports = {}
+    missing = []
+    command_records = {}
+    report_paths = {
+        "ordinary": "legs/ordinary/exunit.json",
+        "scaffold": "legs/scaffold/exunit.json",
+        "threadline_guard": "legs/dep-off/threadline_guard.json",
+    }
+    for name, relative in report_paths.items():
+        path = root / relative
+        if path.is_file():
+            try:
+                value = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                value = {}
+                missing.append({"path": relative, "reason": "report_unreadable"})
+            else:
+                if not isinstance(value, dict):
+                    value = {}
+                    missing.append({"path": relative, "reason": "report_not_object"})
+                elif value.get("complete") is not True:
+                    missing.append({"path": relative, "reason": "report_incomplete"})
+        else:
+            value = {}
+            missing.append({"path": relative, "reason": "receiver_did_not_write_report"})
+        reports[name] = value
+
+    for name in ("ordinary", "scaffold", "dep-off"):
+        relative = f"commands/{name}/record.json"
+        path = root / relative
+        if path.is_file():
+            try:
+                command_records[name] = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                command_records[name] = None
+                missing.append({"path": relative, "reason": "command_record_unreadable"})
+        else:
+            command_records[name] = None
+            missing.append({"path": relative, "reason": "receiver_command_not_reached"})
+
+    payload = {
+        "schema_version": "sigra.ci-mix-receivers/v2",
+        "command": ["mix", "ci"],
+        "primary_exit_code": primary_exit,
+        "primary_status": "success" if primary_exit == 0 else "failure" if primary_exit is not None else "unavailable",
+        "receiver_reports": report_paths,
+        "reports": reports,
+        **reports,
+        "leg_records": ["format", "deps.get", "deps.unlock", "compile", "ordinary", "scaffold", "dep-off"],
+        "leg_command_records": command_records,
+        "missing_reports": missing,
+        "acceptance_samples": 0,
+    }
+    valid, validation_errors = validate_native_report(payload)
+    payload["validation_errors"] = validation_errors
+    report_output = report_output.resolve()
+    report_output.parent.mkdir(parents=True, exist_ok=True)
+    report_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    complete = valid and not missing and all(
+        report.get("complete") is True and isinstance(report.get("seed"), int)
+        and isinstance(report.get("tests"), list) and bool(report["tests"])
+        for report in reports.values()
+    )
+    return payload, complete
+
+
 def main() -> int:
     if sys.argv[1:2] == ["--native"]:
         native_parser = argparse.ArgumentParser(description=__doc__)
@@ -157,6 +226,10 @@ def main() -> int:
         native.add_argument("--output", required=True)
         native.add_argument("--report-output")
         native.add_argument("--inject-failure", choices=("ordinary", "scaffold", "dep-off"))
+        finalize = sub.add_parser("finalize", help="assemble the receiver files already written by mix ci")
+        finalize.add_argument("--output", required=True, help="persistent receiver root")
+        finalize.add_argument("--report-output", required=True, help="assembled report path")
+        finalize.add_argument("--primary-exit", type=int, help="mix ci exit code; omit when the command was cancelled")
         args = parser.parse_args()
 
     if args.mode == "leg":
@@ -164,6 +237,14 @@ def main() -> int:
         if not argv:
             raise SystemExit("leg requires a native command after --")
         return record_leg(args.name, argv)
+
+    if args.mode == "finalize":
+        payload, complete = finalize_reports(pathlib.Path(args.output), pathlib.Path(args.report_output), args.primary_exit)
+        print(json.dumps({"report": str(pathlib.Path(args.report_output)), "primary_exit_code": args.primary_exit,
+                          "complete": complete, "missing_reports": payload["missing_reports"]}, sort_keys=True))
+        # A failed primary command remains the job's original failure. Only fail
+        # finalization when the primary succeeded but its required reports are absent.
+        return 1 if args.primary_exit == 0 and not complete else 0
 
     output = pathlib.Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=False)

@@ -637,6 +637,7 @@ jobs:
       - name: Prepare timing output directory
         run: mkdir -p test-results
       - name: Run contributor CI gate
+        id: library_ci
         env:
           PGUSER: postgres
           MIX_ENV: test
@@ -645,11 +646,29 @@ jobs:
           SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing-main.json
           SIGRA_EXUNIT_TIMING_INVOCATION: main
           SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results/ci-exunit-timing-threadline-guard.json
+          SIGRA_CI_RECEIVER_OUTPUT: ${{ runner.temp }}/ci-diagnostics/library/receivers
         # Local equivalent: run: MIX_ENV=test mix ci (MIX_ENV is set above).
-        run: >-
-          python3 -B scripts/ci/ci-command-record.py
-          --cwd "$GITHUB_WORKSPACE" --output-root "$RUNNER_TEMP/ci-diagnostics/library"
-          --invocation library-ci -- mix ci
+        shell: bash
+        run: |
+          set +e
+          python3 -B scripts/ci/ci-command-record.py \
+            --cwd "$GITHUB_WORKSPACE" --output-root "$RUNNER_TEMP/ci-diagnostics/library" \
+            --invocation library-ci -- mix ci
+          primary_exit=$?
+          echo "primary_exit=$primary_exit" >> "$GITHUB_OUTPUT"
+          exit "$primary_exit"
+      - name: Finalize persistent library receiver reports
+        if: always()
+        env:
+          PRIMARY_EXIT: ${{ steps.library_ci.outputs.primary_exit }}
+        shell: bash
+        run: |
+          args=()
+          if [ -n "$PRIMARY_EXIT" ]; then args+=(--primary-exit "$PRIMARY_EXIT"); fi
+          python3 -B scripts/ci/ci-mix-receivers.py finalize \
+            --output "$RUNNER_TEMP/ci-diagnostics/library/receivers" \
+            --report-output "$RUNNER_TEMP/ci-diagnostics/library/receivers/MIX-RECEIVERS.json" \
+            "${args[@]}"
       - name: Upload library test timing
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -683,7 +702,14 @@ jobs:
             --file deps-get/stderr.bin=command_stderr \
             --file library-ci/record.json=report \
             --file library-ci/stdout.bin=command_stdout \
-            --file library-ci/stderr.bin=command_stderr
+            --file library-ci/stderr.bin=command_stderr \
+            --file receivers/MIX-RECEIVERS.json=report \
+            --file receivers/legs/ordinary/exunit.json=report \
+            --file receivers/legs/scaffold/exunit.json=report \
+            --file receivers/legs/dep-off/threadline_guard.json=report \
+            --file receivers/commands/ordinary/record.json=report \
+            --file receivers/commands/scaffold/record.json=report \
+            --file receivers/commands/dep-off/record.json=report
       - name: Upload library-ci-diagnostics
         if: always()
         uses: ./.github/actions/ci-diagnostic-upload

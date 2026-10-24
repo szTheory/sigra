@@ -132,6 +132,27 @@ test('uploads separate main and dependency-off timing reports from their produci
   }
 });
 
+test('finalizes persistent library receivers into the source-bound safe diagnostic bundle', () => {
+  const block = blocks.library_tests_shard;
+  assert.match(block, /SIGRA_CI_RECEIVER_OUTPUT:\s*\$\{\{ runner\.temp \}\}\/ci-diagnostics\/library\/receivers/);
+  assert.match(block, /id: library_ci[\s\S]*?primary_exit=\$primary_exit[\s\S]*?exit "\$primary_exit"/);
+  assert.match(block, /name: Finalize persistent library receiver reports\s+if: always\(\)[\s\S]*?ci-mix-receivers\.py finalize/);
+  assert.match(block, /args\+=\(--primary-exit "\$PRIMARY_EXIT"\)/);
+  for (const file of [
+    'receivers/MIX-RECEIVERS.json',
+    'receivers/legs/ordinary/exunit.json',
+    'receivers/legs/scaffold/exunit.json',
+    'receivers/legs/dep-off/threadline_guard.json',
+    'receivers/commands/ordinary/record.json',
+    'receivers/commands/scaffold/record.json',
+    'receivers/commands/dep-off/record.json',
+  ]) assert.ok(block.includes(`--file ${file}=report`), `${file} must be explicitly staged`);
+  assert.match(block, /artifact-name: sigra-ci-/);
+  assert.match(block, /bundle-output: \$\{\{ runner\.temp \}\}\/ci-diagnostics\/library\.zip/);
+  assert.match(block, /--invocation library-ci -- mix ci/);
+  assert.equal((block.match(/--invocation library-ci -- mix ci/g) ?? []).length, 1);
+});
+
 test('metadata keeps configured pins separate from command-observed versions and cache results', () => {
   for (const [id, block] of Object.entries(blocks)) {
     assert.ok(block.includes('configured_versions'), `${id} missing configured pins`);
