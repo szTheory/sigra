@@ -2,6 +2,7 @@
 """Finished-archive security contracts for ci-diagnostic-bundle.py."""
 
 import hashlib
+import io
 import json
 import pathlib
 import subprocess
@@ -17,6 +18,13 @@ STAGER = ROOT / "scripts/ci/ci-diagnostic-bundle.py"
 
 
 class DiagnosticBundleTest(unittest.TestCase):
+    def trace_zip(self, members):
+        payload = io.BytesIO()
+        with zipfile.ZipFile(payload, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, content in members.items():
+                archive.writestr(name, content)
+        return payload.getvalue()
+
     def make_manifest(self, root, files, **extra):
         rows = []
         for relative, payload, kind in files:
@@ -91,6 +99,22 @@ class DiagnosticBundleTest(unittest.TestCase):
                 self.assertIn("secret_sentinel", reasons)
                 self.assertIn("auth_state_excluded", reasons)
                 self.assertNotIn(b"SECRET_SENTINEL_DO_NOT_UPLOAD", b"".join(archive.read(name) for name in archive.namelist()))
+
+    def test_trace_archive_payload_is_scanned_after_decompression(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            payload = self.trace_zip({"trace.trace": b"{\\\"type\\\":\\\"context\\\"}",
+                                      "resources/page.html": b"SECRET_SENTINEL_DO_NOT_UPLOAD"})
+            manifest, _ = self.make_manifest(root, [("trace.zip", payload, "trace")],
+                                             trace_provenance={"synthetic_account": True, "registered": True})
+            output = pathlib.Path(temp) / "diagnostics.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertEqual(0, staged.returncode, staged.stderr)
+            with zipfile.ZipFile(output) as archive:
+                metadata = json.loads(archive.read("bundle-manifest.json"))
+                self.assertNotIn("trace.zip", metadata["members"])
+                self.assertIn("secret_sentinel_detected", json.dumps(metadata["withheld"]))
 
     def test_escaping_symlink_duplicate_member_and_identity_mismatch_are_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
