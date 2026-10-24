@@ -140,3 +140,15 @@ test('metadata keeps configured pins separate from command-observed versions and
   assert.match(blocks.example_playwright_shard, /capture\('elixir',\['--version'\]/);
   assert.match(blocks.example_playwright_shard, /capture\('node',\['--version'\]/);
 });
+
+test('captures native image identity before setup and rejects changes before artifact publication', () => {
+  for (const [id, block] of Object.entries(blocks)) {
+    assert.match(block, /runs-on: ubuntu-24\.04/);
+    const early = block.indexOf('ci-runner-image.mjs capture --output');
+    const setup = block.search(/uses: (?:erlef\/setup-beam|\.\/\.github\/actions\/example-playwright-boot)/);
+    assert.ok(early >= 0 && setup > early, `${id} requires an early image record`);
+    assert.ok(block.includes('verifyFromSystem(proof)'), `${id} must verify the initial file again`);
+    assert.ok(block.includes("if(verification.status!=='verified')process.exitCode=1"));
+    assert.ok(block.includes('source_proof:proof,verification'));
+  }
+});

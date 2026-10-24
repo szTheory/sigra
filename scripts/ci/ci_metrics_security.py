@@ -467,6 +467,18 @@ def comparison_native_inventories(contract: dict, role: str, root: pathlib.Path)
                 or snapshot.get('tree_sha') != git('rev-parse',source+'^{tree}').decode().strip()
                 or hashlib.sha256(git('show',inventory_source+':.github/workflows/ci.yml')).hexdigest() != descriptor.get('workflow_sha256')):
             raise ValueError('comparison_inventory_amended_source_mismatch')
+        if authority.get('method') == 'symmetric_environment_transport_recovery':
+            amendment = (proposal.get('patches') or {}).get(role) or {}
+            patch = (root/amendment.get('path', '')).resolve()
+            base = amendment.get('base_sha')
+            if (proposal.get('inventory_sources', {}).get(role) != inventory_source
+                    or snapshot.get('reviewed_source') != base
+                    or not re.fullmatch('[0-9a-f]{40}', str(base or ''))
+                    or not patch.is_relative_to(root) or not _matches(patch, amendment.get('sha256'))
+                    or hashlib.sha256(git('diff', '--binary', '--full-index', base, source)).hexdigest() != amendment.get('sha256')
+                    or git('diff', '--name-only', base, source).decode().splitlines() != amendment.get('allowed_paths')):
+                raise ValueError('comparison_inventory_environment_patch_mismatch')
+            return proof['authorization_sha256']
         if role == 'before':
             patch = (root/proposal.get('patch_path','')).resolve()
             if (snapshot.get('reviewed_source') != inventory_source or not patch.is_relative_to(root)
@@ -521,13 +533,55 @@ def comparison_native_inventories(contract: dict, role: str, root: pathlib.Path)
     return result
 
 
-def comparison_runner_images(metadata: list[dict]) -> dict:
+def comparison_runner_images(metadata: list[dict], *, require_proof: bool = False) -> dict:
     """Match images by the work they execute; equal image sets can hide owner drift."""
     result = {}
     for row in metadata:
         owner = row.get('matrix_seam')
         key = f"{row.get('job_name')} ({owner})" if owner else row.get('job_name')
         image = row.get('runner_image') or {}
+        proof = image.get('source_proof')
+        if require_proof or proof is not None:
+            try:
+                if proof.get('status') != 'verified' or proof.get('schema_version') != 'sigra.ci-runner-image/v1':
+                    raise ValueError('unverified')
+                raw = {}
+                for field in ('image_file', 'os_release_file'):
+                    retained = proof[field]
+                    data = base64.b64decode(retained['base64'], validate=True)
+                    if hashlib.sha256(data).hexdigest() != retained['sha256']:
+                        raise ValueError('hash')
+                    raw[field] = data.decode()
+                images = [item for item in json.loads(raw['image_file']) if item.get('group') == 'Runner Image']
+                if len(images) != 1:
+                    raise ValueError('image_row')
+                lines = images[0]['detail'].splitlines()
+                names = [line[7:] for line in lines if line.startswith('Image: ')]
+                versions = [line[9:] for line in lines if line.startswith('Version: ')]
+                normalize = lambda value: 'ubuntu24' if value in ('ubuntu24', 'ubuntu-24.04') else None
+                actual = {'image_os': normalize(names[0]), 'image_version': versions[0]}
+                if (len(names) != 1 or len(versions) != 1 or actual['image_os'] is None
+                        or not re.fullmatch(r'[0-9]{8}\.[0-9]+\.[0-9]+', actual['image_version'])
+                        or any(proof.get(field) != actual for field in ('environment_image', 'file_image', 'runner_image'))
+                        or image.get('image_os') != actual['image_os'] or image.get('image_version') != actual['image_version']):
+                    raise ValueError('image_conflict')
+                os_fields = dict(line.split('=', 1) for line in raw['os_release_file'].splitlines() if re.match(r'^(ID|VERSION_ID)=', line))
+                if os_fields.get('ID', '').strip('"') != 'ubuntu' or os_fields.get('VERSION_ID', '').strip('"') != '24.04':
+                    raise ValueError('os')
+                identity = proof['identity']
+                for field in ('repository', 'run_id', 'run_attempt', 'source_sha', 'matrix_seam'):
+                    if str(identity.get(field)) != str(row.get(field)):
+                        raise ValueError('identity')
+                verification = image['verification']
+                if (verification.get('status') != 'verified' or verification.get('runner_image') != actual
+                        or verification.get('identity') != identity
+                        or verification.get('image_file_sha256') != proof['image_file']['sha256']
+                        or verification.get('os_release_sha256') != proof['os_release_file']['sha256']
+                        or verification.get('machine') != proof.get('machine')
+                        or proof.get('machine') != {'X64': 'x86_64', 'ARM64': 'aarch64'}.get(row.get('runner_arch'))):
+                    raise ValueError('verification')
+            except (ValueError, TypeError, KeyError, IndexError, AttributeError) as error:
+                raise ValueError('comparison_runner_image_proof_invalid') from error
         if (not key or key in result or not row.get('runner_os') or not row.get('runner_arch')
                 or not image.get('image_os') or not image.get('image_version')):
             raise ValueError('comparison_runner_image_missing_or_duplicate_owner')

@@ -81,7 +81,7 @@ export function buildPreparationCommands(actionSource) {
 
 export function assertPreparationCacheContract(actionSource) {
   const action = actionSource;
-  for (const token of ['inputs.app-port', 'steps.setup_beam.outputs.otp-version', 'steps.setup_beam.outputs.elixir-version', '-dev-', 'restore-keys:', 'deps.get', 'compile --warnings-as-errors', 'PGDATABASE:', 'PGPORT:', 'PORT:', 'MIX_ENV: dev', 'ecto.create', 'ecto.migrate', 'run priv/repo/seeds.exs', 'run: npm ci', 'npx playwright install-deps $BROWSERS', 'npx playwright install --with-deps $BROWSERS', 'Boot example app', 'mix phx.server', 'Wait for app and warm routes', 'curl -sf "$BASE_URL/"']) {
+  for (const token of ['inputs.app-port', 'steps.setup_beam.outputs.otp-version', 'steps.setup_beam.outputs.elixir-version', '-dev-', 'restore-keys:', 'deps.get', 'compile --warnings-as-errors', 'PGDATABASE:', 'PGPORT:', 'PORT:', 'MIX_ENV: dev', 'ecto.create', 'ecto.migrate', 'run priv/repo/seeds.exs', 'run: npm ci', 'ci-playwright-os-deps.py', '--playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS', 'npx playwright install $BROWSERS', 'Boot example app', 'mix phx.server', 'Wait for app and warm routes', 'curl -sf "$BASE_URL/"']) {
     if (!action.includes(token)) throw new Error(`preparation_contract_missing:${token}`);
   }
   buildPreparationCommands(action);

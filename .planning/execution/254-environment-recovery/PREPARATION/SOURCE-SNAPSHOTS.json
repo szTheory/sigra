@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "sources": {
+    "before": {
+      "application_sha": "2b0e51d37184ffb95698dea586eebf3c42a33d85",
+      "tree_sha": "5061dec9c3d0d8d3d6be861e20dbc9a88c538396",
+      "branch": "evidence/phase254-environment-before-20261024",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "7e8cf6ac845ef4f5dbeb5ca63f45632bca954560",
+      "workflow_sha256": "863d087197b8ed2199c1aa5e2a6aaf40d121f9936ea270e3711149b5dfb11809"
+    },
+    "after": {
+      "application_sha": "c074333db2658cb0726a9ee23535e4c43a9f8c64",
+      "tree_sha": "f29a2e812352d4d8bc1b2bd3d162799f2f02b9ff",
+      "branch": "evidence/phase254-environment-after-20261024",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+      "workflow_sha256": "eddde7220599f058a0bd85ac3dcb546b772cc346a774c6b9b858fb28aa252220"
+    }
+  }
+}

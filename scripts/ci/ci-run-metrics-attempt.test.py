@@ -559,6 +559,23 @@ else:
                     self.assertEqual(detail['workload'], 'full')
                     self.assertTrue(all(len(list((raw_run.parent / "artifacts/derived-native" / owner).glob("coverage-source.json"))) == 1 for owner in OWNERS))
                     if role == 'before':
+                        # The isolated diagnostic uses the same bounded, digest-checked artifact transport.
+                        chosen = retained_artifacts[0]
+                        write(root / 'single-artifact.json', chosen)
+                        download_command = ['bash', str(ROOT / 'scripts/ci/ci-run-metrics.sh'),
+                            '--bounded-artifact-download', '--validate-artifact-json', str(root / 'single-artifact.json'),
+                            '--run-json', str(directory / 'run.json'), '--contract', str(root / 'acquisition-contract.json'),
+                            '--request-budget-ledger', str(root / 'budget.json')]
+                        downloaded = root / 'single-artifact.zip'
+                        acquired = subprocess.run(download_command + ['--output', str(downloaded)],
+                            cwd=ROOT, env=environment, capture_output=True, text=True, timeout=30)
+                        self.assertEqual(acquired.returncode, 0, acquired.stderr)
+                        self.assertEqual('sha256:' + digest(downloaded), chosen['digest'])
+                        write(root / 'single-artifact.json', {**chosen, 'digest': 'sha256:' + '0' * 64})
+                        rejected = subprocess.run(download_command + ['--output', str(root / 'tampered-artifact.zip')],
+                            cwd=ROOT, env=environment, capture_output=True, text=True, timeout=30)
+                        self.assertNotEqual(rejected.returncode, 0)
+                        self.assertFalse((root / 'tampered-artifact.zip').exists())
                         preparation = subprocess.run(['bash', str(ROOT / 'scripts/ci/ci-run-metrics.sh'),
                             '--collect-preparation', '--comparison-role', role, '--contract', str(root / 'acquisition-contract.json'),
                             '--run-json', str(root / 'early-before.json'), '--request-budget-ledger', str(root / 'budget.json'),
@@ -619,6 +636,34 @@ else:
 
 
 class ApprovedInventoryAmendment(unittest.TestCase):
+    def test_independent_image_reader_rejects_conflicting_or_tampered_native_proof(self):
+        from ci_metrics_security import comparison_runner_images
+        module=(ROOT/'scripts/ci/ci-runner-image.mjs').as_uri()
+        javascript = """
+import {captureRunnerImage, verifyRunnerImage} from MODULE;
+const env={ImageOS:'ubuntu24',ImageVersion:'20261012.334.1',GITHUB_REPOSITORY:'szTheory/sigra',
+ GITHUB_RUN_ID:'9001',GITHUB_RUN_ATTEMPT:'1',GITHUB_SHA:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',GITHUB_JOB:'example_playwright_shard',MATRIX_SEAM:'design_gallery'};
+const input={imageData:Buffer.from(JSON.stringify([{group:'Runner Image',detail:'Image: ubuntu-24.04\\nVersion: 20261012.334.1'}])),
+ osRelease:Buffer.from('ID=ubuntu\\nVERSION_ID="24.04"\\n'),machine:'x86_64',env};
+const proof=captureRunnerImage(input);const verification=verifyRunnerImage({proof,...input});
+console.log(JSON.stringify({repository:env.GITHUB_REPOSITORY,run_id:'9001',run_attempt:'1',source_sha:env.GITHUB_SHA,
+ matrix_seam:'design_gallery',job_name:'Example Playwright shard',runner_os:'Linux',runner_arch:'X64',
+ runner_image:{...proof.runner_image,source_proof:proof,verification}}));
+""".replace('MODULE',json.dumps(module))
+        result=subprocess.run(['node','--input-type=module','-e',javascript],capture_output=True,text=True,check=True)
+        row=json.loads(result.stdout)
+        actual=comparison_runner_images([row],require_proof=True)
+        self.assertEqual(actual['Example Playwright shard (design_gallery)']['image_version'],'20261012.334.1')
+        for mutation in ('missing','bytes','environment','run','verification'):
+            changed=json.loads(json.dumps(row))
+            if mutation=='missing':changed['runner_image'].pop('source_proof')
+            elif mutation=='bytes':changed['runner_image']['source_proof']['image_file']['base64']=base64.b64encode(b'[]').decode()
+            elif mutation=='environment':changed['runner_image']['source_proof']['environment_image']['image_version']='20261023.334.3'
+            elif mutation=='run':changed['run_id']='9002'
+            else:changed['runner_image']['verification']['status']='image_identity_conflict'
+            with self.assertRaisesRegex(ValueError,'comparison_runner_image_proof_invalid'):
+                comparison_runner_images([changed],require_proof=True)
+
     def test_same_image_set_does_not_hide_images_swapped_between_browser_owners(self):
         from ci_metrics_security import comparison_runner_images
         def row(owner,version):

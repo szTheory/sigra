@@ -130,10 +130,10 @@ runs:
         CACHE_HIT: ${{ steps.browser_cache_result.outputs.hit }}
       run: |
         set -euo pipefail
-        if [ "$CACHE_HIT" = "true" ]; then
-          npx playwright install-deps $BROWSERS
-        else
-          npx playwright install --with-deps $BROWSERS
+        python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
+          --playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS
+        if [ "$CACHE_HIT" != "true" ]; then
+          npx playwright install $BROWSERS
         fi
 
     - name: Boot example app

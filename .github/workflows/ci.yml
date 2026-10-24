@@ -353,6 +353,11 @@ jobs:
         # is NOT run here -- it requires a live `gh` against a real run -- only its
         # PATH-shadowed self-test, which makes no network call and needs no GH_TOKEN.
         run: bash scripts/ci/ci-run-metrics.test.sh
+      - name: Browser package acquisition and runner identity self-tests
+        run: |
+          python3 scripts/ci/ci-apt-transfer-probe.test.py
+          python3 scripts/ci/ci-playwright-os-deps.test.py
+          node --test scripts/ci/ci-runner-image.test.mjs
       - name: Offline attestation runtime self-test
         run: bash scripts/ci/verify-terminal-ratification-attestation-offline.test.sh
       - name: Verify retained terminal attestation offline
@@ -550,7 +555,7 @@ jobs:
   # library contract checked on every pull request.
   library_tests_shard:
     name: Library tests shard
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     needs: release_ref_guard
     services:
@@ -566,6 +571,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
@@ -670,6 +679,20 @@ jobs:
           fs.mkdirSync('test-results', { recursive: true });
           fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata, null, 2)}\n`);
           NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
       - name: Upload library measurement metadata
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -768,7 +791,7 @@ jobs:
 
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: [changes]
     # Phase 230 (FAST-05 / D-09, D-07): first time this required lane gains
@@ -791,6 +814,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
@@ -863,6 +890,20 @@ jobs:
           const metadata = { schema_version:'sigra.ci-measurement-metadata/v1', repository:process.env.GITHUB_REPOSITORY ?? null, run_id:process.env.GITHUB_RUN_ID ?? null, run_attempt:process.env.GITHUB_RUN_ATTEMPT ?? null, source_sha:process.env.GITHUB_SHA ?? null, event:process.env.GITHUB_EVENT_NAME ?? null, matrix_seam:null, job_name:process.env.JOB_NAME, runner_os:process.env.RUNNER_OS ?? null, runner_arch:process.env.RUNNER_ARCH ?? null, runner_image:{image_os:process.env.ImageOS ?? null,image_version:process.env.ImageVersion ?? null}, cache_outcome:{example_deps:cache(process.env.EXAMPLE_DEPS_CACHE_HIT)}, configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null}, observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null}, version_unavailable:{erlang:reasons(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reasons(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'} };
           fs.mkdirSync('test-results', { recursive:true }); fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata,null,2)}\n`);
           NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
       - name: Upload example unit measurement metadata
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -876,7 +917,7 @@ jobs:
     # Also closes SEED-3 / UAT-01 greenfield: `mix sigra.gen.oauth` + path/migration/router
     # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
@@ -897,6 +938,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
@@ -967,6 +1012,20 @@ jobs:
           const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{library_deps:cache(process.env.INSTALL_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
           fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
           NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
       - name: Upload install smoke measurement metadata
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -1267,7 +1326,7 @@ jobs:
 
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
@@ -1287,6 +1346,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
@@ -1371,6 +1434,20 @@ jobs:
           const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.HTTP_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
           fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
           NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
       - name: Upload HTTP smoke measurement metadata
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -1382,7 +1459,7 @@ jobs:
 
   example_playwright_shard:
     name: Example Playwright shard (${{ matrix.seam }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: [release_ref_guard, changes]
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
@@ -1437,6 +1514,12 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Capture runner image identity before setup
+        env:
+          MATRIX_SEAM: ${{ matrix.seam }}
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
 
       - name: Boot isolated example app
         id: boot
@@ -1694,6 +1777,24 @@ jobs:
           const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:process.env.MATRIX_SEAM??null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.BROWSER_DEPS_CACHE_HIT),browser_binaries:cache(process.env.BROWSER_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:process.env.CONFIGURED_NODE??null,playwright:playwrightPin},observed_versions:{erlang:otp.value,elixir:elixir.value,node:node.value,playwright:playwright.value},version_unavailable:{erlang:otp.reason,elixir:elixir.reason,node:node.reason,playwright:playwright.reason}};
           fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
           NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        env:
+          MATRIX_SEAM: ${{ matrix.seam }}
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          const depsPath=process.env.RUNNER_TEMP+'/playwright-os-deps.json';
+          metadata.os_dependencies=fs.existsSync(depsPath)?JSON.parse(fs.readFileSync(depsPath,'utf8')):null;
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
       - name: Upload Playwright measurement metadata
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -2052,7 +2153,7 @@ jobs:
   # a PR is opened for human review (OQ2) before anything merges to main.
   admin_design_recapture:
     name: Recapture admin-design baselines (in-CI)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
     needs: release_ref_guard
@@ -2296,7 +2397,7 @@ jobs:
 
   admin_checkpoint_recapture:
     name: Recapture admin-checkpoint baselines (in-CI)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
     needs: release_ref_guard
@@ -2483,7 +2584,7 @@ jobs:
   # forbids reinstating the job-level mask and requires the step-level flag to stay.
   admin_eval_render:
     name: Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     needs: [release_ref_guard]
     if: github.event_name != 'pull_request'

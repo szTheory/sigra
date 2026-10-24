@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "method": "symmetric_environment_transport_recovery",
+  "approval": {
+    "source": "Current user recovery request in this turn",
+    "verbatim_scope": "resolve the issue unblock us ... reconsider approach ... fan out ... auto follow those ... i dont want us stuck in a blocked/looped",
+    "delegated_actions": "Investigate, select and apply the coherent repair, and run the bounded verification needed to unblock the existing Phase254 work."
+  },
+  "proposal_path": ".planning/execution/254-environment-recovery/PREPARATION/PROPOSAL.json",
+  "proposal_sha256": "bce00ff030f5fbbeb508fa26f46617b1efc7727bc8d166d719538f83d9a6e257",
+  "diagnostic": ".planning/execution/254-environment-recovery/DIAGNOSTIC-RESULT.json",
+  "new_preparation_allowance": {
+    "initial_real_PR_invocations": 2,
+    "one_per_frozen_condition": true,
+    "trigger_retries": 0,
+    "minutes": 60,
+    "actual_HTTP_requests": 600
+  },
+  "all_prior_allowances": "closed, spent, unchanged; no reset",
+  "measured_samples": 0,
+  "measured_allowance": "Original40 unspent; originalthresholds andonce-onlywindow remain unchanged"
+}

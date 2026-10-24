@@ -100,6 +100,7 @@ REQUEST_METHOD="GET"
 REQUEST_BODY=""
 COLLECT_PREPARATION=false
 ASSEMBLE_COMPARISON=false
+BOUNDED_ARTIFACT=false
 CAPTURE_RECEIPT_FILE=""
 FAILED_JOB_ID=""
 FAILED_JOB_RECEIPT=""
@@ -154,6 +155,7 @@ while [[ $# -gt 0 ]]; do
     --bounded-request) BOUNDED_REQUEST="$2"; shift 2;;
     --collect-preparation) COLLECT_PREPARATION=true; shift;;
     --assemble-comparison) ASSEMBLE_COMPARISON=true; shift;;
+    --bounded-artifact-download) BOUNDED_ARTIFACT=true; shift;;
     --capture-receipt) CAPTURE_RECEIPT_FILE="$2"; shift 2;;
     --collect-failed-job-log) FAILED_JOB_ID="$2"; shift 2;;
     --failed-job-receipt) FAILED_JOB_RECEIPT="$2"; shift 2;;
@@ -1200,7 +1202,7 @@ for registration in registrations:
             'directory':str(output.relative_to(root)),'file_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in output.iterdir()}})
     detail['derived_native_coverage']=derived
     (family/'manifest.json').write_text(json.dumps(detail,sort_keys=True,separators=(',',':')))
-    images=comparison_runner_images([m for m,_ in producer])
+    images=comparison_runner_images([m for m,_ in producer],require_proof=contract.get('runner_image_proof_required') is True)
     caches=[value for m,_ in metadata for value in (m.get('cache_outcome') or {}).values()]
     warm=bool(caches) and all(value in ('hit',True) for value in caches)
     families.append({'reservation_id':registration['reservation_id'],'pair_id':registration['pair_id'],'family_role':role,'run_id':int(run_id),
@@ -2118,6 +2120,25 @@ fi
 
 if [[ "$MODE" != "wall" && "$MODE" != "jobspan" ]]; then
   fail "unknown --mode: ${MODE} (expected wall|jobspan)"
+fi
+
+if [[ "$BOUNDED_ARTIFACT" == true ]]; then
+  [[ -s "$CONTRACT_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -s "$ARTIFACT_JSON" && -s "$RUN_JSON" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "bounded_artifact_inputs_missing"
+  validate_artifact_metadata "$ARTIFACT_JSON" "$RUN_JSON" | jq -e '.status=="verified"' >/dev/null || fail "bounded_artifact_origin_invalid"
+  API_STARTED="$(date +%s)"; API_TEMP_DIR="$(mktemp -d)"; API_LEDGER="${DIAGNOSIS_OUTPUT}.requests.json"
+  api_get rate_limit "$API_TEMP_DIR/rate.json" || fail "bounded_artifact_rate_preflight_blocked"
+  artifact_id="$(jq -r '.id' "$ARTIFACT_JSON")"
+  api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${artifact_id}/zip" "$API_TEMP_DIR/artifact.zip" "artifact:${artifact_id}" || fail "bounded_artifact_download_failed"
+  python3 - "$API_TEMP_DIR/artifact.zip" "$ARTIFACT_JSON" <<'PYARTIFACT' || fail "bounded_artifact_digest_invalid"
+import hashlib,json,pathlib,sys
+expected=json.loads(pathlib.Path(sys.argv[2]).read_text())['digest']
+if 'sha256:'+hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest()!=expected: raise SystemExit(1)
+PYARTIFACT
+  mv "$API_TEMP_DIR/artifact.zip" "$DIAGNOSIS_OUTPUT"
+  api_write_ledger complete
+  API_COMPLETED=true
+  rm -rf "$API_TEMP_DIR"
+  exit 0
 fi
 
 if [[ "$ASSEMBLE_COMPARISON" == true ]]; then
