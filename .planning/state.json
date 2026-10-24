@@ -67,11 +67,11 @@
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 255.1",
-    "label": "Plan Phase 255.1",
-    "reason": "Confirmed repaired-control amendment and context; no prerequisite blocker. Original comparison stays closed; no hosted collection authorized."
+    "command": "$gsd-execute-phase 255.1",
+    "label": "Execute Phase 255.1",
+    "reason": "Seven checked plans; no prerequisite blocker. Local development first; separate hosted preparation and collection approval stops."
   },
-  "updated_at": "2026-10-24T22:05:29.442563+00:00",
+  "updated_at": "2026-10-24T22:34:46.494680+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -174,9 +174,9 @@
   "phase255_completed_plans": 7,
   "phase255_implementation_status": "complete",
   "phase255_verification_status": "passed",
-  "workflow_step": "context_gathered_ready_for_planning",
-  "next_command": "$gsd-plan-phase 255.1",
-  "resume_command": "$gsd-plan-phase 255.1",
+  "workflow_step": "planned_ready_to_execute",
+  "next_command": "$gsd-execute-phase 255.1",
+  "resume_command": "$gsd-execute-phase 255.1",
   "phase255_review_open": 0,
   "historical_verification_is_forward_blocker": false,
   "phase255_completion_preservation": {
@@ -203,7 +203,7 @@
     "prior_state_commit": "aaf04c4025e0d74addfcac62e84b7259ad5ef6c8"
   },
   "phase255_1": {
-    "status": "pending",
+    "status": "planned",
     "implementation_status": "not_started",
     "verification_status": "pending",
     "directory": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
@@ -214,7 +214,7 @@
       "generated_state_preserved_ref": "refs/evidence/phase255-1-insertion/before-custom-state-restore"
     },
     "discussion_status": "complete",
-    "planning_status": "pending",
+    "planning_status": "passed",
     "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
     "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
     "claim_amendment_approved": true,
@@ -225,6 +225,67 @@
       "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/PRESERVATION.json",
       "read_back_equal": true
     },
-    "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
-  }
+    "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
+    "plan_count": 7,
+    "task_count": 16,
+    "wave_count": 7,
+    "completed_plans": 0,
+    "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
+    "preparation_authorized": false,
+    "readiness": {
+      "schema_version": 1,
+      "checked_at": "2026-10-24T22:34:46.494680+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
+      "phase": "255.1",
+      "phase_found": true,
+      "has_context": true,
+      "has_research": true,
+      "has_plans": true,
+      "plan_count": 7,
+      "wave_count": 7,
+      "task_count": 16,
+      "incomplete_count": 7,
+      "prerequisite_blockers_reported": [],
+      "next_command": "$gsd-execute-phase 255.1",
+      "implementation_status": "not_started",
+      "verification_status": "pending",
+      "planning_status": "passed",
+      "collection_authorized": false,
+      "preparation_authorized": false,
+      "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+      "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+      "original_comparison_status": "insufficient_data",
+      "historical_verification_is_forward_blocker": false,
+      "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
+      "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
+    },
+    "generated_state_preservation": {
+      "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
+      "commit": "48e21b1d70ef5803d63c1e002e21862c6d6a0af9",
+      "capture_head": "73e2ea873659ef130dcd67848c7678071c093e1f",
+      "paths": {
+        ".planning/STATE.md": {
+          "status": " M",
+          "sha256": "3f4eeecd1efbc56e08911334b39fae43890bd3cf963c71280048d041c48c5d6e",
+          "read_back_equal": true
+        },
+        ".planning/state.json": {
+          "status": " M",
+          "sha256": "411a9571a8d8dc33fcc1f9c81af731109721a15bf54f6524d89ce4ca6a3aac9f",
+          "read_back_equal": true
+        }
+      }
+    }
+  },
+  "status": "ready_to_execute",
+  "implementation_status": "not_started",
+  "verification_status": "pending",
+  "progress": {
+    "total_plans": 138
+  },
+  "remaining_blockers": [
+    "Source/cache/runner and equivalent actual workload feasibility remain to be proven during execution.",
+    "Hosted preparation and collection require separate concrete approvals.",
+    "CISPEED-01/02 remain open; original Phase254 verification remains separately pending."
+  ]
 }

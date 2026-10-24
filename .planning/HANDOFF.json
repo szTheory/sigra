@@ -1,36 +1,50 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:05:29.442563+00:00",
-  "status": "context_gathered_ready_for_planning",
+  "updated_at": "2026-10-24T22:34:46.494680+00:00",
+  "status": "planned_ready_to_execute",
   "current_milestone": "v1.50",
   "current_phase": "255.1",
   "current_plan": null,
   "completed_plans": [],
-  "remaining_plans": [],
+  "remaining_plans": [
+    "255.1-01-PLAN.md",
+    "255.1-02-PLAN.md",
+    "255.1-03-PLAN.md",
+    "255.1-04-PLAN.md",
+    "255.1-05-PLAN.md",
+    "255.1-06-PLAN.md",
+    "255.1-07-PLAN.md"
+  ],
   "implementation_status": "not_started",
   "verification_status": "pending",
-  "next_command": "$gsd-plan-phase 255.1",
-  "resume_command": "$gsd-plan-phase 255.1",
-  "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+  "next_command": "$gsd-execute-phase 255.1",
+  "resume_command": "$gsd-execute-phase 255.1",
+  "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md",
   "readiness": {
     "schema_version": 1,
-    "checked_at": "2026-10-24T22:06:09.002308+00:00",
-    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255.1",
+    "checked_at": "2026-10-24T22:34:46.494680+00:00",
+    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
     "phase": "255.1",
     "phase_found": true,
     "has_context": true,
-    "has_research": false,
-    "has_plans": false,
-    "plan_count": 0,
+    "has_research": true,
+    "has_plans": true,
+    "plan_count": 7,
+    "wave_count": 7,
+    "task_count": 16,
+    "incomplete_count": 7,
     "prerequisite_blockers_reported": [],
-    "next_command": "$gsd-plan-phase 255.1",
+    "next_command": "$gsd-execute-phase 255.1",
     "implementation_status": "not_started",
     "verification_status": "pending",
+    "planning_status": "passed",
     "collection_authorized": false,
+    "preparation_authorized": false,
     "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
     "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
     "original_comparison_status": "insufficient_data",
     "historical_verification_is_forward_blocker": false,
+    "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
     "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
   },
   "hosted_canary": {
@@ -69,7 +83,8 @@
     "verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md",
     "milestone_audit": ".planning/v1.50-MILESTONE-AUDIT.md",
     "phase255_1_context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
-    "phase255_1_decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json"
+    "phase255_1_decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+    "phase255_1_plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json"
   },
   "constraints": [
     "Keep Phase 254 comparison terminal insufficient_data; no new comparison runs or renewed historical budget.",
@@ -177,7 +192,7 @@
   },
   "phase255_1": {
     "discussion_status": "complete",
-    "planning_status": "pending",
+    "planning_status": "passed",
     "implementation_status": "not_started",
     "verification_status": "pending",
     "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
@@ -191,10 +206,86 @@
       "read_back_equal": true
     },
     "remaining_blockers": [
-      "Plans not created; source/cache/runner/actual workload feasibility unproved",
-      "Hosted execution scope not authorized; no new performance sample",
-      "CISPEED-01/02 remain open; Phase254 historical verification remains pending"
+      "Source/cache/runner and equivalent actual workload feasibility remain to be proven during execution.",
+      "Hosted preparation and collection require separate concrete approvals.",
+      "CISPEED-01/02 remain open; original Phase254 verification remains separately pending."
     ],
-    "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
+    "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
+    "status": "planned",
+    "directory": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
+    "insertion": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+    "state_restoration": {
+      "original_commit": "2e465d6e18030b37d4576a0b41b76d73043fc5e0",
+      "prior_path": ".planning/state.json",
+      "generated_state_preserved_ref": "refs/evidence/phase255-1-insertion/before-custom-state-restore"
+    },
+    "plan_count": 7,
+    "task_count": 16,
+    "wave_count": 7,
+    "completed_plans": 0,
+    "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
+    "preparation_authorized": false,
+    "readiness": {
+      "schema_version": 1,
+      "checked_at": "2026-10-24T22:34:46.494680+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
+      "phase": "255.1",
+      "phase_found": true,
+      "has_context": true,
+      "has_research": true,
+      "has_plans": true,
+      "plan_count": 7,
+      "wave_count": 7,
+      "task_count": 16,
+      "incomplete_count": 7,
+      "prerequisite_blockers_reported": [],
+      "next_command": "$gsd-execute-phase 255.1",
+      "implementation_status": "not_started",
+      "verification_status": "pending",
+      "planning_status": "passed",
+      "collection_authorized": false,
+      "preparation_authorized": false,
+      "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+      "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+      "original_comparison_status": "insufficient_data",
+      "historical_verification_is_forward_blocker": false,
+      "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
+      "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
+    },
+    "generated_state_preservation": {
+      "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
+      "commit": "48e21b1d70ef5803d63c1e002e21862c6d6a0af9",
+      "capture_head": "73e2ea873659ef130dcd67848c7678071c093e1f",
+      "paths": {
+        ".planning/STATE.md": {
+          "status": " M",
+          "sha256": "3f4eeecd1efbc56e08911334b39fae43890bd3cf963c71280048d041c48c5d6e",
+          "read_back_equal": true
+        },
+        ".planning/state.json": {
+          "status": " M",
+          "sha256": "411a9571a8d8dc33fcc1f9c81af731109721a15bf54f6524d89ce4ca6a3aac9f",
+          "read_back_equal": true
+        }
+      }
+    }
+  },
+  "planning_status": "passed",
+  "generated_state_preservation": {
+    "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
+    "commit": "48e21b1d70ef5803d63c1e002e21862c6d6a0af9",
+    "capture_head": "73e2ea873659ef130dcd67848c7678071c093e1f",
+    "paths": {
+      ".planning/STATE.md": {
+        "status": " M",
+        "sha256": "3f4eeecd1efbc56e08911334b39fae43890bd3cf963c71280048d041c48c5d6e",
+        "read_back_equal": true
+      },
+      ".planning/state.json": {
+        "status": " M",
+        "sha256": "411a9571a8d8dc33fcc1f9c81af731109721a15bf54f6524d89ce4ca6a3aac9f",
+        "read_back_equal": true
+      }
+    }
   }
 }

@@ -405,9 +405,28 @@ Phases 246–251 are archived under `milestones/v1.49-phases/`. Phase 251 implem
 **Depends on:** Phase 255
 **Scope:** Plan a feasible common-source repaired control/candidate and finite preparation/measurement scope using `255.1-CONTEXT.md`. The user approved the new reference for context/planning, not hosted collection. Preserve closed Phase 254 observations, contracts, thresholds, halted outcomes and budgets. A new pass applies to the amended requirements, never retroactively to the old experiment.
 **Context:** `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md`
-**Discussion:** Complete; implementation not started; phase verification pending.
+**Discussion:** Complete. **Planning:** Passed; implementation not started; phase verification pending.
 **Audit:** `.planning/v1.50-MILESTONE-AUDIT.md`
-**Plans:** 0 plans
+**Plans:** 7 plans / 16 tasks / 7 waves
 
 Plans:
-- [ ] TBD (run $gsd-plan-phase 255.1 to break down)
+**Wave 1**
+- [ ] 255.1-01-PLAN.md — Local source tracer and PR/cache feasibility
+
+**Wave 2 *(blocked on Wave 1 completion)***
+- [ ] 255.1-02-PLAN.md — Persistent library reports and actual work parity
+
+**Wave 3 *(blocked on Wave 2 completion)***
+- [ ] 255.1-03-PLAN.md — Source-bound PR timing, actual job cost and bounded acquisition
+
+**Wave 4 *(blocked on Wave 3 completion)***
+- [ ] 255.1-04-PLAN.md — Separate offline replay and honest threshold report
+
+**Wave 5 *(blocked on Wave 4 completion)***
+- [ ] 255.1-05-PLAN.md — Final-source refresh, frozen contract and authority guards
+
+**Wave 6 *(blocked on Wave 5 completion)***
+- [ ] 255.1-06-PLAN.md — Separately approved finite hosted preparation
+
+**Wave 7 *(blocked on Wave 6 completion)***
+- [ ] 255.1-07-PLAN.md — Separately approved measurement and final report
