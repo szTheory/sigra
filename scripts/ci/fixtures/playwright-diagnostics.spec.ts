@@ -21,7 +21,12 @@ async function exerciseBrowserCase(page: Page) {
   expect(title.length).toBeGreaterThan(0);
 }
 
-plainTest('retains a default-context first failure and discards a default-context pass', async ({ page }, testInfo) => {
+plainTest('retains a default-context first failure', async ({ page }, testInfo) => {
+  expect(testInfo.project.use.trace).toBe('retain-on-failure');
+  await exerciseBrowserCase(page);
+});
+
+plainTest('discards a default-context pass', async ({ page }, testInfo) => {
   expect(testInfo.project.use.trace).toBe('retain-on-failure');
   await exerciseBrowserCase(page);
 });

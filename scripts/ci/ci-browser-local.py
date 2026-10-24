@@ -514,7 +514,9 @@ def _run_local(args: argparse.Namespace) -> int:
             })
             command = ["node", str(PLAYWRIGHT / "node_modules/playwright/cli.js"), "test",
                        "--config", str(DIAGNOSTIC_CONFIG), "--project=chromium", "--retries=0"]
-            if args.diagnostic_case == "terminate":
+            if args.grep:
+                command.extend(["--grep", args.grep])
+            elif args.diagnostic_case == "terminate":
                 command.extend(["--grep", "retains a default-context first failure"])
             code = run_recorded(command, PLAYWRIGHT, output_root, f"diagnostic-{args.diagnostic_case}", diagnostic_env)
             command_record_path = output_root / f"diagnostic-{args.diagnostic_case}" / "record.json"
