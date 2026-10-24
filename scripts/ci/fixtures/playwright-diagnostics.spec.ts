@@ -16,6 +16,9 @@ async function exerciseBrowserCase(page: Page) {
   expect(title.length).toBeGreaterThan(0);
 }
 
+// This fixture owns tracing for its manually created browser contexts.
+adminThemeTest.use({ trace: 'off' });
+
 plainTest('retains a default-context first failure and discards a default-context pass', async ({ page }) => {
   await exerciseBrowserCase(page);
 });

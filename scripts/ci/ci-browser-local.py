@@ -274,6 +274,8 @@ def _source_identity() -> dict:
 
 def prepare_owned_example(environment: dict[str, str], root: Path, database: str,
                           marker: str, port: int, owner: dict) -> None:
+    environment = dict(environment)
+    environment["PGUSER"] = environment.get("PGUSER") or getpass.getuser()
     admin_db = environment.get("PGDATABASE") or environment["PGUSER"]
     admin_env = admin_environment(environment, admin_db)
     require_createdb(admin_env)
