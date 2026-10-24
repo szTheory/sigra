@@ -1,0 +1,449 @@
+{
+  "schema_version": "sigra.phase255.review-scope/v1",
+  "capture_base": "86a98d9ad7cb348ba6d620952f90ab2fa941bc59",
+  "source_head": "af1d5904bcd091c100c6bb90abbd57fec08def0f",
+  "scope_source": "Actual source changes since this explicitly captured execution start; cross-checked against every reachable task commit",
+  "commits": [
+    {
+      "sha": "af1d5904bcd091c100c6bb90abbd57fec08def0f",
+      "subject": "docs(255-07): complete replay and reporting plan summary"
+    },
+    {
+      "sha": "2f73730a6e53c69612524eefaa3ec3215a39ee46",
+      "subject": "docs(255-07): publish truthful comparison report and replay guide"
+    },
+    {
+      "sha": "c548370062315e8a3ce2a5e27dc945a352315dec",
+      "subject": "docs(255-07): record bounded distribution retrieval attempts"
+    },
+    {
+      "sha": "83b62cd55fbe3141ebb58a8e23d3d0919d2a1038",
+      "subject": "fix(255-07): replay with the retrieved checkout helper"
+    },
+    {
+      "sha": "e41aabd0c399b95d22262da2ebd45ae69250f290",
+      "subject": "fix(255-07): allow only synthetic replay token fixtures"
+    },
+    {
+      "sha": "c560a0b0edd00b5a12210a21716c92f00b78cad3",
+      "subject": "chore(255-07): freeze replay distribution limits"
+    },
+    {
+      "sha": "e806704792415f27ae94c55b2807004225168ff6",
+      "subject": "feat(255-07): distribute replay package from a fresh checkout"
+    },
+    {
+      "sha": "800b290e30543947a1c050d5084230f792cc13b9",
+      "subject": "test(255-07): assert replay distribution commands"
+    },
+    {
+      "sha": "6c9fb43539dcd7b5489ae591767b828c8a17ce65",
+      "subject": "docs(255): close hosted proof and advance to replay distribution"
+    },
+    {
+      "sha": "5f49ff29959487c2c8f4d3d9c7b70d04415fe11f",
+      "subject": "docs(255-06): complete hosted diagnostics canary plan"
+    },
+    {
+      "sha": "30922ba5170ae7b9525e0d0343dd78d25395446e",
+      "subject": "docs(255-06): retain scoped cancellation evidence"
+    },
+    {
+      "sha": "c5ccb5246059162751419bd212ad21aea3c56d66",
+      "subject": "docs(255-06): record failed fixture logs safely"
+    },
+    {
+      "sha": "972e85337a2562b4aba3512fbc858533fdf1ff48",
+      "subject": "docs(255-06): record failed run log response"
+    },
+    {
+      "sha": "4ffde70fa3d51e36f82e615d4827110b36a9ded7",
+      "subject": "docs(255-06): precharge failed run logs read"
+    },
+    {
+      "sha": "589af125bdf22463cf94cec9e75f3439a1a77094",
+      "subject": "docs(255-06): retain failure and overhead evidence"
+    },
+    {
+      "sha": "d6ce89a067c75308fb254a637691feadf2061349",
+      "subject": "fix(255-06): keep overhead raw runs outside planning"
+    },
+    {
+      "sha": "b894e3f6cca7c473d55e881daaa2ae62d5486e5f",
+      "subject": "docs(255-06): distinguish recovered result from parser stop"
+    },
+    {
+      "sha": "a3cd6a6d4a4ebae8991dc244770e438078ee7476",
+      "subject": "docs(255-06): retain verified success artifact"
+    },
+    {
+      "sha": "02831b210d721240536b4649cfdda42f9f364f48",
+      "subject": "docs(255-06): amend controller-only freeze identity"
+    },
+    {
+      "sha": "c31d1ff4beefccba4fb032ac3964d681081d0c87",
+      "subject": "fix(255-06): accept exact artifact with omitted attempt"
+    },
+    {
+      "sha": "4fe4205b1e2d1a8b481a009bb77590f180bacd4f",
+      "subject": "test(255-06): reject false artifact attempt mismatch"
+    },
+    {
+      "sha": "ca6522eae881e0aeb5768f7458f12ea2df62f4ae",
+      "subject": "docs(255-06): preserve exact run identity response"
+    },
+    {
+      "sha": "72cdb9a1db505963b19a78b9bb8bc57f4f7a98c6",
+      "subject": "docs(255-06): precharge run identity recovery"
+    },
+    {
+      "sha": "f0bea37fd060e9a84239ccd1504b43508466942a",
+      "subject": "docs(255-06): preserve existing run artifact response"
+    },
+    {
+      "sha": "4460b0f375ce928adb387e6faf1b33dbb3baf930",
+      "subject": "docs(255-06): precharge existing artifact identity read"
+    },
+    {
+      "sha": "bded1c721c14f88da7d7c78b445d2868cc87c9d5",
+      "subject": "docs(255-06): preserve artifact identity blocker"
+    },
+    {
+      "sha": "b613dc056411bc465b230d1ec2bceea8263ce20b",
+      "subject": "docs(255-06): confirm scoped fixture push"
+    },
+    {
+      "sha": "dd8981fab7d55f54085e341c57e17371bde73818",
+      "subject": "docs(255-06): precharge delayed push reconciliation"
+    },
+    {
+      "sha": "a570318fbb779dd7ab6c584d2ec21c499a838620",
+      "subject": "docs(255-06): preserve absent push reconciliation"
+    },
+    {
+      "sha": "99d7b9dc642a76212a074f0655d9f4c8037ae24f",
+      "subject": "docs(255-06): precharge scoped fixture push"
+    },
+    {
+      "sha": "0c758b604909452c6a2dbd7854adbd68b03972f1",
+      "subject": "docs(255-06): freeze bounded diagnostics canary"
+    },
+    {
+      "sha": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
+      "subject": "fix(255-06): bind local evidence preflight to freeze"
+    },
+    {
+      "sha": "520178c584fac0eed400a4b37f6461e09b02b33e",
+      "subject": "feat(255-06): retain source-bound CI diagnostics"
+    },
+    {
+      "sha": "3ad738e083e2077bc7d00c24bd3a22a02ceaf37a",
+      "subject": "test(255-06): assert bounded diagnostic canary contracts"
+    },
+    {
+      "sha": "f02fea0ad6f7d9d03a146ed884b4c4348530935f",
+      "subject": "docs(255): preserve local raw diagnostics and advance to hosted proof"
+    },
+    {
+      "sha": "51ca37089d7379f5a8628b721b18be00b9d24f74",
+      "subject": "docs(255-05): complete scoped browser diagnostics plan"
+    },
+    {
+      "sha": "ce60c0d50ed32c9d84ead20ffc7ebf08771cae50",
+      "subject": "docs(255-05): normalize captured termination evidence"
+    },
+    {
+      "sha": "d0c4785e78264deeff0fd6e60867aea0bdd06179",
+      "subject": "test(255-05): preserve verified native diagnostic bundle"
+    },
+    {
+      "sha": "7bad04a200ffcecc759cd1d947c141609d96a037",
+      "subject": "fix(255-05): record native signal outcomes directly"
+    },
+    {
+      "sha": "59ed88c32673635757981770e50c228e92158b15",
+      "subject": "fix(255-05): keep safe bundle assertions source-bound"
+    },
+    {
+      "sha": "2a1fd9daff240fdd817644f7bae69a80642c77c4",
+      "subject": "fix(255-05): collect only native diagnostic artifacts"
+    },
+    {
+      "sha": "cb35681c064b2666269c2e50dfec534912df05e3",
+      "subject": "test(255-05): require registered adminTheme traces"
+    },
+    {
+      "sha": "2a3c3574399a48f5f7730d9272187af5e661b9fa",
+      "subject": "fix(255-05): bind overhead timing to native test duration"
+    },
+    {
+      "sha": "408d684462f19b58cf652b7c9b7a31814bb31e98",
+      "subject": "fix(255-05): redact auth data in retained trace bundles"
+    },
+    {
+      "sha": "43a4ca74f5e8253e4d8b0ad05fbc9f8cd514a40e",
+      "subject": "test(255-05): require safe usable Playwright trace bundles"
+    },
+    {
+      "sha": "b013250af90d2ba5fb6ed7e298cc7fe026b3e210",
+      "subject": "fix(255-05): report unavailable traces before context creation"
+    },
+    {
+      "sha": "854ded9f00b6d0ddf2b16fd81740f2956f77c63f",
+      "subject": "test(255-05): require precontext unavailable reasons"
+    },
+    {
+      "sha": "bc40f77bcb0afb6a8fb210abdfcb6d2b65e1170d",
+      "subject": "fix(255-05): inspect Playwright trace member variants"
+    },
+    {
+      "sha": "7565fef5d6d7a15d6710d9972fe518606297aa40",
+      "subject": "fix(255-05): verify expected native failure semantics"
+    },
+    {
+      "sha": "a423b7d20e867ae7274478728f15c28222ff5495",
+      "subject": "feat(255-05): orchestrate native browser diagnostics"
+    },
+    {
+      "sha": "a2ae3e927447aae381534484fd0a43a50cd347e7",
+      "subject": "feat(255-05): capture startup and runner termination diagnostics"
+    },
+    {
+      "sha": "5310fd1e6c01ef3cfd3191d55763c62fb31dfc1b",
+      "subject": "test(255-05): assert recorded signal exit normalization"
+    },
+    {
+      "sha": "112e3b5fdb44acf41a10bf0ff13eef89262ee7aa",
+      "subject": "test(255-05): require startup and termination probes"
+    },
+    {
+      "sha": "6deba76e23c532d398f71c409bb2f7000f10996a",
+      "subject": "fix(255-05): inspect retained trace ZIP members"
+    },
+    {
+      "sha": "0d8fd52ed9472a3ae7b29be11c6bce9a26aa913b",
+      "subject": "test(255-05): reject secrets nested in trace archives"
+    },
+    {
+      "sha": "8e7adb18fed401d6b3c31f8f82d162fd777d6dd7",
+      "subject": "test(255-05): trust adminTheme trace lifecycle result"
+    },
+    {
+      "sha": "30c25e6180e9d5721f28c077b860b7f1a21e52c9",
+      "subject": "test(255-05): isolate default and manual trace fixtures"
+    },
+    {
+      "sha": "38438e4c1c2723316201897c44455ba6ddbfda72",
+      "subject": "fix(255-05): restore local browser role and trace ownership"
+    },
+    {
+      "sha": "626b8965cdd454a1f4fc9b5e9173925e01fbbbf9",
+      "subject": "test(255-05): require PostgreSQL role fallback"
+    },
+    {
+      "sha": "f3f734d3a60cfc1984d10a38ec8d695924e28efb",
+      "subject": "feat(255-05): run isolated local Playwright diagnostic probes"
+    },
+    {
+      "sha": "29f5f5db3ab041530509e76c866d797055d47710",
+      "subject": "test(255-05): assert native diagnostic invocation mode"
+    },
+    {
+      "sha": "8e128e7e104ee136f8fdd9feff4d2354e0ca6d14",
+      "subject": "feat(255-05): retain scoped Playwright failure traces"
+    },
+    {
+      "sha": "fe5a1f464424e22c63b4ddb1498bcd42c0fa2dfc",
+      "subject": "test(255-05): assert pre-test browser diagnostic capture"
+    },
+    {
+      "sha": "0a327504f53067037329b4bb08f18e64d36f9398",
+      "subject": "docs(255): advance to first-failure browser diagnostics"
+    },
+    {
+      "sha": "60e0c8d0d53431bbf845656b643c487b79673529",
+      "subject": "docs(255-04): complete shared browser reproduction plan"
+    },
+    {
+      "sha": "a22308d2bdee5cb7ff6887e4e16660ea38e79e68",
+      "subject": "feat(255-04): prepare invocation-owned browser reproduction"
+    },
+    {
+      "sha": "0e14c9a767ae614795ffdc5c41441ffd86b0ce81",
+      "subject": "test(255-04): add failing owned-port safety test"
+    },
+    {
+      "sha": "30ebd28d63d6b5eea8024620117b91dc211df372",
+      "subject": "fix(255-04): copy shared browser policy dependency"
+    },
+    {
+      "sha": "b2374085a2bd2885ac2060f65a7efa2bd0466b78",
+      "subject": "feat(255-04): share exact browser selections with CI"
+    },
+    {
+      "sha": "5eb9200832eaaea773d824cb51be54a58717443f",
+      "subject": "test(255-04): add failing browser selection test"
+    },
+    {
+      "sha": "e70889c8f95499ba032d9333042b9e1adcb06629",
+      "subject": "docs(255): advance to local browser reproduction"
+    },
+    {
+      "sha": "76588ff8be5d080ee3c1d20de4f04f9ea489bdc7",
+      "subject": "docs(255-03): complete native mix receiver plan"
+    },
+    {
+      "sha": "bb5b305921d57fc42c33baea3ddfe8b2e8deb08b",
+      "subject": "fix(255-03): preserve dep-off primary failures"
+    },
+    {
+      "sha": "aa23e404f70593c2deda22dd0d6e29240145ba91",
+      "subject": "test(255-03): preserve dep-off failure status during cleanup"
+    },
+    {
+      "sha": "2afd331ca7ff919299b1eca7556f739a35aad029",
+      "subject": "feat(255-03): observe native mix ci receivers"
+    },
+    {
+      "sha": "69deb03a69b60426b24be7017b96b2dc99969ff0",
+      "subject": "test(255-03): assert native CI receiver identities"
+    },
+    {
+      "sha": "6ba9077c56c4b2419f74662f5c794b2a8258d8c4",
+      "subject": "docs(255): advance to Mix receiver verification"
+    },
+    {
+      "sha": "0238dfebce5511d4bca8d44639bb8c413fae2e25",
+      "subject": "docs(255-02): complete native failure diagnostics plan"
+    },
+    {
+      "sha": "bb97e10fdcfe4cd49253555f27e1813472f90a94",
+      "subject": "feat(255-02): stage and verify invocation diagnostics"
+    },
+    {
+      "sha": "c96f1c15e2e8d71e771e8a173f4c61fb87d6c4bb",
+      "subject": "test(255-02): add failing diagnostic bundle tests"
+    },
+    {
+      "sha": "d246c1fc932d0681a22d209ef1d945c61e49cf7d",
+      "subject": "feat(255-02): preserve native command failures and reproduction"
+    },
+    {
+      "sha": "e6cb2cf3d387f32f81e9c3ed323f0e5af86d53e9",
+      "subject": "test(255-02): add failing native command recorder test"
+    },
+    {
+      "sha": "798de3931e39e6b4a9aa02b7831c2fd35a4cfe36",
+      "subject": "docs(255): advance execution to command diagnostics"
+    },
+    {
+      "sha": "263720a778537b5328ef73d68ae351d820f83ccc",
+      "subject": "docs(255-01): record verified saved-input replay and package"
+    },
+    {
+      "sha": "66ce9052f825f3727cecf3a238c7d693c676a555",
+      "subject": "feat(255-01): package and validate complete offline comparison inputs"
+    },
+    {
+      "sha": "ac0df635024a866a57c155dec1785fb625180b40",
+      "subject": "test(255-01): require portable saved-input replay package"
+    },
+    {
+      "sha": "89e36b7a4b56c0d0227e11b84f635f74ec97e45f",
+      "subject": "feat(255-01): calculate preserved comparison with pinned offline tools"
+    },
+    {
+      "sha": "db2026073fd3163739a467a0d1aa66aed3a9f409",
+      "subject": "test(255-01): specify real saved comparison replay"
+    }
+  ],
+  "unexpected_commit_subjects": [],
+  "files": [
+    ".github/actions/ci-diagnostic-upload/action.yml",
+    ".github/actions/example-playwright-boot/action.yml",
+    ".github/workflows/ci.yml",
+    "CONTRIBUTING.md",
+    "MAINTAINING.md",
+    "mix.exs",
+    "scripts/ci/ci-browser-command.mjs",
+    "scripts/ci/ci-browser-command.test.mjs",
+    "scripts/ci/ci-browser-diagnostics.test.mjs",
+    "scripts/ci/ci-browser-local.py",
+    "scripts/ci/ci-browser-local.test.py",
+    "scripts/ci/ci-browser-records.mjs",
+    "scripts/ci/ci-command-record.py",
+    "scripts/ci/ci-command-record.test.py",
+    "scripts/ci/ci-comparison-replay.py",
+    "scripts/ci/ci-comparison-replay.test.py",
+    "scripts/ci/ci-comparison-report.test.py",
+    "scripts/ci/ci-diagnostic-bundle.py",
+    "scripts/ci/ci-diagnostic-bundle.test.py",
+    "scripts/ci/ci-diagnostics-canary.py",
+    "scripts/ci/ci-diagnostics-canary.test.py",
+    "scripts/ci/ci-hosted-gate-verify.py",
+    "scripts/ci/ci-measure-workflow.test.mjs",
+    "scripts/ci/ci-mix-receivers.py",
+    "scripts/ci/ci-mix-receivers.test.py",
+    "scripts/ci/ci-playwright-report.test.mjs",
+    "scripts/ci/ci-prep-semantics.test.mjs",
+    "scripts/ci/ci-run-metrics.sh",
+    "scripts/ci/fixtures/playwright-admin-theme-diagnostics.spec.ts",
+    "scripts/ci/fixtures/playwright-diagnostics.config.ts",
+    "scripts/ci/fixtures/playwright-diagnostics.spec.ts",
+    "scripts/ci/sigra-dep-off.sh",
+    "scripts/ci/test-sigra-dep-off.sh",
+    "test/example/priv/playwright/fixtures/adminTheme.ts",
+    "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+    "test/example/priv/playwright/playwright.config.ts",
+    "test/sigra/planning/ci_timing_formatter_test.exs",
+    "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+    "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+    "test/support/ci_timing_formatter.ex",
+    "test/test_helper.exs"
+  ],
+  "commit_file_union": [
+    ".github/actions/ci-diagnostic-upload/action.yml",
+    ".github/actions/example-playwright-boot/action.yml",
+    ".github/workflows/ci.yml",
+    "CONTRIBUTING.md",
+    "MAINTAINING.md",
+    "mix.exs",
+    "scripts/ci/ci-browser-command.mjs",
+    "scripts/ci/ci-browser-command.test.mjs",
+    "scripts/ci/ci-browser-diagnostics.test.mjs",
+    "scripts/ci/ci-browser-local.py",
+    "scripts/ci/ci-browser-local.test.py",
+    "scripts/ci/ci-browser-records.mjs",
+    "scripts/ci/ci-command-record.py",
+    "scripts/ci/ci-command-record.test.py",
+    "scripts/ci/ci-comparison-replay.py",
+    "scripts/ci/ci-comparison-replay.test.py",
+    "scripts/ci/ci-comparison-report.test.py",
+    "scripts/ci/ci-diagnostic-bundle.py",
+    "scripts/ci/ci-diagnostic-bundle.test.py",
+    "scripts/ci/ci-diagnostics-canary.py",
+    "scripts/ci/ci-diagnostics-canary.test.py",
+    "scripts/ci/ci-hosted-gate-verify.py",
+    "scripts/ci/ci-measure-workflow.test.mjs",
+    "scripts/ci/ci-mix-receivers.py",
+    "scripts/ci/ci-mix-receivers.test.py",
+    "scripts/ci/ci-playwright-report.test.mjs",
+    "scripts/ci/ci-prep-semantics.test.mjs",
+    "scripts/ci/ci-run-metrics.sh",
+    "scripts/ci/fixtures/playwright-admin-theme-diagnostics.spec.ts",
+    "scripts/ci/fixtures/playwright-diagnostics.config.ts",
+    "scripts/ci/fixtures/playwright-diagnostics.spec.ts",
+    "scripts/ci/sigra-dep-off.sh",
+    "scripts/ci/test-sigra-dep-off.sh",
+    "test/example/priv/playwright/fixtures/adminTheme.ts",
+    "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+    "test/example/priv/playwright/playwright.config.ts",
+    "test/sigra/planning/ci_timing_formatter_test.exs",
+    "test/sigra/planning/phase_198_contributor_dx_contract_test.exs",
+    "test/sigra/planning/phase_233_library_economics_contract_test.exs",
+    "test/support/ci_timing_formatter.ex",
+    "test/test_helper.exs"
+  ],
+  "resolver_output": "/tmp/sigra255-review-scope.json",
+  "resolver_issue": "Phase resolver returned only final plan files; explicit full-phase scope used."
+}

@@ -74,17 +74,25 @@ export function buildPreparationCommands(actionSource) {
     const combined = `mix do ${current.map((line) => line.replace(/^mix\s+/, '')).join(' + ')}`;
     return { current, combined, selected: current, isCombined: false };
   }
-  const selected = steps['Prepare example with combined Mix'];
-  if (selected?.length !== 1 || !/^mix do deps\.get \+ compile --warnings-as-errors \+ ecto\.create \+ ecto\.migrate \+ run priv\/repo\/seeds\.exs$/.test(selected[0])) throw new Error('action_step_missing:preparation');
-  return { current: expected, combined: selected[0], selected, isCombined: true };
+  const preparation = steps['Prepare example with combined Mix'];
+  const selected = preparation?.map((line) => line.trim()).filter((line) => /^mix do /.test(line));
+  const recorded = preparation?.some((line) => line.includes('ci-command-record.py'));
+  const expectedCount = recorded ? 2 : 1;
+  if (selected?.length !== expectedCount || selected.some((line) => !/^mix do deps\.get \+ compile --warnings-as-errors \+ ecto\.create \+ ecto\.migrate \+ run priv\/repo\/seeds\.exs$/.test(line))) throw new Error('action_step_missing:preparation');
+  if (recorded && !preparation.some((line) => /--invocation .*?-prepare.*? -- \\$/.test(line.trim()))) throw new Error('preparation_recorder_boundary_missing');
+  return { current: expected, combined: selected[0], selected: [selected[0]], isCombined: true };
 }
 
 export function assertPreparationCacheContract(actionSource) {
   const action = actionSource;
-  for (const token of ['inputs.app-port', 'steps.setup_beam.outputs.otp-version', 'steps.setup_beam.outputs.elixir-version', '-dev-', 'restore-keys:', 'deps.get', 'compile --warnings-as-errors', 'PGDATABASE:', 'PGPORT:', 'PORT:', 'MIX_ENV: dev', 'ecto.create', 'ecto.migrate', 'run priv/repo/seeds.exs', 'run: npm ci', 'ci-playwright-os-deps.py', '--playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS', 'npx playwright install $BROWSERS', 'Boot example app', 'mix phx.server', 'Wait for app and warm routes', 'curl -sf "$BASE_URL/"']) {
+  for (const token of ['inputs.app-port', 'steps.setup_beam.outputs.otp-version', 'steps.setup_beam.outputs.elixir-version', '-dev-', 'restore-keys:', 'deps.get', 'compile --warnings-as-errors', 'PGDATABASE:', 'PGPORT:', 'PORT:', 'MIX_ENV: dev', 'ecto.create', 'ecto.migrate', 'run priv/repo/seeds.exs', 'ci-playwright-os-deps.py', '--playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS', 'npx playwright install $BROWSERS', 'Boot example app', 'mix phx.server', 'Wait for app and warm routes', 'curl -sf "$BASE_URL/"']) {
     if (!action.includes(token)) throw new Error(`preparation_contract_missing:${token}`);
   }
   buildPreparationCommands(action);
+  const npmStep = parseActionSteps(action)['Install Playwright dependencies'] ?? [];
+  const npmCommands = npmStep.map((line) => line.trim().match(/(?:^|--\s+)(npm\s+.*)$/)?.[1]).filter(Boolean);
+  const npmCount = npmStep.some((line) => line.includes('ci-command-record.py')) ? 2 : 1;
+  if (npmCommands.length !== npmCount || npmCommands.some((command) => command !== 'npm ci')) throw new Error('preparation_contract_missing:npm ci');
   if (!action.includes('if: inputs.cache-browsers == \'true\'')) throw new Error('browser_cache_condition_missing');
   return true;
 }

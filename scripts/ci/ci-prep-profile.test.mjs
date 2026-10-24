@@ -4,7 +4,19 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { browserOwnerBaseURL, buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, parseWorkflowBrowserOwners, runMeasuredCommand, runMeasuredProcess, sanitizeLog, transferNativeEvidence, versionFromOutput } from './ci-prep-profile.mjs';
+import { assertPreparationCacheContract, browserOwnerBaseURL, buildPreparationCommands, buildProfileRecord, mergeProfileRecords, parseActionSteps, parseArgs, parseBrowserMatrix, parseWorkflowBrowserOwners, runMeasuredCommand, runMeasuredProcess, sanitizeLog, transferNativeEvidence, versionFromOutput } from './ci-prep-profile.mjs';
+
+test('recorded preparation preserves both exact command branches and rejects either weakened branch', () => {
+  const action = readFileSync('.github/actions/example-playwright-boot/action.yml', 'utf8');
+  const expected = 'mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs';
+  assert.equal(buildPreparationCommands(action).combined, expected);
+  assert.equal(assertPreparationCacheContract(action), true);
+  for (const replacement of ['npm install', 'echo skipped']) {
+    assert.throws(() => assertPreparationCacheContract(action.replace('-- npm ci', `-- ${replacement}`)));
+    assert.throws(() => assertPreparationCacheContract(action.replace(/^          npm ci$/m, `          ${replacement}`)));
+  }
+  assert.throws(() => buildPreparationCommands(action.replace('compile --warnings-as-errors', 'compile')));
+});
 
 test('profile CLI accepts source-bound preparation comparison mode', () => {
   assert.deepEqual(parseArgs(['--root', '.', '--scope', 'admin_behavior', '--mode', 'compare-preparation', '--output', 'setup.json']), {
