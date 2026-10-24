@@ -1,4 +1,20 @@
 {
+  "controller_maintenance": {
+    "base_controller_sha256": "882be31ae4e4c6e40c687efd01f30507496d2329467739be37f151f6363a2345",
+    "commit": "c31d1ff4beefccba4fb032ac3964d681081d0c87",
+    "controller_sha256": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+    "preserved_source_sha": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
+    "reason": "Permit omitted workflow_run.run_attempt only when the exact source/run/attempt/job/seam/invocation artifact name matches the verified run endpoint; add recovery path for the already completed success run.",
+    "same_deadline": "2026-10-24T19:51:49+00:00",
+    "same_limits": {
+      "max_controller_requests": 120,
+      "max_elapsed_seconds": 3600,
+      "max_infrastructure_retries": 1,
+      "max_invocations": 4,
+      "max_pushes": 2,
+      "max_test_retries": 0
+    }
+  },
   "deadline": "2026-10-24T19:51:49+00:00",
   "fixture": {
     "commit": "504aaa25ca047792ca70a62f78c164f8d908ddd9",
