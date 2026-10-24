@@ -127,11 +127,12 @@ function toolRecorderCase(directory, name, argv, env = {}) {
 async function nativeRun(outputFile) {
   const outputRoot = path.dirname(path.resolve(outputFile));
   fs.mkdirSync(outputRoot, { recursive: true });
-  const evidenceRoot = freshDirectory(outputRoot, 'browser-diagnostics');
+  const evidenceRoot = freshDirectory(outputRoot, `browser-diagnostics-${Date.now()}`);
   const rows = [];
   const firstFailure = runOwnedCase(evidenceRoot, '01-failure', ['--diagnostic-case', 'fail']);
-  rows.push({ case: 'first_assertion_failure', expected_exit: 1, observed_exit: firstFailure.result.status, owner: firstFailure.owner, invocation_root: path.relative(outputRoot, firstFailure.output) });
-  assert.notEqual(firstFailure.result.status, 0, firstFailure.result.stdout);
+  rows.push({ case: 'first_assertion_failure', expected_wrapper_exit: 0, observed_wrapper_exit: firstFailure.result.status, observed_playwright_exit: firstFailure.owner.native_diagnostic?.exit_code, owner: firstFailure.owner, invocation_root: path.relative(outputRoot, firstFailure.output) });
+  assert.equal(firstFailure.result.status, 0, firstFailure.result.stderr);
+  assert.notEqual(firstFailure.owner.native_diagnostic?.exit_code, 0, 'the assertion failure must be real and reported by Playwright');
   const firstTraces = traceFiles(firstFailure.output);
   assert.ok(firstTraces.length >= 2, `expected Playwright and adminTheme traces, found ${firstTraces.length}`);
   const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], members: assertReadableTrace(file).members }));
@@ -156,16 +157,20 @@ async function nativeRun(outputFile) {
 
   const diagnosticOutput = path.join(evidenceRoot, '05-precontext');
   fs.mkdirSync(diagnosticOutput, { recursive: true });
-  const diagnosticRoot = path.join(diagnosticOutput, 'native');
-  const commonEnv = { SIGRA_CI_DIAGNOSTICS: '1', SIGRA_CI_DIAGNOSTICS_ROOT: diagnosticRoot, SIGRA_CI_INVOCATION_ID: 'discovery-negative', SIGRA_CI_NATIVE_IDENTITY: 'chromium:playwright-diagnostics.spec.ts' };
-  const discovery = toolRecorderCase(diagnosticOutput, 'discovery', [node, path.join(playwright, 'node_modules/playwright/cli.js'), 'test', '--config', config, '--project=chromium', '--retries=0', '--grep', 'SIGRA_NO_SUCH_TEST_255'], commonEnv);
+  const precontextEnv = (id) => ({ SIGRA_CI_DIAGNOSTICS: '1', SIGRA_CI_DIAGNOSTICS_ROOT: path.join(diagnosticOutput, `${id}-native`), SIGRA_CI_TRACE_REGISTRY: path.join(diagnosticOutput, `${id}-native/trace-registry.jsonl`), SIGRA_CI_INVOCATION_ID: id, SIGRA_CI_NATIVE_IDENTITY: 'chromium:playwright-diagnostics.spec.ts' });
+  const discovery = toolRecorderCase(diagnosticOutput, 'discovery', [node, path.join(playwright, 'node_modules/playwright/cli.js'), 'test', '--config', config, '--project=chromium', '--retries=0', '--grep', 'SIGRA_NO_SUCH_TEST_255'], precontextEnv('discovery-negative'));
   assert.notEqual(discovery.result.status, 0);
   assert.equal(discovery.record.primary_signal, null);
   assert.ok(fs.statSync(path.join(discovery.output, 'stdout.bin')).size + fs.statSync(path.join(discovery.output, 'stderr.bin')).size > 0);
-  assert.ok(fs.existsSync(path.join(diagnosticRoot, 'failure.jsonl')), 'pre-test discovery error did not produce reporter output');
-  const browserLaunch = toolRecorderCase(diagnosticOutput, 'browser-launch', [node, path.join(playwright, 'node_modules/playwright/cli.js'), 'test', '--config', config, '--project=chromium', '--retries=0', '--grep', 'retains a default-context first failure'], { ...commonEnv, SIGRA_CI_INVOCATION_ID: 'browser-launch-negative', PLAYWRIGHT_BROWSERS_PATH: path.join(diagnosticOutput, 'empty-browsers') });
+  const discoveryReport = path.join(diagnosticOutput, 'discovery-negative-native/failure-events.jsonl');
+  assert.ok(fs.existsSync(discoveryReport), 'pre-test discovery error did not produce reporter output');
+  assert.ok(fs.readFileSync(discoveryReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse).some((event) => event.type === 'error'), 'discovery reporter has no onError record');
+  const browserLaunch = toolRecorderCase(diagnosticOutput, 'browser-launch', [node, path.join(playwright, 'node_modules/playwright/cli.js'), 'test', '--config', config, '--project=chromium', '--retries=0', '--grep', 'retains a default-context first failure'], { ...precontextEnv('browser-launch-negative'), PLAYWRIGHT_BROWSERS_PATH: path.join(diagnosticOutput, 'empty-browsers') });
   assert.notEqual(browserLaunch.result.status, 0);
   assert.ok(fs.statSync(path.join(browserLaunch.output, 'stderr.bin')).size > 0);
+  const launchReport = path.join(diagnosticOutput, 'browser-launch-negative-native/failure-events.jsonl');
+  assert.ok(fs.existsSync(launchReport), 'browser launch error did not produce reporter output');
+  assert.ok(fs.readFileSync(launchReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse).some((event) => event.type === 'error'), 'browser launch reporter has no onError record');
   rows.push({ case: 'pretest_discovery_error', observed_exit: discovery.result.status, observed_signal: discovery.record.primary_signal, invocation_root: path.relative(outputRoot, discovery.output), trace_unavailable_reason: 'context_not_created' });
   rows.push({ case: 'browser_launch_before_context', observed_exit: browserLaunch.result.status, observed_signal: browserLaunch.record.primary_signal, invocation_root: path.relative(outputRoot, browserLaunch.output), trace_unavailable_reason: 'context_not_created' });
 
@@ -186,15 +191,30 @@ async function nativeRun(outputFile) {
   const sourceIdentity = { source_sha: head, source_diff_sha256: digest(sourceDiff.stdout), dirty_status: spawnSync('git', ['status', '--short'], { cwd: root, encoding: 'utf8' }).stdout.trim() };
   const runtime = { node: process.version, playwright: JSON.parse(fs.readFileSync(path.join(playwright, 'node_modules/@playwright/test/package.json'))).version, platform: process.platform, browser: 'Playwright Chromium, locked revision' };
 
+  const plantedSecretTrace = path.join(evidenceRoot, 'planted-secret-trace.zip');
+  const traceFixture = spawnSync('python3', ['-B', '-c', "import zipfile,sys; z=zipfile.ZipFile(sys.argv[1],'w'); z.writestr('trace.trace','SECRET_SENTINEL_DO_NOT_UPLOAD'); z.close()", plantedSecretTrace], { encoding: 'utf8' });
+  assert.equal(traceFixture.status, 0, traceFixture.stderr);
+  const plantedAuth = path.join(evidenceRoot, '.auth/storageState.json');
+  fs.mkdirSync(path.dirname(plantedAuth), { recursive: true });
+  fs.writeFileSync(plantedAuth, '{"synthetic":"auth should be excluded"}');
+  const plantedSentinel = path.join(evidenceRoot, 'planted-secret.log');
+  fs.writeFileSync(plantedSentinel, 'SECRET_SENTINEL_DO_NOT_UPLOAD');
+  const staleOutput = path.join(evidenceRoot, 'stale-prior-invocation.log');
+  fs.writeFileSync(staleOutput, 'stale report from another invocation');
+
   const manifestFiles = [];
   for (const file of walk(evidenceRoot)) {
     const relative = path.relative(evidenceRoot, file).split(path.sep).join('/');
     if (relative.includes('.auth/') || /storage.?state/i.test(relative)) continue;
+    if (file === staleOutput) continue;
     const bytes = fs.readFileSync(file);
     if (bytes.length > 5 * 1024 * 1024) continue;
     if (relative.endsWith('.zip') && !/trace/i.test(relative)) continue;
     const kind = relative.endsWith('.zip') ? 'trace' : relative.endsWith('.bin') ? (relative.includes('stdout') ? 'command_stdout' : 'command_stderr') : relative.endsWith('.jsonl') ? 'log' : 'report';
     manifestFiles.push({ path: relative, sha256: digest(bytes), kind });
+  }
+  for (const [file, kind] of [[plantedSecretTrace, 'trace'], [plantedAuth, 'auth'], [plantedSentinel, 'log']]) {
+    manifestFiles.push({ path: path.relative(evidenceRoot, file).split(path.sep).join('/'), sha256: digest(fs.readFileSync(file)), kind });
   }
   const manifest = { schema_version: 'sigra.ci-diagnostic-invocation/v1', invocation_id: 'phase255-plan05-native', source_sha: head, run_id: 'local', run_attempt: 1, job_id: 'sigra-ci-browser-local', seam: 'diagnostic-browser-native', files: manifestFiles, trace_provenance: { synthetic_account: true, registered: true }, trace_unavailable_reasons: rows.filter((row) => row.trace_unavailable_reason).map(({ case: name, trace_unavailable_reason }) => ({ case: name, reason: trace_unavailable_reason })) };
   const manifestPath = path.join(evidenceRoot, 'invocation.json');
@@ -206,7 +226,27 @@ async function nativeRun(outputFile) {
     assert.equal(check.status, 0, `${mode} failed: ${check.stderr}`);
   }
   const bundle = fs.readFileSync(bundlePath);
-  const result = { schema: 'sigra.browser-diagnostics.native/v1', generated_at: new Date().toISOString(), source_identity: sourceIdentity, runtime, configuration: { retries: 0, workers: 1, synthetic_accounts_only: true, postgres_role_fallback: 'getpass.getuser()', diagnostics_opt_in: true }, cases: rows, traces: firstTraceFacts, passing_trace_count: 0, selected_native_identities: firstFailure.owner.selected_native_identities ?? [], bundle: { path: path.relative(root, bundlePath), sha256: digest(bundle), size: bundle.length, verified: true, member_paths: manifestFiles.map((file) => file.path) }, negative_cases: { nested_secret_rejected: true, auth_paths_excluded: true, stale_output_excluded: true, escaping_paths_rejected: true }, trace_unavailable_reasons: rows.filter((row) => row.trace_unavailable_reason).map(({ case: name, trace_unavailable_reason }) => ({ case: name, reason: trace_unavailable_reason })) };
+  const bundleMetadata = JSON.parse(spawnSync(python, ['-B', '-c', "import sys,zipfile; print(zipfile.ZipFile(sys.argv[1]).read('bundle-manifest.json').decode())", bundlePath], { encoding: 'utf8' }).stdout);
+  const selectedNativeIdentities = [];
+  const nativeReportPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'native-report.json');
+  const nativeReport = JSON.parse(fs.readFileSync(nativeReportPath, 'utf8'));
+  const visit = (suites, file = '') => { for (const suite of suites ?? []) { const suiteFile = suite.file ?? file; for (const spec of suite.specs ?? []) for (const testEntry of spec.tests ?? []) for (const result of testEntry.results ?? []) selectedNativeIdentities.push({ project: result.projectName ?? 'chromium', file: (spec.file ?? suiteFile).replaceAll('\\', '/'), title: spec.title, status: result.status, retry: result.retry ?? 0 }); visit(suite.suites, suiteFile); } };
+  visit(nativeReport.suites);
+  assert.ok(selectedNativeIdentities.length >= 3, 'native Playwright identities are missing');
+  const withheldReasons = JSON.stringify(bundleMetadata.withheld);
+  assert.match(withheldReasons, /secret_sentinel_detected/);
+  assert.match(withheldReasons, /auth_state_excluded/);
+  assert.match(withheldReasons, /stale-prior-invocation/);
+  assert.doesNotMatch(bundleMetadata.members && Object.keys(bundleMetadata.members).join(' '), /stale-prior-invocation|SECRET_SENTINEL/);
+  const escapePath = path.join(evidenceRoot, 'escape-link');
+  fs.symlinkSync(path.join(os.tmpdir(), 'sigra-not-inside-invocation'), escapePath);
+  const escapeManifest = { ...manifest, invocation_id: 'escape-probe', files: [{ path: 'escape-link', sha256: digest(Buffer.from('')), kind: 'log' }] };
+  const escapeManifestPath = path.join(evidenceRoot, 'escape-probe.json');
+  fs.writeFileSync(escapeManifestPath, JSON.stringify(escapeManifest));
+  const escapeStage = spawnSync(python, ['-B', path.join(root, 'scripts/ci/ci-diagnostic-bundle.py'), 'stage', '--invocation-root', evidenceRoot, '--manifest', escapeManifestPath, '--output', path.join(evidenceRoot, 'escape.zip')], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(escapeStage.status, 0, 'escaping symlink path unexpectedly staged');
+  fs.unlinkSync(escapePath);
+  const result = { schema: 'sigra.browser-diagnostics.native/v1', generated_at: new Date().toISOString(), source_identity: sourceIdentity, runtime, configuration: { retries: 0, workers: 1, synthetic_accounts_only: true, postgres_role_fallback: 'getpass.getuser()', diagnostics_opt_in: true }, cases: rows, traces: firstTraceFacts, passing_trace_count: 0, selected_native_identities: selectedNativeIdentities, bundle: { path: path.relative(root, bundlePath), sha256: digest(bundle), size: bundle.length, verified: true, member_paths: Object.keys(bundleMetadata.members).sort(), withheld: bundleMetadata.withheld }, negative_cases: { nested_secret_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret-trace.zip' && entry.reason === 'secret_sentinel_detected'), auth_paths_excluded: bundleMetadata.withheld.some((entry) => entry.path.includes('storageState.json') && entry.reason === 'auth_state_excluded'), secret_sentinel_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret.log' && entry.reason === 'secret_sentinel_detected'), stale_output_excluded: !Object.keys(bundleMetadata.members).some((name) => name.includes('stale-prior-invocation')) && fs.existsSync(staleOutput), escaping_paths_rejected: escapeStage.status !== 0 }, trace_unavailable_reasons: rows.filter((row) => row.trace_unavailable_reason).map(({ case: name, trace_unavailable_reason }) => ({ case: name, reason: trace_unavailable_reason })) };
   fs.writeFileSync(path.resolve(outputFile), JSON.stringify(result, null, 2) + '\n');
   return result;
 }
