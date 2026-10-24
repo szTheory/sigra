@@ -16,6 +16,7 @@ defmodule Sigra.Test.CITimingFormatter do
       test_duration_sum_us: 0,
       diagnostics: [],
       started_at_us: nil,
+      seed: nil,
       aborted?: false
     }
   end
@@ -36,8 +37,9 @@ defmodule Sigra.Test.CITimingFormatter do
   end
 
   @impl true
-  def handle_cast({:suite_started, _opts}, state) do
-    {:noreply, %{state | started_at_us: System.monotonic_time(:microsecond)}}
+  def handle_cast({:suite_started, opts}, state) do
+    {:noreply,
+     %{state | started_at_us: System.monotonic_time(:microsecond), seed: suite_seed(opts)}}
   end
 
   def handle_cast({:test_finished, %ExUnit.Test{} = test}, state) do
@@ -119,7 +121,13 @@ defmodule Sigra.Test.CITimingFormatter do
     %{
       unit: @unit,
       invocation: state.invocation,
+      seed: state.seed,
       tests: Enum.reverse(state.tests),
+      failed_test_ids:
+        state.tests
+        |> Enum.filter(&(&1.result == "failed"))
+        |> Enum.map(& &1.test_id)
+        |> Enum.reverse(),
       counts: Map.new(state.counts, fn {key, value} -> {Atom.to_string(key), value} end),
       passed_count: state.counts.passed,
       failed_count: state.counts.failed,
@@ -154,6 +162,10 @@ defmodule Sigra.Test.CITimingFormatter do
   defp result({:skipped, _}), do: :skipped
   defp result({:excluded, _}), do: :excluded
   defp result(_), do: :failed
+
+  defp suite_seed(opts) when is_list(opts), do: Keyword.get(opts, :seed)
+  defp suite_seed(opts) when is_map(opts), do: Map.get(opts, :seed)
+  defp suite_seed(_), do: nil
 
   defp test_id(%ExUnit.Test{module: module, name: name}),
     do: "#{inspect(module)}.#{Atom.to_string(name)}"

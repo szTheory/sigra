@@ -1,0 +1,3 @@
+** (RuntimeError) SIGRA_CI_REQUIRED=1: required phx_new 1.8.8 archive is unavailable; install it with `mix archive.install --force hex phx_new 1.8.8`
+    test/test_helper.exs:21: (file)
+    (elixir 1.19.5) lib/code.ex:1613: Code.require_file/2

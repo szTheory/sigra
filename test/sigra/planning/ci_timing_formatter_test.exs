@@ -17,7 +17,7 @@ defmodule Sigra.Planning.CITimingFormatterTest do
     System.put_env("SIGRA_EXUNIT_TIMING_JSON", path)
     System.put_env("SIGRA_EXUNIT_TIMING_INVOCATION", "main")
     {:ok, state} = CITimingFormatter.init([])
-    {:noreply, state} = CITimingFormatter.handle_cast({:suite_started, []}, state)
+    {:noreply, state} = CITimingFormatter.handle_cast({:suite_started, seed: 821}, state)
 
     {:noreply, state} =
       CITimingFormatter.handle_cast({:test_finished, event_test(:main_test, nil, 11)}, state)
@@ -26,6 +26,8 @@ defmodule Sigra.Planning.CITimingFormatterTest do
 
     report = path |> File.read!() |> Jason.decode!()
     assert report["invocation"] == "main"
+    assert report["seed"] == 821
+    assert report["failed_test_ids"] == []
     assert [%{"invocation" => "main", "test_id" => "Example.main_test"}] = report["tests"]
   end
 
@@ -89,6 +91,7 @@ defmodule Sigra.Planning.CITimingFormatterTest do
            }
 
     assert report["test_duration_sum_us"] == 53
+    assert report["failed_test_ids"] == ["Example.second"]
 
     assert Enum.map(report["tests"], & &1["test_id"]) == [
              "Example.first",

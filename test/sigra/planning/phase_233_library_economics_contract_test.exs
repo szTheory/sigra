@@ -59,7 +59,7 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              "deps.get --check-locked",
              "deps.unlock --check-unused",
              "compile --warnings-as-errors",
-             "test --exclude scaffold",
+             "cmd python3 scripts/ci/ci-mix-receivers.py leg ordinary -- mix test --exclude scaffold",
              "ci.install_golden",
              "sigra.dep_off"
            ]
@@ -126,7 +126,8 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
     |> quoted_values()
     |> Enum.flat_map(fn command ->
       command
-      |> String.replace_prefix("test ", "")
+      |> String.split("-- mix test ", parts: 2)
+      |> List.last()
       |> String.split(" ", trim: true)
       |> Enum.filter(&String.ends_with?(&1, "_test.exs"))
     end)

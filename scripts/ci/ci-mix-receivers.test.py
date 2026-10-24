@@ -12,14 +12,19 @@ SPEC.loader.exec_module(RECEIVERS)
 
 class MixReceiverReportTest(unittest.TestCase):
     def test_accepts_exact_ordinary_scaffold_and_dep_off_identities(self):
-        ordinary = {"tests": [{"module": "Sigra.AuthTest", "test_id": "Sigra.AuthTest.login"}], "seed": 81}
-        scaffold = {"tests": [{"module": module, "test_id": f"{module}.case"} for module in RECEIVERS.SCAFFOLD], "seed": 82}
-        threadline = {"tests": [{"module": "Sigra.ConfigForwardersTest", "test_id": "Sigra.ConfigForwardersTest.absent"}], "seed": 83}
+        ordinary = {"tests": [{"module": "Sigra.AuthTest", "test_id": "Sigra.AuthTest.login"}], "seed": 81, "failed_test_ids": [], "complete": True, "failed_count": 0}
+        scaffold = {"tests": [{"module": module, "test_id": f"{module}.case"} for module in RECEIVERS.SCAFFOLD], "seed": 82, "failed_test_ids": [], "complete": True, "failed_count": 0}
+        threadline = {"tests": [{"module": "Sigra.ConfigForwardersTest", "test_id": "Sigra.ConfigForwardersTest.absent"}], "seed": 83, "failed_test_ids": [], "complete": True, "failed_count": 0}
         value = {
             "ordinary": ordinary,
             "scaffold": scaffold,
             "threadline_guard": threadline,
             "leg_records": ["format", "deps.get", "deps.unlock", "compile", "ordinary", "scaffold", "dep-off"],
+            "leg_command_records": {
+                "ordinary": {"primary_exit_code": 0},
+                "scaffold": {"primary_exit_code": 0},
+                "dep-off": {"primary_exit_code": 0},
+            },
         }
         ok, errors = RECEIVERS.validate_native_report(value)
         self.assertTrue(ok, errors)
@@ -35,7 +40,6 @@ class MixReceiverReportTest(unittest.TestCase):
         ok, errors = RECEIVERS.validate_native_report(value)
         self.assertFalse(ok)
         self.assertIn("missing_scaffold:Sigra.UpgradeIntegrationTest", errors)
-
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

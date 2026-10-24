@@ -33,6 +33,27 @@ test('library job relies on pinned setup-beam defaults and its sole mix ci depen
   assert.match(libraryJob, /run: mix ci/);
 });
 
+test('mix ci keeps seven ordered legs and records the three native test receivers', () => {
+  const expected = [
+    'format --check-formatted',
+    'deps.get --check-locked',
+    'deps.unlock --check-unused',
+    'compile --warnings-as-errors',
+    'ci-mix-receivers.py leg ordinary -- mix test --exclude scaffold',
+    'ci-mix-receivers.py leg scaffold -- mix test test/sigra/install/features/passkeys_js_test.exs test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs test/sigra/install/vault_promotion_test.exs test/upgrade_test.exs',
+    'ci-mix-receivers.py leg dep-off -- bash scripts/ci/sigra-dep-off.sh',
+  ];
+  let offset = -1;
+  for (const command of expected) {
+    const next = mixProject.indexOf(command, offset + 1);
+    assert.ok(next > offset, `required ordered mix ci command missing: ${command}`);
+    offset = next;
+  }
+  assert.equal((mixProject.match(/ci-mix-receivers\.py leg ordinary/g) ?? []).length, 1);
+  assert.equal((mixProject.match(/ci-mix-receivers\.py leg scaffold/g) ?? []).length, 1);
+  assert.equal((mixProject.match(/ci-mix-receivers\.py leg dep-off/g) ?? []).length, 1);
+});
+
 test('library setup contract rejects unique source mutations regardless of step label', () => {
   const mutateLibraryJob = (mutator) => workflow.replace(libraryJob, mutator(libraryJob));
   const variants = [
