@@ -39,6 +39,7 @@ PACKAGE_MANIFEST = '.planning/execution/255-replay/INPUTS.json'
 EVIDENCE_ROOT = '.planning/execution/255-replay/distributed'
 EVIDENCE_PACKAGE = EVIDENCE_ROOT + '/input-package.tar.gz'
 EVIDENCE_MANIFEST = EVIDENCE_ROOT + '/INPUTS.json'
+DISTRIBUTION_FREEZE = '.planning/execution/255-replay/DISTRIBUTION-FREEZE.json'
 
 
 def digest(data):
@@ -346,13 +347,13 @@ def create_evidence_commit(root, remote_ref, manifest_bytes, package_bytes):
                            capture_output=True, text=True, check=False)
 
 
-def isolated_fetch_and_replay(root, remote, remote_ref, expected_commit, package_sha256):
+def isolated_fetch_and_replay(root, remote_url, remote_ref, expected_commit, package_sha256):
     env = clean_git_env()
     with tempfile.TemporaryDirectory(prefix='sigra255-independent-retrieval-') as temp:
         checkout = Path(temp) / 'fresh-checkout'
         checkout.mkdir()
         git_command(checkout, 'init', '--quiet', '--initial-branch=main', env=env)
-        git_command(checkout, 'fetch', '--no-tags', remote, remote_ref, env=env, timeout=180)
+        git_command(checkout, 'fetch', '--no-tags', remote_url, remote_ref, env=env, timeout=180)
         fetched = git_command(checkout, 'rev-parse', 'FETCH_HEAD^{commit}', env=env)
         if fetched != expected_commit:
             raise ValueError('retrieved_commit_mismatch')
@@ -418,6 +419,12 @@ def distribute_inputs(root, remote, output):
     package_bytes = package.read_bytes()
     package_sha = digest(package_bytes)
     manifest, data = verify_package(package)
+    freeze = load(root / DISTRIBUTION_FREEZE)
+    expected_limits = {'successful_create_only_pushes': 1, 'transient_transport_retries': 1,
+                       'fresh_checkout_retrieval_attempts': 2, 'workflow_dispatches': 0}
+    if (freeze.get('status') != 'frozen' or freeze.get('package_sha256') != package_sha
+            or freeze.get('charged_limits') != expected_limits):
+        raise ValueError('distribution_budget_not_frozen_for_package')
     if manifest != load(root / PACKAGE_MANIFEST):
         raise ValueError('local_manifest_package_mismatch')
     if package_secret_findings(data):
@@ -435,6 +442,7 @@ def distribute_inputs(root, remote, output):
     push_command = ['git', 'push', '--porcelain', '--force-with-lease=' + ref + ':',
                     remote, commit + ':' + ref]
     push_env = clean_git_env()
+    push_retry_used = False
     push = subprocess.run(push_command, cwd=root, env=push_env, capture_output=True,
                           text=True, timeout=180)
     reconciled = None
@@ -451,6 +459,7 @@ def distribute_inputs(root, remote, output):
                               'early eof', 'could not read from remote', 'connection closed'))
             if not transient or reconciled is not None:
                 raise ValueError('evidence_push_failed:' + push.stderr[-2000:])
+            push_retry_used = True
             retry = subprocess.run(push_command, cwd=root, env=push_env, capture_output=True,
                                    text=True, timeout=180)
             reconciled = remote_ref_oid(root, remote, ref)
@@ -459,7 +468,7 @@ def distribute_inputs(root, remote, output):
     remote_commit = remote_ref_oid(root, remote, ref)
     if remote_commit != commit:
         raise ValueError('remote_evidence_commit_readback_mismatch')
-    replay = isolated_fetch_and_replay(root, remote, ref, commit, package_sha)
+    replay = isolated_fetch_and_replay(root, remote_url, ref, commit, package_sha)
     record = {'schema_version': 'sigra.phase255.distribution/v1', 'status': 'distributed_and_replayed',
               'remote_name': remote, 'remote_url': remote_url, 'remote_ref': ref,
               'evidence_commit': commit, 'evidence_parent': git_command(root, 'rev-parse', commit + '^'),
@@ -468,6 +477,11 @@ def distribute_inputs(root, remote, output):
               'evidence_manifest_path': EVIDENCE_MANIFEST, 'package_sha256': package_sha,
               'package_size': len(package_bytes), 'member_count': len(data),
               'package_manifest_sha256': digest(manifest_bytes),
+              'budget': {'freeze': DISTRIBUTION_FREEZE, 'charged_limits': expected_limits,
+                         'used': {'successful_create_only_pushes': 1,
+                                  'transient_transport_retries': int(push_retry_used),
+                                  'fresh_checkout_retrieval_attempts': 1,
+                                  'workflow_dispatches': 0}},
               'push_result': 'created_once', 'push_retries': 0, 'remote_readback_commit': remote_commit,
               'retrieval_result': {'status': 'passed', 'attempts': 1, 'checkout_commit': replay['fetched_commit']},
               'offline_replay_result': replay}
@@ -489,7 +503,7 @@ def verify_distribution(root, record_path):
     ref_oid = remote_ref_oid(root, record['remote_name'], expected_ref)
     if ref_oid != record.get('evidence_commit'):
         raise ValueError('remote_evidence_commit_changed')
-    replay = isolated_fetch_and_replay(root, record['remote_name'], expected_ref,
+    replay = isolated_fetch_and_replay(root, record['remote_url'], expected_ref,
                                        record['evidence_commit'], record['package_sha256'])
     record['independent_verification'] = {'status': 'passed', 'attempts': 1,
                                            'checkout_commit': replay['fetched_commit'],

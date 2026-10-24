@@ -1,0 +1,14 @@
+{
+  "schema_version": "sigra.phase255.distribution-freeze/v1",
+  "status": "frozen",
+  "package_path": ".planning/execution/255-replay/input-package.tar.gz",
+  "package_sha256": "6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23",
+  "charged_limits": {
+    "successful_create_only_pushes": 1,
+    "transient_transport_retries": 1,
+    "fresh_checkout_retrieval_attempts": 2,
+    "workflow_dispatches": 0
+  },
+  "charge_policy": "Reserve the full distribution allowance before remote mutation; reconcile ambiguous pushes before any permitted transport retry.",
+  "acceptance_canary_budget_reuse": false
+}
