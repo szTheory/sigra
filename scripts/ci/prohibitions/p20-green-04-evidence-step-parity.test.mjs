@@ -19,7 +19,7 @@
 // same step names in the same order, byte-identical step bodies modulo the ONE documented D-02
 // exception (artifact `name:` values carrying a `-${{ matrix.repeat }}` suffix, which
 // `actions/upload-artifact` v7 forces because it errors on a duplicate artifact name within one
-// run), and the same four load-bearing command invocations.
+// run), and the same load-bearing command invocations.
 //
 // WHAT SILENTLY BREAKS IF THIS GUARD IS DELETED: someone edits `ci.yml`'s smoke job — adds a
 // setup step, changes the acceptance-smoke target, bumps the phx_new archive — and the evidence
@@ -44,10 +44,11 @@ const REFERENCE = '.github/workflows/ci.yml';
 const REF_JOB = 'generated_admin_playwright_smoke';
 const EVIDENCE_JOB = 'green_04_evidence_repeat';
 
-/** The four invocations that ARE the lane. Any of them present on one side only is drift. */
+/** The invocations that ARE the lane. Any of them present on one side only is drift. */
 const LOAD_BEARING = [
   'npm ci',
-  'npx playwright install --with-deps chromium webkit',
+  'ci-playwright-os-deps.py',
+  'npx playwright install chromium webkit',
   'mix archive.install --force hex phx_new 1.8.8',
   'scripts/ci/admin-acceptance-smoke.sh --test all',
 ];

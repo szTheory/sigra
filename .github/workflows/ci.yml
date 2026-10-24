@@ -183,8 +183,17 @@ jobs:
             echo "docs_only=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git fetch origin "${BASE_REF}" --depth=1
-          git diff --name-only "origin/${BASE_REF}...HEAD" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
+          if ! git fetch origin "${BASE_REF}"; then
+            echo "::warning::Base ref unavailable; running the full CI workload."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! changed_paths="$(git diff --name-only "origin/${BASE_REF}...HEAD")"; then
+            echo "::warning::Change comparison unavailable; running the full CI workload."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s\n' "$changed_paths" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
 
   # Phase 194 (CACHE-02): 6 trivial leaf guard jobs folded into one fast_checks
   # job (single checkout + single base-ref resolve) to cut 6 runner cold-starts.
@@ -362,6 +371,11 @@ jobs:
         # is NOT run here -- it requires a live `gh` against a real run -- only its
         # PATH-shadowed self-test, which makes no network call and needs no GH_TOKEN.
         run: bash scripts/ci/ci-run-metrics.test.sh
+      - name: Browser package acquisition and runner identity self-tests
+        run: |
+          python3 scripts/ci/ci-apt-transfer-probe.test.py
+          python3 scripts/ci/ci-playwright-os-deps.test.py
+          node --test scripts/ci/ci-runner-image.test.mjs
       - name: Offline attestation runtime self-test
         run: bash scripts/ci/verify-terminal-ratification-attestation-offline.test.sh
       - name: Verify retained terminal attestation offline
@@ -485,7 +499,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: sigra_test
@@ -566,12 +580,12 @@ jobs:
   # library contract checked on every pull request.
   library_tests_shard:
     name: Library tests shard
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -582,6 +596,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         with:
@@ -608,12 +626,109 @@ jobs:
         run: mix archive.install --force hex phx_new 1.8.8
       - name: Fetch library deps
         run: mix deps.get
+      - name: Prepare timing output directory
+        run: mkdir -p test-results
       - name: Run contributor CI gate
         env:
           PGUSER: postgres
+          MIX_ENV: test
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: MIX_ENV=test mix ci
+          SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing-main.json
+          SIGRA_EXUNIT_TIMING_INVOCATION: main
+          SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results/ci-exunit-timing-threadline-guard.json
+        # Local equivalent: run: MIX_ENV=test mix ci (MIX_ENV is set above).
+        run: mix ci
+      - name: Upload library test timing
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: library-test-timing-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/ci-exunit-timing-main.json
+            test-results/ci-exunit-timing-threadline-guard.json
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Library tests shard
+          CONFIGURED_NODE: ''
+          DEPS_CACHE_HIT: ${{ steps.deps_cache.outputs.cache-hit }}
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ''
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { spawnSync } = require('node:child_process');
+          const readTool = (name) => {
+            try { return fs.readFileSync('.tool-versions', 'utf8').split(/\n/).find((line) => line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; }
+            catch { return null; }
+          };
+          const commandVersion = (command, args, pattern) => {
+            const result = spawnSync(command, args, { encoding: 'utf8' });
+            if (result.error?.code === 'ENOENT') return { value: null, reason: 'binary_missing' };
+            if (result.status !== 0) return { value: null, reason: 'version_command_failed' };
+            const line = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((s) => s.trim()).find((s) => pattern.test(s));
+            return line ? { value: line, reason: null } : { value: null, reason: 'version_line_unrecognized' };
+          };
+          const elixirOut = commandVersion('elixir', ['--version'], /^Elixir v?[0-9.]+/);
+          const otpOut = commandVersion('elixir', ['--version'], /^Erlang\/OTP [0-9.]+/);
+          const cache = (value) => value === 'true' ? 'hit' : value === 'false' ? 'miss' : null;
+          const lockVersion = () => {
+            try { return JSON.parse(fs.readFileSync('test/example/priv/playwright/package-lock.json', 'utf8')).packages['node_modules/@playwright/test'].version ?? null; }
+            catch { return null; }
+          };
+          const metadata = {
+            schema_version: 'sigra.ci-measurement-metadata/v1',
+            repository: process.env.GITHUB_REPOSITORY ?? null,
+            run_id: process.env.GITHUB_RUN_ID ?? null,
+            run_attempt: process.env.GITHUB_RUN_ATTEMPT ?? null,
+            source_sha: process.env.GITHUB_SHA ?? null,
+            event: process.env.GITHUB_EVENT_NAME ?? null,
+            matrix_seam: null,
+            job_name: process.env.JOB_NAME,
+            timing_artifact_name: `library-test-timing-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`,
+            exunit_reports: [
+              { invocation: 'main', path: 'ci-exunit-timing-main.json' },
+              { invocation: 'threadline_guard', path: 'ci-exunit-timing-threadline-guard.json' },
+            ],
+            runner_os: process.env.RUNNER_OS ?? null,
+            runner_arch: process.env.RUNNER_ARCH ?? null,
+            runner_image: { image_os: process.env.ImageOS ?? null, image_version: process.env.ImageVersion ?? null },
+            cache_outcome: { library_deps: cache(process.env.DEPS_CACHE_HIT) },
+            configured_versions: { erlang: readTool('erlang'), elixir: readTool('elixir'), node: null, playwright: lockVersion() },
+            observed_versions: { erlang: otpOut.value, elixir: elixirOut.value, node: null, playwright: null },
+            version_unavailable: { erlang: otpOut.reason, elixir: elixirOut.reason, node: 'not_applicable', playwright: 'not_applicable' },
+          };
+          fs.mkdirSync('test-results', { recursive: true });
+          fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata, null, 2)}\n`);
+          NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
+      - name: Upload library measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: library-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
 
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string
@@ -653,7 +768,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -704,7 +819,7 @@ jobs:
 
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: [changes]
     # Phase 230 (FAST-05 / D-09, D-07): first time this required lane gains
@@ -718,7 +833,7 @@ jobs:
     if: ${{ !cancelled() }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -727,6 +842,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         if: needs.changes.outputs.docs_only != 'true'
@@ -776,12 +895,57 @@ jobs:
             echo "## example_unit_smoke cache"
             echo "- deps cache (exact hit): ${{ steps.example_unit_deps_cache.outputs.cache-hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Example unit smoke (ExUnit + ConnTest)
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ${{ steps.example_unit_deps_cache.outputs.cache-hit }}
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ''
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { spawnSync } = require('node:child_process');
+          const readTool = (name) => { try { return fs.readFileSync('.tool-versions', 'utf8').split(/\n/).find((line) => line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; } catch { return null; } };
+          const result = spawnSync('elixir', ['--version'], { encoding: 'utf8' });
+          const lines = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((line) => line.trim());
+          const pick = (pattern) => result.status === 0 ? lines.find((line) => pattern.test(line)) ?? null : null;
+          const reasons = (value) => value ? null : (result.error?.code === 'ENOENT' ? 'binary_missing' : result.status === 0 ? 'version_line_unrecognized' : 'version_command_failed');
+          const cache = (value) => value === 'true' ? 'hit' : value === 'false' ? 'miss' : null;
+          const metadata = { schema_version:'sigra.ci-measurement-metadata/v1', repository:process.env.GITHUB_REPOSITORY ?? null, run_id:process.env.GITHUB_RUN_ID ?? null, run_attempt:process.env.GITHUB_RUN_ATTEMPT ?? null, source_sha:process.env.GITHUB_SHA ?? null, event:process.env.GITHUB_EVENT_NAME ?? null, matrix_seam:null, job_name:process.env.JOB_NAME, runner_os:process.env.RUNNER_OS ?? null, runner_arch:process.env.RUNNER_ARCH ?? null, runner_image:{image_os:process.env.ImageOS ?? null,image_version:process.env.ImageVersion ?? null}, cache_outcome:{example_deps:cache(process.env.EXAMPLE_DEPS_CACHE_HIT)}, configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null}, observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null}, version_unavailable:{erlang:reasons(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reasons(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'} };
+          fs.mkdirSync('test-results', { recursive:true }); fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
+      - name: Upload example unit measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: example-unit-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
 
   install_smoke:
     # Also closes SEED-3 / UAT-01 greenfield: `mix sigra.gen.oauth` + path/migration/router
     # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
@@ -793,7 +957,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -802,6 +966,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         if: needs.changes.outputs.docs_only != 'true'
@@ -853,6 +1021,47 @@ jobs:
             echo "## install_smoke cache"
             echo "- deps cache (exact hit): ${{ steps.install_smoke_deps_cache.outputs.cache-hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Install smoke (fresh phx.new + sigra.install)
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ${{ steps.install_smoke_deps_cache.outputs.cache-hit }}
+          HTTP_DEPS_CACHE_HIT: ''
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs'); const { spawnSync } = require('node:child_process');
+          const readTool = (name) => { try { return fs.readFileSync('.tool-versions','utf8').split(/\n/).find((line)=>line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; } catch { return null; } };
+          const result = spawnSync('elixir',['--version'],{encoding:'utf8'}); const lines=`${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((line)=>line.trim());
+          const pick=(pattern)=>result.status===0 ? lines.find((line)=>pattern.test(line)) ?? null : null; const reason=(value)=>value?null:(result.error?.code==='ENOENT'?'binary_missing':result.status===0?'version_line_unrecognized':'version_command_failed'); const cache=(value)=>value==='true'?'hit':value==='false'?'miss':null;
+          const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{library_deps:cache(process.env.INSTALL_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
+          fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
+      - name: Upload install smoke measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: install-smoke-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
 
   upgrade_smoke:
     name: Upgrade smoke (published source series -> local candidate)
@@ -862,7 +1071,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -915,7 +1124,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -978,7 +1187,7 @@ jobs:
           - "--no-organizations --no-passkeys"
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1098,7 +1307,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1145,7 +1354,7 @@ jobs:
 
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: [release_ref_guard, changes]
     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
@@ -1156,7 +1365,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1165,6 +1374,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image identity before setup
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         id: setup
         if: needs.changes.outputs.docs_only != 'true'
@@ -1231,10 +1444,50 @@ jobs:
             echo "## example_http_smoke cache"
             echo "- deps cache (exact hit): ${{ steps.http_smoke_deps_cache.outputs.cache-hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Example HTTP smoke (boot + curl critical routes)
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ${{ steps.http_smoke_deps_cache.outputs.cache-hit }}
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');const{spawnSync}=require('node:child_process');
+          const readTool=(name)=>{try{return fs.readFileSync('.tool-versions','utf8').split(/\n/).find((line)=>line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1]??null}catch{return null}};
+          const result=spawnSync('elixir',['--version'],{encoding:'utf8'});const lines=`${result.stdout??''}\n${result.stderr??''}`.split(/\r?\n/).map((line)=>line.trim());const pick=(pattern)=>result.status===0?lines.find((line)=>pattern.test(line))??null:null;const reason=(value)=>value?null:(result.error?.code==='ENOENT'?'binary_missing':result.status===0?'version_line_unrecognized':'version_command_failed');const cache=(value)=>value==='true'?'hit':value==='false'?'miss':null;
+          const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.HTTP_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
+          fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
+      - name: Upload HTTP smoke measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: http-smoke-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
 
   example_playwright_shard:
     name: Example Playwright shard (${{ matrix.seam }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: [release_ref_guard, changes]
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
@@ -1280,7 +1533,7 @@ jobs:
             browser_cache_key: playwright-chromium-1.59.1-v3
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1289,6 +1542,12 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Capture runner image identity before setup
+        env:
+          MATRIX_SEAM: ${{ matrix.seam }}
+        run: |
+          mkdir -p test-results
+          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
 
       - name: Boot isolated example app
         id: boot
@@ -1310,7 +1569,7 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          npx playwright test \
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-behavior.json npx playwright test \
             tests/admin-user-operations.spec.ts \
             tests/impersonation.spec.ts \
             tests/admin-audit.spec.ts \
@@ -1330,7 +1589,7 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          npx playwright test \
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-checkpoints.json npx playwright test \
             tests/admin-checkpoints.spec.ts \
             --project=admin-checkpoints-chromium \
             --project=admin-checkpoints-mobile \
@@ -1352,7 +1611,7 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          npx playwright test \
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-pr-behavior.json npx playwright test \
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
             --project=admin-design-mobile \
@@ -1368,14 +1627,14 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          npx playwright test \
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-nonpr-snapshots.json npx playwright test \
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
             --project=admin-design-mobile \
             --project=admin-design-dark \
             --grep '@snapshot' \
             --retries=0
-          npx playwright test \
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-nonpr-behavior.json npx playwright test \
             tests/admin-design.spec.ts \
             --project=admin-design-chromium \
             --project=admin-design-mobile \
@@ -1390,7 +1649,7 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          npx playwright test \
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/non-admin-smoke.json npx playwright test \
             tests/golden-path.spec.ts \
             tests/ga-uat-shift-left.spec.ts \
             tests/passkeys-hooks.spec.ts \
@@ -1406,7 +1665,7 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          npx playwright test \
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/demo-showcase.json npx playwright test \
             tests/demo-showcase.spec.ts \
             --project=demo-showcase-chromium \
             --retries=0
@@ -1428,6 +1687,55 @@ jobs:
             test/example/priv/playwright/playwright-report/
             test/example/priv/playwright/test-results/
             test/example/priv/playwright/artifacts/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Example Playwright shard
+          MATRIX_SEAM: ${{ matrix.seam }}
+          CONFIGURED_NODE: '20'
+          BROWSER_DEPS_CACHE_HIT: ${{ steps.boot.outputs.deps_cache_hit }}
+          BROWSER_CACHE_HIT: ${{ steps.boot.outputs.browser_cache_hit }}
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');const{spawnSync}=require('node:child_process');
+          const readTool=(name)=>{try{return fs.readFileSync('.tool-versions','utf8').split(/\n/).find((line)=>line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1]??null}catch{return null}};
+          const capture=(command,args,pattern)=>{const result=spawnSync(command,args,{encoding:'utf8'});if(result.error?.code==='ENOENT')return{value:null,reason:'binary_missing'};if(result.status!==0)return{value:null,reason:'version_command_failed'};const line=`${result.stdout??''}\n${result.stderr??''}`.split(/\r?\n/).map((s)=>s.trim()).find((s)=>pattern.test(s));return line?{value:line,reason:null}:{value:null,reason:'version_line_unrecognized'}};
+          const elixir=capture('elixir',['--version'],/^Elixir v?[0-9.]+/);const otp=capture('elixir',['--version'],/^Erlang\/OTP [0-9.]+/);const node=capture('node',['--version'],/^v[0-9.]+/);const playwright=capture('test/example/priv/playwright/node_modules/.bin/playwright',['--version'],/^(Version )?[0-9]+\.[0-9]+\.[0-9]+$/);
+          let playwrightPin=null;try{playwrightPin=JSON.parse(fs.readFileSync('test/example/priv/playwright/package-lock.json','utf8')).packages['node_modules/@playwright/test'].version??null}catch{}
+          const cache=(value)=>value==='true'?'hit':value==='false'?'miss':null;
+          const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:process.env.MATRIX_SEAM??null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.BROWSER_DEPS_CACHE_HIT),browser_binaries:cache(process.env.BROWSER_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:process.env.CONFIGURED_NODE??null,playwright:playwrightPin},observed_versions:{erlang:otp.value,elixir:elixir.value,node:node.value,playwright:playwright.value},version_unavailable:{erlang:otp.reason,elixir:elixir.reason,node:node.reason,playwright:playwright.reason}};
+          fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Verify and attach runner image identity
+        if: always()
+        env:
+          MATRIX_SEAM: ${{ matrix.seam }}
+        run: |
+          node --input-type=module <<'NODEIMAGE'
+          import fs from 'node:fs';
+          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
+          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
+          const verification=verifyFromSystem(proof);
+          const path='test-results/ci-measurement-metadata.json';
+          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
+          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
+          const depsPath=process.env.RUNNER_TEMP+'/playwright-os-deps.json';
+          metadata.os_dependencies=fs.existsSync(depsPath)?JSON.parse(fs.readFileSync(depsPath,'utf8')):null;
+          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
+          if(verification.status!=='verified')process.exitCode=1;
+          NODEIMAGE
+      - name: Upload Playwright measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-measurement-metadata-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
           retention-days: 7
           if-no-files-found: warn
 
@@ -1461,7 +1769,7 @@ jobs:
 
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Phase 230 (FAST-07): only the timeout value and its position changed
     # here. 15 replaces the prior 60 -- about 16x this job's 3.73m measured
     # duration (230-EVIDENCE.md) -- against the same 2x sizing rule applied
@@ -1482,7 +1790,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1511,7 +1819,10 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
+        run: |
+          python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
+            --playwright-dir "$PWD" --report "$RUNNER_TEMP/generated-playwright-os-deps.json" chromium webkit
+          npx playwright install chromium webkit
       - name: Run generated admin acceptance smoke
         env:
           PGUSER: postgres
@@ -1747,7 +2058,7 @@ jobs:
   # a PR is opened for human review (OQ2) before anything merges to main.
   admin_design_recapture:
     name: Recapture admin-design baselines (in-CI)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true && inputs.phase_246_ci_evidence != true
     needs: release_ref_guard
@@ -1756,7 +2067,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1985,7 +2296,7 @@ jobs:
 
   admin_checkpoint_recapture:
     name: Recapture admin-checkpoint baselines (in-CI)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true && inputs.phase_246_ci_evidence != true
     needs: release_ref_guard
@@ -1994,7 +2305,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2166,7 +2477,7 @@ jobs:
   # forbids reinstating the job-level mask and requires the step-level flag to stay.
   admin_eval_render:
     name: Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     needs: [release_ref_guard]
     if: github.event_name != 'pull_request'
@@ -2179,7 +2490,7 @@ jobs:
       PORT: "4011"
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2197,14 +2508,6 @@ jobs:
           base-url: http://localhost:4011
           server-log: /tmp/example-admin-eval-render-server.log
           browsers: chromium webkit
-          # FAST-06 parity: same browser set (chromium webkit) and the same
-          # versioned key the example_playwright_shard chromium-webkit legs
-          # use, so the exact hit restores identical binaries. A miss falls
-          # back to the full `install --with-deps`; a hit still runs
-          # `install-deps` for the OS packages. scripts/ci/playwright-cache-key-guard.sh
-          # checks this key's version against package-lock.json.
-          cache-browsers: "true"
-          browser-cache-key: ${{ runner.os }}-playwright-chromium-webkit-1.59.1-v3
           warmup-paths: /admin/_design
 
       - name: Run admin-eval harness (render matrix + derivative guards)
@@ -2241,7 +2544,6 @@ jobs:
           {
             echo "## admin_eval_render cache"
             echo "- deps cache (exact hit): ${{ steps.boot.outputs.deps_cache_hit }}"
-            echo "- Playwright browser cache (exact hit): ${{ steps.boot.outputs.browser_cache_hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
