@@ -1,2 +1,3 @@
-/raw/
 /assembled/
+/requests/*/raw-before/
+/requests/*/raw-after/

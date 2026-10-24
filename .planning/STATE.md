@@ -7,9 +7,9 @@ status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_native_image_authority_correction
-stopped_at: Corrected image authority running in existing evidence PRs
-last_updated: "2026-10-24T00:33:52.807047+00:00"
+workflow_step: phase254_final_live_parity_verification
+stopped_at: Exact final parity-corrected sources running
+last_updated: "2026-10-24T00:54:18.793805+00:00"
 last_activity: 2026-10-24 - Package repair verified on Linux; two fixed-source CI preparations running
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
@@ -28,7 +28,7 @@ phase254_halted_plans: [254-08]
 phase254_wave_count: 5
 phase254_task_count: 19
 phase254_implementation_status: complete
-phase254_comparison_status: preparing_native_image_authority_correction
+phase254_comparison_status: preparing_final_workflow_parity_verification
 phase254_verification_status: pending
 verification_status: pending
 next_command: "$gsd-execute-phase 254"
@@ -41,12 +41,10 @@ phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 
 # Current position
 
-Verified package acquisition repair plus corrected native image authority are running in the same evidence PRs. Six preceding preparation outcomes remain preserved; no measured sample has started.
+Both preceding sources passed every required context; full CI exposed a live evidence-workflow copy mismatch. The exact two-file correction passed both complete local guard suites and is running in the same evidence PRs.
 
-Current user delegated recovery authority: `.planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json`. Continue `$gsd-execute-phase 254` in the same Plan 254-08. The bounded signed HTTPS installer worked in real hosted WebKit jobs: package downloads took about 21–22 seconds and package installation about 19–25 seconds. The first environment-repair pair failed because the newly introduced v1 gate required redundant environment metadata to equal the documented native image record. Both failures and their 180-request closed budget are preserved in `.planning/execution/254-environment-recovery/PREPARATION/FINAL-RECOVERY.json`.
+Continue `$gsd-execute-phase 254` in the same Plan254-08 under current delegated recovery authority `.planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json`. Do not return to an obsolete approval question. Package acquisition and native image authority are verified in hosted runs; all five required contexts passed on both preceding sources. Their overall CI remains failed because the active green-04 evidence copy missed the generated-host install-body change. The exact two-file companion/marker correction passes all93 baseline and118 candidate prohibition tests locally. Strict parity checks and historical fixtures remain intact.
 
-The reviewed v2 policy fixes the native image file as authority on both roles, preserves environment disagreements as diagnostics, verifies unchanged raw native/OS bytes and execution identity, and still compares canonical images/hashes per owner. Prior failures remain failed. The remaining generated-host OS-package installation now uses the same bounded helper. No dependency was added.
+Current sources: baselinefb2d3faa/run40046955449; candidateebb1d3ef/run40047078287, in PR348/349. Exactly two counted source updates, zero retries,60minutes/600HTTPrequests. Eight preceding preparation outcomes remain spent and preserved; total initial preparations started: ten, plus the isolated diagnostic. No measured sample or48-hour window has started; all40 measured invocations remain unspent.
 
-PR348 baseline is now source05f1a4a/run40045468739. PR349 candidate is sourceefff737/run40045481175. Both corrected initial runs are in progress under exactly two non-forcing source updates, zero retries, 60 minutes/600 HTTP requests. Six earlier preparation outcomes remain spent; total preparations started: eight, plus the isolated diagnostic. All 40 measured invocations remain unspent and the 48-hour window has not begun.
-
-Implementation is complete; comparison and whole-phase verification remain pending; CISPEED-01/02 remain open. Phase 253 is complete and verified; Phase 255 remains pending. Reconcile `.planning/execution/254-environment-recovery/IMAGE-AUTHORITY/WATCH.jsonl` and the existing active watcher before polling. Earlier shared state is recoverable at `refs/evidence/phase254-before-native-authority-running-state` (`f656174dbaca536f421a59e5f28b60b544418e48`), recorded in `.planning/execution/254-environment-recovery/IMAGE-AUTHORITY/STATE-PRIOR.json`. Do not create another numbered repair plan or return to the obsolete approval question.
+Implementation is complete; comparison and whole-phase verification pending; CISPEED-01/02 open. Phase253 complete and verified; Phase255 pending. Reconcile `.planning/execution/254-environment-recovery/PARITY-FIX/WATCH.jsonl` and active watcher before any polling. The measurement script and draft are in `.planning/execution/254-environment-recovery/MEASUREMENT`; never start it without actual successful current-source preparation, native/image/cache proof and an immutable future window. Prior shared state: `.planning/execution/254-environment-recovery/PARITY-FIX/STATE-PRIOR.json` at `refs/evidence/phase254-before-live-parity-running-state` (`f66d32198c60c4a20d9093d280da6a2f3b9a6750`).

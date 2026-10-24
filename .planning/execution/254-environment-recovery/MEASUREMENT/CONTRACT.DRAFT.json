@@ -3,24 +3,24 @@
   "captured_at_utc": "2026-10-23T19:46:36Z",
   "status": "draft_waiting_actual_preparation",
   "blocked_by": "Actual successful native/source/image/cache proof from corrected preparation",
-  "baseline_application_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+  "baseline_application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
   "baseline_identity": {
-    "application_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+    "application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
     "producer_source_sha": null,
-    "run_id": 40045468739,
+    "run_id": 40046955449,
     "run_attempt": 1,
     "run_url": "https://github.com/szTheory/sigra/actions/runs/38317383419",
     "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
     "workflow_file_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
-    "workflow_revision": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+    "workflow_revision": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
     "workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa",
-    "tree_sha": "779c0dc6cbbb5671770659c295a3ce3649c42740",
+    "tree_sha": "4207b705356619ddc7fdc20edf7190fc7330c117",
     "branch": "evidence/phase254-environment-before-20261024",
     "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
     "preparation_attempt": 1,
-    "reviewed_source": "2b0e51d37184ffb95698dea586eebf3c42a33d85",
+    "reviewed_source": "05f1a4a428c095a31c46b58893e74c21aed6c670",
     "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
-    "source_ref": "refs/evidence/phase254-native-authority-source-before"
+    "source_ref": "refs/evidence/phase254-parity-fixed-source-before"
   },
   "baseline_runner_image": {
     "arch": "X64",
@@ -29,19 +29,19 @@
     "image_version": "20261004.327.1",
     "os": "Linux"
   },
-  "baseline_workflow_revision": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+  "baseline_workflow_revision": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
   "baseline_workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
   "baseline_workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa",
   "candidate_identity": {
-    "application_sha": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
-    "tree_sha": "71f24549e613bc8a6d68c3e396bb28e4626f6812",
+    "application_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+    "tree_sha": "75a08a5631aed56703f2ef1f20d60bd13ecf5d4a",
     "branch": "evidence/phase254-environment-after-20261024",
     "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
     "preparation_attempt": 1,
-    "reviewed_source": "c074333db2658cb0726a9ee23535e4c43a9f8c64",
+    "reviewed_source": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
     "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
-    "source_ref": "refs/evidence/phase254-native-authority-source-after",
-    "workflow_revision": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+    "source_ref": "refs/evidence/phase254-parity-fixed-source-after",
+    "workflow_revision": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
     "workflow_file_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
     "workload_revision_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
     "producer_source_sha": null
@@ -52,280 +52,280 @@
       "reservation_id": "pair-01-before",
       "pair_id": "pair-01",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 2
     },
     {
       "reservation_id": "pair-01-after",
       "pair_id": "pair-01",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 2
     },
     {
       "reservation_id": "pair-02-after",
       "pair_id": "pair-02",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 3
     },
     {
       "reservation_id": "pair-02-before",
       "pair_id": "pair-02",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 3
     },
     {
       "reservation_id": "pair-03-before",
       "pair_id": "pair-03",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 4
     },
     {
       "reservation_id": "pair-03-after",
       "pair_id": "pair-03",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 4
     },
     {
       "reservation_id": "pair-04-after",
       "pair_id": "pair-04",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 5
     },
     {
       "reservation_id": "pair-04-before",
       "pair_id": "pair-04",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 5
     },
     {
       "reservation_id": "pair-05-before",
       "pair_id": "pair-05",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 6
     },
     {
       "reservation_id": "pair-05-after",
       "pair_id": "pair-05",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 6
     },
     {
       "reservation_id": "pair-06-after",
       "pair_id": "pair-06",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 7
     },
     {
       "reservation_id": "pair-06-before",
       "pair_id": "pair-06",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 7
     },
     {
       "reservation_id": "pair-07-before",
       "pair_id": "pair-07",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 8
     },
     {
       "reservation_id": "pair-07-after",
       "pair_id": "pair-07",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 8
     },
     {
       "reservation_id": "pair-08-after",
       "pair_id": "pair-08",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 9
     },
     {
       "reservation_id": "pair-08-before",
       "pair_id": "pair-08",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 9
     },
     {
       "reservation_id": "pair-09-before",
       "pair_id": "pair-09",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 10
     },
     {
       "reservation_id": "pair-09-after",
       "pair_id": "pair-09",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 10
     },
     {
       "reservation_id": "pair-10-after",
       "pair_id": "pair-10",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 11
     },
     {
       "reservation_id": "pair-10-before",
       "pair_id": "pair-10",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 11
     },
     {
       "reservation_id": "pair-11-before",
       "pair_id": "pair-11",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 12
     },
     {
       "reservation_id": "pair-11-after",
       "pair_id": "pair-11",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 12
     },
     {
       "reservation_id": "pair-12-after",
       "pair_id": "pair-12",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 13
     },
     {
       "reservation_id": "pair-12-before",
       "pair_id": "pair-12",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 13
     },
     {
       "reservation_id": "pair-13-before",
       "pair_id": "pair-13",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 14
     },
     {
       "reservation_id": "pair-13-after",
       "pair_id": "pair-13",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 14
     },
     {
       "reservation_id": "pair-14-after",
       "pair_id": "pair-14",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 15
     },
     {
       "reservation_id": "pair-14-before",
       "pair_id": "pair-14",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 15
     },
     {
       "reservation_id": "pair-15-before",
       "pair_id": "pair-15",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 16
     },
     {
       "reservation_id": "pair-15-after",
       "pair_id": "pair-15",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 16
     },
     {
       "reservation_id": "pair-16-after",
       "pair_id": "pair-16",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 17
     },
     {
       "reservation_id": "pair-16-before",
       "pair_id": "pair-16",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 17
     },
     {
       "reservation_id": "pair-17-before",
       "pair_id": "pair-17",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 18
     },
     {
       "reservation_id": "pair-17-after",
       "pair_id": "pair-17",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 18
     },
     {
       "reservation_id": "pair-18-after",
       "pair_id": "pair-18",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 19
     },
     {
       "reservation_id": "pair-18-before",
       "pair_id": "pair-18",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 19
     },
     {
       "reservation_id": "pair-19-before",
       "pair_id": "pair-19",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 20
     },
     {
       "reservation_id": "pair-19-after",
       "pair_id": "pair-19",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 20
     },
     {
       "reservation_id": "pair-20-after",
       "pair_id": "pair-20",
       "family_role": "after",
-      "run_id": 40045481175,
+      "run_id": 40047078287,
       "run_attempt": 21
     },
     {
       "reservation_id": "pair-20-before",
       "pair_id": "pair-20",
       "family_role": "before",
-      "run_id": 40045468739,
+      "run_id": 40046955449,
       "run_attempt": 21
     }
   ],
@@ -414,19 +414,19 @@
     "source_equivalence": {
       "before": {
         "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
-        "amended_source_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
-        "authorization_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
-        "authorization_sha256": "db2ac582484bf3e8331150db91df1074df8f34d72877c534a0c7b77426d3c6df",
-        "snapshots_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/SOURCE-SNAPSHOTS.json",
-        "snapshots_sha256": "ee446ac5a0c39bd65dab60f3b60e8d64b17dfa7fff9cd011c78d733c3e9f63a8"
+        "amended_source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+        "authorization_path": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
+        "authorization_sha256": "b483ea80c8427482badbcfceb99e94d8a61e2066edc940f2f76dbf29db9850d3",
+        "snapshots_path": ".planning/execution/254-environment-recovery/PARITY-FIX/SOURCE-SNAPSHOTS.json",
+        "snapshots_sha256": "33e10d4f9e068344249828a533da7ddabc07ad342be022aae726554723d5cbdd"
       },
       "after": {
         "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
-        "amended_source_sha": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
-        "authorization_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
-        "authorization_sha256": "db2ac582484bf3e8331150db91df1074df8f34d72877c534a0c7b77426d3c6df",
-        "snapshots_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/SOURCE-SNAPSHOTS.json",
-        "snapshots_sha256": "ee446ac5a0c39bd65dab60f3b60e8d64b17dfa7fff9cd011c78d733c3e9f63a8"
+        "amended_source_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+        "authorization_path": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
+        "authorization_sha256": "b483ea80c8427482badbcfceb99e94d8a61e2066edc940f2f76dbf29db9850d3",
+        "snapshots_path": ".planning/execution/254-environment-recovery/PARITY-FIX/SOURCE-SNAPSHOTS.json",
+        "snapshots_sha256": "33e10d4f9e068344249828a533da7ddabc07ad342be022aae726554723d5cbdd"
       }
     }
   },
@@ -652,7 +652,7 @@
   "collection_passes": [
     {
       "pair_id": "pair-01",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/REQUEST-BUDGET.json",
       "ledger_id": "0a973a5981e2d18d3172f5716c18f69c94a8fd41b118b1373c255a3634a596a9",
       "reservation_ids": [
         "pair-01-before",
@@ -661,7 +661,7 @@
     },
     {
       "pair_id": "pair-02",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-02.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-02/REQUEST-BUDGET.json",
       "ledger_id": "6e091f40b51e7b5ea67584db81fd8944bf6ed532ebaa95482d3f6e74b6d9443f",
       "reservation_ids": [
         "pair-02-after",
@@ -670,7 +670,7 @@
     },
     {
       "pair_id": "pair-03",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-03.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-03/REQUEST-BUDGET.json",
       "ledger_id": "bffb491c1ae7822c1dc736e487046ff9fb68aff997948964e8f1ed1359ea43aa",
       "reservation_ids": [
         "pair-03-before",
@@ -679,7 +679,7 @@
     },
     {
       "pair_id": "pair-04",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-04.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-04/REQUEST-BUDGET.json",
       "ledger_id": "dee9ca90af463d7d59cc13880d3d708c338ad2ab15fafc1ccb99338e4200f426",
       "reservation_ids": [
         "pair-04-after",
@@ -688,7 +688,7 @@
     },
     {
       "pair_id": "pair-05",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-05.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-05/REQUEST-BUDGET.json",
       "ledger_id": "12ef1f0d62163ff96d4235f6697a090ae1abcceff76e7089f745009fb0a50b85",
       "reservation_ids": [
         "pair-05-before",
@@ -697,7 +697,7 @@
     },
     {
       "pair_id": "pair-06",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-06.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-06/REQUEST-BUDGET.json",
       "ledger_id": "15c7af209e0169158a55ae5f9fc87ab3c489ef25eaa54f3571e9528cf6199be6",
       "reservation_ids": [
         "pair-06-after",
@@ -706,7 +706,7 @@
     },
     {
       "pair_id": "pair-07",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-07.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-07/REQUEST-BUDGET.json",
       "ledger_id": "3135afbe22d281bdf5ad5129a4668ca8ed53df9957448e3c75545e18bd42bd9d",
       "reservation_ids": [
         "pair-07-before",
@@ -715,7 +715,7 @@
     },
     {
       "pair_id": "pair-08",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-08.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-08/REQUEST-BUDGET.json",
       "ledger_id": "22ef51a139e42eb776ceab8f93d0401b83f45c7cdcd9234c7627c5f18da4eea0",
       "reservation_ids": [
         "pair-08-after",
@@ -724,7 +724,7 @@
     },
     {
       "pair_id": "pair-09",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-09.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-09/REQUEST-BUDGET.json",
       "ledger_id": "9ecfa8c0b302ee7e5b6bf9e4716bc353e331b26ae48676e16c46ac90e51f1dca",
       "reservation_ids": [
         "pair-09-before",
@@ -733,7 +733,7 @@
     },
     {
       "pair_id": "pair-10",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-10.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-10/REQUEST-BUDGET.json",
       "ledger_id": "3aa6112004318e44de7885d02c67066df5bcd4df82df3961df50e4c617656020",
       "reservation_ids": [
         "pair-10-after",
@@ -742,7 +742,7 @@
     },
     {
       "pair_id": "pair-11",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-11.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-11/REQUEST-BUDGET.json",
       "ledger_id": "fd9b9c4b680ace2ebcdfb5edec0b878765e61b4aa01211e67e566e8fe924a35e",
       "reservation_ids": [
         "pair-11-before",
@@ -751,7 +751,7 @@
     },
     {
       "pair_id": "pair-12",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-12.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-12/REQUEST-BUDGET.json",
       "ledger_id": "8b23f8984a18911c23f8a17babb7bbc4ee1c9cc10311f7a04a53ff399d325e51",
       "reservation_ids": [
         "pair-12-after",
@@ -760,7 +760,7 @@
     },
     {
       "pair_id": "pair-13",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-13.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-13/REQUEST-BUDGET.json",
       "ledger_id": "b7b18e69587d87a7db11f25218350570b7af0c90ca893313d5ba9dd68c8f7884",
       "reservation_ids": [
         "pair-13-before",
@@ -769,7 +769,7 @@
     },
     {
       "pair_id": "pair-14",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-14.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-14/REQUEST-BUDGET.json",
       "ledger_id": "79ae2d2872343aa8b2ac2190c78019da52cff8ee0fa2658c2bf9ae2bd899072f",
       "reservation_ids": [
         "pair-14-after",
@@ -778,7 +778,7 @@
     },
     {
       "pair_id": "pair-15",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-15.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-15/REQUEST-BUDGET.json",
       "ledger_id": "5ded1a5261847be8acad0a35a525d111b8ac46917a8d82f68becfde407b57e0b",
       "reservation_ids": [
         "pair-15-before",
@@ -787,7 +787,7 @@
     },
     {
       "pair_id": "pair-16",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-16.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-16/REQUEST-BUDGET.json",
       "ledger_id": "95f503ddc9cb5a56aca7a4994de8dd8666db58523dbc282f9d2c1b2ccb982beb",
       "reservation_ids": [
         "pair-16-after",
@@ -796,7 +796,7 @@
     },
     {
       "pair_id": "pair-17",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-17.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-17/REQUEST-BUDGET.json",
       "ledger_id": "1a77ebdaa686147ce0fa70a0cb18d418ed4f085acc1d3c9649f5470e95cd26ed",
       "reservation_ids": [
         "pair-17-before",
@@ -805,7 +805,7 @@
     },
     {
       "pair_id": "pair-18",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-18.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-18/REQUEST-BUDGET.json",
       "ledger_id": "1718be170293c1693af26bacfa7ef7c527de5fccaabae850fe2af788eadab650",
       "reservation_ids": [
         "pair-18-after",
@@ -814,7 +814,7 @@
     },
     {
       "pair_id": "pair-19",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-19.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-19/REQUEST-BUDGET.json",
       "ledger_id": "a17f9969cbcb1ad1a4268f3ba6b2bf0b62f9443e975a3c234170bdc560a07533",
       "reservation_ids": [
         "pair-19-before",
@@ -823,7 +823,7 @@
     },
     {
       "pair_id": "pair-20",
-      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-20.json",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-20/REQUEST-BUDGET.json",
       "ledger_id": "3ab98d855467e454d6e5ff78fc13eeffef9b950e585d20eefeaee91eb1e213f7",
       "reservation_ids": [
         "pair-20-after",
@@ -832,8 +832,8 @@
     }
   ],
   "authorized_mutations": [
-    "/repos/szTheory/sigra/actions/runs/40045468739/rerun",
-    "/repos/szTheory/sigra/actions/runs/40045481175/rerun"
+    "/repos/szTheory/sigra/actions/runs/40046955449/rerun",
+    "/repos/szTheory/sigra/actions/runs/40047078287/rerun"
   ],
   "maximum_mutations": 40,
   "instrumentation_identity": {
@@ -845,7 +845,8 @@
     "baseline_amendment": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
     "symmetric_environment_recovery": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
     "native_authority": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/POLICY.json",
-    "disclosure": "Rerun-based experiment on the explicitly amended baseline and current candidate, with identical environment repairs; not forty new-PR scheduling observations, not the original Phase252 workflow unchanged."
+    "disclosure": "Rerun-based experiment on the explicitly amended baseline and current candidate, with identical environment repairs; not forty new-PR scheduling observations, not the original Phase252 workflow unchanged.",
+    "live_workflow_parity_correction": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json"
   },
   "cache_stratum_allocation": [
     {
