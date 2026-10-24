@@ -186,9 +186,22 @@
         "request": true,
         "scenario": null,
         "test_retry": false
+      },
+      {
+        "at": "2026-10-24T18:53:09+00:00",
+        "infrastructure_retry": false,
+        "invocation": false,
+        "operation": "push-reconciliation:refs/heads/evidence/phase255-canary",
+        "push": false,
+        "request": true,
+        "response": [],
+        "response_observed_at": "2026-10-24T18:53:09+00:00",
+        "response_remaining_header": 4988,
+        "scenario": null,
+        "test_retry": false
       }
     ],
-    "controller_requests": 4,
+    "controller_requests": 5,
     "elapsed_started_at": 1792867909.20091,
     "infrastructure_retries": 0,
     "invocations": 0,
