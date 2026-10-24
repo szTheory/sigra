@@ -358,7 +358,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
   3. A documented calculation replays the final before/after comparison from saved inputs, including sample sizes, literal failure/cancellation/rerun outcomes, cache conditions, and limitations.
   4. The final report names the tested code, states whether the 20% median and non-increasing p95/runner-time targets hold, and records any remaining failures separately from implemented changes. Missing old release approvals or signed historical performance archives are not required inputs.
 
-**Plans**: 3/7 plans executed in 6 waves (14 tasks; planning only, execution and phase verification not started)
+**Plans**: 4/7 plans executed in 6 waves (14 tasks; planning only, execution and phase verification not started)
 
 Plans:
 **Wave 1**
@@ -369,7 +369,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 - [x] 255-03-PLAN.md — Prove actual Mix receivers, prerequisites and per-invocation seeds (wave3).
-- [ ] 255-04-PLAN.md — Share exact browser selections and safe local database/server preparation (wave3).
+- [x] 255-04-PLAN.md — Share exact browser selections and safe local database/server preparation (wave3).
 
 **Wave 4** *(blocked on Wave 3 completion)*
 - [ ] 255-05-PLAN.md — Retain first-failure traces and preserve sequential browser diagnostics (wave4).
@@ -389,7 +389,7 @@ Plans:
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Complete; verified6/6 | 2026-10-23 |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 7/8; 1 halted | Implementation complete; hosted baseline blocked | — |
-| 255. Make Failures Reproducible and Report the Result | v1.50 | 3/7 | In Progress; ready to execute | — |
+| 255. Make Failures Reproducible and Report the Result | v1.50 | 4/7 | In Progress; ready to execute | — |
 
 ## Historical Closeout
 

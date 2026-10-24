@@ -3,8 +3,8 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Phase 255 Plans 01-03 complete; executing Plan 04
-last_updated: "2026-10-24T17:03:34.322787+00:00"
+stopped_at: Phase 255 Plans 01-04 complete; executing Plan 05
+last_updated: "2026-10-24T17:30:23.899265+00:00"
 state_head: a0bc58dbfc62283c66bb97b408528ca0a9ae14a4
 progress:
   total_phases: 4
@@ -32,7 +32,7 @@ next_command: "$gsd-execute-phase 255"
 resume_command: "$gsd-execute-phase 255"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-PLAN.md
+resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-05-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 phase255_discussion_status: complete
 phase255_planning_status: passed
@@ -40,19 +40,19 @@ phase255_implementation_status: in_progress
 phase255_verification_status: not_started
 current_phase_name: Make Failures Reproducible and Report the Result
 current_phase: 255
-current_plan: 4
+current_plan: 5
 phase255_plan_count: 7
 phase255_task_count: 14
 phase255_wave_count: 6
 phase255_plan_check: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json
-phase255_completed_plans: 3
+phase255_completed_plans: 4
 ---
 
 # Current position
 
-Phase 255 is executing: Plans 01–03 of seven are committed and verified locally. Six replay tests, 23 existing security tests and the comparison regression suite passed. The original 178 receipt entries match; a package of 191 verified inputs reproduces the exact saved insufficient-data evaluator result. See `255-01-SUMMARY.md` and `.planning/execution/255-replay/`.
+Phase 255 is executing: Plans 01–04 of seven are committed and verified locally. Six replay tests, 23 existing security tests and the comparison regression suite passed. The original 178 receipt entries match; a package of 191 verified inputs reproduces the exact saved insufficient-data evaluator result. See `255-01-SUMMARY.md` and `.planning/execution/255-replay/`.
 
-Continue Plan 04 with `$gsd-execute-phase 255`. Plans 04–07 and phase verification remain pending. The final native Mix gate passed: 2695 ordinary, 22 scaffold and 65 threadline_guard tests; all six scaffold modules ran. Dep-off preserves primary failures through restoration errors. See 255-03-SUMMARY.md for the focused CLI adapter check and native source boundary. Command recording passed four real-process tests; diagnostic bundles passed seven tests; 23 existing security tests passed. Package availability to another maintainer remains Plan 07 work. No hosted canary or new comparison collection has started. CIMEAS-03 remains open until distribution and phase verification pass.
+Continue Plan 05 with `$gsd-execute-phase 255`. Plans 05–07 and phase verification remain pending. Plan 04 shared selection checks and the final native local browser harness passed, including exact Chromium/mobile identities, port refusal and owned-resource cleanup. See 255-04-SUMMARY.md and 255-04-NATIVE.json; earlier failed attempts remain separate. The final native Mix gate passed: 2695 ordinary, 22 scaffold and 65 threadline_guard tests; all six scaffold modules ran. Dep-off preserves primary failures through restoration errors. See 255-03-SUMMARY.md for the focused CLI adapter check and native source boundary. Command recording passed four real-process tests; diagnostic bundles passed seven tests; 23 existing security tests passed. Package availability to another maintainer remains Plan 07 work. No hosted canary or new comparison collection has started. CIMEAS-03 remains open until distribution and phase verification pass.
 
 Phase 254 implementation remains complete; its fixed comparison is terminal `insufficient_data`, with zero successful comparable pairs. Baseline run 40046955449/attempt 2 failed; candidate run 40047078287/attempt 2 passed. Observed costs 2046/1589 runner-seconds are retained observations, not a demonstrated improvement. CISPEED-01/02 and Phase 254 verification remain open. Do not restart collection, replace samples, renew the window or reuse closed budgets.
 
