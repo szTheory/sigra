@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B scripts/ci/ci-comparison-replay.test.py ReplayTest.test_portable_package_calculates_in_an_empty_directory",
+  "exitCode": 1,
+  "output": "test_portable_package_calculates_in_an_empty_directory (__main__.ReplayTest.test_portable_package_calculates_in_an_empty_directory) ... FAIL\n\n======================================================================\nFAIL: test_portable_package_calculates_in_an_empty_directory (__main__.ReplayTest.test_portable_package_calculates_in_an_empty_directory)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-comparison-replay.test.py\", line 41, in test_portable_package_calculates_in_an_empty_directory\n    self.assertEqual(pack.returncode, 0, 'portable packaging must succeed: ' + pack.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 2 != 0 : portable packaging must succeed: usage: ci-comparison-replay.py [-h] {preflight,replay} ...\nci-comparison-replay.py: error: argument command: invalid choice: 'pack' (choose from preflight, replay)\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.042s\n\nFAILED (failures=1)\n",
+  "targetTest": "__main__.ReplayTest.test_portable_package_calculates_in_an_empty_directory",
+  "targetFile": "scripts/ci/ci-comparison-replay.test.py",
+  "expected": "packaging and clean directory replay succeed",
+  "actual": "pack subcommand unavailable; exit 2",
+  "semanticAssessment": "The test runs and fails its pack exit assertion; this is the absent CLI behavior, not an import or fixture failure."
+}

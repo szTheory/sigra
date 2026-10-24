@@ -32,6 +32,19 @@ class ReplayTest(unittest.TestCase):
                     self.assertIsNone(result['metrics'][f'{role}_{stat}_seconds'])
         self.assertEqual(originals, {p: hashlib.sha256(p.read_bytes()).hexdigest() for p in originals})
 
+    def test_portable_package_calculates_in_an_empty_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            package = tmp / 'inputs.tar.gz'
+            pack = subprocess.run([sys.executable, '-B', str(CLI), 'pack', '--output', str(package)],
+                                  cwd=ROOT, capture_output=True, text=True)
+            self.assertEqual(pack.returncode, 0, 'portable packaging must succeed: ' + pack.stderr)
+            output = tmp / 'result.json'
+            replay = subprocess.run([sys.executable, '-B', str(CLI), 'replay', '--package', str(package),
+                                     '--output', str(output)], cwd=tmp, capture_output=True, text=True)
+            self.assertEqual(replay.returncode, 0, replay.stderr)
+            self.assertEqual(json.loads(output.read_text()), json.loads((SAVED / 'EVALUATION-COSTS.json').read_text()))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
