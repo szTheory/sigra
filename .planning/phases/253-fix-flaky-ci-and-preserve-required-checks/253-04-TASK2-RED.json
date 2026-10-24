@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap --test-name-pattern=\"browser body skips require\" scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: browser body skips require actual successful PR classification\nnot ok 1 - browser body skips require actual successful PR classification\n  ---\n  duration_ms: 1.17375\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs:65:1'\n  failureType: 'testCodeFailure'\n  error: 'admin_behavior can skip on an unverified classifier claim'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  actual: false\n  operator: '=='\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs:67:12)\n    Test.runInAsyncScope (node:async_hooks:226:14)\n    Test.run (node:internal/test_runner/test:1402:25)\n    Test.start (node:internal/test_runner/test:1262:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 46.227333\n",
+  "targetTest": "browser body skips require actual successful PR classification",
+  "targetFile": "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+  "expected": "skip only for actual PR, successful classifier and exact true",
+  "actual": "browser condition trusts docs_only output without event/result",
+  "semanticAssessment": "Target reads actual selected body conditions and fails on missing verified PR classification guard."
+}

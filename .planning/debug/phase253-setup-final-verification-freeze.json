@@ -1,0 +1,74 @@
+{
+  "schema_version": "sigra.phase253.setup-entrypoint-verification-freeze/v1",
+  "status": "frozen_before_results",
+  "frozen_at": "2026-10-13T12:50:39.024535+00:00",
+  "scope": "Final actual-entrypoint integration verification after canonical path fix; setup only",
+  "source_head_at_freeze": "b73fd8c8fe80ddb635ee3b15267e22b9eb907ee1",
+  "repair_commit": "dd5859dc5cf4b45e7b8d57ebca7e2be4b3a94f32",
+  "prior_records_preserved": [
+    {
+      "path": ".planning/debug/phase253-registration-setup.md",
+      "sha256": "e57a158bb4dc137823473079801569c475cd996395ded4944bca3f3aa0962a8b",
+      "bytes": 15501,
+      "recoverable_ref": "b73fd8c8fe80ddb635ee3b15267e22b9eb907ee1",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/debug/phase253-registration-setup-diagnostic.json",
+      "sha256": "8315977f44d92d8c183d012d49be370ff02e2f5dce3e6ea6fd004cf37dbd2291",
+      "bytes": 4285,
+      "recoverable_ref": "b73fd8c8fe80ddb635ee3b15267e22b9eb907ee1",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/debug/phase253-setup-entrypoint-20261013T124016Z/receipt.json",
+      "sha256": "e91526eea5fb48f11c834b60f3b33da788c094a457d6e93c3eca0369877486bd",
+      "bytes": 2930,
+      "recoverable_ref": "b73fd8c8fe80ddb635ee3b15267e22b9eb907ee1",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/debug/phase253-setup-entrypoint-20261013T124016Z/local-compile-differential.json",
+      "sha256": "de494671eec0b6afcd11dc69e507e0c2e9db04dcf4051c2a3a97083ec519a1bf",
+      "bytes": 1564,
+      "recoverable_ref": "b73fd8c8fe80ddb635ee3b15267e22b9eb907ee1",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json",
+      "sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994",
+      "bytes": 4401,
+      "recoverable_ref": "b73fd8c8fe80ddb635ee3b15267e22b9eb907ee1",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json",
+      "sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51",
+      "bytes": 4005,
+      "recoverable_ref": "b73fd8c8fe80ddb635ee3b15267e22b9eb907ee1",
+      "readback_exact": true
+    }
+  ],
+  "limits": {
+    "max_project_launches": 3,
+    "max_duration_seconds": 1200,
+    "automatic_retries": 0,
+    "browser_invocations": 0
+  },
+  "command": "bash scripts/ci/ci-registration-repro.sh --diagnose-setup --output <new /private/tmp receipt path>",
+  "attempts": 1,
+  "output": "NEW /private/tmp path; immutable final receipt and raw logs committed under .planning/debug afterward",
+  "required_results": [
+    "CLI exit0 and receipt setup_passed",
+    "Each project setup/drop exits0 and HTTP200 on ports25311,25312,25313",
+    "All log hashes match preserved raw bytes",
+    "Zero browser invocations and no retry",
+    "Original failed records unchanged"
+  ],
+  "stop_conditions": [
+    "Any setup error stops run and retains nonzero receipt/logs",
+    "No automatic rerun",
+    "No fourth project launch",
+    "No original registration freeze/budget reset"
+  ]
+}

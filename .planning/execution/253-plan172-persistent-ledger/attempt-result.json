@@ -1,0 +1,41 @@
+{
+  "state": {
+    "status": "halted",
+    "stage": "closed",
+    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+    "approval_sha256": "7c284686e539ad52ba82cecde3207a81bde0bc32be96819fe24e39dc4ed6abe4",
+    "started_epoch": 1792686854,
+    "publication_started_epoch": 1792686854,
+    "publication_allocation_sha256": "57eccae6ae92cb43718cf88f305ae0eb27adf2210ec74d45d789b44b7d2ed08c",
+    "commands": 19,
+    "publication_closed_epoch": 1792686870,
+    "prs_started_epoch": 1792686870,
+    "prs_allocation_sha256": "7d1d52c581c4c2ffa6cd161b1bf5c6195588089cc6c24887b3ab7a857b9b281a",
+    "stop": "command failed: /Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/runtime/ci-pr-proof.sh: ",
+    "completed_epoch": 1792686939
+  },
+  "reruns": 0,
+  "artifacts": {
+    "normal-evidence.json": "50f25167762c49607f381d2a405847e7e2f3a3d97799f3d2e8146d1ce518d812",
+    "publication-request-1-receipt.json": "3a4d4bb1d7850858c7878b9ee67c24c37a351a4a560a31c99b232c61b769b378",
+    "publication-receipt.json": "5a70caab9b0c7d6cd727741240bd36b1fbb20f8b37246bfce53c3cf1cfa9fc65",
+    "publication-request-6-receipt.json": "c5239b6bab7a508dd465b3ebb6eb3756b78f81c2af39f42c430e2ec1e56e159b",
+    "publication-request-11-receipt.json": "2a57d8ef225124100dd11e6d1d05307decd4fcc3d1eadad59dd0bd80f935f12b",
+    "prs-ledger.json": "6d2b59034413c98311246b039f837687e5646e91e29e99d351ce2ee6e922bfa4",
+    "prs-request-1-receipt.json": "5897a43f3e02f1712d8a22387e25e951a28bddb88b87a46dacbafcefd1c221fc",
+    "publication-request-10-receipt.json": "d76fff838d22a4f19cb7af19c6ac14ec15f283f6012c7ec0c9e169e1d7fef198",
+    "publication-request-7-receipt.json": "da061f65c7275efcf85c492948ad536f987cf73d37ee60a7fdc018f66a7007b7",
+    "publication-ledger.json": "f110631bdce451f5b80bc23635d335d4b49036c1876212d5eec858cfeb8207c3",
+    "publication-request-9-receipt.json": "30971accd6f466c39051578f93de88ac8438bc6d34399dd4fe5e974a1d7cd074",
+    "publication-request-8-receipt.json": "c8ca4143741c2d6b5bbc263c7eb0f61e1401f077774c4fd052fac69575faef19",
+    "publication-request-12-receipt.json": "a55f93ad6afefee9fae8d1a71801b27b3d47785abf5ce29d780dd8b3090f6320",
+    "publication-request-15-receipt.json": "1394bd56ebd96cea5c126330bb2ad11580f489552177e45e064d124af16a6f7a",
+    "publication-request-2-receipt.json": "187b8acad573772eed72f080db7df3d4423accb70732b9789c251fa7198cea6f",
+    "publication-request-5-receipt.json": "5114f49a6939fa46d41b97dca71dfb2e34c7a5a0d3bfce38b24355111f90e152",
+    "prs-request-2-receipt.json": "38a9dc1911bf65abf5f486502a2ceb4f237af132c988655dce3a5c4065113e35",
+    "publication-request-4-receipt.json": "ab52d2920edeb2da6c0912e1e762fe147d9b58a85704477f9d8722ba72bcddda",
+    "publication-request-3-receipt.json": "4331718fec3b2ce2a9ca45249b21228726154b106e7b4206e666b761c0d7d7d6",
+    "publication-request-14-receipt.json": "c22417abf4baea0bf0574a4bbbf0c55b4e81f186f98f825541d838494f67f9d4",
+    "publication-request-13-receipt.json": "1f416ec4fe6d05e08705ce59d2bdec956ef0d5631c194f3f194ce8f64d29bf68"
+  }
+}

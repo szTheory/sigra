@@ -1,0 +1,1551 @@
+{
+  "schema": "sigra.phase253.recovery-retirement/v1",
+  "recorded_at": "2026-10-23T02:08:05.255502+00:00",
+  "status": "obsolete_unexecuted_recipes_retired",
+  "reason": "The recovery reset forbids another numbered repair loop. Completed controls, new causal fix/repeats/integration and separately verified hosted gate families replace the obsolete execution routes. Final phase verification remains mandatory.",
+  "retired_count": 73,
+  "historical_implementation_count": 81,
+  "historical_halts": 29,
+  "original_plan_count": 183,
+  "originals_preserved_at": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+  "failed_attempts_modified": false,
+  "synthetic_success_summaries_created": 0,
+  "budgets_renewed": false,
+  "requirements_marked_complete": false,
+  "phase_marked_complete": false,
+  "plans": [
+    {
+      "plan": "253-08",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468",
+        "blob": "8361e7f88481b5689e796bb136f28c1035b397f6",
+        "readback_verified": true
+      },
+      "original_objective": "Confirm required checks through normal PR CI and record exactly which reliability requirements the evidence proves. Purpose: Dispatch canaries do not satisfy PR branch protection or prove actual PR classification. Output: Source-bound production PR receipt and honest phase completion record.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "f3abc43227127e37cd1a0caeb30af1718ab76e44052b06f6863f376598208e6b"
+    },
+    {
+      "plan": "253-10",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "c3b6240b1c95bd65448f68fc7d5d54e0ba70b90d766380889402758b61240f34",
+        "blob": "fc2bcf8c506e8af1ab5f5109c9e30994308df23f",
+        "readback_verified": true
+      },
+      "original_objective": "Prove the readiness and isolation controls, then fix and repeat only a demonstrated registration cause. Purpose: A current pass alone cannot explain the archived failures or prove the control would catch a recurrence. Output: Real signal/collision/trace controls, conditional cause-backed repair, and an honest CIREL-01 receipt.",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "334ff2b8c26421fb126700942300dfb232dda3ce2c7b8ff8f18ae7ebc2050ce0"
+    },
+    {
+      "plan": "253-105",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-105-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "456272750d7ff98726c942ca51dfc670f7d4c5d64d2263a766ade99f0d8cfb0b",
+        "blob": "29a9c322f3abd07d5eb6cb689571ddf6b488b958",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the R8 docs_and_prs section, prove one normal and one genuine docs-only PR family. Each is its own evidence document, with preserved required names and once-only original integration coverage. This supersedes never-run 253-98, which replaced never-run 253-93, 253-87, 253-77, 253-67, 253-55 and 253-46 in turn. 253-98 never ran because its dependency 253-97 halted at the full-pass preflight on the canary driver's malformed check_runs route parameter (fixed in 253-100). Scope is identical to 253-98 except: - it uses the R8 canary freeze, its publication manifest and the 253-104 publication receipt, and every record it writes has a new -R8 path; - the normal PR head is gsd/253-replan-r8-candidate (253-102's ref decision); docs refs keep their never-created names; - the opening checkpoint is the first ever approval of the docs_and_prs section on its own (the R8 section sha256, not the R7 value c2f66af0... or the 253-91 value 5d15af53...); - every live --family run passes --revision-freeze FREEZE-R8 and --action-approval PR-APPROVAL-R8 explicitly; - dependencies are renumbered (253-104 canary, 253-106 completion). Purpose: CIREL-02 required-check preservation, and the CIREL-01 integration coverage that remains provable, need real pull_request evidence in the exact per-family shape that verify_pr_pair and verify_completion consume. Output: the R8 PR approval, PR freeze and allocation, -PR-NORMAL-EVIDENCE-R8.json, -PR-DOCS-EVIDENCE-R8.json, -PR-HTTP-LEDGER-R8.json and -PR-DOCS-PUBLICATION-RECEIPT-R8.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "591d93cd78e86a3f3d197dca89e1bd9cbdaf4f5b1f0157cce2852df3c796b3cb"
+    },
+    {
+      "plan": "253-106",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-106-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "b115e6962b2eaeb35c9ff57f9eb422064747120136042d19fc4e0d715eebdfb4",
+        "blob": "65b182f2e4e2d3febd32b3a8551d994a39e76890",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R8 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R8 contract, and then route root to whole-phase verification. This supersedes never-run 253-99, which replaced never-run 253-94, 253-88, 253-78, 253-68, 253-56 and 253-47 in turn. 253-99 never ran because its dependency 253-97 halted at the full-pass preflight on the canary driver's malformed check_runs route parameter. Scope is identical to 253-99 except: - the canary, publication and PR links point at the R8 records written by 253-104 and 253-105; - the bundle is built under the R8 contract (46 responsibilities, 13 halted, final owner 253-106); - the halted 253-92 and 253-97 records are preserved and disclosed, never linked. Purpose: close what can honestly be closed. CIREL-02 is accepted on real proof; CIREL-01 is recorded partial under the human disposition. The phase index is left with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R8.json, -RECONCILIATION-R8.json and -SUPERSESSION-SUMMARIES-R8.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "8a583aa23c5e0a42a16ae629eecdcdda86007cda36a38673001cd89429233a00"
+    },
+    {
+      "plan": "253-114",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-114-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "3d1e27e4ef7a5388bdeac872d07cc6a71f3c15b8b43b8666f94b23eaba57f1e8",
+        "blob": "c3c986e09fe57d69c9fa6f7f52bf2865ec2ed1c0",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves FREEZE-R9's docs_and_prs section, prove one normal and one genuine docs-only PR family. Each family is its own evidence document, with preserved required names and once-only original integration coverage. This supersedes never-run 253-105. It in turn replaced never-run 253-98, 253-93, 253-87, 253-77, 253-67, 253-55 and 253-46. 253-105 never ran because its dependency 253-104 halted when the frozen transport refused the approved artifact redirect (fixed in 253-107). Scope is identical to 253-105 except: - it uses FREEZE-R9, PUBLICATION-R9 and the 253-113 publication receipt, and every record it writes has a new -R9 path; - the normal PR head is gsd/253-replan-r9-candidate (253-111); the docs refs keep their never-created names; - the opening checkpoint is the first-ever approval of the docs_and_prs section on its own (the R9 section sha256, not R8's 083a4ce3..., R7's c2f66af0... or 253-91's 5d15af53...); - the pre-presentation checks include the 253-109 live-policy PR universe; - every live --family run passes --revision-freeze FREEZE-R9 and --action-approval PR-APPROVAL-R9 explicitly; - dependencies are renumbered (253-113 canary, 253-115 completion). Purpose: CIREL-02 required-check preservation, and the CIREL-01 integration coverage that remains provable, need real pull_request evidence in the exact per-family shape that verify_pr_pair and verify_completion consume. Output: the R9 PR approval, PR freeze and allocation, -PR-NORMAL-EVIDENCE-R9.json, -PR-DOCS-EVIDENCE-R9.json, -PR-HTTP-LEDGER-R9.json and -PR-DOCS-PUBLICATION-RECEIPT-R9.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "5ed3d56228cf8bdb38641d45d3a0492497852058a83bbe474ddac3c1e0630986"
+    },
+    {
+      "plan": "253-115",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-115-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "2f489ba5d17f1812b3c74c66e230d8427777b30f3d89b9da9b6fc3fd116e5ac4",
+        "blob": "74f8ca8564278c5dcd18551e1afb711158632210",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R9 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R9 contract, and then route root to whole-phase verification. This supersedes never-run 253-106, which replaced never-run 253-99, 253-94, 253-88, 253-78, 253-68, 253-56 and 253-47 in turn. 253-106 never ran because its dependency 253-104 halted when the frozen transport refused the approved artifact redirect. Scope is identical to 253-106 except: - the canary, publication and PR links point at the R9 records written by 253-113 and 253-114; - the bundle is built under the R9 contract (48 responsibilities, 14 halted, final owner 253-115); - the halted 253-92, 253-97 and 253-104 records are preserved and disclosed, never linked. Purpose: close what can honestly be closed. CIREL-02 is accepted on real proof, CIREL-01 is recorded partial under the human disposition, and the phase index is left with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R9.json, -RECONCILIATION-R9.json and -SUPERSESSION-SUMMARIES-R9.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "b700469082c84fc3f0f2b80b22351fd942ba22fd1a196900b38a5dc1adadbab2"
+    },
+    {
+      "plan": "253-123",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-123-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "ff9d1c923ec5a6d642274064f99c382eeda0de1d9557e7cae65b6655f16a8d48",
+        "blob": "bc50d11c925ad4844bedb0969aa3a33c9e19a67c",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves FREEZE-R10's docs_and_prs section, prove one normal and one genuine docs-only PR family, each its own evidence document, with preserved required names and once-only original integration coverage. Jon runs the live steps from a committed runner. This supersedes never-run 253-114, which replaced never-run 253-105, 253-98, 253-93, 253-87, 253-77, 253-67, 253-55 and 253-46. 253-114 never ran because its dependency 253-113 halted at the full-pass verifier (fixed in 253-116). Scope is identical to 253-114 except: - it uses FREEZE-R10, PUBLICATION-R10 and the 253-122 publication receipt, and every record it writes has a new -R10 path; - the normal PR head is gsd/253-replan-r10-candidate (253-119); the docs refs keep their never-created names; - the approval is the R10 section sha256 (never R9's 5f8b394a..., R8's 083a4ce3..., R7's c2f66af0... or 253-91's 5d15af53...); - the live steps (allocation commit, both --family runs, the PR creates) are run by Jon from a committed runner, because the auto-mode classifier denies agents those steps. Purpose: CIREL-02 required-check preservation, and the CIREL-01 integration coverage that remains provable, need real pull_request evidence in the per-family shape verify_pr_pair and verify_completion consume. Output: the R10 PR approval, PR freeze, operator runner, PR allocation (committed by the runner), -PR-NORMAL-EVIDENCE-R10.json, -PR-DOCS-EVIDENCE-R10.json, -PR-HTTP-LEDGER-R10.json and -PR-DOCS-PUBLICATION-RECEIPT-R10.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "6cf3e3d92cc4708d8da8bd791c1835794f2abb7e1ef214ccc831929a325e1615"
+    },
+    {
+      "plan": "253-124",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-124-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "8b7e138eba491d81b3d85842df4408df8d56f08f0f623d54b26d381c77bc606f",
+        "blob": "7f258d40fdec7f850d7d038d20f08ef6ca09c94a",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R10 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R10 contract, and then route root to whole-phase verification. No GitHub request. This supersedes never-run 253-115, which replaced never-run 253-106, 253-99, 253-94, 253-88, 253-78, 253-68, 253-56 and 253-47 in turn. 253-115 never ran because its dependency 253-113 halted at the full-pass verifier. Scope is identical to 253-115 except: - the canary, publication and PR links point at the R10 records written by 253-122 and 253-123; - the bundle is built under the R10 contract (50 responsibilities, 15 halted, final owner 253-124); - the halted 253-92, 253-97, 253-104 and 253-113 records are preserved and disclosed, never linked. Purpose: close what can honestly be closed. CIREL-02 is accepted on real proof, CIREL-01 is recorded partial under the human disposition, and the phase index is left with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R10.json, -RECONCILIATION-R10.json and -SUPERSESSION-SUMMARIES-R10.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "93eaaec4e06b61a0b4577053d3256e341aab8c044c910f7f92dc7f838444da39"
+    },
+    {
+      "plan": "253-13",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-13-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "16c458406ca333eac6db2d8150c36734c53063dbcad37177064b534fedc5ae33",
+        "blob": "001faba9db7dd2c60d0f990c9c93ca0a0320f67b",
+        "readback_verified": true
+      },
+      "original_objective": "Prove required checks on a normal production PR and prove docs-only classification on a separate real PR. Purpose: Synthetic dispatch canaries cannot satisfy required PR checks or show how a real pull_request classifier behaves. Output: Two draft PR families and independently checked production receipts under one separate finite budget.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "2092e289b37641e641c192f1a42775753f528cfd944b7f53af159a6a57244271"
+    },
+    {
+      "plan": "253-135",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-135-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "46e77d82b75dc1f96371794edbb8582e9d8894ead1e66b2c57660255fc74c133",
+        "blob": "9a4a587dc8e70fcecb8e4b223bbd4cd8d24725c7",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R11 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R11 contract, and then route root to whole-phase verification. No GitHub request. This supersedes never-run 253-124, which replaced never-run 253-115, 253-106, 253-99, 253-94, 253-88, 253-78, 253-68, 253-56 and 253-47 in turn. 253-124 never ran because its dependency 253-122 halted at the first failure scenario's log redirect. Scope is identical to 253-124 except: - the canary, publication and PR links point at the R11 records written by 253-133 and 253-134; - the bundle is built under the R11 contract (52 responsibilities, 16 halted, final owner 253-135); - the halted 253-92, 253-97, 253-104, 253-113 and 253-122 records and the -R11-PROBE records are preserved and disclosed, never linked. Purpose: close what can honestly be closed. CIREL-02 is accepted on real proof, CIREL-01 is recorded partial under the human disposition, and the phase index is left with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R11.json, -RECONCILIATION-R11.json and -SUPERSESSION-SUMMARIES-R11.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "ea6b0051242a19e1fb2cca9863bdd0fcab3b4fedfc52b3675bf0e36bcd8db17e"
+    },
+    {
+      "plan": "253-14",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-14-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "ce6cdcb30bf9472b1849df30cc2777dff7dd59cbce40486d82d0244378989cc9",
+        "blob": "37fafd220cd681e9b61439e5365a0e264903711f",
+        "readback_verified": true
+      },
+      "original_objective": "Record exactly what the recovery evidence proves and clear the old blocked-plan index only after both requirements are accepted. Purpose: Historical halted attempts must remain visible while the phase gains a truthful route to verification. Output: Machine-checked requirement record and explicit original-to-recovery disposition.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "96eea2cad17cad2a6527f60b9d25057566951fc7b7cadcaa5454987b116ae52f"
+    },
+    {
+      "plan": "253-144",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-144-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "322acac50961fd97e215efd3e91700b66905e393edcb541aaccb437f2ed1cc73",
+        "blob": "f287ccdc4efbbcf52a5505873f1e4aefde418a4c",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves FREEZE-R12's docs_and_prs section and the step-0 fetch, prove one normal and one genuine docs-only PR family, each its own evidence document, with preserved required names and once-only original integration coverage. Jon runs the live steps from a committed runner. This supersedes halted 253-134, whose normal PR #337 got no pull_request run because its candidate sat on a stale parent and conflicted with main. Scope is identical to 253-134 except: - it uses FREEZE-R12, PUBLICATION-R12 and the 253-143 publication receipt, and every record it writes has a new -R12 path; - the normal PR head is gsd/253-replan-r12-candidate, a direct child of the fetched main; the docs refs keep their never-created names; - step 0 re-fetches main (approved here) and requires a clean merge of the candidate into it before any API request, and the collector names the reason if GitHub still makes no run; - the docs-only family writes its publication receipt; - the approval is the R12 section sha256 (never R11's f0e47f00... or any earlier digest). Purpose: CIREL-02 required-check preservation, and the CIREL-01 integration coverage that remains provable, need real pull_request evidence in the per-family shape verify_pr_pair and verify_completion consume. Output: the R12 PR approval, PR freeze, operator runner, step-0 preflight, PR allocation (committed by the runner), -PR-NORMAL-EVIDENCE-R12.json, -PR-DOCS-EVIDENCE-R12.json, -PR-HTTP-LEDGER-R12.json and -PR-DOCS-PUBLICATION-RECEIPT-R12.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "92d8d5febec7820ed23d72ab7e15680e257d2581444479c2aa4328a0320c889b"
+    },
+    {
+      "plan": "253-145",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-145-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "28d11a5c351fc0e3b956d3c18efde1285ab7e4a9b02ceef82dd0fe8fe773f713",
+        "blob": "c54bf8ce6491f6b60c816acdb7fde5b4499ba9dc",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R12 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R12 contract, and then route root to whole-phase verification. No GitHub request. This supersedes never-run 253-135, which replaced never-run 253-124, 253-115, 253-106, 253-99, 253-94, 253-88, 253-78, 253-68, 253-56 and 253-47 in turn. 253-135 never ran because its dependency 253-134 halted (the normal PR got no pull_request run). Scope is identical to 253-135 except: - the canary, publication and PR links point at the R12 records written by 253-143 and 253-144; - the bundle is built under the R12 contract (53 responsibilities, 17 halted, final owner 253-145); - the halted 253-134 records and the complete-but-superseded R11 canary records are preserved and disclosed, never linked. Purpose: close what can honestly be closed. CIREL-02 is accepted on real proof, CIREL-01 is recorded partial under the human disposition, and the phase index is left with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R12.json, -RECONCILIATION-R12.json and -SUPERSESSION-SUMMARIES-R12.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "859c0f84a24dc054f87f6ada3556b8173d686dd6f766f847bfb67a1b3f5d0b85"
+    },
+    {
+      "plan": "253-147",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-147-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "ca732f965bf5725f8540e114a1a7d5639f9edee393352db7d485fb8f2fd85d70",
+        "blob": "8d9035b149bf452db84ed49cc7fd7d2aa63ee62f",
+        "readback_verified": true
+      },
+      "original_objective": "Cover every other paginated route the canary and the PR collector use with the same /repositories/&lt;id&gt;/ pagination rule 253-146 added, so blind spot #5 cannot recur on jobs, artifacts or run listings. Pin the one deliberately single-page read (the PR head's check runs) as a fail-closed stop. Zero GitHub requests. Why: GitHub's Link form is per response, not per route. 253-143 saw it on check_runs only because that was the first live listing longer than one page. A real PR run of ci.yml has many jobs, and the R11 PR window never reached attempt_jobs. Output: the --paged-listings canary fake option, the PR universe's two-page live-policy listings, the PR-head refusal test, and refreshed audit anchors.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "9857b769b76ac814285fe31288ef696b2b244ed92ad70f9191afb90cfe4c1bb8"
+    },
+    {
+      "plan": "253-148",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-148-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "694bb60bf2178591be47d8b9eff222843129e1cacf257e4011911b839cd6b310",
+        "blob": "47dff054c71fc45a56799f11097be5a9cc02e9e3",
+        "readback_verified": true
+      },
+      "original_objective": "Give R13 its own create-only scoped refs without touching the five pairs already on GitHub, and keep the main-freshness guard on the new pair. Zero GitHub requests. This mirrors 253-137 with r13 in place of r12, plus the 253-138 guard extended from r12 to a pair set {r12, r13}. Decision recorded here (planner's discretion, per D-11): R13 reuses the fetched main 09df342a via MAIN-FETCH-R12 and needs no new Jon-run fetch. The reasons: - Local origin/main still equals the recorded SHA. - The R12 candidate was built on it. - Its first check-runs page is committed real bytes. - The PR window re-fetches and re-checks mergeability at step 0. From this plan on FREEZE-R12 can no longer validate the tree. That is expected: no R13 plan runs ci-gate-canary.sh --check-only against FREEZE-R12 after this plan, and the R12 canary records stay evidence of the 253-143 halt only. Output: the r13 pair and head in the five code sites, the pair-set guard, --seed-r12-refs, and the r13 synthetic main record in the dry-run.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "95df29318a199e65121231f2ba26762869f0151c7df5a55bbfa293d1335fc651"
+    },
+    {
+      "plan": "253-149",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-149-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "4007b679a5ade5096ab9328b8b423659cd38e545c93216c55efb5145a591173a",
+        "blob": "af4c76581a266fb4e16da6821f70f1642032b13a",
+        "readback_verified": true
+      },
+      "original_objective": "Add the audit rules that would have caught blind spot #5 offline, record what 253-143 really observed and what R13 still cannot know, then review all R13 code and project the R13 publication before freezing. Zero GitHub requests. Why: the R12 audit compared header:link on rules_main but not on check_runs, and its live pagination row transport-1018 was covered only by tests using the /repos/ form. Nothing mechanical tied the link forms GitHub sends to the forms the fakes emit. Output: the updated R13 audit record, the pagination rules, the review record and the projection numbers (in the SUMMARY).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "4e52a45535a9013458d701c96a84f89a77b8ca190d15b822fe26e1db93f12fc0"
+    },
+    {
+      "plan": "253-150",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-150-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "9e8dd1c423c04b1b470a913b40097cc24915087596c3d63202e1ba7a45420024",
+        "blob": "008319b3c878ae5208e25707fd6d02f1ceb7b957",
+        "readback_verified": true
+      },
+      "original_objective": "Freeze the reviewed R13 source on the fetched main: derive the publication manifest and the canary freeze offline, prove the candidate is a clean child of 09df342a, prove every identity is new and every earlier approval is refused, and rehearse both offline gates on the committed freeze. Zero GitHub requests. This mirrors 253-141. The parent is the same 09df342a (MAIN-FETCH-R12); the source, ref pair, freeze plan and digests are new. Output: 253-LOAD-RECOVERY-CANARY-PUBLICATION-R13.json and 253-LOAD-RECOVERY-CANARY-FREEZE-R13.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "913d7ae6db6a5d152f6ab556521d59f557e973e3c108e08a1fff76926679ce03"
+    },
+    {
+      "plan": "253-151",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-151-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "978fa1dc6e5cba9370570dc6f94827319c045f66ff85c03e7396b1d1ac4745ce",
+        "blob": "20c6a2401ffcdaa5956577915513c81d3376c654",
+        "readback_verified": true
+      },
+      "original_objective": "Re-point the unexecuted responsibilities of halted 253-143's line (144, 145), and of the R12 fifty-three, to the R13 plans 146-154 in an additive R13 reconciliation contract, proven against the real installed SDK. This mirrors 253-142; no completion-verifier change is needed. Supersession: R13 supersedes never-run 253-144 and 253-145. Their PLANs are never edited (the R12 contract pins their bytes), and 253-143's SUMMARY stays status halted, literally. The R12 contract pins the 144 and 145 PLAN hashes and lists 143, 144 and 145 as owners. Without an R13 contract, the phase would end with 144 and 145 unsummarized and halted 143 unmapped. Output: --revision r13 in 253-LOAD-RECOVERY-reconcile.mjs with tests, and 253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R13.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "04192da081af53bfc713e17cf36044354376f0b6362ad0dddfbc833f559baf82"
+    },
+    {
+      "plan": "253-152",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-152-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "528f31ffa468c3f4ab987fdc4422e2f54208e924c8e3e3fbce14e9831dea926a",
+        "blob": "797e2e4c11678dda01a2fbcb1248c04a3cff6a1e",
+        "readback_verified": true
+      },
+      "original_objective": "Run the hosted canary for the R13 candidate. Both offline gates must pass on FREEZE-R13, Jon approves the R13 enumerated canary actions, and Jon himself runs a committed operator runner. The runner proves six actual hosted canary outcomes and a separate independent verifier inside one frozen window. Its preflight now reads main's check runs across GitHub's real pagination. This supersedes never-run 253-144's canary dependency and re-does halted 253-143 on the fixed code. Scope is identical to 253-143 except: - it uses FREEZE-R13 and PUBLICATION-R13, and every record has a new -R13 path; - the create-only refs are gsd/253-replan-r13-candidate and gsd/253-replan-r13-fixture; the r8-r12 refs stay on GitHub, untouched; - the preflight's check_runs read on 09df342a is expected to take several pages (209 runs on 2026-10-19, and growing), and Task 4 restates 253-143's \"at most one check_runs transaction\" assertion to the bounded multi-page rule; - the approval is fresh; the code refuses the 253-143 approval. Output: the R13 approval, the operator runner, the allocation (committed by the runner), -CANARY-EVIDENCE-R13.json with its five preflight copies, -CANARY-HTTP-LEDGER-R13.json and -CANARY-PUBLICATION-RECEIPT-R13.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "e843f402a1ed32005fc2a44b4f5b3fb00fd4097c14be8473d2d75df6a42678d0"
+    },
+    {
+      "plan": "253-153",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-153-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "b6c6509c75b48b1a0a2564ea124c76d07ad430c45e2b9b25578a3300967d5993",
+        "blob": "57aad0797468a7c52baa951ca2c9d7fdae224991",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves FREEZE-R13's docs_and_prs section and the step-0 fetch, prove one normal and one genuine docs-only PR family, each its own evidence document. Jon runs the live steps from a committed runner. This supersedes never-run 253-144 (its PLAN stays byte-identical; the R13 contract, 253-151, maps its responsibilities here). Scope is identical to 253-144 except: - it uses FREEZE-R13, PUBLICATION-R13 and the 253-152 publication receipt, and every record it writes has a new -R13 path; - the normal PR head is gsd/253-replan-r13-candidate, a direct child of 09df342a; the docs refs keep their never-created names; - the main record for --prepare is MAIN-FETCH-R12 (reused per 253-148); step 0 re-fetches and requires a clean merge before any API request; - the approval is the R13 section sha256, with a W1 writer-script fallback. Output: the R13 PR approval, PR freeze, operator runner, step-0 preflight, PR allocation (committed by the runner), the two family documents, the shared ledger and the docs publication receipt (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "fd0cbcd3f4bc0d6aae753a803bebd64e2e97b70548c9a4a644dcd6cba51703f8"
+    },
+    {
+      "plan": "253-154",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-154-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "6a7cee8e1aaad9072151a90b5836e4d08887e42177645525f589d7cd1c171986",
+        "blob": "a31c2bb93fac75f9df3308339ca27aa865e9ff09",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R13 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R13 contract (marking never-run 253-144 and 253-145 superseded), and then route root to whole-phase verification. No GitHub request. This supersedes never-run 253-145, which replaced never-run 253-135 and its predecessors in turn. 253-145 never ran because its dependency chain halted at 253-143 (the canary preflight's paginated check_runs read). Scope is identical to 253-145 except: - the canary, publication and PR links point at the R13 records written by 253-152 and 253-153; - the bundle is built under the R13 contract (55 responsibilities, 18 halted, final owner 253-154); - the halted 253-143 records are preserved and disclosed, never linked. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R13.json, -RECONCILIATION-R13.json and -SUPERSESSION-SUMMARIES-R13.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "626d8183b5f30bc39450fdefd3c0b0e24505f0a8d61660c2a2256ead3b2801d1"
+    },
+    {
+      "plan": "253-156",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-156-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "13fd0aa72d7263f1c1577a9b28e41d33fa632bde43aad17463c678521527f936",
+        "blob": "190dcf6f720b102d9e268a7b4eb1197ca6837b58",
+        "readback_verified": true
+      },
+      "original_objective": "Cover every other paginated route the canary and the PR collector use with the same /repositories/&lt;id&gt;/ pagination rule 253-146 added, so blind spot #5 cannot recur on jobs, artifacts or run listings. Pin the one deliberately single-page read (the PR head's check runs) as a fail-closed stop. Zero GitHub requests. Why: GitHub's Link form is per response, not per route. 253-143 saw it on check_runs only because that was the first live listing longer than one page. A real PR run of ci.yml has many jobs, and the R11 PR window never reached attempt_jobs. Carried from never-run 253-147 (superseded by this plan through the R13 contract, 253-160; its PLAN stays byte-identical) and re-pointed at 253-155, which completed halted 253-146 Tasks 2 and 3. The pagination rule is 253-146 Task 1; the full offline gates are 253-155. Content is otherwise unchanged. Output: the --paged-listings canary fake option, the PR universe's two-page live-policy listings, the PR-head refusal test, and refreshed audit anchors.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "3e159e4f5e62e4e771a0f96418d6646a4c1a29baa749efc351beaf89b8d35779"
+    },
+    {
+      "plan": "253-157",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-157-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "6501ae241879da8e7c3aa10fe8c3948161896e09b9ca16e5ea6398396aa2ddc4",
+        "blob": "521edcbe36c1ca37732600301e33b35a1f4292c4",
+        "readback_verified": true
+      },
+      "original_objective": "Give R13 its own create-only scoped refs without touching the five pairs already on GitHub, and keep the main-freshness guard on the new pair. Zero GitHub requests. This mirrors 253-137 with r13 in place of r12, plus the 253-138 guard extended from r12 to a pair set {r12, r13}. Decision recorded here (planner's discretion, per D-11): R13 reuses the fetched main 09df342a via MAIN-FETCH-R12 and needs no new Jon-run fetch. The reasons: - Local origin/main still equals the recorded SHA. - The R12 candidate was built on it. - Its first check-runs page is committed real bytes. - The PR window re-fetches and re-checks mergeability at step 0. From this plan on FREEZE-R12 can no longer validate the tree. That is expected: no R13 plan runs ci-gate-canary.sh --check-only against FREEZE-R12 after this plan, and the R12 canary records stay evidence of the 253-143 halt only. Carried from never-run 253-148 (superseded by this plan through the R13 contract, 253-160; its PLAN stays byte-identical) and re-pointed at 253-156. Content is otherwise unchanged. Note (R14, no change made): the verifier keeps MAX_CHECK_RUN_PAGES = 10 as its per-read cap for check_runs (ci-hosted-gate-verify.py, 253-146 Task 1). So the binding page ceiling inside the window is 10 pages; the eleventh page fits the preflight arithmetic below but would be refused by the verifier. The 253-161 growth guard already stops at 10 pages, so the two agree. Output: the r13 pair and head in the five code sites, the pair-set guard, --seed-r12-refs, and the r13 synthetic main record in the dry-run.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "201c67da417e06ebe94d6ec30ba15ea9509cb87a620b58f485a875a9716487e0"
+    },
+    {
+      "plan": "253-158",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-158-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "acd7b7cf7226dc6cc61ced2bd01a32fe7fe98009d450427f601ac625d3c87ce1",
+        "blob": "1b916accfb17989ab389db1045adea5c756a32ed",
+        "readback_verified": true
+      },
+      "original_objective": "Add the audit rules that would have caught blind spot #5 offline, record what 253-143 really observed and what R13 still cannot know, then review all R13 code and project the R13 publication before freezing. Zero GitHub requests. Why: the R12 audit compared header:link on rules_main but not on check_runs, and its live pagination row transport-1018 was covered only by tests using the /repos/ form. Nothing mechanical tied the link forms GitHub sends to the forms the fakes emit. Carried from never-run 253-149 (superseded by this plan through the R13 contract, 253-160; its PLAN stays byte-identical) and re-pointed at 253-157. The review scope adds 253-155, which completed halted 253-146 Tasks 2 and 3. Content is otherwise unchanged. Output: the updated R13 audit record, the pagination rules, the review record and the projection numbers (in the SUMMARY).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "bf6e91def18bae75a2f7b3a5c8aaa776b9427de81d1af122eb7b616e85585559"
+    },
+    {
+      "plan": "253-159",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-159-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "957451bf47d6b0261163eea87c1da153da4701b29fb42b709e0800b95dce4f13",
+        "blob": "2e3b7497b2dccf7ed603866d2cb9f07cd90082af",
+        "readback_verified": true
+      },
+      "original_objective": "Freeze the reviewed R13 source on the fetched main: derive the publication manifest and the canary freeze offline, prove the candidate is a clean child of 09df342a, prove every identity is new and every earlier approval is refused, and rehearse both offline gates on the committed freeze. Zero GitHub requests. This mirrors 253-141. The parent is the same 09df342a (MAIN-FETCH-R12); the source, ref pair, freeze plan and digests are new. Carried from never-run 253-150 (superseded by this plan through the R13 contract, 253-160; its PLAN stays byte-identical) and re-pointed at 253-158. The freeze plan id is now 253-159; content is otherwise unchanged. Output: 253-LOAD-RECOVERY-CANARY-PUBLICATION-R13.json and 253-LOAD-RECOVERY-CANARY-FREEZE-R13.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "f2bd78342a1de274487a621b4dcd6995e0a53e8e7b41401b2a7d279c9933e110"
+    },
+    {
+      "plan": "253-160",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-160-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "3706be3fe95a548c61fd795fcf9efcbf4317452477e58620c4a3e6225a428038",
+        "blob": "6d8dcedc3914ba2e7762c3ad7ff61a486cf5f40f",
+        "readback_verified": true
+      },
+      "original_objective": "Re-point the unexecuted responsibilities to the R14 plans 155-163 in an additive R13 reconciliation contract, proven against the real installed SDK. This mirrors 253-142; no completion-verifier change is needed. The responsibilities come from three places: - halted 253-143's line (144, 145); - halted 253-146's line (147-154); - the R12 fifty-three. Carried from never-run 253-151 (superseded by this plan; its PLAN stays byte-identical) and re-pointed at 253-159. 253-151 planned a contract partitioning 01-145, with owners in 146-154. 253-146 then halted after Task 1, and 147-154 never ran, so this plan widens the same R13 contract: - the partition covers 01-154, with 146 halted and 147-154 never-ran; - owners move to 155-163; - PLAN pins cover 01-163; - the final owner is 253-163. Nothing else in 253-151's scope changes. Supersession: R13/R14 supersede never-run 253-144, 253-145 and 253-147..154. Their PLANs are never edited, and the 253-143 and 253-146 SUMMARYs stay status halted, literally. The R12 contract pins the 144 and 145 PLAN hashes and lists 143, 144 and 145 as owners. Without this contract, the phase would end with 144, 145 and 147-154 unsummarized and halted 143 and 146 unmapped. Output: --revision r13 in 253-LOAD-RECOVERY-reconcile.mjs with tests, and 253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R13.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "3d8739b1c15b791ac6f425c5fc3cde5caf4f3ff36c437064252667682c21eb14"
+    },
+    {
+      "plan": "253-161",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-161-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "668d9a6e6d3f023aec2bb5c8616f93e63827f22de2bd23aa80abc0713cf39733",
+        "blob": "e6d39d7b94f741c0762a158f59d71b3df5931ef9",
+        "readback_verified": true
+      },
+      "original_objective": "Run the hosted canary for the R13 candidate. Both offline gates must pass on FREEZE-R13, Jon approves the R13 enumerated canary actions, and Jon himself runs a committed operator runner. The runner proves six actual hosted canary outcomes and a separate independent verifier inside one frozen window. Its preflight now reads main's check runs across GitHub's real pagination. This supersedes never-run 253-144's canary dependency and re-does halted 253-143 on the fixed code. Scope is identical to 253-143 except: - it uses FREEZE-R13 and PUBLICATION-R13, and every record has a new -R13 path; - the create-only refs are gsd/253-replan-r13-candidate and gsd/253-replan-r13-fixture; the r8-r12 refs stay on GitHub, untouched; - the preflight's check_runs read on 09df342a is expected to take several pages (209 runs on 2026-10-19, and growing), and Task 4 restates 253-143's \"at most one check_runs transaction\" assertion to the bounded multi-page rule; - the approval is fresh; the code refuses the 253-143 approval. Carried from never-run 253-152 (superseded by this plan through the R13 contract, 253-160; its PLAN stays byte-identical) and re-pointed at 253-159 and 253-160. The window id is now 253-161-canary-window-1 and every subject names 253-161; the R13 canary table (preflight 16, infrastructure_retry 5, total 117), max_pages 12, the 43 download hosts, the 55/day growth guard and its deadline (about 2026-11-02) are unchanged. 253-155 moves no preflight request: the offline gates still spend 7 of 16 with one 3-page check_runs read. The verifier keeps MAX_CHECK_RUN_PAGES = 10 as its per-read cap, so inside the window a check_runs read longer than 10 pages is refused by the verifier before Task 4 runs; the guard stops at 10 pages, so the two agree. Output: the R13 approval, the operator runner, the allocation (committed by the runner), -CANARY-EVIDENCE-R13.json with its five preflight copies, -CANARY-HTTP-LEDGER-R13.json and -CANARY-PUBLICATION-RECEIPT-R13.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "19d5c434254219dffd88d78dc68c426e0472487a29103b1c9024835c8989949e"
+    },
+    {
+      "plan": "253-162",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-162-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "6f1d1b27e16ef13d7bba03f6bbb774788dcbdac32d9f8252b890216c95ab1c7b",
+        "blob": "a05a6847e430807fe2208c0a322375f3bbf15458",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves FREEZE-R13's docs_and_prs section and the step-0 fetch, prove one normal and one genuine docs-only PR family, each its own evidence document. Jon runs the live steps from a committed runner. This supersedes never-run 253-144 and carries never-run 253-153 (both PLANs stay byte-identical; the R13 contract, 253-160, maps their responsibilities here), re-pointed at 253-161. The window id is now 253-162-pr-window-1 and every subject names 253-162; content is otherwise unchanged. Scope is identical to 253-144 except: - it uses FREEZE-R13, PUBLICATION-R13 and the 253-161 publication receipt, and every record it writes has a new -R13 path; - the normal PR head is gsd/253-replan-r13-candidate, a direct child of 09df342a; the docs refs keep their never-created names; - the main record for --prepare is MAIN-FETCH-R12 (reused per 253-157); step 0 re-fetches and requires a clean merge before any API request; - the approval is the R13 section sha256, with a W1 writer-script fallback. Output: the R13 PR approval, PR freeze, operator runner, step-0 preflight, PR allocation (committed by the runner), the two family documents, the shared ledger and the docs publication receipt (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "a4b22de58097eb88ad197680136fdc7bb3cdb7e67b60db4e534861c2bb1e0b9b"
+    },
+    {
+      "plan": "253-163",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-163-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "b625037c9ff90f2fcf4ec0937ab389a4bdaab22235486b5f6f372e82bf5b61f9",
+        "blob": "647a4a0b370b9cffb6193a293a412841a6cf870e",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R13 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R13 contract (marking never-run 253-144, 253-145 and 253-147..154 superseded), and then route root to whole-phase verification. No GitHub request. This supersedes never-run 253-145, which replaced never-run 253-135 and its predecessors in turn. 253-145 never ran because its dependency chain halted at 253-143 (the canary preflight's paginated check_runs read). It also carries never-run 253-154 (superseded through the R13 contract; its PLAN stays byte-identical), which never ran because 253-146 halted before its Task 2. It is re-pointed at 253-160 and 253-162. Scope is identical to 253-145 except: - the canary, publication and PR links point at the R13 records written by 253-161 and 253-162; - the bundle is built under the R13 contract (63 responsibilities, 19 halted, final owner 253-163); - the halted 253-143 and 253-146 records are preserved and disclosed, never linked. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R13.json, -RECONCILIATION-R13.json and -SUPERSESSION-SUMMARIES-R13.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "0d04bd4a2389f7aba75ff6c216af11d8d8023820e7299cf342230c9213fc5ad3"
+    },
+    {
+      "plan": "253-17",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-17-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "74b8a8d0ed6de9b00d5c562ab6f458973d7136a56a5655f1e3edf2edb9c5b188",
+        "blob": "85cc777dc4c179cbf5d40354d1d40be3477f8a6b",
+        "readback_verified": true
+      },
+      "original_objective": "Assess the observed cause, apply only a demonstrated test/CI repair, and verify fresh affected-project repeats. Purpose: A solved startup-port defect does not itself explain the historical registration timeout. Output: adminFlows.ts, 253-REPLAN-REGISTRATION-ACCEPTANCE-FREEZE.json, 253-REPLAN-REGISTRATION-EVIDENCE.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "b40a2303d111f408a0f8e11738e306e6c88ed2b0f29e2c68104a0aa739d4f192"
+    },
+    {
+      "plan": "253-176",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-176-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "15417a8e106ea5d61fd4594cc81e43cffee6e5a3646fdb54990fce99546c0e0f",
+        "blob": "4ad1fe281d43c527402dda6ea1553fb8ae6506ac",
+        "readback_verified": true
+      },
+      "original_objective": "Make one new acceptance attempt after175's tested fixture/receipt repairs. Preserve all original failures, strict caps and open requirement statuses per D-01/D-05/D-11/D-18/D-19/D-21/D-22/D-24. This is a new176 attempt;174 is never retried. Output: exact permission record, complete outer log and independently verified success-only local receipt.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "4caa03f84ebf7c31d1f0a12dce1d29a3595491f8ea63731c2d1d083c7183f85f"
+    },
+    {
+      "plan": "253-177",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-177-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "57bdc58b3bedb0c91fdb35d544a6b019d567ef4da5d061fe702dc6c5de13a119",
+        "blob": "943285e5b551ddba53f4aef07bbceaa4c731ba33",
+        "readback_verified": true
+      },
+      "original_objective": "Connect the separately verified176 result to the existing unexecuted168\u2013172 chain. Per D-01/D-05/D-11/D-18/D-24, preserve original instruction bytes before scoped amendments and keep all failed attempts failed. This plan changes instructions for future work; it executes no freeze, hosted collection, reconciliation disposition or whole-phase verification.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "7278b201c325a3d006508d4712ffd9f8132c89ae30e7ae8430242ad4c6a6ad1c"
+    },
+    {
+      "plan": "253-21",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-21-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "dd2a668631568a9bb7857c2c50ef3a3747f35e5140fb3e1446202fd9af2607b5",
+        "blob": "0030ede9774324bdab0752a428369b161f9f4f64",
+        "readback_verified": true
+      },
+      "original_objective": "Prepare a bounded normal-PR and real docs-only PR collector before the final canary candidate is frozen. Purpose: Both later PR families must use the same tested candidate helpers and actual merge/workflow identities. Output: ci-pr-proof.sh, ci-pr-proof.test.sh, ci-hosted-gate-verify.py.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "2d21f4bffc33332d70aad3bd710d5f957cb638b05e3c2f7f92148c3ce466a973"
+    },
+    {
+      "plan": "253-22",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-22-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "fe1b86e2bc5b1bdae9be3c2a0bed8213d7e7f6dd93d51346acbb8aa833588a91",
+        "blob": "c32bc0857a41f6cac76b11d248748dbefbab3174",
+        "readback_verified": true
+      },
+      "original_objective": "Seal the final source, object manifest and new reviewed canary window before any hosted execution. Purpose: Old halted freezes/clocks cannot be resumed, and every local prerequisite must be complete before the first new request. Output: 253-REPLAN-CANARY-WORKFLOW.yml, 253-REPLAN-CANARY-FREEZE.json, 253-REPLAN-CANARY-PUBLICATION.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "24cdf8e1a35c2d3a19063bd8766f4be76c91b1009b4a7667f832bdfef7e8ca2b"
+    },
+    {
+      "plan": "253-23",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-23-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "77d98a1aeddb9d9902c7093fdd1bb7c4d2f461bac797a3724d080de5b5a395dd",
+        "blob": "4690f61f5ac186bbe8105e5dcc6fb75e410a4fdd",
+        "readback_verified": true
+      },
+      "original_objective": "Prove six real hosted source outcomes and a separate hosted verifier within the new sealed canary window. Purpose: Local transport/publication contracts do not establish hosted failure, cancellation or artifact survival. Output: 253-REPLAN-CANARY-EVIDENCE.json, 253-REPLAN-CANARY-REQUESTS.json, 253-REPLAN-CANARY-PUBLICATION-RECEIPT.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "3356041f08f7dcaab4d489480b62bb522651806f69694080609a3f214079715b"
+    },
+    {
+      "plan": "253-24",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-24-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "d868523f6df3bd2ac6b52a780b8425741dcd6e91580ed3bc650ff87ab9107690",
+        "blob": "979d74caf920c43cd2a00f333c4e22e0d83b4456",
+        "readback_verified": true
+      },
+      "original_objective": "Prove normal production required checks and real docs-only classification on two unmerged PR families. Purpose: Dispatch fixtures cannot satisfy native PR required checks or establish actual docs-only classification. Output: 253-REPLAN-PR-FREEZE.json, 253-REPLAN-PR-EVIDENCE.json, 253-REPLAN-PR-REQUESTS.json, 253-REPLAN-PR-PUBLICATION-RECEIPT.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "0790fe8b7b288d472376c8510bd42a733cd6577cef274a9dd2592cc1cd587d10"
+    },
+    {
+      "plan": "253-25",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-25-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "be7b7480209289e398ef0107c986a6606c33a045fb5baf8d6cab24ae12829039",
+        "blob": "0b5aaf4c8f03e18a4af2d515db0aad7aa9d8b034",
+        "readback_verified": true
+      },
+      "original_objective": "Reconcile accepted reliability proof while preserving every halted attempt and exposing a truthful whole-phase verification route. Purpose: Old blocked plans may gain accepted-only disposition, while historical halted work must never be relabeled complete. Output: ci-phase253-reconcile.mjs, ci-phase253-reconcile.test.mjs, 253-REPLAN-COMPLETION-RECORD.json, 253-REPLAN-RECONCILIATION.json, 253-REPLAN-SUPERSESSION-SUMMARIES.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "93906409357820e68a76f78f0f5f76413c18741db9210875a952170d3965338b"
+    },
+    {
+      "plan": "253-28",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "15d82c6c7c01dd97b7a875c2f7acef1a0e93f3cee691ce523b43bddd525516b4",
+        "blob": "96efda53847709b2497cb2d8991d19e00903cbb9",
+        "readback_verified": true
+      },
+      "original_objective": "Complete the remaining native signal, collision, isolation and trace controls. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json.",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "2bbcfef00c7018161628e60f7b40236f3df2351eecd3f20f4b5886b49051580a"
+    },
+    {
+      "plan": "253-29",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "44d38222cbcd94d4baea4837a3beca5768634118a668def2b44b372eae920000",
+        "blob": "9b1c25d01ab8b0bc1ed3bca5e786bce7e09fe1ae",
+        "readback_verified": true
+      },
+      "original_objective": "Establish the selected cause and accept only genuine fresh post-fix repetitions. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: scripts/ci/ci-registration-recovery.mjs, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-FREEZE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-EVIDENCE.json.",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "a7d62225277b9d8e51a08e7ff371437371ad617057d89158785ac932659b2d77"
+    },
+    {
+      "plan": "253-30",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "d0b8b29d1bc854065e92fa745dc361d448d627c1b859d0490d0450e1187ee2a3",
+        "blob": "d1dd6d27a771885ed42ff232af37010e990bde22",
+        "readback_verified": true
+      },
+      "original_objective": "Prepare real normal/docs PR collection and full completion predicates before source freezing. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: scripts/ci/ci-pr-proof.sh, scripts/ci/ci-pr-proof.test.sh, scripts/ci/ci-hosted-gate-verify.py.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "044c7a4398d2b05cd31863fce024a74251d89c7808b07067d0366974de0ac7ee"
+    },
+    {
+      "plan": "253-31",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "6845a9040d4e34d313b161198bebd84862558e4fb3a4875f203ac7678c4cbaa0",
+        "blob": "a7dac140f0ff8a81ed33d49dabcf03600729c117",
+        "readback_verified": true
+      },
+      "original_objective": "Prepare accepted-only historical disposition using the actual installed SDK. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.mjs, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.test.mjs, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-RECONCILIATION-CONTRACT.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "21eadecd77e9db9748ec3a1a889c00aaef9c68d2063985f89cc9fabc8399a186"
+    },
+    {
+      "plan": "253-32",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "e66c3a6258914addf2c7b89155ea7e75aab05c758f68a986a85b3dfc4606ff11",
+        "blob": "b663ba2e6dc6f4022a6216b321c7ad712784255b",
+        "readback_verified": true
+      },
+      "original_objective": "Complete final registered-path canary assembly and regenerate exact candidate publication. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-WORKFLOW.yml, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-FREEZE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-PUBLICATION.json, scripts/ci/ci-git-publication.py.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "d657a1e4b48456192901b8c1bfc39876e1165d44a8ea0c6d0786cb64446b298a"
+    },
+    {
+      "plan": "253-33",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "c527d8b0ac01d55185b9abf1c4431de8ecd7885aec2facc06c5c52c4088e2f7d",
+        "blob": "a3055b67a14e71933b715829ad51958ba1f041f7",
+        "readback_verified": true
+      },
+      "original_objective": "Prove six actual hosted outcomes and a separate verifier inside the sealed canary allocation. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-EVIDENCE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-REQUESTS.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-PUBLICATION-RECEIPT.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "fdd1561f230ed8a5f201de665356f8e164ad3d4009743f35625d81dfd92e0761"
+    },
+    {
+      "plan": "253-34",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "b491e3d894dcd8670bd6c5084f5bc07c56a7a2041075f384e79e99a4c527f86d",
+        "blob": "2c980c055322353950fda4fa549bc4e99b2f04f1",
+        "readback_verified": true
+      },
+      "original_objective": "Prove real normal production and docs-only PR required checks under one allocation. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-FREEZE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-EVIDENCE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-REQUESTS.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-PUBLICATION-RECEIPT.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "b367a95c82ea4cfe198590a13fc8a9efec7489addb4b28c640c410382c38939e"
+    },
+    {
+      "plan": "253-35",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "1a98efdc8df0575e5e0aa75205344f116572e4cd8197caef49e36c7c5cc951b9",
+        "blob": "c5ebdc2190d13acad6b652a8d1c48adbee5b0f57",
+        "readback_verified": true
+      },
+      "original_objective": "Record accepted reliability proof and prepare honest historical disposition plus full-verification routing. Purpose: Complete remaining Phase253 proof through additive recovery without changing failed history or locked limits. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-COMPLETION-RECORD.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-RECONCILIATION.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-SUPERSESSION-SUMMARIES.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "cd4eb8dcd2a1e197e5ce97d983a8fb6d999e446ba769b6c4cbd520ff9ebabf27"
+    },
+    {
+      "plan": "253-41",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-41-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "fcc9fd2d565969962b7455fa12379b3bb2f264743d3912aad15168528157e38e",
+        "blob": "7ff8ffd6a604f9c212b3fcedc48794c6e90e7940",
+        "readback_verified": true
+      },
+      "original_objective": "Require a demonstrated selected cause and genuine fresh post-fix repeats, preserving an honest halt when proof is incomplete. Purpose: Finish the remaining authorized Phase253 proof with preserved failures and finite allocations. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json, scripts/ci/ci-registration-recovery.mjs.",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "7343075a69ff4a9703c309ebb034e3971b121ff7d66010621405b255803de870"
+    },
+    {
+      "plan": "253-44",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-44-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "dd097b8324eacc4b0a30c6c8c0ed8a493d7f60917debfbe5a63cbe0a61cc28e3",
+        "blob": "250bb59b3cc7dec1e49296ae266d4d3b78a0cbe7",
+        "readback_verified": true
+      },
+      "original_objective": "Finish the registered-path hosted canary adapter and regenerate the full publication graph from final committed product source. Purpose: Finish the remaining authorized Phase253 proof with preserved failures and finite allocations. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION.json, scripts/ci/ci-gate-canary.sh, scripts/ci/ci-git-publication.py.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "39ae5eca583c4cb56a4b7c45c5cb4963404b52b12c18ed6aa1c439e6e7aae87a"
+    },
+    {
+      "plan": "253-45",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-45-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "8eb2de41c618c1d9a000ca9dbae59e9ddf2669fb22b382dafc1e999a16c0bd13",
+        "blob": "84c20f139a4f4bcb4200f3423052dff43b2c68ce",
+        "readback_verified": true
+      },
+      "original_objective": "Prove six actual hosted canary outcomes and a separately run independent verifier within the single frozen window. Purpose: Finish the remaining authorized Phase253 proof with preserved failures and finite allocations. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "aaf283d98c977dca405eb47d5f8994ae28a7c5522390c53b995aac4cabef836f"
+    },
+    {
+      "plan": "253-46",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-46-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "7c78db27cb01957365999b2173960c2273d1a9182ebd6494959c70ea67e8c30f",
+        "blob": "f113b7a8ebe0ad9d0dd02cd0ea6f1eafa72052cd",
+        "readback_verified": true
+      },
+      "original_objective": "Prove one normal and one genuine docs-only PR family with preserved required names and once-only original integration coverage. Purpose: Finish the remaining authorized Phase253 proof with preserved failures and finite allocations. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-FREEZE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-EVIDENCE.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-DOCS-PUBLICATION-RECEIPT.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "9613e7fd44d737bc53ba71e9c51bf0ffd683333e85b6a2be4de83efdf83224c3"
+    },
+    {
+      "plan": "253-47",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-47-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "e6ef59d32399a7f5deb51c89cb6b064e8fd4358aaa6de9fa7b20eb52262e5be6",
+        "blob": "2f6d37f079bd7ffdb8cf041b9e8d384a5613dc2c",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen complete requirements and prepare only accepted historical disposition, then route root to whole-phase verification. Purpose: Finish the remaining authorized Phase253 proof with preserved failures and finite allocations. Output: .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-COMPLETION-RECORD.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION.json, .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-SUPERSESSION-SUMMARIES.json.",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "c4343d5516a6b705db028449a027bac31d523f05f457bae6fbd38057b6d1844d"
+    },
+    {
+      "plan": "253-52",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-52-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "f5df0086aa57d66391f461d73f357c5c9a41de1eb41c259eea9737caa0f9ee4b",
+        "blob": "c99d20edf187390fa3ed6fd619e52c2df43116be",
+        "readback_verified": true
+      },
+      "original_objective": "Require a demonstrated selected cause and genuine fresh post-fix repeats on top of the accepted R2 controls, preserving an honest halt when proof is incomplete (replaces never-run 253-41). Purpose: CIREL-01 needs selected flaky failures reproduced and fixed with deterministic regressions and repeats; controls alone do not satisfy it. Output: acceptance modes in scripts/ci/ci-registration-recovery.mjs, 253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json, 253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json (first creation; 253-41 never produced them).",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "a3acfb82327adb032e6e09da31a0b5eb943832acaf0522efc410aa5ab5f54cad"
+    },
+    {
+      "plan": "253-53",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-53-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "b7b520b226d5db583e01e6bbb78a4b2e19fa5c30201def1f6eb732eabf671b3a",
+        "blob": "c015c8a57ac638653a11f3ec441010fd088df841",
+        "readback_verified": true
+      },
+      "original_objective": "Close the live publication-origin gap, finish the registered-path hosted canary adapter, and regenerate the full publication graph and freeze from final committed product source, with zero GitHub requests (replaces never-run 253-44). Purpose: Hosted proof (253-54/55) must publish and dispatch exactly what was reviewed and frozen, and Jon must be able to approve an exact enumerated action list. Output: publication and canary code, 253-LOAD-RECOVERY-CANARY-WORKFLOW.yml, -CANARY-FREEZE.json, -CANARY-PUBLICATION.json (first creation; 253-44 never produced them).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "1bbf838031719afb917df1f348b895fca0ad1f5d0a46e07209bcf870b5342bf4"
+    },
+    {
+      "plan": "253-54",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-54-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "44c908cc09e6b5569fe87c266b330727342e907dcbee4f1a52cb45d877594fe9",
+        "blob": "83eb81592a718ff997cc830bb5187725f6aeddaa",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated outward actions, prove six actual hosted canary outcomes and a separately run independent verifier within the single frozen window (replaces never-run 253-45). Purpose: CIREL-02 needs real hosted evidence that failures, cancellations, missing jobs and unexpected skips keep the gate non-green. Output: approval record, 253-LOAD-RECOVERY-CANARY-EVIDENCE.json, -CANARY-HTTP-LEDGER.json, -CANARY-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "0ad04a6071701419e4a91695625d901cce0781c11b1c83e08bf60978e31972ab"
+    },
+    {
+      "plan": "253-55",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-55-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "5c4b6a2b2e0c2b2fb869fb81f0c7be5d499027e78eadbcfb60ab6a04eb32894f",
+        "blob": "88da07ae8dffbe98665de3b4e4e9df2342cb2878",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated PR actions, prove one normal and one genuine docs-only PR family, each as its own evidence document, with preserved required names and once-only original integration coverage (replaces never-run 253-46). Purpose: CIREL-01 integration and CIREL-02 required-check preservation need real pull_request evidence, not fixtures, in the exact per-family shape verify_pr_pair and verify_completion consume. Output: approval record, PR freeze and allocation, -PR-NORMAL-EVIDENCE.json, -PR-DOCS-EVIDENCE.json, -PR-HTTP-LEDGER.json, -PR-DOCS-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "65a0c9eb33c48106cade8fd621de1992cf3497e8ad3bfac470e3abd4887e193c"
+    },
+    {
+      "plan": "253-56",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-56-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "ed7a2271acabb8138c7ef888f839270c60dbba9151b60c287b55edfc09ea3a9b",
+        "blob": "20892b461db81cf88cb831b0ca5e27d3a9f88129",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen complete requirements on the R2 evidence chain and prepare only accepted historical disposition under the R2 contract, then route root to whole-phase verification (replaces never-run 253-47). Purpose: Close CIREL-01/CIREL-02 only on reopened actual proof and leave a phase index with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD.json, -RECONCILIATION.json, -SUPERSESSION-SUMMARIES.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "8c83e535edec8f54c0fc8b6ee91e90adab6b0f61b7d7dcba12792fe8cb41d80f"
+    },
+    {
+      "plan": "253-64",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-64-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "f5ab5a53f8e7f45b286fc72d753ea0854369fd4eb80e4d15712e4ea008062dcc",
+        "blob": "5fbf8d2dc1e2c77ced5a7b9f2f4c86c46e6bf609",
+        "readback_verified": true
+      },
+      "original_objective": "Require a demonstrated selected cause and genuine fresh post-fix repeats on top of the accepted R3 controls, preserving an honest halt when proof is incomplete (replaces never-run 253-52, which itself replaced never-run 253-41; 253-52 never ran because its dependency 253-51 halted). Purpose: CIREL-01 needs selected flaky failures reproduced and fixed with deterministic regressions and repeats; controls alone do not satisfy it. Output: acceptance modes in scripts/ci/ci-registration-recovery.mjs, 253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json, 253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json (first creation; neither 253-41 nor 253-52 produced them).",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "e57b27758711ed489ed661b7cb40166460d56d4d793775b820b81da145fd73f2"
+    },
+    {
+      "plan": "253-65",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-65-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "7251fceaaf5ce6819cce95529484854bb254350ca4bff70a178fecb2e28c7364",
+        "blob": "95e9902a11df72485109b4fc3ee77aa06bca54e6",
+        "readback_verified": true
+      },
+      "original_objective": "Close the live publication-origin gap, finish the registered-path hosted canary adapter, and regenerate the full publication graph and freeze from final committed product source, with zero GitHub requests (replaces never-run 253-53, which itself replaced never-run 253-44; 253-53 never ran because its dependency 253-51 halted). Purpose: Hosted proof (253-66/67) must publish and dispatch exactly what was reviewed and frozen, and Jon must be able to approve an exact enumerated action list. Output: publication and canary code, 253-LOAD-RECOVERY-CANARY-WORKFLOW.yml, -CANARY-FREEZE.json, -CANARY-PUBLICATION.json (first creation; neither 253-44 nor 253-53 produced them).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "1865693ec3ce7463b4b287357427da1faf326345a5ae9c4e4763bf029f975787"
+    },
+    {
+      "plan": "253-66",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-66-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "5651c785bcf16cfab445c2dd7ed9249a10e12919ec94bea0f6bc70a67ee50d3e",
+        "blob": "693746e7b9870932f59b7cc874c804a4d7f4f8a5",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated outward actions, prove six actual hosted canary outcomes and a separately run independent verifier within the single frozen window (replaces never-run 253-54, which itself replaced never-run 253-45; 253-54 never ran because its dependency 253-51 halted). Purpose: CIREL-02 needs real hosted evidence that failures, cancellations, missing jobs and unexpected skips keep the gate non-green. Output: approval record, 253-LOAD-RECOVERY-CANARY-EVIDENCE.json, -CANARY-HTTP-LEDGER.json, -CANARY-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "524696d30e7aed9a64da3a074c307c79e165df4483013364ae3d30413bf64478"
+    },
+    {
+      "plan": "253-67",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-67-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "e2589e6f7b1242f4cb1966205eb81f62a9cefafcf1bbe670356a8e22e3b236ff",
+        "blob": "8d9654bb5612daeffb47e64e8175db4e974307ac",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated PR actions, prove one normal and one genuine docs-only PR family, each as its own evidence document, with preserved required names and once-only original integration coverage (replaces never-run 253-55, which itself replaced never-run 253-46; 253-55 never ran because its dependency 253-51 halted). Purpose: CIREL-01 integration and CIREL-02 required-check preservation need real pull_request evidence, not fixtures, in the exact per-family shape verify_pr_pair and verify_completion consume. Output: approval record, PR freeze and allocation, -PR-NORMAL-EVIDENCE.json, -PR-DOCS-EVIDENCE.json, -PR-HTTP-LEDGER.json, -PR-DOCS-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "345c5dd91f0291530c6d12ae0d4c7414f86d185c6f9d46d6e394fe707a82cd49"
+    },
+    {
+      "plan": "253-68",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-68-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "6800a996a74d7ec425a79efe7fde502727b868df6fd826f3adb370e45cdfb213",
+        "blob": "07ec247946b17f942d3ba82821646074429b033a",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen complete requirements on the R3 evidence chain and prepare only accepted historical disposition under the R3 contract, then route root to whole-phase verification (replaces never-run 253-56, which itself replaced never-run 253-47; 253-56 never ran because its dependency 253-51 halted). Purpose: Close CIREL-01/CIREL-02 only on reopened actual proof and leave a phase index with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD.json, -RECONCILIATION.json, -SUPERSESSION-SUMMARIES.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "c6667fb33455a388e332a10bb3a3584a1e9f3163fd4355d0023f22ed1c0cf57e"
+    },
+    {
+      "plan": "253-74",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-74-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "360c6b3edb001e3cbf1f4da681a86d987df22251054d0423a9e655332b05cd68",
+        "blob": "8240a1bf7aee83d276c16ee9f90cb5819e4ec8df",
+        "readback_verified": true
+      },
+      "original_objective": "Require a demonstrated selected cause and genuine fresh post-fix repeats on top of the accepted R4 controls, preserving an honest halt when proof is incomplete (supersedes never-run 253-64, which replaced never-run 253-52, which itself replaced never-run 253-41; 253-64 never ran because its dependency 253-63 halted on a runner validator rejection). Scope is identical to 253-64 except the R3 to R4 retargeting. Purpose: CIREL-01 needs selected flaky failures reproduced and fixed with deterministic regressions and repeats; controls alone do not satisfy it. Output: acceptance modes in scripts/ci/ci-registration-recovery.mjs, 253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json, 253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json (first creation; none of 253-41, 253-52 or 253-64 produced them).",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "6ec0dd2389ab345395a52bb79b6167c2daf018b5bd7b95960f2e8dd02084166c"
+    },
+    {
+      "plan": "253-75",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-75-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "85c1923fedfef951d9f2c4ca043fba0daa508398e95a36237b2eb9c2a7c1efce",
+        "blob": "47856e2599adafe0094df81f2ddf8669a190684d",
+        "readback_verified": true
+      },
+      "original_objective": "Close the live publication-origin gap, finish the registered-path hosted canary adapter, and regenerate the full publication graph and freeze from final committed product source, with zero GitHub requests (supersedes never-run 253-65, which replaced never-run 253-53, which itself replaced never-run 253-44; 253-65 never ran because its dependency chain was blocked by halted 253-63). Scope is identical to 253-65 except the R3 to R4 retargeting. Purpose: Hosted proof (253-76/77) must publish and dispatch exactly what was reviewed and frozen, and Jon must be able to approve an exact enumerated action list. Output: publication and canary code, 253-LOAD-RECOVERY-CANARY-WORKFLOW.yml, -CANARY-FREEZE.json, -CANARY-PUBLICATION.json (first creation; none of 253-44, 253-53 or 253-65 produced them).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "d14c0b55a1c730b623f52b1cff251de8f1c2e4b132e1fcd4df1479c3ea616d6f"
+    },
+    {
+      "plan": "253-76",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-76-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "60e52445312cc52a6274af80141e345b50212dfd2cce89ea763c6cb2cb84eaf7",
+        "blob": "858e767b6dcfbe7c7c1ef1a08ac539b0c1c9efbc",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated outward actions, prove six actual hosted canary outcomes and a separately run independent verifier within the single frozen window (supersedes never-run 253-66, which replaced never-run 253-54, which itself replaced never-run 253-45; 253-66 never ran because its dependency chain was blocked by halted 253-63). Scope is identical to 253-66 except the R3 to R4 retargeting. Purpose: CIREL-02 needs real hosted evidence that failures, cancellations, missing jobs and unexpected skips keep the gate non-green. Output: approval record, 253-LOAD-RECOVERY-CANARY-EVIDENCE.json, -CANARY-HTTP-LEDGER.json, -CANARY-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "d0566db477ff7f0eec3b606e89042e410e3e2c485b03f9277236c9d82bd0fea0"
+    },
+    {
+      "plan": "253-77",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-77-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "f6fca2fbcf392f5c5605f7012458aefe444c49aa898c81411774bfcc8e9bc1b0",
+        "blob": "c2e729b13cfcf71d81d8e2a4911ea4d369eec377",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated PR actions, prove one normal and one genuine docs-only PR family, each as its own evidence document, with preserved required names and once-only original integration coverage (supersedes never-run 253-67, which replaced never-run 253-55, which itself replaced never-run 253-46; 253-67 never ran because its dependency chain was blocked by halted 253-63). Scope is identical to 253-67 except the R3 to R4 retargeting. Purpose: CIREL-01 integration and CIREL-02 required-check preservation need real pull_request evidence, not fixtures, in the exact per-family shape verify_pr_pair and verify_completion consume. Output: approval record, PR freeze and allocation, -PR-NORMAL-EVIDENCE.json, -PR-DOCS-EVIDENCE.json, -PR-HTTP-LEDGER.json, -PR-DOCS-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "92010b61218c6bbf05de902420af776237972d21699f1e96b6acd011b524e572"
+    },
+    {
+      "plan": "253-78",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-78-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "624999d7df7269221d3b17dddf5c874e68b5b1985af7bec78fe5813a63395dad",
+        "blob": "2be87606d290411b5673b211a7afe753c91f3013",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen complete requirements on the R4 evidence chain and prepare only accepted historical disposition under the R4 contract, then route root to whole-phase verification (supersedes never-run 253-68, which replaced never-run 253-56, which itself replaced never-run 253-47; 253-68 never ran because its dependency chain was blocked by halted 253-63). Scope is identical to 253-68 except the R3 to R4 retargeting. Purpose: Close CIREL-01/CIREL-02 only on reopened actual proof and leave a phase index with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD.json, -RECONCILIATION.json, -SUPERSESSION-SUMMARIES.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "211cbe8191921f25052363b2686d6ab5f29100e3204fd250ed18936c4bec15b5"
+    },
+    {
+      "plan": "253-85",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-85-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "8af18479b7cd55352c33631d6edda9e24ef6f7013f6ef34e3a8e3a42b49de123",
+        "blob": "9822accf05ce480cac9e520c4563308e51bf1b95",
+        "readback_verified": true
+      },
+      "original_objective": "Close the live publication-origin gap, finish the registered-path hosted canary adapter, and regenerate the full publication graph and freeze from final committed product source, with zero GitHub requests (supersedes never-run 253-75, which replaced never-run 253-65, 253-53 and 253-44 in turn; 253-75 never ran because its dependency chain was blocked by halted 253-73, a non-infrastructure runner account-count query defect). Scope is identical to 253-75 except the R4 to R5 retargeting. Purpose: Hosted proof (253-86/77) must publish and dispatch exactly what was reviewed and frozen, and Jon must be able to approve an exact enumerated action list. Output: publication and canary code, 253-LOAD-RECOVERY-CANARY-WORKFLOW.yml, -CANARY-FREEZE.json, -CANARY-PUBLICATION.json (first creation; none of 253-44, 253-53, 253-65 or 253-75 produced them).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "77e68ce5980725cdd92fea0f0e4ac0001cd0d980c8cae753f82311ec000fb079"
+    },
+    {
+      "plan": "253-86",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-86-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "3e9c88a0919dc67070370e4c4ac10329997276368e1f1d869f2ec78d633bec81",
+        "blob": "f34eb7ec4ba0a85f083ec8285637e9fecc3e8fdd",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated outward actions, prove six actual hosted canary outcomes and a separately run independent verifier within the single frozen window (supersedes never-run 253-76, which replaced never-run 253-66, 253-54 and 253-45 in turn; 253-76 never ran because its dependency chain was blocked by halted 253-73, a non-infrastructure runner account-count query defect). Scope is identical to 253-76 except the R4 to R5 retargeting. Purpose: CIREL-02 needs real hosted evidence that failures, cancellations, missing jobs and unexpected skips keep the gate non-green. Output: approval record, 253-LOAD-RECOVERY-CANARY-EVIDENCE.json, -CANARY-HTTP-LEDGER.json, -CANARY-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "410e2e77e27200e04a217b2bf70e64f624aa172c8793816a021018f51572bcf5"
+    },
+    {
+      "plan": "253-87",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-87-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "9f6c3311c2ed0953e6520269928b1aa8b783845e6eebf1496dc09377d9cc212c",
+        "blob": "2dc70a7fd69e2f349b8382aa02cc2355a2254551",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the enumerated PR actions, prove one normal and one genuine docs-only PR family, each as its own evidence document, with preserved required names and once-only original integration coverage (supersedes never-run 253-77, which replaced never-run 253-67, 253-55 and 253-46 in turn; 253-77 never ran because its dependency chain was blocked by halted 253-73, a non-infrastructure runner account-count query defect). Scope is identical to 253-77 except the R4 to R5 retargeting. Purpose: CIREL-01 integration and CIREL-02 required-check preservation need real pull_request evidence, not fixtures, in the exact per-family shape verify_pr_pair and verify_completion consume. Output: approval record, PR freeze and allocation, -PR-NORMAL-EVIDENCE.json, -PR-DOCS-EVIDENCE.json, -PR-HTTP-LEDGER.json, -PR-DOCS-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "0cb2792284dbbb6d49b2fe04f4cca114743cd8c88c437bd4fa772fd948549976"
+    },
+    {
+      "plan": "253-88",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-88-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "d8aba37fdc3bd7f0f5519bc0184c2f0d61af6cb5405c80dfb0efb7d20f8fec52",
+        "blob": "0590664e0a5c61ef35d285c439f447ac02bd90dd",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R5 evidence chain and prepare only accepted historical disposition under the R5 contract, then route root to whole-phase verification. This supersedes never-run 253-78, which replaced never-run 253-68, 253-56 and 253-47 in turn. 253-78 never ran because its dependency chain was blocked by halted 253-73, a non-infrastructure runner account-count query defect. Scope is identical to 253-78 except the R4 to R5 retargeting. Purpose: Close CIREL-01/CIREL-02 only on reopened actual proof, and leave a phase index with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD.json, -RECONCILIATION.json and -SUPERSESSION-SUMMARIES.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "8fee32f3faaac2b13dc33848b02be12203458ec66bd1e5ac8a937507a7f32e81"
+    },
+    {
+      "plan": "253-93",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-93-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "0923eca91ea098fed2c834a52455d6a92180fb19ab7b6c43a2df8e255b296fa6",
+        "blob": "304819d3d3b15df5cdeb6f736e205936c7e6b8aa",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon re-confirms the enumerated PR actions, prove one normal and one genuine docs-only PR family. Each is its own evidence document, with preserved required names and once-only original integration coverage. This supersedes never-run 253-87, which replaced never-run 253-77, 253-67, 253-55 and 253-46 in turn. 253-87 never ran because its dependency chain was blocked by halted 253-84, which found no source-bound historical registration cause. Scope is identical to 253-87 except: - the integration link points at the R5 controls and the 253-89 not_reproduced disposition, not at an accepted native target; - the PR freeze binds the disposition documents; - the PR body states CIREL-01's literal partial status; - dependencies are renumbered (253-92 canary, 253-94 completion). Purpose: CIREL-02 required-check preservation, and the CIREL-01 integration coverage that remains provable, need real pull_request evidence rather than fixtures, in the exact per-family shape that verify_pr_pair and verify_completion consume. Output: the approval record, the PR freeze and allocation, -PR-NORMAL-EVIDENCE.json, -PR-DOCS-EVIDENCE.json, -PR-HTTP-LEDGER.json and -PR-DOCS-PUBLICATION-RECEIPT.json (first creation).",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "2c31ba848882b6d33d4e460660bf992d6f6e7934f25eeea56f1bd2f69f78df12"
+    },
+    {
+      "plan": "253-94",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-94-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "a8c2e330ab59e793a212baac731e95c7c28c505df20b2605166441e0d980bb84",
+        "blob": "62c4d99631a71d13b3ace0f711f5ae6f0946d88a",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R6 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R6 contract, and then route root to whole-phase verification. This supersedes never-run 253-88, which replaced never-run 253-78, 253-68, 253-56 and 253-47 in turn. 253-88 never ran because its dependency chain was blocked by halted 253-84, which found no source-bound historical registration cause. Scope is identical to 253-88 except: - the completion record carries the disposition links and is checked with --require-dispositioned; - CIREL-01 is recorded partial, not accepted; - the bundle is built under the R6 contract (42 responsibilities, 11 halted). Purpose: close what can honestly be closed. CIREL-02 is accepted on real proof; CIREL-01 is recorded partial under the human disposition. The phase index is left with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD.json, -RECONCILIATION.json and -SUPERSESSION-SUMMARIES.json (first creation).",
+      "category": "registration_and_controls",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/controls.json",
+        ".planning/debug/phase253-registration-timeout/CONTINUATION-RESULT.json",
+        ".planning/execution/253-registration-postfix/RESULT.json",
+        ".planning/execution/253-registration-integration/RESULT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "6583e3a81396f80e813f3eaf8feb7a48bf2f4f110e1fed81c0cc52b7379e172b"
+    },
+    {
+      "plan": "253-98",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-98-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "fbacea80e3ad03a67b2072df25278833ef9ea12fe534510836c7698a0b60e0e3",
+        "blob": "e73231a5b3cfc18db7ba722ed588cdfa6e3647bc",
+        "readback_verified": true
+      },
+      "original_objective": "After Jon approves the R7 docs_and_prs section, prove one normal and one genuine docs-only PR family. Each is its own evidence document, with preserved required names and once-only original integration coverage. This supersedes never-run 253-93, which replaced never-run 253-87, 253-77, 253-67, 253-55 and 253-46 in turn. 253-93 never ran because its dependency 253-92 halted at publication on the publisher's commit-message readback mismatch. Scope is identical to 253-93 except: - it uses the R7 canary freeze, its publication manifest and the 253-97 publication receipt, and every record it writes has a new -R7 path; - the opening checkpoint is the first ever approval of the docs_and_prs section (the R7 section sha256, not the 253-91 value 5d15af53...); - every live --family run passes --revision-freeze FREEZE-R7 and --action-approval PR-APPROVAL-R7 explicitly; - dependencies are renumbered (253-97 canary, 253-99 completion). Purpose: CIREL-02 required-check preservation, and the CIREL-01 integration coverage that remains provable, need real pull_request evidence in the exact per-family shape that verify_pr_pair and verify_completion consume. Output: the R7 PR approval, PR freeze and allocation, -PR-NORMAL-EVIDENCE-R7.json, -PR-DOCS-EVIDENCE-R7.json, -PR-HTTP-LEDGER-R7.json and -PR-DOCS-PUBLICATION-RECEIPT-R7.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "2ae72343c12a9cd446c7713ab942d7971e9c0f94059b28d96819c43a878ff622"
+    },
+    {
+      "plan": "253-99",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-99-PLAN.md",
+      "prior": {
+        "commit": "de9bccb356087b11cebade820c612b5cd5c1b5ca",
+        "sha256": "fcb3a7fcc973617b04635d168bc5b86b01f561ec6d97fbf48d2981f67eba4f64",
+        "blob": "0378abefa3561cfa39661de059d7abb575580110",
+        "readback_verified": true
+      },
+      "original_objective": "Reopen the complete requirements on the R7 evidence chain, record CIREL-01 and CIREL-02 with their literal statuses, prepare only dispositioned historical summaries under the R7 contract, and then route root to whole-phase verification. This supersedes never-run 253-94, which replaced never-run 253-88, 253-78, 253-68, 253-56 and 253-47 in turn. 253-94 never ran because its dependency 253-92 halted at publication on the publisher's commit-message readback mismatch. Scope is identical to 253-94 except: - the canary, publication and PR links point at the R7 records written by 253-97 and 253-98; - the bundle is built under the R7 contract (44 responsibilities, 12 halted, final owner 253-99); - the halted 253-92 records are preserved and disclosed, never linked. Purpose: close what can honestly be closed. CIREL-02 is accepted on real proof; CIREL-01 is recorded partial under the human disposition. The phase index is left with no unsummarized or stuck plans. Output: 253-LOAD-RECOVERY-COMPLETION-RECORD-R7.json, -RECONCILIATION-R7.json and -SUPERSESSION-SUMMARIES-R7.json (first creation).",
+      "category": "hosted_or_recovery_workflow",
+      "replacement_evidence": [
+        ".planning/execution/253-final-review/hosted-canary.stdout",
+        ".planning/execution/253-final-review/normal-and-docs.stdout",
+        ".planning/execution/253-final-review/source-comparison.stdout",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json"
+      ],
+      "execution_status": "never_executed",
+      "disposition": "superseded_not_passed",
+      "new_sha256": "21fc2f7a3fd850e77906f30d6e0f4b79ca54442d3ad0b97ae823830bd8b5c407"
+    }
+  ]
+}

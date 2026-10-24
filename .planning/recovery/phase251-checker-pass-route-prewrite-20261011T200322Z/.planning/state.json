@@ -1,0 +1,43 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.49 — RELEASE-1.6.0",
+  "phases": [
+    {
+      "number": "246",
+      "name": "Generated Confirmation Recovery",
+      "status": "complete"
+    },
+    {
+      "number": "247",
+      "name": "Release Candidate and Repository Readiness",
+      "status": "complete"
+    },
+    {
+      "number": "248",
+      "name": "Exact-Source Release Gate",
+      "status": "complete"
+    },
+    {
+      "number": "249",
+      "name": "Publish and Prove Sigra 1.6.0",
+      "status": "complete"
+    },
+    {
+      "number": "250",
+      "name": "Close v1.49 audit gaps",
+      "status": "complete"
+    },
+    {
+      "number": "251",
+      "name": "Close READY-01 and READY-02 release readiness gaps",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:execute-phase 251",
+    "label": "Execute Phase 251 after plan checker",
+    "reason": "The 14 named READY-01 package/adopter result objects require nonempty source_identity, evidence_detail, and finding_detail; passes include evidence and a No finding note, failures identify their result and source. Task 2 requires an exact 20-name mismatch fixture set, duplicate rejection, dynamic registration, executed-set equality, and per-case READY-01 unsatisfied / source-ready READY-02 capture assertions. Task 3 requires the exact two-file node --test command to pass these assertions before live capture. The current dirty plan/state bytes and statuses before validation synchronization are preserved in .planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/manifest.json SHA-256 9f405dd4bd9da012a5db51ab9040139d205e9067f796501838dd87e968cd6b76. Fresh prechecks and the independent checker are next; then execute Phase 251 if the checker passes."
+  },
+  "updated_at": "2026-10-11T19:58:00Z"
+}

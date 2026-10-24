@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "34",
+  "captured_at": "2026-10-02T22:52:48.448205Z",
+  "verdict": "ready",
+  "repository": "szTheory/sigra",
+  "exact_oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+  "expected_tree": "37c54be6a87aa7ded8ac5be5a9ed9f4e5388a533",
+  "preflight_sha256": "2a685d42a758b3106d82a5a166539ea3a773807d5080760049fed3d048e2dda0",
+  "required_typed_objects": 358,
+  "readable_typed_objects": 358,
+  "checks": {
+    "approval_digest_bound": true,
+    "exact_commit_and_tree": true,
+    "complete_current_sources_unchanged": true,
+    "all_required_objects_readable": true,
+    "no_ref_or_pr_delta": true,
+    "symbolic_head_unchanged": true,
+    "fetch_head_unchanged": true,
+    "worktree_registry_unchanged": true,
+    "index_worktree_unchanged": true,
+    "origin_refs_unchanged": true,
+    "open_prs_unchanged": true,
+    "plan23_readiness_passed": true,
+    "task3_outputs_absent_before_receipt": true,
+    "plan30_unchanged_until_ready": true,
+    "historical_audits_unresolved": true
+  },
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "unresolved_edge_categories": [
+    "capture/operation/after adjacency",
+    "empty, single and null inventories",
+    "ordering and duplicate handling for equal rows",
+    "interruption or concurrency"
+  ],
+  "failed_predicates": []
+}

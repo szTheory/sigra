@@ -1,0 +1,44 @@
+✔ a selected full browser seam requires its complete native report (102.361917ms)
+✔ exactly five browser producers and all native selections are required (75.347916ms)
+▶ adversarial record identity, shape, outcome and report controls fail closed
+  ✔ null record (35.182791ms)
+  ✔ empty record (33.927916ms)
+  ✔ unknown seam (33.021125ms)
+  ✔ case variant (38.019375ms)
+  ✔ space variant (35.645666ms)
+  ✔ unicode variant (35.749917ms)
+  ✔ wrong run (36.436208ms)
+  ✔ wrong attempt (36.4135ms)
+  ✔ wrong source (35.551958ms)
+  ✔ wrong workflow (36.904209ms)
+  ✔ wrong event (40.806ms)
+  ✔ no selected body (34.122458ms)
+  ✔ duplicate selected body (37.950959ms)
+  ✔ unexpected skip (34.244875ms)
+  ✔ cancelled body (33.28725ms)
+  ✔ masked failed body (34.957667ms)
+  ✔ missing reports (33.832167ms)
+  ✔ wrong hash (35.4345ms)
+  ✔ traversal (36.152208ms)
+✔ adversarial record identity, shape, outcome and report controls fail closed (679.514416ms)
+✔ only a successful actual PR classifier exempts all five selected bodies (240.922ms)
+✔ missing unknown duplicate and symlink producers cannot pass (169.911ms)
+✔ native reports cannot lose tests, fail, retry, truncate or change project selection (260.762208ms)
+✔ the producer records actual selected outcomes and copies only native report files (67.77675ms)
+✔ HTML reporting preserves the separately collected selection JSON (884.7305ms)
+✔ Playwright JSON output is opt-in beside the existing human-readable reporters (2.454125ms)
+✔ the five existing browser seam identifiers and selection commands stay in place (0.944ms)
+✔ normalizes identity, retry, result and millisecond durations without merging ties (5.387625ms)
+✔ stable identity order is independent of native suite order when durations tie (0.29175ms)
+✔ rejects malformed, empty, truncated, duplicate and invalid-duration reports as incomplete (0.2585ms)
+✔ CLI writes incomplete output atomically and retains a nonzero status for missing or malformed input (112.1975ms)
+✔ CLI keeps a write failure visible and does not publish a partial output (32.274ms)
+✔ CLI refuses to overwrite its raw Playwright input with normalized output (28.937334ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1644.048666

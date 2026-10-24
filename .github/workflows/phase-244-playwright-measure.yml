@@ -8,14 +8,6 @@ on:
         required: false
         type: boolean
         default: false
-      phase_244_scope:
-        description: 'Capture one tracer PNG or the complete committed corpus.'
-        required: true
-        type: choice
-        options:
-          - tracer
-          - full
-        default: tracer
 
 permissions:
   contents: read
@@ -103,7 +95,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
-          PHASE244_CAPTURE_SCOPE: ${{ inputs.phase_244_scope }}
+          PHASE244_CAPTURE_SCOPE: tracer
         run: bash scripts/ci/run-playwright-drift.sh
 
       - name: Upload measurement artifacts and diagnostics

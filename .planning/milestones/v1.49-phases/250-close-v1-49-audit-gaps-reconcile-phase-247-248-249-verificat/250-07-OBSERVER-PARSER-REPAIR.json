@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-10T23:12:24Z",
+  "status": "merged_main_ci_green_waiting_fresh_canary_authority",
+  "cause": "deterministic_input_mode_collision",
+  "failure_run_id": 38091955379,
+  "source_main_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+  "observer_run_id": 38092165376,
+  "observer_error": "release-observer: FAIL: choose exactly one event source",
+  "changed_files": [
+    "scripts/ci/release-observer.sh",
+    "scripts/ci/release-observer.test.sh"
+  ],
+  "fix": "EVENT_FILE is now initialized empty and is selected only by explicit --event; --source-run-id mode therefore ignores the ambient GITHUB_EVENT_PATH but retains authoritative source-run re-query and validation.",
+  "regression": "release-observer.test.sh now sets EVENT_PATH to a GitHub workflow_dispatch payload while invoking --source-run-id.",
+  "source_blobs": {
+    "before": {
+      "scripts/ci/release-observer.sh": "157f4853e2afc31d537fd30fc1526c633a8cd33b"
+    },
+    "after": {
+      "scripts/ci/release-observer.sh": "82ca31358a9c22e1ced5846a4fe28f890031c22e",
+      "scripts/ci/release-observer.test.sh": "440a41cc00c6d5e3281a267367412c762e6b752e"
+    }
+  },
+  "branch": "codex/250-07-observer-source-id-mode-fix",
+  "commit": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
+  "pr": {
+    "number": 322,
+    "url": "https://github.com/szTheory/sigra/pull/322",
+    "base_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+    "head_sha": "1f098052d3d4caf7d676749eacfb0a23b2df4ae5",
+    "state": "merged",
+    "merge_commit": "e0c66d61211ddb461c049ca6422350308b420126",
+    "merged_at": "2026-10-10T22:52:36Z"
+  },
+  "exact_head_ci": {
+    "run_id": 38092530129,
+    "workflow": "CI",
+    "status": "completed",
+    "conclusion": "success",
+    "started_at": "2026-10-10T22:44:15Z"
+  },
+  "local_checks": {
+    "release_observer_cases": "24 passed",
+    "release_canary_cases": "59 passed",
+    "release_canary_self_test": "passed",
+    "release_receipt_cases": "16 passed",
+    "actionlint": "passed"
+  },
+  "merge_instruction": "User previously authorized squash merge if CI is green; merge only after all required PR checks pass.",
+  "next_step": "Fresh read-only preflight and v5 approval record are prepared and committed. Await a new explicit user decision before any controller dispatch; the v4 authority is consumed.",
+  "post_merge_main_ci": {
+    "run_id": 38093033532,
+    "workflow": "CI",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+    "completed_at": "2026-10-10T23:08:38Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38093033532",
+    "ci_gate_job_id": 114334543957,
+    "admin_eval_job_id": 114333203375,
+    "all_jobs_passed": true
+  },
+  "release_please_run": {
+    "run_id": 38093033505,
+    "status": "completed",
+    "conclusion": "failure",
+    "completed_at": "2026-10-10T22:55:14Z",
+    "failed_step": "Apply the generated index and prove exact-head CI registration",
+    "failure": "refresh-release-docs: FAIL: post-push candidate does not point at the new writer SHA",
+    "release_pr": 302,
+    "release_pr_url": "https://github.com/szTheory/sigra/pull/302",
+    "release_pr_state": "open",
+    "release_pr_base_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+    "release_pr_head_sha": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
+    "generated_index_commit": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
+    "publish_to_hex": "skipped",
+    "verify_ci_green_on_release_sha": "skipped",
+    "release_published": false,
+    "affects_main_source_sha": false,
+    "watcher_session_id": 91065,
+    "watcher_count": 1
+  },
+  "watchers": [
+    {
+      "run_id": 38093033532,
+      "interval_seconds": 60,
+      "count": 1,
+      "session_id": 32468
+    },
+    {
+      "run_id": 38093033505,
+      "interval_seconds": 60,
+      "count": 1,
+      "session_id": 91065
+    }
+  ]
+}

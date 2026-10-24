@@ -1,0 +1,417 @@
+{
+  "operation": "switch-opengsd-to-codex",
+  "captured_at": "20261020T153653Z",
+  "prior": [
+    {
+      "path": "/Users/jon/projects/sigra/.planning/config.json",
+      "status": " M .planning/config.json\n",
+      "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+      "bytes": 1799,
+      "ref": "refs/gsd/opengsd-codex-switch-20261020T153653Z/project-config",
+      "blob": "ab8aa3007f17294e2f224d4ac8482522b79bda24",
+      "readback_exact": true
+    },
+    {
+      "path": "/Users/jon/.gsd/defaults.json",
+      "status": null,
+      "sha256": "4b7c1b49b7bf3a41efd3dc0bf4a6fe2fd891da707f243273fe9c2675ac983747",
+      "bytes": 1274,
+      "ref": "refs/gsd/opengsd-codex-switch-20261020T153653Z/global-defaults",
+      "blob": "6b37f01bd2065317845c16d5621e40f1d341786b",
+      "readback_exact": true
+    }
+  ],
+  "runtime": "codex",
+  "model_profile": "adaptive",
+  "codex_tiers": {
+    "opus": "gpt-6.1-sol",
+    "sonnet": "gpt-6-luna",
+    "haiku": "gpt-6-luna"
+  },
+  "status": "verified",
+  "project_setter_output": "{\n  \"updated\": true,\n  \"key\": \"runtime\",\n  \"value\": \"codex\"\n}",
+  "after": [
+    {
+      "path": "/Users/jon/projects/sigra/.planning/config.json",
+      "sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c"
+    },
+    {
+      "path": "/Users/jon/.gsd/defaults.json",
+      "sha256": "6fe0ec2a029f1ef338fe0fe317783694fcb70c25e75e59b8ab009cafd5a38d48"
+    }
+  ],
+  "verification": {
+    "verified_at": "2026-10-20T15:37:49.633948+00:00",
+    "native_codex_default": "gpt-6.1-sol",
+    "all_original_bytes_readback_exact": true,
+    "only_runtime_changed": true,
+    "contexts": [
+      {
+        "context": "/Users/jon/projects/sigra",
+        "source": "root",
+        "runtime": "codex",
+        "roles": [
+          {
+            "role": "gsd-planner",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-roadmapper",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-executor",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-phase-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-project-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-research-synthesizer",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-debugger",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-codebase-mapper",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-verifier",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-plan-checker",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-integration-checker",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-nyquist-auditor",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-pattern-mapper",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ui-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ui-checker",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ui-auditor",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-doc-writer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-doc-verifier",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-dom-verifier",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-advisor-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ai-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-assumptions-analyzer",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-code-fixer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-code-reviewer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-debug-session-manager",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-doc-classifier",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-doc-synthesizer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-domain-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-eval-auditor",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-eval-planner",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-framework-selector",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-intel-updater",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-mempalace-curator",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-security-auditor",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-user-profiler",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          }
+        ]
+      },
+      {
+        "context": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-opengsd-codex-7f4y2qvx",
+        "source": "global-defaults",
+        "runtime": "codex",
+        "roles": [
+          {
+            "role": "gsd-planner",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-roadmapper",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-executor",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-phase-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-project-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-research-synthesizer",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-debugger",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-codebase-mapper",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-verifier",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-plan-checker",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-integration-checker",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-nyquist-auditor",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-pattern-mapper",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ui-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ui-checker",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ui-auditor",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-doc-writer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-doc-verifier",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-dom-verifier",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-advisor-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-ai-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-assumptions-analyzer",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-code-fixer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-code-reviewer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-debug-session-manager",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-doc-classifier",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-doc-synthesizer",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-domain-researcher",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-eval-auditor",
+            "tier": "sonnet",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-eval-planner",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-framework-selector",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-intel-updater",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-mempalace-curator",
+            "tier": "haiku",
+            "model": "gpt-6-luna"
+          },
+          {
+            "role": "gsd-security-auditor",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          },
+          {
+            "role": "gsd-user-profiler",
+            "tier": "opus",
+            "model": "gpt-6.1-sol"
+          }
+        ]
+      }
+    ]
+  },
+  "project_work_started": false,
+  "resume_command": "$gsd-execute-phase 253 --gaps-only"
+}

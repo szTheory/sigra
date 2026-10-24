@@ -1,0 +1,686 @@
+{
+  "schema_version": "sigra.browser-coverage-source/v1",
+  "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+  "configuration_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+  "lock_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+  "event": "pull_request",
+  "seam": "admin_behavior",
+  "owner": "admin_behavior",
+  "project_inventory": [
+    "chromium"
+  ],
+  "selected_inventory": [
+    {
+      "id": "[\"chromium\",\"admin-audit.spec.ts\",[\"admin-audit.spec.ts\",\"Phase 31 admin audit browser contract (D-04 4)\"],\"1e4164cbcd7d7052b193-0c97200b311199da8d3c\",\"global investigation and org-scoped per-user export keep filter semantics aligned\"]",
+      "project": "chromium",
+      "spec": "admin-audit.spec.ts",
+      "title_path": [
+        "admin-audit.spec.ts",
+        "Phase 31 admin audit browser contract (D-04 4)"
+      ],
+      "native_spec_id": "1e4164cbcd7d7052b193-0c97200b311199da8d3c",
+      "title": "global investigation and org-scoped per-user export keep filter semantics aligned",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-coherence-sweep.spec.ts\",[\"admin-coherence-sweep.spec.ts\",\"Phase 159 coherence sweep\"],\"742bbc08c1318fe1ca24-299902f16951fbbc0c78\",\"all 6 admin screens satisfy the coherence contract\"]",
+      "project": "chromium",
+      "spec": "admin-coherence-sweep.spec.ts",
+      "title_path": [
+        "admin-coherence-sweep.spec.ts",
+        "Phase 159 coherence sweep"
+      ],
+      "native_spec_id": "742bbc08c1318fe1ca24-299902f16951fbbc0c78",
+      "title": "all 6 admin screens satisfy the coherence contract",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-org-admin.spec.ts\",[\"admin-flow-org-admin.spec.ts\",\"Phase 190 org admin flow (FLOW-01..03, DATA-01)\",\"boundary — org audit empty state (filtered date range)\"],\"df2a3ddf9a1b686e4428-d05d8b18965b61a457ba\",\"org audit empty state renders when date filter matches no events\"]",
+      "project": "chromium",
+      "spec": "admin-flow-org-admin.spec.ts",
+      "title_path": [
+        "admin-flow-org-admin.spec.ts",
+        "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+        "boundary — org audit empty state (filtered date range)"
+      ],
+      "native_spec_id": "df2a3ddf9a1b686e4428-d05d8b18965b61a457ba",
+      "title": "org audit empty state renders when date filter matches no events",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-org-admin.spec.ts\",[\"admin-flow-org-admin.spec.ts\",\"Phase 190 org admin flow (FLOW-01..03, DATA-01)\",\"happy path — morgan org-scoped admin access\"],\"df2a3ddf9a1b686e4428-70e5067e8296648b76ab\",\"org admin reaches Acme Corp admin scope, views member list, navigates to user detail\"]",
+      "project": "chromium",
+      "spec": "admin-flow-org-admin.spec.ts",
+      "title_path": [
+        "admin-flow-org-admin.spec.ts",
+        "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+        "happy path — morgan org-scoped admin access"
+      ],
+      "native_spec_id": "df2a3ddf9a1b686e4428-70e5067e8296648b76ab",
+      "title": "org admin reaches Acme Corp admin scope, views member list, navigates to user detail",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-org-admin.spec.ts\",[\"admin-flow-org-admin.spec.ts\",\"Phase 190 org admin flow (FLOW-01..03, DATA-01)\",\"keyboard operability (FLOW-02)\"],\"df2a3ddf9a1b686e4428-e4a65ea047743a3cde1c\",\"Tab navigation reaches interactive controls with visible focus in org-scoped view\"]",
+      "project": "chromium",
+      "spec": "admin-flow-org-admin.spec.ts",
+      "title_path": [
+        "admin-flow-org-admin.spec.ts",
+        "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+        "keyboard operability (FLOW-02)"
+      ],
+      "native_spec_id": "df2a3ddf9a1b686e4428-e4a65ea047743a3cde1c",
+      "title": "Tab navigation reaches interactive controls with visible focus in org-scoped view",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-org-admin.spec.ts\",[\"admin-flow-org-admin.spec.ts\",\"Phase 190 org admin flow (FLOW-01..03, DATA-01)\",\"main-error — permission denied (global /admin blocked)\"],\"df2a3ddf9a1b686e4428-43b99fc8daa805fcbff3\",\"morgan hitting /admin is redirected home (blocked) — generic denial, no org/target disclosure\"]",
+      "project": "chromium",
+      "spec": "admin-flow-org-admin.spec.ts",
+      "title_path": [
+        "admin-flow-org-admin.spec.ts",
+        "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+        "main-error — permission denied (global /admin blocked)"
+      ],
+      "native_spec_id": "df2a3ddf9a1b686e4428-43b99fc8daa805fcbff3",
+      "title": "morgan hitting /admin is redirected home (blocked) — generic denial, no org/target disclosure",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-org-admin.spec.ts\",[\"admin-flow-org-admin.spec.ts\",\"Phase 190 org admin flow (FLOW-01..03, DATA-01)\",\"theme persistence across org-scoped journey (FLOW-03)\"],\"df2a3ddf9a1b686e4428-3d00ca9aabe222c7a972\",\"dark theme persists across org-scoped admin journey and after page.reload()\"]",
+      "project": "chromium",
+      "spec": "admin-flow-org-admin.spec.ts",
+      "title_path": [
+        "admin-flow-org-admin.spec.ts",
+        "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+        "theme persistence across org-scoped journey (FLOW-03)"
+      ],
+      "native_spec_id": "df2a3ddf9a1b686e4428-3d00ca9aabe222c7a972",
+      "title": "dark theme persists across org-scoped admin journey and after page.reload()",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-platform-admin.spec.ts\",[\"admin-flow-platform-admin.spec.ts\",\"Phase 190 platform admin flow (FLOW-01..03, DATA-01)\",\"boundary — frank scheduled-deletion + empty/no-data filter\"],\"e02642ab944175921674-01e852387f7d13a65cbc\",\"frank shows scheduled-deletion indicator; empty search renders empty state without error\"]",
+      "project": "chromium",
+      "spec": "admin-flow-platform-admin.spec.ts",
+      "title_path": [
+        "admin-flow-platform-admin.spec.ts",
+        "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+        "boundary — frank scheduled-deletion + empty/no-data filter"
+      ],
+      "native_spec_id": "e02642ab944175921674-01e852387f7d13a65cbc",
+      "title": "frank shows scheduled-deletion indicator; empty search renders empty state without error",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-platform-admin.spec.ts\",[\"admin-flow-platform-admin.spec.ts\",\"Phase 190 platform admin flow (FLOW-01..03, DATA-01)\",\"happy path — alice (confirmed Acme member)\"],\"e02642ab944175921674-05920e2cb203faf517ae\",\"overview → users search → user detail → audit → return with scope/breadcrumb (FLOW-01)\"]",
+      "project": "chromium",
+      "spec": "admin-flow-platform-admin.spec.ts",
+      "title_path": [
+        "admin-flow-platform-admin.spec.ts",
+        "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+        "happy path — alice (confirmed Acme member)"
+      ],
+      "native_spec_id": "e02642ab944175921674-05920e2cb203faf517ae",
+      "title": "overview → users search → user detail → audit → return with scope/breadcrumb (FLOW-01)",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-platform-admin.spec.ts\",[\"admin-flow-platform-admin.spec.ts\",\"Phase 190 platform admin flow (FLOW-01..03, DATA-01)\",\"keyboard operability (FLOW-02)\"],\"e02642ab944175921674-6b77e1d2ce0a21ff7a60\",\"Tab to revoke trigger → Enter opens confirm dialog → focus containment → Escape closes → trigger refocused\"]",
+      "project": "chromium",
+      "spec": "admin-flow-platform-admin.spec.ts",
+      "title_path": [
+        "admin-flow-platform-admin.spec.ts",
+        "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+        "keyboard operability (FLOW-02)"
+      ],
+      "native_spec_id": "e02642ab944175921674-6b77e1d2ce0a21ff7a60",
+      "title": "Tab to revoke trigger → Enter opens confirm dialog → focus containment → Escape closes → trigger refocused",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-platform-admin.spec.ts\",[\"admin-flow-platform-admin.spec.ts\",\"Phase 190 platform admin flow (FLOW-01..03, DATA-01)\",\"main-error — dave locked/unconfirmed\"],\"e02642ab944175921674-557dff8038730c13eebb\",\"user detail shows locked/unconfirmed state; audit shows auth.login.failure and auth.lockout.start\"]",
+      "project": "chromium",
+      "spec": "admin-flow-platform-admin.spec.ts",
+      "title_path": [
+        "admin-flow-platform-admin.spec.ts",
+        "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+        "main-error — dave locked/unconfirmed"
+      ],
+      "native_spec_id": "e02642ab944175921674-557dff8038730c13eebb",
+      "title": "user detail shows locked/unconfirmed state; audit shows auth.login.failure and auth.lockout.start",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-platform-admin.spec.ts\",[\"admin-flow-platform-admin.spec.ts\",\"Phase 190 platform admin flow (FLOW-01..03, DATA-01)\",\"theme persistence (FLOW-03)\"],\"e02642ab944175921674-deb2917d7e2729fd9074\",\"dark theme persists across nav + reload + system flip; no-flash on first paint\"]",
+      "project": "chromium",
+      "spec": "admin-flow-platform-admin.spec.ts",
+      "title_path": [
+        "admin-flow-platform-admin.spec.ts",
+        "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+        "theme persistence (FLOW-03)"
+      ],
+      "native_spec_id": "e02642ab944175921674-deb2917d7e2729fd9074",
+      "title": "dark theme persists across nav + reload + system flip; no-flash on first paint",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-platform-admin.spec.ts\",[\"admin-flow-platform-admin.spec.ts\",\"Phase 190 platform admin flow (FLOW-01..03, DATA-01)\"],\"e02642ab944175921674-4db7f5b53260d534c721\",\"reduced-motion: loading bar animation collapsed to none (FLOW-02)\"]",
+      "project": "chromium",
+      "spec": "admin-flow-platform-admin.spec.ts",
+      "title_path": [
+        "admin-flow-platform-admin.spec.ts",
+        "Phase 190 platform admin flow (FLOW-01..03, DATA-01)"
+      ],
+      "native_spec_id": "e02642ab944175921674-4db7f5b53260d534c721",
+      "title": "reduced-motion: loading bar animation collapsed to none (FLOW-02)",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-support-investigator.spec.ts\",[\"admin-flow-support-investigator.spec.ts\",\"Phase 190 support investigator flow (FLOW-01..03, DATA-01)\",\"boundary — frank scheduled-deletion\"],\"d601eac7d5aba5101832-80b74cfec0005f5d0ea3\",\"investigator finds frank, user detail shows deletion-scheduled indicator\"]",
+      "project": "chromium",
+      "spec": "admin-flow-support-investigator.spec.ts",
+      "title_path": [
+        "admin-flow-support-investigator.spec.ts",
+        "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+        "boundary — frank scheduled-deletion"
+      ],
+      "native_spec_id": "d601eac7d5aba5101832-80b74cfec0005f5d0ea3",
+      "title": "investigator finds frank, user detail shows deletion-scheduled indicator",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-support-investigator.spec.ts\",[\"admin-flow-support-investigator.spec.ts\",\"Phase 190 support investigator flow (FLOW-01..03, DATA-01)\",\"happy path — alice (find → audit evidence → impersonate → return)\"],\"d601eac7d5aba5101832-f6996ac1601050442a83\",\"investigator finds alice, reads audit evidence, starts impersonation, sees persistent banner, stops and returns to scoped list\"]",
+      "project": "chromium",
+      "spec": "admin-flow-support-investigator.spec.ts",
+      "title_path": [
+        "admin-flow-support-investigator.spec.ts",
+        "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+        "happy path — alice (find → audit evidence → impersonate → return)"
+      ],
+      "native_spec_id": "d601eac7d5aba5101832-f6996ac1601050442a83",
+      "title": "investigator finds alice, reads audit evidence, starts impersonation, sees persistent banner, stops and returns to scoped list",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-support-investigator.spec.ts\",[\"admin-flow-support-investigator.spec.ts\",\"Phase 190 support investigator flow (FLOW-01..03, DATA-01)\",\"keyboard operability (FLOW-02)\"],\"d601eac7d5aba5101832-9aec11a6568657dc1f95\",\"Tab navigation reaches interactive controls with visible focus; scope chrome is keyboard-reachable after impersonation stop\"]",
+      "project": "chromium",
+      "spec": "admin-flow-support-investigator.spec.ts",
+      "title_path": [
+        "admin-flow-support-investigator.spec.ts",
+        "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+        "keyboard operability (FLOW-02)"
+      ],
+      "native_spec_id": "d601eac7d5aba5101832-9aec11a6568657dc1f95",
+      "title": "Tab navigation reaches interactive controls with visible focus; scope chrome is keyboard-reachable after impersonation stop",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-support-investigator.spec.ts\",[\"admin-flow-support-investigator.spec.ts\",\"Phase 190 support investigator flow (FLOW-01..03, DATA-01)\",\"main-error — dave locked/unconfirmed\"],\"d601eac7d5aba5101832-52030cc603bddb84f02c\",\"investigator finds dave, user detail shows locked state indicators — no impersonation attempt\"]",
+      "project": "chromium",
+      "spec": "admin-flow-support-investigator.spec.ts",
+      "title_path": [
+        "admin-flow-support-investigator.spec.ts",
+        "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+        "main-error — dave locked/unconfirmed"
+      ],
+      "native_spec_id": "d601eac7d5aba5101832-52030cc603bddb84f02c",
+      "title": "investigator finds dave, user detail shows locked state indicators — no impersonation attempt",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-flow-support-investigator.spec.ts\",[\"admin-flow-support-investigator.spec.ts\",\"Phase 190 support investigator flow (FLOW-01..03, DATA-01)\",\"theme persistence across impersonation journey (FLOW-03)\"],\"d601eac7d5aba5101832-a90d8c7412b98d339a5d\",\"dark theme persists during impersonation journey and after page.reload()\"]",
+      "project": "chromium",
+      "spec": "admin-flow-support-investigator.spec.ts",
+      "title_path": [
+        "admin-flow-support-investigator.spec.ts",
+        "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+        "theme persistence across impersonation journey (FLOW-03)"
+      ],
+      "native_spec_id": "d601eac7d5aba5101832-a90d8c7412b98d339a5d",
+      "title": "dark theme persists during impersonation journey and after page.reload()",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-modal-interaction.spec.ts\",[\"admin-modal-interaction.spec.ts\",\"ConfirmDialog modal interaction (PAGE-03 APG gates)\"],\"4cfb3f43b875e842c2e9-16ed92018d61ce047dca\",\"proves all 7 APG hard gates: initial focus, tab containment, Escape close, focus return, ARIA, axe-while-open\"]",
+      "project": "chromium",
+      "spec": "admin-modal-interaction.spec.ts",
+      "title_path": [
+        "admin-modal-interaction.spec.ts",
+        "ConfirmDialog modal interaction (PAGE-03 APG gates)"
+      ],
+      "native_spec_id": "4cfb3f43b875e842c2e9-16ed92018d61ce047dca",
+      "title": "proves all 7 APG hard gates: initial focus, tab containment, Escape close, focus return, ARIA, axe-while-open",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-modal-interaction.spec.ts\",[\"admin-modal-interaction.spec.ts\",\"ConfirmDialog modal interaction (PAGE-03 APG gates)\"],\"4cfb3f43b875e842c2e9-fe84753e8961f6619796\",\"branding #restore-defaults-overlay: proves all 7 APG hard gates + axe-while-open (D-06)\"]",
+      "project": "chromium",
+      "spec": "admin-modal-interaction.spec.ts",
+      "title_path": [
+        "admin-modal-interaction.spec.ts",
+        "ConfirmDialog modal interaction (PAGE-03 APG gates)"
+      ],
+      "native_spec_id": "4cfb3f43b875e842c2e9-fe84753e8961f6619796",
+      "title": "branding #restore-defaults-overlay: proves all 7 APG hard gates + axe-while-open (D-06)",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-17e89dc3910be37d8e59\",\"auth branding theme picker updates login and email previews\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-17e89dc3910be37d8e59",
+      "title": "auth branding theme picker updates login and email previews",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-1bae5f4e1ba3c2768cec\",\"persists Light, Dark, and System without global DaisyUI theme state\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-1bae5f4e1ba3c2768cec",
+      "title": "persists Light, Dark, and System without global DaisyUI theme state",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-420febe8ecb6dab25702\",\"keyboard navigation uses radiogroup semantics\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-420febe8ecb6dab25702",
+      "title": "keyboard navigation uses radiogroup semantics",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-4e895948e3ff4616d719\",\"overview keeps notices and task cards without duplicate info sections\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-4e895948e3ff4616d719",
+      "title": "overview keeps notices and task cards without duplicate info sections",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-57329abe41e2e0dc2ec8\",\"users summary metrics expose accessible help on desktop and mobile\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-57329abe41e2e0dc2ec8",
+      "title": "users summary metrics expose accessible help on desktop and mobile",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-7dd8128693f5273f1d4d\",\"auth branding save toast can be dismissed\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-7dd8128693f5273f1d4d",
+      "title": "auth branding save toast can be dismissed",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-82408e7c22fdf9fec3ad\",\"workspace navigation stays inside the LiveView session\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-82408e7c22fdf9fec3ad",
+      "title": "workspace navigation stays inside the LiveView session",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-8fd6a26eb4237db40092\",\"user detail uses breadcrumbs for filtered list context\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-8fd6a26eb4237db40092",
+      "title": "user detail uses breadcrumbs for filtered list context",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-90a9c3aaa71074fb3165\",\"auth branding color changes update local previews before save\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-90a9c3aaa71074fb3165",
+      "title": "auth branding color changes update local previews before save",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-9213a6372801bc5f2804\",\"overview notice action link is visibly actionable\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-9213a6372801bc5f2804",
+      "title": "overview notice action link is visibly actionable",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-93685cfef3cf89cce6ca\",\"auth branding color palettes keep swatches and hex values aligned\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-93685cfef3cf89cce6ca",
+      "title": "auth branding color palettes keep swatches and hex values aligned",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-a59c7b95211cdb7bcdf6\",\"renders stable topbar controls and overview notice before deferred app JS\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-a59c7b95211cdb7bcdf6",
+      "title": "renders stable topbar controls and overview notice before deferred app JS",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-ae8538a7d56dc9735395\",\"auth branding color input updates previews before a LiveView round trip\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-ae8538a7d56dc9735395",
+      "title": "auth branding color input updates previews before a LiveView round trip",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-b28e02e92b8910e22ce1\",\"auth branding restore defaults is explicit and confirmed\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-b28e02e92b8910e22ce1",
+      "title": "auth branding restore defaults is explicit and confirmed",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-bdd418756a9a26ea0372\",\"auth branding details field help works on hover, keyboard, and touch\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-bdd418756a9a26ea0372",
+      "title": "auth branding details field help works on hover, keyboard, and touch",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-befd05bea1081488630b\",\"tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-befd05bea1081488630b",
+      "title": "tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-d705fc4f662a830d050a\",\"auth branding discard changes only clears the unsaved preview\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-d705fc4f662a830d050a",
+      "title": "auth branding discard changes only clears the unsaved preview",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-f5fc24671198ce43aab8\",\"admin page loading rail follows route-level LiveView navigation\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-f5fc24671198ce43aab8",
+      "title": "admin page loading rail follows route-level LiveView navigation",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-theme.spec.ts\",[\"admin-theme.spec.ts\",\"admin theme switch\"],\"e7d6feb0c08d7c1ca9e3-fde8559004006155ac0f\",\"keeps primary button hover contrast readable in dark mode\"]",
+      "project": "chromium",
+      "spec": "admin-theme.spec.ts",
+      "title_path": [
+        "admin-theme.spec.ts",
+        "admin theme switch"
+      ],
+      "native_spec_id": "e7d6feb0c08d7c1ca9e3-fde8559004006155ac0f",
+      "title": "keeps primary button hover contrast readable in dark mode",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-user-operations.spec.ts\",[\"admin-user-operations.spec.ts\",\"Phase 31 admin user operations browser contract (D-04 1/2)\"],\"17630921eb29c965e575-465e068ccfa2585e1189\",\"@smoke search -> filter -> open user -> revoke session keeps scope visible\"]",
+      "project": "chromium",
+      "spec": "admin-user-operations.spec.ts",
+      "title_path": [
+        "admin-user-operations.spec.ts",
+        "Phase 31 admin user operations browser contract (D-04 1/2)"
+      ],
+      "native_spec_id": "17630921eb29c965e575-465e068ccfa2585e1189",
+      "title": "@smoke search -> filter -> open user -> revoke session keeps scope visible",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"admin-user-operations.spec.ts\",[\"admin-user-operations.spec.ts\",\"Phase 31 admin user operations browser contract (D-04 1/2)\"],\"17630921eb29c965e575-e5963c848c1685e6e6b0\",\"global admins can pivot from user detail into an organization-scoped view\"]",
+      "project": "chromium",
+      "spec": "admin-user-operations.spec.ts",
+      "title_path": [
+        "admin-user-operations.spec.ts",
+        "Phase 31 admin user operations browser contract (D-04 1/2)"
+      ],
+      "native_spec_id": "17630921eb29c965e575-e5963c848c1685e6e6b0",
+      "title": "global admins can pivot from user detail into an organization-scoped view",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"impersonation.spec.ts\",[\"impersonation.spec.ts\",\"Phase 31 admin impersonation browser contract (D-04 3)\"],\"9cf24056ac11a77e6a67-42fefe6c1835b77eee0a\",\"fresh sudo enables impersonation start, persistent banner visibility, and stop from a non-admin page\"]",
+      "project": "chromium",
+      "spec": "impersonation.spec.ts",
+      "title_path": [
+        "impersonation.spec.ts",
+        "Phase 31 admin impersonation browser contract (D-04 3)"
+      ],
+      "native_spec_id": "9cf24056ac11a77e6a67-42fefe6c1835b77eee0a",
+      "title": "fresh sudo enables impersonation start, persistent banner visibility, and stop from a non-admin page",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"impersonation.spec.ts\",[\"impersonation.spec.ts\",\"Phase 31 admin impersonation browser contract (D-04 3)\"],\"9cf24056ac11a77e6a67-97ca57204fee93ef84ec\",\"stale sudo redirects the impersonation start action through password confirmation\"]",
+      "project": "chromium",
+      "spec": "impersonation.spec.ts",
+      "title_path": [
+        "impersonation.spec.ts",
+        "Phase 31 admin impersonation browser contract (D-04 3)"
+      ],
+      "native_spec_id": "9cf24056ac11a77e6a67-97ca57204fee93ef84ec",
+      "title": "stale sudo redirects the impersonation start action through password confirmation",
+      "owner": "admin_behavior",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    }
+  ],
+  "excluded_inventory": [],
+  "skip_policies": [],
+  "reports": [
+    {
+      "path": "admin-behavior.json",
+      "selection_path": "admin-behavior.selection.json",
+      "sha256": "875206deb659ce271b635af6663c362210fc4090049e7ac4615f69f7b46d1137",
+      "selection_sha256": "1d0a467a778ab627d394cb2742fad61d809c861cd1aa10ddc3641ba9d88b2111",
+      "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+    }
+  ]
+}

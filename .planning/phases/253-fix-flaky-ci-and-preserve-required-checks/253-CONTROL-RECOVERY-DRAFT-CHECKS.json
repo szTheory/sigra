@@ -1,0 +1,2158 @@
+{
+  "schema_version": "sigra.phase253.control-recovery-planning-draft-checks/v1",
+  "status": "draft_checks_passed_pending_parent_commit_and_independent_review",
+  "source_capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLANNING-CAPTURE.json",
+  "plan_checks": [
+    {
+      "plan": 26,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 26,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Replay one stopped command into a source-bound offline timeout assessment",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Repair only control defects demonstrated by executable counterexamples",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 27,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 27,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Drive one frozen unused reservation through real dark registration and controls",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Reject counter laundering and make the inherited registration contracts portable",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 28,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 28,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Run one desktop/mobile first-control command with exact per-project native outcomes",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Prove three fresh databases and passing-trace discard in separate commands",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 29,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 29,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Make one actual native cause or precise unresolved gap machine-readable",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Apply only a demonstrated repair and obtain the first fresh native green",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Complete the exact fresh repeat matrix and enforce accepted-target gating",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 30,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 30,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Collect one normal PR through actual HTTPS and an independent native verdict",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Implement real docs topology and accepted-only whole requirement checks",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 31,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 31,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Prove one accepted supersession path through the real installed SDK",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Define every historical mapping and exact write-ahead/root application contract",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 32,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 32,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Prove the final registered-path dispatch through local object-aware HTTPS",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Regenerate the full object graph and seal one reviewed finite source/window",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 33,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 33,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Publish exact objects and accept one real full-pass source run",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Retain genuine docs, failure, missing, skip and cancellation results",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Accept the separate hosted verifier and complete finite ledger",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 34,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 34,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Freeze both families and prove the normal PR on the server-published candidate",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Prove the genuine docs-only PR with all required terminal checks",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": 35,
+      "kind": "schema",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query frontmatter.validate .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md --schema plan-gap-closure",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": 35,
+      "kind": "structure",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query verify.plan-structure .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md",
+      "exit_code": 0,
+      "data": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Reopen one complete end-to-end requirement proof without changing frozen helpers",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Prepare ten accepted-only dispositions and a reachable full phase verification route",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    }
+  ],
+  "phase_gates": [
+    {
+      "kind": "verify_command_paths",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs check verify-command-paths 253 --raw",
+      "exit_code": 0,
+      "data": {
+        "status": "not_applicable",
+        "commands": [
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh && bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-01-PLAN.md",
+            "task": "Task 1: Diagnose the saved Test D/Test Z family end to end"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.test.sh && bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-01-PLAN.md",
+            "task": "Task 2: Retain each failed producer's selected context and uncertainty"
+          },
+          {
+            "command": "bash scripts/ci/ci-registration-repro.test.sh && bash scripts/ci/ci-registration-repro.sh --run-frozen .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-02-PLAN.md",
+            "task": "Task 1: Freeze and run the real registration path across all three projects"
+          },
+          {
+            "command": "bash scripts/ci/ci-registration-repro.sh --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-02-PLAN.md",
+            "task": "Task 2: Prove readiness, trace and state controls against the real app"
+          },
+          {
+            "command": "bash scripts/ci/ci-registration-repro.sh --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-02-PLAN.md",
+            "task": "Task 3: Fix only a demonstrated cause and retain the conditional result"
+          },
+          {
+            "command": "bash scripts/ci/honest-skip-verdict.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-03-PLAN.md",
+            "task": "Task 1: Carry Example unit smoke through the real ci-gate path"
+          },
+          {
+            "command": "bash scripts/ci/honest-skip-verdict.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-03-PLAN.md",
+            "task": "Task 2: Fail closed on unit skip, failure, cancellation and ownership drift"
+          },
+          {
+            "command": "node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-04-PLAN.md",
+            "task": "Task 1: Correct one selected browser body and aggregate parity path"
+          },
+          {
+            "command": "node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-04-PLAN.md",
+            "task": "Task 2: Detect the exact old mismatch and false docs-only claims"
+          },
+          {
+            "command": "node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-05-PLAN.md",
+            "task": "Task 1: Validate one real-shaped full-body record and native report"
+          },
+          {
+            "command": "node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-05-PLAN.md",
+            "task": "Task 2: Validate the complete five-seam set and adversarial cases"
+          },
+          {
+            "command": "node --test scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-browser-records.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-06-PLAN.md",
+            "task": "Task 1: Connect one browser producer through artifact and aggregate verdict"
+          },
+          {
+            "command": "node --test scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs && bash scripts/ci/honest-skip-verdict.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-06-PLAN.md",
+            "task": "Task 2: Complete all five seams and honest docs-only classification"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-gate-canary.sh --scenario full-pass --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-07-PLAN.md",
+            "task": "Task 1: Run a sealed full-pass fixture and independently verify its origin"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-gate-canary.sh --remaining-scenarios --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-07-PLAN.md",
+            "task": "Task 2: Exercise all negative hosted outcomes and separate verifier"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PR-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-08-PLAN.md",
+            "task": "Task 1: Prove one normal production PR required-check family"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-COMPLETION-RECORD.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-08-PLAN.md",
+            "task": "Task 2: Reconcile selected fixes and gate proof into an honest requirement record"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-diagnostic .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-09-PLAN.md",
+            "task": "Task 1: Freeze and run one real selected registration path"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-diagnostic .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-09-PLAN.md",
+            "task": "Task 2: Complete bounded three-project diagnosis and reject forged receipts"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json --stage first",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-10-PLAN.md",
+            "task": "Task 1: Drive real readiness, state and trace controls through registration"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-10-PLAN.md",
+            "task": "Task 2: Apply only observed cause repair and freeze fresh acceptance runs"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-11-PLAN.md",
+            "task": "Task 1: Charge a mocked full canary path from dispatch to independent verdict"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.test.sh && bash scripts/ci/ci-gate-canary.sh --check-only --recovery-freeze .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-11-PLAN.md",
+            "task": "Task 2: Freeze a distinct candidate, fixture and six-scenario hosted ceiling"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json --scenario full-pass && bash scripts/ci/ci-gate-canary.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-12-PLAN.md",
+            "task": "Task 1: Run one new full-pass fixture from producer to independent origin check"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py && python3 scripts/ci/ci-hosted-gate-verify.py --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json --scenario matrix",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-12-PLAN.md",
+            "task": "Task 2: Prove five remaining source outcomes and independent verifier"
+          },
+          {
+            "command": "bash scripts/ci/ci-pr-proof.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-13-PLAN.md",
+            "task": "Task 1: Prove the PR collector and independent verifier on a full fake family"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PR-EVIDENCE.json --family normal",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-13-PLAN.md",
+            "task": "Task 2: Collect the normal production PR family on the candidate head"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PR-EVIDENCE.json --family docs-only",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-13-PLAN.md",
+            "task": "Task 3: Prove the real docs-only PR exemption on candidate CI code"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.test.py && python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-COMPLETION-RECORD.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-14-PLAN.md",
+            "task": "Task 1: Reconcile one source-bound requirement path through completion verdict"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --require-accepted --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-COMPLETION-RECORD.json && gsd_run query phase-plan-index 253 | jq -e '([.plans[] | select(.id==\"253-08\" and .has_summary==true and .blocked_by==[\"253-02\",\"253-07\"])] | length)==1 and ([.plans[] | select((.id==\"253-02\" or .id==\"253-07\") and .halted==true)] | length)==2 and ([.incomplete[] | select(.==\"253-08\")] | length)==0' >/dev/null",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-14-PLAN.md",
+            "task": "Task 2: Preserve historical status and retire blocked Plan 08 only on accepted evidence"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-diagnostic .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json --revision",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-15-PLAN.md",
+            "task": "Task 1: Freeze the remaining budget and drive one real desktop registration"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && bash scripts/ci/ci-registration-repro.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-15-PLAN.md",
+            "task": "Task 2: Record the mobile diagnostic and enforce adversarial native receipt checks"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json --stage first --revision",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-16-PLAN.md",
+            "task": "Task 1: Execute the dark diagnostic and first signal/collision/trace controls"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json --stage complete --revision",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-16-PLAN.md",
+            "task": "Task 2: Verify fresh-state second controls and native trace discard"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json --revision --stage progress",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-17-PLAN.md",
+            "task": "Task 1: Classify one actual cause through a strict native progress verdict"
+          },
+          {
+            "command": "node scripts/ci/ci-registration-recovery.mjs --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json --revision --stage progress",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-17-PLAN.md",
+            "task": "Task 2: Bind the final source and execute the first fresh native repaired path"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json --revision --stage complete",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-17-PLAN.md",
+            "task": "Task 3: Verify the fixed three-repeat matrix and strict accepted-only gate"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-transport.test.py && bash scripts/ci/ci-gate-canary.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-18-PLAN.md",
+            "task": "Task 1: Drive an actual HTTPS reply through shell startup, charge and native status capture"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-transport.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-18-PLAN.md",
+            "task": "Task 2: Bound explicit pages, redirects, authentication and hard-stop replies"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-gate-canary.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-19-PLAN.md",
+            "task": "Task 1: Check complete effective rules and one real transport-backed source receipt"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.test.py && python3 scripts/ci/ci-hosted-transport.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-19-PLAN.md",
+            "task": "Task 2: Reject malformed character boundaries and unsafe or oversized archives"
+          },
+          {
+            "command": "python3 scripts/ci/ci-git-publication.test.py && python3 scripts/ci/ci-git-publication.py --check-manifest .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PUBLICATION-PROPOSAL.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-20-PLAN.md",
+            "task": "Task 1: Upload a real local-only object graph through bounded transport to create-only ref readback"
+          },
+          {
+            "command": "python3 scripts/ci/ci-git-publication.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-20-PLAN.md",
+            "task": "Task 2: Refuse wrong remote refs, races and unpreserved source changes"
+          },
+          {
+            "command": "bash scripts/ci/ci-pr-proof.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-21-PLAN.md",
+            "task": "Task 1: Carry a real-transport normal PR fixture from frozen head through independent native verdict"
+          },
+          {
+            "command": "bash scripts/ci/ci-pr-proof.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-21-PLAN.md",
+            "task": "Task 2: Freeze real docs-only topology and the shared finite acquisition contract"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py && python3 scripts/ci/ci-git-publication.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-22-PLAN.md",
+            "task": "Task 1: Exercise final canary startup through measured transport and object-aware publication locally"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.sh --check-only --revision-freeze .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-FREEZE.json && python3 scripts/ci/ci-git-publication.py --check-manifest .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-PUBLICATION.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-22-PLAN.md",
+            "task": "Task 2: Seal a distinct immutable source and allocation with explicit historical accounting"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-EVIDENCE.json --scenario full-pass && python3 scripts/ci/ci-git-publication.py --verify-publication .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-PUBLICATION-RECEIPT.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-23-PLAN.md",
+            "task": "Task 1: Publish exact objects and run the one real full-pass hosted path"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-EVIDENCE.json --scenario sources",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-23-PLAN.md",
+            "task": "Task 2: Retain real failure, missing/skip and cancellation outcomes"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CANARY-EVIDENCE.json --scenario matrix",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-23-PLAN.md",
+            "task": "Task 3: Run one separate hosted verifier and seal the complete request/job accounting"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --family normal --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PR-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-24-PLAN.md",
+            "task": "Task 1: Freeze both PR families and prove normal CI on the published candidate head"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --family both --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PR-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-24-PLAN.md",
+            "task": "Task 2: Publish scoped docs-only objects and prove the real PR exemption"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.test.py && python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-COMPLETION-RECORD.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-25-PLAN.md",
+            "task": "Task 1: Validate one complete requirement path and reject every open proof claim"
+          },
+          {
+            "command": "node --test scripts/ci/ci-phase253-reconcile.test.mjs && python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --require-accepted --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-COMPLETION-RECORD.json && node scripts/ci/ci-phase253-reconcile.mjs --dry-run --completion .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-COMPLETION-RECORD.json --record .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-RECONCILIATION.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-25-PLAN.md",
+            "task": "Task 2: Prove SDK reachability and write old-plan dispositions only after accepted proof"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-control-audit.test.mjs && node scripts/ci/ci-registration-control-audit.mjs --check-assessment .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-26-PLAN.md",
+            "task": "Task 1: Replay one stopped command into a source-bound offline timeout assessment"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-control-audit.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-26-PLAN.md",
+            "task": "Task 2: Repair only control defects demonstrated by executable counterexamples"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-control-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json --stage dark",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-27-PLAN.md",
+            "task": "Task 1: Drive one frozen unused reservation through real dark registration and controls"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && bash scripts/ci/ci-registration-repro.test.sh",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-27-PLAN.md",
+            "task": "Task 2: Reject counter laundering and make the inherited registration contracts portable"
+          },
+          {
+            "command": "node scripts/ci/ci-registration-recovery.mjs --verify-control-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json --stage first",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-28-PLAN.md",
+            "task": "Task 1: Run one desktop/mobile first-control command with exact per-project native outcomes"
+          },
+          {
+            "command": "node scripts/ci/ci-registration-recovery.mjs --verify-control-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json --stage complete && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-28-PLAN.md",
+            "task": "Task 2: Prove three fresh databases and passing-trace discard in separate commands"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-control-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-EVIDENCE.json --stage progress",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-29-PLAN.md",
+            "task": "Task 1: Make one actual native cause or precise unresolved gap machine-readable"
+          },
+          {
+            "command": "node scripts/ci/ci-registration-recovery.mjs --verify-control-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-EVIDENCE.json --stage progress",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-29-PLAN.md",
+            "task": "Task 2: Apply only a demonstrated repair and obtain the first fresh native green"
+          },
+          {
+            "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-control-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-EVIDENCE.json --stage complete --require-target-accepted",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-29-PLAN.md",
+            "task": "Task 3: Complete the exact fresh repeat matrix and enforce accepted-target gating"
+          },
+          {
+            "command": "bash scripts/ci/ci-pr-proof.test.sh && python3 scripts/ci/ci-hosted-transport.test.py && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-30-PLAN.md",
+            "task": "Task 1: Collect one normal PR through actual HTTPS and an independent native verdict"
+          },
+          {
+            "command": "bash scripts/ci/ci-pr-proof.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-30-PLAN.md",
+            "task": "Task 2: Implement real docs topology and accepted-only whole requirement checks"
+          },
+          {
+            "command": "node --test .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.test.mjs",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-31-PLAN.md",
+            "task": "Task 1: Prove one accepted supersession path through the real installed SDK"
+          },
+          {
+            "command": "node --test .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.test.mjs && node .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.mjs --prepare-contract --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-RECONCILIATION-CONTRACT.json --check-only",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-31-PLAN.md",
+            "task": "Task 2: Define every historical mapping and exact write-ahead/root application contract"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-git-publication.test.py && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-32-PLAN.md",
+            "task": "Task 1: Prove the final registered-path dispatch through local object-aware HTTPS"
+          },
+          {
+            "command": "bash scripts/ci/ci-gate-canary.sh --check-only --revision-freeze .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-FREEZE.json && python3 scripts/ci/ci-git-publication.py --check-manifest .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-PUBLICATION.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-32-PLAN.md",
+            "task": "Task 2: Regenerate the full object graph and seal one reviewed finite source/window"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario full-pass --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-EVIDENCE.json && python3 scripts/ci/ci-git-publication.py --verify-publication .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-PUBLICATION-RECEIPT.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-33-PLAN.md",
+            "task": "Task 1: Publish exact objects and accept one real full-pass source run"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario sources --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-33-PLAN.md",
+            "task": "Task 2: Retain genuine docs, failure, missing, skip and cancellation results"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario matrix --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-33-PLAN.md",
+            "task": "Task 3: Accept the separate hosted verifier and complete finite ledger"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --family normal --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-34-PLAN.md",
+            "task": "Task 1: Freeze both families and prove the normal PR on the server-published candidate"
+          },
+          {
+            "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --family both --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-EVIDENCE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-34-PLAN.md",
+            "task": "Task 2: Prove the genuine docs-only PR with all required terminal checks"
+          },
+          {
+            "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json && python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --require-accepted --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-COMPLETION-RECORD.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-35-PLAN.md",
+            "task": "Task 1: Reopen one complete end-to-end requirement proof without changing frozen helpers"
+          },
+          {
+            "command": "node --test .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.test.mjs && node .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.mjs --dry-run --completion .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-COMPLETION-RECORD.json --record .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-RECONCILIATION.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "253-35-PLAN.md",
+            "task": "Task 2: Prepare ten accepted-only dispositions and a reachable full phase verification route"
+          }
+        ],
+        "counts": {
+          "blocker": 0,
+          "warning": 0,
+          "total": 76
+        },
+        "readError": null
+      }
+    },
+    {
+      "kind": "decision_coverage",
+      "cmd": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs check decision-coverage-plan .planning/phases/253-fix-flaky-ci-and-preserve-required-checks .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md --raw",
+      "exit_code": 0,
+      "data": {
+        "passed": true,
+        "skipped": false,
+        "total": 24,
+        "covered": 24,
+        "uncovered": [],
+        "message": "All trackable CONTEXT.md decisions are covered by plans."
+      }
+    },
+    {
+      "kind": "api_coverage",
+      "cmd": "python3 -c 'from pathlib import Path; import subprocess,json; p=Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\"); plans=[f for f in sorted(p.glob(\"253-*-PLAN.md\")) if int(f.name[4:6])>=26]; roadmap=Path(\".planning/ROADMAP.md\").read_text(); section=roadmap.split(\"### Phase 253:\",1)[1].split(\"### Phase 254:\",1)[0]; scope=\"\\n\".join(f.read_text() for f in plans)+section; r=subprocess.run([\"node\",\"/Users/jon/.codex/gsd-core/bin/lib/api-coverage.cjs\",\"--json\"],input=scope,text=True,capture_output=True); print(json.dumps({\"exit_code\":r.returncode,\"result\":json.loads(r.stdout) if r.stdout.strip() else {\"skipped\":True,\"reason\":\"empty_probe_output\"},\"stderr\":r.stderr}))'",
+      "exit_code": 0,
+      "data": {
+        "exit_code": 0,
+        "result": {
+          "detected": true,
+          "signals": [
+            {
+              "verb": "(surface)",
+              "noun": "sdk",
+              "snippet": "- \"D-24: Real SDK index behavior is tested in a temporary repository, including blocked dependencies and halted summarie"
+            }
+          ],
+          "terms": {
+            "verbs": [
+              "integrate",
+              "integrates",
+              "integrating",
+              "integration",
+              "wrap",
+              "wraps",
+              "wrapping",
+              "connect",
+              "connects",
+              "connecting",
+              "consume",
+              "consumes",
+              "consuming",
+              "wire",
+              "wires",
+              "wiring",
+              "onboard",
+              "onboarding",
+              "adopt",
+              "adopts",
+              "adopting"
+            ],
+            "nouns": [
+              "api",
+              "apis",
+              "sdk",
+              "sdks",
+              "rest",
+              "graphql",
+              "grpc",
+              "endpoint",
+              "endpoints",
+              "oauth",
+              "oauth2",
+              "webhook",
+              "webhooks",
+              "mcp"
+            ]
+          }
+        },
+        "stderr": ""
+      }
+    }
+  ],
+  "api_seal_gate": {
+    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs check api-coverage.verify-pre .planning/phases/253-fix-flaky-ci-and-preserve-required-checks --raw",
+    "exit_code": 0,
+    "result": {
+      "block": false,
+      "passed": true,
+      "coverage_present": true,
+      "matrix": "COVERAGE.md",
+      "counts": {
+        "surface": 26,
+        "integrate": 14,
+        "optout": 12
+      },
+      "message": "api-coverage: matrix present (26 capabilities, 12 opt-out)"
+    }
+  },
+  "static_checks": {
+    "schema_version": "sigra.phase253.control-recovery-draft-static-check/v1",
+    "plans": 10,
+    "tasks": 22,
+    "waves": {
+      "1": [
+        26
+      ],
+      "2": [
+        27
+      ],
+      "3": [
+        28
+      ],
+      "4": [
+        29
+      ],
+      "5": [
+        30
+      ],
+      "6": [
+        31,
+        32
+      ],
+      "7": [
+        33
+      ],
+      "8": [
+        34
+      ],
+      "9": [
+        35
+      ]
+    },
+    "commands": [
+      {
+        "plan": "253-26-PLAN.md",
+        "command": "node --test scripts/ci/ci-registration-control-audit.test.mjs && node scripts/ci/ci-registration-control-audit.mjs --check-assessment .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json",
+        "fails_when": "Nonzero exit, zero executed tests, altered input hash, fabricated native result/error, erased original timeout or offline assessment labeled native acceptance."
+      },
+      {
+        "plan": "253-26-PLAN.md",
+        "command": "node --test scripts/ci/ci-registration-control-audit.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+        "fails_when": "Nonzero exit, zero tests, source callee misidentified, ordinary readiness/font/default behavior changed, positive account reused by collision, submission before release or test doubles presented as native proof."
+      },
+      {
+        "plan": "253-27-PLAN.md",
+        "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-control-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json --stage dark",
+        "fails_when": "Nonzero exit, zero tests, original-dark native result missing, unexpected positive failure, expected negative green, no useful trace, missing charges/cleanup, second retry or any120000ms overrun."
+      },
+      {
+        "plan": "253-27-PLAN.md",
+        "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && bash scripts/ci/ci-registration-repro.test.sh",
+        "fails_when": "Nonzero exit, zero tests, active phase-only fixture/ref required, omitted historical charge accepted, extra subprocess uncharged, reused slot or selected control silently dropped."
+      },
+      {
+        "plan": "253-28-PLAN.md",
+        "command": "node scripts/ci/ci-registration-recovery.mjs --verify-control-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json --stage first",
+        "fails_when": "Nonzero exit, fewer than16 first-stage rows including dark original, wrong project/device/source, expected negative green, unexpected positive failure, missing trace/account proof or any new overrun."
+      },
+      {
+        "plan": "253-28-PLAN.md",
+        "command": "node scripts/ci/ci-registration-recovery.mjs --verify-control-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json --stage complete && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+        "fails_when": "Nonzero exit, zero policy tests, absent native row, reused database/context, collision account not absent/created, passing trace retained, missing cleanup or cumulative/count/retry drift."
+      },
+      {
+        "plan": "253-29-PLAN.md",
+        "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-control-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-EVIDENCE.json --stage progress",
+        "fails_when": "Nonzero exit, zero tests, fabricated cause/order, harness repair alone called historical fix, cause-less no-flake accepted or proposed repair accepted before native green."
+      },
+      {
+        "plan": "253-29-PLAN.md",
+        "command": "node scripts/ci/ci-registration-recovery.mjs --verify-control-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-EVIDENCE.json --stage progress",
+        "fails_when": "Nonzero exit, native green missing original/regression, red/source link missing, state reused, added command or open cause labeled fixed."
+      },
+      {
+        "plan": "253-29-PLAN.md",
+        "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-control-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ACCEPTANCE-EVIDENCE.json --stage complete --require-target-accepted",
+        "fails_when": "Nonzero exit, zero tests, any required native repeat absent/nonfresh, inadequate no-flake rationale, counter reset, second retry, overrun or phase acceptance before real integration."
+      },
+      {
+        "plan": "253-30-PLAN.md",
+        "command": "bash scripts/ci/ci-pr-proof.test.sh && python3 scripts/ci/ci-hosted-transport.test.py && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+        "fails_when": "Nonzero exit, zero tests, disconnected mock-only path, uncharged server request, head incorrectly equated to merge, wrong app/source or missing native report accepted."
+      },
+      {
+        "plan": "253-30-PLAN.md",
+        "command": "bash scripts/ci/ci-pr-proof.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+        "fails_when": "Nonzero exit, zero tests, dispatch accepted as real docs PR, base/head changes more than exact scoped trigger/doc file, five producers disappear, open completion greens or two budgets reset separately."
+      },
+      {
+        "plan": "253-31-PLAN.md",
+        "command": "node --test .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.test.mjs",
+        "fails_when": "Nonzero exit, zero tests, real SDK not invoked, active shared state modified, false halted completion required or open proof produces supersession."
+      },
+      {
+        "plan": "253-31-PLAN.md",
+        "command": "node --test .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.test.mjs && node .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.mjs --prepare-contract --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-RECONCILIATION-CONTRACT.json --check-only",
+        "fails_when": "Nonzero exit, zero tests, missing old/new mapping, changed old bytes, premature disposition, failed exact readback or route only reachable by false execution claims."
+      },
+      {
+        "plan": "253-32-PLAN.md",
+        "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-git-publication.test.py && python3 scripts/ci/ci-hosted-gate-verify.test.py",
+        "fails_when": "Nonzero exit, zero tests, fixture at unregistered path, create-ref before server objects, hidden HTTP, stale/old halted source accepted, observer match or verifier has uncontrolled acquisition."
+      },
+      {
+        "plan": "253-32-PLAN.md",
+        "command": "bash scripts/ci/ci-gate-canary.sh --check-only --revision-freeze .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-FREEZE.json && python3 scripts/ci/ci-git-publication.py --check-manifest .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-PUBLICATION.json",
+        "fails_when": "Nonzero exit, stale proposal, dropped product file, changed source/blob, unregistered fixture, projection>24/body>2097152, altered117/120/45/60 bounds, old clock reset or offline check performs a request."
+      },
+      {
+        "plan": "253-33-PLAN.md",
+        "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario full-pass --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-EVIDENCE.json && python3 scripts/ci/ci-git-publication.py --verify-publication .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-PUBLICATION-RECEIPT.json",
+        "fails_when": "Nonzero exit, full-pass native success absent, server/ref/blob mismatch, missing measured origin/header/digest, unexpected deterministic failure or117-request/45-job/60-minute ceiling exceeded."
+      },
+      {
+        "plan": "253-33-PLAN.md",
+        "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario sources --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-EVIDENCE.json",
+        "fails_when": "Nonzero exit, expected negative is green, synthetic docs labeled real PR, cancellation inferred, wrong-origin/absent artifact or hidden/excess request/job."
+      },
+      {
+        "plan": "253-33-PLAN.md",
+        "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario matrix --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-CANARY-EVIDENCE.json",
+        "fails_when": "Nonzero exit, separate verifier missing/failed/wrong source, missing ZIP/API digest, unmeasured transaction, historical actual HTTP falsely asserted, or job/request/time ceiling exceeded."
+      },
+      {
+        "plan": "253-34-PLAN.md",
+        "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --family normal --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-EVIDENCE.json",
+        "fails_when": "Nonzero exit, wrong head/merge/workflow/app source, missing native five check/producer/report, reused state, hidden publication/acquisition, >15 normal polls or shared120/60 exceeded."
+      },
+      {
+        "plan": "253-34-PLAN.md",
+        "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --family both --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PR-EVIDENCE.json",
+        "fails_when": "Nonzero exit, docs head has source/workflow change, base has extra CI change, synthetic event/false classifier accepted, missing terminal check/producer, origin/digest mismatch or shared120/60 ceiling exceeded."
+      },
+      {
+        "plan": "253-35-PLAN.md",
+        "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json && python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --require-accepted --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-COMPLETION-RECORD.json",
+        "fails_when": "Nonzero exit, either requirement open, cause/order/native/hosted proof missing, old failure erased, unknown historical HTTP declared exact, frozen product bytes edited or phase verification claimed complete."
+      },
+      {
+        "plan": "253-35-PLAN.md",
+        "command": "node --test .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.test.mjs && node .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-reconcile.mjs --dry-run --completion .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-COMPLETION-RECORD.json --record .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-RECONCILIATION.json",
+        "fails_when": "Nonzero exit, zero SDK tests, either requirement open, any old bytes changed, preservation/readback missing, fake execution summary, missing disposition mapping or full route requires relabeling halted work."
+      }
+    ],
+    "read_first_classifications": {
+      "tracked": 88,
+      "new_existing_planning": 7,
+      "future_declared": 42
+    },
+    "path_errors": [],
+    "old_capture_paths": 369,
+    "old_changed_paths": [],
+    "protected_capture_preflight_byte_identical": true,
+    "unrelated_config_byte_identical": true,
+    "decision_coverage": {
+      "total": 24,
+      "covered": 24,
+      "missing": []
+    },
+    "threat_ids": {
+      "numeric": [
+        "T-253-51",
+        "T-253-52",
+        "T-253-53",
+        "T-253-54",
+        "T-253-55",
+        "T-253-56",
+        "T-253-57",
+        "T-253-58",
+        "T-253-59",
+        "T-253-60",
+        "T-253-61",
+        "T-253-62",
+        "T-253-63",
+        "T-253-64",
+        "T-253-65",
+        "T-253-66",
+        "T-253-67",
+        "T-253-68",
+        "T-253-69",
+        "T-253-70"
+      ],
+      "duplicate": false,
+      "exact51_to70": true
+    },
+    "same_wave_file_conflicts": [],
+    "arithmetic_all_true": true,
+    "git_status_raw": " M .planning/config.json\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ASSUMPTIONS.json\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-BUDGET-ARITHMETIC.json\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-BUDGETS.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-COVERAGE.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-SOURCE-AUDIT.md\u0000?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-VALIDATION.md\u0000",
+    "source_execution_performed": false,
+    "native_launches": 0,
+    "github_requests": 0
+  },
+  "estimate_calibration": {
+    "factor": 1,
+    "applied": false,
+    "sample_count": 0,
+    "confidence": "low"
+  },
+  "new_paths": [
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-BUDGETS.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ASSUMPTIONS.json",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-SOURCE-AUDIT.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-COVERAGE.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-VALIDATION.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-BUDGET-ARITHMETIC.json"
+  ],
+  "source_files_modified": [],
+  "old_files_modified": [],
+  "existing_dirty_config_left_unchanged": true,
+  "draft_rewrites": 0,
+  "committed_by_planner": false,
+  "native_launches_this_planning": 0,
+  "github_requests_this_planning": 0,
+  "parent_next_action": "Preserve/commit exact initial draft bytes, then independent plan checker. Any later dirty draft revision must have durable exact readback first.",
+  "phase_verification_status": "not_started"
+}
+

@@ -1,0 +1,23 @@
+{
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+  "base_image_id": "sha256:e5272f11689c8740c02789ca6bf3e3fc955c4550f25ac53f738e7807205c9836",
+  "postgres_image": "docker.io/library/postgres@sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c",
+  "source_manifest_sha256": "82821b1c710c7fc5ef6506bd0be643a95ee37e1f1f6c2ee2f6ca15428da55e54",
+  "inspect_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+  "files": {
+    "Dockerfile": "0e4b301c94c271dfc4cc6df90f7274158c112af10a508ef0a4d53e2a6a14f7a9",
+    "in_container.py": "dd4c09aa895880b6e75d70f73c9f1d9db394901dba1c65d83091c06efe545f37",
+    "inspect_compiled_endpoint.exs": "486a6ec0466ee032d34234fef880b4ed49f5dfe38df0f6776bf7dc02524ab720",
+    "prepare.py": "51abfc73f6515981c5d628518da2ac29585864d9517ea91af195451623d58bf9"
+  },
+  "npm_packages_verified": 51,
+  "build_network": "none",
+  "inspect_network": "none",
+  "browser_invocations": 0,
+  "app_started": false,
+  "database_started": false,
+  "ci_launches": 0,
+  "duration_seconds": 18.99014070900739,
+  "context_removed_on_return": true
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "source_identity_repair_evidence",
+  "status": "repair_merged_waiting_for_fresh_hosted_authority",
+  "canonical_plan_summary": false,
+  "repository": "szTheory/sigra",
+  "failed_proof": {
+    "controller_run_id": "38083752867",
+    "child_run_id": "38083779742",
+    "source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "reason": "failure_probe_dispatch_correlation_failed_zero_ambiguous_or_mismatched_source_identity",
+    "consumed_packet_source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "consumed_packet_document_sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
+    "stale_earlier_packet_source_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "stale_earlier_packet_payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+    "stale_earlier_authority_dispatched": false,
+    "replacement_authority_consumed": true
+  },
+  "repair": {
+    "workflow_run_name_pattern": "release-receipt-canary-${scenario}-${probe_id}",
+    "failure_run_name": "release-receipt-canary-failure-${probe_id}",
+    "cancellation_run_name": "release-receipt-canary-cancellation-${probe_id}",
+    "dynamic_run_name_checked_exactly": true,
+    "display_title_checked_exactly": true,
+    "static_workflow_object_name": "Release Receipt Canary",
+    "static_workflow_object_path": ".github/workflows/release-receipt-canary.yml",
+    "existing_repository_workflow_event_branch_sha_attempt_and_artifact_gates_preserved": true,
+    "negative_mismatched_dynamic_run_name_test": true
+  },
+  "delivery": {
+    "pull_request": 320,
+    "url": "https://github.com/szTheory/sigra/pull/320",
+    "reviewed_head": "7131f835c74573e24bac44137446ddd84a58c294",
+    "ci_run_id": "38084430351",
+    "ci_conclusion": "success",
+    "required_ci_gate": "success",
+    "main_before": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "main_after": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+    "merge_method": "squash",
+    "main_blobs": {
+      "scripts/ci/release-canary.sh": "856ca65af2678b07936585ff0a2a2361ff673e01",
+      "scripts/ci/release-canary.test.sh": "8405e3ae9533bbb16cd9642d3f6a4d7be53bf8f4"
+    },
+    "pr_commits": [
+      "4e74a85de",
+      "7131f835c"
+    ],
+    "execution_commits": [
+      "9e2fa2db0",
+      "aae69d4de"
+    ]
+  },
+  "verification": {
+    "main_based_pr_branch": {
+      "canary_tests": "59 passed, 0 failed",
+      "receipt_tests": "16 passed, 0 failed",
+      "observer_tests": "22 passed, 0 failed",
+      "standalone_contract_exunit": "8 tests, 0 failures",
+      "actionlint": "passed"
+    },
+    "standard_mix_test": "blocked by existing Phoenix dependency lock mismatch; dependencies unchanged",
+    "hosted_dispatch": false
+  },
+  "phase_state": {
+    "plan_250_07_complete": false,
+    "controller_dispatch_attempted_during_repair": false,
+    "canary_child_dispatch_attempted_during_repair": false,
+    "observer_dispatch_attempted_during_repair": false,
+    "cancellation_attempted_during_repair": false,
+    "hosted_proof_updated": false,
+    "auto_02": "unsatisfied",
+    "next_authorized_step": "Recapture current-main preflight, create a new packet bound to exact main and preflight digest, then obtain fresh explicit hosted-probe authority."
+  }
+}

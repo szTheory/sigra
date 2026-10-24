@@ -1,0 +1,8 @@
+{
+  "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+  "status": "clean_at_capture",
+  "commit": "0da925d9fe27ac61c969b5d79e3e793054eebf2d",
+  "sha256": "61279adf7c198b08eeeb4aa0788e00203478dcab80c1c5f142bf5d8774f5a4b9",
+  "bytes": 8013,
+  "readback_verified": true
+}

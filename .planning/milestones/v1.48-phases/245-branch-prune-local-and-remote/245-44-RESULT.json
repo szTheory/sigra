@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 44,
+  "captured_at": "2026-10-05T18:34:32.666Z",
+  "outcome": "blocked",
+  "failed_stage": "operator_interrupted",
+  "failed_predicates": [
+    "operator_silence_timeout_sigint; exact tracking ref remains present at expected OID after interruption"
+  ],
+  "stop_reason": "The single supervised operator invocation produced no stdout or stderr before the 10-minute silence bound. The wrapper sent SIGINT once and observed the child exit by SIGINT. Two independent complete post-captures prove the target tracking ref is still present at the exact approved OID; no deletion is readback-proven and no retry was launched.",
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "operation_attempted": true,
+  "repo_04_status": "open",
+  "current_contract": {
+    "commit": "7dd42158fb4e06fd3668243149783c4f0ff1cd0d",
+    "captured_head": "4bd0ac1128c2b70e4816e5598a3257038ded9fe9",
+    "sha256": "6b615d9eec836fd873dbbceebdf41d1c5b3980dcb36a29c728fd84647e96cd7e",
+    "allowlist_sha256": "69af16af1b208be375bc3df7faf9888436e2ce1697ef70cc2af0e09198b85d3f",
+    "admission_sha256": "918230210ad1676cfc86b1534ab73ee2d737ef62cfccc4f723e4fab36e6e6957",
+    "allowlist_blob": "58bb66561965ee610a4bdc36063c8dbf22685145",
+    "allowlist_inherited_from_contract_parent": true,
+    "admission_status": "admitted",
+    "unresolved": 0
+  },
+  "approval": {
+    "decision": "approved_exact_row",
+    "authorization_source": "current_user_execute_phase_245_gaps_only_under_planning_project_policy",
+    "approved_rows": [
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+        "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "type": "commit",
+        "reason": "At the fresh Plan 44 source capture, the exact nonsymbolic tracking ref is present at the expected commit; complete live origin refs contain no matching branch head, and none of the 14 complete open PRs uses this branch name as head or base. This is the sole eligible deletion; a separate Plan 44 decision is still required."
+      }
+    ],
+    "operation_started": false,
+    "applicability": "exact_row_only"
+  },
+  "operator": {
+    "pid": 56245,
+    "pgid": 56245,
+    "argv": [
+      "scripts/maintainers/prune-stale-branches.sh",
+      "tracking",
+      "--apply",
+      "--repo",
+      ".",
+      "--snapshot-commit",
+      "02d3370f9edd05fa598216d6bef34958310881ec",
+      "--snapshot",
+      ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+      "--readiness-commit",
+      "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+      "--readiness",
+      ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "--current-contract-commit",
+      "7dd42158fb4e06fd3668243149783c4f0ff1cd0d",
+      "--current-contract",
+      ".planning/phases/245-branch-prune-local-and-remote/245-44-CURRENT-CONTRACT.json",
+      "--allowlist-commit",
+      "7dd42158fb4e06fd3668243149783c4f0ff1cd0d",
+      "--allowlist",
+      ".planning/phases/245-branch-prune-local-and-remote/245-44-BRANCH-DELETE-ALLOWLIST.tsv"
+    ],
+    "start_utc": "2026-10-05T18:20:40.696Z",
+    "end_utc": "2026-10-05T18:30:41.409Z",
+    "last_output_utc": null,
+    "duration_ms": 600713,
+    "stdout": "",
+    "stderr": "",
+    "exit_code": null,
+    "signal": "SIGINT",
+    "wrapper_exit_code": 1,
+    "interruption": {
+      "reason": "silence_limit",
+      "sigint_sent_utc": "2026-10-05T18:30:41.401Z",
+      "waited_for_child_exit": true,
+      "rerun": false
+    }
+  },
+  "pre_apply_checks": {
+    "before_stage_verifier": "passed",
+    "rate_limit_core_remaining": 5000,
+    "coordinator": "verified_free_zero_leases",
+    "candidate_census": 113,
+    "unresolved": 0,
+    "eligible_deletions": 1,
+    "typed_current_and_plan18_objects": "passed",
+    "github_cli_rest_pr_identity_agreement": "passed"
+  },
+  "mutations": {
+    "local_ref_deletions": [],
+    "tracking_ref_deletions": [],
+    "remote_ref_deletions": [],
+    "safety_ref_publications": []
+  },
+  "readback": {
+    "state": "exact_present",
+    "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+    "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+    "type": "commit",
+    "origin_head_absent": true,
+    "open_pr_name_overlap": false,
+    "production_ref_operations_proven": 0
+  },
+  "post_state": {
+    "path": "245-44-POST-STATE.json",
+    "observation_count": 2,
+    "captures_agree": true,
+    "target_exact_present_both": true,
+    "all_protected_boundaries_match": true,
+    "capture_digests": [
+      {
+        "local_refs": "882d442222afe0052d5b17d3c40b002a313d4cfbfee4c5402551b3882a40b61f",
+        "origin_refs": "09c307e58f15d1e3d7cde541466571a3d26a8b20255c9e758ddac0dbd8f7eda7",
+        "open_prs": "a20fbca7f15f724103582e0ca403cb4fb9100774d1b324b1049b4fc68271bee8"
+      },
+      {
+        "local_refs": "882d442222afe0052d5b17d3c40b002a313d4cfbfee4c5402551b3882a40b61f",
+        "origin_refs": "09c307e58f15d1e3d7cde541466571a3d26a8b20255c9e758ddac0dbd8f7eda7",
+        "open_prs": "a20fbca7f15f724103582e0ca403cb4fb9100774d1b324b1049b4fc68271bee8"
+      }
+    ]
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  }
+}

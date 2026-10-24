@@ -19,6 +19,14 @@ unless phx_new_ok? do
   ExUnit.configure(exclude: [:upgrade])
 end
 
+if System.get_env("SIGRA_EXUNIT_TIMING_JSON") not in [nil, ""] do
+  unless Code.ensure_loaded?(Sigra.Test.CITimingFormatter) do
+    Code.require_file("support/ci_timing_formatter.ex", __DIR__)
+  end
+
+  ExUnit.configure(formatters: [ExUnit.CLIFormatter, Sigra.Test.CITimingFormatter])
+end
+
 ExUnit.start()
 
 if Code.ensure_loaded?(Postgrex) and Code.ensure_loaded?(Sigra.Test.PostgresRepo) do

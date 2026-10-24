@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/runtime/ci-hosted-transport.py",
+    "--allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-allocation.json",
+    "--ledger",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-ledger.json",
+    "--request",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-operator-request-4.json",
+    "--output",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-operator-receipt-4.json",
+    "--body-output",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-operator-body-4.json"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

@@ -1,0 +1,9 @@
+{
+  "kind": "development_setup",
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "browser_invocations": 0,
+  "acceptance": false,
+  "outcome": "setup_and_app_ready",
+  "warmup_status": 302,
+  "duration_seconds": 9.072611837997101
+}

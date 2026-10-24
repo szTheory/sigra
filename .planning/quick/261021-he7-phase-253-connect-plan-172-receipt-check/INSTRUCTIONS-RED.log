@@ -1,0 +1,17 @@
+test_current_instructions_override_old_174_and_inventory_assumptions (__main__.CallerTests.test_current_instructions_override_old_174_and_inventory_assumptions) ... FAIL
+test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure (__main__.CallerTests.test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure) ... ok
+test_plan172_other_work_is_unchanged (__main__.CallerTests.test_plan172_other_work_is_unchanged) ... ok
+
+======================================================================
+FAIL: test_current_instructions_override_old_174_and_inventory_assumptions (__main__.CallerTests.test_current_instructions_override_old_174_and_inventory_assumptions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-receipt-caller.test.py", line 30, in test_current_instructions_override_old_174_and_inventory_assumptions
+    self.assertIsNotNone(match, 'missing current receipt instruction override')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : missing current receipt instruction override
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.008s
+
+FAILED (failures=1)

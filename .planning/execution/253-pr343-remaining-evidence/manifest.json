@@ -1,0 +1,219 @@
+{
+  "browser_artifacts": [
+    {
+      "attempt": 1,
+      "digest": "sha256:429f01b3570bed17f1a9a192dc4c54f050ef61c5506081767f76fa02adf8c231",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12443085302,
+      "name": "browser-execution-demo_showcase-39815188159-1",
+      "run_id": 39815188159,
+      "size_in_bytes": 422268
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:0ac960835c4a4970b29918594a97b4d3ddb3cae94d193c99b7eecd5495fdbb3a",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12443080507,
+      "name": "browser-execution-non_admin_smoke-39815188159-1",
+      "run_id": 39815188159,
+      "size_in_bytes": 424388
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:981bc9ae4b1b8a36a493131b12a30eff359464c168ee4bf0dcc8d1dac19d1fd4",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12442691704,
+      "name": "browser-execution-admin_checkpoints-39815188159-1",
+      "run_id": 39815188159,
+      "size_in_bytes": 423433
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:dfecd8d8e1345267de0907f548e318966143146d473219e075e569a565fd7ab2",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12441982171,
+      "name": "browser-execution-design_gallery-39815188159-1",
+      "run_id": 39815188159,
+      "size_in_bytes": 425889
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:eff5a92b6c2aff76bcca96b2280d022b4164a17fc78980a9480f08b5a325a9fc",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12441922987,
+      "name": "browser-execution-admin_behavior-39815188159-1",
+      "run_id": 39815188159,
+      "size_in_bytes": 430048
+    }
+  ],
+  "copied_runtime_auth_fix": "ci-hosted-transport.py sends Authorization only to api.github.com; redirect-host requests have no GitHub token",
+  "docs_pr": {
+    "base_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "base_ref": "gsd/253-replan-proof-5e13621e5-docs-base",
+    "base_sha": "4524f17e1b791dd4d2c2ae597c053a8e37e8095e",
+    "candidate_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+    "candidate_tree": "6cda96349b9ae7e79527b3af2db101003a5bfaca",
+    "changed_paths": [
+      "guides/reference/phase253-docs-only-proof.md"
+    ],
+    "dispatches": 0,
+    "docs_base_tree": "1682cfc4ad3474612f104515c71ae17bccfdab4e",
+    "docs_blob": "044d83e90bbdd1a8c7cb8102505fb5d289b4dc65",
+    "docs_head_tree": "96c36b1c1e64bccaa962da9f49a4ddbf0366f517",
+    "draft_only": true,
+    "head_ref": "gsd/253-replan-proof-5e13621e5-docs-head",
+    "head_sha": "a4c2b64119fa89ada8a6dbbe1f729a24fb6bfc21",
+    "merge": false,
+    "required_check_names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "reruns": 0,
+    "workflow_blob": "5b3814b4eb6d650ca3a9f8a189d1243126ccca50"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "22e0d8061bae10774261e93967941b620136b467e1270813c54d44f674ebec70"
+    },
+    {
+      "path": "actions.json",
+      "sha256": "0394e2fa2d1c79ffc8ad7f7727076d32206efde398c622334a489fe391183e3f"
+    },
+    {
+      "path": "allocation-template.json",
+      "sha256": "e88ddcbc3f431d82c010d4ac9261944b11baf8d054c7ca270db9bfff71bf3d1b"
+    },
+    {
+      "path": "docs-proof.md",
+      "sha256": "33540a58f5f96755ea94ddbce49888267aa530e9b4398f62ab497a9014474376"
+    },
+    {
+      "path": "docs-workflow.yml",
+      "sha256": "dea1a61c167174bc256f96920bee42fbb5d12a2116fff4daa2e3354c1dc8ce64"
+    },
+    {
+      "path": "normal-workflow.yml",
+      "sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5"
+    },
+    {
+      "path": "pr-freeze.json",
+      "sha256": "f4f88d28c7e26cb90839a78ee4f6bcf1925ffe93f6c1235fd4ee00c92265b117"
+    },
+    {
+      "path": "proposal.json",
+      "sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d"
+    },
+    {
+      "path": "run.py",
+      "sha256": "783633aea52d6777a3865e900d423e4d935960d5c601da2d827c2e78449825b9"
+    },
+    {
+      "path": "runtime/ci-browser-records.mjs",
+      "sha256": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e"
+    },
+    {
+      "path": "runtime/ci-git-publication.py",
+      "sha256": "cd2288805236a099353269eb0d8d40b254fad16b114e13a4d08ca17326c66001"
+    },
+    {
+      "path": "runtime/ci-hosted-gate-verify.py",
+      "sha256": "8b4890ebc0af222b2faeb9dccacd97803db30f7e1fbb9426e3d38e7d0749e6bc"
+    },
+    {
+      "path": "runtime/ci-hosted-transport.py",
+      "sha256": "2ae09731e0aab9ad4e6f4415f0e8e960928552ea2fe0df7a1e7c1bf04354c4e0"
+    },
+    {
+      "path": "runtime/ci-playwright-report.mjs",
+      "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+    },
+    {
+      "path": "runtime/ci-pr-proof.sh",
+      "sha256": "137c6f184d794e4d3e594d2b84394685a2115f1fc0cc52b989e52137cdf3dc08"
+    },
+    {
+      "path": "runtime/execution_guard.py",
+      "sha256": "c8dc72a91b175bdfefce5ac4b82825258a6630d9b4f650f60f9b75afa78bad66"
+    },
+    {
+      "path": "runtime/synthetic_browser_archives.mjs",
+      "sha256": "bed27b1a009819cefd8bb86d344c3b7d63f5d0143fdc2a8d036e14dbfd00bfec"
+    },
+    {
+      "path": "task-result.json",
+      "sha256": "2ae63353b448436a962fa7f28ffe31139b34c44bb8fc99e77d64bb94e25d2f5b"
+    },
+    {
+      "path": "test_continuation.py",
+      "sha256": "9dae0e8cb87b89724dc6751ffc8792bb6ebed8107f725dbb33f3230d04d97803"
+    },
+    {
+      "path": "tests.log",
+      "sha256": "c2be5b5bea13bf58be2a346dbe4c4ae2e6463413aef5ef6f7b15cc8a8487cba2"
+    },
+    {
+      "path": "offline-result.json",
+      "sha256": "dbeb13fa5bba3275341ad5fbac0a4132570c9b7239813b691546d6cba713c2ee"
+    }
+  ],
+  "freeze_sha256": "f4f88d28c7e26cb90839a78ee4f6bcf1925ffe93f6c1235fd4ee00c92265b117",
+  "normal_pr": {
+    "attempt": 1,
+    "base_ref": "main",
+    "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "conclusion": "success",
+    "head_ref": "gsd/253-replan-proof-5e13621e5-candidate",
+    "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+    "number": 343,
+    "recovery_window_closed": true,
+    "run_id": 39815188159,
+    "tested_merge_sha": "d6024255ed139f7c19bd44e68c10a85cc9ecca3b"
+  },
+  "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+  "schema": "sigra.phase253.pr343-remaining-evidence-manifest/v2",
+  "source_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "upstream_sources": [
+    {
+      "path": ".planning/execution/253-plan172-persistent-ledger/runtime/ci-hosted-transport.py",
+      "sha256": "8335bdcb9608741b1605cf7be07e995f76ee4f4ba199b7adc36ffb1c0e9e9f36"
+    },
+    {
+      "path": ".planning/execution/253-docs-continuation-pr341-fixed/runtime/ci-pr-proof.sh",
+      "sha256": "56e399d51b3e8389deff70cc2bd7b4a1e50ef9425bc2a57420f5186d33a40c63"
+    },
+    {
+      "path": ".planning/execution/253-docs-continuation-pr341-fixed/runtime/ci-hosted-gate-verify.py",
+      "sha256": "fc52643c1e8547181f9f4ebc0e9cfa0a00851e4df1893fcf522fd7466b6862ef"
+    },
+    {
+      "path": ".planning/execution/253-docs-continuation-pr341-fixed/runtime/ci-git-publication.py",
+      "sha256": "7e882e0921013c4de9fc9960d1d681a396bc9194fda2b0ecacf065a839e41f37"
+    },
+    {
+      "path": ".planning/execution/253-pr343-recovery/verify.py",
+      "sha256": "268304e0911c74fb655ad5c22b09bfb88fa78d3278372e5d426dcba2e252694d"
+    },
+    {
+      "path": "scripts/ci/ci-browser-records.mjs",
+      "sha256": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e"
+    },
+    {
+      "path": "scripts/ci/ci-playwright-report.mjs",
+      "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+    },
+    {
+      "path": "scripts/ci/ci-browser-records.test.mjs",
+      "sha256": "04fd950ccfa4091292b23ce7302958d8b16d179d3dc04ba3da5616f52ea25ef9"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+** (Mix) the application :example has a different value set for key ExampleWeb.Endpoint during runtime compared to compile time. Since this application environment entry was marked as compile time, this difference can lead to different behavior than expected:
+
+  * Compile time value was set to: [url: [host: "localhost"], adapter: Bandit.PhoenixAdapter, render_errors: [formats: [html: ExampleWeb.ErrorHTML, json: ExampleWeb.ErrorJSON], layout: false], pubsub_server: Example.PubSub, live_view: [signing_salt: "cZ8qNLxr"], http: [ip: {127, 0, 0, 1}, port: 4011], check_origin: false, code_reloader: true, reloadable_apps: [:example, :sigra], debug_errors: true, secret_key_base: "[REDACTED]", watchers: [], live_reload: [web_console_logger: true, patterns: [~r/priv\/static\/(?!uploads\/).*\.(js|css|png|jpeg|jpg|gif|svg)$/E, ~r/priv\/gettext\/.*\.po$/E, ~r/lib\/example_web\/router\.ex$/E, ~r/lib\/example_web\/(controllers|live|components)\/.*\.(ex|heex)$/E]]]
+  * Runtime value was set to: [url: [host: "localhost"], adapter: Bandit.PhoenixAdapter, render_errors: [formats: [html: ExampleWeb.ErrorHTML, json: ExampleWeb.ErrorJSON], layout: false], pubsub_server: Example.PubSub, live_view: [signing_salt: "cZ8qNLxr"], http: [ip: {127, 0, 0, 1}, port: 25311], check_origin: false, code_reloader: true, reloadable_apps: [:example, :sigra], debug_errors: true, secret_key_base: "[REDACTED]", watchers: [], live_reload: [web_console_logger: true, patterns: [~r/priv\/static\/(?!uploads\/).*\.(js|css|png|jpeg|jpg|gif|svg)$/E, ~r/priv\/gettext\/.*\.po$/E, ~r/lib\/example_web\/router\.ex$/E, ~r/lib\/example_web\/(controllers|live|components)\/.*\.(ex|heex)$/E]]]
+
+To fix this error, you might:
+
+  * Make the runtime value match the compile time one
+
+  * Recompile your project. If the misconfigured application is a dependency, you may need to run "mix deps.clean example --build"
+
+  * Alternatively, you can disable this check. If you are using releases, you can set :validate_compile_env to false in your release configuration. If you are using Mix to start your system, you can pass the --no-validate-compile-env flag
+
+

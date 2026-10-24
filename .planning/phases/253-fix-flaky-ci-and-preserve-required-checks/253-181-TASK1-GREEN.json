@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    "SuccessorContractTests.test_168_requires_receipt_before_each_automated_body",
+    "SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings",
+    "SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits",
+    "SuccessorContractTests.test_bridge_accepts_exact_five_plan_amendment_fixture"
+  ],
+  "exit_code": 0,
+  "log_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.log",
+  "log_sha256": "6b563fe47a157c9013413f5a62ddcc8bba5f6f6738220be56c0c787c46e88f5d",
+  "output": "test_168_requires_receipt_before_each_automated_body (__main__.SuccessorContractTests.test_168_requires_receipt_before_each_automated_body) ... ok\ntest_nested_173_review_requires_original_location_schema_and_findings (__main__.SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings) ... ok\ntest_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits (__main__.SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits) ... ok\ntest_bridge_accepts_exact_five_plan_amendment_fixture (__main__.SuccessorContractTests.test_bridge_accepts_exact_five_plan_amendment_fixture) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 102.711s\n\nOK\n"
+}

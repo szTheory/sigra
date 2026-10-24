@@ -1,0 +1,27 @@
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifact_digest": "sha256:e677fd0efb3e15ccb0c36bf7c10b71c236df12a20ead76df79bb76ecadecdf37",
+    "artifact_id": 12386015622,
+    "conclusion": "success",
+    "run_id": "39684755372",
+    "scenario": "full-pass",
+    "status": "verified",
+    "synthetic": true
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 41,
+    "status": "transport_verified",
+    "window_id": "253-proof-16800f431-next-canary-1"
+  }
+}

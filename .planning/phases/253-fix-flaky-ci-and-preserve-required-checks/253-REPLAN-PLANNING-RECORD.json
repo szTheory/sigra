@@ -1,0 +1,297 @@
+{
+  "schema_version": "sigra.phase253.additional-recovery-planning/v1",
+  "status": "ready_for_independent_plan_checker",
+  "planning_only": true,
+  "phase": "253",
+  "mode": "add_more_recovery_plans",
+  "capture_head": "503704f5bb3f916dc3ef7140568bc71cedebac90",
+  "new_capture_boundary_commit": "a3ccad326",
+  "branch": "phase-244-playwright-measurement",
+  "ownership": "new253-15..25PLANs and new253-REPLAN planning records only",
+  "plan_count": 11,
+  "task_count": 24,
+  "recovery_wave_count": 8,
+  "waves": {
+    "1": [
+      "253-15",
+      "253-18"
+    ],
+    "2": [
+      "253-16",
+      "253-19"
+    ],
+    "3": [
+      "253-17",
+      "253-20"
+    ],
+    "4": [
+      "253-21"
+    ],
+    "5": [
+      "253-22"
+    ],
+    "6": [
+      "253-23"
+    ],
+    "7": [
+      "253-24"
+    ],
+    "8": [
+      "253-25"
+    ]
+  },
+  "new_plan_ids": [
+    "253-15",
+    "253-16",
+    "253-17",
+    "253-18",
+    "253-19",
+    "253-20",
+    "253-21",
+    "253-22",
+    "253-23",
+    "253-24",
+    "253-25"
+  ],
+  "requirements": {
+    "CIREL-01": "open;not accepted by planning",
+    "CIREL-02": "open;not accepted by planning"
+  },
+  "old_complete_plans": [
+    "253-01",
+    "253-03",
+    "253-04",
+    "253-05",
+    "253-06",
+    "253-11"
+  ],
+  "old_halted_preserved": [
+    "253-02",
+    "253-07",
+    "253-09",
+    "253-12"
+  ],
+  "old_unexecuted_blocked_preserved": [
+    "253-08",
+    "253-10",
+    "253-13",
+    "253-14"
+  ],
+  "original_plan_bytes_exact_at_boundary": true,
+  "unrelated_config": {
+    "path": ".planning/config.json",
+    "status": " M",
+    "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+    "ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+    "exact_readback": true,
+    "left_unstaged": true
+  },
+  "phase_verification_status": "not_started",
+  "source_code_changed": false,
+  "github_repository_requests": 0,
+  "browser_application_database_execution": false,
+  "branch_changes": false,
+  "commits_created": 0,
+  "discovery": {
+    "level": "reuse_current_phase_research_and_patterns_plus_primary_document_verification",
+    "no_new_dependency": true,
+    "local_curl": "8.7.1",
+    "local_git": "2.41.0",
+    "codebase_map_absent": true,
+    "knowledge_graph_absent": true,
+    "project_skills_absent": true,
+    "agent_skills_config": {}
+  },
+  "estimate_calibration": {
+    "factor": 1,
+    "applied": false,
+    "sample_count": 0,
+    "confidence": "low"
+  },
+  "planning_checks": {
+    "gap_closure_schemas_valid": 11,
+    "task_structures_valid": 11,
+    "requirements_covered": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "decisions_cited": [
+      "D-01",
+      "D-02",
+      "D-03",
+      "D-04",
+      "D-05",
+      "D-06",
+      "D-07",
+      "D-08",
+      "D-09",
+      "D-10",
+      "D-11",
+      "D-12",
+      "D-13",
+      "D-14",
+      "D-15",
+      "D-16",
+      "D-17",
+      "D-18",
+      "D-19",
+      "D-20",
+      "D-21",
+      "D-22",
+      "D-23",
+      "D-24"
+    ],
+    "source_audit_rows": 48,
+    "source_audit_missing": 0,
+    "max_task_files": 5,
+    "same_wave_overlaps": [],
+    "immediate_fails_when": true,
+    "new_numeric_threats": [
+      29,
+      50
+    ],
+    "numeric_threat_duplicates": [],
+    "new_verify_commands": 24,
+    "new_verify_fail_direction_blockers": 0,
+    "new_verify_fail_direction_warnings": 0,
+    "independent_checker": "not_started;root owns dispatch and review",
+    "execution_tests": "not run;only read-only planning/schema/structure/static checks"
+  },
+  "budgets": {
+    "registration": {
+      "spent_slot": "D19-DIAG-01",
+      "historical_charge_ms": 3768,
+      "browser_launches_historical": 0,
+      "new_regular_commands": 8,
+      "new_common_preparation_ms": 116232,
+      "reserved_acceptance_commands": 9,
+      "one_shared_infrastructure_retry": 1,
+      "max_d19_invocation_reservations": 10,
+      "max_d19_charged_ms": 1200000,
+      "max_total_reservations_including_spent": 19,
+      "max_new_browser_launches": 18,
+      "max_charged_minutes": 58,
+      "outer_locked_total_minutes": 60
+    },
+    "canary": {
+      "historical_command_count": 3,
+      "historical_actual_http_count_proven": false,
+      "historical_window_closed": true,
+      "historical_start_epoch": 1791909792,
+      "historical_halt_elapsed_seconds": 34,
+      "new_actual_http_max": 117,
+      "total_accounted_slots": 120,
+      "max_jobs": 45,
+      "max_minutes": 60,
+      "max_infrastructure_retries": 1
+    },
+    "production": {
+      "shared_two_real_pr_actual_http_max": 120,
+      "max_minutes": 60,
+      "max_infrastructure_retries": 1
+    }
+  },
+  "prohibitions": {
+    "serializer": "installed probe-core.cjs projectProhibitions",
+    "count": 2,
+    "descriptor_less": true,
+    "status": "flagged-unverified;not auto-dismissed"
+  },
+  "edge_fallback": {
+    "applicable": 3,
+    "explicit_planning_contracts": 2,
+    "unclassified_flagged_assumptions": 1
+  },
+  "root_owned_followups": [
+    "Preserve/commit new artifact bytes, then independent typed plan checker.",
+    "Promote253-REPLAN-COVERAGE.md proposal to canonicalCOVERAGE.md before API seal gate after any required exact-byte preservation.",
+    "Update shared roadmap/state/handoff routing only after independent plan checker.",
+    "After accepted recovery implementation, apply four new unexecuted supersession summary bytes and run unfiltered full-phase verification;do not relabel halted attempts."
+  ],
+  "next_command_after_independent_checker": "$gsd-execute-phase 253 --gaps-only",
+  "next_command_after_all_recovery_requirements_accepted": "$gsd-execute-phase 253",
+  "phase254": "excluded until253 is actually verified",
+  "files": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-BUDGETS.md",
+      "sha256": "af2d0bb9b4d1da4d9a6669c215f1a2f03d85acedddab4bb857f0a47b111331aa",
+      "bytes": 10535
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-COVERAGE.md",
+      "sha256": "272975a8455a0c2c597b8df02d1410160c8f03eaa56eda759e675e291650bd29",
+      "bytes": 4476
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-EDGE-COVERAGE.json",
+      "sha256": "70449a1d0cfcb373d296528866441ce504850e26eec3dab51b2e632053131649",
+      "bytes": 2580
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-SOURCE-AUDIT.md",
+      "sha256": "fa93d7d710f2d1cee969c2a2f96eeca5270706891e37bffb32a6686063f022bf",
+      "bytes": 6908
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-VALIDATION.md",
+      "sha256": "a22795a6d10fcf2a141c5a31ad8a78014046620315596ff93b3879940e26fbc7",
+      "bytes": 9356
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-PLAN.md",
+      "sha256": "823b401f191adc8ab102e8b392a4495410dbe5fcb49d4ac53606dd62ab42c7bb",
+      "bytes": 16624
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-PLAN.md",
+      "sha256": "cc57e323b81d242597c86541cde3f47ebb40a66e8ee4153f7382770f30fc37de",
+      "bytes": 14130
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-17-PLAN.md",
+      "sha256": "74b8a8d0ed6de9b00d5c562ab6f458973d7136a56a5655f1e3edf2edb9c5b188",
+      "bytes": 16512
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-18-PLAN.md",
+      "sha256": "c4696a34cd2ec299f19c900ccd9a37d38fcbc01b9bcb3b683663d41780f075da",
+      "bytes": 12712
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-19-PLAN.md",
+      "sha256": "22be54dca53ae084c597cfd03054f411bac820df69bf2e6ec72a761e79cf035e",
+      "bytes": 13554
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-20-PLAN.md",
+      "sha256": "b6e5cb64d7fff979e95f991529b6a431d4f660b5555dcbc7342248a1bb66f773",
+      "bytes": 13366
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-21-PLAN.md",
+      "sha256": "dd2a668631568a9bb7857c2c50ef3a3747f35e5140fb3e1446202fd9af2607b5",
+      "bytes": 12764
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-22-PLAN.md",
+      "sha256": "fe1b86e2bc5b1bdae9be3c2a0bed8213d7e7f6dd93d51346acbb8aa833588a91",
+      "bytes": 14447
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-23-PLAN.md",
+      "sha256": "77d98a1aeddb9d9902c7093fdd1bb7c4d2f461bac797a3724d080de5b5a395dd",
+      "bytes": 15841
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-24-PLAN.md",
+      "sha256": "d868523f6df3bd2ac6b52a780b8425741dcd6e91580ed3bc650ff87ab9107690",
+      "bytes": 14430
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-25-PLAN.md",
+      "sha256": "be7b7480209289e398ef0107c986a6606c33a045fb5baf8d6cab24ae12829039",
+      "bytes": 17207
+    }
+  ]
+}
+

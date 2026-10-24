@@ -1,0 +1,53 @@
+✔ the retained source ledger matches its recorded bytes (1.193ms)
+✔ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: the parse finds a non-trivial set of observation slots (0.094ms)
+✖ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: every slot declares a Status in the allowed grammar (0.616542ms)
+✖ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: every captured slot names at least one Status run ID (0.1195ms)
+✔ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: every captured slot records a producing command (0.129875ms)
+✔ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: each captured Status run ID is corroborated in its slot body (0.061ms)
+✔ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: each pending slot books its obligation instead of claiming a number (0.045375ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 5
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.9995
+
+✖ failing tests:
+
+test at scripts/ci/prohibitions/p12-run-id-provenance.test.mjs:68:3
+✖ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: every slot declares a Status in the allowed grammar (0.616542ms)
+  AssertionError [ERR_ASSERTION]: injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md slot AFTER-FIX-GREEN has Status "captured", which is neither `captured (run <id>)` nor `pending (<reason>)`.
+      at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/prohibitions/p12-run-id-provenance.test.mjs:75:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'captured',
+    expected: /^(captured \((run|runs) [\s\S]+\)|pending \(.+\))$/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at scripts/ci/prohibitions/p12-run-id-provenance.test.mjs:84:3
+✖ injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md: every captured slot names at least one Status run ID (0.1195ms)
+  AssertionError [ERR_ASSERTION]: injected evidence subject test/fixtures/prohibitions/p12-phase236-claim-without-run-id.md slot AFTER-FIX-GREEN cites no run ID in its Status line ("captured"). A claim without a run ID is not evidence.
+      at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/prohibitions/p12-run-id-provenance.test.mjs:92:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

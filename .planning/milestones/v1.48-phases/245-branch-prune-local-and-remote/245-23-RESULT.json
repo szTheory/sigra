@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "245-23",
+  "status": "ready",
+  "outcome": "passed",
+  "captured_at": "2026-10-01T02:10:28Z",
+  "implementation_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+  "preflight": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-PLANNING-PREFLIGHT.json",
+    "status": "ready",
+    "pinned_source_count": 24,
+    "pinned_sources_rechecked": 24,
+    "pinned_source_failures": [],
+    "plan22_fetch_proof": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-22-FETCH-PROOF.json",
+      "status": "passed",
+      "sha256": "b1a444a9094f9f42c159ad317cc987fb6a60f08ae56f969437759126e0ddc489",
+      "production_ref_operations": 0
+    }
+  },
+  "runtime": {
+    "path": "/usr/bin/git",
+    "version": "git version 2.50.1 (Apple Git-155)",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "coordinator": {
+    "status": "verified",
+    "lock": "free",
+    "transaction_leases": 0
+  },
+  "readiness": {
+    "status": "ready",
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+    "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+    "blob_oid": "05621c5c0c313848deefe0fd8493648724289a1f",
+    "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193",
+    "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+    "source_count": 9,
+    "immutable_evidence_count": 8,
+    "predicate_count": 36,
+    "verify": {
+      "valid": true,
+      "status": "ready",
+      "exit_code": 0,
+      "failed_predicates": []
+    }
+  },
+  "phase244": {
+    "verification_status": "passed",
+    "verification_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+    "final_main_run": {
+      "id": 36266022766,
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "main_sha_before": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "main_sha_after": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+    },
+    "pr213_disposition": "deferred_missing_live_candidate_with_measured_drift"
+  },
+  "state_route": {
+    "source": {
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+      "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+      "phase244_status": "complete"
+    },
+    "capture_observations": {
+      "head": {
+        "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+        "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+        "phase244_status": "complete"
+      },
+      "index": {
+        "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+        "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+        "phase244_status": "complete"
+      },
+      "worktree": {
+        "blob_oid": "e279e11c508e62c0f699042737412dd04e04ddb0",
+        "sha256": "d26e00285d5b939e507896551430cd665b14712bc25cc182a3972166f67bdd14",
+        "phase244_status": "complete"
+      }
+    },
+    "verified_current_observations": {
+      "head": {
+        "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+        "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+        "phase244_status": "complete"
+      },
+      "index": {
+        "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+        "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+        "phase244_status": "complete"
+      },
+      "worktree": {
+        "blob_oid": "e279e11c508e62c0f699042737412dd04e04ddb0",
+        "sha256": "d26e00285d5b939e507896551430cd665b14712bc25cc182a3972166f67bdd14",
+        "phase244_status": "complete"
+      }
+    },
+    "changed_since_capture": {
+      "head": false,
+      "index": false,
+      "worktree": false
+    }
+  },
+  "plan19": {
+    "admitted_local_deletions": 1,
+    "readiness_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json",
+    "readiness_commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+    "result_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+    "result_sha256": "20f5083d8a356e056287bc2e54457e48a7cae00cf3b7dee1fbdd9bdb2b037f3e",
+    "deletion_counted_once": true
+  },
+  "plan21": {
+    "status": "halted_superseded",
+    "failed_stage": "task2_d01_readiness_gate",
+    "retry_result_path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-RESULT.json",
+    "production_ref_mutations": 0,
+    "ref_operations_after_failed_gate": 0
+  },
+  "plan22": {
+    "status": "complete",
+    "fetch_proof_path": ".planning/phases/245-branch-prune-local-and-remote/245-22-FETCH-PROOF.json",
+    "fetch_proof_sha256": "b1a444a9094f9f42c159ad317cc987fb6a60f08ae56f969437759126e0ddc489",
+    "production_ref_operations": 0
+  },
+  "preserved_receipts": [
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json",
+      "sha256": "4f89e215f966b89d961409f1dadf56eb095b24a30f798599088eecd808363e78"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+      "sha256": "20f5083d8a356e056287bc2e54457e48a7cae00cf3b7dee1fbdd9bdb2b037f3e"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-EXEC-PREFLIGHT.json",
+      "sha256": "41d720cc2f26521463d93ad96abd416066c74e177adf8562dab0426c16849062"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RESULT.json",
+      "sha256": "700619e0deb178908335dfd32c1b9f9695ab2913c8071524d9a4f3e77b91005a"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-EXEC-PREFLIGHT.json",
+      "sha256": "8d40f3c83df365a9199ba2c2d515bbfebf89da5e61318e6908ad78084ac1df98"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-RESULT.json",
+      "sha256": "f0d7df1f370119a9bb4d7d42a8e3018665b1e3f5036a2c339c570c5f6f6fe6d9"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-SUMMARY.md",
+      "sha256": "3d15fe40bf30a524135b24e80e2b34e461f968414cb22f7e8901754ba7c8fdc5"
+    }
+  ],
+  "production_ref_operations": 0,
+  "prune_ref_operations": 0,
+  "requirements": {
+    "REPO-04": "open"
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved",
+    "missing_pre_phase_baseline": "unknown_unresolved"
+  },
+  "failed_predicates": []
+}

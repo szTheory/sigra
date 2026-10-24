@@ -1,0 +1,9 @@
+test_168_requires_receipt_before_each_automated_body (__main__.SuccessorContractTests.test_168_requires_receipt_before_each_automated_body) ... ok
+test_nested_173_review_requires_original_location_schema_and_findings (__main__.SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings) ... ok
+test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits (__main__.SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits) ... ok
+test_bridge_accepts_exact_five_plan_amendment_fixture (__main__.SuccessorContractTests.test_bridge_accepts_exact_five_plan_amendment_fixture) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 102.711s
+
+OK

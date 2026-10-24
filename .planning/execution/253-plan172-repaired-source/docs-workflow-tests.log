@@ -1,0 +1,8 @@
+Compiling 178 files (.ex)
+Generated sigra app
+Running ExUnit with seed: 372944, max_cases: 36
+Excluding tags: [:upgrade]
+
+....
+Finished in 0.02 seconds (0.02s async, 0.00s sync)
+4 tests, 0 failures

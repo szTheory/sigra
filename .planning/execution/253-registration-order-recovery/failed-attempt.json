@@ -1,0 +1,21 @@
+{
+  "status": "closed_before_browser_setup_encoding_error",
+  "approval": "approval.json",
+  "attempt": "diagnostic-output/result.json",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "github_requests": 0,
+  "old_slots_reopened": 0,
+  "outcome": "No selected test ran; original registration cause remains unknown",
+  "cause": "Prepared initdb used --no-locale without --encoding=UTF8; PostgreSQL selected SQL_ASCII and rejected Ecto UTF8 database creation",
+  "required_local_fix": "Explicit --encoding=UTF8; prove actual cluster/database creation before any further browser diagnostic",
+  "acceptance": false,
+  "window_closed": true,
+  "approval_consumed": true,
+  "files": {
+    "diagnostic-output/result.json": "5ba86c545d12a9a94eec27aef639f7e2cec798df2de90cc4fc3f2e4c13958512",
+    "diagnostic-output/setup.log": "105c171a46f9f6d95b3a6108b63a3c76b131a05a6104598b9ce779d0e5eb16d5",
+    "diagnostic-output/postgres.log": "21dfa9f8f88ad0a0b72e68f8a2bf95c02e51615528df864151d1aaa18b84e46c",
+    "diagnostic-output/initdb.log": "5a36ec34f970b16f9dd0a084cc76300653eba9fd17ae6cfe1274bcd0ac8f775c"
+  }
+}

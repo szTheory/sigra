@@ -1,0 +1,39 @@
+{
+  "status": "pending172_ready_for_normal_execution_with_approval_checkpoint",
+  "init_runnable_count": 1,
+  "init_runnable_plans": [
+    "253-172-PLAN.md"
+  ],
+  "plan172": {
+    "id": "253-172",
+    "wave": 5,
+    "depends_on": [
+      "253-169"
+    ],
+    "autonomous": false,
+    "gap_closure": true,
+    "objective": "Resume normal phase execution using the verified repaired-source bundle. Obtain the one necessary hosted approval, then execute its fresh canary and normal/docs-only PR proof. Preserve every earlier outcome; do not create another numbered repair plan or quick task.",
+    "files_modified": [
+      ".planning/execution/253-proof-bundle-16800f431/live-approval.json",
+      ".planning/execution/253-proof-bundle-16800f431/canary-approval.json",
+      ".planning/execution/253-proof-bundle-16800f431/prs-approval.json",
+      ".planning/execution/253-proof-bundle-16800f431/run-state.json",
+      ".planning/execution/253-proof-bundle-16800f431/attempt-result.json",
+      ".planning/execution/253-proof-bundle-16800f431/canary-evidence.json",
+      ".planning/execution/253-proof-bundle-16800f431/normal-evidence.json",
+      ".planning/execution/253-proof-bundle-16800f431/docs-only-evidence.json",
+      ".planning/execution/253-proof-bundle-16800f431/requirements-result.json"
+    ],
+    "files_deleted": [],
+    "agent_hint": null,
+    "task_count": 2,
+    "has_summary": false,
+    "halted": false,
+    "blocked_by": [],
+    "ready": true
+  },
+  "phase_plan_count": 183,
+  "phase_incomplete_count": 74,
+  "plan171_halted": true,
+  "network_requests": 0
+}

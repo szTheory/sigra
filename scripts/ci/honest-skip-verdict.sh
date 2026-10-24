@@ -2,7 +2,7 @@
 # Phase 231 (GATE-03 / D-01, D-03, D-04): the honest-skip verdict.
 #
 # CONTRACT
-# Given github.event_name, the docs-only classifier's output, and the nine
+# Given github.event_name, the docs-only classifier's output, and the ten
 # ci-gate.needs lane results, decide whether every `skipped` lane was
 # skipped because it was correctly gated for THIS event, or because its
 # gate rotted. A rotted skip FAILS even though ci.yml:1831's own inline
@@ -14,7 +14,7 @@
 # allowlist of ids and gates, no re-derivation of docs-only classification,
 # no copy of MAINTAINING.md's prose. It reads .github/ci-skip-manifest.tsv,
 # whose own header block assigns the enumeration to that file and the
-# consequence to this script. The one fixed set here is the nine
+# consequence to this script. The one fixed set here is the ten
 # ci-gate.needs LANE IDS (ci.yml:1793-1802) -- that list exists only to
 # know which manifest rows are in scope, and it is cross-checked at
 # runtime against the workflow's own `needs:` block below, so a `needs:`
@@ -51,6 +51,7 @@ MANIFEST="${ROOT}/.github/ci-skip-manifest.tsv"
 WORKFLOW="${ROOT}/.github/workflows/ci.yml"
 EVENT="${GITHUB_EVENT_NAME:-}"
 DOCS_ONLY_RAW="${DOCS_ONLY:-}"
+CLASSIFIER_RESULT_RAW="${CLASSIFIER_RESULT:-}"
 FORMAT="table"
 FORCE_ROT_PROBE="${FORCE_ROT_PROBE:-}"
 FROM_JSON=""
@@ -62,6 +63,7 @@ while [[ $# -gt 0 ]]; do
     --workflow) WORKFLOW="$2"; shift 2;;
     --event) EVENT="$2"; shift 2;;
     --docs-only) DOCS_ONLY_RAW="$2"; shift 2;;
+    --classifier-result) CLASSIFIER_RESULT_RAW="$2"; shift 2;;
     --lane) LANE_ARGS+=("$2"); shift 2;;
     --from-json) FROM_JSON="$2"; shift 2;;
     --format) FORMAT="$2"; shift 2;;
@@ -93,7 +95,7 @@ done
 [[ "$EVENT_IS_VALID" == true ]] || fail "unrecognized or empty --event '${EVENT:-<empty>}' (expected one of: ${VALID_EVENTS[*]}); refusing to default -- an unknown event must not silently take the permissive branch"
 
 # ---------------------------------------------------------------------------
-# The fixed nine-element ci-gate.needs lane list (ci.yml:1793-1802), written
+# The fixed ten-element ci-gate.needs lane list (ci.yml:1793-1802), written
 # once here as the sole hard-coded set this script owns. `changes` supplies
 # the docs_only input to the verdict and is deliberately excluded below: it
 # is not itself a gated lane, so it need not appear in this list.
@@ -105,11 +107,25 @@ LANES=(
   install_smoke
   upgrade_smoke
   example_http_smoke
+  example_unit_smoke
   example_playwright_smoke
   generated_admin_playwright_smoke
   fast_checks
 )
 INPUT_PROVIDER_EXCLUSION="changes"
+
+unit_result_path_is_complete() {
+  local block env_count
+  block="$(awk '
+    /^  ci-gate:[[:space:]]*$/ { active=1; next }
+    active && /^  [A-Za-z0-9_.-]+:[[:space:]]*$/ { active=0 }
+    active { print }
+  ' "$WORKFLOW")"
+  env_count="$(grep -Fc 'EXAMPLE_UNIT_SMOKE: ${{ needs.example_unit_smoke.result }}' <<<"$block" || true)"
+  [[ "$env_count" == 2 ]] &&
+    grep -Fq -- '--lane example_unit_smoke="${EXAMPLE_UNIT_SMOKE}"' <<<"$block" &&
+    grep -Eq '^[[:space:]]+EXAMPLE_UNIT_SMOKE[[:space:]]+\\$' <<<"$block"
+}
 
 # Extract the ci-gate job's declared `needs:` ids straight from the workflow
 # text. Terminates the needs: block at the first line that is not a
@@ -171,8 +187,10 @@ manifest_lookup() {
   ' "$MANIFEST"
 }
 
+unit_result_path_is_complete || fail "example_unit_smoke result path missing from ci-gate env, verdict arguments or legacy loop"
+
 # Non-vacuity (D-04): the manifest must yield at least four rows whose id
-# intersects the nine-lane set. The docs-only exemption was removed from
+# intersects the ten-lane set. The docs-only exemption was removed from
 # library_tests_dep_off, leaving upgrade_smoke, install_smoke,
 # example_http_smoke, and example_playwright_smoke.
 MANIFEST_HIT_COUNT=0
@@ -181,7 +199,7 @@ for lane in "${LANES[@]}"; do
   [[ -n "$row" ]] && MANIFEST_HIT_COUNT=$((MANIFEST_HIT_COUNT + 1))
 done
 if [[ "$MANIFEST_HIT_COUNT" -lt 4 ]]; then
-  fail "manifest ${MANIFEST} yielded only ${MANIFEST_HIT_COUNT} row(s) intersecting the nine ci-gate.needs lane ids (expected >= 4: upgrade_smoke, install_smoke, example_http_smoke, example_playwright_smoke) -- the parse broke, this is not a pass"
+  fail "manifest ${MANIFEST} yielded only ${MANIFEST_HIT_COUNT} row(s) intersecting the ten ci-gate.needs lane ids (expected >= 4: upgrade_smoke, install_smoke, example_http_smoke, example_playwright_smoke) -- the parse broke, this is not a pass"
 fi
 
 # ---------------------------------------------------------------------------
@@ -213,11 +231,20 @@ gate_mentions_honest_signal() {
 # ---------------------------------------------------------------------------
 declare -a ALLOWED=()
 DOCS_ONLY_NORMALIZED="false"
+CLASSIFIER_CLAIM_INVALID=false
 if [[ "$EVENT" == "pull_request" ]]; then
   ALLOWED+=("upgrade_smoke")
   if [[ "$DOCS_ONLY_RAW" == "true" ]]; then
-    DOCS_ONLY_NORMALIZED="true"
+    if [[ "$CLASSIFIER_RESULT_RAW" == "success" ]]; then
+      DOCS_ONLY_NORMALIZED="true"
+    else
+      CLASSIFIER_CLAIM_INVALID=true
+      NOTES+=("docs_only=true was supplied without a successful changes classifier (result: ${CLASSIFIER_RESULT_RAW:-<empty>}); treating it as false and failing closed.")
+    fi
   fi
+elif [[ "$DOCS_ONLY_RAW" == "true" ]]; then
+  CLASSIFIER_CLAIM_INVALID=true
+  NOTES+=("docs_only=true was supplied for a non-pull_request event; treating it as false and failing closed.")
 fi
 
 declare -a NOTES=()
@@ -281,6 +308,7 @@ done
 # ---------------------------------------------------------------------------
 VERDICTS_JSON="[]"
 VERDICT_OVERALL="PASS"
+[[ "$CLASSIFIER_CLAIM_INVALID" == true ]] && VERDICT_OVERALL="FAIL"
 declare -a FAIL_LINES=()
 
 for lane in "${LANES[@]}"; do
@@ -352,10 +380,10 @@ NOTES_JSON="$(printf '%s\n' "${NOTES[@]}" | jq -R -s 'split("\n") | map(select(l
 case "$FORMAT" in
   json)
     jq -n \
-      --arg event "$EVENT" --arg docs_only "$DOCS_ONLY_NORMALIZED" \
+      --arg event "$EVENT" --arg docs_only "$DOCS_ONLY_NORMALIZED" --arg classifier_result "$CLASSIFIER_RESULT_RAW" \
       --argjson allowed_skips "$ALLOWED_JSON" --argjson lanes "$VERDICTS_JSON" \
       --argjson notes "$NOTES_JSON" --arg verdict "$VERDICT_OVERALL" \
-      '{event: $event, docs_only: $docs_only, allowed_skips: $allowed_skips,
+      '{event: $event, classifier_result: $classifier_result, docs_only: $docs_only, allowed_skips: $allowed_skips,
         lanes: $lanes, notes: $notes, verdict: $verdict}'
     ;;
   table)

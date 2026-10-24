@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "bash",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/runtime/ci-pr-proof.sh",
+    "--main-preflight",
+    "--freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/pr-freeze.json",
+    "--current-main",
+    "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "--output",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/main-preflight.json",
+    "--repo-root",
+    "/Users/jon/projects/sigra"
+  ],
+  "exit": 0,
+  "stdout": "{\"conflicts\": [], \"current_main\": \"09df342a82e03c3d5d40173c912b70e827f7eadc\", \"moved\": false, \"network_requests\": 0, \"output\": \"/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/main-preflight.json\", \"status\": \"clean\"}\n",
+  "stderr": ""
+}

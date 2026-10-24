@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "packet_id": "250-07-canary-authority-v4",
+  "created_at": "2026-10-10T22:26:43Z",
+  "status": "awaiting_user_decision",
+  "repository": "szTheory/sigra",
+  "source": {
+    "default_branch": "main",
+    "main_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+    "repair": {
+      "pr": 321,
+      "pr_url": "https://github.com/szTheory/sigra/pull/321",
+      "pr_head_sha": "5fc3b2f30528526d9342713d3d04f2eaf489ea6d",
+      "pr_ci_run_id": 38088968210,
+      "pr_ci_conclusion": "success",
+      "merge_commit": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "post_merge_ci_run_id": 38089444484,
+      "post_merge_ci_conclusion": "success",
+      "post_merge_ci_gate_job_id": 114323952266,
+      "post_merge_admin_eval_job_id": 114322689399
+    },
+    "blobs_on_authorized_main": {
+      ".github/workflows/release-receipt-canary.yml": "04b3ad78954f075615b3535cf330bf74c11814a9",
+      ".github/workflows/release-receipt-canary-controller.yml": "56f8f86fa1f2343a40106a743f99f9bbdcb2c2b1",
+      ".github/workflows/release-run-observer.yml": "b8b7ec5c4fecf9ed2f9346ce2a323f85324c6517",
+      "scripts/ci/release-canary.sh": "049a1afc0b65c5b78ed5f90d0cba3d962a42d71c",
+      "scripts/ci/release-canary.test.sh": "6834865de696c4597856481808e656ba5381b1f8",
+      "scripts/ci/release-observer.sh": "157f4853e2afc31d537fd30fc1526c633a8cd33b",
+      "scripts/ci/release-receipt.sh": "6781863befcc7e1da491edd7d08592dfbc694fe6",
+      "test/sigra/planning/phase_248_release_observer_contract_test.exs": "7da186da49ab4013d66b88d050c33e61ccf38601",
+      "test/sigra/planning/phase_250_canary_contract_test.exs": "01a5ef076e4ad3b51f51e44d4004e9208afc69fd"
+    }
+  },
+  "local_verification": {
+    "release_canary_test_cases": 59,
+    "release_canary_self_test": "passed",
+    "release_observer_test_cases": 24,
+    "release_receipt_test_cases": 16,
+    "actionlint": "passed for canary, controller, and observer workflows",
+    "pr_exact_head_ci_run_id": 38088968210,
+    "pr_exact_head_ci_conclusion": "success",
+    "post_merge_main_ci_run_id": 38089444484,
+    "post_merge_main_ci_conclusion": "success",
+    "post_merge_ci_gate_job_id": 114323952266,
+    "post_merge_admin_eval_job_id": 114322689399,
+    "mix_wrapper": "not run locally; exact-head CI and post-merge main CI passed"
+  },
+  "preflight": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
+    "sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
+    "status": "ready",
+    "captured_at": "2026-10-10T22:31:59Z",
+    "target_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+    "actions_enabled": true,
+    "artifact_retention_days": 90,
+    "artifact_retention_maximum_days": 90,
+    "required_retention_days": 30,
+    "default_workflow_permissions": "read",
+    "controller_authority": "actions:write; contents:read",
+    "source_authority": "actions:read; contents:read",
+    "observer_authority": "actions:read; contents:read",
+    "workflows": {
+      "canary": {
+        "id": 380517407,
+        "path": ".github/workflows/release-receipt-canary.yml"
+      },
+      "controller": {
+        "id": 380517406,
+        "path": ".github/workflows/release-receipt-canary-controller.yml"
+      },
+      "observer": {
+        "id": 379162190,
+        "path": ".github/workflows/release-run-observer.yml"
+      }
+    },
+    "credential_values_recorded": false,
+    "dispatch_attempted": false,
+    "compact_payload_bytes": 825,
+    "compact_payload_sha256": "5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89"
+  },
+  "controller": {
+    "workflow_id": 380517406,
+    "path": ".github/workflows/release-receipt-canary-controller.yml",
+    "name": "Release Receipt Canary Controller",
+    "ref": "refs/heads/main",
+    "event": "workflow_dispatch",
+    "inputs": {
+      "preflight_json": "{\"schema_version\":1,\"status\":\"ready\",\"captured_at\":\"2026-10-10T22:31:59Z\",\"repository\":\"szTheory/sigra\",\"default_branch\":\"main\",\"target_sha\":\"1b420936e5135727f4a1b6dfcfd9c3d1ca050a04\",\"actions_enabled\":true,\"artifact_retention_days\":90,\"artifact_retention_maximum_days\":90,\"required_retention_days\":30,\"workflows\":{\"canary\":{\"id\":380517407,\"path\":\".github/workflows/release-receipt-canary.yml\"},\"controller\":{\"id\":380517406,\"path\":\".github/workflows/release-receipt-canary-controller.yml\"},\"observer\":{\"id\":379162190,\"path\":\".github/workflows/release-run-observer.yml\"}},\"default_workflow_permissions\":\"read\",\"controller_authority\":\"actions:write; contents:read\",\"source_authority\":\"actions:read; contents:read\",\"observer_authority\":\"actions:read; contents:read\",\"credential_values_recorded\":false,\"dispatch_attempted\":false}",
+      "preflight_sha256": "5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89"
+    },
+    "timeout_minutes": 35,
+    "permissions": "actions:write; contents:read",
+    "dispatch_attempted": true,
+    "dispatch_http_status": 204,
+    "run_id": 38091955379,
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/38091955379",
+    "run_created_at": "2026-10-10T22:34:49Z",
+    "run_attempt": 1,
+    "run_status_at_lookup": "completed",
+    "watcher_started_at": "2026-10-10T22:35:48Z",
+    "watcher_interval_seconds": 60,
+    "watcher_count": 1,
+    "conclusion": "failure",
+    "completed_at": "2026-10-10T22:39:20Z",
+    "job_id": 114330022988,
+    "job_conclusion": "failure",
+    "failure_reason": "observer_run_exact_identity_or_conclusion_mismatch",
+    "source_failure_run_id": 38091969722,
+    "source_cancellation_run_id": 38092036734,
+    "observer_run_id": 38092165376,
+    "observer_run_conclusion": "failure",
+    "cancellation_receipt_uploaded": false,
+    "receipts_validated": false,
+    "authority_consumed": true,
+    "retry_authorized": false,
+    "proof_artifact": {
+      "id": 11684009530,
+      "name": "release-canary-controller-38091955379-1",
+      "digest": "sha256:b6c470e28ebf5931ed288a977214eb433cf6083bb7f644813c17a43d2bd70f52",
+      "size_bytes": 665,
+      "file_sha256": "0beba757f438bab3199ee3693b5e567b35fe60d3ba550c8d156686e7bf4a9a88",
+      "proof_status": "blocked",
+      "expires_at": "2026-11-09T22:39:15Z"
+    },
+    "failure_source_artifact": {
+      "id": 11684631747,
+      "name": "release-canary-failure-38091969722-1-3bac6a2da566a72f489b64e45b08b745",
+      "digest": "sha256:b933d137e03e6382825b1d90f2201269cab1b6f850ffc660354859c54b625f3d",
+      "receipt_sha256": "5992024878742a638b5ad715b824c62ad6135744277346d45b766baee24ca9dd",
+      "expires_at": "2026-11-09T22:35:19Z"
+    },
+    "observer_failure": {
+      "run_id": 38092165376,
+      "attempt": 1,
+      "workflow_id": 379162190,
+      "event": "workflow_dispatch",
+      "head_branch": "main",
+      "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "conclusion": "failure",
+      "job_id": 114330650788,
+      "failed_step": "Validate source run and write cancellation receipt",
+      "error": "release-observer: FAIL: choose exactly one event source",
+      "cancellation_receipt_uploaded": false
+    },
+    "canary_child_runs": [
+      {
+        "run_id": 38091969722,
+        "attempt": 1,
+        "scenario": "failure",
+        "workflow_id": 380517407,
+        "event": "workflow_dispatch",
+        "head_branch": "main",
+        "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+        "conclusion": "failure",
+        "probe_id": "3bac6a2da566a72f489b64e45b08b745",
+        "receipt_uploaded": true,
+        "job_id": 114330085937
+      },
+      {
+        "run_id": 38092036734,
+        "attempt": 1,
+        "scenario": "cancellation",
+        "workflow_id": 380517407,
+        "event": "workflow_dispatch",
+        "head_branch": "main",
+        "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+        "conclusion": "cancelled",
+        "probe_id": "0093eb759dc7183d3285af94e611131a",
+        "exact_owned_cancellation": true,
+        "receipt_uploaded": false,
+        "job_id": 114330268203
+      }
+    ]
+  },
+  "trusted_workflows": {
+    "canary_source": {
+      "id": 380517407,
+      "path": ".github/workflows/release-receipt-canary.yml",
+      "name": "Release Receipt Canary",
+      "event": "workflow_dispatch",
+      "permissions": "actions:read; contents:read",
+      "run_name_pattern": "release-receipt-canary-${scenario}-${probe_id}"
+    },
+    "observer": {
+      "id": 379162190,
+      "path": ".github/workflows/release-run-observer.yml",
+      "name": "Release Run Observer",
+      "supported_triggers": [
+        "workflow_run",
+        "workflow_dispatch"
+      ],
+      "authorized_trigger": "workflow_dispatch with inputs[source_run_id] equal to the controller-owned canceled canary run ID",
+      "permissions": "actions:read; contents:read",
+      "run_name_pattern": "release-observer-${source_run_id}-${observer_run_id}-${attempt}"
+    }
+  },
+  "bounded_action": {
+    "controller_dispatches": 1,
+    "controlled_failure_source_runs": 1,
+    "exact_owned_cancellation_source_runs": 1,
+    "observer_workflow_dispatches": 1,
+    "observer_source_run_id": "Exact ID of this controller-owned canceled canary child only.",
+    "cancellation_scope": "Cancel only the exact waiting canary source run dispatched by this controller after matching workflow ID/path/name, workflow_dispatch event, refs/heads/main, authorized current-main SHA, attempt, unique probe ID and dynamic run name/title, and waiting status. Never cancel the controller, a production release, or any other run.",
+    "observer_scope": "After validating the exact canceled source child, dispatch the read-only observer once with source_run_id set to that exact child ID. The observer independently queries authoritative Actions metadata and writes a receipt only for that exact canceled canary source. The controller correlates exactly one observer workflow_dispatch run and validates its workflow identity, conclusion, artifact identity, digest, and receipt linkage.",
+    "additional_controller_retry_authorized": false,
+    "additional_observer_retry_authorized": false,
+    "maximum_duration_minutes": 35,
+    "observer_lookup_window_minutes": 10,
+    "artifact_name_patterns": [
+      "release-canary-failure-<source-run-id>-<attempt>-<probe-id>",
+      "release-canary-cancellation-<cancelled-source-run-id>-<observer-run-attempt>"
+    ],
+    "controller_artifact_pattern": "release-canary-controller-<controller-run-id>-<attempt>",
+    "retrieval_validation_command": "bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+    "live_main_guard": "Immediately before dispatch, current main must still equal 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; if not, stop and prepare a new packet and decision.",
+    "no_publish_boundary": "No Release Please or production publish workflow/job, Hex credential or publishing environment, tag creation, PR merge, or non-canary cancellation. The one explicitly dispatched observer is read-only."
+  },
+  "approval": {
+    "required": true,
+    "approved": true,
+    "approved_at": "2026-10-10T22:31:25Z",
+    "approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+    "user_reply_verbatim": "yes i authorize u to do that work",
+    "scope": "Exactly one no-publish controller workflow 380517406 workflow_dispatch on refs/heads/main at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04, using the exact digest-bound fresh preflight; one controlled failure canary; cancellation only of its exact self-owned waiting canary child; then exactly one read-only observer workflow_dispatch (workflow 379162190) with source_run_id set to that canceled child; maximum 35 minutes; no retry, no release, no publish. Immediately before dispatch, verify live main still equals 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04."
+  },
+  "decision": {
+    "question": "Authorize this bounded run: one no-publish controller workflow 380517406 dispatch on main at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04, with one controlled failure canary, cancellation only of its exact self-owned waiting canary child, and one read-only observer dispatch for that exact canceled child; maximum 35 minutes and no retries? The committed packet includes a fresh read-only preflight; I will verify main still equals this SHA immediately before dispatch.",
+    "options": [
+      {
+        "id": "authorize",
+        "meaning": "Authorize exactly the one controller, failure canary, exact owned cancellation, and observer dispatch described in this packet."
+      },
+      {
+        "id": "decline",
+        "meaning": "Keep AUTO-02 blocked; do not dispatch or cancel any run."
+      }
+    ],
+    "status": "consumed_failed_observer_input_conflict",
+    "dispatch_attempted": true,
+    "canary_child_dispatch_attempted": false,
+    "cancellation_attempted": false,
+    "observer_dispatch_attempted": false,
+    "credential_values_recorded": false,
+    "silence_is_approval": false,
+    "retry_authorized": false,
+    "user_reply_verbatim": "yes i authorize u to do that work",
+    "dispatch_intent_recorded": true,
+    "dispatch_intent_recorded_at": "2026-10-10T22:33:37Z",
+    "dispatch_request_sha256": "b03c35c3203706679bdac9cbc1e72c74a7ac5cf826718b40b1a5a869d99738e1",
+    "dispatch_requested_ref": "main",
+    "dispatch_request_workflow_id": 380517406,
+    "dispatch_attempted_at": "2026-10-10T22:34:49Z",
+    "dispatch_http_status": 204,
+    "dispatch_result": "accepted; exact run ID lookup pending",
+    "controller_run_id": 38091955379,
+    "controller_run_url": "https://github.com/szTheory/sigra/actions/runs/38091955379",
+    "controller_run_number": 5,
+    "controller_run_attempt": 1,
+    "controller_run_created_at": "2026-10-10T22:34:49Z",
+    "controller_run_identity": {
+      "workflow_id": 380517406,
+      "workflow_path": ".github/workflows/release-receipt-canary-controller.yml",
+      "event": "workflow_dispatch",
+      "head_branch": "main",
+      "head_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "display_title": "release-receipt-canary-controller-38091955379-1",
+      "status": "in_progress"
+    },
+    "authority_consumed": true,
+    "controller_conclusion": "failure",
+    "failure_reason": "observer_run_exact_identity_or_conclusion_mismatch",
+    "source_failure_run_id": 38091969722,
+    "source_cancellation_run_id": 38092036734,
+    "observer_run_id": 38092165376,
+    "failure_observer_error": "release-observer: FAIL: choose exactly one event source"
+  },
+  "post_approval_preflight_refresh": {
+    "allowed_without_new_decision": true,
+    "condition": "If captured_at would be more than 900 seconds old at dispatch, refresh read-only preflight only if live main still exactly equals 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04.",
+    "fields_that_may_change": [
+      "preflight.captured_at",
+      "controller.inputs.preflight_json",
+      "controller.inputs.preflight_sha256",
+      "preflight.compact_payload_bytes",
+      "preflight.compact_payload_sha256"
+    ],
+    "fields_that_must_remain_identical": "Repository/main SHA, all workflow IDs/paths, actions enabled state, artifact retention, permission metadata, and all nine source/helper blob IDs.",
+    "on_any_other_drift": "Stop before dispatch; construct and request approval for a new packet bound to the changed tuple.",
+    "executed_at": "2026-10-10T22:31:59Z",
+    "previous_preflight_sha256": "c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e",
+    "refreshed_preflight_sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
+    "result": "same-source preflight refreshed; one authorized controller attempt consumed; observer dispatched but failed before cancellation receipt upload",
+    "trigger": "User-authorized pre-dispatch read-only refresh.",
+    "latest_controller_run_id": 38091955379
+  },
+  "prior_authority_history": {
+    "packet_v3": {
+      "packet_sha256": "c4e909c889d63ffe359a741a6194e8c5ace6738120e693be2d7c3e48157e2ab7",
+      "preserved_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-consumed.json",
+      "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+      "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+      "controller_run_id": 38087516844,
+      "controller_conclusion": "failure",
+      "failure_reason": "exact_cancellation_observer_run_was_not_found",
+      "failure_receipt_run_id": 38087529909,
+      "canceled_canary_run_id": 38087599521,
+      "observer_run_found": false,
+      "authority_consumed": true,
+      "retry_authorized": false
+    },
+    "packet_v2": {
+      "source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+      "packet_sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
+      "controller_run_id": 38083752867,
+      "child_run_id": 38083779742,
+      "result": "failed_dynamic_run_name_identity",
+      "authority_consumed": true
+    },
+    "packet_v1": {
+      "source_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+      "payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+      "status": "superseded_before_dispatch"
+    },
+    "latest_user_reply_applies_to_packet_v4": true
+  },
+  "separate_automation_observation": {
+    "release_please_run_id": 38089444492,
+    "conclusion": "failure",
+    "publish_to_hex_job": "skipped",
+    "verify_ci_green_job": "skipped",
+    "release_pr": 302,
+    "release_pr_head_after_run": "4015070bca0be1411a5cfb27faed53a0413a088b",
+    "failed_step": "post-push candidate identity assertion after the generated index was pushed; current PR metadata reports the writer SHA as head",
+    "affects_main_source_sha": false
+  }
+}

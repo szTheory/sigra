@@ -1,0 +1,81 @@
+{
+  "schema": "sigra.phase253.plan168-prerequisite-correction/v1",
+  "status": "passed_local_maintenance",
+  "timestamp": "2026-10-21T14:55:41.145830+00:00",
+  "implementation_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0",
+  "prior_phase_state_commit": "e87b56fe32466749aedaf1ac8b47735a54cbf030",
+  "prior_shared_state_commit": "697c0a1da3879e1b1adc141e1b89d04020c9f2d0",
+  "preservation": [
+    {
+      "ref": "refs/gsd/phase253-quick-261021-ezk-path-diagnostics",
+      "commit": "066e84f9a81bd532f7a30b4b47a56e38432deabe",
+      "sha256": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py": "897738c7e2c7fff0889b8f4e3a3112e4e771c249e2090ab3b9d9b9519aa9e3a9",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.test.py": "6ced7c5723e656a071dc13fc234b56598ed37026bfab2e79e5343782ec92cb89",
+        ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CONSUMER-TESTS.log": "b6a137026fa688af44c350483214a7f581953c9d0aac9395e94b6214a3015981",
+        ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/GREEN.log": "02d4d6e6af1b1d413def3732c0f504328cafb9425bf7c5cfaea2fe6fa824cbcf",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md": "9ffdc1d58cd02840a6b25e724f85d3abaf69e64e74e30dd733cb99faba3394f1"
+      }
+    },
+    {
+      "ref": "refs/gsd/phase253-quick-261021-ezk-state-row",
+      "commit": "23f50c75e857d092658ac37a37cb94e43fc95a51",
+      "sha256": {
+        ".planning/STATE.md": "c65d3e0f5d7c906d6950b77c6097138da3cc288c44b535f5cc23d78737df379d"
+      }
+    }
+  ],
+  "baseline_failure": {
+    "path": ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/RED.log",
+    "errors": 2,
+    "cause": "require completed 174"
+  },
+  "tests": {
+    "independent": 5,
+    "consumer": 2,
+    "status": "passed",
+    "logs": [
+      ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/GREEN.log",
+      ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CONSUMER-TESTS-02.log"
+    ]
+  },
+  "receipt_check": {
+    "acceptance_reruns": 0,
+    "consumer": "168-v3",
+    "correction_base": "e87b56fe32466749aedaf1ac8b47735a54cbf030",
+    "count": 90,
+    "github_requests": 0,
+    "historical_plan180_unchanged": true,
+    "phase_verification_status": "not_started",
+    "protected_phase_files": 1035,
+    "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+    "status": "verified"
+  },
+  "changed_existing_phase_files": [
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md"
+  ],
+  "protected_other_phase_files": 1035,
+  "phase_counts": {
+    "plans": 183,
+    "complete": 77,
+    "halted": 28,
+    "without_summary": 78
+  },
+  "phase_verification_status": "not_started",
+  "requirements_completed": [],
+  "acceptance_reruns": 0,
+  "ci_launches": 0,
+  "budgets_renewed": false,
+  "next_command": "$gsd-progress",
+  "remaining_work": "Plan168 actual guards and tasks, remaining hosted required-gate cases and selected CI failure reproduction remain unperformed; this task executes none of them.",
+  "source_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md": "9ffdc1d58cd02840a6b25e724f85d3abaf69e64e74e30dd733cb99faba3394f1",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-prerequisites.test.py": "ed3046ff72ddf24b2c5d8468516b7488b8f63d52d214953ca724a10360f5ea9a",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py": "5396c2704fbcc1f5ad08b613db9556e9ed26508a5174999e7bf01974524c6798",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.test.py": "045dbb09930622eccf90599072061efcaf2c7559d15abb1024dcb71c186498a0"
+  },
+  "warnings": [
+    "Existing Plan168 non-final pipeline status warning retained; automated bodies preserved."
+  ],
+  "capture_note": "Working tree was clean before quick initialization; CAPTURE status includes the newly created quick plan, not pre-existing work."
+}

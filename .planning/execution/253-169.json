@@ -1,0 +1,31 @@
+{
+  "schema": "sigra.phase253.local-execution/v1",
+  "plan": "253-169",
+  "status": "complete",
+  "source_commit": "71400f62af3fe292507e18c1529aa73cc0463769",
+  "summary_sha256": "72f544a38fecdf27ed139728411443181b882608435e31881b520f83e546436e",
+  "source_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs": "a78d7b807a18278adfd8f249bf9942b3669af0d409ce2e558635179c108cd3ef",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs": "35c43123f6fcf5e999721cf30ac453734b7de1c47973699109f95fcd1ef2aee0"
+  },
+  "contract_sha256": "fa01dba2cdc18dcd3ad3f35e2b80dd6f8d112d2ee69959e9e56d0a80e203e3ad",
+  "freeze_sha256": "2a9b2415e4c9545252817ec3b299a66b76247ef4774b087be97faa4e0a578629",
+  "evidence_ref": "refs/gsd/phase253-169-local-execution",
+  "evidence_commit": "46f83470edb7e19ad47a139eb1315dae1d304e32",
+  "verification_sha256": {
+    "1": "196014b2f9e825795e81a3127f91a21404d1cd94b9b4595a7a01918c000f8156",
+    "2": "88a296d314e2ceaec828de92501b46dd3e732155137788a9d581cd53ba185336",
+    "3": "4b3f3735f7a4c0430192875a2d813059bc448c8a5a79997db061fad17134cfb0"
+  },
+  "github_requests": 0,
+  "acceptance179_reruns": 0,
+  "requirements_completed": [],
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 6",
+  "next_command_requires": "Explicit user approval of the frozen canary action list and removal of the current no-CI restriction",
+  "preserved_development_refs": [
+    "refs/gsd/phase253-169-development-01",
+    "refs/gsd/phase253-169-development-02",
+    "refs/gsd/phase253-169-full01"
+  ]
+}

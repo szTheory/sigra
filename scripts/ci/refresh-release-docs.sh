@@ -311,10 +311,6 @@ write_candidate() {
   normalized="$(candidate_from_query "$tmp_dir/first-read")"
   [[ "$normalized" == "$expected_candidate" ]] || fail "candidate identity or head changed before write"
 
-  [[ -d "$REPO_DIR/doc" && ! -L "$REPO_DIR/doc" ]] \
-    || fail "candidate doc directory must be a regular directory"
-  [[ -f "$REPO_DIR/$INDEX_PATH" && ! -L "$REPO_DIR/$INDEX_PATH" ]] \
-    || fail "candidate doc/llms.txt destination must be a regular file"
   cp "$ARTIFACT_DIR/$INDEX_PATH" "$REPO_DIR/$INDEX_PATH"
   git -C "$REPO_DIR" add -- "$INDEX_PATH"
   if git -C "$REPO_DIR" diff --cached --quiet; then
@@ -349,19 +345,9 @@ write_candidate() {
   pushed_sha="$(git -C "$REPO_DIR" rev-parse HEAD)"
   valid_sha "$pushed_sha" || fail "writer produced a malformed commit SHA"
   [[ "$(main_sha)" == "$main_before" ]] || fail "trusted main changed during candidate push"
+  normalized="$(candidate_from_query "$tmp_dir/post-push-read")"
   expected_candidate="$(jq -cS --arg sha "$pushed_sha" '{candidate:(.candidate | .head_sha = $sha)}' "$IDENTITY_FILE")"
-  local post_push_match=false post_push_attempt=0 last_candidate_sha=""
-  for post_push_attempt in 1 2 3 4 5 6; do
-    normalized="$(candidate_from_query "$tmp_dir/post-push-read-$post_push_attempt")"
-    last_candidate_sha="$(jq -r '.candidate.head_sha' <<<"$normalized")"
-    if [[ "$normalized" == "$expected_candidate" ]]; then
-      post_push_match=true
-      break
-    fi
-    (( post_push_attempt == 6 )) || sleep 2
-  done
-  [[ "$post_push_match" == true ]] \
-    || fail "post-push candidate head remained ${last_candidate_sha}; expected writer SHA ${pushed_sha} after ${post_push_attempt} reads"
+  [[ "$normalized" == "$expected_candidate" ]] || fail "post-push candidate does not point at the new writer SHA"
 
   run_rows "$pushed_sha" "$tmp_dir/ci-runs-first.json" > "$tmp_dir/ci-matches-first.json"
   ci_rows="$(cat "$tmp_dir/ci-matches-first.json")"

@@ -1,0 +1,227 @@
+{
+  "config": {
+    "configFile": "/Users/jon/projects/sigra/test/example/priv/playwright/playwright.registration-recovery.config.ts",
+    "rootDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-bxA2De/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-bxA2De/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-bxA2De/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-bxA2De/playwright-report.json"
+        }
+      ],
+      [
+        "/Users/jon/projects/sigra/test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+        {
+          "outputFile": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-bxA2De/tests.jsonl"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "admin-eval.spec.ts",
+      "file": "admin-eval.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "registration starts from a fresh database and context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr5-dark-second-a0139dc5-5aff-43a5-a947-25f3dff77856:99cd0809-8e97-4203-b3c4-6c6d5b19b456"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"prior_collision_account_email_sha256\":\"32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d\",\"fresh_database_account_created\":true}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-dark",
+              "projectName": "admin-eval-dark",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1792,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T21:30:50.199Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr5-dark-second-a0139dc5-5aff-43a5-a947-25f3dff77856:99cd0809-8e97-4203-b3c4-6c6d5b19b456"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"prior_collision_account_email_sha256\":\"32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d\",\"fresh_database_account_created\":true}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-9d9e687d4106873cc936",
+          "file": "admin-eval.spec.ts",
+          "line": 439,
+          "column": 7
+        },
+        {
+          "title": "registration discards trace after a passing control",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr5-dark-second-a0139dc5-5aff-43a5-a947-25f3dff77856:2272dd38-a259-43fe-ab7e-a28993f60647"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"passing_registration\":true,\"trace_expected\":false}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "admin-eval-dark",
+              "projectName": "admin-eval-dark",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1655,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-14T21:30:52.148Z",
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr5-dark-second-a0139dc5-5aff-43a5-a947-25f3dff77856:2272dd38-a259-43fe-ab7e-a28993f60647"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"passing_registration\":true,\"trace_expected\":false}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bba98cccf2fadfb15da7-7f5a8108f2a0b02bcc6d",
+          "file": "admin-eval.spec.ts",
+          "line": 451,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-14T21:30:49.917Z",
+    "duration": 3928.8020000000006,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

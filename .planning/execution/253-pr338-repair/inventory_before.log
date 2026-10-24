@@ -1,0 +1,17 @@
+Running ExUnit with seed: 597219, max_cases: 36
+Excluding tags: [:upgrade]
+
+....
+
+  1) test admin_behavior explicitly owns both useful orphan specs on retry-zero chromium (Sigra.Planning.Phase234PlaywrightInventoryContractTest)
+     test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:27
+     admin_behavior must name tests/admin-theme.spec.ts exactly once
+     code: for spec <- ["admin-theme.spec.ts", "admin-coherence-sweep.spec.ts"] do
+     stacktrace:
+       test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:34: anonymous fn/3 in Sigra.Planning.Phase234PlaywrightInventoryContractTest."test admin_behavior explicitly owns both useful orphan specs on retry-zero chromium"/1
+       (elixir 1.19.5) lib/enum.ex:2520: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:33: (test)
+
+.
+Finished in 0.08 seconds (0.08s async, 0.00s sync)
+6 tests, 1 failure

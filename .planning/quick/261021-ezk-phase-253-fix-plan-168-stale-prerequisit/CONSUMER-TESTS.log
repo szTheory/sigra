@@ -1,0 +1,43 @@
+test_mutated_plan_receipt_and_history_are_rejected (__main__.ConsumerTests.test_mutated_plan_receipt_and_history_are_rejected) ... ERROR
+test_scoped_correction_matches_current (__main__.ConsumerTests.test_scoped_correction_matches_current) ... ERROR
+
+======================================================================
+ERROR: test_mutated_plan_receipt_and_history_are_rejected (__main__.ConsumerTests.test_mutated_plan_receipt_and_history_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.test.py", line 31, in test_mutated_plan_receipt_and_history_are_rejected
+    v3.validate_current(root)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py", line 50, in validate_current
+    if rel != PLAN and (root / rel).read_bytes() != git(root, 'show', BASE + ':' + rel):
+                       ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra168-mutations-pskte1gg/".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json.raw/R-DIAG-DESKTOP/attempt-01/playwright-output/admin-eval-Admin-eval-\\342\\200\\224-re-169bf-bundle-board-mg-9-populated-admin-eval/error-context.md"'
+
+======================================================================
+ERROR: test_scoped_correction_matches_current (__main__.ConsumerTests.test_scoped_correction_matches_current)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.test.py", line 17, in test_scoped_correction_matches_current
+    original, count = v3.validate_current(ROOT)
+                      ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py", line 50, in validate_current
+    if rel != PLAN and (root / rel).read_bytes() != git(root, 'show', BASE + ':' + rel):
+                       ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jon/projects/sigra/".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json.raw/R-DIAG-DESKTOP/attempt-01/playwright-output/admin-eval-Admin-eval-\\342\\200\\224-re-169bf-bundle-board-mg-9-populated-admin-eval/error-context.md"'
+
+----------------------------------------------------------------------
+Ran 2 tests in 18.089s
+
+FAILED (errors=2)
