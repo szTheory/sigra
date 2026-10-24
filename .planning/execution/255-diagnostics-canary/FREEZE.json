@@ -649,9 +649,19 @@
         "request": true,
         "scenario": null,
         "test_retry": false
+      },
+      {
+        "at": "2026-10-24T19:10:15+00:00",
+        "infrastructure_retry": false,
+        "invocation": false,
+        "operation": "failure-run-logs-url:run=40123954650",
+        "push": false,
+        "request": true,
+        "scenario": null,
+        "test_retry": false
       }
     ],
-    "controller_requests": 25,
+    "controller_requests": 26,
     "elapsed_started_at": 1792867909.20091,
     "infrastructure_retries": 0,
     "invocations": 2,
