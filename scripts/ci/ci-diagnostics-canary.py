@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
+import fcntl
 import hashlib
 import json
 import os
@@ -126,6 +128,20 @@ def atomic_json(path: pathlib.Path, value: dict) -> None:
             os.close(directory_fd)
     finally:
         pathlib.Path(name).unlink(missing_ok=True)
+
+
+@contextmanager
+def freeze_lock(freeze_path: pathlib.Path):
+    """Lock all read/modify/write changes to one frozen budget record."""
+    lock_path = pathlib.Path(freeze_path).with_name(f".{pathlib.Path(freeze_path).name}.lock")
+    flags = os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(lock_path, flags, 0o600)
+    with os.fdopen(descriptor, "r") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 def write_manifest(invocation_root: pathlib.Path, output: pathlib.Path, identity: dict,
@@ -333,55 +349,57 @@ def charge_request(freeze_path: pathlib.Path, operation: str, *, invocation: boo
                    test_retry: bool = False, scenario: str | None = None,
                    now_epoch: float | None = None) -> dict:
     """Persist the charge before the corresponding network operation starts."""
-    data = load_freeze(freeze_path)
-    usage, limits = data["usage"], data["limits"]
-    now_epoch = time.time() if now_epoch is None else now_epoch
-    if usage["controller_requests"] >= limits["max_controller_requests"]:
-        raise CanaryError("controller_request_budget_exhausted")
-    if invocation and usage["invocations"] >= limits["max_invocations"]:
-        raise CanaryError("fixture_invocation_budget_exhausted")
-    if infrastructure_retry and usage["infrastructure_retries"] >= limits["max_infrastructure_retries"]:
-        raise CanaryError("infrastructure_retry_budget_exhausted")
-    if test_retry and usage["test_retries"] >= limits["max_test_retries"]:
-        raise CanaryError("test_retry_budget_exhausted")
-    if push and usage["pushes"] >= limits["max_pushes"]:
-        raise CanaryError("push_budget_exhausted")
-    if usage["elapsed_started_at"] is None:
-        usage["elapsed_started_at"] = now_epoch
-        data["deadline"] = datetime.fromtimestamp(now_epoch + limits["max_elapsed_seconds"], timezone.utc).isoformat(timespec="seconds")
-    if now_epoch - float(usage["elapsed_started_at"]) >= limits["max_elapsed_seconds"]:
-        raise CanaryError("elapsed_time_budget_exhausted")
-    charge = {"operation": operation, "at": utc_now(), "request": True,
-              "invocation": invocation, "infrastructure_retry": infrastructure_retry,
-              "push": push, "test_retry": test_retry, "scenario": scenario}
-    usage["controller_requests"] += 1
-    if invocation:
-        usage["invocations"] += 1
-    if infrastructure_retry:
-        usage["infrastructure_retries"] += 1
-    if push:
-        usage["pushes"] += 1
-    if test_retry:
-        usage["test_retries"] += 1
-    usage["charges"].append(charge)
-    atomic_json(freeze_path, data)
+    with freeze_lock(freeze_path):
+        data = load_freeze(freeze_path)
+        usage, limits = data["usage"], data["limits"]
+        now_epoch = time.time() if now_epoch is None else now_epoch
+        if usage["controller_requests"] >= limits["max_controller_requests"]:
+            raise CanaryError("controller_request_budget_exhausted")
+        if invocation and usage["invocations"] >= limits["max_invocations"]:
+            raise CanaryError("fixture_invocation_budget_exhausted")
+        if infrastructure_retry and usage["infrastructure_retries"] >= limits["max_infrastructure_retries"]:
+            raise CanaryError("infrastructure_retry_budget_exhausted")
+        if test_retry and usage["test_retries"] >= limits["max_test_retries"]:
+            raise CanaryError("test_retry_budget_exhausted")
+        if push and usage["pushes"] >= limits["max_pushes"]:
+            raise CanaryError("push_budget_exhausted")
+        if usage["elapsed_started_at"] is None:
+            usage["elapsed_started_at"] = now_epoch
+            data["deadline"] = datetime.fromtimestamp(now_epoch + limits["max_elapsed_seconds"], timezone.utc).isoformat(timespec="seconds")
+        if now_epoch - float(usage["elapsed_started_at"]) >= limits["max_elapsed_seconds"]:
+            raise CanaryError("elapsed_time_budget_exhausted")
+        charge = {"operation": operation, "at": utc_now(), "request": True,
+                  "invocation": invocation, "infrastructure_retry": infrastructure_retry,
+                  "push": push, "test_retry": test_retry, "scenario": scenario}
+        usage["controller_requests"] += 1
+        if invocation:
+            usage["invocations"] += 1
+        if infrastructure_retry:
+            usage["infrastructure_retries"] += 1
+        if push:
+            usage["pushes"] += 1
+        if test_retry:
+            usage["test_retries"] += 1
+        usage["charges"].append(charge)
+        atomic_json(freeze_path, data)
     return charge
 
 
 def record_rate_observation(freeze_path: pathlib.Path, operation: str, receipt: dict,
                             remaining: int | None, raw_body: str | None = None) -> dict:
     """Retain the exact, non-secret rate response after its request was precharged."""
-    data = load_freeze(freeze_path)
-    charges = data["usage"]["charges"]
-    match = next((item for item in reversed(charges) if item.get("operation") == operation
-                  and item.get("response") is None), None)
-    if match is None:
-        raise CanaryError("rate_response_without_precharge")
-    match["response"] = receipt
-    match["raw_receipt"] = raw_body
-    match["response_remaining_header"] = remaining
-    match["response_observed_at"] = utc_now()
-    atomic_json(freeze_path, data)
+    with freeze_lock(freeze_path):
+        data = load_freeze(freeze_path)
+        charges = data["usage"]["charges"]
+        match = next((item for item in reversed(charges) if item.get("operation") == operation
+                      and item.get("response") is None), None)
+        if match is None:
+            raise CanaryError("rate_response_without_precharge")
+        match["response"] = receipt
+        match["raw_receipt"] = raw_body
+        match["response_remaining_header"] = remaining
+        match["response_observed_at"] = utc_now()
+        atomic_json(freeze_path, data)
     return match
 
 

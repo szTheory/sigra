@@ -8,8 +8,10 @@ import re
 import importlib.util
 import hashlib
 import json
+import multiprocessing
 import subprocess
 import tempfile
+import time
 import unittest
 
 
@@ -18,6 +20,33 @@ SPEC = importlib.util.spec_from_file_location("ci_diagnostics_canary", ROOT / "s
 CANARY = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
 SPEC.loader.exec_module(CANARY)
+
+
+def _reserve_budget_in_process(path, start, results):
+    start.wait(timeout=10)
+    try:
+        CANARY.charge_request(pathlib.Path(path), "concurrent-reservation", invocation=True)
+        results.put(("reserved", None))
+    except CANARY.CanaryError as error:
+        results.put(("rejected", str(error)))
+
+
+def _record_rate_in_process(path, start, results):
+    start.wait(timeout=10)
+    try:
+        CANARY.record_rate_observation(pathlib.Path(path), "GET:/rate_limit", {"resources": {}}, 999, "{}")
+        results.put(("rate", None))
+    except CANARY.CanaryError as error:
+        results.put(("error", str(error)))
+
+
+def _charge_after_rate_in_process(path, start, results):
+    start.wait(timeout=10)
+    try:
+        CANARY.charge_request(pathlib.Path(path), "concurrent-after-rate")
+        results.put(("charged", None))
+    except CANARY.CanaryError as error:
+        results.put(("error", str(error)))
 
 
 class CanaryContractTests(unittest.TestCase):
@@ -138,6 +167,91 @@ class CanaryContractTests(unittest.TestCase):
             self.assertEqual(charged["usage"]["invocations"], 4)
             with self.assertRaisesRegex(CANARY.CanaryError, "controller_request_budget_exhausted"):
                 CANARY.charge_request(path, "must-not-run", now_epoch=1002)
+
+    def test_concurrent_processes_reserve_only_the_remaining_budget(self):
+        context = multiprocessing.get_context("fork")
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "FREEZE.json"
+            freeze = {"schema_version": CANARY.SCHEMA, "limits": dict(CANARY.HARD_LIMITS),
+                "usage": {"invocations": CANARY.HARD_LIMITS["max_invocations"] - 1,
+                    "controller_requests": CANARY.HARD_LIMITS["max_controller_requests"] - 1,
+                    "pushes": 0, "infrastructure_retries": 0, "test_retries": 0,
+                    "elapsed_started_at": time.time(), "charges": []}}
+            CANARY.atomic_json(path, freeze)
+            original_load = CANARY.load_freeze
+
+            def delayed_load(freeze_path):
+                data = original_load(freeze_path)
+                time.sleep(0.1)
+                return data
+
+            CANARY.load_freeze = delayed_load
+            start = context.Barrier(8)
+            results = context.Queue()
+            processes = [context.Process(target=_reserve_budget_in_process,
+                args=(str(path), start, results)) for _ in range(8)]
+            try:
+                for process in processes:
+                    process.start()
+                for process in processes:
+                    process.join(timeout=10)
+                    self.assertFalse(process.is_alive(), "reservation process did not finish")
+                    self.assertEqual(0, process.exitcode)
+                outcomes = [results.get(timeout=2) for _ in processes]
+            finally:
+                CANARY.load_freeze = original_load
+                for process in processes:
+                    if process.is_alive():
+                        process.terminate()
+                        process.join(timeout=2)
+            self.assertEqual(1, sum(outcome[0] == "reserved" for outcome in outcomes), outcomes)
+            self.assertEqual(7, sum(outcome == ("rejected", "controller_request_budget_exhausted")
+                                    for outcome in outcomes), outcomes)
+            usage = json.loads(path.read_text())["usage"]
+            self.assertEqual(CANARY.HARD_LIMITS["max_controller_requests"], usage["controller_requests"])
+            self.assertEqual(CANARY.HARD_LIMITS["max_invocations"], usage["invocations"])
+
+    def test_rate_response_write_cannot_overwrite_a_concurrent_reservation(self):
+        context = multiprocessing.get_context("fork")
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "FREEZE.json"
+            CANARY.atomic_json(path, {"schema_version": CANARY.SCHEMA, "limits": dict(CANARY.HARD_LIMITS),
+                "usage": {"invocations": 0, "controller_requests": 1, "pushes": 0,
+                    "infrastructure_retries": 0, "test_retries": 0, "elapsed_started_at": time.time(),
+                    "charges": [{"operation": "GET:/rate_limit", "request": True, "response": None}]}})
+            original_load = CANARY.load_freeze
+
+            def delayed_load(freeze_path):
+                data = original_load(freeze_path)
+                time.sleep(0.1)
+                return data
+
+            CANARY.load_freeze = delayed_load
+            start = context.Barrier(2)
+            results = context.Queue()
+            processes = [
+                context.Process(target=_record_rate_in_process, args=(str(path), start, results)),
+                context.Process(target=_charge_after_rate_in_process, args=(str(path), start, results)),
+            ]
+            try:
+                for process in processes:
+                    process.start()
+                for process in processes:
+                    process.join(timeout=10)
+                    self.assertFalse(process.is_alive(), "freeze writer process did not finish")
+                    self.assertEqual(0, process.exitcode)
+                outcomes = [results.get(timeout=2) for _ in processes]
+            finally:
+                CANARY.load_freeze = original_load
+                for process in processes:
+                    if process.is_alive():
+                        process.terminate()
+                        process.join(timeout=2)
+            self.assertEqual({"rate", "charged"}, {outcome[0] for outcome in outcomes}, outcomes)
+            usage = json.loads(path.read_text())["usage"]
+            self.assertEqual(2, usage["controller_requests"])
+            self.assertIsNotNone(usage["charges"][0]["response"])
+            self.assertEqual("concurrent-after-rate", usage["charges"][1]["operation"])
 
     def test_rate_observation_is_attached_only_after_a_durable_request_charge(self):
         with tempfile.TemporaryDirectory() as directory:
