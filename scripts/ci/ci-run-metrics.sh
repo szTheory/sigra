@@ -956,7 +956,7 @@ PY
             jq -cn --slurpfile prior "$artifact_manifest" --argjson artifact "$artifact_row_target" --argjson result "$target_extract" '$prior[0] + [{artifact:$artifact,result:$result}]' >"$artifact_manifest.tmp" && mv "$artifact_manifest.tmp" "$artifact_manifest"
             artifact_index=$((artifact_index+1))
             [[ -z "$API_STOP_REASON" ]] || break
-          done < <(jq -c --argjson attempt "$attempts" --argjson attempt_scoped "$COMPARISON_ATTEMPT_SCOPED" '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|measurement-metadata|browser-execution")))] | sort_by(.name,.id) | .[]' "$artifact_meta")
+    done < <(jq -c --argjson attempt "$attempts" --argjson attempt_scoped "$COMPARISON_ATTEMPT_SCOPED" '[.artifacts[]? | select((.name|ascii_downcase|test("timing|playwright|measurement-metadata|browser-execution")) and ((.name|ascii_downcase|startswith("sigra-ci-"))|not))] | sort_by(.name,.id) | .[]' "$artifact_meta")
         else jq -n --arg reason "${API_STOP_REASON:-artifact_metadata_unavailable}" '{status:"unknown",reason:$reason}' >"$artifact_manifest"; fi
         while IFS= read -r producer_meta; do
           [[ -s "$producer_meta" ]] || continue

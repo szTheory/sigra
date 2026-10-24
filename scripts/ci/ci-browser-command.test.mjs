@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { browserInvocations } from './ci-browser-command.mjs';
+import { browserInvocations, preserveNativeDiagnosticReport } from './ci-browser-command.mjs';
 
 const expectedDefinitions = {
   admin_behavior: { specs: ['admin-user-operations', 'impersonation', 'admin-audit', 'admin-theme', 'admin-coherence-sweep',
@@ -45,6 +45,21 @@ test('shared definitions preserve exact CI specs, projects, filters, retry count
   assert.deepEqual(browserInvocations('design_gallery', 'push')[0].invocations.map((entry) => entry.selectionPath), [
     'design-gallery-nonpr-snapshots.selection.json', 'design-gallery-nonpr-behavior.selection.json',
   ]);
+});
+
+test('native diagnostic report is copied to the shared browser report path without reusing stale output', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'sigra-browser-report-copy-'));
+  const native = join(directory, 'native-report.json');
+  const report = join(directory, 'reports', 'seam.json');
+  try {
+    mkdirSync(join(directory, 'reports'));
+    writeFileSync(native, '{"suites":[{"title":"fresh"}]}');
+    preserveNativeDiagnosticReport(native, report);
+    assert.equal(readFileSync(report, 'utf8'), '{"suites":[{"title":"fresh"}]}');
+    writeFileSync(native, '{"suites":[{"title":"next invocation"}]}');
+    preserveNativeDiagnosticReport(native, report);
+    assert.equal(readFileSync(report, 'utf8'), '{"suites":[{"title":"fresh"}]}');
+  } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
 test('the shared demo showcase list command produces the real native selection', () => {

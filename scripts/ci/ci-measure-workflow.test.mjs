@@ -59,8 +59,9 @@ test('missing record, artifact, inventory or native dependency fails source wiri
 });
 
 test('keeps one library mix ci owner and preserves required check names', () => {
-  const owners = Object.entries(blocks).filter(([, block]) => /^\s+run: (?:MIX_ENV=test )?mix ci\s*$/m.test(block));
+  const owners = Object.entries(blocks).filter(([, block]) => /--invocation library-ci -- mix ci/.test(block));
   assert.deepEqual(owners.map(([id]) => id), ['library_tests_shard']);
+  assert.match(owners[0][1], /MIX_ENV:\s*test/);
   assert.match(workflow, /^    name: Library tests\s+#?\s*$/m);
   for (const name of [
     'Library tests',
@@ -112,9 +113,9 @@ test('uploads separate main and dependency-off timing reports from their produci
   assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_JSON: test-results\/ci-exunit-timing-main\.json/);
   assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_INVOCATION: main/);
   assert.match(blocks.library_tests_shard, /SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results\/ci-exunit-timing-threadline-guard\.json/);
-  assert.match(blocks.library_tests_shard, /run: (?:MIX_ENV=test )?mix ci/);
+  assert.match(blocks.library_tests_shard, /--invocation library-ci -- mix ci/);
   const prepareTimingDirectory = blocks.library_tests_shard.indexOf('mkdir -p test-results');
-  const contributorCi = blocks.library_tests_shard.indexOf('run: mix ci');
+  const contributorCi = blocks.library_tests_shard.indexOf('--invocation library-ci -- mix ci');
   assert.notEqual(prepareTimingDirectory, -1, 'library timing directory is not created');
   assert.ok(prepareTimingDirectory < contributorCi, 'timing directory must exist before mix ci writes ExUnit timing');
   assert.match(blocks.library_tests_shard, /if: always\(\)[\s\S]*?ci-exunit-timing-main\.json[\s\S]*?ci-exunit-timing-threadline-guard\.json/);

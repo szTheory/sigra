@@ -16,7 +16,7 @@ test('Playwright JSON output is opt-in beside the existing human-readable report
 
   assert.match(config, /process\.env\.SIGRA_PLAYWRIGHT_JSON/);
   assert.match(config, /\['list'\]/);
-  assert.match(config, /\['html',\s*\{\s*open:\s*'never',\s*outputFolder:\s*'playwright-report\/html'\s*\}\]/);
+  assert.match(config, /\['html',\s*\{\s*open:\s*'never',\s*outputFolder:\s*invocationOutputRoot \? path\.join\(invocationOutputRoot, 'html-report'\) : 'playwright-report\/html'\s*\}\]/);
   assert.match(config, /\['json',\s*\{\s*outputFile:\s*[^}]+\}\]/);
   assert.match(config, /reporters\.push/);
   assert.match(config, /reporter:\s*reporters/);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -90,6 +90,16 @@ function argsFor(entry, mode, outputRoot, grep) {
   return { args, outputPath };
 }
 
+export function preserveNativeDiagnosticReport(nativeReportPath, reportPath) {
+  if (nativeReportPath && !existsSync(reportPath) && existsSync(nativeReportPath)) {
+    if (lstatSync(nativeReportPath).isSymbolicLink()) throw new Error('native Playwright report is a symlink');
+    copyFileSync(nativeReportPath, reportPath, 0x1);
+  }
+  if (!existsSync(reportPath) || lstatSync(reportPath).isSymbolicLink() || !readFileSync(reportPath, 'utf8')) {
+    throw new Error(`missing Playwright report: ${reportPath}`);
+  }
+}
+
 function run(mode, seam, event, outputRoot, grep) {
   if (!['list', 'run'].includes(mode)) throw new Error('usage: ci-browser-command.mjs list|run --seam NAME --event EVENT --output-root DIR [--grep PATTERN]');
   if (!outputRoot) throw new Error('--output-root is required');
@@ -100,7 +110,20 @@ function run(mode, seam, event, outputRoot, grep) {
       const { args, outputPath } = argsFor(entry, mode, absoluteRoot, grep);
       mkdirSync(dirname(outputPath), { recursive: true });
       const env = { ...process.env };
-      if (mode === 'run') env.SIGRA_PLAYWRIGHT_JSON = outputPath;
+      if (mode === 'run') {
+        env.SIGRA_PLAYWRIGHT_JSON = outputPath;
+        if (existsSync(outputPath)) {
+          if (lstatSync(outputPath).isSymbolicLink()) throw new Error('Playwright report target is a symlink');
+          unlinkSync(outputPath);
+        }
+        if (env.SIGRA_CI_DIAGNOSTICS === '1' && env.SIGRA_CI_DIAGNOSTICS_ROOT) {
+          const nativeReportPath = resolve(env.SIGRA_CI_DIAGNOSTICS_ROOT, 'native-report.json');
+          if (existsSync(nativeReportPath)) {
+            if (lstatSync(nativeReportPath).isSymbolicLink()) throw new Error('native Playwright report is a symlink');
+            unlinkSync(nativeReportPath);
+          }
+        }
+      }
       const child = spawnSync(resolve(playwrightDirectory, 'node_modules/.bin/playwright'), ['test', ...args], {
         cwd: playwrightDirectory,
         env,
@@ -128,7 +151,9 @@ function run(mode, seam, event, outputRoot, grep) {
         if (child.stdout) process.stdout.write(child.stdout);
         if (child.stderr) process.stderr.write(child.stderr);
         if (child.status !== 0) return child.status ?? 1;
-        if (!readFileSync(outputPath, 'utf8')) throw new Error(`missing Playwright report: ${outputPath}`);
+        const nativeReportPath = env.SIGRA_CI_DIAGNOSTICS === '1' && env.SIGRA_CI_DIAGNOSTICS_ROOT
+          ? resolve(env.SIGRA_CI_DIAGNOSTICS_ROOT, 'native-report.json') : null;
+        preserveNativeDiagnosticReport(nativeReportPath, outputPath);
       }
     }
   }

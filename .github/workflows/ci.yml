@@ -573,6 +573,8 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Prepare library diagnostics
+        run: mkdir -p "$RUNNER_TEMP/ci-diagnostics/library"
       - name: Capture runner image identity before setup
         run: |
           mkdir -p test-results
@@ -595,11 +597,17 @@ jobs:
       # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
       # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new 1.8.8
+        run: >-
+          python3 -B scripts/ci/ci-command-record.py
+          --cwd "$GITHUB_WORKSPACE" --output-root "$RUNNER_TEMP/ci-diagnostics/library"
+          --invocation archive-install -- mix archive.install --force hex phx_new 1.8.8
       # mix ci checks formatting before its locked dependency check. Keep this
       # fetch for cold cache runs so formatter imports are available first.
       - name: Fetch library deps
-        run: mix deps.get
+        run: >-
+          python3 -B scripts/ci/ci-command-record.py
+          --cwd "$GITHUB_WORKSPACE" --output-root "$RUNNER_TEMP/ci-diagnostics/library"
+          --invocation deps-get -- mix deps.get
       - name: Prepare timing output directory
         run: mkdir -p test-results
       - name: Run contributor CI gate
@@ -612,7 +620,10 @@ jobs:
           SIGRA_EXUNIT_TIMING_INVOCATION: main
           SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results/ci-exunit-timing-threadline-guard.json
         # Local equivalent: run: MIX_ENV=test mix ci (MIX_ENV is set above).
-        run: mix ci
+        run: >-
+          python3 -B scripts/ci/ci-command-record.py
+          --cwd "$GITHUB_WORKSPACE" --output-root "$RUNNER_TEMP/ci-diagnostics/library"
+          --invocation library-ci -- mix ci
       - name: Upload library test timing
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -623,6 +634,38 @@ jobs:
             test-results/ci-exunit-timing-threadline-guard.json
           retention-days: 7
           if-no-files-found: warn
+      - name: Create library-ci-diagnostics invocation manifest
+        id: library-ci-diagnostics
+        if: always()
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/ci-diagnostics/library"
+          python3 -B scripts/ci/ci-diagnostics-canary.py manifest \
+            --invocation-root "$ROOT" --output "$ROOT/manifest.json" \
+            --invocation-id "library-${RUN_ID}-${RUN_ATTEMPT}" --source-sha "$SOURCE_SHA" \
+            --run-id "$RUN_ID" --run-attempt "$RUN_ATTEMPT" \
+            --job-id library_tests_shard --seam library_ci \
+            --file archive-install/record.json=report \
+            --file archive-install/stdout.bin=command_stdout \
+            --file archive-install/stderr.bin=command_stderr \
+            --file deps-get/record.json=report \
+            --file deps-get/stdout.bin=command_stdout \
+            --file deps-get/stderr.bin=command_stderr \
+            --file library-ci/record.json=report \
+            --file library-ci/stdout.bin=command_stdout \
+            --file library-ci/stderr.bin=command_stderr
+      - name: Upload library-ci-diagnostics
+        if: always()
+        uses: ./.github/actions/ci-diagnostic-upload
+        with:
+          invocation-root: ${{ runner.temp }}/ci-diagnostics/library
+          manifest: ${{ runner.temp }}/ci-diagnostics/library/manifest.json
+          bundle-output: ${{ runner.temp }}/ci-diagnostics/library.zip
+          artifact-name: sigra-ci-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}-library_tests_shard-library_ci-library-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Capture CI measurement metadata
         if: always()
         env:
@@ -1516,6 +1559,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Prepare browser diagnostics root
+        env:
+          MATRIX_SEAM: ${{ matrix.seam }}
+        run: mkdir -p "$RUNNER_TEMP/ci-diagnostics/browser"
       - name: Capture runner image identity before setup
         env:
           MATRIX_SEAM: ${{ matrix.seam }}
@@ -1535,6 +1582,8 @@ jobs:
           browsers: ${{ matrix.browsers }}
           cache-browsers: "true"
           browser-cache-key: ${{ runner.os }}-${{ matrix.browser_cache_key }}
+          diagnostics-root: ${{ runner.temp }}/ci-diagnostics/browser
+          diagnostics-prefix: ${{ matrix.seam }}
 
       - name: Run admin behavior browser truth
         id: admin_behavior
@@ -1543,10 +1592,18 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+          SIGRA_CI_DIAGNOSTICS: "1"
+          SIGRA_CI_DIAGNOSTICS_ROOT: ${{ runner.temp }}/ci-diagnostics/browser
+          SIGRA_CI_TRACE_REGISTRY: ${{ runner.temp }}/ci-diagnostics/browser/trace-registry.jsonl
+          SIGRA_CI_INVOCATION_ID: ${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          SIGRA_CI_NATIVE_IDENTITY: ci:${{ matrix.seam }}
         run: |
           set -euo pipefail
-          node ../../../../scripts/ci/ci-browser-command.mjs list --seam admin_behavior --event "$GITHUB_EVENT_NAME" --output-root playwright-report
-          node ../../../../scripts/ci/ci-browser-command.mjs run --seam admin_behavior --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          python3 -B ../../../../scripts/ci/ci-command-record.py \
+            --cwd "$PWD" --output-root "$RUNNER_TEMP/ci-diagnostics/browser" \
+            --invocation "${MATRIX_SEAM}-browser" -- \
+            bash -c 'set -euo pipefail; node ../../../../scripts/ci/ci-browser-command.mjs list --seam admin_behavior --event "$GITHUB_EVENT_NAME" --output-root playwright-report; node ../../../../scripts/ci/ci-browser-command.mjs run --seam admin_behavior --event "$GITHUB_EVENT_NAME" --output-root playwright-report'
 
       - name: Run admin checkpoints
         id: admin_checkpoints
@@ -1555,10 +1612,18 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+          SIGRA_CI_DIAGNOSTICS: "1"
+          SIGRA_CI_DIAGNOSTICS_ROOT: ${{ runner.temp }}/ci-diagnostics/browser
+          SIGRA_CI_TRACE_REGISTRY: ${{ runner.temp }}/ci-diagnostics/browser/trace-registry.jsonl
+          SIGRA_CI_INVOCATION_ID: ${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          SIGRA_CI_NATIVE_IDENTITY: ci:${{ matrix.seam }}
         run: |
           set -euo pipefail
-          node ../../../../scripts/ci/ci-browser-command.mjs list --seam admin_checkpoints --event "$GITHUB_EVENT_NAME" --output-root playwright-report
-          node ../../../../scripts/ci/ci-browser-command.mjs run --seam admin_checkpoints --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          python3 -B ../../../../scripts/ci/ci-command-record.py \
+            --cwd "$PWD" --output-root "$RUNNER_TEMP/ci-diagnostics/browser" \
+            --invocation "${MATRIX_SEAM}-browser" -- \
+            bash -c 'set -euo pipefail; node ../../../../scripts/ci/ci-browser-command.mjs list --seam admin_checkpoints --event "$GITHUB_EVENT_NAME" --output-root playwright-report; node ../../../../scripts/ci/ci-browser-command.mjs run --seam admin_checkpoints --event "$GITHUB_EVENT_NAME" --output-root playwright-report'
 
       - name: Stage admin checkpoint PNGs
         if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'admin_checkpoints' }}
@@ -1574,10 +1639,18 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+          SIGRA_CI_DIAGNOSTICS: "1"
+          SIGRA_CI_DIAGNOSTICS_ROOT: ${{ runner.temp }}/ci-diagnostics/browser
+          SIGRA_CI_TRACE_REGISTRY: ${{ runner.temp }}/ci-diagnostics/browser/trace-registry.jsonl
+          SIGRA_CI_INVOCATION_ID: ${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          SIGRA_CI_NATIVE_IDENTITY: ci:${{ matrix.seam }}
         run: |
           set -euo pipefail
-          node ../../../../scripts/ci/ci-browser-command.mjs list --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
-          node ../../../../scripts/ci/ci-browser-command.mjs run --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          python3 -B ../../../../scripts/ci/ci-command-record.py \
+            --cwd "$PWD" --output-root "$RUNNER_TEMP/ci-diagnostics/browser" \
+            --invocation "${MATRIX_SEAM}-browser" -- \
+            bash -c 'set -euo pipefail; node ../../../../scripts/ci/ci-browser-command.mjs list --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report; node ../../../../scripts/ci/ci-browser-command.mjs run --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report'
 
       - name: Run design gallery behavior and snapshots
         id: design_gallery_snapshots
@@ -1586,10 +1659,18 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+          SIGRA_CI_DIAGNOSTICS: "1"
+          SIGRA_CI_DIAGNOSTICS_ROOT: ${{ runner.temp }}/ci-diagnostics/browser
+          SIGRA_CI_TRACE_REGISTRY: ${{ runner.temp }}/ci-diagnostics/browser/trace-registry.jsonl
+          SIGRA_CI_INVOCATION_ID: ${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          SIGRA_CI_NATIVE_IDENTITY: ci:${{ matrix.seam }}
         run: |
           set -euo pipefail
-          node ../../../../scripts/ci/ci-browser-command.mjs list --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
-          node ../../../../scripts/ci/ci-browser-command.mjs run --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          python3 -B ../../../../scripts/ci/ci-command-record.py \
+            --cwd "$PWD" --output-root "$RUNNER_TEMP/ci-diagnostics/browser" \
+            --invocation "${MATRIX_SEAM}-browser" -- \
+            bash -c 'set -euo pipefail; node ../../../../scripts/ci/ci-browser-command.mjs list --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report; node ../../../../scripts/ci/ci-browser-command.mjs run --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report'
 
       - name: Run non-admin example browser smoke
         id: non_admin_smoke
@@ -1598,10 +1679,18 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+          SIGRA_CI_DIAGNOSTICS: "1"
+          SIGRA_CI_DIAGNOSTICS_ROOT: ${{ runner.temp }}/ci-diagnostics/browser
+          SIGRA_CI_TRACE_REGISTRY: ${{ runner.temp }}/ci-diagnostics/browser/trace-registry.jsonl
+          SIGRA_CI_INVOCATION_ID: ${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          SIGRA_CI_NATIVE_IDENTITY: ci:${{ matrix.seam }}
         run: |
           set -euo pipefail
-          node ../../../../scripts/ci/ci-browser-command.mjs list --seam non_admin_smoke --event "$GITHUB_EVENT_NAME" --output-root playwright-report
-          node ../../../../scripts/ci/ci-browser-command.mjs run --seam non_admin_smoke --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          python3 -B ../../../../scripts/ci/ci-command-record.py \
+            --cwd "$PWD" --output-root "$RUNNER_TEMP/ci-diagnostics/browser" \
+            --invocation "${MATRIX_SEAM}-browser" -- \
+            bash -c 'set -euo pipefail; node ../../../../scripts/ci/ci-browser-command.mjs list --seam non_admin_smoke --event "$GITHUB_EVENT_NAME" --output-root playwright-report; node ../../../../scripts/ci/ci-browser-command.mjs run --seam non_admin_smoke --event "$GITHUB_EVENT_NAME" --output-root playwright-report'
 
       - name: Run demo showcase
         id: demo_showcase
@@ -1610,10 +1699,18 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+          SIGRA_CI_DIAGNOSTICS: "1"
+          SIGRA_CI_DIAGNOSTICS_ROOT: ${{ runner.temp }}/ci-diagnostics/browser
+          SIGRA_CI_TRACE_REGISTRY: ${{ runner.temp }}/ci-diagnostics/browser/trace-registry.jsonl
+          SIGRA_CI_INVOCATION_ID: ${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          SIGRA_CI_NATIVE_IDENTITY: ci:${{ matrix.seam }}
         run: |
           set -euo pipefail
-          node ../../../../scripts/ci/ci-browser-command.mjs list --seam demo_showcase --event "$GITHUB_EVENT_NAME" --output-root playwright-report
-          node ../../../../scripts/ci/ci-browser-command.mjs run --seam demo_showcase --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          python3 -B ../../../../scripts/ci/ci-command-record.py \
+            --cwd "$PWD" --output-root "$RUNNER_TEMP/ci-diagnostics/browser" \
+            --invocation "${MATRIX_SEAM}-browser" -- \
+            bash -c 'set -euo pipefail; node ../../../../scripts/ci/ci-browser-command.mjs list --seam demo_showcase --event "$GITHUB_EVENT_NAME" --output-root playwright-report; node ../../../../scripts/ci/ci-browser-command.mjs run --seam demo_showcase --event "$GITHUB_EVENT_NAME" --output-root playwright-report'
 
       - name: Record selected browser execution
         id: browser_execution_record
@@ -1648,15 +1745,84 @@ jobs:
           echo "--- $SERVER_LOG ---"
           cat "$SERVER_LOG" || echo "(no log file)"
 
+      - name: Prepare browser diagnostics manifest
+        if: always()
+        env:
+          MATRIX_SEAM: ${{ matrix.seam }}
+          MATRIX_SERVER_LOG: ${{ matrix.server_log }}
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/ci-diagnostics/browser"
+          PLAYWRIGHT_ROOT="$GITHUB_WORKSPACE/test/example/priv/playwright"
+          if [ -f "$MATRIX_SERVER_LOG" ] && [ ! -L "$MATRIX_SERVER_LOG" ]; then
+            cp -- "$MATRIX_SERVER_LOG" "$ROOT/server.log"
+          fi
+          report_files=()
+          case "$MATRIX_SEAM" in
+            admin_behavior) report_files=(admin-behavior.json admin-behavior.selection.json) ;;
+            admin_checkpoints) report_files=(admin-checkpoints.json admin-checkpoints.selection.json) ;;
+            design_gallery)
+              if [ "$EVENT_NAME" = pull_request ]; then
+                report_files=(design-gallery-pr-behavior.json design-gallery-pr-behavior.selection.json)
+              else
+                report_files=(design-gallery-nonpr-snapshots.json design-gallery-nonpr-snapshots.selection.json design-gallery-nonpr-behavior.json design-gallery-nonpr-behavior.selection.json)
+              fi
+              ;;
+            non_admin_smoke) report_files=(non-admin-smoke.json non-admin-smoke.selection.json) ;;
+            demo_showcase) report_files=(demo-showcase.json demo-showcase.selection.json) ;;
+            *) echo "unexpected browser seam: $MATRIX_SEAM" >&2; exit 1 ;;
+          esac
+          report_args=()
+          mkdir -p "$ROOT/reports"
+          for name in "${report_files[@]}"; do
+            source="$PLAYWRIGHT_ROOT/playwright-report/$name"
+            if [ -f "$source" ] && [ ! -L "$source" ]; then
+              cp -- "$source" "$ROOT/reports/$name"
+            fi
+            report_args+=(--file "reports/$name=report")
+          done
+          python3 -B scripts/ci/ci-diagnostics-canary.py manifest \
+            --invocation-root "$ROOT" --output "$ROOT/manifest.json" \
+            --invocation-id "${MATRIX_SEAM}-${RUN_ID}-${RUN_ATTEMPT}" --source-sha "$SOURCE_SHA" \
+            --run-id "$RUN_ID" --run-attempt "$RUN_ATTEMPT" \
+            --job-id example_playwright_shard --seam "$MATRIX_SEAM" \
+            --trace-registry "$ROOT/trace-registry.jsonl" \
+            --synthetic-account \
+            --file "${MATRIX_SEAM}-prepare/record.json=report" \
+            --file "${MATRIX_SEAM}-prepare/stdout.bin=command_stdout" \
+            --file "${MATRIX_SEAM}-prepare/stderr.bin=command_stderr" \
+            --file "${MATRIX_SEAM}-npm-ci/record.json=report" \
+            --file "${MATRIX_SEAM}-npm-ci/stdout.bin=command_stdout" \
+            --file "${MATRIX_SEAM}-npm-ci/stderr.bin=command_stderr" \
+            --file "${MATRIX_SEAM}-os-deps/record.json=report" \
+            --file "${MATRIX_SEAM}-os-deps/stdout.bin=command_stdout" \
+            --file "${MATRIX_SEAM}-os-deps/stderr.bin=command_stderr" \
+            --file "${MATRIX_SEAM}-browser-install/record.json=report" \
+            --file "${MATRIX_SEAM}-browser-install/stdout.bin=command_stdout" \
+            --file "${MATRIX_SEAM}-browser-install/stderr.bin=command_stderr" \
+            --file "${MATRIX_SEAM}-browser/record.json=report" \
+            --file "${MATRIX_SEAM}-browser/stdout.bin=command_stdout" \
+            --file "${MATRIX_SEAM}-browser/stderr.bin=command_stderr" \
+            --file native-report.json=report --file failure-events.jsonl=log \
+            --file trace-registry.jsonl=log --file server.log=log "${report_args[@]}"
+      - name: Upload source-bound CI diagnostics
+        if: always()
+        uses: ./.github/actions/ci-diagnostic-upload
+        with:
+          invocation-root: ${{ runner.temp }}/ci-diagnostics/browser
+          manifest: ${{ runner.temp }}/ci-diagnostics/browser/manifest.json
+          bundle-output: ${{ runner.temp }}/ci-diagnostics/browser.zip
+          artifact-name: sigra-ci-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}-example_playwright_shard-${{ matrix.seam }}-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload shard diagnostics
-        if: always() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: example-playwright-${{ matrix.seam }}-${{ github.run_id }}
-          path: |
-            test/example/priv/playwright/playwright-report/
-            test/example/priv/playwright/test-results/
-            test/example/priv/playwright/artifacts/
+          path: ${{ runner.temp }}/ci-diagnostics/browser/reports/*.json
           retention-days: 7
           if-no-files-found: warn
       - name: Capture CI measurement metadata

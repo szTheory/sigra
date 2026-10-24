@@ -46,6 +46,14 @@ inputs:
     description: Space-separated application paths warmed after readiness.
     required: false
     default: /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users
+  diagnostics-root:
+    description: Optional RUNNER_TEMP directory for separately captured setup commands.
+    required: false
+    default: ""
+  diagnostics-prefix:
+    description: Filesystem-safe matrix seam prefix for setup command records.
+    required: false
+    default: browser
 
 outputs:
   deps_cache_hit:
@@ -95,12 +103,34 @@ runs:
         PGHOST: localhost
         PGDATABASE: ${{ inputs.database-name }}
         PGPORT: ${{ inputs.database-port }}
-      run: mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
+        DIAGNOSTICS_ROOT: ${{ inputs.diagnostics-root }}
+        DIAGNOSTICS_PREFIX: ${{ inputs.diagnostics-prefix }}
+      run: |
+        set -euo pipefail
+        if [ -n "$DIAGNOSTICS_ROOT" ]; then
+          python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py" \
+            --cwd "$GITHUB_WORKSPACE/test/example" --output-root "$DIAGNOSTICS_ROOT" \
+            --invocation "${DIAGNOSTICS_PREFIX}-prepare" -- \
+            mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
+        else
+          mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
+        fi
 
     - name: Install Playwright dependencies
       shell: bash
       working-directory: test/example/priv/playwright
-      run: npm ci
+      env:
+        DIAGNOSTICS_ROOT: ${{ inputs.diagnostics-root }}
+        DIAGNOSTICS_PREFIX: ${{ inputs.diagnostics-prefix }}
+      run: |
+        set -euo pipefail
+        if [ -n "$DIAGNOSTICS_ROOT" ]; then
+          python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py" \
+            --cwd "$PWD" --output-root "$DIAGNOSTICS_ROOT" \
+            --invocation "${DIAGNOSTICS_PREFIX}-npm-ci" -- npm ci
+        else
+          npm ci
+        fi
 
     - name: Cache Playwright browsers
       id: playwright_browsers_cache
@@ -129,12 +159,29 @@ runs:
       env:
         BROWSERS: ${{ inputs.browsers }}
         CACHE_HIT: ${{ steps.browser_cache_result.outputs.hit }}
+        DIAGNOSTICS_ROOT: ${{ inputs.diagnostics-root }}
+        DIAGNOSTICS_PREFIX: ${{ inputs.diagnostics-prefix }}
       run: |
         set -euo pipefail
-        python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
-          --playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS
+        if [ -n "$DIAGNOSTICS_ROOT" ]; then
+          python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py" \
+            --cwd "$PWD" --output-root "$DIAGNOSTICS_ROOT" \
+            --invocation "${DIAGNOSTICS_PREFIX}-os-deps" -- \
+            python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
+              --playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS
+        else
+          python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
+            --playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS
+        fi
         if [ "$CACHE_HIT" != "true" ]; then
-          npx playwright install $BROWSERS
+          if [ -n "$DIAGNOSTICS_ROOT" ]; then
+            python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py" \
+              --cwd "$PWD" --output-root "$DIAGNOSTICS_ROOT" \
+              --invocation "${DIAGNOSTICS_PREFIX}-browser-install" -- \
+              npx playwright install $BROWSERS
+          else
+            npx playwright install $BROWSERS
+          fi
         fi
 
     - name: Boot example app
