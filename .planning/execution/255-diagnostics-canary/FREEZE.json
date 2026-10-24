@@ -652,11 +652,19 @@
       },
       {
         "at": "2026-10-24T19:10:15+00:00",
+        "content_type": "application/zip",
         "infrastructure_retry": false,
         "invocation": false,
         "operation": "failure-run-logs-url:run=40123954650",
         "push": false,
+        "raw_response_bytes": 16754,
+        "raw_response_path": ".gsd/temp/phase255-failure-logs-40123954650/redirect-response.body.bin",
+        "raw_response_sha256": "39963d6d3d40d126c615faeff886e1ce831f990294f669f924a6e6e8464cfdb8",
+        "redirect_location_present": false,
         "request": true,
+        "response_date": "Sat, 24 Oct 2026 19:10:22 GMT",
+        "response_observed_at": "2026-10-24T19:10:22.385445+00:00",
+        "response_status": 200,
         "scenario": null,
         "test_retry": false
       }
