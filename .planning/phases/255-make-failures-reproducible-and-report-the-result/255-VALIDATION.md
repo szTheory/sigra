@@ -9,7 +9,7 @@ created: "2026-10-24"
 
 # Phase 255 — Validation Strategy
 
-Planning contract only. The planner must replace this provisional map with exact task IDs and commands before plan checking. No Phase 255 behavior has been implemented or verified.
+Planning contract only. The exact map below assigns all 14 tasks in 7 plans across 6 waves. No Phase 255 behavior has been implemented or verified; every execution row remains pending.
 
 ## Test Infrastructure
 
@@ -27,19 +27,34 @@ Run the owning seam's deterministic tests after each task and changed-seam tests
 
 ## Per-Task Verification Map
 
-| Behavior | Requirement | Test type | Required automated proof | State |
-|----------|-------------|-----------|--------------------------|-------|
-| Actual seven-leg Mix path | CIDX-01 | Real process/ExUnit | Observe ordinary/scaffold/dep-off receivers; exclusions, prerequisites and nonzero outcomes | Pending plan assignment |
-| Five exact browser selections | CIDX-01 | Identity contract/live browser | PR/non-PR identities; owned dev DB/server; matching PORT and CI=true | Pending plan assignment |
-| First failure and original exit | CIDX-02 | Real process/browser | Failing cleanup; startup/discovery; first trace retention; passing disposal; exact argv/seed | Pending plan assignment |
-| Safe invocation-bound bundle | CIDX-02 | Archive fixtures | Finished bundle excludes planted secrets, auth storage, stale output and escaping symlinks | Pending plan assignment |
-| Hosted delivery | CIDX-02 | Isolated non-publishing canary | New finite frozen budget; actual success/failure/cancellation; retrieve source/run/attempt-bound files | Pending plan assignment |
-| Portable faithful replay | CIMEAS-03 | Clean checkout offline | Hash-pinned inputs/tools; corrupt/missing helper negatives; unchanged originals; insufficient_data/zero pairs/null statistics/2046 and 1589 costs | Pending plan assignment |
-| Accurate final report | CIMEAS-03 | Semantic assertions | Distinct measured/analysis/later development identities; original method/limits; speed requirements remain open | Pending plan assignment |
+| Task ID | Wave | Requirement | Test type | Exact automated commands | State |
+|---|---|---|---|---|---|
+| 255-01-01 | 1 | CIMEAS-03 | Native/process/integration | `python3 -B scripts/ci/ci-comparison-replay.test.py`<br>`python3 -B scripts/ci/ci-comparison-replay.py preflight --root . --output .planning/execution/255-replay/PREFLIGHT.json && python3 -B scripts/ci/ci-comparison-replay.py replay --from-evidence --output .planning/execution/255-replay/RESULT.json` | Pending execution |
+| 255-01-02 | 1 | CIMEAS-03 | Contract/semantic | `python3 -B scripts/ci/ci-comparison-replay.test.py && bash scripts/ci/ci-run-metrics-comparison.test.sh && python3 -B scripts/ci/ci-metrics-security.test.py`<br>`python3 -B scripts/ci/ci-comparison-replay.py pack --output .planning/execution/255-replay/input-package.tar.gz && python3 -B scripts/ci/ci-comparison-replay.py replay --package .planning/execution/255-replay/input-package.tar.gz --output .planning/execution/255-replay/RESULT.json` | Pending execution |
+| 255-02-01 | 2 | CIDX-02 | Native/process/integration | `python3 -B scripts/ci/ci-command-record.test.py` | Pending execution |
+| 255-02-02 | 2 | CIDX-02 | Contract/semantic | `python3 -B scripts/ci/ci-diagnostic-bundle.test.py && python3 -B scripts/ci/ci-command-record.test.py && python3 -B scripts/ci/ci-metrics-security.test.py` | Pending execution |
+| 255-03-01 | 3 | CIDX-01, CIDX-02 | Native/process/integration | `python3 -B scripts/ci/ci-mix-receivers.test.py && node --test scripts/ci/ci-prep-semantics.test.mjs`<br>`MIX_ENV=test python3 -B scripts/ci/ci-mix-receivers.test.py --native --output .planning/execution/255-local/MIX-RECEIVERS.json` | Pending execution |
+| 255-03-02 | 3 | CIDX-01, CIDX-02 | Native/process/integration | `MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs && bash scripts/ci/test-sigra-dep-off.sh && python3 -B scripts/ci/ci-mix-receivers.test.py` | Pending execution |
+| 255-04-01 | 3 | CIDX-01, CIDX-02 | Native/process/integration | `node --test scripts/ci/ci-browser-command.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs`<br>`node scripts/ci/ci-browser-command.mjs list --seam demo_showcase --event pull_request --output-root /tmp/sigra255-selection` | Pending execution |
+| 255-04-02 | 3 | CIDX-01, CIDX-02 | Native/process/integration | `python3 -B scripts/ci/ci-browser-local.test.py && node --test scripts/ci/ci-browser-command.test.mjs scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-prep-semantics.test.mjs`<br>`python3 -B scripts/ci/ci-browser-local.test.py --native` | Pending execution |
+| 255-05-01 | 4 | CIDX-02 | Native/process/integration | `node --test scripts/ci/ci-browser-diagnostics.test.mjs && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` | Pending execution |
+| 255-05-02 | 4 | CIDX-02 | Contract/semantic | `node --test scripts/ci/ci-browser-diagnostics.test.mjs && python3 -B scripts/ci/ci-diagnostic-bundle.test.py && python3 -B scripts/ci/ci-command-record.test.py`<br>`node scripts/ci/ci-browser-diagnostics.test.mjs --native --output .planning/execution/255-local/BROWSER-DIAGNOSTICS.json` | Pending execution |
+| 255-06-01 | 5 | CIDX-01, CIDX-02 | Native/process/integration | `python3 -B scripts/ci/ci-diagnostics-canary.test.py && node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs scripts/ci/ci-measure-workflow.test.mjs && python3 -B scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/honest-skip-verdict.test.sh`<br>`python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario success` | Pending execution |
+| 255-06-02 | 5 | CIDX-01, CIDX-02 | Native/process/integration | `node scripts/ci/ci-browser-diagnostics.test.mjs --measure-overhead --pairs 3 --output .planning/execution/255-local/TRACE-OVERHEAD.json`<br>`python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario failure && python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario cancellation && python3 -B scripts/ci/ci-diagnostics-canary.py verify --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --output .planning/execution/255-diagnostics-canary/RESULT.json` | Pending execution |
+| 255-07-01 | 6 | CIDX-01, CIDX-02, CIMEAS-03 | Native/process/integration | `python3 -B scripts/ci/ci-comparison-replay.test.py && python3 -B scripts/ci/ci-comparison-replay.py distribute --remote origin --output .planning/execution/255-replay/DISTRIBUTION.json && python3 -B scripts/ci/ci-comparison-replay.py verify-distribution --record .planning/execution/255-replay/DISTRIBUTION.json` | Pending execution |
+| 255-07-02 | 6 | CIDX-01, CIDX-02, CIMEAS-03 | Contract/semantic | `python3 -B scripts/ci/ci-comparison-report.test.py && python3 -B scripts/ci/ci-comparison-replay.test.py && node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs && python3 -B scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-run-metrics-comparison.test.sh && python3 -B scripts/ci/ci-metrics-security.test.py && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs` | Pending execution |
 
 ## Wave 0 Requirements
 
-Existing infrastructure suffices. Each plan creates new tests before its behavior and identifies every producing task for new command targets. The planner finalizes the map after assigning plans.
+Existing infrastructure suffices. Each task creates its new test targets before implementing their behavior. New commands in the map are execution deliverables, not commands claimed to exist or pass during planning. The first execution artifact is255-01-01's ready/blocked source preflight; dependent work stops when blocked.
+
+## Unresolved Edges and Hosted Bounds
+
+CIDX-01, CIDX-02 and CIMEAS-03 remain unclassified/unresolved and explicitly flagged. CIDX-01 is tested by255-03/04 native receivers/selections and255-07 guidance assertions; CIDX-02 by255-02/05 real failures/safe bundles and255-06 actual hosted delivery; CIMEAS-03 by255-01 semantic replay and255-07 remote clean-checkout retrieval/report assertions. Planning does not resolve them. Automatically recalled prohibitions retain descriptor-less unresolved projections; explicit forbidden behaviors additionally have executable acceptance tests.
+
+Plan 06 has a new frozen allowance:4 hosted fixture invocations maximum including at most 1 diagnosed infrastructure retry,120 controller HTTP requests including polling/retrieval/retries,60 minutes total elapsed,2 scoped Git pushes,6 minutes per fixture job and0 test retries. One 60-second watcher per run; core<=250 or403/429 stops requests until reset. Success, deliberate failure and actual GitHub fixture cancellation are distinct outcomes. Partial/missing cancellation uploads remain partial/missing.
+
+Final-source trace overhead uses exactly 6 local passing invocations (3 off/3 on) and adds 0 comparison acceptance samples. Plan 07 distribution permits 1 successful create-only scoped evidence push, at most 1 transient retry after reading remote state and 2 retrieval attempts; no hosted dispatch or release publication.
 
 ## Manual-Only Verifications
 
@@ -47,7 +62,7 @@ None planned. Missing hosted artifacts or inaccessible replay packages remain co
 
 ## Validation Sign-Off
 
-- [ ] Exact task map completed from final plans
+- [x] Exact task map completed from final plans
 - [ ] Each runnable command states its observable failure signal
 - [ ] New test files are created before use
 - [ ] Local/process/browser and hosted scopes are separate

@@ -2,17 +2,17 @@
 gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
-status: in_progress
-stopped_at: Phase 255 context gathered (assumptions mode; researched defaults)
-last_updated: "2026-10-24T03:09:28.169415+00:00"
-state_head: 48a0546bdafd611612aa42e3338df20cda481a62
+status: ready_to_execute
+stopped_at: Phase 255 planned and checked; ready to execute
+last_updated: "2026-10-24T16:07:24.464820+00:00"
+state_head: a0bc58dbfc62283c66bb97b408528ca0a9ae14a4
 progress:
   total_phases: 4
   completed_phases: 2
   percent: 50
 milestone_status: active
-workflow_step: phase255_context_gathered_ready_for_planning
-last_activity: 2026-10-24 - Phase 255 researched discussion complete; planning route checked
+workflow_step: phase255_planned_ready_to_execute
+last_activity: 2026-10-24 - Phase 255 planning checked: 7 plans, 14 tasks, 6 waves
 requirements_approved: true
 roadmap_approved: true
 phase252_verification_status: passed
@@ -28,26 +28,30 @@ phase254_implementation_status: complete
 phase254_comparison_status: insufficient_data
 phase254_verification_status: pending
 verification_status: pending
-next_command: "$gsd-plan-phase 255"
-resume_command: "$gsd-plan-phase 255"
+next_command: "$gsd-execute-phase 255"
+resume_command: "$gsd-execute-phase 255"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md
+resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
-current_phase: 255
-current_phase_name: Make Failures Reproducible and Report the Result
-current_plan: null
 phase255_discussion_status: complete
-phase255_planning_status: not_started
+phase255_planning_status: passed
 phase255_implementation_status: not_started
 phase255_verification_status: not_started
+current_phase_name: Make Failures Reproducible and Report the Result
+current_phase: 255
+current_plan: null
+phase255_plan_count: 7
+phase255_task_count: 14
+phase255_wave_count: 6
+phase255_plan_check: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json
 ---
 
 # Current position
 
-Phase 255 discussion is complete. Three parallel reviews and primary-source checks produced the decisions in `.planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md`. The user delegated the researched defaults. No Phase 255 plan, implementation or hosted acceptance has started.
+Phase 255 planning is complete: seven plans, fourteen tasks across six waves. Research, independent plan checking, all three requirement assignments and all seventeen decision assignments passed. The checked planning files and readiness are recorded in `.planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json`. Implementation, hosted diagnostics and phase verification have not started.
 
-Next command: `$gsd-plan-phase 255`. After context capture, `init.plan-phase 255` reports Pending, context present, no research/plans and no prerequisite blocker. Focus on actual local/CI command execution, safe first-failure diagnostics, clean-checkout offline replay and an accurate final report. A standalone pinned Mix probe exposed a nested-test alias risk; verify actual Sigra receivers before claiming parity.
+Next command: `$gsd-execute-phase 255`. `init.execute-phase 255` reports seven incomplete/runnable plans, no summaries, no prerequisite blocker and no duplicate threat IDs. Start with Plan 01's saved-input preflight/replay. Three unclassified edge assumptions stay explicit until actual process/browser/hosted/replay tests establish the behavior. The accessible replay package is a planned deliverable, not an existing distributed archive. The hosted canary has its own frozen ceiling; no historical allowance is renewed.
 
 Phase 254 implementation remains complete; its fixed comparison is terminal `insufficient_data`, with zero successful comparable pairs. Baseline run 40046955449/attempt 2 failed; candidate run 40047078287/attempt 2 passed. Observed costs 2046/1589 runner-seconds are retained observations, not a demonstrated improvement. CISPEED-01/02 and Phase 254 verification remain open. Do not restart collection, replace samples, renew the window or reuse closed budgets.
 
@@ -55,6 +59,6 @@ The later connection repair passed separate development CI in PR 353/source `8b3
 
 ## Session
 
-**Last session:** 2026-10-24T03:08:00.587Z
-**Stopped at:** Phase 255 context gathered (assumptions mode; researched defaults)
-**Resume file:** .planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md
+**Last session:** 2026-10-24T16:07:24.464820+00:00
+**Stopped at:** Phase 255 planned and checked; ready to execute
+**Resume file:** .planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md

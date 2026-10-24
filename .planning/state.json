@@ -24,22 +24,37 @@
     {
       "number": "255",
       "name": "Make Failures Reproducible and Report the Result",
-      "status": "pending",
+      "status": "ready_to_execute",
       "discussion_status": "complete",
-      "planning_status": "not_started",
+      "planning_status": "passed",
       "implementation_status": "not_started",
       "verification_status": "not_started",
-      "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md"
+      "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
+      "plan_count": 7,
+      "task_count": 14,
+      "wave_count": 6,
+      "plan_check": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json",
+      "readiness": {
+        "checked_at": "2026-10-24T16:07:24.464820+00:00",
+        "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
+        "phase_number": "255",
+        "plan_count": 7,
+        "incomplete_count": 7,
+        "runnable_count": 7,
+        "summaries": [],
+        "blocked_by": {},
+        "threat_id_duplicates": []
+      }
     }
   ],
   "next": {
-    "command": "$gsd-plan-phase 255",
-    "label": "Plan Phase 255 reproducibility and actual-result reporting",
-    "reason": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
+    "command": "$gsd-execute-phase 255",
+    "label": "Execute Phase 255 reproducibility and actual-result reporting",
+    "reason": "Phase 255 plans passed independent review and requirement/decision checks. Execute seven plans beginning with saved-input preflight. Implementation and phase verification are not started; the closed Phase 254 insufficient-data comparison and open speed requirements remain unchanged.",
     "conditional": false,
-    "condition": "Planning only. No phase execution or new comparison is authorized by discussion."
+    "condition": "Separate execution invocation required; no replacement benchmark or historical budget renewal."
   },
-  "updated_at": "2026-10-24T03:09:28.169415+00:00",
+  "updated_at": "2026-10-24T16:07:51.792165+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -119,20 +134,25 @@
   "current_phase": "255",
   "phase255": {
     "discussion_status": "complete",
-    "planning_status": "not_started",
+    "planning_status": "passed",
     "implementation_status": "not_started",
     "verification_status": "not_started",
     "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
     "discussion_commit": "48a0546bdafd611612aa42e3338df20cda481a62",
     "readiness": {
-      "checked_at": "2026-10-24T03:09:28.169415+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+      "checked_at": "2026-10-24T16:07:24.464820+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
       "phase_number": "255",
-      "phase_status": "Pending",
-      "has_context": true,
-      "has_research": false,
-      "has_plans": false,
-      "prerequisite_blocker_reported": false
-    }
+      "plan_count": 7,
+      "incomplete_count": 7,
+      "runnable_count": 7,
+      "summaries": [],
+      "blocked_by": {},
+      "threat_id_duplicates": []
+    },
+    "plan_count": 7,
+    "task_count": 14,
+    "wave_count": 6,
+    "plan_check": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json"
   }
 }

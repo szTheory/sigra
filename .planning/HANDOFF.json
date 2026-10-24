@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "timestamp": "2026-10-23T22:31:10.936343+00:00",
-  "updated_at": "2026-10-24T03:09:28.169415+00:00",
+  "updated_at": "2026-10-24T16:07:51.792165+00:00",
   "status": "ready",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "current_phase": 255,
-  "current": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
-  "next_command": "$gsd-plan-phase 255",
+  "current": "Phase 255 plans passed independent review and requirement/decision checks. Execute seven plans beginning with saved-input preflight. Implementation and phase verification are not started; the closed Phase 254 insufficient-data comparison and open speed requirements remain unchanged.",
+  "next_command": "$gsd-execute-phase 255",
   "resume_command": "$gsd-plan-phase 255",
   "next_command_conditional": false,
   "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
@@ -39,27 +39,28 @@
   },
   "current_routing": {
     "status": "ready",
-    "next_command": "$gsd-plan-phase 255",
-    "resume_command": "$gsd-plan-phase 255",
+    "next_command": "$gsd-execute-phase 255",
+    "resume_command": "$gsd-execute-phase 255",
     "conditional": false,
-    "reason": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
+    "reason": "Phase 255 plans passed independent review and requirement/decision checks. Execute seven plans beginning with saved-input preflight. Implementation and phase verification are not started; the closed Phase 254 insufficient-data comparison and open speed requirements remain unchanged.",
     "current_phase": 255,
     "next_phase": 255,
-    "checkpoint": "phase255_context_ready_for_planning",
-    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
-    "readiness": ".planning/execution/254-transport-development-check/FORWARD-ROUTE.json",
+    "checkpoint": "phase255_planned_ready_to_execute",
+    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md",
+    "readiness": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json",
     "phase254_not_marked_complete": true,
     "historical_verification_is_forward_blocker": false,
-    "condition": "Planning only. Keep the original comparison terminal; no old acceptance budget is renewed.",
+    "condition": "Planning complete only; execution and phase verification remain unstarted. No old acceptance allowance is renewed.",
     "readiness_check": {
-      "checked_at": "2026-10-24T03:09:28.169415+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+      "checked_at": "2026-10-24T16:07:24.464820+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
       "phase_number": "255",
-      "phase_status": "Pending",
-      "has_context": true,
-      "has_research": false,
-      "has_plans": false,
-      "prerequisite_blocker_reported": false
+      "plan_count": 7,
+      "incomplete_count": 7,
+      "runnable_count": 7,
+      "summaries": [],
+      "blocked_by": {},
+      "threat_id_duplicates": []
     }
   },
   "workflow": {
@@ -73,11 +74,14 @@
       "254-08"
     ],
     "phase254_plan_count": 8,
-    "next_required_gate": "Phase 255 planning; Phase 254 speed requirements remain open",
+    "next_required_gate": "Phase 255 execution, beginning with saved-input preflight; Phase 254 speed requirements remain open",
     "phase255_discussion_status": "complete",
-    "phase255_planning_status": "not_started",
+    "phase255_planning_status": "passed",
     "phase255_implementation_status": "not_started",
-    "phase255_verification_status": "not_started"
+    "phase255_verification_status": "not_started",
+    "phase255_plan_count": 7,
+    "phase255_task_count": 14,
+    "phase255_wave_count": 6
   },
   "phase253_canonical_verification": {
     "status": "passed",
@@ -212,7 +216,7 @@
     "phase252_revision_source": "Run 38144377407 returned pull_requests: []; its bundle proves one source SHA. Multi-revision timing remains unknown until each revision has retained source data."
   },
   "authorization": {
-    "scope": "User invoked Phase 255 discussion and delegated researched defaults after parallel review. Capture context and route to planning only.",
+    "scope": "User invoked $gsd-plan-phase 255 and selected research first. Research/plans/checks/state capture only; no Phase 255 execution or hosted acceptance started.",
     "phase255_execution_authorized": false,
     "new_comparison_authorized": false,
     "prior_allowances": "unchanged; closed allowances are not reused"
@@ -237,17 +241,26 @@
     "discussion_log": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-DISCUSSION-LOG.md",
     "discussion_commit": "48a0546bdafd611612aa42e3338df20cda481a62",
     "readiness": {
-      "checked_at": "2026-10-24T03:09:28.169415+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+      "checked_at": "2026-10-24T16:07:24.464820+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
       "phase_number": "255",
-      "phase_status": "Pending",
-      "has_context": true,
-      "has_research": false,
-      "has_plans": false,
-      "prerequisite_blocker_reported": false
+      "plan_count": 7,
+      "incomplete_count": 7,
+      "runnable_count": 7,
+      "summaries": [],
+      "blocked_by": {},
+      "threat_id_duplicates": []
     },
     "implementation_started": false,
-    "hosted_acceptance_started": false
+    "hosted_acceptance_started": false,
+    "discussion_status": "complete",
+    "planning_status": "passed",
+    "implementation_status": "not_started",
+    "verification_status": "not_started",
+    "plan_count": 7,
+    "task_count": 14,
+    "wave_count": 6,
+    "plan_check": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json"
   },
   "prior_execution_authorization": {
     "scope": "User invoked $gsd-execute-phase254. Implementation and conditional fixed comparison are authorized within the plans.",
@@ -258,5 +271,31 @@
     "current_preparation_allowance_spent": true,
     "current_recovery_authorization": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
     "environment_recovery_allowance": "Current ordinary parity correction: two counted non-forcing source updates, zero retries,60minutes/600HTTPrequests; previous eight outcomes preserved"
+  },
+  "routing": {
+    "status": "ready",
+    "next_command": "$gsd-execute-phase 255",
+    "resume_command": "$gsd-execute-phase 255",
+    "conditional": false,
+    "reason": "Phase 255 plans passed independent review and requirement/decision checks. Execute seven plans beginning with saved-input preflight. Implementation and phase verification are not started; the closed Phase 254 insufficient-data comparison and open speed requirements remain unchanged.",
+    "current_phase": 255,
+    "next_phase": 255,
+    "checkpoint": "phase255_planned_ready_to_execute",
+    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md",
+    "readiness": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json",
+    "phase254_not_marked_complete": true,
+    "historical_verification_is_forward_blocker": false,
+    "condition": "Planning complete only; execution and phase verification remain unstarted. No old acceptance allowance is renewed.",
+    "readiness_check": {
+      "checked_at": "2026-10-24T16:07:24.464820+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
+      "phase_number": "255",
+      "plan_count": 7,
+      "incomplete_count": 7,
+      "runnable_count": 7,
+      "summaries": [],
+      "blocked_by": {},
+      "threat_id_duplicates": []
+    }
   }
 }

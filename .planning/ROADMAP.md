@@ -358,18 +358,38 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
   3. A documented calculation replays the final before/after comparison from saved inputs, including sample sizes, literal failure/cancellation/rerun outcomes, cache conditions, and limitations.
   4. The final report names the tested code, states whether the 20% median and non-increasing p95/runner-time targets hold, and records any remaining failures separately from implemented changes. Missing old release approvals or signed historical performance archives are not required inputs.
 
-**Plans**: TBD
+**Plans**: 7 plans in 6 waves (14 tasks; planning only, execution and phase verification not started)
+
+Plans:
+**Wave 1**
+- [ ] 255-01-PLAN.md — Verify preserved sources and replay the actual saved comparison offline (wave1).
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 255-02-PLAN.md — Retain original command failures and safe invocation-bound bundles (wave2).
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 255-03-PLAN.md — Prove actual Mix receivers, prerequisites and per-invocation seeds (wave3).
+- [ ] 255-04-PLAN.md — Share exact browser selections and safe local database/server preparation (wave3).
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 255-05-PLAN.md — Retain first-failure traces and preserve sequential browser diagnostics (wave4).
+
+**Wave 5** *(blocked on Wave 4 completion)*
+- [ ] 255-06-PLAN.md — Verify real bounded hosted success/failure/cancellation delivery and trace overhead (wave5).
+
+**Wave 6** *(blocked on Wave 5 completion)*
+- [ ] 255-07-PLAN.md — Distribute immutable replay inputs and document the actual final result (wave6).
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has seven completed implementation plans and one hosted prerequisite halt; comparison and phase verification remain pending. Phase255 remains pending.
+**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has seven completed implementation plans and one hosted prerequisite halt; comparison and phase verification remain pending. Phase 255 has seven checked plans; implementation and phase verification are not started.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Complete; verified6/6 | 2026-10-23 |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 7/8; 1 halted | Implementation complete; hosted baseline blocked | — |
-| 255. Make Failures Reproducible and Report the Result | v1.50 | 0/TBD | Not started | — |
+| 255. Make Failures Reproducible and Report the Result | v1.50 | 0/7 | Planned; ready to execute | — |
 
 ## Historical Closeout
 
