@@ -1,0 +1,12 @@
+{
+  "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "computed_tree": "cee215875eaae458ea3c88c1cb51addb4a19440c",
+  "conflicting_paths": [],
+  "exit_code": 0,
+  "expected_tree": "cee215875eaae458ea3c88c1cb51addb4a19440c",
+  "head_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+  "reason": null,
+  "status": "ready",
+  "stderr": "",
+  "stdout": "cee215875eaae458ea3c88c1cb51addb4a19440c\n"
+}

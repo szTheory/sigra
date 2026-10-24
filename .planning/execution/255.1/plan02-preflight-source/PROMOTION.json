@@ -1,0 +1,46 @@
+{
+  "status": "local_ready",
+  "candidate_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+  "control_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+  "local_status": "ready",
+  "hosted_status": "blocked",
+  "acceptance_samples": 0,
+  "prior_revisions": [
+    {
+      "path": ".planning/execution/255.1/SOURCES.json",
+      "sha256": "5f3850937ea73b166aac64047aeb801115f696889d724114aa2f715ca4ebeaea",
+      "recovery_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/execution/255.1/FEASIBILITY.json",
+      "sha256": "8f043cbf881f54fd8193994fc1b29cfd92ebe5999fdd48cecd11676ca0374f38",
+      "recovery_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/execution/255.1/EQUIVALENT-WORK.json",
+      "sha256": "771bec9e3504993d08658f1f4157dd28d38e8d32a253b7e410332fdc6fdcf230",
+      "recovery_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "605badba4a0b8b510d394d61a51af7512bd15e0327b8e6e08fec25928d2bdff1",
+      "recovery_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "bdec30fe10f426ea55521cc1985df443035c5532afb6d85d841542a8d092d702",
+      "recovery_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "9ce6440ed87cd87d09853c003139fc3d9479beb33f041239b99071bd079ea405",
+      "recovery_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "read_back_equal": true
+    }
+  ]
+}
