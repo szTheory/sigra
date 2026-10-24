@@ -403,7 +403,14 @@
         "invocation": false,
         "operation": "artifact-list-recovery:run=40122912945",
         "push": false,
+        "raw_response_bytes": 824,
+        "raw_response_path": ".planning/execution/255-diagnostics-canary/API-ARTIFACT-LIST-40122912945.body.json",
+        "raw_response_sha256": "b312381139c69b4fdd3d8bb9a5d621f214c2055e0fe0a4ce7dbbb5b1ab870d58",
         "request": true,
+        "response_date": "Sat, 24 Oct 2026 18:59:21 GMT",
+        "response_observed_at": "2026-10-24T18:59:21.313522+00:00",
+        "response_remaining_header": 4994,
+        "response_status": 200,
         "scenario": null,
         "test_retry": false
       }
