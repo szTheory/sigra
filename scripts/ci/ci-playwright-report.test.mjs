@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { normalizeReport } from './ci-playwright-report.mjs';
+import { browserInvocations } from './ci-browser-command.mjs';
 
 const configPath = new URL('../../test/example/priv/playwright/playwright.config.ts', import.meta.url);
 const workflowPath = new URL('../../.github/workflows/ci.yml', import.meta.url);
@@ -24,7 +25,7 @@ test('Playwright JSON output is opt-in beside the existing human-readable report
   assert.match(config, /retries:\s*0/);
 });
 
-test('the five existing browser seam identifiers and selection commands stay in place', async () => {
+test('the five browser seams use shared selection commands and retain their reports', async () => {
   const workflow = await readFile(workflowPath, 'utf8');
   const shard = workflow.split('  example_playwright_shard:', 2)[1]?.split('\n  example_playwright_smoke:', 2)[0];
   assert.ok(shard, 'expected the example_playwright_shard job');
@@ -38,19 +39,22 @@ test('the five existing browser seam identifiers and selection commands stay in 
 
   const actualSeams = [...shard.matchAll(/^\s+- seam: ([a-z_]+)\s*$/gm)].map((match) => match[1]);
   assert.deepEqual(actualSeams, expectedSeams);
-  assert.equal((shard.match(/SIGRA_PLAYWRIGHT_JSON=playwright-report\/[^ ]+ npx playwright test \\\n/g) ?? []).length, 7);
-  for (const selection of [
-    'tests/admin-user-operations.spec.ts',
-    'tests/admin-checkpoints.spec.ts',
-    "--grep-invert '@snapshot'",
-    "--grep '@snapshot'",
-    'tests/golden-path.spec.ts',
-    'tests/demo-showcase.spec.ts',
-  ]) {
-    assert.ok(shard.includes(selection), `missing existing selection ${selection}`);
+  for (const seam of expectedSeams) {
+    assert.ok(shard.includes(`ci-browser-command.mjs list --seam ${seam}`), `missing shared native list for ${seam}`);
+    assert.ok(shard.includes(`ci-browser-command.mjs run --seam ${seam}`), `missing shared run for ${seam}`);
   }
-  assert.equal((shard.match(/--retries=0/g) ?? []).length, 14);
-  assert.equal((shard.match(/--list --reporter=json/g) ?? []).length, 7);
+  const reports = [
+    ...browserInvocations('admin_behavior', 'pull_request')[0].invocations,
+    ...browserInvocations('admin_checkpoints', 'pull_request')[0].invocations,
+    ...browserInvocations('design_gallery', 'pull_request')[0].invocations,
+    ...browserInvocations('design_gallery', 'push')[0].invocations,
+    ...browserInvocations('non_admin_smoke', 'pull_request')[0].invocations,
+    ...browserInvocations('demo_showcase', 'pull_request')[0].invocations,
+  ];
+  assert.equal(reports.length, 7);
+  assert.equal(new Set(reports.map((entry) => entry.reportPath)).size, 7);
+  assert.ok(reports.every((entry) => entry.retries === 0));
+  assert.ok(reports.every((entry) => entry.selectionPath.endsWith('.selection.json')));
 });
 
 function result(retry, status, duration, startTime = '2026-10-12T18:00:00.000Z') {

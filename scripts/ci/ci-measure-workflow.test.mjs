@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readRepoFile, jobBlock, stripYamlComments } from './prohibitions/_lib.mjs';
+import { browserInvocations } from './ci-browser-command.mjs';
 
 const workflow = stripYamlComments(readRepoFile('.github/workflows/ci.yml'));
 const playwrightConfig = readRepoFile('test/example/priv/playwright/playwright.config.ts');
@@ -33,9 +34,9 @@ function assertCompleteBrowserWiring(source) {
   assert.match(aggregate, /ci-browser-records\.mjs --verify \\/, 'aggregate must validate the complete set');
   assert.match(aggregate, /pattern: browser-execution-\*-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}/);
   assert.match(aggregate, /merge-multiple: false/);
-  for (const path of ['admin-behavior', 'admin-checkpoints', 'design-gallery-pr-behavior',
-    'design-gallery-nonpr-snapshots', 'design-gallery-nonpr-behavior', 'non-admin-smoke', 'demo-showcase']) {
-    assert.ok(shard.includes(`--list --reporter=json > playwright-report/${path}.selection.json`), `${path} requires pre-execution inventory`);
+  for (const seam of ['admin_behavior', 'admin_checkpoints', 'design_gallery', 'non_admin_smoke', 'demo_showcase']) {
+    assert.ok(shard.includes(`node ../../../../scripts/ci/ci-browser-command.mjs list --seam ${seam}`), `${seam} must use shared native selection`);
+    assert.ok(shard.includes(`node ../../../../scripts/ci/ci-browser-command.mjs run --seam ${seam}`), `${seam} must run the shared selection`);
   }
   assert.ok(shard.includes('CLASSIFIER_RESULT: ${{ needs.changes.result }}'));
   assert.ok(shard.includes('SELECTED_STEPS_JSON: ${{ toJSON(steps) }}'));
@@ -51,7 +52,7 @@ test('missing record, artifact, inventory or native dependency fails source wiri
   for (const malformed of [workflow.replace('id: browser_execution_record', 'id: missing_record'),
     workflow.replace('pattern: browser-execution-*', 'pattern: missing-records-*'),
     workflow.replace('--native-result "$SHARDS"', '--native-result "success"'),
-    workflow.replace('demo-showcase.selection.json', 'missing-selection.json')]) {
+    workflow.replace('ci-browser-command.mjs list --seam demo_showcase', 'missing-browser-command.mjs list --seam demo_showcase')]) {
     assert.throws(() => assertCompleteBrowserWiring(malformed));
   }
 });
@@ -81,14 +82,22 @@ test('records seven distinct Playwright reports without changing the five seam s
   ];
   const paths = [];
   for (const [path, selection, condition] of invocations) {
-    const at = workflow.indexOf(path);
-    assert.notEqual(at, -1, `missing report destination ${path}`);
+    const seam = path.startsWith('admin-behavior') ? 'admin_behavior'
+      : path.startsWith('admin-checkpoints') ? 'admin_checkpoints'
+        : path.startsWith('design-gallery') ? 'design_gallery'
+          : path.startsWith('non-admin-smoke') ? 'non_admin_smoke' : 'demo_showcase';
+    const event = path === 'design-gallery-pr-behavior.json' ? 'pull_request' : 'push';
+    const defined = browserInvocations(seam, event)[0].invocations.map((entry) => entry.reportPath);
+    assert.ok(defined.includes(path), `missing shared report destination ${path}`);
+    const invocation = browserInvocations(seam, event)[0].invocations.find((entry) => entry.reportPath === path);
     paths.push(path);
-    const around = workflow.slice(Math.max(0, at - 1800), at + 3500);
-    assert.ok(around.includes('SIGRA_PLAYWRIGHT_JSON'), `${path} is not wired to the opt-in reporter`);
-    assert.ok(around.includes(selection), `${path} lost its selected test path/grep`);
-    assert.ok(around.includes(condition), `${path} lost its event/seam guard`);
-    assert.match(around, /--retries=0/);
+    const body = blocks.example_playwright_shard;
+    if (selection.includes('--grep-invert')) assert.equal(invocation.grepInvert, '@snapshot', `${path} snapshot exclusion drifted`);
+    else if (selection.includes('--grep ')) assert.equal(invocation.grep, '@snapshot', `${path} snapshot inclusion drifted`);
+    else assert.ok(invocation.specs.includes(selection), `${path} spec selection drifted`);
+    assert.ok(body.includes(condition), `${path} event/seam guard drifted`);
+    assert.ok(body.includes(`node ../../../../scripts/ci/ci-browser-command.mjs run --seam ${seam}`), `${path} is not executed through the shared command`);
+    assert.equal(invocation.retries, 0, `${path} retries must stay at zero`);
   }
   assert.equal(new Set(paths).size, 7, 'report destinations must be unique per command');
   for (const seam of ['admin_behavior', 'admin_checkpoints', 'design_gallery', 'non_admin_smoke', 'demo_showcase']) {

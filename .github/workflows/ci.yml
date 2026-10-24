@@ -1544,32 +1544,9 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          mkdir -p playwright-report
-          npx playwright test \
-            tests/admin-user-operations.spec.ts \
-            tests/impersonation.spec.ts \
-            tests/admin-audit.spec.ts \
-            tests/admin-theme.spec.ts \
-            tests/admin-coherence-sweep.spec.ts \
-            tests/admin-modal-interaction.spec.ts \
-            tests/admin-flow-platform-admin.spec.ts \
-            tests/admin-flow-support-investigator.spec.ts \
-            tests/admin-flow-org-admin.spec.ts \
-            --project=chromium \
-            --retries=0 \
-            --list --reporter=json > playwright-report/admin-behavior.selection.json
-          SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-behavior.json npx playwright test \
-            tests/admin-user-operations.spec.ts \
-            tests/impersonation.spec.ts \
-            tests/admin-audit.spec.ts \
-            tests/admin-theme.spec.ts \
-            tests/admin-coherence-sweep.spec.ts \
-            tests/admin-modal-interaction.spec.ts \
-            tests/admin-flow-platform-admin.spec.ts \
-            tests/admin-flow-support-investigator.spec.ts \
-            tests/admin-flow-org-admin.spec.ts \
-            --project=chromium \
-            --retries=0
+          set -euo pipefail
+          node ../../../../scripts/ci/ci-browser-command.mjs list --seam admin_behavior --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          node ../../../../scripts/ci/ci-browser-command.mjs run --seam admin_behavior --event "$GITHUB_EVENT_NAME" --output-root playwright-report
 
       - name: Run admin checkpoints
         id: admin_checkpoints
@@ -1579,20 +1556,9 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          mkdir -p playwright-report
-          npx playwright test \
-            tests/admin-checkpoints.spec.ts \
-            --project=admin-checkpoints-chromium \
-            --project=admin-checkpoints-mobile \
-            --project=admin-checkpoints-dark \
-            --retries=0 \
-            --list --reporter=json > playwright-report/admin-checkpoints.selection.json
-          SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-checkpoints.json npx playwright test \
-            tests/admin-checkpoints.spec.ts \
-            --project=admin-checkpoints-chromium \
-            --project=admin-checkpoints-mobile \
-            --project=admin-checkpoints-dark \
-            --retries=0
+          set -euo pipefail
+          node ../../../../scripts/ci/ci-browser-command.mjs list --seam admin_checkpoints --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          node ../../../../scripts/ci/ci-browser-command.mjs run --seam admin_checkpoints --event "$GITHUB_EVENT_NAME" --output-root playwright-report
 
       - name: Stage admin checkpoint PNGs
         if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'admin_checkpoints' }}
@@ -1609,22 +1575,9 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          mkdir -p playwright-report
-          npx playwright test \
-            tests/admin-design.spec.ts \
-            --project=admin-design-chromium \
-            --project=admin-design-mobile \
-            --project=admin-design-dark \
-            --grep-invert '@snapshot' \
-            --retries=0 \
-            --list --reporter=json > playwright-report/design-gallery-pr-behavior.selection.json
-          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-pr-behavior.json npx playwright test \
-            tests/admin-design.spec.ts \
-            --project=admin-design-chromium \
-            --project=admin-design-mobile \
-            --project=admin-design-dark \
-            --grep-invert '@snapshot' \
-            --retries=0
+          set -euo pipefail
+          node ../../../../scripts/ci/ci-browser-command.mjs list --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          node ../../../../scripts/ci/ci-browser-command.mjs run --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
 
       - name: Run design gallery behavior and snapshots
         id: design_gallery_snapshots
@@ -1634,37 +1587,9 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          mkdir -p playwright-report
-          npx playwright test \
-            tests/admin-design.spec.ts \
-            --project=admin-design-chromium \
-            --project=admin-design-mobile \
-            --project=admin-design-dark \
-            --grep '@snapshot' \
-            --retries=0 \
-            --list --reporter=json > playwright-report/design-gallery-nonpr-snapshots.selection.json
-          npx playwright test \
-            tests/admin-design.spec.ts \
-            --project=admin-design-chromium \
-            --project=admin-design-mobile \
-            --project=admin-design-dark \
-            --grep-invert '@snapshot' \
-            --retries=0 \
-            --list --reporter=json > playwright-report/design-gallery-nonpr-behavior.selection.json
-          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-nonpr-snapshots.json npx playwright test \
-            tests/admin-design.spec.ts \
-            --project=admin-design-chromium \
-            --project=admin-design-mobile \
-            --project=admin-design-dark \
-            --grep '@snapshot' \
-            --retries=0
-          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-nonpr-behavior.json npx playwright test \
-            tests/admin-design.spec.ts \
-            --project=admin-design-chromium \
-            --project=admin-design-mobile \
-            --project=admin-design-dark \
-            --grep-invert '@snapshot' \
-            --retries=0
+          set -euo pipefail
+          node ../../../../scripts/ci/ci-browser-command.mjs list --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          node ../../../../scripts/ci/ci-browser-command.mjs run --seam design_gallery --event "$GITHUB_EVENT_NAME" --output-root playwright-report
 
       - name: Run non-admin example browser smoke
         id: non_admin_smoke
@@ -1674,24 +1599,9 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          mkdir -p playwright-report
-          npx playwright test \
-            tests/golden-path.spec.ts \
-            tests/ga-uat-shift-left.spec.ts \
-            tests/passkeys-hooks.spec.ts \
-            tests/organizations.spec.ts \
-            tests/passkey-login.spec.ts \
-            tests/passkey-options.spec.ts \
-            --retries=0 \
-            --list --reporter=json > playwright-report/non-admin-smoke.selection.json
-          SIGRA_PLAYWRIGHT_JSON=playwright-report/non-admin-smoke.json npx playwright test \
-            tests/golden-path.spec.ts \
-            tests/ga-uat-shift-left.spec.ts \
-            tests/passkeys-hooks.spec.ts \
-            tests/organizations.spec.ts \
-            tests/passkey-login.spec.ts \
-            tests/passkey-options.spec.ts \
-            --retries=0
+          set -euo pipefail
+          node ../../../../scripts/ci/ci-browser-command.mjs list --seam non_admin_smoke --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          node ../../../../scripts/ci/ci-browser-command.mjs run --seam non_admin_smoke --event "$GITHUB_EVENT_NAME" --output-root playwright-report
 
       - name: Run demo showcase
         id: demo_showcase
@@ -1701,16 +1611,9 @@ jobs:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
         run: |
-          mkdir -p playwright-report
-          npx playwright test \
-            tests/demo-showcase.spec.ts \
-            --project=demo-showcase-chromium \
-            --retries=0 \
-            --list --reporter=json > playwright-report/demo-showcase.selection.json
-          SIGRA_PLAYWRIGHT_JSON=playwright-report/demo-showcase.json npx playwright test \
-            tests/demo-showcase.spec.ts \
-            --project=demo-showcase-chromium \
-            --retries=0
+          set -euo pipefail
+          node ../../../../scripts/ci/ci-browser-command.mjs list --seam demo_showcase --event "$GITHUB_EVENT_NAME" --output-root playwright-report
+          node ../../../../scripts/ci/ci-browser-command.mjs run --seam demo_showcase --event "$GITHUB_EVENT_NAME" --output-root playwright-report
 
       - name: Record selected browser execution
         id: browser_execution_record

@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { resolve, relative, sep, basename, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeReport } from './ci-playwright-report.mjs';
+import { browserInvocations } from './ci-browser-command.mjs';
 
 export const SEAMS = ['non_admin_smoke', 'admin_behavior', 'admin_checkpoints', 'design_gallery', 'demo_showcase'];
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -35,23 +36,20 @@ function confinedJSON(directory, path) {
   return confinedDocument(directory, path).value;
 }
 
-export function bodyPolicy(seam, event, workflow = readFileSync(resolve(root, '.github/workflows/ci.yml'), 'utf8')) {
+export function bodyPolicy(seam, event) {
   requireValue(SEAMS.includes(seam), 'unknown seam');
-  const shard = workflow.split('  example_playwright_shard:', 2)[1]?.split('\n  example_playwright_smoke:', 2)[0];
-  requireValue(shard, 'browser workflow producer missing');
-  const id = seam === 'design_gallery' && event !== 'pull_request' ? 'design_gallery_snapshots' : seam === 'design_gallery' ? 'design_gallery' : seam;
-  const body = shard.split(/\n {6}- /).find((part) => new RegExp(`^ {8}id: ${id}\\s*$`, 'm').test(part));
-  requireValue(body, `selected body ${id} missing`);
-  const invocations = body.split('SIGRA_PLAYWRIGHT_JSON=').slice(1).map((command) => {
-    const path = basename(command.split(/\s+/)[0]);
-    const specs = [...new Set([...command.matchAll(/tests\/([\w.-]+\.spec\.ts)/g)].map((match) => match[1]))].sort();
-    let projects = [...new Set([...command.matchAll(/--project=([\w-]+)/g)].map((match) => match[1]))].sort();
-    if (projects.length === 0 && seam === 'non_admin_smoke') projects = ['chromium', 'mobile'];
-    requireValue(specs.length > 0 && projects.length > 0 && path.endsWith('.json'), 'selected invocation invalid');
-    return { path, selection_path: path.replace(/\.json$/, '.selection.json'), specs, projects };
-  });
-  requireValue(invocations.length === (id === 'design_gallery_snapshots' ? 2 : 1), 'selected invocation count drift');
-  return [{ id, invocations }];
+  return browserInvocations(seam, event).map((step) => ({
+    id: step.id,
+    invocations: step.invocations.map((entry) => {
+      const path = basename(entry.reportPath);
+      const selection_path = basename(entry.selectionPath);
+      const specs = [...new Set(entry.specs.map((spec) => basename(spec)))].sort();
+      const projects = [...new Set(entry.projects)].sort();
+      requireValue(specs.length > 0 && projects.length > 0 && path.endsWith('.json') &&
+        selection_path === path.replace(/\.json$/, '.selection.json'), 'selected invocation invalid');
+      return { path, selection_path, specs, projects };
+    }),
+  }));
 }
 
 function selectionRows(report) {
