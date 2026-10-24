@@ -14,6 +14,7 @@ import stat
 import sys
 import tempfile
 import zipfile
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from datetime import datetime, timezone
 
 from ci_metrics_security import sanitize_failure_log, verified_failure_log, verified_zip_members
@@ -29,6 +30,7 @@ SECRET_SENTINEL = re.compile(
     rb"(?i)(SECRET[_ -]?SENTINEL|DO[_ -]?NOT[_ -]?UPLOAD|GH[pousr]_[A-Za-z0-9_]{20,}|"
     rb"github_pat_[A-Za-z0-9_]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)"
 )
+SENSITIVE_FIELD = re.compile(r"(?i)(?:^|[_-])(authorization|cookie|password|secret|token|session|csrf|api[_-]?key)(?:$|[_-])")
 
 
 def digest(payload: bytes) -> str:
@@ -138,9 +140,105 @@ def unsafe_content(payload: bytes) -> str | None:
     if SECRET_SENTINEL.search(payload):
         return "secret_sentinel_detected"
     lowered = payload[:MAX_FILE_BYTES].lower()
-    if b"storagestate" in lowered or b"storage-state" in lowered or b"playwright/.auth" in lowered:
+    if b"storagestate.json" in lowered or b"storage-state.json" in lowered or b"playwright/.auth" in lowered:
         return "auth_state_content_detected"
     return None
+
+
+def sensitive_name(value: object) -> bool:
+    return isinstance(value, str) and bool(SENSITIVE_FIELD.search(value.strip(" _-")))
+
+
+def redact_url(value: str, field_path: str, redactions: list[dict]) -> str:
+    parts = urlsplit(value)
+    pairs = parse_qsl(parts.query, keep_blank_values=True)
+    changed = False
+    cleaned = []
+    for key, item in pairs:
+        if sensitive_name(key):
+            item = "[REDACTED]"
+            changed = True
+            redactions.append({"field": f"{field_path}?{key}", "action": "value_redacted"})
+        cleaned.append((key, item))
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(cleaned, doseq=True) if changed else parts.query, parts.fragment))
+
+
+def redact_post_data(value: str, field_path: str, redactions: list[dict]) -> str:
+    try:
+        decoded = json.loads(value)
+    except (TypeError, ValueError):
+        pairs = parse_qsl(value, keep_blank_values=True)
+        if pairs and any(sensitive_name(key) for key, _ in pairs):
+            cleaned = [(key, "[REDACTED]" if sensitive_name(key) else item) for key, item in pairs]
+            redactions.extend({"field": f"{field_path}.{key}", "action": "value_redacted"} for key, _ in pairs if sensitive_name(key))
+            return urlencode(cleaned, doseq=True)
+        if re.search(r"(?i)(password|secret|token|authorization|session|csrf)", value):
+            redactions.append({"field": field_path, "action": "body_redacted"})
+            return "[REDACTED]"
+        return value
+    safe, nested = redact_trace_value(decoded, field_path, redactions, parent_key="postData")
+    return json.dumps(safe, ensure_ascii=False, separators=(",", ":"))
+
+
+def redact_trace_value(value: object, field_path: str, redactions: list[dict], parent_key: str = "") -> tuple[object, bool]:
+    if isinstance(value, dict):
+        result = {}
+        header_name = value.get("name")
+        sensitive_header = sensitive_name(header_name)
+        for key, item in value.items():
+            lowered = key.lower().replace("-", "_")
+            child_path = f"{field_path}.{key}"
+            if lowered in {"storagestate", "storage_state"}:
+                redactions.append({"field": child_path, "action": "field_removed"})
+                continue
+            if lowered == "value" and (parent_key == "cookies" or sensitive_header):
+                result[key] = "[REDACTED]"
+                redactions.append({"field": child_path, "action": "value_redacted"})
+                continue
+            if lowered == "url" and isinstance(item, str):
+                result[key] = redact_url(item, child_path, redactions)
+                continue
+            if lowered == "text" and parent_key.lower() in {"postdata", "post_data"} and isinstance(item, str):
+                result[key] = redact_post_data(item, child_path, redactions)
+                continue
+            if sensitive_name(key) and not isinstance(item, (dict, list)):
+                result[key] = "[REDACTED]"
+                redactions.append({"field": child_path, "action": "value_redacted"})
+                continue
+            result[key], _ = redact_trace_value(item, child_path, redactions, parent_key=key)
+        return result, result != value
+    if isinstance(value, list):
+        result = []
+        for index, item in enumerate(value):
+            result.append(redact_trace_value(item, f"{field_path}[{index}]", redactions, parent_key=parent_key)[0])
+        return result, result != value
+    return value, False
+
+
+def sanitize_trace_archive(payload: bytes) -> tuple[bytes, list[dict]]:
+    """Remove retained auth state and redact credential values in trace/HAR JSONL."""
+    output = io.BytesIO()
+    redactions: list[dict] = []
+    try:
+        with zipfile.ZipFile(io.BytesIO(payload)) as source, zipfile.ZipFile(output, "w") as target:
+            for info in source.infolist():
+                member = source.read(info)
+                if info.filename.endswith((".trace", ".network")):
+                    lines = []
+                    for line_number, line in enumerate(member.splitlines()):
+                        try:
+                            event = json.loads(line)
+                        except (UnicodeDecodeError, json.JSONDecodeError):
+                            lines.append(line)
+                            continue
+                        safe, _ = redact_trace_value(event, f"{info.filename}[{line_number}]", redactions)
+                        lines.append(json.dumps(safe, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+                    member = b"\n".join(lines) + (b"\n" if member.endswith(b"\n") else b"")
+                target.writestr(info, member)
+    except (OSError, zipfile.BadZipFile, KeyError, RuntimeError) as error:
+        raise ValueError(f"trace_archive_invalid:{error}") from None
+    unique = {json.dumps(item, sort_keys=True): item for item in redactions}
+    return output.getvalue(), [unique[key] for key in sorted(unique)]
 
 
 def inspect_trace_archive(payload: bytes) -> str | None:
@@ -204,6 +302,8 @@ def stage_bundle(invocation_root: pathlib.Path, manifest_path: pathlib.Path, out
                 continue
         raw = source_bytes(root, relative, entry["sha256"])
         unsafe = None
+        payload = raw
+        trace_redactions: list[dict] = []
         if kind == "trace":
             try:
                 unsafe = inspect_trace_archive(raw)
@@ -211,13 +311,17 @@ def stage_bundle(invocation_root: pathlib.Path, manifest_path: pathlib.Path, out
                 if not unsafe_content(raw):
                     raise
             unsafe = unsafe or unsafe_content(raw)
+            if not unsafe:
+                payload, trace_redactions = sanitize_trace_archive(raw)
+                unsafe = inspect_trace_archive(payload)
         else:
             unsafe = unsafe_content(raw)
         if unsafe:
             withheld.append({"path": relative, "reason": unsafe})
             continue
-        payload = raw
-        details = {"kind": kind, "source_sha256": entry["sha256"], "size": len(raw)}
+        details = {"kind": kind, "source_sha256": entry["sha256"], "source_size": len(raw), "size": len(payload)}
+        if kind == "trace":
+            details.update({"sanitized": bool(trace_redactions), "redactions": trace_redactions})
         if kind in LOG_KINDS:
             excerpt = sanitize_failure_log(raw, max_input_bytes=MAX_FILE_BYTES, max_output_bytes=64 * 1024)
             payload = excerpt["text"].encode("utf-8")
@@ -330,6 +434,10 @@ def verify_bundle(bundle: pathlib.Path, manifest_path: pathlib.Path) -> dict:
                 if source_entry["kind"] in LOG_KINDS:
                     expected_payload = sanitize_failure_log(original, max_input_bytes=MAX_FILE_BYTES,
                                                              max_output_bytes=64 * 1024)["text"].encode("utf-8")
+                elif source_entry["kind"] == "trace":
+                    expected_payload, redactions = sanitize_trace_archive(original)
+                    if details.get("redactions") != redactions:
+                        raise ValueError(f"archive_trace_redaction_record_invalid:{name}")
                 if verified[name] != expected_payload:
                     raise ValueError(f"archive_member_source_bytes_mismatch:{name}")
     except (OSError, zipfile.BadZipFile, KeyError, json.JSONDecodeError) as error:

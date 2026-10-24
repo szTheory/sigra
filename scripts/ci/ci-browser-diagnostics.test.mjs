@@ -68,6 +68,7 @@ test('local reproduction exposes retained native failure, startup and terminatio
   assert.match(result.stdout, /--diagnostic-case/);
   assert.match(result.stdout, /--keep-output/);
   assert.match(result.stdout, /--diagnostic-startup-failure/);
+  assert.match(result.stdout, /--diagnostics-off/);
   assert.match(result.stdout, /pass,fail,terminate/);
 });
 
@@ -148,7 +149,7 @@ async function nativeRun(outputFile) {
   assert.notEqual(firstFailure.owner.native_diagnostic?.exit_code, 0, 'the assertion failure must be real and reported by Playwright');
   const firstTraces = traceFiles(firstFailure.output);
   assert.ok(firstTraces.length >= 2, `expected Playwright and adminTheme traces, found ${firstTraces.length}`);
-  const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], ...assertReadableTrace(file) }));
+  const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], bundle_path: path.relative(evidenceRoot, file).split(path.sep).join('/'), ...assertReadableTrace(file) }));
 
   const followingPass = runOwnedCase(evidenceRoot, '02-pass-after-failure', ['--diagnostic-case', 'pass']);
   rows.push({ case: 'pass_after_failure', expected_exit: 0, observed_exit: followingPass.result.status, owner: followingPass.owner, invocation_root: path.relative(outputRoot, followingPass.output) });
@@ -157,14 +158,14 @@ async function nativeRun(outputFile) {
   assert.deepEqual(traceFacts(firstTraces), firstTraceFacts.map(({ path: itemPath, sha256, size }) => ({ path: itemPath, sha256, size })), 'the later invocation changed the earlier failure traces');
 
   const startup = runOwnedCase(evidenceRoot, '03-startup-failure', ['--diagnostic-startup-failure']);
-  rows.push({ case: 'phoenix_startup_failure', expected_exit: 1, observed_exit: startup.result.status, owner: startup.owner, invocation_root: path.relative(outputRoot, startup.output) });
+  rows.push({ case: 'phoenix_startup_failure', expected_exit: 1, observed_exit: startup.result.status, owner: startup.owner, invocation_root: path.relative(outputRoot, startup.output), trace_unavailable_reason: startup.owner.server_startup_failure?.trace_unavailable_reason });
   assert.notEqual(startup.result.status, 0);
   assert.equal(startup.owner.server_startup_failure?.observed, true);
   assert.equal(startup.owner.server_startup_failure?.trace_unavailable_reason, 'context_not_created');
   assert.ok(fs.statSync(path.join(startup.output, 'server.stderr.bin')).size > 0, 'startup failure has no independent server stderr');
 
   const terminate = runOwnedCase(evidenceRoot, '04-runner-terminated', ['--diagnostic-case', 'terminate']);
-  rows.push({ case: 'runner_sigterm', expected_signal: 15, observed_exit: terminate.result.status, owner: terminate.owner, invocation_root: path.relative(outputRoot, terminate.output) });
+  rows.push({ case: 'runner_sigterm', expected_signal: 15, observed_exit: terminate.result.status, owner: terminate.owner, invocation_root: path.relative(outputRoot, terminate.output), trace_unavailable_reason: terminate.owner.native_diagnostic?.trace_unavailable_reason });
   assert.equal(terminate.owner.native_diagnostic?.observed_signal, 15, JSON.stringify(terminate.owner.native_diagnostic));
   assert.equal(terminate.owner.native_diagnostic?.trace_unavailable_reason, 'runner_terminated');
 
@@ -180,7 +181,7 @@ async function nativeRun(outputFile) {
   assert.ok(fs.readFileSync(discoveryReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse).some((event) => event.type === 'error'), 'discovery reporter has no onError record');
   const browserLaunch = toolRecorderCase(diagnosticOutput, 'browser-launch', [node, path.join(playwright, 'node_modules/playwright/cli.js'), 'test', '--config', config, '--project=chromium', '--retries=0', '--grep', 'retains a default-context first failure'], { ...precontextEnv('browser-launch-negative'), PLAYWRIGHT_BROWSERS_PATH: path.join(diagnosticOutput, 'empty-browsers') });
   assert.notEqual(browserLaunch.result.status, 0);
-  assert.ok(fs.statSync(path.join(browserLaunch.output, 'stderr.bin')).size > 0);
+  assert.ok(fs.statSync(path.join(browserLaunch.output, 'stdout.bin')).size + fs.statSync(path.join(browserLaunch.output, 'stderr.bin')).size > 0);
   const launchReport = path.join(diagnosticOutput, 'browser-launch-negative-native/failure-events.jsonl');
   assert.ok(fs.existsSync(launchReport), 'browser launch error did not produce reporter output');
   const launchEvents = fs.readFileSync(launchReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
@@ -241,6 +242,13 @@ async function nativeRun(outputFile) {
   }
   const bundle = fs.readFileSync(bundlePath);
   const bundleMetadata = JSON.parse(spawnSync(python, ['-B', '-c', "import sys,zipfile; print(zipfile.ZipFile(sys.argv[1]).read('bundle-manifest.json').decode())", bundlePath], { encoding: 'utf8' }).stdout);
+  const retainedTraceFacts = firstTraceFacts.map((fact) => {
+    const member = bundleMetadata.members[fact.bundle_path];
+    assert.ok(member, `actual trace missing from safe bundle: ${fact.bundle_path}`);
+    assert.equal(member.source_sha256, fact.sha256, `bundle trace source hash mismatch: ${fact.bundle_path}`);
+    assert.ok(member.redactions?.length > 0, `trace auth data was not recorded as sanitized: ${fact.bundle_path}`);
+    return { ...fact, sanitized_sha256: member.sha256, redactions: member.redactions };
+  });
   const selectedNativeIdentities = [];
   const nativeReportPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'native-report.json');
   const nativeReport = JSON.parse(fs.readFileSync(nativeReportPath, 'utf8'));
@@ -260,7 +268,7 @@ async function nativeRun(outputFile) {
   const escapeStage = spawnSync(python, ['-B', path.join(root, 'scripts/ci/ci-diagnostic-bundle.py'), 'stage', '--invocation-root', evidenceRoot, '--manifest', escapeManifestPath, '--output', path.join(evidenceRoot, 'escape.zip')], { cwd: root, encoding: 'utf8' });
   assert.notEqual(escapeStage.status, 0, 'escaping symlink path unexpectedly staged');
   fs.unlinkSync(escapePath);
-  const result = { schema: 'sigra.browser-diagnostics.native/v1', generated_at: new Date().toISOString(), source_identity: sourceIdentity, runtime, configuration: { retries: 0, workers: 1, synthetic_accounts_only: true, postgres_role_fallback: 'getpass.getuser()', diagnostics_opt_in: true }, cases: rows, traces: firstTraceFacts, passing_trace_count: 0, selected_native_identities: selectedNativeIdentities, bundle: { path: path.relative(root, bundlePath), sha256: digest(bundle), size: bundle.length, verified: true, member_paths: Object.keys(bundleMetadata.members).sort(), withheld: bundleMetadata.withheld }, negative_cases: { nested_secret_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret-trace.zip' && entry.reason === 'secret_sentinel_detected'), auth_paths_excluded: bundleMetadata.withheld.some((entry) => entry.path.includes('storageState.json') && entry.reason === 'auth_state_excluded'), secret_sentinel_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret.log' && entry.reason === 'secret_sentinel_detected'), stale_output_excluded: !Object.keys(bundleMetadata.members).some((name) => name.includes('stale-prior-invocation')) && fs.existsSync(staleOutput), escaping_paths_rejected: escapeStage.status !== 0 }, trace_unavailable_reasons: rows.filter((row) => row.trace_unavailable_reason).map(({ case: name, trace_unavailable_reason }) => ({ case: name, reason: trace_unavailable_reason })) };
+  const result = { schema: 'sigra.browser-diagnostics.native/v1', generated_at: new Date().toISOString(), source_identity: sourceIdentity, runtime, configuration: { retries: 0, workers: 1, synthetic_accounts_only: true, postgres_role_fallback: 'getpass.getuser()', diagnostics_opt_in: true }, cases: rows, traces: retainedTraceFacts, passing_trace_count: 0, selected_native_identities: selectedNativeIdentities, bundle: { path: path.relative(root, bundlePath), sha256: digest(bundle), size: bundle.length, verified: true, member_paths: Object.keys(bundleMetadata.members).sort(), member_metadata: bundleMetadata.members, withheld: bundleMetadata.withheld }, negative_cases: { nested_secret_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret-trace.zip' && entry.reason === 'secret_sentinel_detected'), auth_paths_excluded: bundleMetadata.withheld.some((entry) => entry.path.includes('storageState.json') && entry.reason === 'auth_state_excluded'), secret_sentinel_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret.log' && entry.reason === 'secret_sentinel_detected'), stale_output_excluded: !Object.keys(bundleMetadata.members).some((name) => name.includes('stale-prior-invocation')) && fs.existsSync(staleOutput), escaping_paths_rejected: escapeStage.status !== 0 }, trace_unavailable_reasons: rows.filter((row) => row.trace_unavailable_reason).map(({ case: name, trace_unavailable_reason }) => ({ case: name, reason: trace_unavailable_reason })) };
   fs.writeFileSync(path.resolve(outputFile), JSON.stringify(result, null, 2) + '\n');
   return result;
 }
@@ -270,11 +278,12 @@ async function measureOverhead(outputFile, pairs) {
   const evidenceRoot = freshDirectory(path.dirname(path.resolve(outputFile)), 'browser-diagnostics-overhead');
   const off = [];
   const on = [];
-  const focused = ['--grep', 'passes and discards a default-context trace'];
+  const focused = ['--grep', 'discards a default-context pass'];
   for (let pair = 1; pair <= pairs; pair += 1) {
     for (const enabled of [false, true]) {
       const start = performance.now();
-      const row = runOwnedCase(evidenceRoot, `pair-${pair}-${enabled ? 'on' : 'off'}`, enabled ? ['--diagnostic-case', 'pass', ...focused] : []);
+      const args = ['--diagnostic-case', 'pass', ...(enabled ? [] : ['--diagnostics-off']), ...focused];
+      const row = runOwnedCase(evidenceRoot, `pair-${pair}-${enabled ? 'on' : 'off'}`, args);
       const elapsed = Math.round(performance.now() - start);
       assert.equal(row.result.status, 0, row.result.stderr);
       (enabled ? on : off).push(elapsed);

@@ -22,11 +22,11 @@ async function exerciseBrowserCase(page: Page) {
 }
 
 plainTest('retains a default-context first failure', async ({ page }, testInfo) => {
-  expect(testInfo.project.use.trace).toBe('retain-on-failure');
+  expect(testInfo.project.use.trace).toBe(process.env.SIGRA_CI_DIAGNOSTICS === '1' ? 'retain-on-failure' : 'on-first-retry');
   await exerciseBrowserCase(page);
 });
 
 plainTest('discards a default-context pass', async ({ page }, testInfo) => {
-  expect(testInfo.project.use.trace).toBe('retain-on-failure');
+  expect(testInfo.project.use.trace).toBe(process.env.SIGRA_CI_DIAGNOSTICS === '1' ? 'retain-on-failure' : 'on-first-retry');
   await exerciseBrowserCase(page);
 });

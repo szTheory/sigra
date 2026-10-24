@@ -56,6 +56,9 @@ const diagnosticsEnabled = process.env.SIGRA_CI_DIAGNOSTICS === '1';
 const diagnosticsRoot = diagnosticsEnabled && process.env.SIGRA_CI_DIAGNOSTICS_ROOT
   ? path.resolve(process.env.SIGRA_CI_DIAGNOSTICS_ROOT)
   : null;
+const invocationOutputRoot = diagnosticsRoot ?? (process.env.SIGRA_CI_NATIVE_OUTPUT_ROOT
+  ? path.resolve(process.env.SIGRA_CI_NATIVE_OUTPUT_ROOT)
+  : null);
 if (diagnosticsEnabled && !diagnosticsRoot) {
   throw new Error('SIGRA_CI_DIAGNOSTICS_ROOT is required when SIGRA_CI_DIAGNOSTICS=1');
 }
@@ -66,7 +69,7 @@ const jsonReportPath = diagnosticsRoot
 // collected selection/execution JSON, which the native coverage guard must retain.
 const reporters: ReporterDescription[] = [
   ['list'],
-  ['html', { open: 'never', outputFolder: diagnosticsRoot ? path.join(diagnosticsRoot, 'html-report') : 'playwright-report/html' }],
+  ['html', { open: 'never', outputFolder: invocationOutputRoot ? path.join(invocationOutputRoot, 'html-report') : 'playwright-report/html' }],
 ];
 
 if (jsonReportPath) {
@@ -92,7 +95,7 @@ if (failureJsonlPath) {
 
 export default defineConfig({
   testDir: './tests',
-  outputDir: diagnosticsRoot ? path.join(diagnosticsRoot, 'test-output') : './test-results',
+  outputDir: invocationOutputRoot ? path.join(invocationOutputRoot, 'test-output') : './test-results',
   fullyParallel: false,
   workers: 1,
   retries: 0,

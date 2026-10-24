@@ -504,14 +504,20 @@ def _run_local(args: argparse.Namespace) -> int:
             diagnostic_root = output_root / "native-diagnostics" / args.diagnostic_case
             invocation_id = f"{output_root.name}-{args.diagnostic_case}"
             diagnostic_env = dict(app_env)
-            diagnostic_env.update({
-                "SIGRA_CI_DIAGNOSTICS": "1",
-                "SIGRA_CI_DIAGNOSTICS_ROOT": str(diagnostic_root),
-                "SIGRA_CI_TRACE_REGISTRY": str(diagnostic_root / "trace-registry.jsonl"),
-                "SIGRA_CI_INVOCATION_ID": invocation_id,
-                "SIGRA_CI_NATIVE_IDENTITY": "chromium:playwright-diagnostics.spec.ts",
-                "SIGRA_DIAGNOSTIC_CASE": args.diagnostic_case,
-            })
+            diagnostic_env["SIGRA_DIAGNOSTIC_CASE"] = args.diagnostic_case
+            if args.diagnostics_off:
+                diagnostic_env.pop("SIGRA_CI_DIAGNOSTICS", None)
+                diagnostic_env.pop("SIGRA_CI_DIAGNOSTICS_ROOT", None)
+                diagnostic_env.pop("SIGRA_CI_TRACE_REGISTRY", None)
+                diagnostic_env["SIGRA_CI_NATIVE_OUTPUT_ROOT"] = str(diagnostic_root)
+            else:
+                diagnostic_env.update({
+                    "SIGRA_CI_DIAGNOSTICS": "1",
+                    "SIGRA_CI_DIAGNOSTICS_ROOT": str(diagnostic_root),
+                    "SIGRA_CI_TRACE_REGISTRY": str(diagnostic_root / "trace-registry.jsonl"),
+                    "SIGRA_CI_INVOCATION_ID": invocation_id,
+                    "SIGRA_CI_NATIVE_IDENTITY": "chromium:playwright-diagnostics.spec.ts",
+                })
             command = ["node", str(PLAYWRIGHT / "node_modules/playwright/cli.js"), "test",
                        "--config", str(DIAGNOSTIC_CONFIG), "--project=chromium", "--retries=0"]
             if args.grep:
@@ -618,6 +624,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--grep", help="narrow the selected seam to a matching test title")
     parser.add_argument("--diagnostic-case", choices=("pass", "fail", "terminate"), help="run the isolated real-browser diagnostics fixture")
+    parser.add_argument("--diagnostics-off", action="store_true", help="run the passing fixture with existing trace defaults for overhead comparison")
     parser.add_argument("--diagnostic-startup-failure", action="store_true", help="occupy the owned port to capture a real Phoenix startup failure")
     parser.add_argument("--keep-output", action="store_true", help="retain the owned output directory after cleanup; diagnostics only")
     parser.add_argument("--output-root", help="new, non-existent directory for this invocation's diagnostics")
@@ -626,6 +633,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--keep-output is available only with diagnostic mode")
     if args.diagnostic_case and args.diagnostic_startup_failure:
         parser.error("choose either --diagnostic-case or --diagnostic-startup-failure")
+    if args.diagnostics_off and args.diagnostic_case != "pass":
+        parser.error("--diagnostics-off requires --diagnostic-case pass")
     try:
         return _run_local(args)
     except BrowserLocalError as error:
