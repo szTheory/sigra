@@ -35,7 +35,7 @@ class ReplayTest(unittest.TestCase):
 
     def test_distribution_secret_scan_rejects_real_looking_credentials(self):
         mod = self.module()
-        fake = b'ghp_abcdefghijklmnopqrstuvwxyz01234567890'
+        fake = b'ghp_abcdefghijklmnopqrstuvwxyz0123456789'
         self.assertEqual(mod.package_secret_findings({'fixture.json': fake}), [])
         self.assertEqual(mod.package_secret_findings({'capture.json': b'ghp_AbCDef0123456789zYXwvUTSRQ'}),
                          ['capture.json'])

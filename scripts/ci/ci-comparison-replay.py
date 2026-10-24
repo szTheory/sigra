@@ -266,8 +266,13 @@ def package_secret_findings(data):
         for pattern in patterns:
             for match in pattern.finditer(raw):
                 value = match.group()
-                # Historical API fixtures contain this public, intentionally fake sample.
-                if value == b'ghp_abcdefghijklmnopqrstuvwxyz01234567890':
+                # Historical API fixtures contain a sequential, intentionally fake PAT.
+                body = value[4:] if value.startswith(b'ghp_') else b''
+                alphabet = b'abcdefghijklmnopqrstuvwxyz'
+                digit_sequences = (b'0123456789', b'01234567890', b'1234567890')
+                if any(body == alphabet[:letters] + digits[:numbers]
+                       for letters in range(20, 27) for digits in digit_sequences
+                       for numbers in (8, len(digits))):
                     continue
                 findings.append(path)
                 break
