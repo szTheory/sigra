@@ -40,6 +40,7 @@ EVIDENCE_ROOT = '.planning/execution/255-replay/distributed'
 EVIDENCE_PACKAGE = EVIDENCE_ROOT + '/input-package.tar.gz'
 EVIDENCE_MANIFEST = EVIDENCE_ROOT + '/INPUTS.json'
 DISTRIBUTION_FREEZE = '.planning/execution/255-replay/DISTRIBUTION-FREEZE.json'
+DISTRIBUTION_ATTEMPTS = '.planning/execution/255-replay/DISTRIBUTION-ATTEMPTS.json'
 
 
 def digest(data):
@@ -381,9 +382,6 @@ def isolated_fetch_and_replay(root, remote_url, remote_ref, expected_commit, pac
         for name, expected in manifest['input_hashes_before'].items():
             if name not in data or digest(data[name]) != expected:
                 raise ValueError('retrieved_input_hash_mismatch:' + name)
-        source = checkout / 'packaged-replay'
-        source.mkdir()
-        materialize_inputs(manifest, data, source)
         deny = Path(temp) / 'deny-network'
         deny.mkdir()
         network_log = Path(temp) / 'network-attempts'
@@ -394,9 +392,9 @@ def isolated_fetch_and_replay(root, remote_url, remote_ref, expected_commit, pac
         env = {**env, 'PATH': str(deny) + os.pathsep + os.environ['PATH'],
                'PYTHONDONTWRITEBYTECODE': '1', 'SIGRA_REPLAY_NETWORK_LOG': str(network_log)}
         output = Path(temp) / 'replay-result.json'
-        command = ['python3', '-B', str(source / 'scripts/ci/ci-comparison-replay.py'),
+        command = ['python3', '-B', str(checkout / 'scripts/ci/ci-comparison-replay.py'),
                    'replay', '--package', str(package_path), '--output', str(output)]
-        result = subprocess.run(command, cwd=source, env=env, capture_output=True, text=True,
+        result = subprocess.run(command, cwd=checkout, env=env, capture_output=True, text=True,
                                 timeout=240)
         if result.returncode:
             raise ValueError('offline_replay_failed:' + result.stderr[-4000:])
@@ -439,41 +437,90 @@ def distribute_inputs(root, remote, output):
         raise ValueError('local_manifest_bytes_mismatch')
     remote_url = safe_remote_url(root, remote)
     ref = distribution_ref(package_sha)
-    if remote_ref_oid(root, remote, ref) is not None:
-        raise ValueError('remote_evidence_ref_already_exists')
-    helper_source, commit, local_ref = create_evidence_commit(root, ref, manifest_bytes, package_bytes)
-    if remote_ref_oid(root, remote, ref) is not None:
-        raise ValueError('remote_evidence_ref_created_during_preflight')
-    push_command = ['git', 'push', '--porcelain', '--force-with-lease=' + ref + ':',
-                    remote, commit + ':' + ref]
-    push_env = clean_git_env()
-    push_retry_used = False
-    push = subprocess.run(push_command, cwd=root, env=push_env, capture_output=True,
-                          text=True, timeout=180)
-    reconciled = None
-    if push.returncode:
-        for attempt in range(3):
-            reconciled = remote_ref_oid(root, remote, ref)
-            if reconciled is not None:
-                break
-            if attempt < 2:
-                time.sleep(5)
-        if reconciled != commit:
-            transient = any(term in (push.stderr + push.stdout).lower() for term in
-                             ('timed out', 'timeout', 'connection reset', 'remote end hung up',
-                              'early eof', 'could not read from remote', 'connection closed'))
-            if not transient or reconciled is not None:
-                raise ValueError('evidence_push_failed:' + push.stderr[-2000:])
-            push_retry_used = True
-            retry = subprocess.run(push_command, cwd=root, env=push_env, capture_output=True,
-                                   text=True, timeout=180)
-            reconciled = remote_ref_oid(root, remote, ref)
-            if retry.returncode and reconciled != commit:
-                raise ValueError('evidence_push_retry_failed:' + retry.stderr[-2000:])
+    attempts_path = root / DISTRIBUTION_ATTEMPTS
+    attempts = load(attempts_path) if attempts_path.exists() else {
+        'schema_version': 'sigra.phase255.distribution-attempts/v1',
+        'package_sha256': package_sha, 'remote_ref': ref, 'push': None, 'retrievals': []}
+    if attempts.get('package_sha256') != package_sha or attempts.get('remote_ref') != ref:
+        raise ValueError('distribution_attempt_ledger_mismatch')
+    existing = remote_ref_oid(root, remote, ref)
+    push_retry_used = bool((attempts.get('push') or {}).get('transport_retries', 0))
+    if existing is not None:
+        commit = existing
+        parent = git_command(root, 'rev-parse', commit + '^')
+        local_ref = ref.replace('refs/heads/', 'refs/evidence/', 1)
+        if git_command(root, 'rev-parse', '--verify', local_ref) != commit:
+            raise ValueError('remote_evidence_commit_not_pinned_locally')
+        for path, expected in ((EVIDENCE_PACKAGE, package_bytes),
+                               (EVIDENCE_MANIFEST, manifest_bytes)):
+            actual = subprocess.run(['git', 'show', commit + ':' + path], cwd=root,
+                                    capture_output=True, check=False)
+            if actual.returncode or actual.stdout != expected:
+                raise ValueError('existing_remote_evidence_mismatch:' + path)
+        helper_source = parent
+        push_result = 'reconciled_existing_create_only_push'
+        if attempts.get('push') and attempts['push'].get('commit') != commit:
+            raise ValueError('distribution_push_ledger_commit_mismatch')
+    else:
+        if attempts.get('push'):
+            raise ValueError('previous_push_not_reconciled')
+        helper_source, commit, local_ref = create_evidence_commit(root, ref, manifest_bytes, package_bytes)
+        if remote_ref_oid(root, remote, ref) is not None:
+            raise ValueError('remote_evidence_ref_created_during_preflight')
+        push_command = ['git', 'push', '--porcelain', '--force-with-lease=' + ref + ':',
+                        remote, commit + ':' + ref]
+        push_env = clean_git_env()
+        push = subprocess.run(push_command, cwd=root, env=push_env, capture_output=True,
+                              text=True, timeout=180)
+        reconciled = None
+        if push.returncode:
+            for attempt in range(3):
+                reconciled = remote_ref_oid(root, remote, ref)
+                if reconciled is not None:
+                    break
+                if attempt < 2:
+                    time.sleep(5)
+            if reconciled != commit:
+                transient = any(term in (push.stderr + push.stdout).lower() for term in
+                                 ('timed out', 'timeout', 'connection reset', 'remote end hung up',
+                                  'early eof', 'could not read from remote', 'connection closed'))
+                if not transient or reconciled is not None:
+                    raise ValueError('evidence_push_failed:' + push.stderr[-2000:])
+                push_retry_used = True
+                retry = subprocess.run(push_command, cwd=root, env=push_env, capture_output=True,
+                                       text=True, timeout=180)
+                reconciled = remote_ref_oid(root, remote, ref)
+                if retry.returncode and reconciled != commit:
+                    raise ValueError('evidence_push_retry_failed:' + retry.stderr[-2000:])
+        remote_commit = remote_ref_oid(root, remote, ref)
+        if remote_commit != commit:
+            raise ValueError('remote_evidence_commit_readback_mismatch')
+        push_result = 'created_once'
+        attempts['push'] = {'status': 'created_once', 'commit': commit,
+                            'transport_retries': int(push_retry_used), 'remote_readback': remote_commit}
+    if not attempts.get('retrievals'):
+        try:
+            replay = isolated_fetch_and_replay(root, remote_url, ref, commit, package_sha)
+            attempts['retrievals'].append({'attempt': 1, 'status': 'passed',
+                                           'checkout_commit': replay['fetched_commit'],
+                                           'offline_replay': replay})
+            retrieval_result = {'status': 'passed', 'attempts': 1,
+                                'checkout_commit': replay['fetched_commit']}
+            record_status = 'distributed_and_replayed'
+        except Exception as error:
+            attempts['retrievals'].append({'attempt': 1, 'status': 'failed',
+                                           'diagnostic': str(error)})
+            write(attempts_path, attempts)
+            raise
+    else:
+        retrieval_result = {'status': 'pending_retry_after_recorded_failure', 'attempts': 1,
+                            'prior_diagnostic': attempts['retrievals'][-1].get('diagnostic')}
+        replay = None
+        record_status = 'published_verification_pending'
+    write(attempts_path, attempts)
     remote_commit = remote_ref_oid(root, remote, ref)
     if remote_commit != commit:
         raise ValueError('remote_evidence_commit_readback_mismatch')
-    replay = isolated_fetch_and_replay(root, remote_url, ref, commit, package_sha)
     record = {'schema_version': 'sigra.phase255.distribution/v1', 'status': 'distributed_and_replayed',
               'remote_name': remote, 'remote_url': remote_url, 'remote_ref': ref,
               'evidence_commit': commit, 'evidence_parent': git_command(root, 'rev-parse', commit + '^'),
@@ -487,9 +534,10 @@ def distribute_inputs(root, remote, output):
                                   'transient_transport_retries': int(push_retry_used),
                                   'fresh_checkout_retrieval_attempts': 1,
                                   'workflow_dispatches': 0}},
-              'push_result': 'created_once', 'push_retries': 0, 'remote_readback_commit': remote_commit,
-              'retrieval_result': {'status': 'passed', 'attempts': 1, 'checkout_commit': replay['fetched_commit']},
-              'offline_replay_result': replay}
+              'push_result': push_result, 'push_retries': int(push_retry_used), 'remote_readback_commit': remote_commit,
+              'retrieval_result': retrieval_result, 'offline_replay_result': replay,
+              'distribution_attempts': DISTRIBUTION_ATTEMPTS}
+    record['status'] = record_status
     write(output, record)
     return record
 
@@ -503,17 +551,29 @@ def verify_distribution(root, record_path):
     expected_ref = distribution_ref(record.get('package_sha256', ''))
     if record.get('remote_ref') != expected_ref:
         raise ValueError('distribution_ref_package_mismatch')
-    if record.get('status') != 'distributed_and_replayed':
-        raise ValueError('distribution_not_complete')
+    if record.get('status') not in ('distributed_and_replayed', 'published_verification_pending'):
+        raise ValueError('distribution_not_ready_for_verification')
     ref_oid = remote_ref_oid(root, record['remote_name'], expected_ref)
     if ref_oid != record.get('evidence_commit'):
         raise ValueError('remote_evidence_commit_changed')
+    attempts_path = root / DISTRIBUTION_ATTEMPTS
+    attempts = load(attempts_path)
+    if len(attempts.get('retrievals', [])) >= 2:
+        raise ValueError('distribution_retrieval_budget_exhausted')
+    attempt_number = len(attempts.get('retrievals', [])) + 1
     replay = isolated_fetch_and_replay(root, record['remote_url'], expected_ref,
                                        record['evidence_commit'], record['package_sha256'])
+    attempts['retrievals'].append({'attempt': attempt_number, 'status': 'passed',
+                                   'checkout_commit': replay['fetched_commit'],
+                                   'offline_replay': replay})
+    write(attempts_path, attempts)
     record['independent_verification'] = {'status': 'passed', 'attempts': 1,
                                            'checkout_commit': replay['fetched_commit'],
                                            'replay': replay}
-    record['retrieval_result']['total_attempts'] = 2
+    record['offline_replay_result'] = replay
+    record['retrieval_result'] = {'status': 'passed', 'attempts': len(attempts['retrievals']),
+                                  'checkout_commit': replay['fetched_commit']}
+    record['budget']['used']['fresh_checkout_retrieval_attempts'] = len(attempts['retrievals'])
     record['status'] = 'verified'
     write(record_path, record)
     return record
