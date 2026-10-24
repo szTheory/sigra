@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:29:15.678104+00:00",
-  "status": "verifying",
+  "updated_at": "2026-10-24T20:38:45.370950+00:00",
+  "status": "phase_complete",
   "current_milestone": "v1.50",
   "current_phase": 255,
   "current_plan": null,
@@ -16,16 +16,17 @@
   ],
   "remaining_plans": [],
   "implementation_status": "complete",
-  "verification_status": "in_progress",
-  "next_command": "$gsd-execute-phase 255",
-  "resume_command": "$gsd-execute-phase 255",
-  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-SUMMARY.md",
+  "verification_status": "passed",
+  "next_command": "$gsd-audit-milestone",
+  "resume_command": "$gsd-audit-milestone",
+  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md",
   "readiness": {
-    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
-    "incomplete_count": 0,
-    "ready_plan": null,
-    "prerequisite_blocker": false,
-    "route": "execution gates and phase verifier"
+    "command": "query roadmap.analyze; query init.execute-phase 254; query init.transition",
+    "next_phase": null,
+    "phase254_incomplete_count": 0,
+    "phase254_runnable_count": 0,
+    "route": "$gsd-audit-milestone",
+    "record": ".planning/execution/255-verification/FORWARD-ROUTE.json"
   },
   "hosted_canary": {
     "status": "complete_closed",
@@ -59,7 +60,8 @@
     "final_native_browser": ".planning/execution/255-verification/BROWSER-DIAGNOSTICS-AFTER-REVIEW.json",
     "final_trace_overhead": ".planning/execution/255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json",
     "regression_gate": ".planning/execution/255-verification/REGRESSION-GATE.json",
-    "final_raw_recovery": ".planning/execution/255-verification/RAW-STORAGE-FINAL.json"
+    "final_raw_recovery": ".planning/execution/255-verification/RAW-STORAGE-FINAL.json",
+    "verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md"
   },
   "constraints": [
     "Keep Phase 254 comparison terminal insufficient_data; no new comparison runs or renewed historical budget.",
@@ -101,14 +103,34 @@
     "remote_ref": "refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d",
     "evidence_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb"
   },
-  "pending_gates": [
-    "independent phase goal verifier"
-  ],
+  "pending_gates": [],
   "review": {
     "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md",
     "critical": 0,
     "warning": 0,
     "disposition": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW-DISPOSITION.md",
     "original_findings_fixed": 5
+  },
+  "next_roadmap_phase": null,
+  "remaining_milestone_items": [
+    "Phase254 verification",
+    "CISPEED-01",
+    "CISPEED-02"
+  ],
+  "completion_tool_preservation": {
+    "commit": "8ba5a87607be94d582d3e5daf3e47cbf7fa4dc21",
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "paths": {
+      ".planning/STATE.md": "2084ab9e20e6c07ccb009de69370050c0ad3aaf19ed9c994bfac3b18a972ce40",
+      ".planning/state.json": "5f418a87c82aacb4e2671335df87457bb86f0f989a83386d0d26b964db139d67",
+      ".planning/ROADMAP.md": "9a989e8c5f8584376c1cd9ff68e0a9f2c0a32db792b23d954a66c3b5ac6627d3",
+      ".planning/REQUIREMENTS.md": "6d50998070f35889fbfc47db07dca5e6e7130d14266bb58b3ba9f5728b9a9f78"
+    },
+    "read_back_equal": true
+  },
+  "prior_custom_state": {
+    "commit": "d09e5ce2d",
+    "path": ".planning/state.json",
+    "restored_custom_fields": true
   }
 }

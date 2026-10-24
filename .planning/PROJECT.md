@@ -33,7 +33,7 @@ cannot resolve.
 
 **Scope confirmed:** The user selected this direction on 2026-10-12. Skip broad ecosystem research for this milestone; keep the project's research default unchanged. Reuse the existing CI measurement script, five browser-test jobs, and `mix ci` where they fit. The prior CI audit is implemented history, not a new seed to repeat.
 
-**Current step:** Phases252 and253 are implemented and verified. Phase254 implementation is complete; its closed comparison remains `insufficient_data`, with zero successful comparable pairs, so CISPEED-01/02 and Phase254 verification remain open. Phase255 implementation, code review, native Mix/browser checks and saved-input replay are complete; final goal verification is in progress. Resume: `$gsd-execute-phase 255`. No release or replacement comparison has been started.
+**Current step:** Phases 252, 253 and 255 are implemented and verified. Phase 255 satisfies CIDX-01, CIDX-02 and CIMEAS-03: local reproduction, retained failure diagnostics, and independent saved-input replay. Phase 254 implementation is complete, but its closed comparison remains `insufficient_data` with zero successful comparable pairs; CISPEED-01/02 and Phase 254 verification remain open. Next: `$gsd-audit-milestone`. No release or replacement comparison has been started.
 
 **Boundaries:** v1.49 is closed with READY-01 unfinished; missing old release records do not block this work. The missing 1.6 upgrade guide remains a separate documentation task. This milestone starts no product feature or package release, changes no public API or authentication behavior, and does not weaken required checks.
 
@@ -1213,6 +1213,9 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
+| Keep the saved comparison terminal insufficient_data (Phase 255) | Failed baseline and zero successful comparable pairs cannot establish a speed improvement | Replayed independently from 191 unchanged inputs; CISPEED-01/02 stay open |
+| Retain original failures and separately verified sanitized diagnostics (Phase 255) | Contributors need exact commands, signals and seeds without publishing auth storage | Native Mix/browser and real hosted terminal outcomes verified; missing cancellation files stay missing |
+| Close hosted and distribution allowances after their bounded proof (Phase 255) | Ordinary local repairs must not silently renew external or acceptance budgets | Later repairs tested locally; original hosted/distribution source identities retained |
 | CI values tied to saved GitHub job/check/artifact/source identities | Prevent wrong-run timing, overwritten reports and unverified metadata claims | ✓ Verified Phase 252; archive replays identically |
 | Fixed later 20-pair comparison and disclosed unknowns | Prevent favorable replacements and distinguish one observation from a population estimate | ✓ Contract verified Phase 252; comparison not yet run |
 | Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated v1.0 — no regret |
@@ -1379,3 +1382,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-10-12 after Phase 252 implementation and verification; Phase 253 discussion is next.*
 
 *Last updated: 2026-10-23 after Phase 253 implementation and final verification; Phase 254 discussion is next.*
+
+*Last updated: 2026-10-24 after Phase 255 passed verification; v1.50 milestone audit remains next.*

@@ -358,7 +358,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
   3. A documented calculation replays the final before/after comparison from saved inputs, including sample sizes, literal failure/cancellation/rerun outcomes, cache conditions, and limitations.
   4. The final report names the tested code, states whether the 20% median and non-increasing p95/runner-time targets hold, and records any remaining failures separately from implemented changes. Missing old release approvals or signed historical performance archives are not required inputs.
 
-**Plans**: 7/7 plans complete in 6 waves (14 tasks; implementation complete, final phase verification in progress)
+**Plans**: 7/7 plans complete in 6 waves (14 tasks; implementation complete and independently verified)
 
 Plans:
 **Wave 1**
@@ -382,7 +382,7 @@ Plans:
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has seven completed implementation plans and one preserved hosted prerequisite halt; the original comparison is terminal insufficient_data and phase verification remains pending. Phase255 has all seven implementation summaries, clean code review, and passing native/regression checks; its final phase verifier is in progress.
+**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has seven completed implementation plans and one preserved hosted prerequisite halt; the original comparison is terminal insufficient_data and phase verification remains pending. Phase255 has all seven implementation summaries, clean code review, and passing native/regression checks; its independent phase verifier passed (29/29 plan truths, 4/4 roadmap criteria).
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
