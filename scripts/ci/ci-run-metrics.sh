@@ -99,8 +99,12 @@ BOUNDED_REQUEST=""
 REQUEST_METHOD="GET"
 REQUEST_BODY=""
 COLLECT_PREPARATION=false
+ASSEMBLE_COMPARISON=false
+BOUNDED_ARTIFACT=false
+CAPTURE_RECEIPT_FILE=""
 FAILED_JOB_ID=""
 FAILED_JOB_RECEIPT=""
+TIMEOUT_ANNOTATIONS=""
 API_BUDGET_OWNER=""
 API_STARTED=0
 API_REQUESTS=0
@@ -150,8 +154,12 @@ while [[ $# -gt 0 ]]; do
     --request-budget-ledger) REQUEST_BUDGET_LEDGER="$2"; shift 2;;
     --bounded-request) BOUNDED_REQUEST="$2"; shift 2;;
     --collect-preparation) COLLECT_PREPARATION=true; shift;;
+    --assemble-comparison) ASSEMBLE_COMPARISON=true; shift;;
+    --bounded-artifact-download) BOUNDED_ARTIFACT=true; shift;;
+    --capture-receipt) CAPTURE_RECEIPT_FILE="$2"; shift 2;;
     --collect-failed-job-log) FAILED_JOB_ID="$2"; shift 2;;
     --failed-job-receipt) FAILED_JOB_RECEIPT="$2"; shift 2;;
+    --timeout-annotations) TIMEOUT_ANNOTATIONS="$2"; shift 2;;
     --request-method) REQUEST_METHOD="$2"; shift 2;;
     --request-body) REQUEST_BODY="$2"; shift 2;;
     --replay) REPLAY=true; shift;;
@@ -1077,7 +1085,10 @@ receipt_path=(root/receipt_relative).resolve()
 if root not in receipt_path.parents or not receipt_path.is_file() or not isinstance(receipt_expected,str) or hashlib.sha256(receipt_path.read_bytes()).hexdigest()!=receipt_expected: raise SystemExit(1)
 receipt=json.loads(receipt_path.read_text())
 if receipt.get('schema_version')!='sigra.browser-parity-receipt/v1' or receipt.get('status')!='passed' or receipt.get('owner_integration_status')!='profiled' or receipt.get('mapping_sha256')!=expected: raise SystemExit(1)
-if receipt.get('baseline_source_sha')!=contract.get('baseline_application_sha') or receipt.get('candidate_source_sha')!=contract.get('candidate_identity',{}).get('application_sha') or receipt.get('event')!='pull_request': raise SystemExit(1)
+if receipt.get('event')!='pull_request': raise SystemExit(1)
+sys.path.insert(0,str(root/'scripts/ci'))
+from ci_metrics_security import validate_profiled_receipt_sources
+validate_profiled_receipt_sources(contract,receipt,root)
 comparisons=receipt.get('owners')
 owners={'admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}
 if not isinstance(comparisons,list) or len(comparisons)!=5 or {row.get('owner') for row in comparisons}!=owners or any(row.get('status')!='passed' for row in comparisons): raise SystemExit(1)
@@ -1107,7 +1118,7 @@ import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1]).resolve(); contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 registrations=json.loads(pathlib.Path(sys.argv[3]).read_text()); role=sys.argv[4]
 project_root=pathlib.Path(sys.argv[5]).resolve()
-from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding
+from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding, comparison_runner_images
 inventories=comparison_native_inventories(contract,role,project_root)
 expected_sha=contract.get('baseline_application_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('application_sha')
 expected_producer_sha=(contract.get('baseline_identity') or {}).get('producer_source_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('producer_source_sha')
@@ -1152,8 +1163,10 @@ for registration in registrations:
             expected_job=f'Example Playwright shard ({seam})' if job_name=='Example Playwright shard' and seam else job_name
             matching=[job for job in jobs if job.get('name')==expected_job]
             if (str(meta.get('run_id'))!=run_id or meta_attempt!=str(attempt) or meta.get('source_sha')!=expected_producer_sha
-                    or meta.get('event')!='pull_request' or len(matching)!=1 or matching[0].get('conclusion')!='success'):
+                    or meta.get('event')!='pull_request' or len(matching)!=1):
                 raise SystemExit(f'attempt_measurement_metadata_origin_invalid:{sample_id}:{artifact_name}')
+            if matching[0].get('conclusion')!='success':
+                raise SystemExit(f"attempt_measurement_job_not_successful:{sample_id}:{expected_job}:{matching[0].get('conclusion')}")
             metadata.append((meta,artifact_name))
     if not metadata: raise SystemExit(f'attempt_measurement_metadata_missing:{sample_id}')
     producer=[(m,n) for m,n in metadata if m.get('job_name')=='Library tests shard' or m.get('job_name')=='Example Playwright shard']
@@ -1183,18 +1196,21 @@ for registration in registrations:
         raw_report=reports[0].read_bytes(); (output/'report.json').write_bytes(raw_report)
         (output/'selection.json').write_bytes(inventory['selection'])
         updated={**descriptor,'source_sha':expected_sha,'inventory_source_sha':inventory['inventory_source_sha'],
+            'workflow_sha256':workflow_sha,'inventory_workflow_sha256':descriptor['workflow_sha256'],
+            'workflow_amendment_authorization_sha256':inventory.get('workflow_authorization_sha256'),
             'reports':[{**retained,'source_sha':expected_sha,'path':'report.json','selection_path':'selection.json','sha256':hashlib.sha256(raw_report).hexdigest(),'selection_sha256':hashlib.sha256(inventory['selection']).hexdigest()}]}
         (output/'coverage-source.json').write_text(json.dumps(updated,sort_keys=True,separators=(',',':')))
         derived.append({'owner':owner,'artifact_id':artifact['id'],'report_member_path':str(reports[0].relative_to(root)),
             'directory':str(output.relative_to(root)),'file_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in output.iterdir()}})
     detail['derived_native_coverage']=derived
     (family/'manifest.json').write_text(json.dumps(detail,sort_keys=True,separators=(',',':')))
-    images=sorted({json.dumps({'runner_os':m.get('runner_os'),'runner_arch':m.get('runner_arch'),'runner_image':m.get('runner_image')},sort_keys=True,separators=(',',':')) for m,_ in producer})
-    caches=[value for m,_ in producer for value in (m.get('cache_outcome') or {}).values()]
+    images=comparison_runner_images([m for m,_ in producer],require_proof=contract.get('runner_image_proof_required') is True)
+    caches=[value for m,_ in metadata for value in (m.get('cache_outcome') or {}).values()]
     warm=bool(caches) and all(value in ('hit',True) for value in caches)
     families.append({'reservation_id':registration['reservation_id'],'pair_id':registration['pair_id'],'family_role':role,'run_id':int(run_id),
         'run_attempt':attempt,'sample_id':sample_id,'created_at':run.get('created_at'),'attempt_origin_at':registration['attempt_origin_at'],
-        'conclusion':run.get('conclusion'),'workload':detail.get('workload'),'workload_sha':workload_sha,'workflow_sha256':workflow_sha,
+        'conclusion':run.get('conclusion'),'workload':detail.get('workload'),'workload_sha':workload_sha,
+        'source_workload_revision_sha256':workload_sha,'coverage_map_sha256':contract['native_coverage_comparison']['mapping_sha256'],'workflow_sha256':workflow_sha,
         'runner_class':images,'runner_image':images,'cache_stratum':'warm' if warm else 'not_warm',
         'exunit_instrumentation':instrument['exunit'],'playwright_instrumentation':instrument['playwright'],'attempts':[]})
 manifest_path=root/'manifest.json'; manifest=json.loads(manifest_path.read_text())
@@ -2109,17 +2125,58 @@ if [[ "$MODE" != "wall" && "$MODE" != "jobspan" ]]; then
   fail "unknown --mode: ${MODE} (expected wall|jobspan)"
 fi
 
+if [[ "$BOUNDED_ARTIFACT" == true ]]; then
+  [[ -s "$CONTRACT_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -s "$ARTIFACT_JSON" && -s "$RUN_JSON" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "bounded_artifact_inputs_missing"
+  validate_artifact_metadata "$ARTIFACT_JSON" "$RUN_JSON" | jq -e '.status=="verified"' >/dev/null || fail "bounded_artifact_origin_invalid"
+  API_STARTED="$(date +%s)"; API_TEMP_DIR="$(mktemp -d)"; API_LEDGER="${DIAGNOSIS_OUTPUT}.requests.json"
+  api_get rate_limit "$API_TEMP_DIR/rate.json" || fail "bounded_artifact_rate_preflight_blocked"
+  artifact_id="$(jq -r '.id' "$ARTIFACT_JSON")"
+  api_download_no_follow "https://api.github.com/repos/${REPO}/actions/artifacts/${artifact_id}/zip" "$API_TEMP_DIR/artifact.zip" "artifact:${artifact_id}" || fail "bounded_artifact_download_failed"
+  python3 - "$API_TEMP_DIR/artifact.zip" "$ARTIFACT_JSON" <<'PYARTIFACT' || fail "bounded_artifact_digest_invalid"
+import hashlib,json,pathlib,sys
+expected=json.loads(pathlib.Path(sys.argv[2]).read_text())['digest']
+if 'sha256:'+hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest()!=expected: raise SystemExit(1)
+PYARTIFACT
+  mv "$API_TEMP_DIR/artifact.zip" "$DIAGNOSIS_OUTPUT"
+  api_write_ledger complete
+  API_COMPLETED=true
+  rm -rf "$API_TEMP_DIR"
+  exit 0
+fi
+
+if [[ "$ASSEMBLE_COMPARISON" == true ]]; then
+  [[ -s "$CONTRACT_FILE" && -s "$SOURCE_PAGES" && -n "$SOURCE_BUNDLE" ]] || fail "assembly_requires_contract_snapshot_index_and_new_destination"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$SOURCE_PAGES" "$SOURCE_BUNDLE" <<'PY'
+import json,pathlib,hashlib,sys
+from ci_metrics_security import assemble_comparison_snapshots
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text()); rows=json.loads(pathlib.Path(sys.argv[2]).read_text())
+paths=[]
+for row in rows:
+    root=pathlib.Path(row['path']).resolve()
+    if hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()!=row['manifest_sha256']: raise ValueError('assembly_manifest_digest_invalid')
+    paths.append(root)
+print(json.dumps(assemble_comparison_snapshots(contract,paths,pathlib.Path(sys.argv[3])),sort_keys=True))
+PY
+  exit $?
+fi
+
 if [[ -n "$FAILED_JOB_ID" ]]; then
   [[ -s "$CONTRACT_FILE" && -s "$FAILED_JOB_RECEIPT" && -n "$REQUEST_BUDGET_LEDGER" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "failed_job_log_inputs_missing"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$FAILED_JOB_RECEIPT" "$FAILED_JOB_ID" <<'PY' || fail "failed_job_log_identity_invalid"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$FAILED_JOB_RECEIPT" "$FAILED_JOB_ID" "$TIMEOUT_ANNOTATIONS" <<'PY' || fail "failed_job_log_identity_invalid"
 import json,pathlib,sys
 from ci_metrics_security import initialize_comparison_request_budget
 c=json.loads(pathlib.Path(sys.argv[1]).read_text()); initialize_comparison_request_budget(c,pathlib.Path(sys.argv[2]))
 jobs=json.loads(pathlib.Path(sys.argv[3]).read_text()).get('jobs',[])
 matches=[job for job in jobs if str(job.get('id'))==sys.argv[4]]
-if len(matches)!=1 or matches[0].get('conclusion') not in ('failure','timed_out'): raise SystemExit(1)
+if len(matches)!=1: raise SystemExit(1)
+if matches[0].get('conclusion') not in ('failure','timed_out'):
+    if matches[0].get('conclusion')!='cancelled' or not sys.argv[5]: raise SystemExit(1)
+    annotations=pathlib.Path(sys.argv[5]); rows=json.loads(annotations.read_text())
+    requests=json.loads(pathlib.Path(str(annotations)+'.requests.json').read_text()).get('requests') or []
+    endpoint=f'/repos/szTheory/sigra/check-runs/{sys.argv[4]}/annotations'
+    if endpoint not in requests or not any(row.get('annotation_level')=='failure' and 'exceeded the maximum execution time' in row.get('message','') for row in rows): raise SystemExit(1)
 job=matches[0]; baseline=c['baseline_identity']
-if not ((job.get('run_id')==baseline['run_id'] and job.get('run_attempt')==baseline['preparation_attempt'] and job.get('head_sha')==c['baseline_application_sha'])
+if not ((job.get('run_id')==baseline.get('run_id',job.get('run_id')) and job.get('run_attempt')==baseline['preparation_attempt'] and job.get('head_sha')==c['baseline_application_sha'])
         or job.get('head_sha')==c['candidate_identity']['application_sha']): raise SystemExit(1)
 PY
   mkdir -p "$(dirname "$DIAGNOSIS_OUTPUT")"
@@ -2153,7 +2210,11 @@ if (run.get('status') not in ('queued','in_progress') or run.get('conclusion') i
         or not budget['started_at_epoch']-5 <= _utc(origin).timestamp() <= budget['started_at_epoch']+3600): raise SystemExit(1)
 pr=prs[0]
 if pr.get('head',{}).get('sha')!=expected: raise SystemExit(1)
-if role=='before' and (run['id']!=c['baseline_identity']['run_id'] or run['run_attempt']!=c['baseline_identity']['preparation_attempt'] or pr['number']!=331): raise SystemExit(1)
+identity=c['baseline_identity'] if role=='before' else c['candidate_identity']
+if identity.get('branch'):
+    if (run['run_attempt']!=identity.get('preparation_attempt',1) or pr['head'].get('ref')!=identity['branch']
+            or pr['base'].get('sha')!=identity['parent_main_sha']): raise SystemExit(1)
+elif role=='before' and (run['id']!=identity['run_id'] or run['run_attempt']!=identity['preparation_attempt'] or pr['number']!=331): raise SystemExit(1)
 row={'reservation_id':'preparation-'+role,'pair_id':'preparation-only','family_role':role,
      'run_id':run['id'],'run_attempt':run['run_attempt'],'sample_id':f"{run['id']}-attempt-{run['run_attempt']}",
      'head_sha':expected,'created_at':run['created_at'],'attempt_origin_at':origin,'event':run['event'],
@@ -2177,16 +2238,29 @@ fi
 
 if [[ -n "$BOUNDED_REQUEST" ]]; then
   [[ -s "$CONTRACT_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$DIAGNOSIS_OUTPUT" && ! -e "$DIAGNOSIS_OUTPUT" ]] || fail "bounded_request_requires_contract_budget_and_new_output"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$BOUNDED_REQUEST" "$REQUEST_METHOD" "$REQUEST_BODY" <<'PY' || fail "bounded_request_not_authorized"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$BOUNDED_REQUEST" "$REQUEST_METHOD" "$REQUEST_BODY" "$COMPARISON_ROLE" "$RESERVATION_ID" <<'PY' || fail "bounded_request_not_authorized"
 import json,pathlib,re,sys
-c=json.loads(pathlib.Path(sys.argv[1]).read_text()); endpoint,method,body=sys.argv[2:]
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); endpoint,method,body,role,reservation_id=sys.argv[2:]
 if method=='GET':
     if not (endpoint=='rate_limit' or endpoint.startswith('/repos/szTheory/sigra/')): raise SystemExit(1)
+elif method=='PATCH':
+    identity=c.get('baseline_identity') if role=='before' else c.get('candidate_identity') if role=='after' else None
+    payload=json.loads(pathlib.Path(body).read_text()) if body else {}
+    if (not identity or endpoint not in c.get('authorized_mutations',[])
+            or endpoint!='/repos/szTheory/sigra/git/refs/heads/'+identity['branch']
+            or not identity['branch'].startswith('evidence/phase254-')
+            or payload!={'sha':identity['application_sha'],'force':False}): raise SystemExit(1)
 elif method=='POST':
     if endpoint not in c.get('authorized_mutations',[]) or not (endpoint=='/repos/szTheory/sigra/pulls' or re.fullmatch(r'/repos/szTheory/sigra/actions/runs/[1-9][0-9]*/rerun',endpoint)): raise SystemExit(1)
+    if c.get('sample_identity')=='run_id+run_attempt':
+        matches=[row for row in c.get('family_reservations',[]) if row.get('reservation_id')==reservation_id]
+        if len(matches)!=1 or body or endpoint!=f"/repos/szTheory/sigra/actions/runs/{matches[0]['run_id']}/rerun" or (role and role!=matches[0]['family_role']): raise SystemExit(1)
     if endpoint.endswith('/pulls'):
         payload=json.loads(pathlib.Path(body).read_text())
         if payload.get('draft') is not True or payload.get('base')!='main' or not payload.get('head','').startswith('evidence/phase254-'): raise SystemExit(1)
+        if c.get('preparation_order'):
+            identity=c.get('baseline_identity') if role=='before' else c.get('candidate_identity') if role=='after' else None
+            if not identity or payload['head']!=identity['branch']: raise SystemExit(1)
 else: raise SystemExit(1)
 PY
   PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" <<'PY'
@@ -2202,14 +2276,41 @@ PY
   if [[ "$BOUNDED_REQUEST" != rate_limit ]]; then
     api_get rate_limit "$API_TEMP_DIR/rate.json" || fail "bounded_request_rate_preflight_blocked"
   fi
-  if [[ "$REQUEST_METHOD" == POST ]]; then
-    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
+  if [[ "$REQUEST_METHOD" == PATCH ]]; then
+    source_ref_endpoint="${BOUNDED_REQUEST/\/git\/refs\//\/git\/ref\/}"
+    api_get "$source_ref_endpoint" "${DIAGNOSIS_OUTPUT}.previous-ref.json" || fail "source_update_previous_ref_unavailable"
+    python3 - "$CONTRACT_FILE" "$COMPARISON_ROLE" "${DIAGNOSIS_OUTPUT}.previous-ref.json" <<'PYREF' || fail "source_update_previous_ref_changed_no_update_sent"
+import json,pathlib,sys
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); role=sys.argv[2]
+identity=c['baseline_identity'] if role=='before' else c['candidate_identity']
+previous=json.loads(pathlib.Path(sys.argv[3]).read_text())
+if previous.get('object',{}).get('sha')!=identity.get('reviewed_source'): raise SystemExit(1)
+PYREF
+  fi
+  if [[ "$REQUEST_METHOD" == POST ]] && jq -e '.sample_identity=="run_id+run_attempt"' "$CONTRACT_FILE" >/dev/null; then
+    [[ -n "$REGISTRATIONS_FILE" && -s "$CAPTURE_RECEIPT_FILE" ]] || fail "measured_trigger_requires_registration_ledger_and_previous_capture_receipt"
+    measured_run="$(jq -r --arg rid "$RESERVATION_ID" '.family_reservations[]|select(.reservation_id==$rid)|.run_id' "$CONTRACT_FILE")"
+    api_get "/repos/${REPO}/actions/runs/${measured_run}" "${DIAGNOSIS_OUTPUT}.previous-run.json" || fail "measured_trigger_previous_run_unavailable"
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$RESERVATION_ID" "$REGISTRATIONS_FILE" "${DIAGNOSIS_OUTPUT}.previous-run.json" "$CAPTURE_RECEIPT_FILE" "$ROOT" <<'PY' || fail "measured_trigger_prerequisite_failed_no_rerun_sent"
+import json,pathlib,sys
+from ci_metrics_security import validate_next_comparison_trigger
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); registrations=pathlib.Path(sys.argv[3])
+validate_next_comparison_trigger(c,sys.argv[2],json.loads(registrations.read_text()) if registrations.exists() else None,
+    json.loads(pathlib.Path(sys.argv[4]).read_text()),json.loads(pathlib.Path(sys.argv[5]).read_text()),pathlib.Path(sys.argv[6]))
+PY
+  fi
+  if [[ "$REQUEST_METHOD" == POST || "$REQUEST_METHOD" == PATCH ]]; then
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" "$COMPARISON_ROLE" "$RESERVATION_ID" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
 import hashlib,json,pathlib,sys,time
-from ci_metrics_security import _comparison_budget_read,_comparison_budget_append
+from ci_metrics_security import _comparison_budget_read,_comparison_budget_append,validate_comparison_pass_reservation
 c=json.loads(pathlib.Path(sys.argv[1]).read_text()); path=pathlib.Path(sys.argv[2]); ledger=_comparison_budget_read(path,c)
+if c.get('sample_identity')=='run_id+run_attempt': validate_comparison_pass_reservation(c,path,sys.argv[6])
 prior=[row for row in ledger['records'] if row.get('kind')=='mutation']
-if len(prior)>=c.get('maximum_mutations',0) or any(row['endpoint']==sys.argv[3] for row in prior): raise SystemExit(1)
+key=sys.argv[6] if c.get('sample_identity')=='run_id+run_attempt' else sys.argv[5] if c.get('preparation_order') else sys.argv[3]
+if len(prior)>=c.get('maximum_mutations',0) or any(row.get('mutation_key',row['endpoint'])==key for row in prior): raise SystemExit(1)
+if c.get('preparation_order') and (len(prior)>=len(c['preparation_order']) or c['preparation_order'][len(prior)]!=key): raise SystemExit(1)
 _comparison_budget_append(path,ledger,{'kind':'mutation','endpoint':sys.argv[3], 'at_epoch':int(time.time()),
+    'mutation_key':key,
     'body_sha256':hashlib.sha256(pathlib.Path(sys.argv[4]).read_bytes()).hexdigest() if sys.argv[4] else None})
 PY
   fi
@@ -2396,8 +2497,8 @@ if registrations:
     native_parity['origin_status']='passed' if available_families and len(origin_results)==available_families else 'insufficient_data'
 else:
     issue('comparison_registrations_missing_for_origin_verification')
-before_rows={r.get('pair_id'):r for r in before.get('comparison_families',[]) if r.get('family_role')=='before'}
-after_rows={r.get('pair_id'):r for r in after.get('comparison_families',[]) if r.get('family_role')=='after'}
+before_rows={r.get('pair_id'):r for r in (before.get('comparison_families') or []) if r.get('family_role')=='before'}
+after_rows={r.get('pair_id'):r for r in (after.get('comparison_families') or []) if r.get('family_role')=='after'}
 coverage=contract.get('native_coverage_comparison') or {}
 mapping_relative=coverage.get('mapping_path'); mapping_digest=coverage.get('mapping_sha256')
 try:
@@ -2448,6 +2549,38 @@ try:
 except Exception as error:
     native_parity['diagnostic']=str(error)
     issue('native_coverage_parity_unverified',str(error))
+# Cost is incurred by observed runs, including failed or unpaired runs whose
+# successful-comparison family was never materialized. Reservations that have
+# not actually been registered are not observations and incur no assumed cost.
+cost_observations={}; attempt_scoped=contract.get('sample_identity')=='run_id+run_attempt'
+def observe_cost(label, row):
+    run_id=row.get('run_id'); attempt=row.get('run_attempt') if attempt_scoped else None
+    key=(str(run_id),attempt)
+    if key in cost_observations:
+        saved_label,saved=cost_observations[key]
+        if saved_label!=label: issue('cost_observation_role_conflict',{'run_id':run_id,'run_attempt':attempt})
+        return saved
+    if contract.get('comparison_schedule'):
+        if not str(run_id).isdigit() or (attempt_scoped and (type(attempt) is not int or attempt<1)):
+            raw={'status':'unknown','runner_seconds':None,'runner_known_subtotal_seconds':0,
+                 'diagnostics':['cost_observation_identity_invalid']}
+        else:
+            raw=derive_comparison_family_costs(bundle_paths[label],run_id,
+                contract.get('required_contexts') or [],run_attempt=attempt)
+    else:
+        raw={**row,'status':'complete'}
+    observed={**row,**raw,'family_role':label,'run_id':run_id,'run_attempt':attempt,
+              'cost_status':raw.get('status'),'raw_attempt_costs':raw.get('attempt_costs',[])}
+    cost_observations[key]=(label,observed)
+    if observed.get('runner_seconds') is None:
+        issue(label+'_observed_runner_cost_unknown',{'run_id':run_id,'run_attempt':attempt,
+              'known_subtotal_seconds':observed.get('runner_known_subtotal_seconds',0),
+              'diagnostics':raw.get('diagnostics') or raw.get('runner_diagnostics') or []})
+    return observed
+for label,data in [('before',before),('after',after)]:
+    for row in data.get('comparison_families') or []: observe_cost(label,row)
+for row in (registrations or {}).get('records') or []:
+    if row.get('family_role') in bundle_paths: observe_cost(row['family_role'],row)
 for label, data in [('before',before),('after',after)]:
     if data.get('status') != 'complete': issue(label+'_snapshot_incomplete')
     rows=data.get('comparison_families')
@@ -2456,8 +2589,8 @@ for label, data in [('before',before),('after',after)]:
     seen=set()
     for row in rows:
         if contract.get('comparison_schedule'):
-            raw=derive_comparison_family_costs(bundle_paths[label],row.get('run_id'),contract.get('required_contexts') or data.get('required_contexts') or [],run_attempt=row.get('run_attempt') if contract.get('sample_identity')=='run_id+run_attempt' else None)
-            if raw.get('status')!='complete': issue(label+'_raw_family_invalid',{'run_id':row.get('run_id'),'diagnostics':raw.get('diagnostics')}); continue
+            raw=observe_cost(label,row)
+            if raw.get('cost_status')!='complete': issue(label+'_raw_family_invalid',{'run_id':row.get('run_id'),'diagnostics':raw.get('diagnostics')}); continue
             row={**row,'created_at':raw.get('created_at'),'conclusion':raw.get('conclusion'),
                  'required_result_wait_seconds':raw.get('required_result_wait_seconds'),
                  'runner_seconds':raw.get('runner_seconds'),'runner_known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),
@@ -2467,6 +2600,12 @@ for label, data in [('before',before),('after',after)]:
                 issue(label+'_family_runner_cost_unknown',{'run_id':row.get('run_id'),'known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),'unknown_jobs':raw.get('runner_unknown_jobs'),'diagnostics':raw.get('runner_diagnostics')})
             if raw.get('required_result_wait_seconds') is None:
                 issue(label+'_family_required_wait_unknown',{'run_id':row.get('run_id'),'missing_contexts':raw.get('missing_required_contexts'),'diagnostics':raw.get('wait_diagnostics')})
+        if contract.get('sample_identity')=='run_id+run_attempt':
+            expected_source_workload=contract.get('baseline_workload_revision_sha256') if label=='before' else candidate.get('workload_revision_sha256')
+            if row.get('source_workload_revision_sha256')!=expected_source_workload or row.get('workload_sha')!=expected_source_workload:
+                issue(label+'_family_source_workload_identity_mismatch',row.get('sample_id'))
+            if row.get('coverage_map_sha256')!=mapping_digest:
+                issue(label+'_family_coverage_map_identity_mismatch',row.get('sample_id'))
         ident=(row.get('pair_id'),row.get('family_role'))
         if ident in seen: issue(label+'_duplicate_family',ident)
         seen.add(ident); families.append((label,row))
@@ -2482,7 +2621,10 @@ after_rows={r.get('pair_id'):r for label,r in families if label=='after' and r.g
 if set(before_rows)!=set(after_rows) or len(before_rows)!=20: issue('pair_identity_mismatch')
 for pair_id in sorted(set(before_rows)&set(after_rows)):
     b,a=before_rows[pair_id],after_rows[pair_id]
-    fields=['workload','workload_sha','runner_class','runner_image','cache_stratum','exunit_instrumentation','playwright_instrumentation']
+    # Source revisions differ by design; actual useful-work equivalence is also
+    # independently proven above by the complete native coverage comparison.
+    identity_field='coverage_map_sha256' if contract.get('sample_identity')=='run_id+run_attempt' else 'workload_sha'
+    fields=['workload',identity_field,'runner_class','runner_image','cache_stratum','exunit_instrumentation','playwright_instrumentation']
     mismatch=[field for field in fields if b.get(field)!=a.get(field)]
     if 'runner_image' in mismatch: issue('runner_image_drift',{'pair_id':pair_id,'before':b.get('runner_image'),'after':a.get('runner_image')})
     if mismatch: issue('pair_not_equivalent',{'pair_id':pair_id,'fields':mismatch}); continue
@@ -2492,10 +2634,13 @@ for pair_id in sorted(set(before_rows)&set(after_rows)):
     if not isinstance(b.get('runner_seconds'),(int,float)) or not isinstance(a.get('runner_seconds'),(int,float)): continue
 wait_before=[b['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
 wait_after=[a['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
-runner_before_known=sum(b.get('runner_known_subtotal_seconds',b.get('runner_seconds') or 0) for _,b,a in paired)
-runner_after_known=sum(a.get('runner_known_subtotal_seconds',a.get('runner_seconds') or 0) for _,b,a in paired)
-runner_before=None if any(b.get('runner_seconds') is None for _,b,a in paired) else sum(b['runner_seconds'] for _,b,a in paired)
-runner_after=None if any(a.get('runner_seconds') is None for _,b,a in paired) else sum(a['runner_seconds'] for _,b,a in paired)
+def observed_total(label):
+    rows=[row for side,row in cost_observations.values() if side==label]
+    known=sum(row.get('runner_known_subtotal_seconds',row.get('runner_seconds') or 0) for row in rows)
+    total=None if any(row.get('runner_seconds') is None for row in rows) else sum(row['runner_seconds'] for row in rows)
+    return total,known
+runner_before,runner_before_known=observed_total('before')
+runner_after,runner_after_known=observed_total('after')
 def median(xs):
     xs=sorted(xs); n=len(xs)
     return (xs[(n-1)//2]+xs[n//2])/2 if n else None
@@ -2509,7 +2654,7 @@ else:
     actual_alloc={}
     for _,b,_ in paired: actual_alloc[str(b.get('cache_stratum'))]=actual_alloc.get(str(b.get('cache_stratum')),0)+1
     if actual_alloc!=expected_alloc: issue('cache_stratum_allocation_mismatch',{'expected':expected_alloc,'actual':actual_alloc})
-metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'baseline_runner_known_subtotal_seconds':runner_before_known,'candidate_runner_known_subtotal_seconds':runner_after_known,'family_attempt_costs':[{'pair_id':b.get('pair_id'),'family_role':b.get('family_role'),'run_id':b.get('run_id'),'conclusion':b.get('conclusion'),'runner_seconds':b.get('runner_seconds'),'known_subtotal_seconds':b.get('runner_known_subtotal_seconds',b.get('runner_seconds')),'unknown_jobs':b.get('runner_unknown_jobs',[]),'attempts':b.get('raw_attempt_costs',[])} for _,b,a in paired]+[{'pair_id':a.get('pair_id'),'family_role':a.get('family_role'),'run_id':a.get('run_id'),'conclusion':a.get('conclusion'),'runner_seconds':a.get('runner_seconds'),'known_subtotal_seconds':a.get('runner_known_subtotal_seconds',a.get('runner_seconds')),'unknown_jobs':a.get('runner_unknown_jobs',[]),'attempts':a.get('raw_attempt_costs',[])} for _,b,a in paired],'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead'),'native_parity':native_parity}
+metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'baseline_runner_known_subtotal_seconds':runner_before_known,'candidate_runner_known_subtotal_seconds':runner_after_known,'family_attempt_costs':[{'pair_id':row.get('pair_id'),'family_role':side,'run_id':row.get('run_id'),'run_attempt':row.get('run_attempt'),'conclusion':row.get('conclusion'),'cost_status':row.get('cost_status'),'runner_seconds':row.get('runner_seconds'),'known_subtotal_seconds':row.get('runner_known_subtotal_seconds',row.get('runner_seconds')),'unknown_jobs':row.get('runner_unknown_jobs',[]),'attempts':row.get('raw_attempt_costs',[])} for side,row in cost_observations.values()],'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead'),'native_parity':native_parity}
 performance_verdict='pass' if len(wait_before)==20 and median(wait_after)<=.8*median(wait_before) and p95(wait_after)<=p95(wait_before) and runner_after is not None and runner_before is not None and runner_after<=runner_before else ('miss' if len(wait_before)==20 else 'insufficient_data')
 if not issues and len(wait_before)==20:
     verdict='pass' if performance_verdict=='pass' and native_parity.get('status')=='passed' and native_parity.get('origin_status')=='passed' else 'miss' if performance_verdict=='miss' else 'insufficient_data'

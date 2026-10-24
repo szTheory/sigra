@@ -103,7 +103,9 @@ def attempt_fixture(root):
                           artifact_evidence={"path": f"raw/families/{sample}/artifact-evidence.json", "sha256": digest(family / "artifact-evidence.json")})
             write(family / "manifest.json", detail)
             row.update(run_id=run_id, run_attempt=attempt, sample_id=sample, reservation_id=f"r-pair-{index:02d}-{role}",
-                       created_at=run["created_at"], attempt_origin_at=origin)
+                       created_at=run["created_at"], attempt_origin_at=origin,
+                       source_workload_revision_sha256=contract['baseline_workload_revision_sha256'] if role=='before' else contract['candidate_identity']['workload_revision_sha256'],
+                       coverage_map_sha256=contract['native_coverage_comparison']['mapping_sha256'])
             api_run = population["runs"][index - 1]
             api_run.update(run, detail_status="complete", workload="full", attempt_jobs=detail["attempt_jobs"])
             observation_rows[(row["pair_id"], role)] = run
@@ -172,6 +174,116 @@ class AttemptEvaluation(unittest.TestCase):
         self.assertEqual(metrics["candidate_runner_seconds"], 500)
         self.assertEqual(metrics["native_parity"]["origin_status"], "passed")
         self.assertEqual(len(metrics["native_parity"]["comparisons"]), 100)
+
+    def test_offline_assembly_preserves_all_twenty_pairs_and_rejects_duplicate_or_tampered_inputs(self):
+        from ci_metrics_security import assemble_comparison_snapshots
+        assembled = {}
+        for role in ('before','after'):
+            chunks = []
+            for index in range(2):
+                chunk = self.root/f'chunk-{role}-{index}'
+                shutil.copytree(self.root/role,chunk)
+                manifest = json.loads((chunk/'manifest.json').read_text())
+                manifest['comparison_families'] = manifest['comparison_families'][index*10:(index+1)*10]
+                keep = {row['sample_id'] for row in manifest['comparison_families']}
+                for family in (chunk/'raw/families').iterdir():
+                    if family.name not in keep: shutil.rmtree(family)
+                population = json.loads((chunk/'raw/populations/pull_request.json').read_text())
+                population['runs'] = [r for r in population['runs'] if f"{r['id']}-attempt-{r['run_attempt']}" in keep]
+                population['api_total_count'] = len(population['runs'])
+                write(chunk/'raw/populations/pull_request.json',population)
+                manifest['populations']['pull_request'] = population
+                manifest['source_sha256']['pull_request'] = digest(chunk/'raw/populations/pull_request.json')
+                manifest['comparison_collection'] = {'role':role,'contract_sha256':comparison_contract_sha256(self.contract),
+                    'origin_status':'passed','registered_runs':[],'origin_verification':[]}
+                write(chunk/'manifest.json',manifest)
+                chunks.append(chunk)
+            index_path = self.root/f'assembly-index-{role}.json'
+            write(index_path,[{'path':str(path),'manifest_sha256':digest(path/'manifest.json')} for path in chunks])
+            output = self.root/f'assembled-{role}'
+            result = subprocess.run(['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--assemble-comparison',
+                '--contract',str(self.root/'contract.json'),'--source-pages',str(index_path),'--source-bundle',str(output)],
+                cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertEqual(json.loads(result.stdout),{'status':'assembled','samples':20,'acquisition_passes':2,'network_requests':0})
+            assembled[role]=output
+            with self.assertRaisesRegex(ValueError,'duplicate'):
+                assemble_comparison_snapshots(self.contract,[chunks[0],chunks[0]],self.root/f'duplicate-{role}')
+            raw = next((chunks[0]/'raw/families').glob('*/run.json'))
+            original = raw.read_bytes(); raw.write_bytes(original+b' ')
+            with self.assertRaisesRegex(ValueError,'input_hash_invalid'):
+                assemble_comparison_snapshots(self.contract,chunks,self.root/f'tampered-{role}')
+            raw.write_bytes(original)
+        report=self.evaluate(before=assembled['before'],after=assembled['after'])
+        self.assertEqual(report['status'],'pass',report['diagnostics'])
+        self.assertEqual(report['metrics']['native_parity']['origins_verified'],40)
+        self.assertEqual(report['metrics']['baseline_runner_seconds'],1000)
+        self.assertEqual(report['metrics']['candidate_runner_seconds'],500)
+
+    def test_measured_trigger_requires_durable_previous_bytes_and_is_once_only(self):
+        from ci_metrics_security import verify_durable_attempt_capture, validate_next_comparison_trigger
+        project=self.root/'trigger-project'
+        (project/'scripts/ci').mkdir(parents=True)
+        for name in ('ci-run-metrics.sh','ci_metrics_security.py'):
+            shutil.copy2(ROOT/'scripts/ci'/name,project/'scripts/ci'/name)
+        capture=project/'capture'
+        shutil.copytree(self.root/'before',capture)
+        manifest=json.loads((capture/'manifest.json').read_text())
+        manifest['comparison_collection']={'origin_status':'passed'}
+        write(capture/'manifest.json',manifest)
+        def git(*args):
+            return subprocess.check_output(['git',*args],cwd=project,text=True,stderr=subprocess.DEVNULL).strip()
+        git('init');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+        git('add','capture');git('commit','-m','retain previous attempts')
+        commit=git('rev-parse','HEAD');ref='refs/evidence/fixture-previous-attempt'
+        git('update-ref',ref,commit)
+        receipt={'capture_path':'capture','ref':ref,'commit':commit,
+            'files':{str(path.relative_to(project)):digest(path) for path in capture.rglob('*') if path.is_file()}}
+        source='a'*40
+        verify_durable_attempt_capture(receipt,project,9001,3,source)
+        invalid=json.loads(json.dumps(receipt));invalid['files'].pop(next(iter(invalid['files'])))
+        with self.assertRaisesRegex(ValueError,'file_set_incomplete'):
+            verify_durable_attempt_capture(invalid,project,9001,3,source)
+        contract=json.loads(json.dumps(self.contract))
+        current=datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)-datetime.timedelta(seconds=1)
+        contract['window']={'start_utc':current.isoformat().replace('+00:00','Z'),
+            'end_utc':(current+datetime.timedelta(hours=48)).isoformat().replace('+00:00','Z')}
+        for index,row in enumerate(contract['family_reservations']):
+            row['run_attempt']=100+index
+        reservation=contract['family_reservations'][0];reservation['run_attempt']=4
+        endpoint='/repos/szTheory/sigra/actions/runs/9001/rerun'
+        contract.update(authorized_mutations=[endpoint],maximum_mutations=40)
+        prior=json.loads((capture/'raw/families/9001-attempt-3/run.json').read_text())
+        selected=validate_next_comparison_trigger(contract,reservation['reservation_id'],None,prior,receipt,project)
+        self.assertEqual(selected['run_attempt'],4)
+        with self.assertRaisesRegex(ValueError,'not_next_reserved_slot'):
+            validate_next_comparison_trigger(contract,contract['family_reservations'][1]['reservation_id'],None,prior,receipt,project)
+        with self.assertRaisesRegex(ValueError,'previous_attempt_changed_or_failed'):
+            validate_next_comparison_trigger(contract,reservation['reservation_id'],None,{**prior,'conclusion':'failure'},receipt,project)
+        write(project/'contract.json',contract);write(project/'receipt.json',receipt)
+        transport=project/'bin';transport.mkdir()
+        stub=transport/'gh'
+        stub.write_text('''#!/usr/bin/env python3
+import json,os,pathlib,sys
+args=sys.argv[1:];endpoint=args[args.index('--method')+2]
+root=pathlib.Path(os.environ['TRIGGER_FIXTURE'])
+with (root/'transport.jsonl').open('a') as out:out.write(json.dumps(args)+'\\n')
+if endpoint=='rate_limit':print(json.dumps({'resources':{'core':{'remaining':5000,'reset':2000000000}}}))
+elif args[args.index('--method')+1]=='POST':print('{}')
+else:print((root/'prior.json').read_text())
+''')
+        stub.chmod(0o755);write(project/'prior.json',prior)
+        env={**os.environ,'PATH':str(transport)+os.pathsep+os.environ['PATH'],'TRIGGER_FIXTURE':str(project)}
+        for index in range(2):
+            result=subprocess.run(['bash',str(project/'scripts/ci/ci-run-metrics.sh'),'--bounded-request',endpoint,
+                '--request-method','POST','--comparison-role','before','--reservation-id',reservation['reservation_id'],
+                '--contract',str(project/'contract.json'),'--registrations',str(project/'registrations.json'),
+                '--capture-receipt',str(project/'receipt.json'),'--request-budget-ledger',str(project/'budget.json'),
+                '--output',str(project/f'trigger-{index}.json')],cwd=project,env=env,capture_output=True,text=True,timeout=30)
+            if index==0:self.assertEqual(result.returncode,0,result.stderr)
+            else:self.assertNotEqual(result.returncode,0)
+        calls=[json.loads(line) for line in (project/'transport.jsonl').read_text().splitlines()]
+        self.assertEqual(sum(row[row.index('--method')+1]=='POST' for row in calls),1)
 
     def test_twenty_valid_attempt_pairs_preserve_a_measured_miss(self):
         import datetime
@@ -251,6 +363,10 @@ class AttemptAcquisition(unittest.TestCase):
             parity_path = ROOT / "scripts/ci/.comparison-acquisition-parity.json"
             try:
                 write(map_path, {"schema_version": "sigra.browser-coverage-map/v1", "rows": mapping["rows"]})
+                # Real optimization sources have distinct revision fingerprints;
+                # the retained native mapping proves their useful-work equivalence.
+                contract['candidate_identity']['workload_revision_sha256']=digest(map_path)
+                self.assertNotEqual(contract['candidate_identity']['workload_revision_sha256'],contract['baseline_workload_revision_sha256'])
                 write(parity_path, {"schema_version": "sigra.browser-parity-receipt/v1", "status": "passed",
                     "owner_integration_status": "profiled", "mapping_sha256": digest(map_path), "baseline_source_sha": head,
                     "candidate_source_sha": head, "event": "pull_request", "owners": [{"owner": owner, "status": "passed"} for owner in OWNERS]})
@@ -278,6 +394,10 @@ class AttemptAcquisition(unittest.TestCase):
                     prefix = f"./raw/families/{rid}/"
                     read = lambda name: saved.extractfile(prefix + name).read()
                     recorded_run = json.loads(read("run.json"))
+                    pr = recorded_run['pull_requests'][0]
+                    contract['baseline_identity'].update(branch=pr['head']['ref'], parent_main_sha=pr['base']['sha'])
+                    contract['baseline_identity'].pop('run_id')
+                    write(root / 'acquisition-contract.json', contract)
                     recorded_jobs = json.loads(read("jobs-attempt-1.json"))
                     recorded_checks = json.loads(read("check-runs.json"))
                     recorded_metadata = json.loads(read("artifacts-metadata.json"))
@@ -445,6 +565,50 @@ else:
                     self.assertEqual(detail['workload'], 'full')
                     self.assertTrue(all(len(list((raw_run.parent / "artifacts/derived-native" / owner).glob("coverage-source.json"))) == 1 for owner in OWNERS))
                     if role == 'before':
+                        # An always-uploaded metadata artifact can have valid
+                        # origin even when its producing browser test failed.
+                        # Retain that failed observation and reject eligibility
+                        # for its actual outcome, never call it an origin error.
+                        failed_jobs = json.loads(json.dumps(jobs))
+                        checkpoint = [job for job in failed_jobs['jobs']
+                                      if job['name'] == 'Example Playwright shard (admin_checkpoints)']
+                        self.assertEqual(len(checkpoint), 1)
+                        checkpoint[0]['conclusion'] = 'failure'
+                        write(directory / 'jobs.json', failed_jobs)
+                        write(directory / 'run.json', {**run, 'conclusion': 'failure'})
+                        failed_bundle = root / 'collected-before-failed-job'
+                        try:
+                            failed_collection = subprocess.run(command[:-1] + [str(failed_bundle)], cwd=ROOT,
+                                env=environment, capture_output=True, text=True, timeout=120)
+                            self.assertNotEqual(failed_collection.returncode, 0)
+                            self.assertIn(f'attempt_measurement_job_not_successful:{rid}-attempt-{attempt}:'
+                                          'Example Playwright shard (admin_checkpoints):failure', failed_collection.stderr)
+                            self.assertNotIn('attempt_measurement_metadata_origin_invalid', failed_collection.stderr)
+                            failed_raw = failed_bundle / f'raw/families/{rid}-attempt-{attempt}'
+                            self.assertEqual(json.loads((failed_raw / 'run.json').read_text())['conclusion'], 'failure')
+                            failed_manifest = json.loads((failed_bundle / 'manifest.json').read_text())
+                            self.assertFalse(failed_manifest.get('comparison_families'))
+                            self.assertFalse((failed_raw / 'artifacts/derived-native').exists())
+                        finally:
+                            write(directory / 'jobs.json', jobs)
+                            write(directory / 'run.json', run)
+                        # The isolated diagnostic uses the same bounded, digest-checked artifact transport.
+                        chosen = retained_artifacts[0]
+                        write(root / 'single-artifact.json', chosen)
+                        download_command = ['bash', str(ROOT / 'scripts/ci/ci-run-metrics.sh'),
+                            '--bounded-artifact-download', '--validate-artifact-json', str(root / 'single-artifact.json'),
+                            '--run-json', str(directory / 'run.json'), '--contract', str(root / 'acquisition-contract.json'),
+                            '--request-budget-ledger', str(root / 'budget.json')]
+                        downloaded = root / 'single-artifact.zip'
+                        acquired = subprocess.run(download_command + ['--output', str(downloaded)],
+                            cwd=ROOT, env=environment, capture_output=True, text=True, timeout=30)
+                        self.assertEqual(acquired.returncode, 0, acquired.stderr)
+                        self.assertEqual('sha256:' + digest(downloaded), chosen['digest'])
+                        write(root / 'single-artifact.json', {**chosen, 'digest': 'sha256:' + '0' * 64})
+                        rejected = subprocess.run(download_command + ['--output', str(root / 'tampered-artifact.zip')],
+                            cwd=ROOT, env=environment, capture_output=True, text=True, timeout=30)
+                        self.assertNotEqual(rejected.returncode, 0)
+                        self.assertFalse((root / 'tampered-artifact.zip').exists())
                         preparation = subprocess.run(['bash', str(ROOT / 'scripts/ci/ci-run-metrics.sh'),
                             '--collect-preparation', '--comparison-role', role, '--contract', str(root / 'acquisition-contract.json'),
                             '--run-json', str(root / 'early-before.json'), '--request-budget-ledger', str(root / 'budget.json'),
@@ -462,6 +626,18 @@ else:
                             capture_output=True, text=True, timeout=30)
                         self.assertEqual(failed_log.returncode, 0, failed_log.stderr)
                         self.assertIn('authentication required', (root / 'container-failure.log').read_text())
+                        failed_job['conclusion']='cancelled'
+                        write(root/'cancelled-job-receipt.json',{'jobs':[failed_job]})
+                        annotations=root/'timeout-annotations.json'
+                        write(annotations,[{'annotation_level':'failure','message':'The job has exceeded the maximum execution time of 30m0s'}])
+                        write(Path(str(annotations)+'.requests.json'),{'requests':[f"/repos/szTheory/sigra/check-runs/{failed_job['id']}/annotations"]})
+                        timeout_command=['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--collect-failed-job-log',str(failed_job['id']),
+                            '--failed-job-receipt',str(root/'cancelled-job-receipt.json'),'--contract',str(root/'acquisition-contract.json'),
+                            '--request-budget-ledger',str(root/'budget.json'),'--output',str(root/'timeout.log')]
+                        denied=subprocess.run(timeout_command,cwd=ROOT,env=environment,capture_output=True,text=True,timeout=30)
+                        self.assertNotEqual(denied.returncode,0)
+                        allowed=subprocess.run(timeout_command+['--timeout-annotations',str(annotations)],cwd=ROOT,env=environment,capture_output=True,text=True,timeout=30)
+                        self.assertEqual(allowed.returncode,0,allowed.stderr)
                     pair_runs.append(raw_run.parent)
                 # Verify actual derived native bytes through the existing comparator for every owner.
                 for owner in OWNERS:
@@ -482,6 +658,20 @@ else:
                 self.assertEqual(report["status"], "insufficient_data")
                 self.assertEqual(report["metrics"]["comparable_successful_pairs"], 1, report["diagnostics"])
                 self.assertEqual(report["metrics"]["native_parity"]["origin_status"], "passed", report["diagnostics"])
+                changed_manifest=root/'collected-after/manifest.json'
+                original_manifest=json.loads(changed_manifest.read_text())
+                for field,reason in [('source_workload_revision_sha256','after_family_source_workload_identity_mismatch'),
+                                     ('coverage_map_sha256','after_family_coverage_map_identity_mismatch')]:
+                    altered=json.loads(json.dumps(original_manifest));altered['comparison_families'][0][field]='0'*64
+                    write(changed_manifest,altered)
+                    bad=subprocess.run(["bash",str(ROOT/"scripts/ci/ci-run-metrics.sh"),"--evaluate-comparison",
+                        "--contract",str(root/"acquisition-contract.json"),"--registrations",str(ledger_path),
+                        "--before-bundle",str(root/"collected-before"),"--after-bundle",str(root/"collected-after"),
+                        "--baseline-source-bundle",str(archive),"--format","json"],cwd=ROOT,capture_output=True,text=True,timeout=60)
+                    invalid=json.loads(bad.stdout)
+                    self.assertEqual(invalid['status'],'insufficient_data')
+                    self.assertIn(reason,{row['reason'] for row in invalid['diagnostics']})
+                write(changed_manifest,original_manifest)
                 self.assertEqual(report["metrics"]["native_parity"]["status"], "passed", report["diagnostics"])
                 self.assertFalse(any("origin" in row["reason"] or "unverified" in row["reason"] for row in report["diagnostics"]), report["diagnostics"])
                 derived = pair_runs[0] / "artifacts/derived-native/admin_behavior/report.json"
@@ -492,7 +682,150 @@ else:
                 parity_path.unlink(missing_ok=True)
 
 
+class ApprovedInventoryAmendment(unittest.TestCase):
+    def test_independent_image_reader_rejects_conflicting_or_tampered_native_proof(self):
+        from ci_metrics_security import comparison_runner_images
+        module=(ROOT/'scripts/ci/ci-runner-image.mjs').as_uri()
+        javascript = """
+import {captureRunnerImage, verifyRunnerImage} from MODULE;
+const env={ImageOS:'ubuntu24',ImageVersion:'20261012.334.1',GITHUB_REPOSITORY:'szTheory/sigra',
+ GITHUB_RUN_ID:'9001',GITHUB_RUN_ATTEMPT:'1',GITHUB_SHA:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',GITHUB_JOB:'example_playwright_shard',MATRIX_SEAM:'design_gallery'};
+const input={imageData:Buffer.from(JSON.stringify([{group:'Runner Image',detail:'Image: ubuntu-24.04\\nVersion: 20261012.334.1'}])),
+ osRelease:Buffer.from('ID=ubuntu\\nVERSION_ID="24.04"\\n'),machine:'x86_64',env};
+const proof=captureRunnerImage(input);const verification=verifyRunnerImage({proof,...input});
+console.log(JSON.stringify({repository:env.GITHUB_REPOSITORY,run_id:'9001',run_attempt:'1',source_sha:env.GITHUB_SHA,
+ matrix_seam:'design_gallery',job_name:'Example Playwright shard',runner_os:'Linux',runner_arch:'X64',
+ runner_image:{...proof.runner_image,source_proof:proof,verification}}));
+""".replace('MODULE',json.dumps(module))
+        result=subprocess.run(['node','--input-type=module','-e',javascript],capture_output=True,text=True,check=True)
+        row=json.loads(result.stdout)
+        actual=comparison_runner_images([row],require_proof=True)
+        self.assertEqual(actual['Example Playwright shard (design_gallery)']['image_version'],'20261012.334.1')
+        differing = javascript.replace("ImageVersion:'20261012.334.1'", "ImageVersion:'20261023.334.3'")
+        observed = subprocess.run(['node','--input-type=module','-e',differing],capture_output=True,text=True,check=True)
+        diagnostic_row = json.loads(observed.stdout)
+        self.assertFalse(diagnostic_row['runner_image']['source_proof']['environment_agrees'])
+        self.assertEqual(comparison_runner_images([diagnostic_row],require_proof=True), actual)
+        historical = ROOT/'.planning/execution/254-environment-recovery/PREPARATION/IMAGE-METADATA-before.json'
+        if historical.is_file():
+            with self.assertRaisesRegex(ValueError,'comparison_runner_image_proof_invalid'):
+                comparison_runner_images([json.loads(historical.read_text())],require_proof=True)
+        for mutation in ('missing','bytes','environment','run','verification'):
+            changed=json.loads(json.dumps(row))
+            if mutation=='missing':changed['runner_image'].pop('source_proof')
+            elif mutation=='bytes':changed['runner_image']['source_proof']['image_file']['base64']=base64.b64encode(b'[]').decode()
+            elif mutation=='environment':changed['runner_image']['source_proof']['environment_image']['image_version']='20261023.334.3'
+            elif mutation=='run':changed['run_id']='9002'
+            else:changed['runner_image']['verification']['status']='image_identity_conflict'
+            with self.assertRaisesRegex(ValueError,'comparison_runner_image_proof_invalid'):
+                comparison_runner_images([changed],require_proof=True)
+
+    def test_same_image_set_does_not_hide_images_swapped_between_browser_owners(self):
+        from ci_metrics_security import comparison_runner_images
+        def row(owner,version):
+            return {'job_name':'Example Playwright shard','matrix_seam':owner,'runner_os':'Linux','runner_arch':'X64',
+                    'runner_image':{'image_os':'ubuntu24','image_version':version}}
+        before=[row('design_gallery','new'),row('demo_showcase','old')]
+        after=[row('design_gallery','old'),row('demo_showcase','new')]
+        self.assertEqual({r['runner_image']['image_version'] for r in before},{r['runner_image']['image_version'] for r in after})
+        self.assertNotEqual(comparison_runner_images(before),comparison_runner_images(after))
+
+    def test_only_the_explicitly_approved_workflow_change_can_reuse_the_original_inventory(self):
+        from ci_metrics_security import comparison_native_inventories, validate_profiled_receipt_sources
+        path=ROOT/'.planning/execution/254-rebaseline-preparation/NATIVE-INVENTORY-CONTRACT.json'
+        contract=json.loads(path.read_text())
+        retained_receipt=json.loads((ROOT/'.planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8-PARITY-RECEIPT.json').read_text())
+        validate_profiled_receipt_sources(contract,retained_receipt,ROOT)
+        invalid_receipt={**retained_receipt,'candidate_source_sha':'0'*40}
+        with self.assertRaisesRegex(ValueError,'source_equivalence_missing'):
+            validate_profiled_receipt_sources(contract,invalid_receipt,ROOT)
+        for role in ('before','after'):
+            inventories=comparison_native_inventories(contract,role,ROOT)
+            self.assertEqual(len(inventories),5)
+            self.assertTrue(all(row['workflow_authorization_sha256'] for row in inventories.values()))
+            invalid=json.loads(json.dumps(contract))
+            invalid['native_coverage_comparison']['source_equivalence'][role]['authorization_sha256']='0'*64
+            with self.assertRaisesRegex(ValueError,'inventory_digest_invalid'):
+                comparison_native_inventories(invalid,role,ROOT)
+            invalid=json.loads(json.dumps(contract))
+            invalid['native_coverage_comparison'].pop('source_equivalence')
+            with self.assertRaisesRegex(ValueError,'amendment_not_approved'):
+                comparison_native_inventories(invalid,role,ROOT)
+
+
 class BoundedPreparation(unittest.TestCase):
+    def test_fixed_source_update_is_nonforcing_once_only_and_checks_previous_head(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);binary=root/'bin';binary.mkdir();calls=root/'calls.jsonl'
+            stub=binary/'gh'
+            stub.write_text("""#!/usr/bin/env python3
+import json,os,sys
+args=sys.argv[1:];method=args[args.index('--method')+1];endpoint=args[args.index('--method')+2]
+with open(os.environ['SOURCE_UPDATE_CALLS'],'a') as out:out.write(json.dumps([method,endpoint])+'\\n')
+if endpoint=='rate_limit':print(json.dumps({'resources':{'core':{'remaining':5000,'reset':2000000000}}}))
+else:print(json.dumps({'ref':'refs/heads/evidence/phase254-fixture','object':{'sha':'b'*40 if method=='PATCH' else os.environ.get('SOURCE_UPDATE_OLD','a'*40)}}))
+""")
+            stub.chmod(0o755)
+            endpoint='/repos/szTheory/sigra/git/refs/heads/evidence/phase254-fixture'
+            contract={'request_budget_ledger_id':'f'*64,'maximum_mutations':2,'authorized_mutations':[endpoint],
+                'preparation_order':['before','after'],'baseline_identity':{'branch':'evidence/phase254-fixture','application_sha':'b'*40,'reviewed_source':'a'*40}}
+            write(root/'contract.json',contract);write(root/'body.json',{'sha':'b'*40,'force':False})
+            env={**os.environ,'PATH':str(binary)+os.pathsep+os.environ['PATH'],'SOURCE_UPDATE_CALLS':str(calls)}
+            command=['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--bounded-request',endpoint,'--request-method','PATCH',
+                '--request-body',str(root/'body.json'),'--comparison-role','before','--contract',str(root/'contract.json'),
+                '--request-budget-ledger',str(root/'budget.json')]
+            first=subprocess.run(command+['--output',str(root/'first.json')],env=env,cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertEqual(first.returncode,0,first.stderr)
+            self.assertIn(['GET', endpoint.replace('/git/refs/', '/git/ref/')], [json.loads(line) for line in calls.read_text().splitlines()])
+            again=subprocess.run(command+['--output',str(root/'again.json')],env=env,cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertNotEqual(again.returncode,0)
+            self.assertEqual(sum(json.loads(line)[0]=='PATCH' for line in calls.read_text().splitlines()),1)
+            write(root/'body.json',{'sha':'b'*40,'force':True})
+            forcing=subprocess.run(command+['--output',str(root/'forcing.json')],env=env,cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertNotEqual(forcing.returncode,0)
+            write(root/'body.json',{'sha':'b'*40,'force':False})
+            changed=subprocess.run(command+['--output',str(root/'changed.json')],env={**env,'SOURCE_UPDATE_OLD':'c'*40},cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertNotEqual(changed.returncode,0)
+            self.assertIn('source_update_previous_ref_changed',changed.stderr)
+            self.assertEqual(sum(json.loads(line)[0]=='PATCH' for line in calls.read_text().splitlines()),1)
+
+    def test_two_initial_pr_triggers_have_distinct_frozen_roles_and_no_retries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            transport = root / 'bin'
+            transport.mkdir()
+            gh = transport / 'gh'
+            gh.write_text('''#!/usr/bin/env python3
+import json,os,pathlib,sys
+args=sys.argv[1:]; endpoint=args[args.index('--method')+2]
+with pathlib.Path(os.environ['TRANSPORT_LOG']).open('a') as out: out.write(json.dumps(args)+'\\n')
+print(json.dumps({'resources':{'core':{'remaining':5000,'reset':2000000000}}}) if endpoint=='rate_limit' else '{}')
+''')
+            gh.chmod(0o755)
+            endpoint = '/repos/szTheory/sigra/pulls'
+            contract = {'request_budget_ledger_id':'b'*64, 'maximum_mutations':2,
+                'authorized_mutations':[endpoint], 'preparation_order':['before','after'],
+                'baseline_identity':{'branch':'evidence/phase254-new-before'},
+                'candidate_identity':{'branch':'evidence/phase254-new-after'}}
+            write(root/'contract.json',contract)
+            env={**os.environ,'PATH':str(transport)+os.pathsep+os.environ['PATH'],'TRANSPORT_LOG':str(root/'transport.jsonl')}
+            def invoke(role, sequence):
+                branch=contract['baseline_identity' if role=='before' else 'candidate_identity']['branch']
+                write(root/f'body-{sequence}.json',{'head':branch,'base':'main','draft':True,'title':'fixture'})
+                return subprocess.run(['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--bounded-request',endpoint,
+                    '--request-method','POST','--request-body',str(root/f'body-{sequence}.json'),'--comparison-role',role,
+                    '--contract',str(root/'contract.json'),'--request-budget-ledger',str(root/'budget.json'),
+                    '--output',str(root/f'output-{sequence}.json')],env=env,capture_output=True,text=True)
+            self.assertNotEqual(invoke('after',0).returncode,0)
+            self.assertEqual(invoke('before',1).returncode,0)
+            self.assertNotEqual(invoke('before',2).returncode,0)
+            self.assertEqual(invoke('after',3).returncode,0)
+            self.assertNotEqual(invoke('after',4).returncode,0)
+            ledger=json.loads((root/'budget.json').read_text())
+            self.assertEqual([row['mutation_key'] for row in ledger['records'] if row['kind']=='mutation'],['before','after'])
+            calls=[json.loads(line) for line in (root/'transport.jsonl').read_text().splitlines()]
+            self.assertEqual(sum(row[row.index('--method')+1]=='POST' for row in calls),2)
+
     def test_mutations_are_once_only_and_share_the_collection_budget(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
