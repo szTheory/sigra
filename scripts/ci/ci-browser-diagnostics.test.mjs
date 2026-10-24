@@ -27,3 +27,39 @@ test('reporter records startup errors before any test-end events', () => {
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('onTestEnd keeps the established event schema and fields while adding invocation identity', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-playwright-test-end-'));
+  const outputFile = path.join(root, 'failure.jsonl');
+  const reporter = new FailureJsonlReporter({
+    outputFile,
+    invocationId: 'diagnostic-invocation-02',
+    nativeIdentity: 'chromium:admin-theme.spec.ts',
+  });
+
+  try {
+    reporter.onTestEnd({
+      title: 'admin theme toggles dark mode',
+      location: { file: 'tests/admin-theme.spec.ts', line: 12 },
+      expectedStatus: 'passed',
+      ok: () => false,
+      parent: { project: () => ({ name: 'chromium' }) },
+    }, {
+      status: 'failed',
+      duration: 42,
+      retry: 0,
+      errors: [{ message: 'assertion failed' }],
+    });
+
+    const [record] = fs.readFileSync(outputFile, 'utf8').trim().split('\n').map(JSON.parse);
+    assert.equal(record.schema, 'sigra.phase253.playwright-test-end/v1');
+    assert.equal(record.title, 'admin theme toggles dark mode');
+    assert.equal(record.status, 'failed');
+    assert.equal(record.retry, 0);
+    assert.deepEqual(record.errors.map((error) => error.message), ['assertion failed']);
+    assert.equal(record.invocation_id, 'diagnostic-invocation-02');
+    assert.equal(record.native_identity, 'chromium:admin-theme.spec.ts');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

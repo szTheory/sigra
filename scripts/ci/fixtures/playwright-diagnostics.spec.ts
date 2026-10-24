@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect } from '../../../test/example/priv/playwright/node_modules/@playwright/test/index.mjs';
 import { adminThemeTest } from '../../../test/example/priv/playwright/fixtures/adminTheme';
 
 // Kept outside Playwright's production testDir so failure probes never become

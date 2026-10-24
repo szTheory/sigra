@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export const FAILURE_JSONL_SCHEMA = 'sigra.phase253.playwright-test-end/v1';
+export const RUN_ERROR_JSONL_SCHEMA = 'sigra.phase253.playwright-run-error/v1';
 export const MAX_ERROR_MESSAGE_BYTES = 8192;
 
 // eslint-disable-next-line no-control-regex
@@ -34,14 +35,28 @@ export default class FailureJsonlReporter {
   constructor(options = {}) {
     this.outputFile = options.outputFile;
     if (!this.outputFile) throw new Error('failure-jsonl reporter requires an outputFile');
+    this.invocationId = options.invocationId ?? process.env.SIGRA_CI_INVOCATION_ID ?? null;
+    this.nativeIdentity = options.nativeIdentity ?? process.env.SIGRA_CI_NATIVE_IDENTITY ?? null;
     fs.mkdirSync(path.dirname(path.resolve(this.outputFile)), { recursive: true });
   }
 
   printsToStdio() { return false; }
 
+  append(line) {
+    const fd = fs.openSync(this.outputFile, 'a');
+    try {
+      fs.writeSync(fd, `${JSON.stringify(line)}\n`);
+      fs.fsyncSync(fd);
+    } finally {
+      fs.closeSync(fd);
+    }
+  }
+
   onTestEnd(test, result) {
     const line = {
       schema: FAILURE_JSONL_SCHEMA,
+      invocation_id: this.invocationId,
+      native_identity: this.nativeIdentity,
       project: test.parent?.project?.()?.name ?? null,
       title: test.title,
       file: test.location?.file ?? null,
@@ -53,12 +68,16 @@ export default class FailureJsonlReporter {
       retry: result.retry,
       errors: (result.errors ?? (result.error ? [result.error] : [])).map(describeError),
     };
-    const fd = fs.openSync(this.outputFile, 'a');
-    try {
-      fs.writeSync(fd, `${JSON.stringify(line)}\n`);
-      fs.fsyncSync(fd);
-    } finally {
-      fs.closeSync(fd);
-    }
+    this.append(line);
+  }
+
+  onError(error) {
+    this.append({
+      schema: RUN_ERROR_JSONL_SCHEMA,
+      type: 'error',
+      invocation_id: this.invocationId,
+      native_identity: this.nativeIdentity,
+      error: describeError(error),
+    });
   }
 }
