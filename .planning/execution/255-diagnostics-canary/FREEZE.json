@@ -413,9 +413,19 @@
         "response_status": 200,
         "scenario": null,
         "test_retry": false
+      },
+      {
+        "at": "2026-10-24T18:59:38+00:00",
+        "infrastructure_retry": false,
+        "invocation": false,
+        "operation": "run-identity-recovery:run=40122912945",
+        "push": false,
+        "request": true,
+        "scenario": null,
+        "test_retry": false
       }
     ],
-    "controller_requests": 14,
+    "controller_requests": 15,
     "elapsed_started_at": 1792867909.20091,
     "infrastructure_retries": 0,
     "invocations": 1,
