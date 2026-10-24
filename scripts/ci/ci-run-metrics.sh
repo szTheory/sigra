@@ -1207,7 +1207,8 @@ for registration in registrations:
     warm=bool(caches) and all(value in ('hit',True) for value in caches)
     families.append({'reservation_id':registration['reservation_id'],'pair_id':registration['pair_id'],'family_role':role,'run_id':int(run_id),
         'run_attempt':attempt,'sample_id':sample_id,'created_at':run.get('created_at'),'attempt_origin_at':registration['attempt_origin_at'],
-        'conclusion':run.get('conclusion'),'workload':detail.get('workload'),'workload_sha':workload_sha,'workflow_sha256':workflow_sha,
+        'conclusion':run.get('conclusion'),'workload':detail.get('workload'),'workload_sha':workload_sha,
+        'source_workload_revision_sha256':workload_sha,'coverage_map_sha256':contract['native_coverage_comparison']['mapping_sha256'],'workflow_sha256':workflow_sha,
         'runner_class':images,'runner_image':images,'cache_stratum':'warm' if warm else 'not_warm',
         'exunit_instrumentation':instrument['exunit'],'playwright_instrumentation':instrument['playwright'],'attempts':[]})
 manifest_path=root/'manifest.json'; manifest=json.loads(manifest_path.read_text())
@@ -2565,6 +2566,12 @@ for label, data in [('before',before),('after',after)]:
                 issue(label+'_family_runner_cost_unknown',{'run_id':row.get('run_id'),'known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),'unknown_jobs':raw.get('runner_unknown_jobs'),'diagnostics':raw.get('runner_diagnostics')})
             if raw.get('required_result_wait_seconds') is None:
                 issue(label+'_family_required_wait_unknown',{'run_id':row.get('run_id'),'missing_contexts':raw.get('missing_required_contexts'),'diagnostics':raw.get('wait_diagnostics')})
+        if contract.get('sample_identity')=='run_id+run_attempt':
+            expected_source_workload=contract.get('baseline_workload_revision_sha256') if label=='before' else candidate.get('workload_revision_sha256')
+            if row.get('source_workload_revision_sha256')!=expected_source_workload or row.get('workload_sha')!=expected_source_workload:
+                issue(label+'_family_source_workload_identity_mismatch',row.get('sample_id'))
+            if row.get('coverage_map_sha256')!=mapping_digest:
+                issue(label+'_family_coverage_map_identity_mismatch',row.get('sample_id'))
         ident=(row.get('pair_id'),row.get('family_role'))
         if ident in seen: issue(label+'_duplicate_family',ident)
         seen.add(ident); families.append((label,row))
@@ -2580,7 +2587,10 @@ after_rows={r.get('pair_id'):r for label,r in families if label=='after' and r.g
 if set(before_rows)!=set(after_rows) or len(before_rows)!=20: issue('pair_identity_mismatch')
 for pair_id in sorted(set(before_rows)&set(after_rows)):
     b,a=before_rows[pair_id],after_rows[pair_id]
-    fields=['workload','workload_sha','runner_class','runner_image','cache_stratum','exunit_instrumentation','playwright_instrumentation']
+    # Source revisions differ by design; actual useful-work equivalence is also
+    # independently proven above by the complete native coverage comparison.
+    identity_field='coverage_map_sha256' if contract.get('sample_identity')=='run_id+run_attempt' else 'workload_sha'
+    fields=['workload',identity_field,'runner_class','runner_image','cache_stratum','exunit_instrumentation','playwright_instrumentation']
     mismatch=[field for field in fields if b.get(field)!=a.get(field)]
     if 'runner_image' in mismatch: issue('runner_image_drift',{'pair_id':pair_id,'before':b.get('runner_image'),'after':a.get('runner_image')})
     if mismatch: issue('pair_not_equivalent',{'pair_id':pair_id,'fields':mismatch}); continue

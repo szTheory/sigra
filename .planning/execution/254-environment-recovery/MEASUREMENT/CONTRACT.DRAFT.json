@@ -437,7 +437,10 @@
   "limits": {
     "rest_core_stop_remaining": 250,
     "window_minutes": 60,
-    "workflow_dispatch_requests": 600
+    "workflow_dispatch_requests": 600,
+    "actual_HTTP_requests_per_acquisition_pass": 600,
+    "acquisition_passes": 20,
+    "minutes_per_acquisition_pass": 60
   },
   "pair_count": 20,
   "primary_family_count": 40,
@@ -843,5 +846,11 @@
     "symmetric_environment_recovery": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
     "native_authority": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/POLICY.json",
     "disclosure": "Rerun-based experiment on the explicitly amended baseline and current candidate, with identical environment repairs; not forty new-PR scheduling observations, not the original Phase252 workflow unchanged."
-  }
+  },
+  "cache_stratum_allocation": [
+    {
+      "stratum_id": "warm",
+      "pair_count": 20
+    }
+  ]
 }

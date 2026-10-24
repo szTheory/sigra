@@ -103,7 +103,9 @@ def attempt_fixture(root):
                           artifact_evidence={"path": f"raw/families/{sample}/artifact-evidence.json", "sha256": digest(family / "artifact-evidence.json")})
             write(family / "manifest.json", detail)
             row.update(run_id=run_id, run_attempt=attempt, sample_id=sample, reservation_id=f"r-pair-{index:02d}-{role}",
-                       created_at=run["created_at"], attempt_origin_at=origin)
+                       created_at=run["created_at"], attempt_origin_at=origin,
+                       source_workload_revision_sha256=contract['baseline_workload_revision_sha256'] if role=='before' else contract['candidate_identity']['workload_revision_sha256'],
+                       coverage_map_sha256=contract['native_coverage_comparison']['mapping_sha256'])
             api_run = population["runs"][index - 1]
             api_run.update(run, detail_status="complete", workload="full", attempt_jobs=detail["attempt_jobs"])
             observation_rows[(row["pair_id"], role)] = run
@@ -361,6 +363,10 @@ class AttemptAcquisition(unittest.TestCase):
             parity_path = ROOT / "scripts/ci/.comparison-acquisition-parity.json"
             try:
                 write(map_path, {"schema_version": "sigra.browser-coverage-map/v1", "rows": mapping["rows"]})
+                # Real optimization sources have distinct revision fingerprints;
+                # the retained native mapping proves their useful-work equivalence.
+                contract['candidate_identity']['workload_revision_sha256']=digest(map_path)
+                self.assertNotEqual(contract['candidate_identity']['workload_revision_sha256'],contract['baseline_workload_revision_sha256'])
                 write(parity_path, {"schema_version": "sigra.browser-parity-receipt/v1", "status": "passed",
                     "owner_integration_status": "profiled", "mapping_sha256": digest(map_path), "baseline_source_sha": head,
                     "candidate_source_sha": head, "event": "pull_request", "owners": [{"owner": owner, "status": "passed"} for owner in OWNERS]})
@@ -625,6 +631,20 @@ else:
                 self.assertEqual(report["status"], "insufficient_data")
                 self.assertEqual(report["metrics"]["comparable_successful_pairs"], 1, report["diagnostics"])
                 self.assertEqual(report["metrics"]["native_parity"]["origin_status"], "passed", report["diagnostics"])
+                changed_manifest=root/'collected-after/manifest.json'
+                original_manifest=json.loads(changed_manifest.read_text())
+                for field,reason in [('source_workload_revision_sha256','after_family_source_workload_identity_mismatch'),
+                                     ('coverage_map_sha256','after_family_coverage_map_identity_mismatch')]:
+                    altered=json.loads(json.dumps(original_manifest));altered['comparison_families'][0][field]='0'*64
+                    write(changed_manifest,altered)
+                    bad=subprocess.run(["bash",str(ROOT/"scripts/ci/ci-run-metrics.sh"),"--evaluate-comparison",
+                        "--contract",str(root/"acquisition-contract.json"),"--registrations",str(ledger_path),
+                        "--before-bundle",str(root/"collected-before"),"--after-bundle",str(root/"collected-after"),
+                        "--baseline-source-bundle",str(archive),"--format","json"],cwd=ROOT,capture_output=True,text=True,timeout=60)
+                    invalid=json.loads(bad.stdout)
+                    self.assertEqual(invalid['status'],'insufficient_data')
+                    self.assertIn(reason,{row['reason'] for row in invalid['diagnostics']})
+                write(changed_manifest,original_manifest)
                 self.assertEqual(report["metrics"]["native_parity"]["status"], "passed", report["diagnostics"])
                 self.assertFalse(any("origin" in row["reason"] or "unverified" in row["reason"] for row in report["diagnostics"]), report["diagnostics"])
                 derived = pair_runs[0] / "artifacts/derived-native/admin_behavior/report.json"

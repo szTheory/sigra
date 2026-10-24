@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "method": "symmetric_environment_transport_recovery",
+  "cause": "Ordinary live-workflow parity copy missed in the generated-host install repair. Reproduced locally in p20; all118 prohibition tests now pass with the active copy and live marker list updated. Historical fixtures and guard strictness stay unchanged.",
+  "patches": {
+    "before": {
+      "base_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+      "path": ".planning/execution/254-environment-recovery/PARITY-FIX/before.patch",
+      "sha256": "6b5b1b04c56846770cd68506630090d59bcfe6db7faf458bd9b042281fc4fec1",
+      "allowed_paths": [
+        ".github/workflows/green-04-evidence.yml",
+        "scripts/ci/prohibitions/p20-green-04-evidence-step-parity.test.mjs"
+      ]
+    },
+    "after": {
+      "base_sha": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+      "path": ".planning/execution/254-environment-recovery/PARITY-FIX/after.patch",
+      "sha256": "6b5b1b04c56846770cd68506630090d59bcfe6db7faf458bd9b042281fc4fec1",
+      "allowed_paths": [
+        ".github/workflows/green-04-evidence.yml",
+        "scripts/ci/prohibitions/p20-green-04-evidence-step-parity.test.mjs"
+      ]
+    }
+  },
+  "inventory_sources": {
+    "before": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "after": "da6401170e4295cba8099fd6f3ec348c6867de47"
+  },
+  "scope": "Only active green-04 evidence workflow and its live invocation markers; no CI execution body, native image policy, product/browser tree, dependency or acceptance threshold change.",
+  "budget": {
+    "fixed_source_updates": 2,
+    "source_update_retries": 0,
+    "maximum_minutes": 60,
+    "maximum_HTTP_requests": 600
+  },
+  "prior_preparation_invocations": 8,
+  "all_prior_results_preserved": true,
+  "measured_samples": 0,
+  "window_started": false
+}
