@@ -58,9 +58,14 @@ case "$*" in
       exit 97
     }
     printf 'threadline-guard-report\n' > "${SIGRA_EXUNIT_TIMING_JSON}"
+    if [[ "${SIGRA_DEP_OFF_INTERRUPT:-0}" == "1" ]]; then
+      kill -INT "$PPID"
+      sleep 0.1
+    fi
     [[ "${SIGRA_DEP_OFF_FORCE_TEST_FAILURE:-0}" != "1" ]] || exit 24
     ;;
   "deps.get --check-locked")
+    [[ "${SIGRA_DEP_OFF_FORCE_RESTORE_FAILURE:-0}" != "1" ]] || exit 31
     ;;
   "compile --force --warnings-as-errors")
     mkdir -p _build/test/lib/threadline
@@ -81,6 +86,8 @@ run_case() {
   local expected_status="$2"
   local force_failure="$3"
   local force_test_failure="${4:-0}"
+  local force_restore_failure="${5:-0}"
+  local interrupt="${6:-0}"
   local fixture lock_before lock_after status
 
   fixture="$(setup_fixture "${name}")"
@@ -90,6 +97,7 @@ run_case() {
   (
     cd "${fixture}"
     PATH="${fixture}/bin:${PATH}" SIGRA_DEP_OFF_FORCE_FAILURE="${force_failure}" SIGRA_DEP_OFF_FORCE_TEST_FAILURE="${force_test_failure}" \
+      SIGRA_DEP_OFF_FORCE_RESTORE_FAILURE="${force_restore_failure}" SIGRA_DEP_OFF_INTERRUPT="${interrupt}" \
       SIGRA_EXUNIT_TIMING_JSON="${fixture}/test-results/ci-exunit-timing-main.json" \
       SIGRA_EXUNIT_TIMING_INVOCATION="main" \
       bash scripts/ci/sigra-dep-off.sh
@@ -118,9 +126,23 @@ run_case() {
   fi
 }
 
-run_case success 0 0
-run_case injected_compile_failure 42 1
-run_case child_failure 24 0 1
+case "${1:-}" in
+  "--case")
+    case "${2:-}" in
+      failure_plus_cleanup) run_case failure_plus_cleanup 24 0 1 1 ;;
+      *) echo "FAIL: unknown case ${2:-}" >&2; exit 2 ;;
+    esac
+    ;;
+  "")
+    run_case success 0 0
+    run_case injected_compile_failure 42 1
+    run_case child_failure 24 0 1
+    run_case failure_plus_cleanup 24 0 1 1
+    run_case successful_guard_restore_failure 1 0 0 1
+    run_case interrupt 130 0 0 0 1
+    ;;
+  *) echo "usage: $0 [--case failure_plus_cleanup]" >&2; exit 2 ;;
+esac
 
 echo "Results: ${PASS} passed, ${FAIL} failed"
 ((FAIL == 0))
