@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import FailureJsonlReporter from '../../test/example/priv/playwright/lib/reporters/failure-jsonl.mjs';
 
@@ -62,4 +63,15 @@ test('onTestEnd keeps the established event schema and fields while adding invoc
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('local reproduction exposes a retained native diagnostics mode', () => {
+  const runner = spawnSync('python3', ['-B', 'scripts/ci/ci-browser-local.py', '--help'], {
+    cwd: path.resolve(import.meta.dirname, '../..'),
+    encoding: 'utf8',
+  });
+
+  assert.equal(runner.status, 0, runner.stderr);
+  assert.match(runner.stdout, /--diagnostic-case/);
+  assert.match(runner.stdout, /--keep-output/);
 });
