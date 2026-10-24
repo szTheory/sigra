@@ -207,7 +207,6 @@
     {
       "case": "runner_sigterm",
       "expected_signal": 15,
-      "observed_exit": 0,
       "owner": {
         "cleanup_errors": [],
         "compiled_port": 51701,
@@ -264,7 +263,12 @@
         "test_result": "diagnostic_terminate_observed"
       },
       "invocation_root": "browser-diagnostics-1792865705155/04-runner-terminated",
-      "trace_unavailable_reason": "runner_terminated"
+      "trace_unavailable_reason": "runner_terminated",
+      "expected_wrapper_exit": 0,
+      "observed_wrapper_exit": 0,
+      "expected_child_exit": 143,
+      "observed_child_exit": 143,
+      "observed_signal": 15
     },
     {
       "case": "pretest_discovery_error",
@@ -1783,5 +1787,7 @@
       "case": "browser_launch_before_context",
       "reason": "context_not_created"
     }
-  ]
+  ],
+  "native_tested_source_sha": "59ed88c32673635757981770e50c228e92158b15",
+  "evidence_writer_source_sha": "7bad04a200ffcecc759cd1d947c141609d96a037"
 }
