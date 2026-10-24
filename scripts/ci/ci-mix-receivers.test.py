@@ -20,6 +20,15 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 class MixReceiverReportTest(unittest.TestCase):
+    def test_exunit_excluded_test_identity_is_recorded(self):
+        env = os.environ.copy()
+        env.update({"MIX_ENV": "test", "SIGRA_CI_REQUIRED": "0"})
+        result = subprocess.run(
+            ["mix", "test", "--no-compile", "test/sigra/planning/ci_timing_formatter_test.exs"],
+            cwd=ROOT, env=env, capture_output=True, text=True, check=False, timeout=60,
+        )
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
     def test_finalize_persists_real_receiver_reports_and_explains_missing_legs(self):
         with tempfile.TemporaryDirectory(prefix="sigra-receiver-finalize-") as temp:
             root = pathlib.Path(temp)
