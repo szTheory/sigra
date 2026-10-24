@@ -191,7 +191,18 @@ def redact_url(value: str, field_path: str, redactions: list[dict]) -> str:
             changed = True
             redactions.append({"field": f"{field_path}?{key}", "action": "value_redacted"})
         cleaned.append((key, item))
-    return urlunsplit((parts.scheme, netloc, parts.path, urlencode(cleaned, doseq=True) if changed else parts.query, parts.fragment))
+    fragment_pairs = parse_qsl(parts.fragment, keep_blank_values=True)
+    fragment_changed = False
+    safe_fragment = []
+    for key, item in fragment_pairs:
+        if sensitive_name(key):
+            item = "[REDACTED]"
+            fragment_changed = True
+            redactions.append({"field": f"{field_path}#{key}", "action": "value_redacted"})
+        safe_fragment.append((key, item))
+    fragment = urlencode(safe_fragment, doseq=True) if fragment_changed else parts.fragment
+    return urlunsplit((parts.scheme, netloc, parts.path,
+                       urlencode(cleaned, doseq=True) if changed else parts.query, fragment))
 
 
 def redact_post_data(value: str, field_path: str, redactions: list[dict]) -> str:

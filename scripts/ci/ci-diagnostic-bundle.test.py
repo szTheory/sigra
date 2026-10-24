@@ -197,6 +197,39 @@ class DiagnosticBundleTest(unittest.TestCase):
             self.assertEqual("[REDACTED]", request["refreshToken"])
             self.assertIn("safe=kept", request["postData"]["text"])
 
+    def test_finished_trace_archive_redacts_fragment_credentials_and_keeps_safe_fragment_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            secrets = ("fragment-access-credential-19", "fragment-refresh-credential-23",
+                       "fragment-api-credential-41")
+            trace = self.trace_zip({
+                "trace.network": (json.dumps({"type": "resource-snapshot", "snapshot": {
+                    "request": {"url": "https://example.test/callback#access_token=fragment-access-credential-19&refreshToken=fragment-refresh-credential-23&api-key=fragment-api-credential-41&state=oauth-state-keep&tab=profile"},
+                }}).encode() + b"\n"),
+            })
+            manifest, _ = self.make_manifest(root, [("trace.zip", trace, "trace")],
+                                             trace_provenance={"synthetic_account": True, "registered": True})
+            output = pathlib.Path(temp) / "diagnostics.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertEqual(0, staged.returncode, staged.stderr)
+            checked = self.command("verify", root, manifest, output)
+            self.assertEqual(0, checked.returncode, checked.stderr)
+            with zipfile.ZipFile(output) as archive:
+                metadata = json.loads(archive.read("bundle-manifest.json"))
+                self.assertIn("trace.zip", metadata["members"])
+                redactions = metadata["members"]["trace.zip"]["redactions"]
+                self.assertGreaterEqual(len(redactions), len(secrets))
+                safe_trace = archive.read("trace.zip")
+            for secret in secrets:
+                self.assertNotIn(secret.encode(), safe_trace)
+            with zipfile.ZipFile(io.BytesIO(safe_trace)) as archive:
+                event = json.loads(archive.read("trace.network"))
+            safe_url = event["snapshot"]["request"]["url"]
+            self.assertIn("state=oauth-state-keep", safe_url)
+            self.assertIn("tab=profile", safe_url)
+            self.assertEqual(3, safe_url.count("%5BREDACTED%5D"))
+
     def test_escaping_symlink_duplicate_member_and_identity_mismatch_are_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp) / "invocation"
