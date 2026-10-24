@@ -1,0 +1,75 @@
+{
+  "phase": "253",
+  "passed": false,
+  "uat_files": [
+    "253-UAT.md"
+  ],
+  "verification_files": [],
+  "checks": [
+    {
+      "file": "253-UAT.md",
+      "test": 1,
+      "name": "Reproduce and fix the selected registration failure",
+      "result": "blocked",
+      "passing": false,
+      "deferred": false,
+      "resolved": false
+    },
+    {
+      "file": "253-UAT.md",
+      "test": 2,
+      "name": "Preserve useful coverage and the five required check names",
+      "result": "pass",
+      "passing": true,
+      "deferred": false,
+      "resolved": false
+    },
+    {
+      "file": "253-UAT.md",
+      "test": 3,
+      "name": "Failed, cancelled, missing and unexpectedly skipped work cannot go green",
+      "result": "pass",
+      "passing": true,
+      "deferred": false,
+      "resolved": false
+    },
+    {
+      "file": "253-UAT.md",
+      "test": 4,
+      "name": "Docs-only skips require the real eligible PR classification",
+      "result": "pass",
+      "passing": true,
+      "deferred": false,
+      "resolved": false
+    },
+    {
+      "file": "253-UAT.md",
+      "test": 5,
+      "name": "Fresh database/app startup and bounded cleanup",
+      "result": "pass",
+      "passing": true,
+      "deferred": false,
+      "resolved": false
+    },
+    {
+      "file": "253-UAT.md",
+      "test": 6,
+      "name": "Replay the complete original preceding test order",
+      "result": "pass",
+      "passing": true,
+      "deferred": false,
+      "resolved": false
+    }
+  ],
+  "blockers": [
+    "253-UAT.md: frontmatter status=partial",
+    "253-UAT.md: test 1 (blocked)",
+    "policy: verification required but no passing *-VERIFICATION.md found"
+  ],
+  "no_uat_artifacts": false,
+  "policy": {
+    "require_verification": true,
+    "uat_only": false
+  },
+  "verification_stale_check_indeterminate": false
+}

@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-27",
+  "captured_at": "2026-10-01T19:24:12Z",
+  "purpose": "Read-only D-06 source-feasibility preflight before creating the next gap-closure plan",
+  "status": "ready_for_current_state_gap_plan",
+  "decisions": {
+    "D-06": "Applied: source feasibility was checked before planning; future mutation still requires a fresh execution-time preflight.",
+    "D-07": "Applied: next plan uses current local Git, GitHub open-PR inventory, and exact origin refs; historical base equality is not required.",
+    "D-02": "Applied: historical prohibited-cleanup claims remain unresolved and are not inferred from this phase."
+  },
+  "planning_inputs": [
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "tracked": true,
+      "head_blob": "05621c5c0c313848deefe0fd8493648724289a1f",
+      "worktree_blob": "05621c5c0c313848deefe0fd8493648724289a1f",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-CURRENT-CONTRACT.json",
+      "tracked": true,
+      "head_blob": "a7b448fe271953ecfe4352784bba4f004e31a748",
+      "worktree_blob": "a7b448fe271953ecfe4352784bba4f004e31a748",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-RESULT.json",
+      "tracked": true,
+      "head_blob": "1cd5c8e5503308657d92c3798797b3e556b6f401",
+      "worktree_blob": "1cd5c8e5503308657d92c3798797b3e556b6f401",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+      "tracked": true,
+      "head_blob": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+      "worktree_blob": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-PLAN.md",
+      "tracked": true,
+      "head_blob": "ac8d6e256cc97f688e4a680a70e39268641eb5ae",
+      "worktree_blob": "ac8d6e256cc97f688e4a680a70e39268641eb5ae",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-SUMMARY.md",
+      "tracked": true,
+      "head_blob": "35f27aa81d5db0ca9fe99968e4f22c6438979391",
+      "worktree_blob": "35f27aa81d5db0ca9fe99968e4f22c6438979391",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-RESULT.json",
+      "tracked": true,
+      "head_blob": "d805616a2c06d6408ecd63513cb4b27d18b6330e",
+      "worktree_blob": "d805616a2c06d6408ecd63513cb4b27d18b6330e",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-HANDOFF.json",
+      "tracked": true,
+      "head_blob": "fb733673450afb66daa0bacca455dc67fd21c29f",
+      "worktree_blob": "fb733673450afb66daa0bacca455dc67fd21c29f",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-PLAN-CHECK.json",
+      "tracked": true,
+      "head_blob": "48e44a9f6c3227c3c94f85756191b9b848cf56e4",
+      "worktree_blob": "48e44a9f6c3227c3c94f85756191b9b848cf56e4",
+      "status": "available_and_unchanged"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-CONTEXT.md",
+      "tracked": true,
+      "head_blob": "aa7652f4bc971bc4f4ecb97de639bd49b8a54a03",
+      "worktree_blob": "8d16b653fcc269f338c83db2fe000e2877c1e9b3",
+      "status": "available_with_uncommitted_D06_D07_decisions_preserved"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-VERIFICATION.md",
+      "tracked": false,
+      "worktree_blob": "e3deb235682ff4386cbe579e3733193b3ddd46fe",
+      "status": "available_in_worktree_only; dated 2026-09-28 and superseded in scope by later D02/D07 decisions and Plan 26"
+    }
+  ],
+  "live_source_availability": {
+    "github_open_pr_inventory": {
+      "source": "gh pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,headRefOid,baseRefName,baseRefOid",
+      "exit_code": 0,
+      "row_count": 13,
+      "sha256_canonical_rows_sorted_by_number": "4176bc11c2a1d620b02344f84d0a70696e093d123824a862680399a74853f0f6"
+    },
+    "origin_heads": {
+      "source": "git ls-remote --heads origin",
+      "exit_code": 0,
+      "row_count": 50,
+      "sha256": "66d56dead2a247d65b1a8a21173d03619b8b38882053a1ac6fc2026c44253962"
+    },
+    "local_refs": {
+      "source": "git for-each-ref --format='%(refname)%09%(objectname)%09%(objecttype)'",
+      "exit_code": 0,
+      "row_count": 128,
+      "sha256": "82425182ac70d91124d08d619df5507cb9ce89c104d843e8f91d3dc1f20e121e"
+    },
+    "git_runtimes": {
+      "default": "git version 2.41.0",
+      "pinned": "/usr/bin/git version 2.50.1 (Apple Git-155)"
+    },
+    "plan26_public_readiness": {
+      "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/prune-stale-branches.sh verify-readiness --repo . --readiness-commit e61432a0248824d14d942c7d4ae2fd428a81ae99 --readiness .planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "exit_code": 0,
+      "result": "PASS: committed D-01 readiness is valid at e61432a0248824d14d942c7d4ae2fd428a81ae99"
+    }
+  },
+  "historical_sources": {
+    "required_by_next_plan": false,
+    "historical_pr_base_mismatch_rows": "11 unresolved; preserve as historical record per D-07",
+    "historical_cleanup_audit_rows": "30 unresolved; preserve as historical record per D-02 and D-07",
+    "unavailable_historical_baseline": "unknown; no additional backup source search permitted by D-07",
+    "independent_full_window_cleanup_trust_registry": "unknown and not required for current-state gap plan"
+  },
+  "safety": {
+    "git_mutations": 0,
+    "origin_ref_mutations": 0,
+    "pull_request_mutations": 0,
+    "stash_operations": 0,
+    "historical_claims_promoted": 0
+  },
+  "current_head": "de68fad6e7155180cb1d5e79d31aba9bdbef5870",
+  "current_branch": "phase-244-playwright-measurement"
+}

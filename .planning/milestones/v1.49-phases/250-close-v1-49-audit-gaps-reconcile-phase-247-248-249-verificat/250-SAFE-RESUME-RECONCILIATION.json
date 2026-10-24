@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "status": "manual_safe_resume_reconciliation",
+  "recorded_at": "2026-10-11T02:24:09.456Z",
+  "selected_recovery": "close_out_manually",
+  "capture": {
+    "head_before": "aa06719fa5d2e1330be7ee9105c43b3a374d9ba4",
+    "worktree_clean": true,
+    "async_job_manifests_present": false,
+    "async_job_manifest_files": [],
+    "source_hashes_before": {
+      ".planning/STATE.md": "68d30da54f577af3ec2b90c621541ca5d4248f3e94fada4cc7193d3be2f7d784",
+      ".planning/state.json": "9f16db84a2dd665623c43e0f8fdbc45c60aa72e500e5da7462aa5707e55106ae",
+      ".planning/HANDOFF.json": "e0141661725afa5496a3096160ed0efa7323c93a500d765707c762af1580772a",
+      ".planning/ROADMAP.md": "226b7551f7659f0109115e700d89c3b7b5904259ec1c2cc7f20d5b444e46fccb",
+      ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md": "b515584abe1ebb0c876c7eb649ea13529d7c73d83cd88cfc5c396d55ef70f0a3",
+      ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287"
+    }
+  },
+  "plans": {
+    "250-07": {
+      "evaluation_scope": {
+        "unit": {
+          "kind": "plan",
+          "planId": "250-07"
+        },
+        "status": "resolved",
+        "source": "plan-subjects",
+        "reason": null,
+        "commits": [
+          {
+            "sha": "9a8ec0fb488f972c08075d6a4cfd3cde58db8dba",
+            "subject": "docs(250-07): prepare repaired canary authority v5"
+          },
+          {
+            "sha": "a842ca320920e3a1850eac2a96d6ebac3303ef4a",
+            "subject": "docs(250-07): preserve consumed authority and fresh preflight"
+          },
+          {
+            "sha": "3525f969f58bb83adfd9a2bd1eb8b39c471408f9",
+            "subject": "docs(250-07): record release automation failure separately"
+          },
+          {
+            "sha": "6cfff595ba07329afded1982462f07a168068d7d",
+            "subject": "docs(250-07): record parser repair merge and main checks"
+          },
+          {
+            "sha": "7693cd4b01faa9916dbde2a9baaaea47a34bcb19",
+            "subject": "docs(250-07): record observer parser repair PR"
+          },
+          {
+            "sha": "2fb1f9b8f3ed437f4d144c24063979c12d6a9272",
+            "subject": "docs(250-07): record consumed observer failure evidence"
+          },
+          {
+            "sha": "38a8ae8d04d5066abda8d07f3129ffac68c480d7",
+            "subject": "docs(250-07): record active controller watcher"
+          },
+          {
+            "sha": "30f472bd262b2c652238f61aadd32af2b6117164",
+            "subject": "docs(250-07): record approved controller run identity"
+          },
+          {
+            "sha": "bc79a4ebea741757517e14f22f8e689bd1c23d87",
+            "subject": "docs(250-07): record accepted controller dispatch"
+          },
+          {
+            "sha": "edbd2eaddf9e597767b452cfec0d65d93fa567d2",
+            "subject": "docs(250-07): record authorized controller dispatch intent"
+          },
+          {
+            "sha": "acfee8d817ee0c8001c864e21d09085400c9b8e4",
+            "subject": "docs(250-07): refresh approved canary preflight"
+          },
+          {
+            "sha": "5589f8461b7f1ccdbbd486fbb86252e288c5139b",
+            "subject": "docs(250-07): record canary packet approval"
+          },
+          {
+            "sha": "d94724c477b37a663c6a5c92e0f9e2d46fc6e23c",
+            "subject": "docs(250-07): prepare fresh canary authority packet"
+          },
+          {
+            "sha": "d32128f55300cef3cab5ad3c4e3851f06490eaee",
+            "subject": "docs(250-07): record observer dispatch repair merge"
+          },
+          {
+            "sha": "91f2d0ee6d2d1c7b19006583d98bf0298b45dfd5",
+            "subject": "docs(250-07): record blocked canary observer proof"
+          },
+          {
+            "sha": "412abb2a8b3104d24b6eda064b19e3b19ad0b9ee",
+            "subject": "docs(250-07): record authorized controller dispatch"
+          },
+          {
+            "sha": "5832813bf1a575277141482ffe880ae0be1444ac",
+            "subject": "docs(250-07): record bounded canary authorization"
+          },
+          {
+            "sha": "7d74b7055d70682034c9702d80f0d88bf61e3865",
+            "subject": "docs(250-07): prepare current-main authority packet"
+          },
+          {
+            "sha": "d9637d7a13b490e404020cae728a70f002806437",
+            "subject": "docs(250-07): preserve pre-refresh authority revisions"
+          },
+          {
+            "sha": "0604c3167d9af23f539e7943049a72b5953252c6",
+            "subject": "docs(250-07): record canary run identity repair"
+          },
+          {
+            "sha": "aae69d4de28b9ec34a3f6c819a926c556955a010",
+            "subject": "fix(250-07): validate dynamic canary run names"
+          },
+          {
+            "sha": "9e2fa2db09a883315670874c5577bef2020b1a75",
+            "subject": "test(250-07): require exact dynamic canary run names"
+          },
+          {
+            "sha": "eb49e7dd7c7dba991a09162ae89c45e2b068ac62",
+            "subject": "docs(250-07): record blocked hosted canary proof"
+          },
+          {
+            "sha": "626cb5b18a2d82ef04ffd2a85fa915dfc941d791",
+            "subject": "docs(250-07): preserve prior blocked canary proof"
+          },
+          {
+            "sha": "1732c166ca38e1db46726c76745c9b7ced0a3131",
+            "subject": "docs(250-07): record replacement packet approval"
+          },
+          {
+            "sha": "d0bc8f81c9e5e275bdcd8f33dc6159699e87e3b0",
+            "subject": "docs(250-07): prepare replacement canary authority packet"
+          },
+          {
+            "sha": "4ca467d9fd95159e4df45e140535ad0a0eaab6e5",
+            "subject": "docs(250-07): record preflight delivery repair evidence"
+          },
+          {
+            "sha": "5b7fc5e315004ffb9d942edc0b65e0145b107c80",
+            "subject": "fix(250-07): deliver fresh canary preflight to controller"
+          },
+          {
+            "sha": "42969df2c2945609d4744d85a7c7c371d9cca1bc",
+            "subject": "test(250-07): cover supplied canary preflight delivery"
+          },
+          {
+            "sha": "66225507d5a85aed2575f130a7fe89d5e6636224",
+            "subject": "docs(250-07): record stale main preflight blocker"
+          }
+        ],
+        "changedFiles": [],
+        "files": [],
+        "missingOnDisk": [],
+        "outsideUnion": [],
+        "unreachable": [],
+        "rangeBase": null
+      },
+      "summary_present_before": false,
+      "packet_status": "awaiting_user_decision",
+      "packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+      "packet_source_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "packet_preflight_sha256": "96c92236157ba4eb99fdc5f0f37ecd97a4033f02d7accbbabf3623109247630c",
+      "packet_approval": "awaiting_user_decision",
+      "packet_approved": false,
+      "latest_recorded_main_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+      "disposition": "halted_stale_packet_before_new_authorization",
+      "tasks": {
+        "task_1": "A ready preflight and exact packet were committed for e0c66d61211ddb461c049ca6422350308b420126; subsequent main advancement made that packet stale before approval.",
+        "task_2": "No current packet-specific authorization; the earlier v4 authority was consumed and cannot be reused.",
+        "task_3": "No dispatch on the current packet. Prior v4 run 38091955379 failed observer validation; its exact child cancellation produced no cancellation receipt and no publication."
+      },
+      "requirements_completed": []
+    },
+    "250-08": {
+      "evaluation_scope": {
+        "unit": {
+          "kind": "plan",
+          "planId": "250-08"
+        },
+        "status": "resolved",
+        "source": "plan-subjects",
+        "reason": null,
+        "commits": [
+          {
+            "sha": "52146cf001247d3a25ce1ca293bcedcc7d901278",
+            "subject": "docs(250-08): record blocked exact-tuple evidence packet"
+          }
+        ],
+        "changedFiles": [],
+        "files": [],
+        "missingOnDisk": [],
+        "outsideUnion": [],
+        "unreachable": [],
+        "rangeBase": null
+      },
+      "summary_present_before": false,
+      "tuple_packet_sha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660",
+      "tuple_packet_status": "blocked",
+      "eligible_tuple_count": 0,
+      "decision_status": "not_asked_no_eligible_tuple",
+      "disposition": "halted_no_eligible_tuple_before_decision_checkpoint",
+      "requirements_completed": []
+    }
+  },
+  "effects_during_manual_closeout": {
+    "controller_dispatch": false,
+    "canary_child_dispatch": false,
+    "cancellation": false,
+    "observer_dispatch": false,
+    "ci_dispatch_or_poll": false,
+    "release_or_publish": false,
+    "credentials_recorded": false
+  },
+  "routing": {
+    "phase_250_remains_incomplete": true,
+    "phase_verification_status": "gaps_found",
+    "completed_phase_250_plans": [
+      "250-01",
+      "250-02",
+      "250-03",
+      "250-04",
+      "250-05",
+      "250-06"
+    ],
+    "halted_plans": [
+      "250-07",
+      "250-08"
+    ],
+    "requirements_completed_by_this_reconciliation": [],
+    "dependent_plans_blocked": [
+      "250-09",
+      "250-10",
+      "250-11",
+      "250-12"
+    ]
+  }
+}

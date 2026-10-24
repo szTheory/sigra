@@ -1,0 +1,133 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon, direct conversation reply to the prepared Plan 170 CI approval request; recorded by Codex executor",
+  "decision_text": "yes u can run it",
+  "note": "Authorizes Codex to run the prepared canary runner, overriding the older Jon-only runner boundary for this exact scope. Offline gate results from completed Plan 168 retained; no Plan 179 rerun.",
+  "section": "canary",
+  "section_sha256": "df4ae86dcfd18d58a6fe9e172349edc7c299cbffddf1514a28f5a59fe45ddcd9",
+  "freeze_sha256": "2a9b2415e4c9545252817ec3b299a66b76247ef4774b087be97faa4e0a578629",
+  "authorizes": [
+    {
+      "action": "publish_git_objects",
+      "candidate_commit": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+      "category": "publication",
+      "fixture_commit": "212a52365a6d0d413f9026678718610782ff50a9",
+      "manifest": "bound_documents.publication_manifest",
+      "max_requests": 24
+    },
+    {
+      "action": "create_ref",
+      "ref": "refs/heads/gsd/253-replan-r13-candidate",
+      "sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0"
+    },
+    {
+      "action": "create_ref",
+      "ref": "refs/heads/gsd/253-replan-r13-fixture",
+      "sha": "212a52365a6d0d413f9026678718610782ff50a9"
+    },
+    {
+      "action": "workflow_dispatch",
+      "inputs": {
+        "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+        "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "scenario": "full-pass"
+      },
+      "ref": "gsd/253-replan-r13-fixture",
+      "workflow_id": 259268962
+    },
+    {
+      "action": "workflow_dispatch",
+      "inputs": {
+        "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+        "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "scenario": "docs-only"
+      },
+      "ref": "gsd/253-replan-r13-fixture",
+      "workflow_id": 259268962
+    },
+    {
+      "action": "workflow_dispatch",
+      "inputs": {
+        "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+        "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "scenario": "actual-failure"
+      },
+      "ref": "gsd/253-replan-r13-fixture",
+      "workflow_id": 259268962
+    },
+    {
+      "action": "workflow_dispatch",
+      "inputs": {
+        "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+        "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "scenario": "missing-seam"
+      },
+      "ref": "gsd/253-replan-r13-fixture",
+      "workflow_id": 259268962
+    },
+    {
+      "action": "workflow_dispatch",
+      "inputs": {
+        "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+        "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "scenario": "unexpected-skip"
+      },
+      "ref": "gsd/253-replan-r13-fixture",
+      "workflow_id": 259268962
+    },
+    {
+      "action": "workflow_dispatch",
+      "inputs": {
+        "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+        "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "scenario": "cancelled"
+      },
+      "ref": "gsd/253-replan-r13-fixture",
+      "workflow_id": 259268962
+    },
+    {
+      "action": "cancel_run",
+      "max": 1,
+      "run_identity": {
+        "display_title_prefix": "Phase 253 Gate Canary / cancelled /",
+        "event": "workflow_dispatch",
+        "head_branch": "gsd/253-replan-r13-fixture",
+        "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "workflow_id": 259268962
+      },
+      "scenario": "cancelled"
+    },
+    {
+      "action": "workflow_dispatch",
+      "inputs": {
+        "candidate_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+        "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+        "fixture_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+        "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch",
+        "scenario": "verifier"
+      },
+      "ref": "gsd/253-replan-r13-fixture",
+      "workflow_id": 259268962
+    },
+    "caps: 117 requests, 45 jobs, 60 minutes, zero reruns"
+  ],
+  "excludes": [
+    "docs_and_prs section: separate Plan 171 approval required",
+    "any rerun",
+    "any push, merge, ref deletion, force update, rule or protection change, tag, release or main mutation",
+    "any git fetch",
+    "any read for reuse, move, recreation or deletion of gsd/253-replan-r8-candidate and gsd/253-replan-r8-fixture",
+    "any read for reuse, move, recreation or deletion of gsd/253-replan-r9-candidate and gsd/253-replan-r9-fixture",
+    "any read for reuse, move, recreation or deletion of gsd/253-replan-r10-candidate and gsd/253-replan-r10-fixture",
+    "any read for reuse, move, recreation or deletion of gsd/253-replan-r11-candidate and gsd/253-replan-r11-fixture",
+    "any read for reuse, move, recreation or deletion of gsd/253-replan-r12-candidate and gsd/253-replan-r12-fixture"
+  ],
+  "recorded_at": "2026-10-21T17:41:54Z"
+}

@@ -1,0 +1,118 @@
+Resolving Hex dependencies...
+Resolution completed in 0.114s
+Unchanged:
+  argon2_elixir 4.1.3
+  asn1_compiler 0.1.1
+  assent 0.3.1
+  bandit 1.10.4
+  cbor 1.0.2
+  cc_precompiler 0.1.11
+  cloak 1.1.4
+  cloak_ecto 1.3.0
+  comeonin 5.5.1
+  db_connection 2.9.0
+  decimal 2.3.0
+  dns_cluster 0.2.0
+  ecto 3.13.5
+  ecto_sql 3.13.5
+  elixir_make 0.9.0
+  eqrcode 0.2.1
+  expo 1.1.1
+  file_system 1.1.1
+  fine 0.1.6
+  flop 0.26.3
+  flop_phoenix 0.26.0
+  gettext 1.0.2
+  hammer 7.3.0
+  hpax 1.0.3
+  idna 6.1.1
+  jason 1.4.4
+  joken 2.6.2
+  jose 1.11.12
+  lazy_html 0.1.11
+  mime 2.0.7
+  mox 1.2.0
+  nimble_csv 1.3.0
+  nimble_options 1.1.1
+  nimble_ownership 1.0.2
+  nimble_totp 1.0.0
+  oban 2.21.1
+  phoenix 1.8.5
+  phoenix_ecto 4.7.0
+  phoenix_html 4.3.0
+  phoenix_live_reload 1.6.2
+  phoenix_live_view 1.1.28
+  phoenix_pubsub 2.2.0
+  phoenix_template 1.0.4
+  plug 1.19.1
+  plug_crypto 2.1.1
+  postgrex 0.22.0
+  swoosh 1.25.0
+  telemetry 1.4.1
+  telemetry_metrics 1.1.0
+  telemetry_poller 1.3.0
+  thousand_island 1.4.3
+  threadline 0.6.0
+  unicode_util_compat 0.7.1
+  wax_ 0.7.0
+  websock 0.5.3
+  websock_adapter 0.5.9
+  x509 0.9.2
+* Getting phoenix (Hex package)
+* Getting phoenix_ecto (Hex package)
+* Getting ecto_sql (Hex package)
+* Getting postgrex (Hex package)
+* Getting phoenix_html (Hex package)
+* Getting phoenix_live_reload (Hex package)
+* Getting phoenix_live_view (Hex package)
+* Getting lazy_html (Hex package)
+* Getting telemetry_metrics (Hex package)
+* Getting telemetry_poller (Hex package)
+* Getting gettext (Hex package)
+* Getting jason (Hex package)
+* Getting dns_cluster (Hex package)
+* Getting bandit (Hex package)
+* Getting swoosh (Hex package)
+* Getting oban (Hex package)
+* Getting hammer (Hex package)
+* Getting assent (Hex package)
+* Getting joken (Hex package)
+* Getting eqrcode (Hex package)
+* Getting mox (Hex package)
+* Getting threadline (Hex package)
+* Getting nimble_csv (Hex package)
+* Getting plug (Hex package)
+* Getting telemetry (Hex package)
+* Getting mime (Hex package)
+* Getting plug_crypto (Hex package)
+* Getting nimble_ownership (Hex package)
+* Getting jose (Hex package)
+* Getting idna (Hex package)
+* Getting unicode_util_compat (Hex package)
+* Getting hpax (Hex package)
+* Getting thousand_island (Hex package)
+* Getting websock (Hex package)
+* Getting expo (Hex package)
+* Getting cc_precompiler (Hex package)
+* Getting elixir_make (Hex package)
+* Getting fine (Hex package)
+* Getting phoenix_template (Hex package)
+* Getting file_system (Hex package)
+* Getting db_connection (Hex package)
+* Getting decimal (Hex package)
+* Getting ecto (Hex package)
+* Getting phoenix_pubsub (Hex package)
+* Getting websock_adapter (Hex package)
+* Getting flop (Hex package)
+* Getting flop_phoenix (Hex package)
+* Getting nimble_options (Hex package)
+* Getting argon2_elixir (Hex package)
+* Getting comeonin (Hex package)
+* Getting nimble_totp (Hex package)
+* Getting cloak_ecto (Hex package)
+* Getting wax_ (Hex package)
+* Getting asn1_compiler (Hex package)
+* Getting cbor (Hex package)
+* Getting x509 (Hex package)
+* Getting cloak (Hex package)
+You have added/upgraded packages you could sponsor, run `mix hex.sponsor` to learn more

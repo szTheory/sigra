@@ -1,0 +1,104 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "targeted",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-registration-postfix/review.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07132783299311996
+    },
+    {
+      "name": "integration",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-registration-integration/review.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07202520800638013
+    },
+    {
+      "name": "hosted-canary",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-172-pr341-maintenance/offline-verifier/ci-hosted-gate-verify.py",
+        "--mode",
+        "canary",
+        "--scenario",
+        "matrix",
+        "--evidence",
+        ".planning/execution/253-proof-bundle-a6838a8f9/canary-evidence.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2647687080025207
+    },
+    {
+      "name": "normal-and-docs",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-pr344-closeout/verify.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3561725000035949
+    },
+    {
+      "name": "source-comparison",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-plan172-persistent-ledger/check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.48642370899324305
+    },
+    {
+      "name": "unit-contracts",
+      "command": [
+        "node",
+        "--test",
+        "scripts/ci/ci-registration-control-audit.test.mjs",
+        "scripts/ci/ci-browser-records.test.mjs",
+        "scripts/ci/ci-playwright-report.test.mjs",
+        "scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 2.1250332499912474
+    },
+    {
+      "name": "configuration-101",
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+        "-e",
+        "ExUnit.start(seed: 101); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "configuration-202",
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+        "-e",
+        "ExUnit.start(seed: 202); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "configuration-303",
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+        "-e",
+        "ExUnit.start(seed: 303); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "new_browser_invocations": 0,
+  "new_ci_launches": 0,
+  "new_github_requests": 0
+}

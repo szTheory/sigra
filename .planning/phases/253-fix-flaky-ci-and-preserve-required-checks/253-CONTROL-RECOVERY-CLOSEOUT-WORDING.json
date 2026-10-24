@@ -1,0 +1,18 @@
+{
+  "schema": "sigra.phase253.control-recovery-closeout-wording/v1",
+  "changes": "Spacing only in current human-readable route/count sentences; status, budgets, code and outcome unchanged",
+  "prior_paths": [
+    {
+      "path": ".planning/STATE.md",
+      "prior_commit": "556eefe24540370eb96ba6c05cc19005c98761a2",
+      "prior_sha256": "776e0e6df5c8caece54ab56bf67f7d84588855dea230370d37ab94d34f2192c1",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "prior_commit": "556eefe24540370eb96ba6c05cc19005c98761a2",
+      "prior_sha256": "9cff0b31894501461ab1038594dd5c0f3113353d32ea32c1a9786d81f1a22bf6",
+      "readback_exact": true
+    }
+  ]
+}

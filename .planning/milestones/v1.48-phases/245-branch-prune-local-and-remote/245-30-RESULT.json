@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-30",
+  "captured_at": "2026-10-03T01:32:20.526Z",
+  "outcome": "blocked",
+  "partial_operation": false,
+  "observed_head_ref": "refs/heads/phase-244-playwright-measurement",
+  "observed_head_oid": "e2d9e653138bdcc4f049640af1c370194e4465e0",
+  "current_contract": null,
+  "allowlist": null,
+  "admission": null,
+  "admitted_rows": [],
+  "mutations": {
+    "local_ref_deletions": [],
+    "remote_ref_deletions": [],
+    "tracking_ref_deletions": [],
+    "safety_ref_publications": []
+  },
+  "readiness_check": "passed",
+  "current_pr_check": "passed",
+  "safety_check": "captured_but_not_admitted",
+  "object_check": "blocked",
+  "exact_ref_check": "not_run_no_contract",
+  "coordinator_check": "passed",
+  "post_readback_check": "not_applicable_no_operations",
+  "source_failure": {
+    "command": [
+      "node",
+      "scripts/maintainers/prune-stale-branches-current.mjs",
+      "capture",
+      "--repo",
+      ".",
+      "--output",
+      ".planning/phases/245-branch-prune-local-and-remote/.245-30-PREVIEW.json"
+    ],
+    "exit_code": 1,
+    "stderr": "prune-stale-branches-current: FAIL: origin_object_unreadable:refs/pull/285/head:5c414c4cec975fcf2755664f6ee294a4760fbe93",
+    "missing_objects": [
+      {
+        "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+        "refs": [
+          "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0",
+          "refs/pull/285/head"
+        ],
+        "roles": [
+          "direct"
+        ],
+        "expected_types": [
+          "commit"
+        ]
+      },
+      {
+        "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+        "refs": [
+          "refs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1",
+          "refs/pull/286/head"
+        ],
+        "roles": [
+          "direct"
+        ],
+        "expected_types": [
+          "commit"
+        ]
+      },
+      {
+        "oid": "c1df96499fed86602a7c6f27d18d9394582809f1",
+        "refs": [
+          "refs/pull/285/merge"
+        ],
+        "roles": [
+          "direct"
+        ],
+        "expected_types": []
+      },
+      {
+        "oid": "d4e206693aa765c0078a89e24963590257d1daf1",
+        "refs": [
+          "refs/pull/286/merge"
+        ],
+        "roles": [
+          "direct"
+        ],
+        "expected_types": []
+      }
+    ]
+  },
+  "no_mutation": {
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "refs_before_sha256": {
+      "local": "f983cb09cac1d7503771bc6127915ae98dda398b7d597318180863d898ce7d0b",
+      "origin": "c4c39e26b2a80fd9c8ea58382b3eabb46024693594e91ccfd36ad5f42d89e453"
+    },
+    "stash_list_sha256_before": "850893a83c4daa205b0e6119ac9742fa3a5b74507db9bab1e54c5bfca7f32b11",
+    "evidence_only_commit_pending": true
+  },
+  "plan_19_admitted_local_deleted_count": 1,
+  "plan_25_ref_operations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "repo_04_status": "open",
+  "stop_before": "Task 2 blocking-human deletion approval checkpoint"
+}

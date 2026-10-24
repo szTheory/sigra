@@ -1,0 +1,1008 @@
+{
+  "schema_version": 1,
+  "kind": "planning_checks_not_phase_verification",
+  "phase": 252,
+  "all_passed": true,
+  "plan_schemas_and_structures": [
+    {
+      "command": [
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "--schema",
+        "plan"
+      ],
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves"
+        ],
+        "invalidValue": [],
+        "schema": "plan"
+      }
+    },
+    {
+      "command": [
+        "verify",
+        "plan-structure",
+        ".planning/phases/252-measure-current-ci/252-01-PLAN.md"
+      ],
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Capture and replay one real PR family through its enforced context endpoint",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Reject ambiguous identity, changed rules and incomplete source records",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "command": [
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/252-measure-current-ci/252-02-PLAN.md",
+        "--schema",
+        "plan"
+      ],
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves"
+        ],
+        "invalidValue": [],
+        "schema": "plan"
+      }
+    },
+    {
+      "command": [
+        "verify",
+        "plan-structure",
+        ".planning/phases/252-measure-current-ci/252-02-PLAN.md"
+      ],
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Collect three event populations and all attempts under the fixed snapshot window",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Enforce request, time and rate budgets with interruption-safe ledgers",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Retain bounded logs and timing artifacts only from their producing run",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "command": [
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "--schema",
+        "plan"
+      ],
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves"
+        ],
+        "invalidValue": [],
+        "schema": "plan"
+      }
+    },
+    {
+      "command": [
+        "verify",
+        "plan-structure",
+        ".planning/phases/252-measure-current-ci/252-03-PLAN.md"
+      ],
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "command": [
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        "--schema",
+        "plan"
+      ],
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves"
+        ],
+        "invalidValue": [],
+        "schema": "plan"
+      }
+    },
+    {
+      "command": [
+        "verify",
+        "plan-structure",
+        ".planning/phases/252-measure-current-ci/252-04-PLAN.md"
+      ],
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Produce one JSON report per existing Playwright invocation",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Normalize browser results and flag incomplete reports",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "command": [
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        "--schema",
+        "plan"
+      ],
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves"
+        ],
+        "invalidValue": [],
+        "schema": "plan"
+      }
+    },
+    {
+      "command": [
+        "verify",
+        "plan-structure",
+        ".planning/phases/252-measure-current-ci/252-05-PLAN.md"
+      ],
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Retain timing and cache provenance from the existing CI owners",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Rank source-backed critical wait and summed runner costs",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Produce a bounded current failure-signature shortlist",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "command": [
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "--schema",
+        "plan"
+      ],
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves"
+        ],
+        "invalidValue": [],
+        "schema": "plan"
+      }
+    },
+    {
+      "command": [
+        "verify",
+        "plan-structure",
+        ".planning/phases/252-measure-current-ci/252-06-PLAN.md"
+      ],
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Freeze the later matched comparison and test all outcome arithmetic",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Publish a concise source-linked baseline and reproducible commands",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    }
+  ],
+  "gates": [
+    {
+      "command": [
+        "query",
+        "check.decision-coverage-plan",
+        ".planning/phases/252-measure-current-ci",
+        ".planning/phases/252-measure-current-ci/252-CONTEXT.md"
+      ],
+      "result": {
+        "passed": true,
+        "skipped": false,
+        "total": 21,
+        "covered": 21,
+        "uncovered": [],
+        "message": "All trackable CONTEXT.md decisions are covered by plans."
+      }
+    },
+    {
+      "command": [
+        "check",
+        "gap-analysis.plan-post",
+        ".planning/phases/252-measure-current-ci",
+        "CIMEAS-01, CIMEAS-02",
+        "--raw"
+      ],
+      "result": {
+        "block": false,
+        "passed": true,
+        "enabled": true,
+        "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIMEAS-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIMEAS-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n\n\u2713 All 23 items covered by plans\n",
+        "summary": "\u2713 All 23 items covered by plans",
+        "counts": {
+          "total": 23,
+          "covered": 23,
+          "uncovered": 0
+        },
+        "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIMEAS-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIMEAS-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n\n\u2713 All 23 items covered by plans\n"
+      }
+    },
+    {
+      "command": [
+        "check",
+        "api-coverage.verify-pre",
+        ".planning/phases/252-measure-current-ci",
+        "--raw"
+      ],
+      "result": {
+        "block": false,
+        "passed": true,
+        "coverage_present": true,
+        "matrix": "COVERAGE.md",
+        "counts": {
+          "surface": 16,
+          "integrate": 11,
+          "optout": 5
+        },
+        "message": "api-coverage: matrix present (16 capabilities, 5 opt-out)"
+      }
+    }
+  ],
+  "verify_command_path_probe": {
+    "status": "not_applicable",
+    "commands": [
+      {
+        "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-01-PLAN.md",
+        "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-01-PLAN.md",
+        "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-02-PLAN.md",
+        "task": "Task 1: Collect three event populations and all attempts under the fixed snapshot window"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-02-PLAN.md",
+        "task": "Task 2: Enforce request, time and rate budgets with interruption-safe ledgers"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-02-PLAN.md",
+        "task": "Task 3: Retain bounded logs and timing artifacts only from their producing run"
+      },
+      {
+        "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-03-PLAN.md",
+        "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter"
+      },
+      {
+        "command": "bash scripts/ci/ci-exunit-timing.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-03-PLAN.md",
+        "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics"
+      },
+      {
+        "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-04-PLAN.md",
+        "task": "Task 1: Produce one JSON report per existing Playwright invocation"
+      },
+      {
+        "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-04-PLAN.md",
+        "task": "Task 2: Normalize browser results and flag incomplete reports"
+      },
+      {
+        "command": "node --test scripts/ci/ci-measure-workflow.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-05-PLAN.md",
+        "task": "Task 1: Retain timing and cache provenance from the existing CI owners"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-05-PLAN.md",
+        "task": "Task 2: Rank source-backed critical wait and summed runner costs"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-05-PLAN.md",
+        "task": "Task 3: Produce a bounded current failure-signature shortlist"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-06-PLAN.md",
+        "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-06-PLAN.md",
+        "task": "Task 2: Freeze the later matched comparison and test all outcome arithmetic"
+      },
+      {
+        "command": "bash scripts/ci/ci-measure-report.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "252-06-PLAN.md",
+        "task": "Task 3: Publish a concise source-linked baseline and reproducible commands"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 15
+    },
+    "readError": null
+  },
+  "verify_failure_direction_probe": {
+    "status": "ok",
+    "commands": [
+      {
+        "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "The preflight has no durable status/diagnostic, an early live request bypasses the guard, an over-limit/rate-stopped request occurs, the hermetic collect/replay path differs or calls gh during replay, or the command exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-01-PLAN.md",
+        "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "Changed-rule, name-collision, multi-revision, hash-mismatch or missing-timestamp fixtures produce a successful measurement or the command exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-01-PLAN.md",
+        "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "The fixed-cutoff fixture includes the 101st run, loses an attempt, merges events, guesses workload, or the suite exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-02-PLAN.md",
+        "task": "Task 1: Collect three event populations and all attempts under the fixed snapshot window"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "The budget fixtures issue an over-limit call, retry a 403/429, lose an interrupted ledger, permit concurrent mutation, contact gh during replay, or the suite exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-02-PLAN.md",
+        "task": "Task 2: Enforce request, time and rate budgets with interruption-safe ledgers"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "Wrong-run artifact, digest mismatch, unvalidated redirect, path traversal, expiry, over-limit ZIP or secret-bearing ledger fixture is accepted, or the suite exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-02-PLAN.md",
+        "task": "Task 3: Retain bounded logs and timing artifacts only from their producing run"
+      },
+      {
+        "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs",
+        "statement": "Event contract or opt-out behavior differs, the test process fails, or a missing local PostgreSQL prerequisite makes the command nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-03-PLAN.md",
+        "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter"
+      },
+      {
+        "command": "bash scripts/ci/ci-exunit-timing.test.sh",
+        "statement": "The deliberate test failure exits zero, unwritable or partial timing output is accepted as complete, or the shell contract exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-03-PLAN.md",
+        "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics"
+      },
+      {
+        "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+        "statement": "The config lacks the native JSON output or changes list/HTML, one-worker, serial or zero-retry settings, or the Node test exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-04-PLAN.md",
+        "task": "Task 1: Produce one JSON report per existing Playwright invocation"
+      },
+      {
+        "command": "node --test scripts/ci/ci-playwright-report.test.mjs",
+        "statement": "Any missing/partial/duplicate fixture is accepted complete, equal-duration rows merge or reorder nondeterministically, or the test exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-04-PLAN.md",
+        "task": "Task 2: Normalize browser results and flag incomplete reports"
+      },
+      {
+        "command": "node --test scripts/ci/ci-measure-workflow.test.mjs",
+        "statement": "The static contract finds a changed required name, missing timing upload/metadata, changed seam selection, retry increase, missing failure-retention condition, or the Node test exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-05-PLAN.md",
+        "task": "Task 1: Retain timing and cache provenance from the existing CI owners"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "Replay merges equal records, changes tie order, counts unknown as zero, combines cache strata or mixes wall and runner sums, or the suite exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-05-PLAN.md",
+        "task": "Task 2: Rank source-backed critical wait and summed runner costs"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "The fixture shortlist exceeds three signatures/twelve families, treats a lone red run as a flake, labels missing logs as no flake, merges cancellation with test failure, or the suite exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-05-PLAN.md",
+        "task": "Task 3: Produce a bounded current failure-signature shortlist"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+        "statement": "The bundle or baseline is absent/stale/source-mismatched, an available event has no complete eligible observation, no complete instrumented full PR exists, or the command exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-06-PLAN.md",
+        "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics.test.sh",
+        "statement": "The [1..20] fixture produces median other than 10.5 or p95 other than 19, a lost/replaced family or favorable-window extension passes, unknown/miss becomes pass, or the suite exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-06-PLAN.md",
+        "task": "Task 2: Freeze the later matched comparison and test all outcome arithmetic"
+      },
+      {
+        "command": "bash scripts/ci/ci-measure-report.test.sh",
+        "statement": "Fixture report omits source/replay commands, merges populations, turns unknown into zero/success, changes between repeated generations, or the script exits nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "252-06-PLAN.md",
+        "task": "Task 3: Publish a concise source-linked baseline and reproducible commands"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 15
+    },
+    "readError": null
+  },
+  "edge_requirements": [
+    {
+      "id": "CIMEAS-01",
+      "text": "Contributors can see the current CI baseline for pull requests, main pushes, and nightly runs, with waiting time, execution time, run conclusions, and reruns recorded separately."
+    },
+    {
+      "id": "CIMEAS-02",
+      "text": "Maintainers can identify the largest runtime costs from saved job/step/test measurements, including setup and cache work, and use a ranked list to select improvements."
+    }
+  ],
+  "edge_resolution": {
+    "items": [
+      {
+        "requirement_id": "CIMEAS-01",
+        "category": "concurrency",
+        "status": "resolved",
+        "verification": "explicit",
+        "resolution": "Interrupted acquisition retains a durable request/selection ledger and incomplete status; a second collector cannot mutate the same snapshot directory concurrently. Offline replay never performs a network request.",
+        "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+        "probe": "If interrupted or run in parallel, what is guaranteed?"
+      },
+      {
+        "requirement_id": "CIMEAS-02",
+        "category": "adjacency",
+        "status": "resolved",
+        "verification": "explicit",
+        "resolution": "Distinct test/job/attempt identities remain separate even when names or durations match; tied costs do not merge independent records.",
+        "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+        "probe": "When two things are exactly equal or just touch, do they merge, collide, or separate?"
+      },
+      {
+        "requirement_id": "CIMEAS-02",
+        "category": "empty",
+        "status": "resolved",
+        "verification": "explicit",
+        "resolution": "Empty, missing or invalid eligible measurements produce an explicit unknown/insufficient-data result, never zero-cost or successful comparison; a single valid observation is reported with n=1 and its limits.",
+        "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+        "probe": "What is the result for empty, single-element, or null input?"
+      },
+      {
+        "requirement_id": "CIMEAS-02",
+        "category": "ordering",
+        "status": "resolved",
+        "verification": "explicit",
+        "resolution": "Repeated replay of the same input produces identical ranking order with a documented deterministic identity-based tie breaker.",
+        "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+        "probe": "When elements compare equal, is output order specified and stable?"
+      }
+    ],
+    "coverage": {
+      "applicable": 4,
+      "resolved": 4,
+      "unresolved": 0,
+      "unclassified": 0,
+      "byVerification": {
+        "explicit": 4,
+        "backstop": 0
+      }
+    }
+  },
+  "execute_readiness": {
+    "executor_model": "gpt-6-luna",
+    "verifier_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "commit_docs": true,
+    "sub_repos": [],
+    "parallelization": true,
+    "context_window": 200000,
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "verifier_enabled": true,
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci",
+    "phase_number": "252",
+    "padded_phase": "252",
+    "phase_name": "Measure Current CI",
+    "phase_slug": "measure-current-ci",
+    "phase_req_ids": "CIMEAS-01, CIMEAS-02",
+    "plans": [
+      "252-01-PLAN.md",
+      "252-02-PLAN.md",
+      "252-03-PLAN.md",
+      "252-04-PLAN.md",
+      "252-05-PLAN.md",
+      "252-06-PLAN.md"
+    ],
+    "summaries": [],
+    "incomplete_plans": [
+      "252-01-PLAN.md",
+      "252-02-PLAN.md",
+      "252-03-PLAN.md",
+      "252-04-PLAN.md",
+      "252-05-PLAN.md",
+      "252-06-PLAN.md"
+    ],
+    "plan_count": 6,
+    "incomplete_count": 6,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "halted_plans": [],
+    "blocked_by": {},
+    "runnable_plans": [
+      "252-01-PLAN.md",
+      "252-02-PLAN.md",
+      "252-03-PLAN.md",
+      "252-04-PLAN.md",
+      "252-05-PLAN.md",
+      "252-06-PLAN.md"
+    ],
+    "runnable_count": 6,
+    "branch_name": null,
+    "milestone_version": "v1.50",
+    "milestone_name": "CI-SPEED-AND-RELIABILITY",
+    "milestone_slug": "ci-speed-and-reliability",
+    "state_exists": true,
+    "roadmap_exists": true,
+    "config_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "section_manifest": {
+      "workflow": "execute-phase",
+      "included": [],
+      "excluded": [
+        "partial-wave",
+        "gap-closure-artifacts",
+        "regression-gate"
+      ],
+      "read": []
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "implementation_status": "not_started",
+  "phase_verification_status": "not_started"
+}

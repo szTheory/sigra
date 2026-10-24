@@ -1,0 +1,110 @@
+{
+  "allocation_kind": "production",
+  "bound_documents": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS.md",
+      "sha256": "87964f4234975c64967023f5ad37780c5bb29c871c704a5d2644fb3c8fe2fa0c"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5"
+    },
+    {
+      "path": "scripts/ci/ci-browser-records.mjs",
+      "sha256": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-ACTION-APPROVAL-R13.json",
+      "sha256": "4c2fe5aa64aa07f689fef602a4b656121e7d6ec54e9c7120aff62065e5758013"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
+      "sha256": "f95393e39c2fc7d039556d627429de4a61af37a7aae69b9f40afbd0ef4988fc7"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+      "sha256": "14df65778c6e1ab924d0ed5430937383af95c499c1f00468028910eda9d9f9a1"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION.json",
+      "sha256": "6afcc1a77b604bee7438195f3bc70e67336753afe345ea157c6c9c275d87a140"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json",
+      "sha256": "d7d566641da2d5e1c7d5e951adb6e7d53c88f2a32ff8da4f324b64df11c27b0e"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-MAIN-FETCH-R12.json",
+      "sha256": "35fd1543a87d7abfe50949b1d1b616c3afd18f868e7382de871028681515b90e"
+    }
+  ],
+  "category_limits": {
+    "artifact_downloads": 20,
+    "artifact_metadata": 4,
+    "attempt_jobs": 4,
+    "docs_publication": 14,
+    "failure_logs": 2,
+    "infrastructure_rerun": 21,
+    "native_checks": 4,
+    "pr_create": 2,
+    "pr_identity": 8,
+    "pre_watch_rate": 2,
+    "preflight": 8,
+    "run_discovery": 4,
+    "terminal_polls": 27
+  },
+  "download_hosts": [
+    "pipelines.actions.githubusercontent.com",
+    "productionresultssa0.blob.core.windows.net",
+    "productionresultssa1.blob.core.windows.net",
+    "productionresultssa2.blob.core.windows.net",
+    "productionresultssa3.blob.core.windows.net",
+    "productionresultssa4.blob.core.windows.net",
+    "productionresultssa5.blob.core.windows.net",
+    "productionresultssa6.blob.core.windows.net",
+    "productionresultssa7.blob.core.windows.net",
+    "productionresultssa8.blob.core.windows.net",
+    "productionresultssa9.blob.core.windows.net",
+    "productionresultssa10.blob.core.windows.net",
+    "productionresultssa11.blob.core.windows.net",
+    "productionresultssa12.blob.core.windows.net",
+    "productionresultssa13.blob.core.windows.net",
+    "productionresultssa14.blob.core.windows.net",
+    "productionresultssa15.blob.core.windows.net",
+    "productionresultssa16.blob.core.windows.net",
+    "productionresultssa17.blob.core.windows.net",
+    "productionresultssa18.blob.core.windows.net",
+    "productionresultssa19.blob.core.windows.net",
+    "productionresultssa20.blob.core.windows.net",
+    "productionresultssa21.blob.core.windows.net",
+    "productionresultssa22.blob.core.windows.net",
+    "productionresultssa23.blob.core.windows.net",
+    "productionresultssa24.blob.core.windows.net",
+    "productionresultssa25.blob.core.windows.net",
+    "productionresultssa26.blob.core.windows.net",
+    "productionresultssa27.blob.core.windows.net",
+    "productionresultssa28.blob.core.windows.net",
+    "productionresultssa29.blob.core.windows.net",
+    "productionresultssa30.blob.core.windows.net",
+    "productionresultssa31.blob.core.windows.net",
+    "productionresultssa32.blob.core.windows.net",
+    "productionresultssa33.blob.core.windows.net",
+    "productionresultssa34.blob.core.windows.net",
+    "productionresultssa35.blob.core.windows.net",
+    "productionresultssa36.blob.core.windows.net",
+    "productionresultssa37.blob.core.windows.net",
+    "productionresultssa38.blob.core.windows.net",
+    "productionresultssa39.blob.core.windows.net",
+    "productionresultssa40.blob.core.windows.net"
+  ],
+  "max_elapsed_seconds": 3600,
+  "max_hops": 2,
+  "max_pages": 10,
+  "max_requests": 120,
+  "max_response_bytes": 4194304,
+  "mode": "live",
+  "repository": "szTheory/sigra",
+  "schema_version": "sigra.phase253.http-allocation/v1",
+  "source_sha256": "193d65a712de432b0dd453989b2e8caa05828f1fa199c0e419719708ce364ea2",
+  "window_id": "253-171-pr-window-1"
+}

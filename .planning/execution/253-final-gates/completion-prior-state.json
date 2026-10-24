@@ -1,0 +1,55 @@
+{
+  "commit": "70729a937a74ca11fe9b84f733563e738209d452",
+  "capture_boundary_worktree": "clean",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "git_blob": "518f88958d05bc110915ac409589eefea2a18d4b",
+      "sha256": "72e74115641404056f3f96ee58e4ac8a902840a86d407f36ef08ebf1a1998337",
+      "bytes": 4315,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "git_blob": "fdc2f37c3fac30f39c9c900f50167148f178470e",
+      "sha256": "45fcd7d2d604916b5b7eb64a3e4b4e8b99f1e121c768868214096a0d17bd4000",
+      "bytes": 148581,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_blob": "ec23fde2d5d51c97779e5cca9cc0be4c93ec6991",
+      "sha256": "1d1a25ab51529a834e54b93244856a59060f97a37f1ca01d711c4cb075226d50",
+      "bytes": 212725,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "git_blob": "310bac077ddf3491bc6beece7e4e83ef604b74f4",
+      "sha256": "b17c06242bb6e29a7b4ce74202bc42e511e3f816ccc654abede3f31597913ff4",
+      "bytes": 25455,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "git_blob": "18a67b980b4bef248ec4fa26d095cee5116bb52d",
+      "sha256": "9347091cdead1434338771481e04e357f7605528bdc653fd982b308aff0547cc",
+      "bytes": 29307,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "git_blob": "d3a4220e4b59419ad37ecff0b3f71b412d1ac997",
+      "sha256": "273a20549f808a7082a7dd9c899ffc839d1e40f400d217544110c45cbed51286",
+      "bytes": 5877,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/PROJECT.md",
+      "git_blob": "8aba4dd2a0a9c0958fa0835f91a5988aba8ec50d",
+      "sha256": "7e27365f038fa7f4e717bcffb3f1b875c6ac04eb7b86cd7f5b849f9a66882824",
+      "bytes": 198053,
+      "readback_verified": true
+    }
+  ]
+}

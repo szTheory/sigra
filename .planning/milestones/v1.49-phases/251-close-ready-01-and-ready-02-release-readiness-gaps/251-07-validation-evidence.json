@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "plan": "251-07",
+  "captured_at": "2026-10-11T23:06:40Z",
+  "full_suite": {
+    "command": "node --test --test-reporter=tap .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+    "exit_code": 0,
+    "tests": 114,
+    "passed": 114,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "duration_ms": 2487
+  },
+  "current_evidence": {
+    "capture_id": "phase251-939607ff3f17e03b22aa",
+    "packet_path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+    "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+    "owner_phase": 247,
+    "owner_verdicts": {
+      "READY-01": "authorization_pending",
+      "READY-02": "satisfied"
+    },
+    "ready02_population": {
+      "open_pull_requests": 15,
+      "pr_disposition_ids": 15,
+      "inherited_identities": 2421,
+      "inherited_disposition_ids": 2421,
+      "preservation_readbacks": 2421,
+      "join_status": "passed"
+    },
+    "source_audit": {
+      "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+      "exit_code": 0,
+      "status": "gaps_found",
+      "milestone_status": "incomplete",
+      "requirements": "8/9",
+      "owner_rows": {
+        "READY-01": "unsatisfied",
+        "READY-02": "satisfied"
+      },
+      "blockers": 16,
+      "contradictions": 6,
+      "orphaned": 0
+    },
+    "audit_check": {
+      "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md",
+      "exit_code": 0,
+      "valid": true,
+      "requirements": "8/9",
+      "milestone_status": "incomplete",
+      "blockers": 16
+    },
+    "packet_check": {
+      "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251",
+      "exit_code": 0,
+      "valid": true,
+      "capture_id_matches": true,
+      "verdicts_match": true
+    },
+    "validation_contract": {
+      "rows": 12,
+      "passing": 12,
+      "pending": 0,
+      "failed": 0,
+      "blocked": 0,
+      "frontmatter_status": "validated",
+      "nyquist_compliant": true,
+      "wave_0_complete": true,
+      "signoff_checked": true
+    }
+  },
+  "red_evidence": [
+    { "file": "251-03-task1-red-evidence.json", "target": "final inventory invalidates disposition when any captured PR identity component changes", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-03-task2-red-evidence.json", "target": "requires unique complete PR identities and stable numeric ordering in snapshots", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-04-task1-red-evidence.json", "target": "a published-guide pass cannot cite candidate guide bytes", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-04-task2-red-evidence.json", "target": "independent audit rejects a satisfied READY-01 row whose guide ref points to candidate bytes", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-05-task1-red-evidence.json", "target": "secondary-worktree dirty paths stay in the READY-02 disposition and preservation join", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-05-task2-red-evidence.json", "target": "paginated PR capture distinguishes complete empty, one-page, 100-plus, duplicate, null, and reordered sets", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-06-task1-red-evidence.json", "target": "a generic approval flag cannot replace an exact contemporaneous approval tuple", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-06-task2-red-evidence.json", "target": "the refreshed Phase 251 source artifact binds every named package check to trusted source refs", "verdict": "RED_EVIDENCE_OK" },
+    { "file": "251-07-task1-red-evidence.json", "target": "ownerReportReferenceRequired rejects READY evidence rows that omit the canonical owner report", "verdict": "RED_EVIDENCE_OK" }
+  ],
+  "row_statuses": {
+    "251-03-01": "pass",
+    "251-03-02": "pass",
+    "251-04-01": "pass",
+    "251-04-02": "pass",
+    "251-05-01": "pass",
+    "251-05-02": "pass",
+    "251-05-03": "pass",
+    "251-06-01": "pass",
+    "251-06-02": "pass",
+    "251-07-01": "pass",
+    "251-07-02": "pass",
+    "251-07-03": "pass"
+  }
+}

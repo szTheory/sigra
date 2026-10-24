@@ -1,0 +1,89 @@
+{
+  "schema_version": "sigra.phase253.closeout-checks/v1",
+  "recorded_at": "2026-10-13T07:20:48.611666+00:00",
+  "status": "passed_for_partial_execution_only",
+  "phase_complete": false,
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-debug \"Phase 253 registration runner setup failure\"",
+  "completed_plans": 5,
+  "halted_plans": [
+    "253-02",
+    "253-07"
+  ],
+  "blocked_plans": [
+    "253-08"
+  ],
+  "requirements_closed": 0,
+  "checks": [
+    "All top-level routes agree",
+    "Nested handoff records partial implementation",
+    "GSD denies plan 08 readiness because 02 and 07 halted",
+    "Both CIREL requirements remain unchecked",
+    "All prior shared-state bytes are recoverable and were read back",
+    "Phase 252 paths byte-identical to capture boundary",
+    "git diff --check passed"
+  ],
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "bytes": 10673,
+      "sha256": "289a7a1683161e7d2b8b6129a067b432c0671d2b5f30b869a35e30947569363d"
+    },
+    {
+      "path": ".planning/state.json",
+      "bytes": 1369,
+      "sha256": "1d37b6e131d3113cd96d11e836a16fd34fa3eff58584de7c25be73a6047be83b"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "bytes": 39096,
+      "sha256": "7b92df2af865648bced3946e100c253da61cca9b6afa1257c618115084f4fe32"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "bytes": 11711,
+      "sha256": "9975f70fd02815f93a2e984d906cc2f8d0efaffb4c10d025bce77c50dcaeec4b"
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "bytes": 5876,
+      "sha256": "5f3c20567c4c59ecb451a8d6b9f00139d96112e085314c6d184e7df6d58fd863"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "bytes": 15317,
+      "sha256": "955d1af3756741bf6cc7f746ddb12664c49346b2b3bd6818a6430778e72b6dbd"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-POSTEXEC-CHECKS.json",
+      "bytes": 26703,
+      "sha256": "51c4227717c03c28697a17983df29a972493e41f1676e41bbede5e661330171a"
+    }
+  ],
+  "plan08_readiness": {
+    "id": "253-08",
+    "wave": 4,
+    "depends_on": [
+      "253-02",
+      "253-07"
+    ],
+    "autonomous": true,
+    "gap_closure": false,
+    "objective": "Confirm required checks through normal PR CI and record exactly which reliability requirements the evidence proves.",
+    "files_modified": [
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PR-EVIDENCE.json",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-COMPLETION-RECORD.json"
+    ],
+    "files_deleted": [],
+    "agent_hint": null,
+    "task_count": 2,
+    "has_summary": false,
+    "halted": false,
+    "blocked_by": [
+      "253-02",
+      "253-07"
+    ],
+    "ready": false
+  },
+  "local_regression_evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-POSTEXEC-CHECKS.json"
+}

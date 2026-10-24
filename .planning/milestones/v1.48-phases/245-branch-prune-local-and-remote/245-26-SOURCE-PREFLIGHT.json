@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-26",
+  "checked_at": "2026-10-01T15:25:01Z",
+  "verdict": "ready",
+  "scope": "Read-only feasibility for the local operator readiness-path repair and disposable regression proofs; no production ref continuation",
+  "checkout_head": "101d12a23f686bd2347933ad8692aeb7a581869d",
+  "method": [
+    "/usr/bin/git rev-parse <commit>^{commit} and <commit>:<path>",
+    "/usr/bin/git show <commit>:<path> hashed with SHA-256 and compared with each pinned digest",
+    "git ls-files -s and git status --short for operator, helper, test, admission, current-contract and coordinator paths",
+    "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo . --artifact .planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json --artifact-commit e61432a0248824d14d942c7d4ae2fd428a81ae99"
+  ],
+  "runtime": {
+    "required_git_path": "/usr/bin/git",
+    "version": "git version 2.50.1 (Apple Git-155)",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "ambient_git_version": "git version 2.41.0",
+    "result": "ready_for_pinned_runtime_fixture_tests; ambient runtime remains fail-closed"
+  },
+  "required_committed_artifacts": [
+    {
+      "name": "plan23_schema2_readiness",
+      "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "blob_oid": "05621c5c0c313848deefe0fd8493648724289a1f",
+      "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193",
+      "worktree_matches_committed": true,
+      "direct_verifier": "valid_ready"
+    },
+    {
+      "name": "plan25_current_contract",
+      "commit": "6f5aa40354eb3f3126d8394c80060cc607dfa674",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-CURRENT-CONTRACT.json",
+      "blob_oid": "a7b448fe271953ecfe4352784bba4f004e31a748",
+      "sha256": "70d6ee9f4476f61c569dcb83b80715055d3c5b26a40a086d6c2503f2721ba84c",
+      "worktree_matches_committed": true
+    },
+    {
+      "name": "plan25_blocked_result",
+      "commit": "a1cd058d63eb713ce50568a953b316cdfc3ef7bd",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-RESULT.json",
+      "blob_oid": "1cd5c8e5503308657d92c3798797b3e556b6f401",
+      "sha256": "37a7c2c9cfa92f54e7cce74781503911811e8f94dbec05e319c4d8d530272c19",
+      "worktree_matches_committed": true,
+      "observed_failed_predicate": "d01_readiness_missing_stale_dirty_or_unresolved",
+      "production_prune_operations": 0
+    },
+    {
+      "name": "plan19_prior_mutation_result",
+      "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+      "blob_oid": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+      "sha256": "20f5083d8a356e056287bc2e54457e48a7cae00cf3b7dee1fbdd9bdb2b037f3e",
+      "worktree_matches_committed": true,
+      "admitted_local_ref_deletions": 1
+    }
+  ],
+  "readiness_nested_sources": {
+    "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+    "count": 9,
+    "committed_blobs_and_sha256_match": 9,
+    "immutable_worktree_sources_match": 8,
+    "route_path": ".planning/state.json",
+    "route_source_blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+    "route_source_sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+    "route_worktree_differs_from_source": true,
+    "route_head_index_worktree_phase244_status": ["complete", "complete", "complete"],
+    "sources": [
+      {"path": ".planning/state.json", "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3", "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504", "worktree_matches_source": false, "route_status": "complete"},
+      {"path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md", "blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3", "sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f", "worktree_matches_source": true},
+      {"path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json", "blob_oid": "b868353af4151a39bccfd6c4a9e9a188789f4509", "sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb", "worktree_matches_source": true},
+      {"path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md", "blob_oid": "2feeedec49d410a99b3e2fa4a3226adade2d21f6", "sha256": "66118bac89fa687dbee6242ac87263fae53d792861003cbfb9f3799d92c422e9", "worktree_matches_source": true},
+      {"path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md", "blob_oid": "3f92f8d457c12a64b8af29f5e9649feee022f0d6", "sha256": "f3f0212dc094ef1acd2def2a00475f82301fcafc6236b5f1a78d9688418fe501", "worktree_matches_source": true},
+      {"path": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md", "blob_oid": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7", "sha256": "8df140b0007b11d75c273f3c315415b036e44c365bc4cc7bffc265e00439c91c", "worktree_matches_source": true},
+      {"path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md", "blob_oid": "319f20c2321171831a7903137ad47754e270ec43", "sha256": "6217ddc0ff5383baf26e460b42fc3065ae5a319c42e8b453226a14a6b92224f0", "worktree_matches_source": true},
+      {"path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log", "blob_oid": "17d3de04aa878c6c5617c46cceaf46ae3518b339", "sha256": "547eee0ed365f29bad368ae523ea459c2607e4d85b8c655b7edf4d37b8d00471", "worktree_matches_source": true},
+      {"path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md", "blob_oid": "190144f09bf2f6adfdab40280e8887da00655f18", "sha256": "b16879dc931ebd1d8c15640ecc4401baae2fd19eb348cd730c3c731acf33b70d", "worktree_matches_source": true}
+    ],
+    "all_source_identity_errors": []
+  },
+  "implementation_inputs": {
+    "tracked_and_clean": true,
+    "paths": [
+      "scripts/maintainers/prune-stale-branches.sh",
+      "scripts/maintainers/prune-stale-branches-readiness.mjs",
+      "scripts/maintainers/prune-stale-branches-readiness.test.mjs",
+      "scripts/maintainers/prune-stale-branches.test.mjs",
+      "scripts/maintainers/prune-stale-branches.test.sh",
+      "scripts/maintainers/prune-stale-branches-admission.mjs",
+      "scripts/maintainers/prune-stale-branches-current.mjs",
+      "scripts/maintainers/repo-mutation-coordinator.sh"
+    ]
+  },
+  "historical_sources": {
+    "unavailable_pre_phase_baseline": "unknown_not_required_by_this_repair_per_D-07",
+    "independent_full_window_cleanup_registry": "unknown_not_required_by_this_repair_per_D-07",
+    "prior_11_pr_mismatches": "unresolved",
+    "prior_30_cleanup_rows": "unresolved"
+  },
+  "failed_predicates": [],
+  "production_ref_operations": 0
+}

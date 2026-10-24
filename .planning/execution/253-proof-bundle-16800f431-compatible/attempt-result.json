@@ -1,0 +1,39 @@
+{
+  "state": {
+    "schema": "sigra.phase253.proof-run/v1",
+    "status": "halted",
+    "stage": "closed",
+    "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "bundle_sha256": "3632de1fe6ed462cde707cb3aeccf3059ef9bac9be672bd522bb77fa12d0938c",
+    "approval_sha256": "b39f5702b6851a9d9f126477facd01ef4d4d0f8600ac53c9fa14abab51e2d3b8",
+    "expected_parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "started_epoch": 1792625145,
+    "command_count": 17,
+    "parent_verified": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "merge_preflight": {
+      "head": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+      "base": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "exit": 0,
+      "clean": true,
+      "conflicts": []
+    },
+    "canary_allocation_sha256": "b68e3cad901b12df10bd80ad0a98c1a3d2dcaa481642f9eea8b58144e964b6e1",
+    "canary_started_epoch": 1792625146,
+    "canary_verified": true,
+    "prs_allocation_sha256": "aae55e8fe38673ff37bceb99b306987bc633d3b2554c52304138d5108d5526e3",
+    "prs_started_epoch": 1792625970,
+    "stop": "command failed with exit 1: /opt/homebrew/opt/python@3.14/bin/python3.14 [PosixPath('/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/runtime/ci-hosted-gate-verify.py'), '--mode']",
+    "completed_epoch": 1792626478
+  },
+  "artifacts": {
+    "normal-evidence.json": "c45b6a65df9b7b8df3139597aecb4d8f58e14a062a6088a6c67b3761905e5605",
+    "publication-receipt.json": "8672f8ab012bf42a3f582fb56539a9c0c10feb5cbf2802ec56b87e696431f8fe",
+    "canary-ledger.json": "875b982d9acd1328a44186fc1fcffcb94cd544c1f9933f480106e0551e1bee79",
+    "prs-ledger.json": "560c12f62111cc0ddacff70e4713845a9a279d4cfe9bdaccc1138e391de9b90c",
+    "canary-allocation.json": "b68e3cad901b12df10bd80ad0a98c1a3d2dcaa481642f9eea8b58144e964b6e1",
+    "canary-evidence.json": "6889d6000a0db58585d01ce6d60b2267ec6e99cdc6ab99c7e1963bc5e1cb7ba9",
+    "prs-allocation.json": "aae55e8fe38673ff37bceb99b306987bc633d3b2554c52304138d5108d5526e3"
+  },
+  "historical_windows_changed": false,
+  "reruns": 0
+}

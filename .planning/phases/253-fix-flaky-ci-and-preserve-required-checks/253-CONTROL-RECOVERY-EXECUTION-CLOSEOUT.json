@@ -1,0 +1,290 @@
+{
+  "schema": "sigra.phase253.control-recovery-execution-closeout/v1",
+  "recorded_at": "2026-10-14T01:30:01.883389+00:00",
+  "command": "$gsd-execute-phase 253 --gaps-only",
+  "status": "native_halted_recovery_planning_required",
+  "source_head_before_closeout": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+  "capture_commit": "7915aa826",
+  "sdk_start_commit": "6bb702c06d1426f9ddb20dde8a5d437c907f4973",
+  "history_restore_commit": "fb3743961c29161d6f1fb9c1ebdc8b2bb9341645",
+  "wave01_tracking_commit": "678761bcb32714cb097d08ac2dd045e194888bea",
+  "completed_implementation_plans": [
+    "253-01",
+    "253-03",
+    "253-04",
+    "253-05",
+    "253-06",
+    "253-11",
+    "253-15",
+    "253-18",
+    "253-19",
+    "253-20",
+    "253-26"
+  ],
+  "halted_plans": [
+    "253-02",
+    "253-07",
+    "253-09",
+    "253-12",
+    "253-16",
+    "253-27"
+  ],
+  "blocked_plans": {
+    "253-08": [
+      "253-02",
+      "253-07"
+    ],
+    "253-10": [
+      "253-09"
+    ],
+    "253-13": [
+      "253-09",
+      "253-12"
+    ],
+    "253-14": [
+      "253-09",
+      "253-12"
+    ],
+    "253-17": [
+      "253-16"
+    ],
+    "253-21": [
+      "253-16"
+    ],
+    "253-22": [
+      "253-16"
+    ],
+    "253-23": [
+      "253-16"
+    ],
+    "253-24": [
+      "253-16"
+    ],
+    "253-25": [
+      "253-16"
+    ],
+    "253-28": [
+      "253-27"
+    ],
+    "253-29": [
+      "253-27"
+    ],
+    "253-30": [
+      "253-27"
+    ],
+    "253-31": [
+      "253-27"
+    ],
+    "253-32": [
+      "253-27"
+    ],
+    "253-33": [
+      "253-27"
+    ],
+    "253-34": [
+      "253-27"
+    ],
+    "253-35": [
+      "253-27"
+    ]
+  },
+  "plan_count": 35,
+  "completed_implementation_count": 11,
+  "incomplete_blocked_count": 18,
+  "ready_plans": [],
+  "runnable_count": 0,
+  "plan26": {
+    "status": "complete_offline",
+    "tasks_complete": 2,
+    "task_count": 2,
+    "summary": "253-26-SUMMARY.md",
+    "task_commits": [
+      "2135be352",
+      "72c554da1"
+    ],
+    "summary_commit": "1fb97545d",
+    "native_cause": "unproved"
+  },
+  "plan27": {
+    "status": "halted",
+    "tasks_complete": 0,
+    "task_count": 2,
+    "runner_implementation": "committed; not accepted native proof or complete Plan27",
+    "task2": "not started; unrun verification WINDOWS.md id11",
+    "summary": "253-27-SUMMARY.md",
+    "summary_commit": "6e7a08945",
+    "source_commit": "a881094ca250723e26142da6f67e8e9475ba5caa",
+    "native_outcome": "failed during spec collection",
+    "elapsed_charge_ms": 33409,
+    "playwright_cli_launches": 1,
+    "retry_performed": false
+  },
+  "native_accounting": {
+    "carried_ms": 243044,
+    "new_ms": 33409,
+    "cumulative_ms": 276453,
+    "prior_physical_cli_launches": 4,
+    "new_physical_cli_launches": 1,
+    "cumulative_physical_cli_launches": 5,
+    "spent_invocation_reservations": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST"
+    ],
+    "retry_used": 1,
+    "retry_available": 0,
+    "preparation_remaining_ms": 112489,
+    "unused_regular_command_count": 4,
+    "unused_regular_cap_ms_each": 120000,
+    "conditional_acceptance_count": 9,
+    "conditional_acceptance_cap_ms_each": 240000,
+    "unused_slots_runnable_without_new_plan": false,
+    "frozen_limits_unchanged": true
+  },
+  "native_cleanup": {
+    "database": "sigra_253_control_dark_mv7f9q37_99351",
+    "drop_exit_code": 0,
+    "quiet_drop_log_bytes": 0,
+    "database_absence_independent_receipt": "not present",
+    "build_directory_removed_recorded": true,
+    "build_path_absent_at_closeout": true
+  },
+  "evidence": {
+    "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-FREEZE.json",
+    "freeze_sha256": "bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778",
+    "native_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+    "native_sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0",
+    "native_preservation_refs": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+        "status": "",
+        "sha256": "f8296ac13f20ca1b43b8a560a917b7d4964f377de9a462c2a262025d45c68e4d",
+        "blob": "bd0bbe0d3cc23f1ffe5debfcbb553a2d81b2fdaa",
+        "ref": "refs/gsd/phase253-control-recovery-native-evidence/f8296ac13f20ca1b43b8a560a917b7d4964f377de9a462c2a262025d45c68e4d",
+        "bytes": 3952,
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+        "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+        "sha256": "c23f6a529b29edbb745fda4e200c4f1e3ed1ce569baf093d50ca21356b388cf4",
+        "blob": "3521607ca029635669f4d16cb994ba2411fe45fc",
+        "ref": "refs/gsd/phase253-control-recovery-native-evidence/c23f6a529b29edbb745fda4e200c4f1e3ed1ce569baf093d50ca21356b388cf4",
+        "bytes": 4678,
+        "read_back_exact": true
+      }
+    ],
+    "load_diagnostic": "253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json",
+    "windows_ledger": " .planning/WINDOWS.md#11"
+  },
+  "local_verification": {
+    "node": "20.18.1",
+    "tests": 41,
+    "passed": 41,
+    "failed": 0,
+    "test_log_sha256": "a8fc68b1c6d01a80d6eb4d62da91e02330a70b30baf884931a321d5d38eb5769",
+    "native_freeze_check_exit": 0,
+    "native_evidence_check_exit": 3,
+    "native_evidence_check_result": "rejected; expected for saved failed result",
+    "schema_drift_block": false,
+    "codebase_drift_skipped": "no-structure-md",
+    "ui_safety_gate_block": false
+  },
+  "phase_verification": "not_started",
+  "requirements": {
+    "CIREL-01": "open",
+    "CIREL-02": "open"
+  },
+  "full_phase_verifier_invoked": false,
+  "phase_complete_invoked": false,
+  "github_requests": 0,
+  "remote_mutations": 0,
+  "native_retry_requests": 0,
+  "old400_path_inventory": {
+    "unchanged_count": 395,
+    "shared_paths_refreshed": [
+      ".planning/STATE.md",
+      ".planning/state.json",
+      ".planning/HANDOFF.json",
+      ".planning/ROADMAP.md",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json"
+    ],
+    "original25plans_unchanged": true,
+    "phase252paths_unchanged": true
+  },
+  "prior_shared_bytes": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "edf71cf158c769461974f57ee64adf50143811ed2626419396459ed9ddcc32b9",
+      "bytes": 18692,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "9cf41c0a82ebc69312ec58663657e3f97a37985720c998e6fc17f36177ea9c80",
+      "bytes": 61045,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "63e77f00e4a5dca2783373ddf28313521ddfc8803282da70227d9c13b0156cda",
+      "bytes": 162755,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "8a553c6ebe1e492c258d9d4e3e5f2091ae380d634561cdda354e0c1f38165e30",
+      "bytes": 16712,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "status": "clean",
+      "prior_commit": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+      "sha256": "5e847b684ebbcf2515e87fac5a81d55de4506650b95856755487606c332d2f8b",
+      "bytes": 152324,
+      "readback_exact": true
+    }
+  ],
+  "windows_prior_bytes": {
+    "prior_commit": "87c730051bd15f3c7d4d327445f2c48ad1c2b3de",
+    "path": ".planning/WINDOWS.md",
+    "readback_possible": true,
+    "only_new_entry": "11"
+  },
+  "config": {
+    "path": ".planning/config.json",
+    "status": " M",
+    "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+    "prior_ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+    "blob": "ab8aa3007f17294e2f224d4ac8482522b79bda24",
+    "readback_exact": true,
+    "leave_unstaged": true
+  },
+  "next_command": "$gsd-plan-phase 253",
+  "resume_command": "$gsd-plan-phase 253",
+  "route_reason": "No ready/runnable plans. Canonicalize cannot load parse5 under the frozen Node20 runner. Plan a correction and the missing portable contracts using only remaining allocations.",
+  "next_readiness": {
+    "phase": 253,
+    "phase_found": true,
+    "status": "In Progress",
+    "has_context": true,
+    "has_research": true,
+    "plan_count": 35
+  },
+  "human_actions_pending": [],
+  "async_jobs": [],
+  "phase254_started": false,
+  "summary_duration_limit": "Plan27 summary start/duration is approximate and predates dispatch; native budget uses exact monotonic charge, never summary wall-clock values."
+}

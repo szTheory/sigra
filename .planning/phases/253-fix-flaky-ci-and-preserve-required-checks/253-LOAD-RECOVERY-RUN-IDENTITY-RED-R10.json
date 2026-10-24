@@ -1,0 +1,87 @@
+{
+  "schema": "sigra.phase253.red-receipt/r10",
+  "plan": "253-116",
+  "task": "Task 1 (run-name identity)",
+  "produced_on_head": "c0b63132f1d7c3a6facea2ab5fbeaf1a59b416d6",
+  "working_tree": "test edits uncommitted on top of produced_on_head; verifier source unchanged from produced_on_head",
+  "entries": [
+    {
+      "suite": "scripts/ci/ci-hosted-gate-verify.test.py",
+      "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; python3 scripts/ci/ci-hosted-gate-verify.test.py",
+      "exit_code": 1,
+      "summary": "Ran 103 tests in 27.187s, FAILED (failures=10, errors=7)",
+      "failing_tests": [
+        "test_accepts_matching_fixture_origin_and_retained_digest (__main__.HostedGateVerifierTests.test_accepts_matching_fixture_origin_and_retained_digest)",
+        "test_bare_name_with_bound_display_title_is_accepted (__main__.RunIdentityTests.test_bare_name_with_bound_display_title_is_accepted)",
+        "test_every_wrong_title_is_refused_with_the_identity_message (__main__.RunIdentityTests.test_every_wrong_title_is_refused_with_the_identity_message) (label='bare name, display_title another scenario')",
+        "test_every_wrong_title_is_refused_with_the_identity_message (__main__.RunIdentityTests.test_every_wrong_title_is_refused_with_the_identity_message) (label='bare name, display_title missing')",
+        "test_final_matrix_checks_separate_verifier_and_recounts_executions (__main__.HostedGateVerifierTests.test_final_matrix_checks_separate_verifier_and_recounts_executions)",
+        "test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified (__main__.V2VerifierContractTests.test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified) (channel='hermetic-https', state='hermetic-unverified')",
+        "test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified (__main__.V2VerifierContractTests.test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified) (channel=None, state='verified')",
+        "test_live_first_canary_run_title_is_accepted (__main__.RunIdentityTests.test_live_first_canary_run_title_is_accepted)",
+        "test_live_r8_real_run_poll_title_is_accepted (__main__.RunIdentityTests.test_live_r8_real_run_poll_title_is_accepted)",
+        "test_live_r9_cli_accepts_the_real_full_pass_evidence_offline (__main__.RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline)",
+        "test_live_r9_real_full_pass_run_is_accepted (__main__.RunIdentityTests.test_live_r9_real_full_pass_run_is_accepted)",
+        "test_mocked_dispatch_poll_artifact_independent_verifier_path (__main__.HostedGateVerifierTests.test_mocked_dispatch_poll_artifact_independent_verifier_path)",
+        "test_new_acceptance_modes_reject_historical_v1_while_legacy_remains_disclosable (__main__.V2VerifierContractTests.test_new_acceptance_modes_reject_historical_v1_while_legacy_remains_disclosable)",
+        "test_separate_verifier_accepts_a_compact_matrix_and_rejects_wrong_ref_blob_source_or_origin (__main__.RegisteredFixtureTests.test_separate_verifier_accepts_a_compact_matrix_and_rejects_wrong_ref_blob_source_or_origin)",
+        "test_separate_verifier_requires_its_own_verifier_title (__main__.RunIdentityTests.test_separate_verifier_requires_its_own_verifier_title)",
+        "test_sources_can_pass_before_separate_verifier_but_matrix_cannot (__main__.HostedGateVerifierTests.test_sources_can_pass_before_separate_verifier_but_matrix_cannot)",
+        "test_the_existing_evidence_verifiers_tolerate_the_extra_action_approval_key (__main__.RegisteredFixtureTests.test_the_existing_evidence_verifiers_tolerate_the_extra_action_approval_key)"
+      ],
+      "failure_lines": [
+        "ERROR: test_bare_name_with_bound_display_title_is_accepted (__main__.RunIdentityTests.test_bare_name_with_bound_display_title_is_accepted)",
+        "AttributeError: module 'hosted_gate_verify_run_identity' has no attribute 'require_run_title'",
+        "ERROR: test_live_first_canary_run_title_is_accepted (__main__.RunIdentityTests.test_live_first_canary_run_title_is_accepted)",
+        "AttributeError: module 'hosted_gate_verify_run_identity' has no attribute 'require_run_title'",
+        "ERROR: test_live_r8_real_run_poll_title_is_accepted (__main__.RunIdentityTests.test_live_r8_real_run_poll_title_is_accepted)",
+        "AttributeError: module 'hosted_gate_verify_run_identity' has no attribute 'require_run_title'",
+        "ERROR: test_live_r9_real_full_pass_run_is_accepted (__main__.RunIdentityTests.test_live_r9_real_full_pass_run_is_accepted)",
+        "            and run.get(\"name\") == FIXTURE_NAME, \"run workflow identity mismatch\")",
+        "hosted_gate_verify_run_identity.VerificationError: run workflow identity mismatch",
+        "ERROR: test_separate_verifier_requires_its_own_verifier_title (__main__.RunIdentityTests.test_separate_verifier_requires_its_own_verifier_title)",
+        "hosted_gate_verify_run_identity.VerificationError: separate hosted verifier run identity or conclusion mismatch",
+        "ERROR: test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified (__main__.V2VerifierContractTests.test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified) (channel='hermetic-https', state='hermetic-unverified')",
+        "            and run.get(\"name\") == FIXTURE_NAME, \"run workflow identity mismatch\")",
+        "hosted_gate_verify.VerificationError: run workflow identity mismatch",
+        "ERROR: test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified (__main__.V2VerifierContractTests.test_hermetic_https_scenarios_require_hermetic_unverified_and_live_ones_require_verified) (channel=None, state='verified')",
+        "            and run.get(\"name\") == FIXTURE_NAME, \"run workflow identity mismatch\")",
+        "hosted_gate_verify.VerificationError: run workflow identity mismatch",
+        "FAIL: test_accepts_matching_fixture_origin_and_retained_digest (__main__.HostedGateVerifierTests.test_accepts_matching_fixture_origin_and_retained_digest)",
+        "AssertionError: 1 != 0 : hosted-gate-verify: FAIL: run workflow identity mismatch",
+        "FAIL: test_final_matrix_checks_separate_verifier_and_recounts_executions (__main__.HostedGateVerifierTests.test_final_matrix_checks_separate_verifier_and_recounts_executions)",
+        "AssertionError: 1 != 0 : hosted-gate-verify: FAIL: run workflow identity mismatch",
+        "FAIL: test_mocked_dispatch_poll_artifact_independent_verifier_path (__main__.HostedGateVerifierTests.test_mocked_dispatch_poll_artifact_independent_verifier_path)",
+        "AssertionError: 1 != 0 : hosted-gate-verify: FAIL: run workflow identity mismatch",
+        "FAIL: test_sources_can_pass_before_separate_verifier_but_matrix_cannot (__main__.HostedGateVerifierTests.test_sources_can_pass_before_separate_verifier_but_matrix_cannot)",
+        "AssertionError: 1 != 0 : hosted-gate-verify: FAIL: run workflow identity mismatch",
+        "FAIL: test_separate_verifier_accepts_a_compact_matrix_and_rejects_wrong_ref_blob_source_or_origin (__main__.RegisteredFixtureTests.test_separate_verifier_accepts_a_compact_matrix_and_rejects_wrong_ref_blob_source_or_origin)",
+        "AssertionError: 1 != 0 : Traceback (most recent call last):",
+        "            and run.get(\"name\") == FIXTURE_NAME, \"run workflow identity mismatch\")",
+        "gate_verify.VerificationError: run workflow identity mismatch",
+        "FAIL: test_the_existing_evidence_verifiers_tolerate_the_extra_action_approval_key (__main__.RegisteredFixtureTests.test_the_existing_evidence_verifiers_tolerate_the_extra_action_approval_key)",
+        "AssertionError: 1 != 0 : hosted-gate-verify: FAIL: run workflow identity mismatch",
+        "FAIL: test_every_wrong_title_is_refused_with_the_identity_message (__main__.RunIdentityTests.test_every_wrong_title_is_refused_with_the_identity_message) (label='bare name, display_title missing')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_every_wrong_title_is_refused_with_the_identity_message (__main__.RunIdentityTests.test_every_wrong_title_is_refused_with_the_identity_message) (label='bare name, display_title another scenario')",
+        "AssertionError: VerificationError not raised",
+        "FAIL: test_live_r9_cli_accepts_the_real_full_pass_evidence_offline (__main__.RunIdentityTests.test_live_r9_cli_accepts_the_real_full_pass_evidence_offline)",
+        "AssertionError: 1 != 0 : hosted-gate-verify: FAIL: run workflow identity mismatch",
+        "FAIL: test_new_acceptance_modes_reject_historical_v1_while_legacy_remains_disclosable (__main__.V2VerifierContractTests.test_new_acceptance_modes_reject_historical_v1_while_legacy_remains_disclosable)",
+        "AssertionError: 1 != 0 : hosted-gate-verify: FAIL: run workflow identity mismatch"
+      ]
+    },
+    {
+      "suite": "cli",
+      "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN PYTHONPATH SIGRA_LIVE_POLICY_SHIM; python3 scripts/ci/ci-hosted-gate-verify.py --mode canary --scenario full-pass --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R9.json",
+      "exit_code": 1,
+      "failing_tests": [
+        "cli: --mode canary --scenario full-pass on EVIDENCE-R9 (sha256 a3ca8cc0b562b2a060540f6b55fc1c0d29907c7103f87db970e1f4f678043aba)"
+      ],
+      "failure_lines": [
+        "hosted-gate-verify: FAIL: run workflow identity mismatch"
+      ]
+    }
+  ],
+  "semantic_assessment": "Target behavior failed for the intended reason on the unfixed verifier. The real-shape R9 positives (verify_scenario on EVIDENCE-R9 full-pass and the CLI on EVIDENCE-R9) fail with 'run workflow identity mismatch' at the run.get('name') == FIXTURE_NAME comparison; every existing test whose fixture was moved to GitHub's real run shape (name == display_title == templated title) fails with the same message. The two 'bare name' negatives (display_title missing / for another scenario) are accepted by the unfixed verifier ('VerificationError not raised'), which the new rule closes. The separate verifier positive fails at line 836 (message 'separate hosted verifier run identity or conclusion mismatch'). Three direct helper tests (R8 run poll, first canary run 38347679431, bare name with bound display_title) error with AttributeError because require_run_title does not exist yet; each of those run objects carries the templated name (name == display_title), which the unfixed name == FIXTURE_NAME comparison does not accept. No syntax, collection or fixture-load fault: 103 tests ran. EVIDENCE-R9 bytes unchanged."
+}

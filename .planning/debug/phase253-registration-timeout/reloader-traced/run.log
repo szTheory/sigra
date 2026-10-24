@@ -1,0 +1,953 @@
+Compiling 1 file (.ex)
+Generated registration_reloader_probe app
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+warning: a Mix listener expected by Phoenix.CodeReloader is missing.
+
+Please add the listener to your mix.exs configuration, like so:
+
+    def project do
+      [
+        ...,
+        listeners: [Phoenix.CodeReloader]
+      ]
+    end
+
+
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:76: anonymous fn/5 in Phoenix.CodeReloader.Server.handle_call/3
+  (mix 1.19.5) lib/mix/sync/lock.ex:122: Mix.Sync.Lock.with_lock/3
+  (phoenix 1.8.5) lib/phoenix/code_reloader/server.ex:70: Phoenix.CodeReloader.Server.handle_call/3
+  (stdlib 7.3) gen_server.erl:2470: :gen_server.try_handle_call/4
+  (stdlib 7.3) gen_server.erl:2499: :gen_server.handle_msg/3
+  (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+
+actual_reloader_probe_finished

@@ -1,0 +1,1159 @@
+{
+  "schema": "sigra.phase253.execution182-capture/v1",
+  "captured_at": "2026-10-20T23:08:30.321018+00:00",
+  "preservation_ref": "refs/gsd/phase253-repair182-inputs",
+  "preservation_commit": "26f9266ed439b9834e7b675c001aad38d224e9cc",
+  "status": "",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "",
+      "blob": "77f5f13f915d1a2db48ef960244f60a93341e7b0",
+      "bytes": 157083,
+      "sha256": "57eae20e912e8ec744518971f1d922f32ccdc687255698645d3832bb26c3bb8e",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "status": "",
+      "blob": "944fb10bddf4e7839aadeb86ca5af11b0204a55f",
+      "bytes": 5876,
+      "sha256": "5f3c20567c4c59ecb451a8d6b9f00139d96112e085314c6d184e7df6d58fd863",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "",
+      "blob": "095305715836d781c2be31b423720c8780f9aecd",
+      "bytes": 27263,
+      "sha256": "0b29158b8251dfb790f3a1ac1b0d3d87492db700ea1de300187e457e28cd5a63",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": "",
+      "blob": "a8390f351b16884743933fa6fcd401dacdc0ed89",
+      "bytes": 24842,
+      "sha256": "2de1e4507cb574cd030badb0b58d2aece7ee32e29405442a112a76f003eed682",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/config.json",
+      "status": "",
+      "blob": "28b9a0eb48854c3fb099af92c865fc9322311369",
+      "bytes": 1821,
+      "sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+      "status": "",
+      "blob": "ae90a895919e2794518831e5f4dbd8d9176fce8a",
+      "bytes": 2997,
+      "sha256": "b4e6282d963c33c5a462593470e1ed969e2df9affd9565f2423bf124a98d8c85",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+      "status": "",
+      "blob": "a2f25670cee1b7b7f382f2e49228570c2602fe62",
+      "bytes": 12815,
+      "sha256": "1d4b8518bf2bd7016dc4b66ec9f1ec7a85ca8bc521a977411c10c980b9b0d33e",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-SOURCE-AUDIT.md",
+      "status": "",
+      "blob": "02280a592a71ad22990b08bc7b5b979e644f4225",
+      "bytes": 12059,
+      "sha256": "2c7d7bd9acbc8ba98ab3d0d19877273d853ebd470f14155daa5f29486a78690e",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+      "status": "",
+      "blob": "1bc54f3db59f0462009da86bf3e4b6a113d07875",
+      "bytes": 9456,
+      "sha256": "ab7a0282eb760b635376807062285c1361828b0ccb56915a4a93a3b404d15567",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-PLAN.md",
+      "status": "",
+      "blob": "791771deeb9f9cf9ed48d321a95756135947b925",
+      "bytes": 24981,
+      "sha256": "f260cf0df47ab986c228bb8cf0b1cbfc5fdcb594b2adc3a3bb88cb4f733351b5",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-REPAIR-REVIEW.json",
+      "status": "",
+      "blob": "db9842e5e4ef6c24bed94ec8885bb8d630f7d527",
+      "bytes": 10497,
+      "sha256": "169ecf458eccc7ed440b7533875f3b580f8334bc8189a024efea55dac83212ee",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-SUMMARY.md",
+      "status": "",
+      "blob": "164f140d5637e2fe602c759d8b329f75da4d65cf",
+      "bytes": 4849,
+      "sha256": "622517dff95bf2d7feef336c4d8e3c11af1bfc1bb0fbee51d7dc9a048ce259b0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md",
+      "status": "",
+      "blob": "b083b029af330bab04ace48531d835bf3ed06830",
+      "bytes": 17886,
+      "sha256": "ce2d5dda8b8b1d893eab99eaa78301048104eb0fdb5e8d4569f792008a1da52a",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md",
+      "status": "",
+      "blob": "6136a4bfa93a3851df54ec5d56abe6c578e70a44",
+      "bytes": 24389,
+      "sha256": "d7a2ccce92d6091fcc5d9ab665f8e3de64d9a91046565e2912e3a679c9e7cf65",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-01.md",
+      "status": "",
+      "blob": "fe6a8df08165c812b12a9de2004d832fc893315c",
+      "bytes": 3447,
+      "sha256": "b4ba2c4266c3033de971cdab888a7722ee31471a54f4977336b9840ddf43abbc",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-02.md",
+      "status": "",
+      "blob": "f492436405c6bce9a4f5f2bbfd1d48df0601a051",
+      "bytes": 1319,
+      "sha256": "cb9647b0106230ef831c803b7e5a44ae72afc5c7f8660aa2917c49b4ba1ccb1b",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-CHECKS.json",
+      "status": "",
+      "blob": "31e2da97a90b92bd9db793a44bfc118aee80f73d",
+      "bytes": 2552,
+      "sha256": "9901ba10d2af7f80f006e1927f6ecb71bea617adf7906bba471f2985d2d1864d",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-PRESERVATION.json",
+      "status": "",
+      "blob": "ed5c912186f1d5aa64d3b55ff0a16cc08f819e30",
+      "bytes": 2969,
+      "sha256": "ce4f1fc81303ef70b4f53b0f8e738948911eebf10b7ef52c2c89d45593c7dec6",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-COMPLETION-RECORD.json",
+      "status": "",
+      "blob": "b2b5b922d6f33957dcb2f92ef0db58bfc72aec63",
+      "bytes": 1674,
+      "sha256": "f74305389a417f337f6e8713064e81d7a0dbd9dd57b9da3506eadf8703b2b521",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-RECORD.json",
+      "status": "",
+      "blob": "14ba3092cad12e36fd1d5c7662107154aa6bb76f",
+      "bytes": 9561,
+      "sha256": "49cb151963afd2656db38eca68f7e3ed0d5326b129d2fbdd29719b989d52e4ba",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-ROUTING.json",
+      "status": "",
+      "blob": "8a69f46fd1b53bdfa694c627cae7828de1249cf6",
+      "bytes": 25007,
+      "sha256": "d5b2c4f67877fa1facd3762f8e312ff5c730bbaf31015b325bfe6b9f01e06ccc",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-FINAL-CHECKS.json",
+      "status": "",
+      "blob": "334b0859d5f8a610b9188e0fffffb5f312d54def",
+      "bytes": 415,
+      "sha256": "1a7e111815ed4f79789f08da9da5f8a25ded7e8f11ed2d882ba82dbd8eb0321a",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md",
+      "status": "",
+      "blob": "6c77fb2157ace836f014f108e5f3dd747fa881c4",
+      "bytes": 39142,
+      "sha256": "14f66a4d3494ed60c448de4d01e96b5bd187aae240036eecc2e142acb9f38ed5",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-CHECKS.json",
+      "status": "",
+      "blob": "7a0bf651faa65d7f68a47f9e61f01bb70ea6db19",
+      "bytes": 18044,
+      "sha256": "8c55ac8d969490778839d94c8bc0685526166e6b3aa7999db7a60df6f3e65d76",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-RECORD.json",
+      "status": "",
+      "blob": "81dc25e20511d22ca0dd25ef5c129cbd00abd77f",
+      "bytes": 8754,
+      "sha256": "8f6fb22dd31baeb0b654799c8d10e006eb3fdcaad413e22664e3ab9384fb9207",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-REPAIR-REVIEW.json",
+      "status": "",
+      "blob": "6aa282d1b0c9ba66bf50a2fae80d3fa31c3ce71f",
+      "bytes": 8182,
+      "sha256": "359abfc4cb9567f84606211626e9e79fa85eb4c3b88d4fd24bdf39983bb08f48",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-ROUTING-CHECKS.json",
+      "status": "",
+      "blob": "0aaca12ea097a5ca239db3f7ccb4941806262973",
+      "bytes": 265076,
+      "sha256": "b210740b1cb015f39010ee7820c1b12098b2c66fa59d5c12c62198ba98daa8ea",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SOURCE-AUDIT.md",
+      "status": "",
+      "blob": "392a4d90ea0a6aad8113af8bb332ba7c5e4ed401",
+      "bytes": 15124,
+      "sha256": "e5c9c3f5c0979c8c8a7f93c0d5d201e6e2d8d682ebb861cb0361ed3b499cfd25",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SUMMARY.md",
+      "status": "",
+      "blob": "96347d74977f69b90d824988e3ebf97c45454cbc",
+      "bytes": 4463,
+      "sha256": "f1e0c31e4cafe080fe03cf9f0caeaa405fe692847ed4574381b9d82fd8c879ef",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.json",
+      "status": "",
+      "blob": "f72fe427578d2dc86e0e17bb354840dfc506c6c2",
+      "bytes": 1522,
+      "sha256": "3ade48364cd44794c897208088e5321d564cf3e8868158f05db5d0ee9e109722",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.log",
+      "status": "",
+      "blob": "5ded8fe0bcf5451531c21184294b1da1cb58844a",
+      "bytes": 770,
+      "sha256": "6b563fe47a157c9013413f5a62ddcc8bba5f6f6738220be56c0c787c46e88f5d",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-RED-REPLAY.json",
+      "status": "",
+      "blob": "b1d2b33b15c20d2ec36eeab0aacfd55bad0abeec",
+      "bytes": 98970,
+      "sha256": "6c13ca103ea4343a68303c1da1fcda4aaf0c0bed0fdb8812d25c9f64119a5b20",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN-VALIDATED.log",
+      "status": "",
+      "blob": "6f59ad113c0c77ecdbd2984051821e2fc9f57844",
+      "bytes": 556,
+      "sha256": "3c721029c14065676521c7f24d5b46160d7b400fee8912e706723f9dcd242a89",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN.log",
+      "status": "",
+      "blob": "2667358b4942245e156d221fb9bd2a3b7a982420",
+      "bytes": 556,
+      "sha256": "5a294a881f9f521935a30417fe43ff4a9ac07011a4076e907d381d6c23459f0a",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-RED.json",
+      "status": "",
+      "blob": "39489887b43f10b6b706a0d3a7a3547ef8f7c49e",
+      "bytes": 103911,
+      "sha256": "39299e34a4307e9999383edffeea5e82d281310e2b5df2a204d3f5cf0531f842",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log",
+      "status": "",
+      "blob": "7f97007e0bd82483a8a1c9c1923d54deb8773d42",
+      "bytes": 4647,
+      "sha256": "6864de43372cce91efb9b01ccc5404c6c72e20ee7ed791dd42b5c5b5ac1a39ab",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-VALIDATORS.json",
+      "status": "",
+      "blob": "0c8b8d41028b8ba47e485ebbd479bd30239366d8",
+      "bytes": 5297,
+      "sha256": "706d0351cf0a3af718e94ada37a92efe065e622bdd95995f01bbe6aa817c6083",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FIRST-FULL-FAILED.log",
+      "status": "",
+      "blob": "7c17272f9ecdac658723ee2cdf6eaeb15a180bc1",
+      "bytes": 7645,
+      "sha256": "901946f8435254be8a272436377b6ddd2549e2760657ef4773e6b7a69ff87b30",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-RED.log",
+      "status": "",
+      "blob": "5791bf2da224de37f3688c49890fce38908ead08",
+      "bytes": 1093,
+      "sha256": "62390104a8b4feeb6569e6a2da9b9acf87027474e3ee68942e6e8c2e73d4f856",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "status": "",
+      "blob": "4e0c893c12a62f16f3fd6e8d28cdb16673b4ea5e",
+      "bytes": 109840,
+      "sha256": "14b1aba3aceca988aaf201f25b8fc84995e5766cac7a36c600e46b4a087d10b5",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "status": "",
+      "blob": "31af056d676d6ff76942783e4295a98dda1048c8",
+      "bytes": 97649,
+      "sha256": "404a7dd7d30c60c25c742032db290e528eb03945bfb5de5beb5c87156b314677",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "",
+      "blob": "a60e547b2a78c24075bc9c3ed5cb03b83e4c6436",
+      "bytes": 89394,
+      "sha256": "dcfb3cce1a3c34385c21a5b715e81d5d4581764b435270b72a1921fdbefb77d7",
+      "readback_exact": true
+    }
+  ],
+  "ready_plans": [
+    "253-182"
+  ],
+  "acceptance_attempts": 0,
+  "phase_verification_status": "not_started",
+  "skipped_plans": [
+    {
+      "id": "253-08",
+      "blocked_by": [
+        "253-02",
+        "253-07"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-10",
+      "blocked_by": [
+        "253-09"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-105",
+      "blocked_by": [
+        "253-104",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-106",
+      "blocked_by": [
+        "253-104",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-105"
+      ]
+    },
+    {
+      "id": "253-114",
+      "blocked_by": [
+        "253-113",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-115",
+      "blocked_by": [
+        "253-113",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-114"
+      ]
+    },
+    {
+      "id": "253-123",
+      "blocked_by": [
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-124",
+      "blocked_by": [
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-123"
+      ]
+    },
+    {
+      "id": "253-13",
+      "blocked_by": [
+        "253-09",
+        "253-12"
+      ],
+      "unresolved_dependencies": [
+        "253-10"
+      ]
+    },
+    {
+      "id": "253-135",
+      "blocked_by": [
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-14",
+      "blocked_by": [
+        "253-09",
+        "253-12"
+      ],
+      "unresolved_dependencies": [
+        "253-13"
+      ]
+    },
+    {
+      "id": "253-144",
+      "blocked_by": [
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-145",
+      "blocked_by": [
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-144"
+      ]
+    },
+    {
+      "id": "253-147",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-148",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-147"
+      ]
+    },
+    {
+      "id": "253-149",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-148"
+      ]
+    },
+    {
+      "id": "253-150",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-149"
+      ]
+    },
+    {
+      "id": "253-151",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-150"
+      ]
+    },
+    {
+      "id": "253-152",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-150",
+        "253-151"
+      ]
+    },
+    {
+      "id": "253-153",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-152"
+      ]
+    },
+    {
+      "id": "253-154",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-153",
+        "253-151"
+      ]
+    },
+    {
+      "id": "253-156",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-157",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-156"
+      ]
+    },
+    {
+      "id": "253-158",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-157"
+      ]
+    },
+    {
+      "id": "253-159",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-158"
+      ]
+    },
+    {
+      "id": "253-160",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-159"
+      ]
+    },
+    {
+      "id": "253-161",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-159",
+        "253-160"
+      ]
+    },
+    {
+      "id": "253-162",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-161"
+      ]
+    },
+    {
+      "id": "253-163",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-162",
+        "253-160"
+      ]
+    },
+    {
+      "id": "253-168",
+      "blocked_by": [
+        "253-174"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-169",
+      "blocked_by": [
+        "253-174"
+      ],
+      "unresolved_dependencies": [
+        "253-168"
+      ]
+    },
+    {
+      "id": "253-17",
+      "blocked_by": [
+        "253-16"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-170",
+      "blocked_by": [
+        "253-174"
+      ],
+      "unresolved_dependencies": [
+        "253-168",
+        "253-169"
+      ]
+    },
+    {
+      "id": "253-171",
+      "blocked_by": [
+        "253-174"
+      ],
+      "unresolved_dependencies": [
+        "253-170"
+      ]
+    },
+    {
+      "id": "253-172",
+      "blocked_by": [
+        "253-174"
+      ],
+      "unresolved_dependencies": [
+        "253-171",
+        "253-169"
+      ]
+    },
+    {
+      "id": "253-176",
+      "blocked_by": [
+        "253-175"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-177",
+      "blocked_by": [
+        "253-175"
+      ],
+      "unresolved_dependencies": [
+        "253-176"
+      ]
+    },
+    {
+      "id": "253-179",
+      "blocked_by": [
+        "253-181"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-180",
+      "blocked_by": [
+        "253-181"
+      ],
+      "unresolved_dependencies": [
+        "253-179"
+      ]
+    },
+    {
+      "id": "253-21",
+      "blocked_by": [
+        "253-16"
+      ],
+      "unresolved_dependencies": [
+        "253-17"
+      ]
+    },
+    {
+      "id": "253-22",
+      "blocked_by": [
+        "253-16"
+      ],
+      "unresolved_dependencies": [
+        "253-21"
+      ]
+    },
+    {
+      "id": "253-23",
+      "blocked_by": [
+        "253-16"
+      ],
+      "unresolved_dependencies": [
+        "253-22"
+      ]
+    },
+    {
+      "id": "253-24",
+      "blocked_by": [
+        "253-16"
+      ],
+      "unresolved_dependencies": [
+        "253-23"
+      ]
+    },
+    {
+      "id": "253-25",
+      "blocked_by": [
+        "253-16"
+      ],
+      "unresolved_dependencies": [
+        "253-24"
+      ]
+    },
+    {
+      "id": "253-28",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-29",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": [
+        "253-28"
+      ]
+    },
+    {
+      "id": "253-30",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": [
+        "253-29"
+      ]
+    },
+    {
+      "id": "253-31",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": [
+        "253-30"
+      ]
+    },
+    {
+      "id": "253-32",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": [
+        "253-30"
+      ]
+    },
+    {
+      "id": "253-33",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": [
+        "253-32"
+      ]
+    },
+    {
+      "id": "253-34",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": [
+        "253-33",
+        "253-29"
+      ]
+    },
+    {
+      "id": "253-35",
+      "blocked_by": [
+        "253-27"
+      ],
+      "unresolved_dependencies": [
+        "253-34",
+        "253-31"
+      ]
+    },
+    {
+      "id": "253-41",
+      "blocked_by": [
+        "253-40"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-44",
+      "blocked_by": [
+        "253-40"
+      ],
+      "unresolved_dependencies": [
+        "253-41"
+      ]
+    },
+    {
+      "id": "253-45",
+      "blocked_by": [
+        "253-40"
+      ],
+      "unresolved_dependencies": [
+        "253-44"
+      ]
+    },
+    {
+      "id": "253-46",
+      "blocked_by": [
+        "253-40"
+      ],
+      "unresolved_dependencies": [
+        "253-45"
+      ]
+    },
+    {
+      "id": "253-47",
+      "blocked_by": [
+        "253-40"
+      ],
+      "unresolved_dependencies": [
+        "253-46"
+      ]
+    },
+    {
+      "id": "253-52",
+      "blocked_by": [
+        "253-51"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-53",
+      "blocked_by": [
+        "253-51"
+      ],
+      "unresolved_dependencies": [
+        "253-52"
+      ]
+    },
+    {
+      "id": "253-54",
+      "blocked_by": [
+        "253-51"
+      ],
+      "unresolved_dependencies": [
+        "253-53"
+      ]
+    },
+    {
+      "id": "253-55",
+      "blocked_by": [
+        "253-51"
+      ],
+      "unresolved_dependencies": [
+        "253-54"
+      ]
+    },
+    {
+      "id": "253-56",
+      "blocked_by": [
+        "253-51"
+      ],
+      "unresolved_dependencies": [
+        "253-55"
+      ]
+    },
+    {
+      "id": "253-64",
+      "blocked_by": [
+        "253-63"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-65",
+      "blocked_by": [
+        "253-63"
+      ],
+      "unresolved_dependencies": [
+        "253-64"
+      ]
+    },
+    {
+      "id": "253-66",
+      "blocked_by": [
+        "253-63"
+      ],
+      "unresolved_dependencies": [
+        "253-65"
+      ]
+    },
+    {
+      "id": "253-67",
+      "blocked_by": [
+        "253-63"
+      ],
+      "unresolved_dependencies": [
+        "253-66"
+      ]
+    },
+    {
+      "id": "253-68",
+      "blocked_by": [
+        "253-63"
+      ],
+      "unresolved_dependencies": [
+        "253-67"
+      ]
+    },
+    {
+      "id": "253-74",
+      "blocked_by": [
+        "253-73"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-75",
+      "blocked_by": [
+        "253-73"
+      ],
+      "unresolved_dependencies": [
+        "253-74"
+      ]
+    },
+    {
+      "id": "253-76",
+      "blocked_by": [
+        "253-73"
+      ],
+      "unresolved_dependencies": [
+        "253-75"
+      ]
+    },
+    {
+      "id": "253-77",
+      "blocked_by": [
+        "253-73"
+      ],
+      "unresolved_dependencies": [
+        "253-76"
+      ]
+    },
+    {
+      "id": "253-78",
+      "blocked_by": [
+        "253-73"
+      ],
+      "unresolved_dependencies": [
+        "253-77"
+      ]
+    },
+    {
+      "id": "253-85",
+      "blocked_by": [
+        "253-84"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-86",
+      "blocked_by": [
+        "253-84"
+      ],
+      "unresolved_dependencies": [
+        "253-85"
+      ]
+    },
+    {
+      "id": "253-87",
+      "blocked_by": [
+        "253-84"
+      ],
+      "unresolved_dependencies": [
+        "253-86"
+      ]
+    },
+    {
+      "id": "253-88",
+      "blocked_by": [
+        "253-84"
+      ],
+      "unresolved_dependencies": [
+        "253-87"
+      ]
+    },
+    {
+      "id": "253-93",
+      "blocked_by": [
+        "253-92",
+        "253-84"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-94",
+      "blocked_by": [
+        "253-92",
+        "253-84"
+      ],
+      "unresolved_dependencies": [
+        "253-93"
+      ]
+    },
+    {
+      "id": "253-98",
+      "blocked_by": [
+        "253-97",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": []
+    },
+    {
+      "id": "253-99",
+      "blocked_by": [
+        "253-97",
+        "253-84",
+        "253-92"
+      ],
+      "unresolved_dependencies": [
+        "253-98"
+      ]
+    }
+  ],
+  "input_index_path": "/private/tmp/sigra253-index-start.json"
+}

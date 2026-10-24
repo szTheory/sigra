@@ -1,0 +1,250 @@
+{
+  "schema_version": "sigra.canary-request-ledger/v1",
+  "limit": 120,
+  "requests": [
+    {
+      "sequence": 1,
+      "source": "parent preflight",
+      "endpoint": "GET /rate_limit",
+      "response": {
+        "resources": {
+          "core": {
+            "limit": 5000,
+            "used": 0,
+            "remaining": 5000,
+            "reset": 1791867469
+          },
+          "search": {
+            "limit": 30,
+            "used": 0,
+            "remaining": 30,
+            "reset": 1791863929
+          },
+          "graphql": {
+            "limit": 5000,
+            "used": 0,
+            "remaining": 5000,
+            "reset": 1791867469
+          },
+          "integration_manifest": {
+            "limit": 5000,
+            "used": 0,
+            "remaining": 5000,
+            "reset": 1791867469
+          },
+          "source_import": {
+            "limit": 100,
+            "used": 0,
+            "remaining": 100,
+            "reset": 1791863929
+          },
+          "code_scanning_autofix": {
+            "limit": 10,
+            "used": 0,
+            "remaining": 10,
+            "reset": 1791863929
+          },
+          "actions_runner_registration": {
+            "limit": 10000,
+            "used": 0,
+            "remaining": 10000,
+            "reset": 1791867469
+          },
+          "scim": {
+            "limit": 15000,
+            "used": 0,
+            "remaining": 15000,
+            "reset": 1791867469
+          },
+          "dependency_snapshots": {
+            "limit": 100,
+            "used": 0,
+            "remaining": 100,
+            "reset": 1791863929
+          },
+          "dependency_sbom": {
+            "limit": 100,
+            "used": 0,
+            "remaining": 100,
+            "reset": 1791863929
+          },
+          "audit_log": {
+            "limit": 1750,
+            "used": 0,
+            "remaining": 1750,
+            "reset": 1791867469
+          },
+          "audit_log_streaming": {
+            "limit": 15,
+            "used": 0,
+            "remaining": 15,
+            "reset": 1791867469
+          },
+          "code_search": {
+            "limit": 10,
+            "used": 0,
+            "remaining": 10,
+            "reset": 1791863929
+          },
+          "copilot_usage_records": {
+            "limit": 1750,
+            "used": 0,
+            "remaining": 1750,
+            "reset": 1791867469
+          },
+          "enterprise_token_inventory": {
+            "limit": 1750,
+            "used": 0,
+            "remaining": 1750,
+            "reset": 1791867469
+          }
+        },
+        "rate": {
+          "limit": 5000,
+          "used": 0,
+          "remaining": 5000,
+          "reset": 1791867469
+        }
+      }
+    },
+    {
+      "sequence": 2,
+      "source": "parent preflight",
+      "endpoint": "GET /repos/szTheory/sigra/rules/branches/main",
+      "response": [
+        {
+          "type": "deletion",
+          "ruleset_source_type": "Repository",
+          "ruleset_source": "szTheory/sigra",
+          "ruleset_id": 14941512
+        },
+        {
+          "type": "non_fast_forward",
+          "ruleset_source_type": "Repository",
+          "ruleset_source": "szTheory/sigra",
+          "ruleset_id": 14941512
+        },
+        {
+          "type": "pull_request",
+          "parameters": {
+            "required_approving_review_count": 0,
+            "dismiss_stale_reviews_on_push": false,
+            "required_reviewers": [],
+            "require_code_owner_review": false,
+            "require_last_push_approval": false,
+            "required_review_thread_resolution": true,
+            "require_extra_approval_for_unattributed_changes": true,
+            "allowed_merge_methods": [
+              "merge",
+              "squash",
+              "rebase"
+            ]
+          },
+          "ruleset_source_type": "Repository",
+          "ruleset_source": "szTheory/sigra",
+          "ruleset_id": 14941512
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "strict_required_status_checks_policy": true,
+            "do_not_enforce_on_create": false,
+            "required_status_checks": [
+              {
+                "context": "Library tests"
+              },
+              {
+                "context": "Example unit smoke (ExUnit + ConnTest)"
+              },
+              {
+                "context": "Install smoke (fresh phx.new + sigra.install)"
+              },
+              {
+                "context": "Example HTTP smoke (boot + curl critical routes)"
+              },
+              {
+                "context": "Example Playwright smoke (full lifecycle)"
+              }
+            ]
+          },
+          "ruleset_source_type": "Repository",
+          "ruleset_source": "szTheory/sigra",
+          "ruleset_id": 14941512
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "source": "parent preflight",
+      "endpoint": "GET /repos/szTheory/sigra/actions/workflows/ci.yml",
+      "response": {
+        "id": 259268962,
+        "node_id": "W_kwDOR_jMxM4PdCFi",
+        "name": "CI",
+        "path": ".github/workflows/ci.yml",
+        "state": "active",
+        "created_at": "2026-04-10T22:14:35.000-04:00",
+        "updated_at": "2026-04-10T22:14:35.000-04:00",
+        "url": "https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962",
+        "html_url": "https://github.com/szTheory/sigra/blob/main/.github/workflows/ci.yml",
+        "badge_url": "https://github.com/szTheory/sigra/workflows/CI/badge.svg"
+      }
+    },
+    {
+      "sequence": 4,
+      "endpoint": "create-only push 19e66df3c7869cc52b4662ae8d0e3b0ee2ec3c6f to refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+      "kind": "observed",
+      "reserved_calls": 0
+    },
+    {
+      "sequence": 5,
+      "endpoint": "read back exact scoped ref refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+      "kind": "observed",
+      "reserved_calls": 0
+    },
+    {
+      "sequence": 6,
+      "endpoint": "dispatch scenario=full-pass ref=gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+      "kind": "observed",
+      "reserved_calls": 0
+    },
+    {
+      "sequence": 7,
+      "endpoint": "GET actions/workflows/259268962/runs?event=workflow_dispatch&branch=gsd/253-gate-canary-fixture-20261013T044113Z-67104&per_page=100",
+      "kind": "observed",
+      "reserved_calls": 0
+    },
+    {
+      "sequence": 8,
+      "endpoint": "GET rate_limit",
+      "kind": "observed",
+      "reserved_calls": 0
+    },
+    {
+      "sequence": 9,
+      "endpoint": "gh run watch 38347679431 --interval 60 (full-pass)",
+      "kind": "reserved",
+      "reserved_calls": 8
+    },
+    {
+      "sequence": 10,
+      "endpoint": "GET actions/runs/38347679431",
+      "kind": "observed",
+      "reserved_calls": 0
+    },
+    {
+      "sequence": 11,
+      "endpoint": "GET actions/runs/38347679431/jobs?per_page=100",
+      "kind": "observed",
+      "reserved_calls": 0
+    },
+    {
+      "sequence": 12,
+      "endpoint": "gh run view 38347679431 --log-failed",
+      "kind": "reserved",
+      "reserved_calls": 2
+    }
+  ],
+  "watch_request_reservation_per_run": 8,
+  "redirect_reservation_per_artifact_download": 2
+}

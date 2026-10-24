@@ -1,0 +1,19 @@
+{
+  "state": {
+    "status": "halted",
+    "stage": "closed",
+    "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
+    "approval_sha256": "91289ea48f5f957d351001d859f30acdda870a69088dcd3423492ca7dec4e28d",
+    "started_epoch": 1792685688,
+    "publication_started_epoch": 1792685688,
+    "publication_allocation_sha256": "8e4dc085d37017600ed43d51f8e95738795a9a033aeed1e537ceddeafe8dc2d8",
+    "commands": 2,
+    "stop": "command failed: -B: ci-hosted-transport: preservation_failed: could not anchor the prior dirty ledger\n",
+    "completed_epoch": 1792685689
+  },
+  "reruns": 0,
+  "artifacts": {
+    "publication-request-1-receipt.json": "4cd2d3982338d83937edf431938ecf97a8ab0b31023a927b982887a4181567ee",
+    "publication-ledger.json": "35082c5a740fda793af21ddbbf12b75a53a7c4dba78422e879b7086fe6b0eba6"
+  }
+}

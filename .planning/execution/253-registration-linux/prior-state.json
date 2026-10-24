@@ -1,0 +1,31 @@
+{
+  "prior_commit": "00ff43c52adf104241ce9ef6c06a7c4931cc74d7",
+  "paths": {
+    ".planning/STATE.md": {
+      "sha256": "1328c15f2c899b7454b801e3f54a1e2b4fe2eb50223164f9cf76eb588e2eeb83",
+      "readback_equal": true,
+      "capture_status": "clean"
+    },
+    ".planning/state.json": {
+      "sha256": "dbc0cb06ec7dd47758d5bf02d8b860f3eaa396e86e8760c977e1c40c8948cf23",
+      "readback_equal": true,
+      "capture_status": "clean"
+    },
+    ".planning/HANDOFF.json": {
+      "sha256": "01aa5a2b527a77c88d84abfc4ecfe15ba7bb51138c52cb23fef1372372a42392",
+      "readback_equal": true,
+      "capture_status": "clean"
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "sha256": "a0feb4830d35cabc4ebe65b90484d50c2deee03482572dcdf80e66eadaa98cfc",
+      "readback_equal": true,
+      "capture_status": "clean"
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+      "sha256": "d5bbc879989717a48496070baa31008908637975b26963348a0f89aec86332ae",
+      "readback_equal": true,
+      "capture_status": "clean"
+    }
+  },
+  "captured_before_shared_state_updates": true
+}

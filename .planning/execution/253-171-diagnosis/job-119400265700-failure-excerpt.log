@@ -1,0 +1,59 @@
+994: 2026-10-21T18:17:44.5752953Z ##[group]Run bash scripts/ci/ci-run-metrics.test.sh
+995: 2026-10-21T18:17:44.5753352Z [36;1mbash scripts/ci/ci-run-metrics.test.sh[0m
+996: 2026-10-21T18:17:44.5801928Z shell: /usr/bin/bash -e {0}
+997: 2026-10-21T18:17:44.5802181Z ##[endgroup]
+998: 2026-10-21T18:17:44.5944251Z Test A/B/C: --jobs <id> emits a per-job table; 1053s/17m33s failure row not filtered; negative duration clamped to 0
+999: 2026-10-21T18:17:44.6504995Z   PASS: table row present for failing job at 1053s/17m33s; negative duration clamped to 0s (exit 0)
+1000: 2026-10-21T18:17:44.6505982Z Test D: unknown flag -> exit 2, ci-run-metrics: FAIL: unknown arg, ZERO gh invocations
+1001: 2026-10-21T18:17:44.6592770Z   PASS: exit 2, correct message, zero gh calls (fail-closed before any gh invocation)
+1002: 2026-10-21T18:17:44.6593991Z Test E: gh absent from PATH -> non-zero exit, ci-run-metrics: FAIL: message
+1003: 2026-10-21T18:17:44.9206885Z   PASS: exit non-zero (1), FAIL message, no partial stdout
+1004: 2026-10-21T18:17:44.9207560Z Test F: gh exits non-zero -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+1005: 2026-10-21T18:17:44.9374731Z   PASS: exit non-zero (1) on gh failure, no partial table emitted
+1006: 2026-10-21T18:17:44.9375628Z Test G: empty job list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+1007: 2026-10-21T18:17:44.9571834Z   PASS: exit non-zero (1) on empty job list, no partial table emitted
+1008: 2026-10-21T18:17:44.9572518Z Test H: --format json emits valid JSON; failure-conclusion job present; negative duration clamped
+1009: 2026-10-21T18:17:44.9996661Z   PASS: --format json valid, duration/clamp/no-filter semantics match table mode
+1010: 2026-10-21T18:17:44.9998478Z Test I/J: window --mode wall table header, per-trigger n/mean/p50/max/outcomes, negative clamp
+1011: 2026-10-21T18:17:45.0555241Z   PASS: exact header + odd(n=5)/even(n=4) p50 index rule + negative-duration clamp all correct (exit 0)
+1012: 2026-10-21T18:17:45.0556351Z Test K: --mode jobspan produces a strictly smaller mean than --mode wall on the identical canned window
+1013: 2026-10-21T18:17:45.2585800Z   PASS: jobspan mean (160s) strictly less than wall mean (180s) on the same window
+1014: 2026-10-21T18:17:45.2586499Z Test L: empty run list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+1015: 2026-10-21T18:17:45.2788591Z   PASS: exit non-zero (1) on empty run list, no partial table emitted
+1016: 2026-10-21T18:17:45.2794694Z 
+1017: 2026-10-21T18:17:45.2794889Z ----------------------------------------
+1018: 2026-10-21T18:17:45.3646866Z test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract.test_archived_test_z_preserves_red_and_passing_test_d) ... FAIL
+1019: 2026-10-21T18:17:45.3660278Z test_changed_archive_fails_closed_with_saved_diagnostic (__main__.DiagnosisContract.test_changed_archive_fails_closed_with_saved_diagnostic) ... ERROR
+1020: 2026-10-21T18:17:45.3881398Z test_late_failure_context_and_incomplete_inputs (__main__.DiagnosisContract.test_late_failure_context_and_incomplete_inputs) ... ok
+1021: 2026-10-21T18:17:45.3882306Z 
+1022: 2026-10-21T18:17:45.3882523Z ======================================================================
+1023: 2026-10-21T18:17:45.3883700Z ERROR: test_changed_archive_fails_closed_with_saved_diagnostic (__main__.DiagnosisContract.test_changed_archive_fails_closed_with_saved_diagnostic)
+1024: 2026-10-21T18:17:45.3885093Z ----------------------------------------------------------------------
+1025: 2026-10-21T18:17:45.3885683Z Traceback (most recent call last):
+1026: 2026-10-21T18:17:45.3886344Z   File "<stdin>", line 29, in test_changed_archive_fails_closed_with_saved_diagnostic
+1027: 2026-10-21T18:17:45.3887196Z   File "/usr/lib/python3.12/pathlib.py", line 1021, in read_bytes
+1028: 2026-10-21T18:17:45.3887818Z     with self.open(mode='rb') as f:
+1029: 2026-10-21T18:17:45.3888255Z          ^^^^^^^^^^^^^^^^^^^^
+1030: 2026-10-21T18:17:45.3888755Z   File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+1031: 2026-10-21T18:17:45.3889551Z     return io.open(self, mode, buffering, encoding, errors, newline)
+1032: 2026-10-21T18:17:45.3890226Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1033: 2026-10-21T18:17:45.3891883Z FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/sigra/sigra/.planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz'
+1034: 2026-10-21T18:17:45.3892908Z 
+1035: 2026-10-21T18:17:45.3893116Z ======================================================================
+1036: 2026-10-21T18:17:45.3894520Z FAIL: test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract.test_archived_test_z_preserves_red_and_passing_test_d)
+1037: 2026-10-21T18:17:45.3895802Z ----------------------------------------------------------------------
+1038: 2026-10-21T18:17:45.3896385Z Traceback (most recent call last):
+1039: 2026-10-21T18:17:45.3896993Z   File "<stdin>", line 42, in test_archived_test_z_preserves_red_and_passing_test_d
+1040: 2026-10-21T18:17:45.3898347Z AssertionError: 1 != 0 : saved-family diagnosis must succeed: ci-run-metrics: FAIL: --diagnose-v1 requires archived --source-bundle, --baseline and --output
+1041: 2026-10-21T18:17:45.3899248Z 
+1042: 2026-10-21T18:17:45.3899254Z 
+1043: 2026-10-21T18:17:45.3899478Z ----------------------------------------------------------------------
+1044: 2026-10-21T18:17:45.3899946Z Ran 3 tests in 0.033s
+1045: 2026-10-21T18:17:45.3900177Z 
+1046: 2026-10-21T18:17:45.3900341Z FAILED (failures=1, errors=1)
+1047: 2026-10-21T18:17:45.3963294Z   FAIL: Versioned diagnosis consumes the saved native family
+1048: 2026-10-21T18:17:45.3964079Z Results: 9 passed, 1 failed
+1049: 2026-10-21T18:17:45.3964506Z ----------------------------------------
+1050: 2026-10-21T18:17:45.3965247Z ci-run-metrics.test: FAIL
+1051: 2026-10-21T18:17:45.3999112Z ##[error]Process completed with exit code 1.
+1052: 2026-10-21T18:17:45.4169550Z Post job cleanup.

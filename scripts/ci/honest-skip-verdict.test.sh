@@ -7,7 +7,7 @@
 # stub at all -- unlike ci-demotion-observer.test.sh's recording `gh` stub.
 #
 # Test cases:
-#   A: shipped manifest, pull_request, all nine lanes success -> exit 0.
+#   A: shipped manifest, pull_request, all ten lanes success -> exit 0.
 #   B: upgrade_smoke skipped on pull_request -> exit 0, reported as a
 #      legitimate event-gated skip.
 #   C: upgrade_smoke skipped on push -> exit 1, reason names the lane AND
@@ -56,6 +56,74 @@ SCRIPT="${SCRIPT_DIR}/honest-skip-verdict.sh"
 REAL_MANIFEST="$(cd "${SCRIPT_DIR}/../.." && pwd)/.github/ci-skip-manifest.tsv"
 REAL_WORKFLOW="$(cd "${SCRIPT_DIR}/../.." && pwd)/.github/workflows/ci.yml"
 
+unit_contract() {
+python3 - "$SCRIPT" "$REAL_WORKFLOW" <<'PY'
+import json, pathlib, subprocess, sys, tempfile, unittest
+script, workflow = sys.argv[1:]
+lanes = 'install_golden_contract library_tests library_tests_dep_off example_unit_smoke install_smoke upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke generated_admin_playwright_smoke fast_checks'.split()
+class UnitOwner(unittest.TestCase):
+    def invoke(self, unit, path=workflow):
+        args = ['bash', script, '--workflow', path, '--event', 'pull_request', '--docs-only', 'true',
+                '--classifier-result', 'success', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'='+ (unit if lane == 'example_unit_smoke' else 'success')]
+        return subprocess.run(args, text=True, capture_output=True)
+
+    def test_unit_body_omission_cannot_produce_green(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory)/'ci.yml'
+            source = pathlib.Path(workflow).read_text()
+            line = '            --lane example_unit_smoke="${EXAMPLE_UNIT_SMOKE}" \\\n'
+            self.assertIn(line, source)
+            path.write_text(source.replace(line, ''))
+            result = self.invoke('success', str(path))
+            self.assertNotEqual(result.returncode, 0, 'a dropped unit-result argument must fail ownership parity')
+            self.assertIn('example_unit_smoke', result.stderr)
+
+    def test_unit_negative_outcomes_are_preserved(self):
+        for outcome in ('failure', 'cancelled', 'skipped', ''):
+            with self.subTest(outcome=outcome):
+                result = self.invoke(outcome)
+                self.assertNotEqual(result.returncode, 0)
+                row = next(r for r in json.loads(result.stdout)['lanes'] if r['id']=='example_unit_smoke')
+                self.assertEqual(row['result'], outcome)
+                self.assertEqual(row['verdict'], 'FAIL')
+
+    def test_unit_result_is_owned_by_actual_verdict(self):
+        args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'false', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'=success']
+        result = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('example_unit_smoke', [r['id'] for r in json.loads(result.stdout)['lanes']])
+        omitted_args = args[:10]
+        for lane in lanes:
+            if lane != 'example_unit_smoke': omitted_args += ['--lane', lane+'=success']
+        omitted = subprocess.run(omitted_args, text=True, capture_output=True)
+        self.assertNotEqual(omitted.returncode, 0)
+
+    def test_classifier_failure_cannot_authorize_docs_only_skips(self):
+        args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'true',
+                '--classifier-result', 'failure', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'=success']
+        result = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        verdict = json.loads(result.stdout)
+        self.assertEqual(verdict['verdict'], 'FAIL')
+        self.assertEqual(verdict['docs_only'], 'false')
+
+    def test_classifier_success_keeps_docs_only_pull_request_eligible(self):
+        args = ['bash', script, '--workflow', workflow, '--event', 'pull_request', '--docs-only', 'true',
+                '--classifier-result', 'success', '--format', 'json']
+        for lane in lanes: args += ['--lane', lane+'=success']
+        result = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        verdict = json.loads(result.stdout)
+        self.assertEqual(verdict['verdict'], 'PASS')
+        self.assertEqual(verdict['docs_only'], 'true')
+unittest.main(argv=[sys.argv[0]], verbosity=2)
+PY
+}
+if [[ "${1:-}" == --unit-contract ]]; then unit_contract; exit $?; fi
+
 if [[ ! -f "$SCRIPT" ]]; then
   echo "FATAL: script not found at ${SCRIPT}" >&2
   exit 2
@@ -91,6 +159,7 @@ BASE_LANE_JSON='{
   "install_smoke": "success",
   "upgrade_smoke": "success",
   "example_http_smoke": "success",
+  "example_unit_smoke": "success",
   "example_playwright_smoke": "success",
   "generated_admin_playwright_smoke": "success",
   "fast_checks": "success"
@@ -115,8 +184,8 @@ run_verdict_rc() {
   echo "$rc"
 }
 
-# ---- A: shipped manifest, pull_request, all nine success -> exit 0 --------
-echo "Test A: all nine lanes success on pull_request -> exit 0"
+# ---- A: shipped manifest, pull_request, all ten success -> exit 0 --------
+echo "Test A: all ten lanes success on pull_request -> exit 0"
 OUT_A="$(run_verdict "$BASE_LANE_JSON" --event pull_request --docs-only false)"
 RC_A="$(run_verdict_rc "$BASE_LANE_JSON" --event pull_request --docs-only false)"
 if [[ "$RC_A" -eq 0 ]] && ! grep -q "^  FAIL " <<<"$OUT_A"; then
@@ -215,7 +284,7 @@ fi
 echo "Test J: every lane result empty -> exit 1 (broken wiring, never a pass)"
 EMPTY_LANE_JSON='{
   "install_golden_contract": "", "library_tests": "", "library_tests_dep_off": "",
-  "install_smoke": "", "upgrade_smoke": "", "example_http_smoke": "",
+  "example_unit_smoke": "", "install_smoke": "", "upgrade_smoke": "", "example_http_smoke": "",
   "example_playwright_smoke": "", "generated_admin_playwright_smoke": "", "fast_checks": ""
 }'
 OUT_J="$(run_verdict "$EMPTY_LANE_JSON" --event pull_request --docs-only false)"
@@ -299,7 +368,7 @@ else
 fi
 
 # ---- P: --format json parses, one lane entry per lane + top-level verdict -
-echo "Test P: --format json parses with 9 lane entries and a top-level verdict"
+echo "Test P: --format json parses with 10 lane entries and a top-level verdict"
 printf '%s' "$BASE_LANE_JSON" > "$PAYLOAD_FILE"
 set +e
 OUT_P="$(bash "$SCRIPT" --manifest "$REAL_MANIFEST" --workflow "$REAL_WORKFLOW" \
@@ -307,8 +376,8 @@ OUT_P="$(bash "$SCRIPT" --manifest "$REAL_MANIFEST" --workflow "$REAL_WORKFLOW" 
 RC_P=$?
 set -e
 if [[ "$RC_P" -eq 0 ]] \
-   && jq -e '(.lanes | length) == 9 and .verdict == "PASS"' >/dev/null 2>&1 <<<"$OUT_P"; then
-  pass "P: valid JSON, 9 lane entries, top-level verdict PASS"
+   && jq -e '(.lanes | length) == 10 and .verdict == "PASS"' >/dev/null 2>&1 <<<"$OUT_P"; then
+  pass "P: valid JSON, 10 lane entries, top-level verdict PASS"
 else
   fail "P: rc=${RC_P}, output: ${OUT_P}"
 fi
@@ -325,7 +394,7 @@ if [[ -z "$SHIPPED_MANIFEST_IDS" ]]; then
   fail "Q: manifest extraction yielded nothing -- the parse broke, this is not a pass"
 else
   LANE_SET=(install_golden_contract library_tests library_tests_dep_off install_smoke \
-    upgrade_smoke example_http_smoke example_playwright_smoke \
+    upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke \
     generated_admin_playwright_smoke fast_checks)
   HIT=0
   for id in "${LANE_SET[@]}"; do
@@ -361,7 +430,7 @@ if [[ -z "$SHIPPED_NEEDS" ]]; then
   fail "R: could not extract any ci-gate needs: entries -- the parse broke, this is not a pass"
 else
   LANE_SET=(install_golden_contract library_tests library_tests_dep_off install_smoke \
-    upgrade_smoke example_http_smoke example_playwright_smoke \
+    upgrade_smoke example_unit_smoke example_http_smoke example_playwright_smoke \
     generated_admin_playwright_smoke fast_checks)
   MISMATCH=""
   while IFS= read -r need; do
@@ -397,6 +466,7 @@ jobs:
       - install_smoke
       - upgrade_smoke
       - example_http_smoke
+      - example_unit_smoke
       - example_playwright_smoke
       - fast_checks
     if: always()
@@ -430,16 +500,18 @@ else
   LEGACY_LINE="$(grep -n '^      - name: Verify required release CI lanes$' <<<"$CI_GATE_BLOCK" | head -1 | cut -d: -f1)"
   INVOKES_SCRIPT="$(grep -c 'honest-skip-verdict\.sh' <<<"$CI_GATE_BLOCK" || true)"
   HAS_DOCS_ONLY="$(grep -c 'DOCS_ONLY:' <<<"$CI_GATE_BLOCK" || true)"
+  HAS_CLASSIFIER_RESULT="$(grep -c 'CLASSIFIER_RESULT:' <<<"$CI_GATE_BLOCK" || true)"
   HAS_EVENT_NAME="$(grep -c 'EVENT_NAME:' <<<"$CI_GATE_BLOCK" || true)"
   HAS_PROBE="$(grep -c 'FORCE_ROT_PROBE:' <<<"$CI_GATE_BLOCK" || true)"
   if [[ -n "$VERDICT_LINE" && -n "$LEGACY_LINE" && "$VERDICT_LINE" -lt "$LEGACY_LINE" \
-        && "$INVOKES_SCRIPT" -ge 1 && "$HAS_DOCS_ONLY" -ge 1 && "$HAS_EVENT_NAME" -ge 1 && "$HAS_PROBE" -ge 1 ]]; then
+        && "$INVOKES_SCRIPT" -ge 1 && "$HAS_DOCS_ONLY" -ge 1 && "$HAS_CLASSIFIER_RESULT" -ge 1 && "$HAS_EVENT_NAME" -ge 1 && "$HAS_PROBE" -ge 1 ]]; then
     pass "T: ci-gate invokes honest-skip-verdict.sh before the legacy loop, env carries docs-only/event-name/probe keys"
   else
-    fail "T: verdict_line=${VERDICT_LINE:-<missing>} legacy_line=${LEGACY_LINE:-<missing>} invokes=${INVOKES_SCRIPT:-0} docs_only=${HAS_DOCS_ONLY:-0} event_name=${HAS_EVENT_NAME:-0} probe=${HAS_PROBE:-0}"
+    fail "T: verdict_line=${VERDICT_LINE:-<missing>} legacy_line=${LEGACY_LINE:-<missing>} invokes=${INVOKES_SCRIPT:-0} docs_only=${HAS_DOCS_ONLY:-0} classifier_result=${HAS_CLASSIFIER_RESULT:-0} event_name=${HAS_EVENT_NAME:-0} probe=${HAS_PROBE:-0}"
   fi
 fi
 
+if unit_contract; then pass "Unit owner actual verdict"; else fail "Unit owner actual verdict"; fi
 echo "Results: ${PASS} passed, ${FAIL} failed"
 if [[ "$FAIL" -gt 0 ]]; then
   echo "honest-skip-verdict.test: FAIL"

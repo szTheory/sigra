@@ -1,0 +1,18 @@
+Error: require() of ES Module /Users/jon/projects/sigra/test/example/priv/playwright/node_modules/parse5/dist/index.js from /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts not supported.
+Instead change the require of index.js in /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts to a dynamic import() which is available in all CommonJS modules.
+
+   at ../lib/eval/canonicalize.ts:7
+
+   5 |  *  - Stripping ALL volatile per-request attrs (data-phx-*, phx-*, nonce, integrity, id)
+   6 |  *  - Allowlist-keeping only semantic attrs: type, name, role, aria-label, alt, data-testid
+>  7 |  *  - Keeping href (with ?vsn= and 32-hex digest fingerprints stripped)
+     |              ^
+   8 |  *  - Keeping class (tokens sorted)
+   9 |  *  - Sorting all remaining attrs by name
+  10 |  *  - Normalizing text: collapsing whitespace runs, dropping whitespace-only nodes
+    at Object.<anonymous> (/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts:7:14)
+    at Object.<anonymous> (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:10:21)
+Error: No tests found.
+Make sure that arguments are regular expressions matching test files.
+You may need to escape symbols like "$" or "*" and quote the arguments.
+

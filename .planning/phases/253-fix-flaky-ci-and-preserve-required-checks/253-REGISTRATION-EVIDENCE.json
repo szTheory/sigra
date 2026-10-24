@@ -1,0 +1,121 @@
+{
+  "schema_version": "sigra.phase253.registration-evidence/v1",
+  "status": "diagnosis_incomplete",
+  "source": {
+    "checkoutHead": "de53d1c80f4a67b73a5e5078959c2c88ad75abe8",
+    "helperBlob": "6540493e78121f134867445dffc7010afcd85815",
+    "workflowBlob": "dcc36d0df055f9b11f4de36252cb6b3d0f6c8c85",
+    "executionCheckoutHead": "de53d1c80f4a67b73a5e5078959c2c88ad75abe8"
+  },
+  "startedAt": "2026-10-13T03:26:08.709Z",
+  "projects": [
+    {
+      "project": "admin-eval",
+      "testStatus": "not_started",
+      "originalOutcome": "not_run",
+      "serverReady": false,
+      "blocker": "The isolated runner did not reach a stable HTTP-ready server; no Playwright command ran.",
+      "selectedTest": "render bundle: board-mg-9/populated",
+      "retries": 0
+    },
+    {
+      "project": "admin-eval-mobile",
+      "testStatus": "not_started",
+      "originalOutcome": "not_run",
+      "serverReady": false,
+      "blocker": "The isolated runner did not reach a stable HTTP-ready server; no Playwright command ran.",
+      "selectedTest": "render bundle: board-mg-9/populated",
+      "retries": 0
+    },
+    {
+      "project": "admin-eval-dark",
+      "testStatus": "not_started",
+      "originalOutcome": "not_run",
+      "serverReady": false,
+      "blocker": "The isolated runner did not reach a stable HTTP-ready server; no Playwright command ran.",
+      "selectedTest": "render bundle: board-mg-9/populated",
+      "retries": 0
+    }
+  ],
+  "controls": {
+    "status": "not_run",
+    "readiness": "not_run",
+    "stateCollision": "not_run",
+    "trace": "not_run"
+  },
+  "attempts": [
+    {
+      "kind": "setup",
+      "outcome": "failed",
+      "cause": "Hex attempted to persist registry cache under the read-only global cache; corrected with a scoped temporary HEX_HOME.",
+      "browserInvocation": false
+    },
+    {
+      "kind": "runner",
+      "outcome": "failed",
+      "cause": "mix deps output pipe closed early by awk exit; corrected by consuming full output.",
+      "browserInvocation": false
+    },
+    {
+      "kind": "infrastructure",
+      "outcome": "failed",
+      "cause": "Launcher process ownership and a shared build compiled with a different PORT prevented HTTP readiness; scoped infrastructure retry followed.",
+      "browserInvocation": false
+    },
+    {
+      "kind": "infrastructure_retry",
+      "outcome": "failed",
+      "cause": "Per-project MIX_BUILD_PATH omitted JOSE include artifact during dependency compilation.",
+      "browserInvocation": false
+    }
+  ],
+  "limits": {
+    "maxInvocations": 10,
+    "maxMinutesPerSignature": 20,
+    "maxMinutesTotal": 60,
+    "browserInvocations": 0,
+    "setupAttempts": 4,
+    "infrastructureRetries": 1,
+    "limitExceeded": false
+  },
+  "completedAt": "2026-10-13T03:27:59.952Z",
+  "durationSeconds": 0,
+  "toolchain": {
+    "node": "26.10.0",
+    "npm": "11.19.1",
+    "docker": "29.5.2",
+    "elixir": "1.19.5",
+    "playwright": "1.59.1",
+    "ectoSql": "3.13.5",
+    "phoenixLiveView": "1.1.28",
+    "playwrightRestore": "npm ci completed from existing package-lock.json in temporary checkout"
+  },
+  "historical": {
+    "runIds": [
+      38139851334,
+      38141796613,
+      38205503164
+    ],
+    "jobOutcomes": [
+      "failure",
+      "failure",
+      "failure"
+    ],
+    "selectedTestOutcome": {
+      "project": "admin-eval-dark",
+      "test": "board-mg-9/populated",
+      "outcome": "failure",
+      "rootCause": "unknown"
+    },
+    "evidenceSource": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json and 253-DIAGNOSIS.json"
+  },
+  "requirements": {
+    "CIREL-01": "unsatisfied"
+  },
+  "diagnosis": {
+    "status": "diagnosis_incomplete",
+    "cause": "unknown",
+    "claim": "No browser invocation ran, so this work does not reproduce or explain the historical registration failure.",
+    "nextEvidenceNeeded": "Run the frozen three-project selection after repairing the isolated Mix/app launcher; retain browser test output and first-failure trace."
+  }
+}

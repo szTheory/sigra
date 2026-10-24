@@ -1,0 +1,1713 @@
+﻿2026-10-22T02:32:01.1692003Z Current runner version: '2.338.0'
+2026-10-22T02:32:01.1719364Z ##[group]Runner Image Provisioner
+2026-10-22T02:32:01.1720263Z Hosted Compute Agent
+2026-10-22T02:32:01.1721014Z Version: 20261012.601
+2026-10-22T02:32:01.1721699Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-22T02:32:01.1722514Z Build Date: 2026-10-12T17:48:21Z
+2026-10-22T02:32:01.1723290Z Worker ID: {b7d940e5-20e6-4a86-8f26-c648f2ebeeb1}
+2026-10-22T02:32:01.1724172Z Region: westcentralus
+2026-10-22T02:32:01.1724755Z Cloud: Azure
+2026-10-22T02:32:01.1725427Z ##[endgroup]
+2026-10-22T02:32:01.1727169Z ##[group]Operating System
+2026-10-22T02:32:01.1727907Z Ubuntu
+2026-10-22T02:32:01.1728489Z 24.04.5
+2026-10-22T02:32:01.1729050Z LTS
+2026-10-22T02:32:01.1729668Z ##[endgroup]
+2026-10-22T02:32:01.1730308Z ##[group]Runner Image
+2026-10-22T02:32:01.1730979Z Image: ubuntu-24.04
+2026-10-22T02:32:01.1731596Z Version: 20261012.334.1
+2026-10-22T02:32:01.1732977Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-22T02:32:01.1734601Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-22T02:32:01.1735639Z ##[endgroup]
+2026-10-22T02:32:01.1737075Z ##[group]GITHUB_TOKEN Permissions
+2026-10-22T02:32:01.1739146Z Contents: read
+2026-10-22T02:32:01.1739834Z Metadata: read
+2026-10-22T02:32:01.1740474Z ##[endgroup]
+2026-10-22T02:32:01.1742810Z Secret source: Actions
+2026-10-22T02:32:01.1743835Z Cache mode: write
+2026-10-22T02:32:01.1745038Z Prepare workflow directory
+2026-10-22T02:32:01.2226544Z Prepare all required actions
+2026-10-22T02:32:01.2276477Z Getting action download info
+2026-10-22T02:32:01.5205879Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-22T02:32:01.6218801Z Download action repository 'erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124' (SHA:54075bcc5e249e4758d363f27d099f55d843f124)
+2026-10-22T02:32:02.1922096Z Download action repository 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9' (SHA:55cc8345863c7cc4c66a329aec7e433d2d1c52a9)
+2026-10-22T02:32:02.3034456Z Download action repository 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+2026-10-22T02:32:02.5691455Z Complete job name: Library tests shard
+2026-10-22T02:32:02.6278706Z ##[group]Checking docker version
+2026-10-22T02:32:02.6292678Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-10-22T02:32:02.7150015Z '1.48'
+2026-10-22T02:32:02.7159127Z Docker daemon API version: '1.48'
+2026-10-22T02:32:02.7160315Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-10-22T02:32:02.7329069Z '1.48'
+2026-10-22T02:32:02.7344399Z Docker client API version: '1.48'
+2026-10-22T02:32:02.7350385Z ##[endgroup]
+2026-10-22T02:32:02.7353747Z ##[group]Clean up resources from previous jobs
+2026-10-22T02:32:02.7360132Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=dcd477"
+2026-10-22T02:32:02.7514337Z ##[command]/usr/bin/docker network prune --force --filter "label=dcd477"
+2026-10-22T02:32:02.7653042Z ##[endgroup]
+2026-10-22T02:32:02.7653774Z ##[group]Create local container network
+2026-10-22T02:32:02.7665601Z ##[command]/usr/bin/docker network create --label dcd477 github_network_3124ca6535cd4cfea18ebde672fdafc8
+2026-10-22T02:32:02.8233768Z a3e24a9bfa31aa02c6fab93ad8374c70f57b3d9b6ad59bad8db790367825aad2
+2026-10-22T02:32:02.8256998Z ##[endgroup]
+2026-10-22T02:32:02.8282632Z ##[group]Starting postgres service container
+2026-10-22T02:32:02.8305128Z ##[command]/usr/bin/docker pull postgres:15
+2026-10-22T02:32:03.5570626Z 15: Pulling from library/postgres
+2026-10-22T02:32:03.7670822Z f2be67225471: Pulling fs layer
+2026-10-22T02:32:03.7674381Z e0428ef87eb8: Pulling fs layer
+2026-10-22T02:32:03.7676470Z c9b382b1f732: Pulling fs layer
+2026-10-22T02:32:03.7678033Z 0f6d195ee345: Pulling fs layer
+2026-10-22T02:32:03.7679734Z d1b142a2d3ac: Pulling fs layer
+2026-10-22T02:32:03.7681863Z 2ab475e318db: Pulling fs layer
+2026-10-22T02:32:03.7683445Z bee16f784947: Pulling fs layer
+2026-10-22T02:32:03.7685140Z 633cb7982454: Pulling fs layer
+2026-10-22T02:32:03.7687104Z bf5dc03c5433: Pulling fs layer
+2026-10-22T02:32:03.7688823Z 426e36b5695b: Pulling fs layer
+2026-10-22T02:32:03.7690487Z 8a5ff7b733f5: Pulling fs layer
+2026-10-22T02:32:03.7692207Z 09018b22bca2: Pulling fs layer
+2026-10-22T02:32:03.7693938Z bd451b9fde8d: Pulling fs layer
+2026-10-22T02:32:03.7695169Z ee1936713636: Pulling fs layer
+2026-10-22T02:32:03.7696613Z 0f6d195ee345: Waiting
+2026-10-22T02:32:03.7697992Z d1b142a2d3ac: Waiting
+2026-10-22T02:32:03.7699192Z 2ab475e318db: Waiting
+2026-10-22T02:32:03.7700164Z bee16f784947: Waiting
+2026-10-22T02:32:03.7701127Z 633cb7982454: Waiting
+2026-10-22T02:32:03.7702099Z bf5dc03c5433: Waiting
+2026-10-22T02:32:03.7778603Z 426e36b5695b: Waiting
+2026-10-22T02:32:03.7779747Z 8a5ff7b733f5: Waiting
+2026-10-22T02:32:03.7780841Z 09018b22bca2: Waiting
+2026-10-22T02:32:03.7781954Z bd451b9fde8d: Waiting
+2026-10-22T02:32:03.7782997Z ee1936713636: Waiting
+2026-10-22T02:32:04.0096580Z e0428ef87eb8: Download complete
+2026-10-22T02:32:04.1984738Z c9b382b1f732: Verifying Checksum
+2026-10-22T02:32:04.1986577Z c9b382b1f732: Download complete
+2026-10-22T02:32:04.2900935Z f2be67225471: Verifying Checksum
+2026-10-22T02:32:04.2903850Z f2be67225471: Download complete
+2026-10-22T02:32:04.3135460Z 0f6d195ee345: Verifying Checksum
+2026-10-22T02:32:04.3139900Z 0f6d195ee345: Download complete
+2026-10-22T02:32:04.5184889Z bee16f784947: Download complete
+2026-10-22T02:32:04.6066847Z 2ab475e318db: Download complete
+2026-10-22T02:32:04.6241595Z d1b142a2d3ac: Download complete
+2026-10-22T02:32:04.7258170Z 633cb7982454: Verifying Checksum
+2026-10-22T02:32:04.7259368Z 633cb7982454: Download complete
+2026-10-22T02:32:04.8091351Z 426e36b5695b: Download complete
+2026-10-22T02:32:04.9070767Z 8a5ff7b733f5: Verifying Checksum
+2026-10-22T02:32:04.9071829Z 8a5ff7b733f5: Download complete
+2026-10-22T02:32:05.0161809Z 09018b22bca2: Verifying Checksum
+2026-10-22T02:32:05.0162779Z 09018b22bca2: Download complete
+2026-10-22T02:32:05.1261388Z bd451b9fde8d: Verifying Checksum
+2026-10-22T02:32:05.1261797Z bd451b9fde8d: Download complete
+2026-10-22T02:32:05.2324815Z ee1936713636: Verifying Checksum
+2026-10-22T02:32:05.2325301Z ee1936713636: Download complete
+2026-10-22T02:32:05.3473697Z bf5dc03c5433: Verifying Checksum
+2026-10-22T02:32:05.3475099Z bf5dc03c5433: Download complete
+2026-10-22T02:32:05.5550035Z f2be67225471: Pull complete
+2026-10-22T02:32:07.6083852Z e0428ef87eb8: Pull complete
+2026-10-22T02:32:07.7775341Z c9b382b1f732: Pull complete
+2026-10-22T02:32:07.8154857Z 0f6d195ee345: Pull complete
+2026-10-22T02:32:08.1098749Z d1b142a2d3ac: Pull complete
+2026-10-22T02:32:08.1796662Z 2ab475e318db: Pull complete
+2026-10-22T02:32:08.1856655Z bee16f784947: Pull complete
+2026-10-22T02:32:08.1938848Z 633cb7982454: Pull complete
+2026-10-22T02:32:11.1608648Z bf5dc03c5433: Pull complete
+2026-10-22T02:32:11.1745376Z 426e36b5695b: Pull complete
+2026-10-22T02:32:11.1838264Z 8a5ff7b733f5: Pull complete
+2026-10-22T02:32:11.1924134Z 09018b22bca2: Pull complete
+2026-10-22T02:32:11.2025275Z bd451b9fde8d: Pull complete
+2026-10-22T02:32:11.2097447Z ee1936713636: Pull complete
+2026-10-22T02:32:11.2134749Z Digest: sha256:c99dd5066e988cd61a72ffe962da08e277eecaba000bbdda0bdaf9f63b56c174
+2026-10-22T02:32:11.2145811Z Status: Downloaded newer image for postgres:15
+2026-10-22T02:32:11.2154980Z docker.io/library/postgres:15
+2026-10-22T02:32:11.2224936Z ##[command]/usr/bin/docker create --name 130871a661f442b28dd8b4078b0b92a0_postgres15_98478d --label dcd477 --network github_network_3124ca6535cd4cfea18ebde672fdafc8 --network-alias postgres -p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 -e "POSTGRES_PASSWORD=postgres" -e "POSTGRES_DB=sigra_test" -e GITHUB_ACTIONS=true -e CI=true postgres:15
+2026-10-22T02:32:11.2462710Z 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:11.2487471Z ##[command]/usr/bin/docker start 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:11.4526005Z 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:11.4585379Z ##[command]/usr/bin/docker ps --all --filter id=3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-10-22T02:32:11.4746975Z 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800 Up Less than a second (health: starting)
+2026-10-22T02:32:11.4774074Z ##[command]/usr/bin/docker port 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:11.4925747Z 5432/tcp -> 0.0.0.0:5432
+2026-10-22T02:32:11.4940407Z 5432/tcp -> [::]:5432
+2026-10-22T02:32:11.4991230Z ##[endgroup]
+2026-10-22T02:32:11.5003842Z ##[group]Waiting for all services to be ready
+2026-10-22T02:32:11.5018189Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:11.5175246Z starting
+2026-10-22T02:32:11.5201135Z postgres service is starting, waiting 2 seconds before checking again.
+2026-10-22T02:32:13.5204168Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:13.5338960Z starting
+2026-10-22T02:32:13.5353410Z postgres service is starting, waiting 4 seconds before checking again.
+2026-10-22T02:32:17.9180213Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:17.9307099Z starting
+2026-10-22T02:32:17.9320636Z postgres service is starting, waiting 8 seconds before checking again.
+2026-10-22T02:32:26.2893118Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:32:26.3023699Z healthy
+2026-10-22T02:32:26.3042555Z postgres service is healthy.
+2026-10-22T02:32:26.3043411Z ##[endgroup]
+2026-10-22T02:32:26.3348001Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-10-22T02:32:26.3348628Z with:
+2026-10-22T02:32:26.3348851Z   repository: szTheory/sigra
+2026-10-22T02:32:26.3351388Z   token: ***
+2026-10-22T02:32:26.3351610Z   ssh-strict: true
+2026-10-22T02:32:26.3351882Z   ssh-user: git
+2026-10-22T02:32:26.3352101Z   persist-credentials: true
+2026-10-22T02:32:26.3352357Z   clean: true
+2026-10-22T02:32:26.3352584Z   sparse-checkout-cone-mode: true
+2026-10-22T02:32:26.3352847Z   fetch-depth: 1
+2026-10-22T02:32:26.3353060Z   fetch-tags: false
+2026-10-22T02:32:26.3353283Z   show-progress: true
+2026-10-22T02:32:26.3353504Z   lfs: false
+2026-10-22T02:32:26.3353724Z   submodules: false
+2026-10-22T02:32:26.3353940Z   set-safe-directory: true
+2026-10-22T02:32:26.3354191Z   allow-unsafe-pr-checkout: false
+2026-10-22T02:32:26.3354660Z ##[endgroup]
+2026-10-22T02:32:26.4381631Z Syncing repository: szTheory/sigra
+2026-10-22T02:32:26.4383037Z ##[group]Getting Git version info
+2026-10-22T02:32:26.4383527Z Working directory is '/home/runner/work/sigra/sigra'
+2026-10-22T02:32:26.4384065Z [command]/usr/bin/git version
+2026-10-22T02:32:26.4444396Z git version 2.55.0
+2026-10-22T02:32:26.4467205Z ##[endgroup]
+2026-10-22T02:32:26.4478128Z Temporarily overriding HOME='/home/runner/work/_temp/dade84ab-14a7-4dc0-93a3-ecc47d03bf4a' before making global git config changes
+2026-10-22T02:32:26.4479383Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-22T02:32:26.4485180Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sigra/sigra
+2026-10-22T02:32:26.4548454Z Deleting the contents of '/home/runner/work/sigra/sigra'
+2026-10-22T02:32:26.4552462Z ##[group]Determining repository object format
+2026-10-22T02:32:26.4554178Z ##[endgroup]
+2026-10-22T02:32:26.4555482Z ##[group]Initializing the repository
+2026-10-22T02:32:26.4560374Z [command]/usr/bin/git init /home/runner/work/sigra/sigra
+2026-10-22T02:32:26.4654788Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-22T02:32:26.4655663Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-22T02:32:26.4656915Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-22T02:32:26.4660664Z hint: call:
+2026-10-22T02:32:26.4661006Z hint:
+2026-10-22T02:32:26.4661429Z hint: 	git config --global init.defaultBranch <name>
+2026-10-22T02:32:26.4661798Z hint:
+2026-10-22T02:32:26.4662111Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-22T02:32:26.4662667Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-22T02:32:26.4663267Z hint:
+2026-10-22T02:32:26.4663590Z hint: 	git branch -m <name>
+2026-10-22T02:32:26.4663911Z hint:
+2026-10-22T02:32:26.4664241Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-22T02:32:26.4664779Z Initialized empty Git repository in /home/runner/work/sigra/sigra/.git/
+2026-10-22T02:32:26.4670528Z [command]/usr/bin/git remote add origin https://github.com/szTheory/sigra
+2026-10-22T02:32:26.4721812Z ##[endgroup]
+2026-10-22T02:32:26.4722240Z ##[group]Disabling automatic garbage collection
+2026-10-22T02:32:26.4725881Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-22T02:32:26.4759503Z ##[endgroup]
+2026-10-22T02:32:26.4760166Z ##[group]Setting up auth
+2026-10-22T02:32:26.4760650Z Removing SSH command configuration
+2026-10-22T02:32:26.4768322Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-22T02:32:26.4804375Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-22T02:32:26.5154719Z Removing HTTP extra header
+2026-10-22T02:32:26.5160991Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-22T02:32:26.5195653Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-22T02:32:26.5431750Z Removing includeIf entries pointing to credentials config files
+2026-10-22T02:32:26.5437897Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-22T02:32:26.5481744Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-22T02:32:26.5727619Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-22T02:32:26.5769751Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sigra/sigra/.git.path /home/runner/work/_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:32:26.5801745Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:32:26.5838750Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:32:26.5872019Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:32:26.5903628Z ##[endgroup]
+2026-10-22T02:32:26.5911251Z ##[group]Fetching the repository
+2026-10-22T02:32:26.5912285Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a79f96b9fb3a46396e8e87fe848ba757b1de32fb:refs/remotes/pull/342/merge
+2026-10-22T02:32:28.4968808Z From https://github.com/szTheory/sigra
+2026-10-22T02:32:28.4969431Z  * [new ref]         a79f96b9fb3a46396e8e87fe848ba757b1de32fb -> pull/342/merge
+2026-10-22T02:32:28.4975619Z ##[endgroup]
+2026-10-22T02:32:28.4976426Z ##[group]Determining the checkout info
+2026-10-22T02:32:28.4977060Z ##[endgroup]
+2026-10-22T02:32:28.4982414Z [command]/usr/bin/git sparse-checkout disable
+2026-10-22T02:32:28.5035182Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-22T02:32:28.5064300Z ##[group]Checking out the ref
+2026-10-22T02:32:28.5068484Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/342/merge
+2026-10-22T02:32:28.8181997Z Note: switching to 'refs/remotes/pull/342/merge'.
+2026-10-22T02:32:28.8182437Z 
+2026-10-22T02:32:28.8182764Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-22T02:32:28.8183514Z changes and commit them, and you can discard any commits you make in this
+2026-10-22T02:32:28.8184289Z state without impacting any branches by switching back to a branch.
+2026-10-22T02:32:28.8184728Z 
+2026-10-22T02:32:28.8185208Z If you want to create a new branch to retain commits you create, you may
+2026-10-22T02:32:28.8185845Z do so (now or later) by using -c with the switch command. Example:
+2026-10-22T02:32:28.8186432Z 
+2026-10-22T02:32:28.8186604Z   git switch -c <new-branch-name>
+2026-10-22T02:32:28.8186863Z 
+2026-10-22T02:32:28.8187026Z Or undo this operation with:
+2026-10-22T02:32:28.8187270Z 
+2026-10-22T02:32:28.8187390Z   git switch -
+2026-10-22T02:32:28.8187577Z 
+2026-10-22T02:32:28.8187892Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-22T02:32:28.8188349Z 
+2026-10-22T02:32:28.8188870Z HEAD is now at a79f96b Merge 879d628feeb0b894af1c0d842830b3002f905440 into 98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7
+2026-10-22T02:32:28.8200555Z ##[endgroup]
+2026-10-22T02:32:28.8249833Z [command]/usr/bin/git log -1 --format=%H
+2026-10-22T02:32:28.8277461Z a79f96b9fb3a46396e8e87fe848ba757b1de32fb
+2026-10-22T02:32:28.8520520Z ##[group]Run erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124
+2026-10-22T02:32:28.8520913Z with:
+2026-10-22T02:32:28.8521149Z   version-file: .tool-versions
+2026-10-22T02:32:28.8521406Z   version-type: strict
+2026-10-22T02:32:28.8523808Z   github-token: ***
+2026-10-22T02:32:28.8524027Z   otp-architecture: 64
+2026-10-22T02:32:28.8524250Z   install-hex: true
+2026-10-22T02:32:28.8524455Z   install-rebar: true
+2026-10-22T02:32:28.8524700Z   disable_problem_matchers: false
+2026-10-22T02:32:28.8525005Z   hexpm-mirrors: https://builds.hex.pm
+
+2026-10-22T02:32:28.8525288Z ##[endgroup]
+2026-10-22T02:32:28.9287782Z ##[group]Parsing .tool-versions file at .tool-versions
+2026-10-22T02:32:28.9290850Z Consuming erlang at version 28.5
+2026-10-22T02:32:28.9291542Z Consuming elixir at version 1.19.5-otp-28
+2026-10-22T02:32:28.9292044Z ... done!
+2026-10-22T02:32:28.9292710Z ##[endgroup]
+2026-10-22T02:32:29.1207158Z ##[group]Installing Erlang/OTP OTP-28.5 - built on amd64/ubuntu-24.04
+2026-10-22T02:32:29.8477666Z [command]/usr/bin/tar zx --strip-components=1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/3f3048d0-ecaa-4649-885b-511b7c818d26 -f /home/runner/work/_temp/b1f71bb7-5ed8-4403-8e18-3e3e559aebfc
+2026-10-22T02:32:32.4304127Z [command]/home/runner/work/_temp/.setup-beam/otp/Install -minimal /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:32:32.4626466Z Installed Erlang/OTP version
+2026-10-22T02:32:32.4641389Z [command]/home/runner/work/_temp/.setup-beam/otp/bin/erl -version
+2026-10-22T02:32:32.4764298Z Erlang (SMP,ASYNC_THREADS) (BEAM) emulator version 16.4
+2026-10-22T02:32:32.4801424Z ##[endgroup]
+2026-10-22T02:32:32.5364768Z Using Elixir 1.19.5 (built for Erlang/OTP 28)
+2026-10-22T02:32:32.5366372Z ##[group]Installing Elixir v1.19.5-otp-28
+2026-10-22T02:32:32.8458903Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/2a381b24-b547-4618-b503-42ab491032b5
+2026-10-22T02:32:33.2431122Z Installed Elixir version
+2026-10-22T02:32:33.2450564Z [command]/home/runner/work/_temp/.setup-beam/elixir/bin/elixir -v
+2026-10-22T02:32:33.4675492Z Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]
+2026-10-22T02:32:33.4676559Z 
+2026-10-22T02:32:33.4731776Z Elixir 1.19.5 (compiled with Erlang/OTP 28)
+2026-10-22T02:32:33.4794461Z ##[endgroup]
+2026-10-22T02:32:33.4795141Z ##[group]Running mix local.rebar,--force
+2026-10-22T02:32:33.4799062Z [command]/home/runner/work/_temp/.setup-beam/elixir/bin/mix local.rebar --force
+2026-10-22T02:32:34.3905573Z * creating /home/runner/.mix/elixir/1-19-otp-28/rebar3
+2026-10-22T02:32:34.3978412Z ##[endgroup]
+2026-10-22T02:32:34.3979031Z ##[group]Running mix local.hex,--force
+2026-10-22T02:32:34.3990329Z [command]/home/runner/work/_temp/.setup-beam/elixir/bin/mix local.hex --force
+2026-10-22T02:32:35.3687123Z * creating /home/runner/.mix/archives/hex-2.5.4
+2026-10-22T02:32:35.3779879Z ##[endgroup]
+2026-10-22T02:32:35.4633324Z ##[group]Run actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+2026-10-22T02:32:35.4633736Z with:
+2026-10-22T02:32:35.4633951Z   path: deps
+_build
+
+2026-10-22T02:32:35.4634567Z   key: Linux-library-otpOTP-28.5-elixirv1.19.5-otp-28-test-aafde9359fef9025c04f24b3c8cb267f2a5ecc45b29f60f8bc9bd73dce8289ba-v1
+2026-10-22T02:32:35.4635331Z   restore-keys: Linux-library-otpOTP-28.5-elixirv1.19.5-otp-28-test-
+2026-10-22T02:32:35.4635763Z   enableCrossOsArchive: false
+2026-10-22T02:32:35.4636112Z   fail-on-cache-miss: false
+2026-10-22T02:32:35.4636845Z   lookup-only: false
+2026-10-22T02:32:35.4637325Z   save-always: false
+2026-10-22T02:32:35.4637657Z env:
+2026-10-22T02:32:35.4638033Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:32:35.4638766Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:32:35.4639246Z ##[endgroup]
+2026-10-22T02:32:35.7760544Z Cache hit for restore-key: Linux-library-otpOTP-28.5-elixirv1.19.5-otp-28-test-70b79ea8f5f3be19d0908d4feb3fe21e0afc5424afad264c9c7390a90899eb91-v1
+2026-10-22T02:32:36.9773682Z Received 24525173 of 24525173 (100.0%), 24.5 MBs/sec
+2026-10-22T02:32:36.9774293Z Cache Size: ~23 MB (24525173 B)
+2026-10-22T02:32:36.9829454Z [command]/usr/bin/tar -xf /home/runner/work/_temp/78560b7f-1406-40b1-a409-193c2469b78f/cache.tzst -P -C /home/runner/work/sigra/sigra --use-compress-program unzstd
+2026-10-22T02:32:37.2075768Z Cache restored successfully
+2026-10-22T02:32:37.2170322Z Cache restored from key: Linux-library-otpOTP-28.5-elixirv1.19.5-otp-28-test-70b79ea8f5f3be19d0908d4feb3fe21e0afc5424afad264c9c7390a90899eb91-v1
+2026-10-22T02:32:37.2299639Z ##[group]Run mix local.hex --force
+2026-10-22T02:32:37.2300035Z [36;1mmix local.hex --force[0m
+2026-10-22T02:32:37.2300329Z [36;1mmix local.rebar --force[0m
+2026-10-22T02:32:37.2502942Z shell: /usr/bin/bash -e {0}
+2026-10-22T02:32:37.2503235Z env:
+2026-10-22T02:32:37.2503543Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:32:37.2504021Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:32:37.2504421Z ##[endgroup]
+2026-10-22T02:32:38.2445670Z * creating /home/runner/.mix/archives/hex-2.5.4
+2026-10-22T02:32:39.1805979Z * creating /home/runner/.mix/elixir/1-19-otp-28/rebar3
+2026-10-22T02:32:39.1934841Z ##[group]Run mix archive.install --force hex phx_new 1.8.8
+2026-10-22T02:32:39.1935315Z [36;1mmix archive.install --force hex phx_new 1.8.8[0m
+2026-10-22T02:32:39.2003217Z shell: /usr/bin/bash -e {0}
+2026-10-22T02:32:39.2003500Z env:
+2026-10-22T02:32:39.2003798Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:32:39.2004262Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:32:39.2004632Z ##[endgroup]
+2026-10-22T02:32:40.0869927Z Resolving Hex dependencies...
+2026-10-22T02:32:40.1048060Z Resolution completed in 0.015s
+2026-10-22T02:32:40.1048625Z New:
+2026-10-22T02:32:40.1048973Z   phx_new 1.8.8
+2026-10-22T02:32:40.1062124Z * Getting phx_new (Hex package)
+2026-10-22T02:32:40.2693989Z All dependencies have been fetched
+2026-10-22T02:32:40.3062799Z Compiling 12 files (.ex)
+2026-10-22T02:32:41.5238675Z Generated phx_new app
+2026-10-22T02:32:41.5550025Z Generated archive "phx_new-1.8.8.ez" with MIX_ENV=prod
+2026-10-22T02:32:41.5651912Z * creating /home/runner/.mix/archives/phx_new-1.8.8
+2026-10-22T02:32:41.5931728Z ##[group]Run mix deps.get
+2026-10-22T02:32:41.5932028Z [36;1mmix deps.get[0m
+2026-10-22T02:32:41.6007043Z shell: /usr/bin/bash -e {0}
+2026-10-22T02:32:41.6007383Z env:
+2026-10-22T02:32:41.6007826Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:32:41.6008520Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:32:41.6009090Z ##[endgroup]
+2026-10-22T02:32:42.6986443Z Resolving Hex dependencies...
+2026-10-22T02:32:43.1386902Z Resolution completed in 0.436s
+2026-10-22T02:32:43.2009046Z Unchanged:
+2026-10-22T02:32:43.2010496Z   argon2_elixir 4.1.3
+2026-10-22T02:32:43.2031451Z   asn1_compiler 0.1.1
+2026-10-22T02:32:43.2032384Z   assent 0.3.1
+2026-10-22T02:32:43.2033101Z   bcrypt_elixir 3.3.2
+2026-10-22T02:32:43.2033741Z   bunt 1.0.0
+2026-10-22T02:32:43.2034326Z   cbor 1.0.2
+2026-10-22T02:32:43.2034901Z   certifi 2.17.0
+2026-10-22T02:32:43.2035543Z   chimeway 1.0.0
+2026-10-22T02:32:43.2036351Z   cloak 1.1.4 VULNERABLE!
+2026-10-22T02:32:43.2037137Z     EEF-CVE-2026-95105 (HIGH)
+2026-10-22T02:32:43.2037829Z     aka: CVE-2026-95105
+2026-10-22T02:32:43.2038891Z     Cloak AES-CTR cipher lacks ciphertext authentication, allowing chosen-plaintext forgery by bit flipping
+2026-10-22T02:32:43.2040080Z     https://osv.dev/vulnerability/EEF-CVE-2026-95105
+2026-10-22T02:32:43.2040976Z   cloak_ecto 1.3.0 VULNERABLE!
+2026-10-22T02:32:43.2041681Z     EEF-CVE-2026-94206 (MEDIUM)
+2026-10-22T02:32:43.2042370Z     aka: CVE-2026-94206
+2026-10-22T02:32:43.2043265Z     Cloak PBKDF2 field ignores the configured iteration count and runs only :size rounds
+2026-10-22T02:32:43.2044315Z     https://osv.dev/vulnerability/EEF-CVE-2026-94206
+2026-10-22T02:32:43.2045097Z   comeonin 5.5.1
+2026-10-22T02:32:43.2045706Z   credo 1.7.18
+2026-10-22T02:32:43.2046475Z   db_connection 2.10.2
+2026-10-22T02:32:43.2047099Z   decimal 3.1.1 VULNERABLE!
+2026-10-22T02:32:43.2047828Z     EEF-CVE-2026-97853 (MEDIUM)
+2026-10-22T02:32:43.2048553Z     aka: CVE-2026-97853, GHSA-6c27-994x-c52f
+2026-10-22T02:32:43.2049602Z     Unbounded allocation in decimal Decimal.round/3 driven by the places argument enables DoS
+2026-10-22T02:32:43.2050723Z     https://osv.dev/vulnerability/EEF-CVE-2026-97853
+2026-10-22T02:32:43.2051477Z   dialyxir 1.4.7
+2026-10-22T02:32:43.2052108Z   earmark_parser 1.4.44
+2026-10-22T02:32:43.2052738Z   ecto 3.14.2
+2026-10-22T02:32:43.2053325Z   ecto_sql 3.14.0
+2026-10-22T02:32:43.2053922Z   elixir_make 0.9.0
+2026-10-22T02:32:43.2054527Z   eqrcode 0.2.1
+2026-10-22T02:32:43.2055132Z   erlex 0.2.9
+2026-10-22T02:32:43.2055712Z   ex_doc 0.40.3
+2026-10-22T02:32:43.2056496Z   file_system 1.1.1
+2026-10-22T02:32:43.2057123Z   flop 0.26.3
+2026-10-22T02:32:43.2057718Z   flop_phoenix 0.26.0
+2026-10-22T02:32:43.2058343Z   h2 0.12.0
+2026-10-22T02:32:43.2058913Z   hackney 4.7.4
+2026-10-22T02:32:43.2059556Z   hammer 7.4.0
+2026-10-22T02:32:43.2060174Z   idna 7.1.0
+2026-10-22T02:32:43.2060775Z   jason 1.4.5
+2026-10-22T02:32:43.2061378Z   joken 2.6.2
+2026-10-22T02:32:43.2061976Z   jose 1.11.12
+2026-10-22T02:32:43.2062557Z   makeup 1.2.1
+2026-10-22T02:32:43.2063168Z   makeup_elixir 1.0.1
+2026-10-22T02:32:43.2063820Z   makeup_erlang 1.1.0
+2026-10-22T02:32:43.2064441Z   mime 2.0.7
+2026-10-22T02:32:43.2065044Z   mimerl 1.5.0
+2026-10-22T02:32:43.2065610Z   mox 1.2.0
+2026-10-22T02:32:43.2066359Z   nimble_csv 1.3.0
+2026-10-22T02:32:43.2066995Z   nimble_options 1.1.1
+2026-10-22T02:32:43.2067799Z   nimble_ownership 1.0.2
+2026-10-22T02:32:43.2068484Z   nimble_parsec 1.4.2
+2026-10-22T02:32:43.2069146Z   nimble_totp 1.0.0
+2026-10-22T02:32:43.2069774Z   oban 2.23.0
+2026-10-22T02:32:43.2070399Z   parse_trans 3.4.2
+2026-10-22T02:32:43.2071009Z   phoenix 1.8.13
+2026-10-22T02:32:43.2071611Z   phoenix_html 4.3.0
+2026-10-22T02:32:43.2072817Z   phoenix_live_view 1.1.33
+2026-10-22T02:32:43.2073509Z   phoenix_pubsub 2.3.0
+2026-10-22T02:32:43.2074188Z   phoenix_template 1.0.4
+2026-10-22T02:32:43.2074813Z   plug 1.20.3
+2026-10-22T02:32:43.2075485Z   plug_crypto 2.2.0
+2026-10-22T02:32:43.2076116Z   postgrex 0.22.4
+2026-10-22T02:32:43.2077265Z   quic 1.8.2
+2026-10-22T02:32:43.2077912Z   ssl_verify_fun 1.1.7
+2026-10-22T02:32:43.2078572Z   stream_data 1.3.0
+2026-10-22T02:32:43.2079181Z   swoosh 1.28.0
+2026-10-22T02:32:43.2079958Z   telemetry 1.4.2
+2026-10-22T02:32:43.2080625Z   threadline 0.7.0
+2026-10-22T02:32:43.2081215Z   tzdata 1.1.5
+2026-10-22T02:32:43.2081792Z   wax_ 0.7.0
+2026-10-22T02:32:43.2082369Z   websock 0.5.3
+2026-10-22T02:32:43.2083008Z   websock_adapter 0.6.0
+2026-10-22T02:32:43.2083659Z   webtransport 0.4.5
+2026-10-22T02:32:43.2084441Z   x509 0.9.2
+2026-10-22T02:32:43.2223384Z * Updating phoenix (Hex package)
+2026-10-22T02:32:43.4172338Z * Updating phoenix_live_view (Hex package)
+2026-10-22T02:32:43.4787838Z * Updating flop (Hex package)
+2026-10-22T02:32:43.4918872Z * Updating flop_phoenix (Hex package)
+2026-10-22T02:32:43.5017108Z * Updating hammer (Hex package)
+2026-10-22T02:32:43.5148830Z * Updating oban (Hex package)
+2026-10-22T02:32:43.5467278Z * Updating threadline (Hex package)
+2026-10-22T02:32:43.5925002Z * Updating credo (Hex package)
+2026-10-22T02:32:43.6831614Z * Updating hackney (Hex package)
+2026-10-22T02:32:43.7136903Z * Updating h2 (Hex package)
+2026-10-22T02:32:43.7275526Z * Updating webtransport (Hex package)
+2026-10-22T02:32:43.7419917Z * Updating quic (Hex package)
+2026-10-22T02:32:43.7826592Z * Updating phoenix_template (Hex package)
+2026-10-22T02:32:43.7892564Z Found packages with security advisories, see above for details
+2026-10-22T02:32:43.7893446Z You have added/upgraded packages you could sponsor, run `mix hex.sponsor` to learn more
+2026-10-22T02:32:43.8953033Z ##[group]Run mkdir -p test-results
+2026-10-22T02:32:43.8953528Z [36;1mmkdir -p test-results[0m
+2026-10-22T02:32:43.9045003Z shell: /usr/bin/bash -e {0}
+2026-10-22T02:32:43.9045445Z env:
+2026-10-22T02:32:43.9045898Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:32:43.9046937Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:32:43.9047562Z ##[endgroup]
+2026-10-22T02:32:43.9210487Z ##[group]Run mix ci
+2026-10-22T02:32:43.9210762Z [36;1mmix ci[0m
+2026-10-22T02:32:43.9277031Z shell: /usr/bin/bash -e {0}
+2026-10-22T02:32:43.9277306Z env:
+2026-10-22T02:32:43.9277599Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:32:43.9278058Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:32:43.9278440Z   PGUSER: postgres
+2026-10-22T02:32:43.9278668Z   MIX_ENV: test
+2026-10-22T02:32:43.9278887Z   PGPASSWORD: postgres
+2026-10-22T02:32:43.9279119Z   PGHOST: localhost
+2026-10-22T02:32:43.9279448Z   SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing-main.json
+2026-10-22T02:32:43.9279839Z   SIGRA_EXUNIT_TIMING_INVOCATION: main
+2026-10-22T02:32:43.9280330Z   SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results/ci-exunit-timing-threadline-guard.json
+2026-10-22T02:32:43.9280802Z ##[endgroup]
+2026-10-22T02:32:45.8335731Z Resolving Hex dependencies...
+2026-10-22T02:32:46.1756843Z Resolution completed in 0.339s
+2026-10-22T02:32:46.2335307Z Unchanged:
+2026-10-22T02:32:46.2335715Z   argon2_elixir 4.1.3
+2026-10-22T02:32:46.2356067Z   asn1_compiler 0.1.1
+2026-10-22T02:32:46.2357046Z   assent 0.3.1
+2026-10-22T02:32:46.2357634Z   bcrypt_elixir 3.3.2
+2026-10-22T02:32:46.2358177Z   bunt 1.0.0
+2026-10-22T02:32:46.2358680Z   cbor 1.0.2
+2026-10-22T02:32:46.2359200Z   certifi 2.17.0
+2026-10-22T02:32:46.2359708Z   chimeway 1.0.0
+2026-10-22T02:32:46.2360222Z   cloak 1.1.4 VULNERABLE!
+2026-10-22T02:32:46.2360792Z     EEF-CVE-2026-95105 (HIGH)
+2026-10-22T02:32:46.2361380Z     aka: CVE-2026-95105
+2026-10-22T02:32:46.2362299Z     Cloak AES-CTR cipher lacks ciphertext authentication, allowing chosen-plaintext forgery by bit flipping
+2026-10-22T02:32:46.2363364Z     https://osv.dev/vulnerability/EEF-CVE-2026-95105
+2026-10-22T02:32:46.2364413Z   cloak_ecto 1.3.0 VULNERABLE!
+2026-10-22T02:32:46.2364991Z     EEF-CVE-2026-94206 (MEDIUM)
+2026-10-22T02:32:46.2365555Z     aka: CVE-2026-94206
+2026-10-22T02:32:46.2366495Z     Cloak PBKDF2 field ignores the configured iteration count and runs only :size rounds
+2026-10-22T02:32:46.2367426Z     https://osv.dev/vulnerability/EEF-CVE-2026-94206
+2026-10-22T02:32:46.2368099Z   comeonin 5.5.1
+2026-10-22T02:32:46.2368645Z   credo 1.7.18
+2026-10-22T02:32:46.2369157Z   db_connection 2.10.2
+2026-10-22T02:32:46.2369700Z   decimal 3.1.1 VULNERABLE!
+2026-10-22T02:32:46.2370255Z     EEF-CVE-2026-97853 (MEDIUM)
+2026-10-22T02:32:46.2370860Z     aka: CVE-2026-97853, GHSA-6c27-994x-c52f
+2026-10-22T02:32:46.2371774Z     Unbounded allocation in decimal Decimal.round/3 driven by the places argument enables DoS
+2026-10-22T02:32:46.2372724Z     https://osv.dev/vulnerability/EEF-CVE-2026-97853
+2026-10-22T02:32:46.2373387Z   dialyxir 1.4.7
+2026-10-22T02:32:46.2373858Z   earmark_parser 1.4.44
+2026-10-22T02:32:46.2374258Z   ecto 3.14.2
+2026-10-22T02:32:46.2374637Z   ecto_sql 3.14.0
+2026-10-22T02:32:46.2375017Z   elixir_make 0.9.0
+2026-10-22T02:32:46.2375406Z   eqrcode 0.2.1
+2026-10-22T02:32:46.2375776Z   erlex 0.2.9
+2026-10-22T02:32:46.2376292Z   ex_doc 0.40.3
+2026-10-22T02:32:46.2376674Z   file_system 1.1.1
+2026-10-22T02:32:46.2377052Z   flop 0.26.3
+2026-10-22T02:32:46.2377441Z   flop_phoenix 0.26.0
+2026-10-22T02:32:46.2377834Z   h2 0.12.0
+2026-10-22T02:32:46.2378195Z   hackney 4.7.4
+2026-10-22T02:32:46.2378574Z   hammer 7.4.0
+2026-10-22T02:32:46.2378941Z   idna 7.1.0
+2026-10-22T02:32:46.2379305Z   jason 1.4.5
+2026-10-22T02:32:46.2379667Z   joken 2.6.2
+2026-10-22T02:32:46.2380042Z   jose 1.11.12
+2026-10-22T02:32:46.2380409Z   makeup 1.2.1
+2026-10-22T02:32:46.2380780Z   makeup_elixir 1.0.1
+2026-10-22T02:32:46.2381180Z   makeup_erlang 1.1.0
+2026-10-22T02:32:46.2381557Z   mime 2.0.7
+2026-10-22T02:32:46.2381919Z   mimerl 1.5.0
+2026-10-22T02:32:46.2382280Z   mox 1.2.0
+2026-10-22T02:32:46.2382662Z   nimble_csv 1.3.0
+2026-10-22T02:32:46.2383061Z   nimble_options 1.1.1
+2026-10-22T02:32:46.2383468Z   nimble_ownership 1.0.2
+2026-10-22T02:32:46.2383884Z   nimble_parsec 1.4.2
+2026-10-22T02:32:46.2384274Z   nimble_totp 1.0.0
+2026-10-22T02:32:46.2384948Z   oban 2.23.0
+2026-10-22T02:32:46.2385331Z   parse_trans 3.4.2
+2026-10-22T02:32:46.2385728Z   phoenix 1.8.13
+2026-10-22T02:32:46.2386240Z   phoenix_html 4.3.0
+2026-10-22T02:32:46.2386725Z   phoenix_live_view 1.1.33
+2026-10-22T02:32:46.2387276Z   phoenix_pubsub 2.3.0
+2026-10-22T02:32:46.2387681Z   phoenix_template 1.0.4
+2026-10-22T02:32:46.2388044Z   plug 1.20.3
+2026-10-22T02:32:46.2388364Z   plug_crypto 2.2.0
+2026-10-22T02:32:46.2388648Z   postgrex 0.22.4
+2026-10-22T02:32:46.2388875Z   quic 1.8.2
+2026-10-22T02:32:46.2389092Z   ssl_verify_fun 1.1.7
+2026-10-22T02:32:46.2389325Z   stream_data 1.3.0
+2026-10-22T02:32:46.2389543Z   swoosh 1.28.0
+2026-10-22T02:32:46.2389768Z   telemetry 1.4.2
+2026-10-22T02:32:46.2389989Z   threadline 0.7.0
+2026-10-22T02:32:46.2390219Z   tzdata 1.1.5
+2026-10-22T02:32:46.2390424Z   wax_ 0.7.0
+2026-10-22T02:32:46.2390659Z   websock 0.5.3
+2026-10-22T02:32:46.2390886Z   websock_adapter 0.6.0
+2026-10-22T02:32:46.2391136Z   webtransport 0.4.5
+2026-10-22T02:32:46.2391375Z   x509 0.9.2
+2026-10-22T02:32:46.2743734Z Found packages with security advisories, see above for details
+2026-10-22T02:32:46.3449824Z All dependencies have been fetched
+2026-10-22T02:32:47.0208946Z ===> Analyzing applications...
+2026-10-22T02:32:47.1377378Z ===> Compiling h2
+2026-10-22T02:32:48.3061560Z ==> flop
+2026-10-22T02:32:48.3062037Z Compiling 17 files (.ex)
+2026-10-22T02:32:48.9602466Z Generated flop app
+2026-10-22T02:32:48.9827051Z ==> phoenix_template
+2026-10-22T02:32:48.9828115Z Compiling 4 files (.ex)
+2026-10-22T02:32:49.0738498Z Generated phoenix_template app
+2026-10-22T02:32:49.1254952Z ==> credo
+2026-10-22T02:32:49.1255729Z Compiling 257 files (.ex)
+2026-10-22T02:32:54.2370327Z Generated credo app
+2026-10-22T02:32:54.3489385Z ==> oban
+2026-10-22T02:32:54.3491000Z Compiling 66 files (.ex)
+2026-10-22T02:32:56.1446023Z      warning: this clause of defp expected_error?/1 is never used
+2026-10-22T02:32:56.1459421Z      │
+2026-10-22T02:32:56.1460695Z  253 │   defp expected_error?(%_{mysql: %{code: code}}) when code in [1205, 1213], do: true
+2026-10-22T02:32:56.1461668Z      │        ~
+2026-10-22T02:32:56.1462205Z      │
+2026-10-22T02:32:56.1462903Z      └─ lib/oban/repo.ex:253:8: Oban.Repo.expected_error?/1
+2026-10-22T02:32:56.1463495Z 
+2026-10-22T02:32:56.2407500Z Generated oban app
+2026-10-22T02:32:56.3429677Z ==> hammer
+2026-10-22T02:32:56.3430333Z Compiling 13 files (.ex)
+2026-10-22T02:32:56.5252027Z Generated hammer app
+2026-10-22T02:32:56.5833931Z ==> phoenix
+2026-10-22T02:32:56.5834772Z Compiling 74 files (.ex)
+2026-10-22T02:32:58.7356713Z Generated phoenix app
+2026-10-22T02:32:58.8500795Z ==> phoenix_live_view
+2026-10-22T02:32:58.8501331Z Compiling 49 files (.ex)
+2026-10-22T02:33:01.8243659Z Generated phoenix_live_view app
+2026-10-22T02:33:01.9320491Z ==> flop_phoenix
+2026-10-22T02:33:01.9321723Z Compiling 6 files (.ex)
+2026-10-22T02:33:03.0600400Z Generated flop_phoenix app
+2026-10-22T02:33:03.5399570Z ==> sigra
+2026-10-22T02:33:03.5401001Z ===> Analyzing applications...
+2026-10-22T02:33:03.7905396Z ===> Compiling quic
+2026-10-22T02:33:09.4276065Z ===> Analyzing applications...
+2026-10-22T02:33:09.5092302Z ===> Compiling webtransport
+2026-10-22T02:33:10.5465830Z ===> Analyzing applications...
+2026-10-22T02:33:10.6998506Z ===> Compiling hackney
+2026-10-22T02:33:12.7284192Z ==> swoosh
+2026-10-22T02:33:12.7284781Z Compiling 62 files (.ex)
+2026-10-22T02:33:13.7875854Z Generated swoosh app
+2026-10-22T02:33:13.9459913Z ==> threadline
+2026-10-22T02:33:13.9461017Z Compiling 83 files (.ex)
+2026-10-22T02:33:15.8969945Z Generated threadline app
+2026-10-22T02:33:16.0382054Z ==> tzdata
+2026-10-22T02:33:16.0383277Z Compiling 17 files (.ex)
+2026-10-22T02:33:16.3881912Z Generated tzdata app
+2026-10-22T02:33:16.4430320Z ==> chimeway
+2026-10-22T02:33:16.4430868Z Compiling 63 files (.ex)
+2026-10-22T02:33:17.6557481Z Generated chimeway app
+2026-10-22T02:33:17.8594557Z ==> sigra
+2026-10-22T02:33:17.8595363Z Compiling 22 files (.ex)
+2026-10-22T02:33:20.5097673Z Generated sigra app
+2026-10-22T02:33:21.7911181Z Running ExUnit with seed: 758282, max_cases: 8
+2026-10-22T02:33:21.8088539Z Excluding tags: [:scaffold, :upgrade]
+2026-10-22T02:33:21.8117181Z 
+2026-10-22T02:33:21.8649269Z     warning: redefining module Sigra.Test.PostgresCase (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresCase.beam)
+2026-10-22T02:33:21.8655233Z     │
+2026-10-22T02:33:21.8655772Z   2 │   defmodule Sigra.Test.PostgresCase do
+2026-10-22T02:33:21.8656548Z     │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:21.8657229Z     │
+2026-10-22T02:33:21.8657872Z     └─ test/support/postgres_case.ex:2: Sigra.Test.PostgresCase (module)
+2026-10-22T02:33:21.8658389Z 
+2026-10-22T02:33:21.9048218Z     warning: redefining module Sigra.Test.Support.PasskeyFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.Support.PasskeyFixtures.beam)
+2026-10-22T02:33:21.9049814Z     │
+2026-10-22T02:33:21.9050382Z   1 │ defmodule Sigra.Test.Support.PasskeyFixtures do
+2026-10-22T02:33:21.9051069Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:21.9051552Z     │
+2026-10-22T02:33:21.9052278Z     └─ test/support/passkey_fixtures.ex:1: Sigra.Test.Support.PasskeyFixtures (module)
+2026-10-22T02:33:21.9052857Z 
+2026-10-22T02:33:22.4857660Z     warning: function build_user/0 is unused
+2026-10-22T02:33:22.4865503Z     │
+2026-10-22T02:33:22.4866566Z  47 │   defp build_user do
+2026-10-22T02:33:22.4867367Z     │        ~
+2026-10-22T02:33:22.4867950Z     │
+2026-10-22T02:33:22.4868924Z     └─ test/sigra/plug/fetch_session_test.exs:47:8: Sigra.Plug.FetchSessionTest (module)
+2026-10-22T02:33:22.4869764Z 
+2026-10-22T02:33:22.9437140Z ........................................................................................................................................................................................................................................
+2026-10-22T02:33:22.9439778Z [DX-02] getting-started.md reading estimate: 18.45 min total (2090 words / 10.45 min prose + 24 code blocks / 8.0 min skim)
+2026-10-22T02:33:23.0472900Z .............
+2026-10-22T02:33:23.0473408Z 
+2026-10-22T02:33:23.0506960Z   1) test 146-01-01: CI remains dispatchable on release refs with canonical gate job ids (Sigra.Planning.Phase146ReleaseValidationTest)
+2026-10-22T02:33:23.0533393Z ##[error]     test/sigra/planning/phase_146_release_validation_test.exs:19
+2026-10-22T02:33:23.0541533Z      Assertion with =~ failed
+2026-10-22T02:33:23.0542092Z      code:  assert ci =~ ~r/^  pull_request:\n    branches: \[main\]/m
+2026-10-22T02:33:23.0573424Z      left:  "name: CI\n\non:\n  # Release-ref evidence path: manually dispatch this workflow from a v* tag\n  # (`gh workflow run \"CI\" --ref v1.0.0` or Actions UI) to rerun canonical gates.\n  workflow_dispatch:\n    inputs:\n      force_fail_probe:\n        description: 'Intentionally fail a nightly-gated job to verify the nightly lane reports red (set true to probe).'\n        required: false\n        type: boolean\n        default: false\n      force_rot_probe:\n        description: 'Inject a synthetic rotted skip into the GATE-03 honest-skip verdict so the fail direction of ci-gate is provable on demand (set true to probe).'\n        required: false\n        type: boolean\n        default: false\n      recapture_branch:\n        description: 'Branch to run branch-scoped baseline recapture against (D-04). When set, the two amd64 recapture jobs (admin_design_recapture, admin_checkpoint_recapture) run on this ref and their PRs target it instead of main. Leave empty for ordinary release-evidence dispatches.'\n        required: false\n        type: string\n        default: ''\n      phase_244_final_main:\n        description: 'Run required Phase 244 final-main consumers without baseline recapture jobs.'\n        required: false\n        type: boolean\n        default: false\n  schedule:\n    # Nightly-broad run (04:30 UTC). Avoids the 45 6 slot used by playwright-github-pages.yml.\n    # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.\n    - cron: '30 4 * * *'\n  push:\n    branches: [main, release-please--branches--main]\n  pull_request:\n    branches: [main, gsd/253-replan-proof-a6838a8f9-docs-*]\n\n# Least-privilege default for GITHUB_TOKEN: CI only reads the repo and\n# uploads artifacts (via actions/upload-artifact, which does not require\n# contents: write). Any job that needs additional scopes must override\n# `permissions:` at the job level.\npermissions:\n  contents: read\n\n# Phase 230 (FAST-04 / D-12, D-13, D-14): PR runs on the same PR number supersede\n# each other (superseded run concludes `cancelled`). Every non-PR event (push,\n# schedule, workflow_dispatch) keys on its own unique github.run_id, giving it a\n# group of one that is structurally never queued and never cancelled — release\n# integrity does not depend on the value of any expression. SEED-005's verbatim\n# proposal (group on github.ref with a conditional cancel-in-progress) was\n# rejected: cancel-in-progress: false still *queues* (GitHub holds one running\n# plus one pending per group), and queueing two rapid main pushes compounds the\n# release lane's 30-minute gate-ci-green polling ceiling. cancel-in-progress is\n# a bare boolean, never an expression producing a quoted string — the string\n# \"false\" is truthy and would cancel anyway. ci.yml's triggers are\n# push: branches: [main] plus pull_request: branches: [main], so there is no\n# same-SHA double trigger and the \"cancelled run strands a required context\"\n# hazard does not apply.\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}\n  cancel-in-progress: true\n\n# Note: Repository secret HEX_API_KEY (Hex.pm) is not read by this workflow unless\n# you add an explicit publish job with `env: HEX_API_KEY: ${{ secrets.HEX_API_KEY }}`.\n# Library/install failures are unrelated to that secret.\n\njobs:\n  release_ref_guard:\n    name: Release ref guard\n    runs-on: ubuntu-latest\n    # Phase 230 (FAST-07 / D-19, D-20): every job below declares an explicit\n    # timeout-minutes so a hung job fails in bounded time instead of consuming\n    # the 360-minute GitHub Actions default. Sizing rule: ~2x the live-measured\n    # duration from PR run 30390832059 / push run 30389700235 (230-EVIDENCE.md),\n    # floor 5 minutes, widened for warm-cache/network-bound/high-historical-max\n    # jobs. The clock starts when the job is scheduled onto a runner, so queue\n    # and setup time count against the ceiling. example_playwright_smoke is\n    # deliberately generous (45) per D-20: it measured 28.5m and has hit 41.7m\n    # historically, so a tighter ceiling would time out the very runs this\n    # phase is j" <> ...
+2026-10-22T02:33:23.0600695Z      right: ~r/^  pull_request:\n    branches: \[main\]/m
+2026-10-22T02:33:23.0601222Z      stacktrace:
+2026-10-22T02:33:23.0601764Z        test/sigra/planning/phase_146_release_validation_test.exs:26: (test)
+2026-10-22T02:33:23.0602225Z 
+2026-10-22T02:33:23.8137911Z ...............................................................
+2026-10-22T02:33:23.8167299Z 02:33:23.809 [debug] Tzdata polling for update.
+2026-10-22T02:33:24.2889051Z ...................................................................................
+2026-10-22T02:33:24.2889957Z 02:33:24.240 [info] The function passed as a handler with ID "test-oauth-register" is a local function.
+2026-10-22T02:33:24.2891798Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:24.2892815Z 
+2026-10-22T02:33:24.2893402Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:24.4260708Z     warning: redefining module Sigra.Test.AuditQueryIndexScratchRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditQueryIndexScratchRepo.beam)
+2026-10-22T02:33:24.4281539Z     │
+2026-10-22T02:33:24.4284152Z   2 │   defmodule Sigra.Test.AuditQueryIndexScratchRepo do
+2026-10-22T02:33:24.4285582Z     │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:24.4286452Z     │
+2026-10-22T02:33:24.4288616Z     └─ test/support/audit_query_index_scratch_repo.ex:2: Sigra.Test.AuditQueryIndexScratchRepo (module)
+2026-10-22T02:33:24.4309690Z 
+2026-10-22T02:33:24.4672608Z .........
+2026-10-22T02:33:24.4675194Z 02:33:24.465 [info] The function passed as a handler with ID "test-oauth-login" is a local function.
+2026-10-22T02:33:24.4677599Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:24.4690712Z 
+2026-10-22T02:33:24.4691564Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:24.5464324Z .................
+2026-10-22T02:33:24.5465673Z 02:33:24.543 [error] OAuth callback for google: provider returned no email
+2026-10-22T02:33:25.1638366Z .........................................................................
+2026-10-22T02:33:25.1640223Z 02:33:25.162 [info] tzdata release in place is from a file last modified Fri, 11 Sep 2026 22:36:31 GMT. Release file on server was last modified Wed, 30 Sep 2026 01:06:34 GMT.
+2026-10-22T02:33:25.1777702Z ...
+2026-10-22T02:33:25.1778651Z 02:33:25.177 [debug] Tzdata downloading new data from https://data.iana.org/time-zones/tzdata-latest.tar.gz
+2026-10-22T02:33:25.2392904Z     warning: redefining module Sigra.InvitationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.InvitationsFixtures.beam)
+2026-10-22T02:33:25.2417747Z     │
+2026-10-22T02:33:25.2439644Z   1 │ defmodule Sigra.InvitationsFixtures do
+2026-10-22T02:33:25.2440307Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:25.2441306Z     │
+2026-10-22T02:33:25.2442107Z     └─ test/support/fixtures/invitations_fixtures.ex:1: Sigra.InvitationsFixtures (module)
+2026-10-22T02:33:25.2442792Z 
+2026-10-22T02:33:25.3280055Z     warning: default values for the optional arguments in the private function base_attrs/1 are never used
+2026-10-22T02:33:25.3281897Z     │
+2026-10-22T02:33:25.3282652Z  11 │   defp base_attrs(overrides \\ %{}) do
+2026-10-22T02:33:25.3283537Z     │        ~
+2026-10-22T02:33:25.3284547Z     │
+2026-10-22T02:33:25.3285535Z     └─ test/sigra/audit/changeset_test.exs:11:8: Sigra.Audit.ChangesetTest (module)
+2026-10-22T02:33:25.3286639Z 
+2026-10-22T02:33:26.0040046Z     warning: redefining module Sigra.Test.OAuthHelpers (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.OAuthHelpers.beam)
+2026-10-22T02:33:26.0041877Z     │
+2026-10-22T02:33:26.0083961Z   1 │ defmodule Sigra.Test.OAuthHelpers do
+2026-10-22T02:33:26.0085139Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.0085895Z     │
+2026-10-22T02:33:26.0086943Z     └─ test/support/oauth_helpers.ex:1: Sigra.Test.OAuthHelpers (module)
+2026-10-22T02:33:26.0087671Z 
+2026-10-22T02:33:26.0308696Z     warning: redefining module Sigra.Test.MockUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockUser.beam)
+2026-10-22T02:33:26.0310492Z     │
+2026-10-22T02:33:26.0311388Z  32 │ defmodule Sigra.Test.MockUser do
+2026-10-22T02:33:26.0312238Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.0312949Z     │
+2026-10-22T02:33:26.0313830Z     └─ test/support/oauth_helpers.ex:32: Sigra.Test.MockUser (module)
+2026-10-22T02:33:26.0314589Z 
+2026-10-22T02:33:26.0758206Z     warning: redefining module Sigra.Test.MockIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockIdentity.beam)
+2026-10-22T02:33:26.0760157Z     │
+2026-10-22T02:33:26.0761197Z  44 │ defmodule Sigra.Test.MockIdentity do
+2026-10-22T02:33:26.0762111Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.0762876Z     │
+2026-10-22T02:33:26.0763746Z     └─ test/support/oauth_helpers.ex:44: Sigra.Test.MockIdentity (module)
+2026-10-22T02:33:26.0764486Z 
+2026-10-22T02:33:26.1220452Z     warning: redefining module Sigra.Test.MockSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSession.beam)
+2026-10-22T02:33:26.1222869Z     │
+2026-10-22T02:33:26.1223815Z  63 │ defmodule Sigra.Test.MockSession do
+2026-10-22T02:33:26.1225098Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.1225777Z     │
+2026-10-22T02:33:26.1227372Z     └─ test/support/oauth_helpers.ex:63: Sigra.Test.MockSession (module)
+2026-10-22T02:33:26.1228165Z 
+2026-10-22T02:33:26.1507045Z     warning: redefining module Sigra.Test.MockSessionStore (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSessionStore.beam)
+2026-10-22T02:33:26.1508463Z     │
+2026-10-22T02:33:26.1508981Z  66 │ defmodule Sigra.Test.MockSessionStore do
+2026-10-22T02:33:26.1509648Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.1510096Z     │
+2026-10-22T02:33:26.1510740Z     └─ test/support/oauth_helpers.ex:66: Sigra.Test.MockSessionStore (module)
+2026-10-22T02:33:26.1511271Z 
+2026-10-22T02:33:26.1792651Z     warning: redefining module Sigra.Test.MockRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockRepo.beam)
+2026-10-22T02:33:26.1802256Z     │
+2026-10-22T02:33:26.1802617Z  70 │ defmodule Sigra.Test.MockRepo do
+2026-10-22T02:33:26.1803368Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.1803854Z     │
+2026-10-22T02:33:26.1804697Z     └─ test/support/oauth_helpers.ex:70: Sigra.Test.MockRepo (module)
+2026-10-22T02:33:26.1805397Z 
+2026-10-22T02:33:26.2099864Z      warning: redefining module Sigra.Test.CallbackRepo.ExistingIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.ExistingIdentity.beam)
+2026-10-22T02:33:26.2115526Z      │
+2026-10-22T02:33:26.2116392Z  122 │ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
+2026-10-22T02:33:26.2117724Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.2118259Z      │
+2026-10-22T02:33:26.2119072Z      └─ test/support/oauth_helpers.ex:122: Sigra.Test.CallbackRepo.ExistingIdentity (module)
+2026-10-22T02:33:26.2119766Z 
+2026-10-22T02:33:26.2548642Z      warning: redefining module Sigra.Test.CallbackRepo.EmailMismatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMismatch.beam)
+2026-10-22T02:33:26.2577247Z      │
+2026-10-22T02:33:26.2598111Z  167 │ defmodule Sigra.Test.CallbackRepo.EmailMismatch do
+2026-10-22T02:33:26.2600302Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.2627053Z      │
+2026-10-22T02:33:26.2635834Z ..........................................................................................................................................................................................................................
+2026-10-22T02:33:26.2637809Z      └─ test/support/oauth_helpers.ex:167: Sigra.Test.CallbackRepo.EmailMismatch (module)
+2026-10-22T02:33:26.2638603Z 
+2026-10-22T02:33:26.2658525Z 02:33:26.262 [debug] Tzdata data downloaded. Release version 2026e.
+2026-10-22T02:33:26.2660341Z      warning: redefining module Sigra.Test.CallbackRepo.EmailMatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMatch.beam)
+2026-10-22T02:33:26.2662035Z      │
+2026-10-22T02:33:26.2662606Z  196 │ defmodule Sigra.Test.CallbackRepo.EmailMatch do
+2026-10-22T02:33:26.2663273Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.2663700Z      │
+2026-10-22T02:33:26.2664352Z      └─ test/support/oauth_helpers.ex:196: Sigra.Test.CallbackRepo.EmailMatch (module)
+2026-10-22T02:33:26.2664880Z 
+2026-10-22T02:33:26.2949057Z      warning: redefining module Sigra.Test.CallbackRepo.NewUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.NewUser.beam)
+2026-10-22T02:33:26.2954794Z      │
+2026-10-22T02:33:26.2955910Z  210 │ defmodule Sigra.Test.CallbackRepo.NewUser do
+2026-10-22T02:33:26.2957483Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.2958388Z      │
+2026-10-22T02:33:26.2960134Z      └─ test/support/oauth_helpers.ex:210: Sigra.Test.CallbackRepo.NewUser (module)
+2026-10-22T02:33:26.2961101Z 
+2026-10-22T02:33:26.3254736Z ..
+2026-10-22T02:33:26.3286997Z 02:33:26.319 [error] OAuth callback for google: provider returned no email
+2026-10-22T02:33:26.3297488Z .
+2026-10-22T02:33:26.3328144Z 02:33:26.321 [error] OAuth authorize_url failed for failing: %{reason: :provider_error}
+2026-10-22T02:33:26.3608070Z     warning: redefining module Sigra.Test.MultiStub (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MultiStub.beam)
+2026-10-22T02:33:26.3627429Z     │
+2026-10-22T02:33:26.3657447Z   1 │ defmodule Sigra.Test.MultiStub do
+2026-10-22T02:33:26.3658503Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:26.3683509Z     │
+2026-10-22T02:33:26.3707861Z     └─ test/support/multi_stub.ex:1: Sigra.Test.MultiStub (module)
+2026-10-22T02:33:26.3721515Z 
+2026-10-22T02:33:26.6672317Z .......................................................................
+2026-10-22T02:33:26.6673797Z 02:33:26.666 [error] OAuth UID/email mismatch: provider_uid provider_uid_123 maps to user 42 but email oauth@example.com belongs to user 99
+2026-10-22T02:33:26.6682754Z .
+2026-10-22T02:33:26.6683497Z 02:33:26.667 [error] OAuth callback for google: provider returned no email
+2026-10-22T02:33:26.6684438Z .
+2026-10-22T02:33:26.6685188Z 02:33:26.667 [error] OAuth callback for google: provider returned no email
+2026-10-22T02:33:26.8650396Z       warning: default values for the optional arguments in the private function build_session/1 are never used
+2026-10-22T02:33:26.8677300Z       │
+2026-10-22T02:33:26.8707475Z  1213 │   defp build_session(overrides \\ %{}) do
+2026-10-22T02:33:26.8737014Z       │        ~
+2026-10-22T02:33:26.8767015Z       │
+2026-10-22T02:33:26.8768489Z       └─ test/sigra/auth_test.exs:1213:8: Sigra.AuthTest (module)
+2026-10-22T02:33:26.8768999Z 
+2026-10-22T02:33:27.8458545Z     warning: redefining module Sigra.Test.AuditEvent (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditEvent.beam)
+2026-10-22T02:33:27.8487528Z     │
+2026-10-22T02:33:27.8515046Z   1 │ defmodule Sigra.Test.AuditEvent do
+2026-10-22T02:33:27.8547290Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:27.8577224Z     │
+2026-10-22T02:33:27.8578391Z     └─ test/support/audit_test_event.ex:1: Sigra.Test.AuditEvent (module)
+2026-10-22T02:33:27.8606914Z 
+2026-10-22T02:33:27.9240865Z ....................................................................................................
+2026-10-22T02:33:27.9242702Z 02:33:27.923 [info] Tzdata has updated the release from 2026d to 2026e
+2026-10-22T02:33:27.9244346Z 
+2026-10-22T02:33:27.9244977Z 02:33:27.923 [debug] Tzdata deleting ETS table for version 2026d
+2026-10-22T02:33:27.9317952Z 
+2026-10-22T02:33:27.9318817Z 02:33:27.925 [debug] Tzdata deleting ETS table file for version 2026d
+2026-10-22T02:33:28.5699050Z     warning: redefining module Sigra.Test.CITimingFormatter (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CITimingFormatter.beam)
+2026-10-22T02:33:28.5729992Z     │
+2026-10-22T02:33:28.5780372Z   1 │ defmodule Sigra.Test.CITimingFormatter do
+2026-10-22T02:33:28.5827272Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:28.5848938Z     │
+2026-10-22T02:33:28.5887685Z     └─ test/support/ci_timing_formatter.ex:1: Sigra.Test.CITimingFormatter (module)
+2026-10-22T02:33:28.5900889Z 
+2026-10-22T02:33:29.1753437Z     warning: redefining module Sigra.Test.EmailFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.EmailFixtures.beam)
+2026-10-22T02:33:29.1767190Z     │
+2026-10-22T02:33:29.1797305Z   1 │ defmodule Sigra.Test.EmailFixtures do
+2026-10-22T02:33:29.1827225Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:29.1854079Z     │
+2026-10-22T02:33:29.1858039Z     └─ test/support/fixtures/email_fixtures.ex:1: Sigra.Test.EmailFixtures (module)
+2026-10-22T02:33:29.1896826Z 
+2026-10-22T02:33:29.7958858Z     warning: redefining module Sigra.TestUserToken (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUserToken.beam)
+2026-10-22T02:33:29.7988317Z     │
+2026-10-22T02:33:29.8023424Z   1 │ defmodule Sigra.TestUserToken do
+2026-10-22T02:33:29.8025828Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:29.8047648Z     │
+2026-10-22T02:33:29.8050013Z     └─ test/support/test_user_token.ex:1: Sigra.TestUserToken (module)
+2026-10-22T02:33:29.8053687Z 
+2026-10-22T02:33:30.0359329Z     warning: redefining module Sigra.Test.PlanningPaths (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PlanningPaths.beam)
+2026-10-22T02:33:30.0377339Z     │
+2026-10-22T02:33:30.0397734Z   1 │ defmodule Sigra.Test.PlanningPaths do
+2026-10-22T02:33:30.0398711Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:30.0399694Z     │
+2026-10-22T02:33:30.0400790Z     └─ test/support/planning_paths.ex:1: Sigra.Test.PlanningPaths (module)
+2026-10-22T02:33:30.0401698Z 
+2026-10-22T02:33:30.2829250Z error: undefined variable "web_module"
+2026-10-22T02:33:30.2851206Z └─ nofile:1:15
+2026-10-22T02:33:30.2856898Z 
+2026-10-22T02:33:30.2963852Z error: undefined variable "web_module"
+2026-10-22T02:33:30.2986429Z └─ nofile:1:15
+2026-10-22T02:33:30.2988305Z 
+2026-10-22T02:33:30.3074275Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3079501Z └─ nofile:1:15
+2026-10-22T02:33:30.3080785Z 
+2026-10-22T02:33:30.3117247Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3118869Z └─ nofile:1:15
+2026-10-22T02:33:30.3129795Z 
+2026-10-22T02:33:30.3177162Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3178293Z └─ nofile:1:15
+2026-10-22T02:33:30.3178657Z 
+2026-10-22T02:33:30.3226681Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3227781Z └─ nofile:1:15
+2026-10-22T02:33:30.3228606Z 
+2026-10-22T02:33:30.3257131Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3258020Z └─ nofile:1:15
+2026-10-22T02:33:30.3258430Z 
+2026-10-22T02:33:30.3295117Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3295956Z └─ nofile:1:15
+2026-10-22T02:33:30.3296990Z 
+2026-10-22T02:33:30.3297859Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3298809Z └─ nofile:1:15
+2026-10-22T02:33:30.3299425Z 
+2026-10-22T02:33:30.3336862Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3337927Z └─ nofile:1:15
+2026-10-22T02:33:30.3339053Z 
+2026-10-22T02:33:30.3357121Z error: undefined variable "web_module"
+2026-10-22T02:33:30.3358253Z └─ nofile:1:15
+2026-10-22T02:33:30.3358531Z 
+2026-10-22T02:33:30.3848512Z     warning: redefining module Sigra.Test.InstallFixture (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.InstallFixture.beam)
+2026-10-22T02:33:30.3858837Z     │
+2026-10-22T02:33:30.3859904Z   1 │ defmodule Sigra.Test.InstallFixture do
+2026-10-22T02:33:30.3861182Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:30.3862130Z     │
+2026-10-22T02:33:30.3863344Z     └─ test/support/install_fixture.ex:1: Sigra.Test.InstallFixture (module)
+2026-10-22T02:33:30.3864282Z 
+2026-10-22T02:33:30.9590038Z ................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+2026-10-22T02:33:30.9620059Z 02:33:30.955 [warning] [Sigra.Workers.AuditForward] Forwarder Sigra.Audit.Forwarders.Noop does not export handle_event/4
+2026-10-22T02:33:31.1044606Z     warning: the underscored variable "_key" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+2026-10-22T02:33:31.1047906Z     │
+2026-10-22T02:33:31.1049264Z  11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+2026-10-22T02:33:31.1050994Z     │                                  ~
+2026-10-22T02:33:31.1052269Z     │
+2026-10-22T02:33:31.1053887Z     └─ test/sigra/rate_limiters/hammer_test.exs:11:34: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+2026-10-22T02:33:31.1054981Z 
+2026-10-22T02:33:31.1056771Z     warning: the underscored variable "_window_ms" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+2026-10-22T02:33:31.1058895Z     │
+2026-10-22T02:33:31.1059850Z  11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+2026-10-22T02:33:31.1061383Z     │                                        ~
+2026-10-22T02:33:31.1063401Z     │
+2026-10-22T02:33:31.1064797Z     └─ test/sigra/rate_limiters/hammer_test.exs:11:40: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+2026-10-22T02:33:31.1066007Z 
+2026-10-22T02:33:31.1067804Z     warning: the underscored variable "_limit" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+2026-10-22T02:33:31.1070056Z     │
+2026-10-22T02:33:31.1071336Z  11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+2026-10-22T02:33:31.1072793Z     │                                                    ~
+2026-10-22T02:33:31.1073907Z     │
+2026-10-22T02:33:31.1075323Z     └─ test/sigra/rate_limiters/hammer_test.exs:11:52: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+2026-10-22T02:33:31.1076898Z 
+2026-10-22T02:33:31.2289586Z ..................
+2026-10-22T02:33:31.2300590Z 02:33:31.228 [warning] [Sigra] Hammer rate limiter unavailable, failing open
+2026-10-22T02:33:31.3841891Z ...........
+2026-10-22T02:33:31.3875728Z 02:33:31.382 [info] The function passed as a handler with ID "test-rate-limited" is a local function.
+2026-10-22T02:33:31.3911776Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:31.3937081Z 
+2026-10-22T02:33:31.3937875Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:32.1606866Z     warning: redefining module Sigra.Test.PostgresRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresRepo.beam)
+2026-10-22T02:33:32.1609432Z     │
+2026-10-22T02:33:32.1610366Z   2 │   defmodule Sigra.Test.PostgresRepo do
+2026-10-22T02:33:32.1611392Z     │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:32.1612315Z     │
+2026-10-22T02:33:32.1613358Z     └─ test/support/postgres_test_repo.ex:2: Sigra.Test.PostgresRepo (module)
+2026-10-22T02:33:32.1614257Z 
+2026-10-22T02:33:32.2099452Z     warning: redefining module Sigra.Test.UserSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.UserSession.beam)
+2026-10-22T02:33:32.2101220Z     │
+2026-10-22T02:33:32.2102192Z   1 │ defmodule Sigra.Test.UserSession do
+2026-10-22T02:33:32.2102955Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:32.2103596Z     │
+2026-10-22T02:33:32.2104348Z     └─ test/support/test_user_session.ex:1: Sigra.Test.UserSession (module)
+2026-10-22T02:33:32.2105185Z 
+2026-10-22T02:33:32.5759075Z     warning: redefining module Sigra.MockRepo.Behaviour (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.MockRepo.Behaviour.beam)
+2026-10-22T02:33:32.5770334Z     │
+2026-10-22T02:33:32.5788414Z   1 │ defmodule Sigra.MockRepo.Behaviour do
+2026-10-22T02:33:32.5817049Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:32.5817511Z     │
+2026-10-22T02:33:32.5837734Z     └─ test/support/mock_repo_behaviour.ex:1: Sigra.MockRepo.Behaviour (module)
+2026-10-22T02:33:32.5870420Z 
+2026-10-22T02:33:34.6949098Z .....................................................................................................................................................................................................................................................................................................................................................................................................................********..............................................................................................................................................................................****...........
+2026-10-22T02:33:34.6952319Z 02:33:34.690 [info] The function passed as a handler with ID "test-event-defaults-#Reference<0.3375296439.3358851073.176272>" is a local function.
+2026-10-22T02:33:34.6954865Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:34.6957396Z 
+2026-10-22T02:33:34.6957998Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:34.7193001Z     warning: redefining module Sigra.TestUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUser.beam)
+2026-10-22T02:33:34.7247936Z     │
+2026-10-22T02:33:34.7294580Z   1 │ defmodule Sigra.TestUser do
+2026-10-22T02:33:34.7318177Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:34.7340537Z     │
+2026-10-22T02:33:34.7341530Z     └─ test/support/test_user.ex:1: Sigra.TestUser (module)
+2026-10-22T02:33:34.7342187Z 
+2026-10-22T02:33:34.7681437Z .........................................................
+2026-10-22T02:33:34.7682984Z 02:33:34.767 [info] The function passed as a handler with ID "test-span-#Reference<0.3375296439.3358851074.171573>" is a local function.
+2026-10-22T02:33:34.7708210Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:34.7727929Z 
+2026-10-22T02:33:34.7763918Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:34.8428169Z ............................
+2026-10-22T02:33:34.8429798Z 02:33:34.840 [info] The function passed as a handler with ID "test-event-#Reference<0.3375296439.3358851074.171682>" is a local function.
+2026-10-22T02:33:34.8434158Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:34.8435944Z 
+2026-10-22T02:33:34.8436818Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:34.8603372Z ....
+2026-10-22T02:33:34.8648116Z 02:33:34.859 [info] The function passed as a handler with ID "test-exception-#Reference<0.3375296439.3358851076.77489>" is a local function.
+2026-10-22T02:33:34.8668057Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:34.8676890Z 
+2026-10-22T02:33:34.8687360Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:35.5208814Z     warning: redefining module Sigra.OrganizationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.OrganizationsFixtures.beam)
+2026-10-22T02:33:35.5210904Z     │
+2026-10-22T02:33:35.5211730Z   1 │ defmodule Sigra.OrganizationsFixtures do
+2026-10-22T02:33:35.5212575Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:35.5213195Z     │
+2026-10-22T02:33:35.5214243Z     └─ test/support/fixtures/organizations_fixtures.ex:1: Sigra.OrganizationsFixtures (module)
+2026-10-22T02:33:35.5215929Z 
+2026-10-22T02:33:35.6647936Z     warning: default values for the optional arguments in the private function test_config/1 are never used
+2026-10-22T02:33:35.6649068Z     │
+2026-10-22T02:33:35.6665726Z  16 │   defp test_config(overrides \\ []) do
+2026-10-22T02:33:35.6667059Z     │        ~
+2026-10-22T02:33:35.6668293Z     │
+2026-10-22T02:33:35.6669325Z     └─ test/sigra/plug/fetch_bearer_test.exs:16:8: Sigra.Plug.FetchBearerTest (module)
+2026-10-22T02:33:35.6670143Z 
+2026-10-22T02:33:35.9650754Z     warning: default values for the optional arguments in the private function build_membership/1 are never used
+2026-10-22T02:33:35.9665627Z     │
+2026-10-22T02:33:35.9667562Z  94 │   defp build_membership(attrs \\ %{}),
+2026-10-22T02:33:35.9668521Z     │        ~
+2026-10-22T02:33:35.9669138Z     │
+2026-10-22T02:33:35.9671702Z     └─ test/sigra/live_view/organization_scope_test.exs:94:8: Sigra.LiveView.OrganizationScopeTest (module)
+2026-10-22T02:33:35.9673427Z 
+2026-10-22T02:33:36.1575093Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.get_by/2 is undefined or private
+2026-10-22T02:33:36.1577156Z └─ nofile:141:10: Sigra.Test.OrgsTemplateCompile15.Organizations.get_auth_policy/1
+2026-10-22T02:33:36.1578702Z └─ nofile:225:23: Sigra.Test.OrgsTemplateCompile15.Organizations.local_auth_policy_for/2
+2026-10-22T02:33:36.1579494Z 
+2026-10-22T02:33:36.1580533Z warning: Sigra.Test.OrgsTemplateCompile15.Accounts.OrganizationAuthPolicy.changeset/2 is undefined or private. Did you mean:
+2026-10-22T02:33:36.1581596Z 
+2026-10-22T02:33:36.1581959Z     * __changeset__/0
+2026-10-22T02:33:36.1582405Z 
+2026-10-22T02:33:36.1583237Z └─ nofile:153:31: Sigra.Test.OrgsTemplateCompile15.Organizations.change_auth_policy/2
+2026-10-22T02:33:36.1583850Z 
+2026-10-22T02:33:36.1584459Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.insert_or_update/1 is undefined or private
+2026-10-22T02:33:36.1585593Z └─ nofile:162:13: Sigra.Test.OrgsTemplateCompile15.Organizations.save_auth_policy/2
+2026-10-22T02:33:36.1586313Z 
+2026-10-22T02:33:36.1590364Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.all/1 is undefined or private
+2026-10-22T02:33:36.1592360Z └─ nofile:179:13: Sigra.Test.OrgsTemplateCompile15.Organizations.list_auth_policy_exemptions/1
+2026-10-22T02:33:36.1593865Z └─ nofile:191:13: Sigra.Test.OrgsTemplateCompile15.Organizations.list_break_glass_candidates/1
+2026-10-22T02:33:36.1594810Z 
+2026-10-22T02:33:36.1597905Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.transaction/1 is undefined or private
+2026-10-22T02:33:36.1599765Z └─ nofile:204:12: Sigra.Test.OrgsTemplateCompile15.Organizations.enable_sso_only/2
+2026-10-22T02:33:36.1603830Z 
+2026-10-22T02:33:36.1604602Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.rollback/1 is undefined or private
+2026-10-22T02:33:36.1605913Z └─ nofile:209:36: Sigra.Test.OrgsTemplateCompile15.Organizations.enable_sso_only/2
+2026-10-22T02:33:36.1606987Z 
+2026-10-22T02:33:36.1607755Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.delete_all/1 is undefined or private
+2026-10-22T02:33:36.1609834Z └─ nofile:281:15: Sigra.Test.OrgsTemplateCompile15.Organizations.replace_auth_policy_exemptions/2
+2026-10-22T02:33:36.1610806Z 
+2026-10-22T02:33:36.1611959Z warning: Sigra.Test.OrgsTemplateCompile15.Accounts.OrganizationAuthPolicyExemption.changeset/2 is undefined or private. Did you mean:
+2026-10-22T02:33:36.1613297Z 
+2026-10-22T02:33:36.1613669Z     * __changeset__/0
+2026-10-22T02:33:36.1614107Z 
+2026-10-22T02:33:36.1614981Z └─ nofile:287:49: Sigra.Test.OrgsTemplateCompile15.Organizations.replace_auth_policy_exemptions/2
+2026-10-22T02:33:36.1615858Z 
+2026-10-22T02:33:36.1616831Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.insert/1 is undefined or private
+2026-10-22T02:33:36.1624881Z └─ nofile:288:22: Sigra.Test.OrgsTemplateCompile15.Organizations.replace_auth_policy_exemptions/2
+2026-10-22T02:33:36.1625886Z 
+2026-10-22T02:33:36.1626987Z warning: Sigra.Test.OrgsTemplateCompile15.Repo.exists?/1 is undefined or private
+2026-10-22T02:33:36.1628563Z └─ nofile:302:10: Sigra.Test.OrgsTemplateCompile15.Organizations.break_glass_exempt?/2
+2026-10-22T02:33:36.1638528Z 
+2026-10-22T02:33:37.8668670Z ............................................................................................................................................................................................................................................................................................................................................................................................................................................................
+2026-10-22T02:33:37.8670520Z 02:33:37.866 [info] The function passed as a handler with ID "backfill-done-166692" is a local function.
+2026-10-22T02:33:37.8672586Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.8674108Z 
+2026-10-22T02:33:37.8674706Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.8730968Z ...
+2026-10-22T02:33:37.8732109Z 02:33:37.872 [info] The function passed as a handler with ID "backfill-test-154723" is a local function.
+2026-10-22T02:33:37.8734195Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.8735706Z 
+2026-10-22T02:33:37.8736433Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.8912470Z ......
+2026-10-22T02:33:37.8913763Z 02:33:37.890 [info] The function passed as a handler with ID "test-forward-error-4" is a local function.
+2026-10-22T02:33:37.8915892Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.8917494Z 
+2026-10-22T02:33:37.8918162Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.8949143Z 
+2026-10-22T02:33:37.8950101Z 02:33:37.894 [warning] [Sigra.Audit.Forwarders.Threadline] Caught throw: :nope
+2026-10-22T02:33:37.8996753Z .
+2026-10-22T02:33:37.8997807Z 02:33:37.899 [info] The function passed as a handler with ID "test-forward-ok-1" is a local function.
+2026-10-22T02:33:37.9000205Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.9001561Z 
+2026-10-22T02:33:37.9001945Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.9044418Z .
+2026-10-22T02:33:37.9047033Z 02:33:37.904 [info] The function passed as a handler with ID "test-forward-error-3" is a local function.
+2026-10-22T02:33:37.9052568Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.9053952Z 
+2026-10-22T02:33:37.9054351Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.9054754Z 
+2026-10-22T02:33:37.9055184Z 02:33:37.904 [warning] [Sigra.Audit.Forwarders.Threadline] Caught exit: :boom
+2026-10-22T02:33:37.9086794Z .
+2026-10-22T02:33:37.9087732Z 02:33:37.908 [info] The function passed as a handler with ID "test-forward-ok-6" is a local function.
+2026-10-22T02:33:37.9090646Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.9092034Z 
+2026-10-22T02:33:37.9092439Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.9184976Z .
+2026-10-22T02:33:37.9187746Z 02:33:37.918 [info] The function passed as a handler with ID "test-forward-error-5" is a local function.
+2026-10-22T02:33:37.9190101Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.9191407Z 
+2026-10-22T02:33:37.9191774Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.9192150Z 
+2026-10-22T02:33:37.9192698Z 02:33:37.918 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: forced Threadline failure
+2026-10-22T02:33:37.9245899Z .
+2026-10-22T02:33:37.9246843Z 02:33:37.924 [info] The function passed as a handler with ID "test-forward-error-2" is a local function.
+2026-10-22T02:33:37.9250845Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:37.9255627Z 
+2026-10-22T02:33:37.9257278Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:37.9257692Z 
+2026-10-22T02:33:37.9258505Z 02:33:37.924 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: injected failure
+2026-10-22T02:33:38.0418092Z ..............................
+2026-10-22T02:33:38.0419247Z 02:33:38.041 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.3375296439.3358851073.181282>} is a local function.
+2026-10-22T02:33:38.0421378Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:38.0422763Z 
+2026-10-22T02:33:38.0423158Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:38.0423874Z 
+2026-10-22T02:33:38.0424610Z 02:33:38.041 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.3375296439.3358851075.64979>} is a local function.
+2026-10-22T02:33:38.0426997Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:38.0428334Z 
+2026-10-22T02:33:38.0428687Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:38.8163314Z ....................................
+2026-10-22T02:33:38.8167398Z 02:33:38.815 [info] The function passed as a handler with ID "audit-ms-rollback-174370" is a local function.
+2026-10-22T02:33:38.8169003Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:38.8169854Z 
+2026-10-22T02:33:38.8170120Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:39.0240592Z .
+2026-10-22T02:33:39.0241452Z 02:33:39.023 [info] The function passed as a handler with ID "audit-ms-174402" is a local function.
+2026-10-22T02:33:39.0243285Z This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+2026-10-22T02:33:39.0244600Z 
+2026-10-22T02:33:39.0244981Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+2026-10-22T02:33:39.6146113Z ...............................................................................................
+2026-10-22T02:33:39.6147641Z Finished in 17.7 seconds (15.1s async, 2.6s sync)
+2026-10-22T02:33:39.6148701Z 33 doctests, 3 properties, 2656 tests, 1 failure, 12 skipped (22 excluded)
+2026-10-22T02:33:40.1333484Z Unlocked deps:
+2026-10-22T02:33:40.1333923Z * threadline
+2026-10-22T02:33:40.1334320Z 
+2026-10-22T02:33:40.7241994Z * Cleaning threadline
+2026-10-22T02:33:41.3871107Z Compiling 1 file (.ex)
+2026-10-22T02:33:41.6175912Z Generated sigra app
+2026-10-22T02:33:43.2797174Z Running ExUnit with seed: 262466, max_cases: 8
+2026-10-22T02:33:43.3019713Z Excluding tags: [:test, :upgrade]
+2026-10-22T02:33:43.3048107Z Including tags: [:threadline_guard]
+2026-10-22T02:33:43.3049126Z 
+2026-10-22T02:33:43.3143920Z     warning: redefining module Sigra.TestUserToken (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUserToken.beam)
+2026-10-22T02:33:43.3153901Z     │
+2026-10-22T02:33:43.3154830Z   1 │ defmodule Sigra.TestUserToken do
+2026-10-22T02:33:43.3155224Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:43.3155523Z     │
+2026-10-22T02:33:43.3155944Z     └─ test/support/test_user_token.ex:1: Sigra.TestUserToken (module)
+2026-10-22T02:33:43.3156474Z 
+2026-10-22T02:33:44.9679373Z     warning: function build_user/0 is unused
+2026-10-22T02:33:44.9680868Z     │
+2026-10-22T02:33:44.9681557Z  47 │   defp build_user do
+2026-10-22T02:33:44.9682255Z     │        ~
+2026-10-22T02:33:44.9682804Z     │
+2026-10-22T02:33:44.9683794Z     └─ test/sigra/plug/fetch_session_test.exs:47:8: Sigra.Plug.FetchSessionTest (module)
+2026-10-22T02:33:44.9684584Z 
+2026-10-22T02:33:45.8183277Z     warning: redefining module Sigra.MockRepo.Behaviour (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.MockRepo.Behaviour.beam)
+2026-10-22T02:33:45.8186465Z     │
+2026-10-22T02:33:45.8187521Z   1 │ defmodule Sigra.MockRepo.Behaviour do
+2026-10-22T02:33:45.8208677Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:45.8210121Z     │
+2026-10-22T02:33:45.8211254Z     └─ test/support/mock_repo_behaviour.ex:1: Sigra.MockRepo.Behaviour (module)
+2026-10-22T02:33:45.8212277Z 
+2026-10-22T02:33:46.1330400Z     warning: redefining module Sigra.Test.PlanningPaths (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PlanningPaths.beam)
+2026-10-22T02:33:46.1337227Z     │
+2026-10-22T02:33:46.1337918Z   1 │ defmodule Sigra.Test.PlanningPaths do
+2026-10-22T02:33:46.1339152Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:46.1340266Z     │
+2026-10-22T02:33:46.1341094Z     └─ test/support/planning_paths.ex:1: Sigra.Test.PlanningPaths (module)
+2026-10-22T02:33:46.1341795Z 
+2026-10-22T02:33:46.4798450Z     warning: redefining module Sigra.Test.EmailFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.EmailFixtures.beam)
+2026-10-22T02:33:46.4800988Z     │
+2026-10-22T02:33:46.4802110Z   1 │ defmodule Sigra.Test.EmailFixtures do
+2026-10-22T02:33:46.4803240Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:46.4804435Z     │
+2026-10-22T02:33:46.4805740Z     └─ test/support/fixtures/email_fixtures.ex:1: Sigra.Test.EmailFixtures (module)
+2026-10-22T02:33:46.4807031Z 
+2026-10-22T02:33:46.7426927Z     warning: default values for the optional arguments in the private function base_attrs/1 are never used
+2026-10-22T02:33:46.7428442Z     │
+2026-10-22T02:33:46.7429271Z  11 │   defp base_attrs(overrides \\ %{}) do
+2026-10-22T02:33:46.7429823Z     │        ~
+2026-10-22T02:33:46.7430152Z     │
+2026-10-22T02:33:46.7430822Z     └─ test/sigra/audit/changeset_test.exs:11:8: Sigra.Audit.ChangesetTest (module)
+2026-10-22T02:33:46.7431365Z 
+2026-10-22T02:33:46.9606378Z     warning: redefining module Sigra.InvitationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.InvitationsFixtures.beam)
+2026-10-22T02:33:46.9638647Z     │
+2026-10-22T02:33:46.9657266Z   1 │ defmodule Sigra.InvitationsFixtures do
+2026-10-22T02:33:46.9657891Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:46.9658348Z     │
+2026-10-22T02:33:46.9659127Z     └─ test/support/fixtures/invitations_fixtures.ex:1: Sigra.InvitationsFixtures (module)
+2026-10-22T02:33:46.9659768Z 
+2026-10-22T02:33:47.8798002Z     warning: default values for the optional arguments in the private function build_membership/1 are never used
+2026-10-22T02:33:47.8800401Z     │
+2026-10-22T02:33:47.8801220Z  94 │   defp build_membership(attrs \\ %{}),
+2026-10-22T02:33:47.8802019Z     │        ~
+2026-10-22T02:33:47.8802575Z     │
+2026-10-22T02:33:47.8803683Z     └─ test/sigra/live_view/organization_scope_test.exs:94:8: Sigra.LiveView.OrganizationScopeTest (module)
+2026-10-22T02:33:47.8804656Z 
+2026-10-22T02:33:48.3069085Z     warning: redefining module Sigra.Test.InstallFixture (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.InstallFixture.beam)
+2026-10-22T02:33:48.3071135Z     │
+2026-10-22T02:33:48.3072136Z   1 │ defmodule Sigra.Test.InstallFixture do
+2026-10-22T02:33:48.3073100Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:48.3073937Z     │
+2026-10-22T02:33:48.3074961Z     └─ test/support/install_fixture.ex:1: Sigra.Test.InstallFixture (module)
+2026-10-22T02:33:48.3075880Z 
+2026-10-22T02:33:48.6390688Z ............    warning: redefining module Sigra.Test.Support.PasskeyFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.Support.PasskeyFixtures.beam)
+2026-10-22T02:33:48.6407580Z     │
+2026-10-22T02:33:48.6408186Z   1 │ defmodule Sigra.Test.Support.PasskeyFixtures do
+2026-10-22T02:33:48.6408872Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:48.6409356Z     │
+2026-10-22T02:33:48.6410086Z     └─ test/support/passkey_fixtures.ex:1: Sigra.Test.Support.PasskeyFixtures (module)
+2026-10-22T02:33:48.6410668Z 
+2026-10-22T02:33:48.6661392Z     warning: redefining module Sigra.Test.MultiStub (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MultiStub.beam)
+2026-10-22T02:33:48.6664986Z     │
+2026-10-22T02:33:48.6665856Z   1 │ defmodule Sigra.Test.MultiStub do
+2026-10-22T02:33:48.6666933Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:48.6667701Z     │
+2026-10-22T02:33:48.6668585Z     └─ test/support/multi_stub.ex:1: Sigra.Test.MultiStub (module)
+2026-10-22T02:33:48.6669331Z 
+2026-10-22T02:33:49.1908222Z     warning: redefining module Sigra.TestUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUser.beam)
+2026-10-22T02:33:49.1909933Z     │
+2026-10-22T02:33:49.1922655Z   1 │ defmodule Sigra.TestUser do
+2026-10-22T02:33:49.1947389Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:49.1963627Z     │
+2026-10-22T02:33:49.1977387Z     └─ test/support/test_user.ex:1: Sigra.TestUser (module)
+2026-10-22T02:33:49.1977801Z 
+2026-10-22T02:33:49.5245520Z     warning: the underscored variable "_key" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+2026-10-22T02:33:49.5247655Z     │
+2026-10-22T02:33:49.5248282Z  11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+2026-10-22T02:33:49.5248950Z     │                                  ~
+2026-10-22T02:33:49.5249417Z     │
+2026-10-22T02:33:49.5250268Z     └─ test/sigra/rate_limiters/hammer_test.exs:11:34: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+2026-10-22T02:33:49.5250974Z 
+2026-10-22T02:33:49.5252409Z     warning: the underscored variable "_window_ms" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+2026-10-22T02:33:49.5254035Z     │
+2026-10-22T02:33:49.5254597Z  11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+2026-10-22T02:33:49.5255255Z     │                                        ~
+2026-10-22T02:33:49.5255723Z     │
+2026-10-22T02:33:49.5256686Z     └─ test/sigra/rate_limiters/hammer_test.exs:11:40: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+2026-10-22T02:33:49.5257362Z 
+2026-10-22T02:33:49.5258521Z     warning: the underscored variable "_limit" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+2026-10-22T02:33:49.5259977Z     │
+2026-10-22T02:33:49.5260490Z  11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+2026-10-22T02:33:49.5261174Z     │                                                    ~
+2026-10-22T02:33:49.5261675Z     │
+2026-10-22T02:33:49.5262500Z     └─ test/sigra/rate_limiters/hammer_test.exs:11:52: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+2026-10-22T02:33:49.5263155Z 
+2026-10-22T02:33:49.6172916Z     warning: redefining module Sigra.Test.AuditQueryIndexScratchRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditQueryIndexScratchRepo.beam)
+2026-10-22T02:33:49.6174503Z     │
+2026-10-22T02:33:49.6175082Z   2 │   defmodule Sigra.Test.AuditQueryIndexScratchRepo do
+2026-10-22T02:33:49.6175771Z     │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:49.6176470Z     │
+2026-10-22T02:33:49.6177311Z     └─ test/support/audit_query_index_scratch_repo.ex:2: Sigra.Test.AuditQueryIndexScratchRepo (module)
+2026-10-22T02:33:49.6177963Z 
+2026-10-22T02:33:49.7679061Z     warning: redefining module Sigra.Test.PostgresRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresRepo.beam)
+2026-10-22T02:33:49.7681479Z     │
+2026-10-22T02:33:49.7682348Z   2 │   defmodule Sigra.Test.PostgresRepo do
+2026-10-22T02:33:49.7683286Z     │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:49.7684043Z     │
+2026-10-22T02:33:49.7685045Z     └─ test/support/postgres_test_repo.ex:2: Sigra.Test.PostgresRepo (module)
+2026-10-22T02:33:49.7685908Z 
+2026-10-22T02:33:50.1097499Z ..
+2026-10-22T02:33:50.1112523Z 02:33:50.103 [warning] [Sigra.Workers.AuditForward] Forwarder Sigra.Audit.Forwarders.Noop does not export handle_event/4
+2026-10-22T02:33:50.4900332Z .....    warning: redefining module Sigra.OrganizationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.OrganizationsFixtures.beam)
+2026-10-22T02:33:50.4906861Z     │
+2026-10-22T02:33:50.4907383Z   1 │ defmodule Sigra.OrganizationsFixtures do
+2026-10-22T02:33:50.4908007Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:50.4908449Z     │
+2026-10-22T02:33:50.4909232Z     └─ test/support/fixtures/organizations_fixtures.ex:1: Sigra.OrganizationsFixtures (module)
+2026-10-22T02:33:50.4910392Z 
+2026-10-22T02:33:50.7497348Z     warning: redefining module Sigra.Test.AuditEvent (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditEvent.beam)
+2026-10-22T02:33:50.7529706Z     │
+2026-10-22T02:33:50.7543427Z   1 │ defmodule Sigra.Test.AuditEvent do
+2026-10-22T02:33:50.7544021Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:50.7544456Z     │
+2026-10-22T02:33:50.7545061Z     └─ test/support/audit_test_event.ex:1: Sigra.Test.AuditEvent (module)
+2026-10-22T02:33:50.7545541Z 
+2026-10-22T02:33:50.9613798Z       warning: default values for the optional arguments in the private function build_session/1 are never used
+2026-10-22T02:33:50.9635658Z       │
+2026-10-22T02:33:50.9636415Z  1213 │   defp build_session(overrides \\ %{}) do
+2026-10-22T02:33:50.9637017Z       │        ~
+2026-10-22T02:33:50.9637381Z       │
+2026-10-22T02:33:50.9637978Z       └─ test/sigra/auth_test.exs:1213:8: Sigra.AuthTest (module)
+2026-10-22T02:33:50.9638482Z 
+2026-10-22T02:33:51.5205962Z     warning: redefining module Sigra.Test.OAuthHelpers (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.OAuthHelpers.beam)
+2026-10-22T02:33:51.5208526Z     │
+2026-10-22T02:33:51.5209656Z   1 │ defmodule Sigra.Test.OAuthHelpers do
+2026-10-22T02:33:51.5210601Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.5211326Z     │
+2026-10-22T02:33:51.5212227Z     └─ test/support/oauth_helpers.ex:1: Sigra.Test.OAuthHelpers (module)
+2026-10-22T02:33:51.5212991Z 
+2026-10-22T02:33:51.5375359Z     warning: redefining module Sigra.Test.MockUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockUser.beam)
+2026-10-22T02:33:51.5407892Z     │
+2026-10-22T02:33:51.5408429Z  32 │ defmodule Sigra.Test.MockUser do
+2026-10-22T02:33:51.5409006Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.5417948Z     │
+2026-10-22T02:33:51.5419033Z     └─ test/support/oauth_helpers.ex:32: Sigra.Test.MockUser (module)
+2026-10-22T02:33:51.5419867Z 
+2026-10-22T02:33:51.5710142Z     warning: redefining module Sigra.Test.MockIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockIdentity.beam)
+2026-10-22T02:33:51.5716082Z     │
+2026-10-22T02:33:51.5717289Z  44 │ defmodule Sigra.Test.MockIdentity do
+2026-10-22T02:33:51.5717831Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.5718250Z     │
+2026-10-22T02:33:51.5719020Z     └─ test/support/oauth_helpers.ex:44: Sigra.Test.MockIdentity (module)
+2026-10-22T02:33:51.5719516Z 
+2026-10-22T02:33:51.6096440Z     warning: redefining module Sigra.Test.MockSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSession.beam)
+2026-10-22T02:33:51.6097876Z     │
+2026-10-22T02:33:51.6117031Z  63 │ defmodule Sigra.Test.MockSession do
+2026-10-22T02:33:51.6141923Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.6142518Z     │
+2026-10-22T02:33:51.6143169Z     └─ test/support/oauth_helpers.ex:63: Sigra.Test.MockSession (module)
+2026-10-22T02:33:51.6143731Z 
+2026-10-22T02:33:51.6290023Z     warning: redefining module Sigra.Test.MockSessionStore (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSessionStore.beam)
+2026-10-22T02:33:51.6317702Z     │
+2026-10-22T02:33:51.6347727Z  66 │ defmodule Sigra.Test.MockSessionStore do
+2026-10-22T02:33:51.6353846Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.6354331Z     │
+2026-10-22T02:33:51.6354993Z     └─ test/support/oauth_helpers.ex:66: Sigra.Test.MockSessionStore (module)
+2026-10-22T02:33:51.6355525Z 
+2026-10-22T02:33:51.6487956Z     warning: redefining module Sigra.Test.MockRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockRepo.beam)
+2026-10-22T02:33:51.6495607Z     │
+2026-10-22T02:33:51.6496587Z  70 │ defmodule Sigra.Test.MockRepo do
+2026-10-22T02:33:51.6497448Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.6498132Z     │
+2026-10-22T02:33:51.6499519Z     └─ test/support/oauth_helpers.ex:70: Sigra.Test.MockRepo (module)
+2026-10-22T02:33:51.6500193Z 
+2026-10-22T02:33:51.6773060Z      warning: redefining module Sigra.Test.CallbackRepo.ExistingIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.ExistingIdentity.beam)
+2026-10-22T02:33:51.6797667Z      │
+2026-10-22T02:33:51.6803684Z  122 │ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
+2026-10-22T02:33:51.6804628Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.6805365Z      │
+2026-10-22T02:33:51.6806523Z      └─ test/support/oauth_helpers.ex:122: Sigra.Test.CallbackRepo.ExistingIdentity (module)
+2026-10-22T02:33:51.6807335Z 
+2026-10-22T02:33:51.7188760Z      warning: redefining module Sigra.Test.CallbackRepo.EmailMismatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMismatch.beam)
+2026-10-22T02:33:51.7192333Z      │
+2026-10-22T02:33:51.7193319Z  167 │ defmodule Sigra.Test.CallbackRepo.EmailMismatch do
+2026-10-22T02:33:51.7194384Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.7195110Z      │
+2026-10-22T02:33:51.7196047Z      └─ test/support/oauth_helpers.ex:167: Sigra.Test.CallbackRepo.EmailMismatch (module)
+2026-10-22T02:33:51.7197089Z 
+2026-10-22T02:33:51.7384032Z      warning: redefining module Sigra.Test.CallbackRepo.EmailMatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMatch.beam)
+2026-10-22T02:33:51.7386058Z      │
+2026-10-22T02:33:51.7387329Z  196 │ defmodule Sigra.Test.CallbackRepo.EmailMatch do
+2026-10-22T02:33:51.7388447Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.7389373Z      │
+2026-10-22T02:33:51.7390471Z      └─ test/support/oauth_helpers.ex:196: Sigra.Test.CallbackRepo.EmailMatch (module)
+2026-10-22T02:33:51.7391420Z 
+2026-10-22T02:33:51.7601183Z      warning: redefining module Sigra.Test.CallbackRepo.NewUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.NewUser.beam)
+2026-10-22T02:33:51.7603429Z      │
+2026-10-22T02:33:51.7604376Z  210 │ defmodule Sigra.Test.CallbackRepo.NewUser do
+2026-10-22T02:33:51.7605273Z      │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:51.7606621Z      │
+2026-10-22T02:33:51.7607581Z      └─ test/support/oauth_helpers.ex:210: Sigra.Test.CallbackRepo.NewUser (module)
+2026-10-22T02:33:51.7608297Z 
+2026-10-22T02:33:52.0227861Z     warning: default values for the optional arguments in the private function test_config/1 are never used
+2026-10-22T02:33:52.0228874Z     │
+2026-10-22T02:33:52.0229472Z  16 │   defp test_config(overrides \\ []) do
+2026-10-22T02:33:52.0230272Z     │        ~
+2026-10-22T02:33:52.0230794Z     │
+2026-10-22T02:33:52.0231638Z     └─ test/sigra/plug/fetch_bearer_test.exs:16:8: Sigra.Plug.FetchBearerTest (module)
+2026-10-22T02:33:52.0232353Z 
+2026-10-22T02:33:52.5428106Z .    warning: redefining module Sigra.Test.PostgresCase (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresCase.beam)
+2026-10-22T02:33:52.5429542Z     │
+2026-10-22T02:33:52.5430010Z   2 │   defmodule Sigra.Test.PostgresCase do
+2026-10-22T02:33:52.5430565Z     │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:52.5430998Z     │
+2026-10-22T02:33:52.5431648Z     └─ test/support/postgres_case.ex:2: Sigra.Test.PostgresCase (module)
+2026-10-22T02:33:52.5432126Z 
+2026-10-22T02:33:52.5738917Z ....    warning: redefining module Sigra.Test.CITimingFormatter (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CITimingFormatter.beam)
+2026-10-22T02:33:52.5740671Z     │
+2026-10-22T02:33:52.5753263Z   1 │ defmodule Sigra.Test.CITimingFormatter do
+2026-10-22T02:33:52.5754134Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:52.5754942Z     │
+2026-10-22T02:33:52.5756078Z     └─ test/support/ci_timing_formatter.ex:1: Sigra.Test.CITimingFormatter (module)
+2026-10-22T02:33:52.5756994Z 
+2026-10-22T02:33:53.4906382Z ......................    warning: redefining module Sigra.Test.UserSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.UserSession.beam)
+2026-10-22T02:33:53.4917210Z     │
+2026-10-22T02:33:53.4931165Z   1 │ defmodule Sigra.Test.UserSession do
+2026-10-22T02:33:53.4932037Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-10-22T02:33:53.4940559Z     │
+2026-10-22T02:33:53.4941993Z     └─ test/support/test_user_session.ex:1: Sigra.Test.UserSession (module)
+2026-10-22T02:33:53.4943577Z 
+2026-10-22T02:33:54.3851359Z      warning: Sigra.Audit.Forwarders.Threadline.attach/1 is undefined (module Sigra.Audit.Forwarders.Threadline is not available or is yet to be defined)
+2026-10-22T02:33:54.3852863Z      │
+2026-10-22T02:33:54.3853368Z  136 │     :ok = Threadline.attach(opts)
+2026-10-22T02:33:54.3854464Z      │                      ~
+2026-10-22T02:33:54.3855144Z      │
+2026-10-22T02:33:54.3858179Z      └─ test/sigra/audit/forwarders/threadline_test.exs:136:22: Sigra.Audit.Forwarders.ThreadlineTest.attach_threadline/1
+2026-10-22T02:33:54.3859038Z 
+2026-10-22T02:33:54.4644179Z ...................
+2026-10-22T02:33:54.4645904Z Finished in 11.1 seconds (11.0s async, 0.07s sync)
+2026-10-22T02:33:54.4647270Z 65 tests, 0 failures (2649 excluded)
+2026-10-22T02:33:55.7849167Z Resolving Hex dependencies...
+2026-10-22T02:33:56.1396022Z Resolution completed in 0.351s
+2026-10-22T02:33:56.2017069Z Unchanged:
+2026-10-22T02:33:56.2018857Z   argon2_elixir 4.1.3
+2026-10-22T02:33:56.2038731Z   asn1_compiler 0.1.1
+2026-10-22T02:33:56.2040302Z   assent 0.3.1
+2026-10-22T02:33:56.2041893Z   bcrypt_elixir 3.3.2
+2026-10-22T02:33:56.2043031Z   bunt 1.0.0
+2026-10-22T02:33:56.2044637Z   cbor 1.0.2
+2026-10-22T02:33:56.2045691Z   certifi 2.17.0
+2026-10-22T02:33:56.2046531Z   chimeway 1.0.0
+2026-10-22T02:33:56.2047229Z   cloak 1.1.4 VULNERABLE!
+2026-10-22T02:33:56.2047973Z     EEF-CVE-2026-95105 (HIGH)
+2026-10-22T02:33:56.2048671Z     aka: CVE-2026-95105
+2026-10-22T02:33:56.2049753Z     Cloak AES-CTR cipher lacks ciphertext authentication, allowing chosen-plaintext forgery by bit flipping
+2026-10-22T02:33:56.2051035Z     https://osv.dev/vulnerability/EEF-CVE-2026-95105
+2026-10-22T02:33:56.2051854Z   cloak_ecto 1.3.0 VULNERABLE!
+2026-10-22T02:33:56.2052661Z     EEF-CVE-2026-94206 (MEDIUM)
+2026-10-22T02:33:56.2053869Z     aka: CVE-2026-94206
+2026-10-22T02:33:56.2054871Z     Cloak PBKDF2 field ignores the configured iteration count and runs only :size rounds
+2026-10-22T02:33:56.2056034Z     https://osv.dev/vulnerability/EEF-CVE-2026-94206
+2026-10-22T02:33:56.2057076Z   comeonin 5.5.1
+2026-10-22T02:33:56.2057797Z   credo 1.7.18
+2026-10-22T02:33:56.2058486Z   db_connection 2.10.2
+2026-10-22T02:33:56.2059223Z   decimal 3.1.1 VULNERABLE!
+2026-10-22T02:33:56.2059975Z     EEF-CVE-2026-97853 (MEDIUM)
+2026-10-22T02:33:56.2060757Z     aka: CVE-2026-97853, GHSA-6c27-994x-c52f
+2026-10-22T02:33:56.2061889Z     Unbounded allocation in decimal Decimal.round/3 driven by the places argument enables DoS
+2026-10-22T02:33:56.2063073Z     https://osv.dev/vulnerability/EEF-CVE-2026-97853
+2026-10-22T02:33:56.2063962Z   dialyxir 1.4.7
+2026-10-22T02:33:56.2064670Z   earmark_parser 1.4.44
+2026-10-22T02:33:56.2065381Z   ecto 3.14.2
+2026-10-22T02:33:56.2066034Z   ecto_sql 3.14.0
+2026-10-22T02:33:56.2066918Z   elixir_make 0.9.0
+2026-10-22T02:33:56.2067846Z   eqrcode 0.2.1
+2026-10-22T02:33:56.2068336Z   erlex 0.2.9
+2026-10-22T02:33:56.2068770Z   ex_doc 0.40.3
+2026-10-22T02:33:56.2069173Z   file_system 1.1.1
+2026-10-22T02:33:56.2069587Z   flop 0.26.3
+2026-10-22T02:33:56.2069991Z   flop_phoenix 0.26.0
+2026-10-22T02:33:56.2070424Z   h2 0.12.0
+2026-10-22T02:33:56.2070827Z   hackney 4.7.4
+2026-10-22T02:33:56.2071223Z   hammer 7.4.0
+2026-10-22T02:33:56.2071604Z   idna 7.1.0
+2026-10-22T02:33:56.2072006Z   jason 1.4.5
+2026-10-22T02:33:56.2072402Z   joken 2.6.2
+2026-10-22T02:33:56.2072780Z   jose 1.11.12
+2026-10-22T02:33:56.2073179Z   makeup 1.2.1
+2026-10-22T02:33:56.2073586Z   makeup_elixir 1.0.1
+2026-10-22T02:33:56.2074322Z   makeup_erlang 1.1.0
+2026-10-22T02:33:56.2075327Z   mime 2.0.7
+2026-10-22T02:33:56.2076543Z   mimerl 1.5.0
+2026-10-22T02:33:56.2077148Z   mox 1.2.0
+2026-10-22T02:33:56.2077721Z   nimble_csv 1.3.0
+2026-10-22T02:33:56.2078345Z   nimble_options 1.1.1
+2026-10-22T02:33:56.2078991Z   nimble_ownership 1.0.2
+2026-10-22T02:33:56.2079612Z   nimble_parsec 1.4.2
+2026-10-22T02:33:56.2080224Z   nimble_totp 1.0.0
+2026-10-22T02:33:56.2080917Z   oban 2.23.0
+2026-10-22T02:33:56.2081509Z   parse_trans 3.4.2
+2026-10-22T02:33:56.2082129Z   phoenix 1.8.13
+2026-10-22T02:33:56.2082711Z   phoenix_html 4.3.0
+2026-10-22T02:33:56.2083377Z   phoenix_live_view 1.1.33
+2026-10-22T02:33:56.2084067Z   phoenix_pubsub 2.3.0
+2026-10-22T02:33:56.2084710Z   phoenix_template 1.0.4
+2026-10-22T02:33:56.2085384Z   plug 1.20.3
+2026-10-22T02:33:56.2086113Z   plug_crypto 2.2.0
+2026-10-22T02:33:56.2086677Z   postgrex 0.22.4
+2026-10-22T02:33:56.2087345Z   quic 1.8.2
+2026-10-22T02:33:56.2087782Z   ssl_verify_fun 1.1.7
+2026-10-22T02:33:56.2088609Z   stream_data 1.3.0
+2026-10-22T02:33:56.2089231Z   swoosh 1.28.0
+2026-10-22T02:33:56.2089679Z   telemetry 1.4.2
+2026-10-22T02:33:56.2090483Z   threadline 0.7.0
+2026-10-22T02:33:56.2090850Z   tzdata 1.1.5
+2026-10-22T02:33:56.2091185Z   wax_ 0.7.0
+2026-10-22T02:33:56.2091658Z   websock 0.5.3
+2026-10-22T02:33:56.2092115Z   websock_adapter 0.6.0
+2026-10-22T02:33:56.2092517Z   webtransport 0.4.5
+2026-10-22T02:33:56.2092823Z   x509 0.9.2
+2026-10-22T02:33:56.2558222Z Found packages with security advisories, see above for details
+2026-10-22T02:33:56.3259037Z All dependencies have been fetched
+2026-10-22T02:33:57.0462375Z ==> threadline
+2026-10-22T02:33:57.0479044Z Compiling 83 files (.ex)
+2026-10-22T02:33:59.0118025Z Generated threadline app
+2026-10-22T02:33:59.1572978Z ==> sigra
+2026-10-22T02:33:59.1574213Z Compiling 178 files (.ex)
+2026-10-22T02:34:04.5725208Z Generated sigra app
+2026-10-22T02:34:04.7267697Z ##[error]Process completed with exit code 2.
+2026-10-22T02:34:04.7336561Z ##[group]Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+2026-10-22T02:34:04.7337000Z with:
+2026-10-22T02:34:04.7337266Z   name: library-test-timing-39711884498-1
+2026-10-22T02:34:04.7337784Z   path: test-results/ci-exunit-timing-main.json
+test-results/ci-exunit-timing-threadline-guard.json
+
+2026-10-22T02:34:04.7338281Z   retention-days: 7
+2026-10-22T02:34:04.7338518Z   if-no-files-found: warn
+2026-10-22T02:34:04.7338773Z   compression-level: 6
+2026-10-22T02:34:04.7339007Z   overwrite: false
+2026-10-22T02:34:04.7339236Z   include-hidden-files: false
+2026-10-22T02:34:04.7339495Z   archive: true
+2026-10-22T02:34:04.7339714Z env:
+2026-10-22T02:34:04.7339992Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:34:04.7340436Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:34:04.7340793Z ##[endgroup]
+2026-10-22T02:34:04.8801123Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-22T02:34:04.8803686Z The least common ancestor is /home/runner/work/sigra/sigra/test-results. This will be the root directory of the artifact
+2026-10-22T02:34:04.8804899Z With the provided path, there will be 2 files uploaded
+2026-10-22T02:34:04.8808942Z Artifact name is valid!
+2026-10-22T02:34:04.8809642Z Root directory input is valid!
+2026-10-22T02:34:05.2027299Z Uploading artifact: library-test-timing-39711884498-1.zip
+2026-10-22T02:34:05.2063712Z Beginning upload of artifact content to blob storage
+2026-10-22T02:34:05.5640996Z Uploaded bytes 95987
+2026-10-22T02:34:05.6265670Z Finished uploading artifact content to blob storage!
+2026-10-22T02:34:05.6267085Z SHA256 digest of uploaded artifact is b281ee659d05632be2a1d50afe0514caf3f2a3d8e4f8149668483d6ccb6914a6
+2026-10-22T02:34:05.6267950Z Finalizing artifact upload
+2026-10-22T02:34:06.2105469Z Artifact library-test-timing-39711884498-1 successfully finalized. Artifact ID 12397727173
+2026-10-22T02:34:06.2107239Z Artifact library-test-timing-39711884498-1 has been successfully uploaded! Final size is 95987 bytes. Artifact ID is 12397727173
+2026-10-22T02:34:06.2110293Z Artifact download URL: https://github.com/szTheory/sigra/actions/runs/39711884498/artifacts/12397727173
+2026-10-22T02:34:06.2245000Z ##[group]Run node <<'NODE'
+2026-10-22T02:34:06.2245364Z [36;1mnode <<'NODE'[0m
+2026-10-22T02:34:06.2245639Z [36;1mconst fs = require('node:fs');[0m
+2026-10-22T02:34:06.2246044Z [36;1mconst { spawnSync } = require('node:child_process');[0m
+2026-10-22T02:34:06.2246688Z [36;1mconst readTool = (name) => {[0m
+2026-10-22T02:34:06.2247358Z [36;1m  try { return fs.readFileSync('.tool-versions', 'utf8').split(/\n/).find((line) => line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; }[0m
+2026-10-22T02:34:06.2248002Z [36;1m  catch { return null; }[0m
+2026-10-22T02:34:06.2248277Z [36;1m};[0m
+2026-10-22T02:34:06.2248575Z [36;1mconst commandVersion = (command, args, pattern) => {[0m
+2026-10-22T02:34:06.2249041Z [36;1m  const result = spawnSync(command, args, { encoding: 'utf8' });[0m
+2026-10-22T02:34:06.2249570Z [36;1m  if (result.error?.code === 'ENOENT') return { value: null, reason: 'binary_missing' };[0m
+2026-10-22T02:34:06.2250199Z [36;1m  if (result.status !== 0) return { value: null, reason: 'version_command_failed' };[0m
+2026-10-22T02:34:06.2250869Z [36;1m  const line = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((s) => s.trim()).find((s) => pattern.test(s));[0m
+2026-10-22T02:34:06.2251587Z [36;1m  return line ? { value: line, reason: null } : { value: null, reason: 'version_line_unrecognized' };[0m
+2026-10-22T02:34:06.2252041Z [36;1m};[0m
+2026-10-22T02:34:06.2252414Z [36;1mconst elixirOut = commandVersion('elixir', ['--version'], /^Elixir v?[0-9.]+/);[0m
+2026-10-22T02:34:06.2252980Z [36;1mconst otpOut = commandVersion('elixir', ['--version'], /^Erlang\/OTP [0-9.]+/);[0m
+2026-10-22T02:34:06.2253534Z [36;1mconst cache = (value) => value === 'true' ? 'hit' : value === 'false' ? 'miss' : null;[0m
+2026-10-22T02:34:06.2253978Z [36;1mconst lockVersion = () => {[0m
+2026-10-22T02:34:06.2254684Z [36;1m  try { return JSON.parse(fs.readFileSync('test/example/priv/playwright/package-lock.json', 'utf8')).packages['node_modules/@playwright/test'].version ?? null; }[0m
+2026-10-22T02:34:06.2255415Z [36;1m  catch { return null; }[0m
+2026-10-22T02:34:06.2255690Z [36;1m};[0m
+2026-10-22T02:34:06.2255915Z [36;1mconst metadata = {[0m
+2026-10-22T02:34:06.2256739Z [36;1m  schema_version: 'sigra.ci-measurement-metadata/v1',[0m
+2026-10-22T02:34:06.2257274Z [36;1m  repository: process.env.GITHUB_REPOSITORY ?? null,[0m
+2026-10-22T02:34:06.2257681Z [36;1m  run_id: process.env.GITHUB_RUN_ID ?? null,[0m
+2026-10-22T02:34:06.2258065Z [36;1m  run_attempt: process.env.GITHUB_RUN_ATTEMPT ?? null,[0m
+2026-10-22T02:34:06.2258454Z [36;1m  source_sha: process.env.GITHUB_SHA ?? null,[0m
+2026-10-22T02:34:06.2258833Z [36;1m  event: process.env.GITHUB_EVENT_NAME ?? null,[0m
+2026-10-22T02:34:06.2259159Z [36;1m  matrix_seam: null,[0m
+2026-10-22T02:34:06.2259447Z [36;1m  job_name: process.env.JOB_NAME,[0m
+2026-10-22T02:34:06.2260014Z [36;1m  timing_artifact_name: `library-test-timing-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`,[0m
+2026-10-22T02:34:06.2260570Z [36;1m  exunit_reports: [[0m
+2026-10-22T02:34:06.2260932Z [36;1m    { invocation: 'main', path: 'ci-exunit-timing-main.json' },[0m
+2026-10-22T02:34:06.2261482Z [36;1m    { invocation: 'threadline_guard', path: 'ci-exunit-timing-threadline-guard.json' },[0m
+2026-10-22T02:34:06.2261934Z [36;1m  ],[0m
+2026-10-22T02:34:06.2262195Z [36;1m  runner_os: process.env.RUNNER_OS ?? null,[0m
+2026-10-22T02:34:06.2262590Z [36;1m  runner_arch: process.env.RUNNER_ARCH ?? null,[0m
+2026-10-22T02:34:06.2263147Z [36;1m  runner_image: { image_os: process.env.ImageOS ?? null, image_version: process.env.ImageVersion ?? null },[0m
+2026-10-22T02:34:06.2263790Z [36;1m  cache_outcome: { library_deps: cache(process.env.DEPS_CACHE_HIT) },[0m
+2026-10-22T02:34:06.2264454Z [36;1m  configured_versions: { erlang: readTool('erlang'), elixir: readTool('elixir'), node: null, playwright: lockVersion() },[0m
+2026-10-22T02:34:06.2265589Z [36;1m  observed_versions: { erlang: otpOut.value, elixir: elixirOut.value, node: null, playwright: null },[0m
+2026-10-22T02:34:06.2266601Z [36;1m  version_unavailable: { erlang: otpOut.reason, elixir: elixirOut.reason, node: 'not_applicable', playwright: 'not_applicable' },[0m
+2026-10-22T02:34:06.2267175Z [36;1m};[0m
+2026-10-22T02:34:06.2267477Z [36;1mfs.mkdirSync('test-results', { recursive: true });[0m
+2026-10-22T02:34:06.2268075Z [36;1mfs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata, null, 2)}\n`);[0m
+2026-10-22T02:34:06.2268594Z [36;1mNODE[0m
+2026-10-22T02:34:06.2337212Z shell: /usr/bin/bash -e {0}
+2026-10-22T02:34:06.2337499Z env:
+2026-10-22T02:34:06.2337798Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:34:06.2338255Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:34:06.2338652Z   JOB_NAME: Library tests shard
+2026-10-22T02:34:06.2338912Z   CONFIGURED_NODE: 
+2026-10-22T02:34:06.2339190Z   DEPS_CACHE_HIT: false
+2026-10-22T02:34:06.2339446Z   EXAMPLE_DEPS_CACHE_HIT: 
+2026-10-22T02:34:06.2339695Z   INSTALL_DEPS_CACHE_HIT: 
+2026-10-22T02:34:06.2339936Z   HTTP_DEPS_CACHE_HIT: 
+2026-10-22T02:34:06.2340178Z   BROWSER_DEPS_CACHE_HIT: 
+2026-10-22T02:34:06.2340415Z   BROWSER_CACHE_HIT: 
+2026-10-22T02:34:06.2340647Z ##[endgroup]
+2026-10-22T02:34:06.8971713Z ##[group]Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+2026-10-22T02:34:06.8972149Z with:
+2026-10-22T02:34:06.8972422Z   name: library-measurement-metadata-39711884498-1
+2026-10-22T02:34:06.8972807Z   path: test-results/ci-measurement-metadata.json
+2026-10-22T02:34:06.8973129Z   retention-days: 7
+2026-10-22T02:34:06.8973401Z   if-no-files-found: warn
+2026-10-22T02:34:06.8973670Z   compression-level: 6
+2026-10-22T02:34:06.8973913Z   overwrite: false
+2026-10-22T02:34:06.8974149Z   include-hidden-files: false
+2026-10-22T02:34:06.8974419Z   archive: true
+2026-10-22T02:34:06.8974636Z env:
+2026-10-22T02:34:06.8974942Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+2026-10-22T02:34:06.8975401Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+2026-10-22T02:34:06.8975762Z ##[endgroup]
+2026-10-22T02:34:07.0514469Z With the provided path, there will be 1 file uploaded
+2026-10-22T02:34:07.0519255Z Artifact name is valid!
+2026-10-22T02:34:07.0519962Z Root directory input is valid!
+2026-10-22T02:34:07.3532714Z Uploading artifact: library-measurement-metadata-39711884498-1.zip
+2026-10-22T02:34:07.3567861Z Beginning upload of artifact content to blob storage
+2026-10-22T02:34:07.5705541Z Uploaded bytes 756
+2026-10-22T02:34:07.6227451Z Finished uploading artifact content to blob storage!
+2026-10-22T02:34:07.6228234Z SHA256 digest of uploaded artifact is 918905544d779c578e88de182bafe28db4592d7dec9143fb1a0952d9923a34b9
+2026-10-22T02:34:07.6229119Z Finalizing artifact upload
+2026-10-22T02:34:08.1592899Z Artifact library-measurement-metadata-39711884498-1 successfully finalized. Artifact ID 12397377693
+2026-10-22T02:34:08.1594316Z Artifact library-measurement-metadata-39711884498-1 has been successfully uploaded! Final size is 756 bytes. Artifact ID is 12397377693
+2026-10-22T02:34:08.1598181Z Artifact download URL: https://github.com/szTheory/sigra/actions/runs/39711884498/artifacts/12397377693
+2026-10-22T02:34:08.1803207Z Post job cleanup.
+2026-10-22T02:34:08.2660595Z [command]/usr/bin/git version
+2026-10-22T02:34:08.2699666Z git version 2.55.0
+2026-10-22T02:34:08.2734207Z Temporarily overriding HOME='/home/runner/work/_temp/1075dde7-ed1a-405c-8078-ae95c8c3a155' before making global git config changes
+2026-10-22T02:34:08.2735591Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-22T02:34:08.2740707Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sigra/sigra
+2026-10-22T02:34:08.2772927Z Removing SSH command configuration
+2026-10-22T02:34:08.2779184Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-22T02:34:08.2813601Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-22T02:34:08.3055296Z Removing HTTP extra header
+2026-10-22T02:34:08.3061263Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-22T02:34:08.3099102Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-22T02:34:08.3339023Z Removing includeIf entries pointing to credentials config files
+2026-10-22T02:34:08.3347509Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-22T02:34:08.3376050Z includeif.gitdir:/home/runner/work/sigra/sigra/.git.path
+2026-10-22T02:34:08.3377457Z includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path
+2026-10-22T02:34:08.3378423Z includeif.gitdir:/github/workspace/.git.path
+2026-10-22T02:34:08.3379292Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-22T02:34:08.3385987Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sigra/sigra/.git.path
+2026-10-22T02:34:08.3409093Z /home/runner/work/_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:34:08.3419022Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sigra/sigra/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-9a5ddaea\-d2e6\-4e96\-a48d\-601619b0f509\.config
+2026-10-22T02:34:08.3462628Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path
+2026-10-22T02:34:08.3486770Z /home/runner/work/_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:34:08.3496945Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-9a5ddaea\-d2e6\-4e96\-a48d\-601619b0f509\.config
+2026-10-22T02:34:08.3531819Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-22T02:34:08.3556011Z /github/runner_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:34:08.3563107Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-9a5ddaea\-d2e6\-4e96\-a48d\-601619b0f509\.config
+2026-10-22T02:34:08.3595331Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-22T02:34:08.3617606Z /github/runner_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config
+2026-10-22T02:34:08.3624493Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-9a5ddaea\-d2e6\-4e96\-a48d\-601619b0f509\.config
+2026-10-22T02:34:08.3658647Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-22T02:34:08.3914169Z Removing credentials config '/home/runner/work/_temp/git-credentials-9a5ddaea-d2e6-4e96-a48d-601619b0f509.config'
+2026-10-22T02:34:08.4063730Z Print service container logs: 130871a661f442b28dd8b4078b0b92a0_postgres15_98478d
+2026-10-22T02:34:08.4069066Z ##[command]/usr/bin/docker logs --details 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:34:08.4199304Z  The files belonging to this database system will be owned by user "postgres".
+2026-10-22T02:34:08.4202990Z  initdb: warning: enabling "trust" authentication for local connections
+2026-10-22T02:34:08.4204137Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+2026-10-22T02:34:08.4205785Z  2026-10-22 02:32:12.405 UTC [1] LOG:  starting PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-10-22T02:34:08.4207382Z  This user must also own the server process.
+2026-10-22T02:34:08.4207856Z  
+2026-10-22T02:34:08.4208467Z  The database cluster will be initialized with locale "en_US.utf8".
+2026-10-22T02:34:08.4209160Z  The default database encoding has accordingly been set to "UTF8".
+2026-10-22T02:34:08.4209854Z  The default text search configuration will be set to "english".
+2026-10-22T02:34:08.4210403Z  
+2026-10-22T02:34:08.4210735Z  Data page checksums are disabled.
+2026-10-22T02:34:08.4211156Z  
+2026-10-22T02:34:08.4211645Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-10-22T02:34:08.4212311Z  creating subdirectories ... ok
+2026-10-22T02:34:08.4212834Z  selecting dynamic shared memory implementation ... posix
+2026-10-22T02:34:08.4213401Z  selecting default max_connections ... 100
+2026-10-22T02:34:08.4213896Z  selecting default shared_buffers ... 128MB
+2026-10-22T02:34:08.4214383Z  selecting default time zone ... Etc/UTC
+2026-10-22T02:34:08.4214862Z  creating configuration files ... ok
+2026-10-22T02:34:08.4215307Z  running bootstrap script ... ok
+2026-10-22T02:34:08.4215805Z  performing post-bootstrap initialization ... ok
+2026-10-22T02:34:08.4216492Z  syncing data to disk ... ok
+2026-10-22T02:34:08.4216868Z  
+2026-10-22T02:34:08.4217156Z  
+2026-10-22T02:34:08.4217525Z  Success. You can now start the database server using:
+2026-10-22T02:34:08.4217940Z  
+2026-10-22T02:34:08.4218196Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2026-10-22T02:34:08.4218517Z  
+2026-10-22T02:34:08.4219166Z  waiting for server to start....2026-10-22 02:32:12.099 UTC [49] LOG:  starting PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-10-22T02:34:08.4220062Z  2026-10-22 02:32:12.099 UTC [49] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-10-22T02:34:08.4220651Z  2026-10-22 02:32:12.102 UTC [52] LOG:  database system was shut down at 2026-10-22 02:32:12 UTC
+2026-10-22T02:34:08.4221217Z  2026-10-22 02:32:12.105 UTC [49] LOG:  database system is ready to accept connections
+2026-10-22T02:34:08.4221610Z   done
+2026-10-22T02:34:08.4221826Z  server started
+2026-10-22T02:34:08.4222053Z  CREATE DATABASE
+2026-10-22T02:34:08.4222276Z  
+2026-10-22T02:34:08.4222461Z  
+2026-10-22T02:34:08.4222816Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+2026-10-22T02:34:08.4223230Z  
+2026-10-22T02:34:08.4223502Z  2026-10-22 02:32:12.285 UTC [49] LOG:  received fast shutdown request
+2026-10-22T02:34:08.4224046Z  waiting for server to shut down....2026-10-22 02:32:12.285 UTC [49] LOG:  aborting any active transactions
+2026-10-22T02:34:08.4224732Z  2026-10-22 02:32:12.287 UTC [49] LOG:  background worker "logical replication launcher" (PID 55) exited with exit code 1
+2026-10-22T02:34:08.4225278Z  2026-10-22 02:32:12.288 UTC [50] LOG:  shutting down
+2026-10-22T02:34:08.4225691Z  2026-10-22 02:32:12.288 UTC [50] LOG:  checkpoint starting: shutdown immediate
+2026-10-22T02:34:08.4227828Z  2026-10-22 02:32:12.304 UTC [50] LOG:  checkpoint complete: wrote 922 buffers (5.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.013 s, sync=0.002 s, total=0.016 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4239 kB, estimate=4239 kB
+2026-10-22T02:34:08.4229431Z  2026-10-22 02:32:12.310 UTC [49] LOG:  database system is shut down
+2026-10-22T02:34:08.4229987Z   done
+2026-10-22T02:34:08.4230293Z  server stopped
+2026-10-22T02:34:08.4230620Z  
+2026-10-22T02:34:08.4231010Z  PostgreSQL init process complete; ready for start up.
+2026-10-22T02:34:08.4231517Z  
+2026-10-22T02:34:08.4232013Z  2026-10-22 02:32:12.406 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-10-22T02:34:08.4232753Z  2026-10-22 02:32:12.406 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-10-22T02:34:08.4233600Z  2026-10-22 02:32:12.407 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-10-22T02:34:08.4234743Z  2026-10-22 02:32:12.409 UTC [65] LOG:  database system was shut down at 2026-10-22 02:32:12 UTC
+2026-10-22T02:34:08.4235572Z  2026-10-22 02:32:12.413 UTC [1] LOG:  database system is ready to accept connections
+2026-10-22T02:34:08.4236564Z  2026-10-22 02:32:21.515 UTC [76] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4237238Z  2026-10-22 02:32:31.594 UTC [84] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4237898Z  2026-10-22 02:32:41.667 UTC [91] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4238541Z  2026-10-22 02:32:51.760 UTC [99] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4239185Z  2026-10-22 02:33:01.842 UTC [108] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4239810Z  2026-10-22 02:33:11.932 UTC [115] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4240660Z  2026-10-22 02:33:22.021 UTC [138] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4241249Z  2026-10-22 02:33:32.110 UTC [146] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4242076Z  2026-10-22 02:33:37.255 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "oauth_audit_reg_guard"
+2026-10-22T02:34:08.4243758Z  2026-10-22 02:33:37.255 UTC [130] DETAIL:  Failing row contains (595f939f-940a-415e-83c4-ecb612e6b4bf, 2026-10-22 02:33:37.255668, oauth.register_via_oauth, success, c08a2a26-713f-458d-8ea2-c7dedb144d54, user, c08a2a26-713f-458d-8ea2-c7dedb144d54, null, null, null, {"provider": "google"}, null, c08a2a26-713f-458d-8ea2-c7dedb144d54, 2026-10-22 02:33:37.255766).
+2026-10-22T02:34:08.4245518Z  2026-10-22 02:33:37.255 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","effective_user_id","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+2026-10-22T02:34:08.4246797Z  2026-10-22 02:33:37.292 UTC [127] ERROR:  new row for relation "audit_events" violates check constraint "api_token_revoke_audit_guard"
+2026-10-22T02:34:08.4248169Z  2026-10-22 02:33:37.292 UTC [127] DETAIL:  Failing row contains (8c430c07-d5e5-440c-852e-433b982790aa, 2026-10-22 02:33:37.292495, api.token_revoke, success, 30cc38bd-e2a3-41e0-beb3-c7cfb6dd2669, user, 30cc38bd-e2a3-41e0-beb3-c7cfb6dd2669, null, null, null, {"token_id": "1"}, null, null, 2026-10-22 02:33:37.292586).
+2026-10-22T02:34:08.4249699Z  2026-10-22 02:33:37.292 UTC [127] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4250705Z  2026-10-22 02:33:37.381 UTC [128] ERROR:  new row for relation "audit_events" violates check constraint "api_token_verify_failure_audit_guard"
+2026-10-22T02:34:08.4251919Z  2026-10-22 02:33:37.381 UTC [128] DETAIL:  Failing row contains (27f02ffe-6c72-4fd0-93c2-be778812421c, 2026-10-22 02:33:37.381173, api.token_verify.failure, failure, null, user, null, null, null, null, {"reason": "invalid_token"}, null, null, 2026-10-22 02:33:37.381309).
+2026-10-22T02:34:08.4253197Z  2026-10-22 02:33:37.381 UTC [128] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","outcome","actor_type","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7)
+2026-10-22T02:34:08.4254294Z  2026-10-22 02:33:37.398 UTC [129] ERROR:  new row for relation "audit_events" violates check constraint "api_jwt_refresh_audit_guard"
+2026-10-22T02:34:08.4255590Z  2026-10-22 02:33:37.398 UTC [129] DETAIL:  Failing row contains (38abac99-76a3-48e7-afea-ad7e9b9f3d89, 2026-10-22 02:33:37.397905, api.jwt_refresh, success, 7c6f9993-877d-410f-980b-acd359c80ccf, user, 7c6f9993-877d-410f-980b-acd359c80ccf, null, null, null, {}, null, null, 2026-10-22 02:33:37.398026).
+2026-10-22T02:34:08.4257338Z  2026-10-22 02:33:37.398 UTC [129] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4258329Z  2026-10-22 02:33:37.420 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "api_jwt_refresh_reuse_audit_guard"
+2026-10-22T02:34:08.4259940Z  2026-10-22 02:33:37.420 UTC [130] DETAIL:  Failing row contains (2b01be38-ee2e-41b3-9a22-b667a5a5634c, 2026-10-22 02:33:37.417692, api.jwt_refresh_reuse, failure, bd868aef-452e-4426-9a93-dae568ec0cbc, user, bd868aef-452e-4426-9a93-dae568ec0cbc, null, null, null, {"reason": "refresh_token_reuse_detected"}, null, null, 2026-10-22 02:33:37.417837).
+2026-10-22T02:34:08.4261543Z  2026-10-22 02:33:37.420 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4262498Z  2026-10-22 02:33:37.522 UTC [127] ERROR:  new row for relation "user_api_tokens" violates check constraint "audit_atomic_name_guard"
+2026-10-22T02:34:08.4263748Z  2026-10-22 02:33:37.522 UTC [127] DETAIL:  Failing row contains (1, 9b0665ad-ee8d-4e1c-b255-99b7d0472700, \xa47013d6cdcf918adc63059923ba7bcbad0ec4909bd0f83e09d64d83c8639e..., my_app_sk_, BAD_TOKEN_NAME, {profile:read}, null, null, null, 2026-10-22 02:33:37, 2026-10-22 02:33:37).
+2026-10-22T02:34:08.4265159Z  2026-10-22 02:33:37.522 UTC [127] STATEMENT:  INSERT INTO "user_api_tokens" ("name","prefix","user_id","hashed_token","scopes","inserted_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "id"
+2026-10-22T02:34:08.4266013Z  2026-10-22 02:33:37.645 UTC [147] ERROR:  database "sigra_audit_query_index_scratch" does not exist
+2026-10-22T02:34:08.4266822Z  2026-10-22 02:33:37.645 UTC [147] STATEMENT:  DROP DATABASE "sigra_audit_query_index_scratch"
+2026-10-22T02:34:08.4267350Z  2026-10-22 02:33:37.784 UTC [63] LOG:  checkpoint starting: immediate force wait
+2026-10-22T02:34:08.4268324Z  2026-10-22 02:33:37.807 UTC [63] LOG:  checkpoint complete: wrote 268 buffers (1.6%); 1 WAL file(s) added, 0 removed, 0 recycled; write=0.005 s, sync=0.003 s, total=0.024 s; sync files=259, longest=0.001 s, average=0.001 s; distance=6223 kB, estimate=6223 kB
+2026-10-22T02:34:08.4269483Z  2026-10-22 02:33:38.085 UTC [127] ERROR:  new row for relation "audit_events" violates check constraint "jwt_refresh_cofate_happy_guard"
+2026-10-22T02:34:08.4270778Z  2026-10-22 02:33:38.085 UTC [127] DETAIL:  Failing row contains (8cbac51d-81d6-4880-a778-88d0b0319085, 2026-10-22 02:33:38.085541, api.jwt_refresh, success, 01691a40-09f0-4692-8675-7d153cd409da, user, 01691a40-09f0-4692-8675-7d153cd409da, null, null, null, {}, null, null, 2026-10-22 02:33:38.08561).
+2026-10-22T02:34:08.4272252Z  2026-10-22 02:33:38.085 UTC [127] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4273273Z  2026-10-22 02:33:38.102 UTC [128] ERROR:  new row for relation "audit_events" violates check constraint "jwt_refresh_cofate_reuse_guard"
+2026-10-22T02:34:08.4274692Z  2026-10-22 02:33:38.102 UTC [128] DETAIL:  Failing row contains (e63bbc56-8c27-4668-94ec-8b37ae88fc26, 2026-10-22 02:33:38.102759, api.jwt_refresh_reuse, failure, 229967b4-3a9b-4643-bd06-58b04cf8d686, user, 229967b4-3a9b-4643-bd06-58b04cf8d686, null, null, null, {"reason": "refresh_token_reuse_detected"}, null, null, 2026-10-22 02:33:38.102813).
+2026-10-22T02:34:08.4276638Z  2026-10-22 02:33:38.102 UTC [128] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4277616Z  2026-10-22 02:33:38.149 UTC [127] ERROR:  new row for relation "audit_events" violates check constraint "mfa_verify_success_audit_guard"
+2026-10-22T02:34:08.4278934Z  2026-10-22 02:33:38.149 UTC [127] DETAIL:  Failing row contains (2a3cc2f7-1c3b-4ca4-b453-f4ec6f6e1da9, 2026-10-22 02:33:38.148832, mfa.verify.success, success, 6066cb00-e495-453a-939d-a80963f3392b, user, 6066cb00-e495-453a-939d-a80963f3392b, null, null, null, {"method": "totp"}, null, null, 2026-10-22 02:33:38.148908).
+2026-10-22T02:34:08.4280555Z  2026-10-22 02:33:38.149 UTC [127] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4281554Z  2026-10-22 02:33:38.234 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "mfa_enroll_invalid_code_failure_guard"
+2026-10-22T02:34:08.4282980Z  2026-10-22 02:33:38.234 UTC [130] DETAIL:  Failing row contains (bf0e68e7-cf06-4677-8a97-f63da1fae7f4, 2026-10-22 02:33:38.234198, mfa.enroll.failure, failure, def23582-3e19-4fa0-b93f-24d3e76fc513, user, def23582-3e19-4fa0-b93f-24d3e76fc513, null, null, null, {"method": "totp", "reason": "invalid_code"}, null, null, 2026-10-22 02:33:38.234323).
+2026-10-22T02:34:08.4284878Z  2026-10-22 02:33:38.234 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4285898Z  2026-10-22 02:33:38.380 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "mfa_backup_verify_failure_guard"
+2026-10-22T02:34:08.4287561Z  2026-10-22 02:33:38.380 UTC [130] DETAIL:  Failing row contains (c87f07be-823e-4e18-be6e-23c1c2ce2c1c, 2026-10-22 02:33:38.380273, mfa.verify.failure, failure, cdd21980-2948-4e20-9b0b-966e0ad0dd73, user, cdd21980-2948-4e20-9b0b-966e0ad0dd73, null, null, null, {"method": "backup_code", "attempts": 1}, null, null, 2026-10-22 02:33:38.380343).
+2026-10-22T02:34:08.4289120Z  2026-10-22 02:33:38.380 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4290085Z  2026-10-22 02:33:38.396 UTC [127] ERROR:  new row for relation "audit_events" violates check constraint "mfa_regen_verify_failure_guard"
+2026-10-22T02:34:08.4291454Z  2026-10-22 02:33:38.396 UTC [127] DETAIL:  Failing row contains (ca0f2d67-c2b0-4150-a92b-504efc319810, 2026-10-22 02:33:38.395637, mfa.verify.failure, failure, 1581e8cd-14ba-4692-8f88-9f627ab0cd2c, user, 1581e8cd-14ba-4692-8f88-9f627ab0cd2c, null, null, null, {"method": "totp", "attempts": 1}, null, null, 2026-10-22 02:33:38.395695).
+2026-10-22T02:34:08.4292983Z  2026-10-22 02:33:38.396 UTC [127] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4293941Z  2026-10-22 02:33:38.412 UTC [128] ERROR:  new row for relation "audit_events" violates check constraint "mfa_regen_success_guard"
+2026-10-22T02:34:08.4295256Z  2026-10-22 02:33:38.412 UTC [128] DETAIL:  Failing row contains (7247bd8f-e376-49a9-8dfc-614ac30e5d41, 2026-10-22 02:33:38.412141, mfa.backup_codes_regenerate, success, 89e06572-d57f-447b-b5d0-d91d8430abe8, user, 89e06572-d57f-447b-b5d0-d91d8430abe8, null, null, null, {"count": 2}, null, null, 2026-10-22 02:33:38.41221).
+2026-10-22T02:34:08.4296948Z  2026-10-22 02:33:38.412 UTC [128] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4298101Z  2026-10-22 02:33:38.473 UTC [129] ERROR:  new row for relation "user_mfa_backup_codes" violates check constraint "mfa_enroll_backup_guard"
+2026-10-22T02:34:08.4299297Z  2026-10-22 02:33:38.473 UTC [129] DETAIL:  Failing row contains (660ed16e-652e-463d-9a1d-d04e113ef8bf, 901aabc6-6ae2-440f-8bc0-53619ee08de0, c3165c6a93f84dbb8631ba2abfe3c282a147cf22430ec3cfc2d65777408f7b7b, null, 2026-10-22 02:33:38.472258).
+2026-10-22T02:34:08.4300548Z  2026-10-22 02:33:38.473 UTC [129] STATEMENT:  INSERT INTO "user_mfa_backup_codes" ("id","user_id","hashed_code","used_at","inserted_at") VALUES ($1,$2,$3,$4,$5),($6,$7,$8,$9,$10)
+2026-10-22T02:34:08.4301485Z  2026-10-22 02:33:38.535 UTC [130] ERROR:  new row for relation "user_mfa_backup_codes" violates check constraint "mfa_enroll_backup_guard_insert_failed"
+2026-10-22T02:34:08.4302827Z  2026-10-22 02:33:38.535 UTC [130] DETAIL:  Failing row contains (612ec80c-4250-426e-b570-f17c26913b1a, a5a9c15a-16ca-4a83-b050-a62e84da29d1, 4ff24bd1baaab3e8a6c524cf36621bf511f4e15ebb158b1d3c7e8dfc7232e275, null, 2026-10-22 02:33:38.533929).
+2026-10-22T02:34:08.4304064Z  2026-10-22 02:33:38.535 UTC [130] STATEMENT:  INSERT INTO "user_mfa_backup_codes" ("id","user_id","hashed_code","used_at","inserted_at") VALUES ($1,$2,$3,$4,$5),($6,$7,$8,$9,$10)
+2026-10-22T02:34:08.4304987Z  2026-10-22 02:33:38.536 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "mfa_enroll_failure_audit_guard"
+2026-10-22T02:34:08.4306691Z  2026-10-22 02:33:38.536 UTC [130] DETAIL:  Failing row contains (89638193-69fa-46ff-91ca-f5f4f6d2e074, 2026-10-22 02:33:38.535991, mfa.enroll.failure, failure, a5a9c15a-16ca-4a83-b050-a62e84da29d1, user, a5a9c15a-16ca-4a83-b050-a62e84da29d1, null, null, null, {"method": "totp", "reason": "insert_failed"}, null, null, 2026-10-22 02:33:38.536078).
+2026-10-22T02:34:08.4308408Z  2026-10-22 02:33:38.536 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4309372Z  2026-10-22 02:33:38.563 UTC [128] ERROR:  new row for relation "audit_events" violates check constraint "mfa_adhoc_regen_audit_guard"
+2026-10-22T02:34:08.4310592Z  2026-10-22 02:33:38.563 UTC [128] DETAIL:  Failing row contains (15d29b36-7022-4c4c-b61d-4d7f77d4769b, 2026-10-22 02:33:38.562635, mfa.backup_codes_regenerate, success, 736f768a-9609-498b-8d39-03318ee2c461, user, null, null, null, null, {"count": 5}, null, null, 2026-10-22 02:33:38.562705).
+2026-10-22T02:34:08.4311951Z  2026-10-22 02:33:38.563 UTC [128] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+2026-10-22T02:34:08.4312876Z  2026-10-22 02:33:38.635 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "mfa_totp_lockout_guard"
+2026-10-22T02:34:08.4314193Z  2026-10-22 02:33:38.635 UTC [130] DETAIL:  Failing row contains (03dc34aa-02b8-46fc-b87c-579a83140315, 2026-10-22 02:33:38.635322, mfa.lockout, failure, 7858fe3c-0f14-4e0d-9374-2420ad6e09a0, user, 7858fe3c-0f14-4e0d-9374-2420ad6e09a0, null, null, null, {"method": "totp", "duration": 900}, null, null, 2026-10-22 02:33:38.635373).
+2026-10-22T02:34:08.4315703Z  2026-10-22 02:33:38.635 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4316859Z  2026-10-22 02:33:38.649 UTC [127] ERROR:  new row for relation "audit_events" violates check constraint "mfa_totp_verify_failure_guard"
+2026-10-22T02:34:08.4318359Z  2026-10-22 02:33:38.649 UTC [127] DETAIL:  Failing row contains (4a63d381-a559-440c-9d4f-0bff44835c85, 2026-10-22 02:33:38.649514, mfa.verify.failure, failure, a3399686-80ac-40e5-948b-042d9ba6f165, user, a3399686-80ac-40e5-948b-042d9ba6f165, null, null, null, {"method": "totp", "attempts": 1}, null, null, 2026-10-22 02:33:38.649572).
+2026-10-22T02:34:08.4319941Z  2026-10-22 02:33:38.649 UTC [127] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4320881Z  2026-10-22 02:33:38.710 UTC [128] ERROR:  new row for relation "audit_events" violates check constraint "mfa_atomicity_guard"
+2026-10-22T02:34:08.4322173Z  2026-10-22 02:33:38.710 UTC [128] DETAIL:  Failing row contains (0afa021b-e57f-4e74-8c83-6af1e7a08616, 2026-10-22 02:33:38.710145, mfa.enroll.success, success, daad341a-5738-4e83-bd22-48b2f4223253, user, daad341a-5738-4e83-bd22-48b2f4223253, null, null, null, {"method": "totp"}, null, null, 2026-10-22 02:33:38.71023).
+2026-10-22T02:34:08.4323786Z  2026-10-22 02:33:38.710 UTC [128] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4324751Z  2026-10-22 02:33:38.742 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "mfa_disable_atomicity_guard"
+2026-10-22T02:34:08.4326051Z  2026-10-22 02:33:38.742 UTC [130] DETAIL:  Failing row contains (7fb1cd0e-e3b4-46ba-bf86-d1c6999ee4c1, 2026-10-22 02:33:38.742421, mfa.disable, success, 909d581b-4b13-4690-b1bd-308e9d77ba4e, user, 909d581b-4b13-4690-b1bd-308e9d77ba4e, null, null, null, {"admin": false}, null, null, 2026-10-22 02:33:38.742488).
+2026-10-22T02:34:08.4327777Z  2026-10-22 02:33:38.742 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4328751Z  2026-10-22 02:33:39.235 UTC [129] ERROR:  new row for relation "audit_events" violates check constraint "account_audit_pw_guard"
+2026-10-22T02:34:08.4330138Z  2026-10-22 02:33:39.235 UTC [129] DETAIL:  Failing row contains (a8216f84-34d7-4dff-ba05-bc38603bec64, 2026-10-22 02:33:39.235098, account.password_change, success, 79dec442-9174-4dcd-8a98-60c8e8ceaf8c, user, 79dec442-9174-4dcd-8a98-60c8e8ceaf8c, null, null, null, {"forced": false, "source": "oauth_set"}, null, null, 2026-10-22 02:33:39.235175).
+2026-10-22T02:34:08.4331741Z  2026-10-22 02:33:39.235 UTC [129] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4332675Z  2026-10-22 02:33:39.284 UTC [129] ERROR:  new row for relation "audit_events" violates check constraint "account_audit_del_guard"
+2026-10-22T02:34:08.4333967Z  2026-10-22 02:33:39.284 UTC [129] DETAIL:  Failing row contains (f43083af-3fd2-42f4-921a-6aa687f23d1a, 2026-10-22 02:33:39.284218, account.deletion_execute, success, c20b0941-3ce2-4e8c-880a-4f06fa9a6a94, user, c20b0941-3ce2-4e8c-880a-4f06fa9a6a94, null, null, null, {}, null, null, 2026-10-22 02:33:39.284281).
+2026-10-22T02:34:08.4335442Z  2026-10-22 02:33:39.284 UTC [129] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4336625Z  2026-10-22 02:33:39.308 UTC [127] ERROR:  new row for relation "audit_events" violates check constraint "account_audit_email_req_guard"
+2026-10-22T02:34:08.4337948Z  2026-10-22 02:33:39.308 UTC [127] DETAIL:  Failing row contains (003cd339-04cc-4df3-b979-bb5e9abb66d3, 2026-10-22 02:33:39.307754, account.email_change_request, success, 1a3af975-dfc3-417d-a7ae-a39fd3385423, user, 1a3af975-dfc3-417d-a7ae-a39fd3385423, null, null, null, {}, null, null, 2026-10-22 02:33:39.30782).
+2026-10-22T02:34:08.4339430Z  2026-10-22 02:33:39.308 UTC [127] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4340615Z  2026-10-22 02:33:39.322 UTC [128] ERROR:  new row for relation "audit_events" violates check constraint "account_audit_email_confirm_guard"
+2026-10-22T02:34:08.4341971Z  2026-10-22 02:33:39.322 UTC [128] DETAIL:  Failing row contains (b91d0ebb-1b7c-42f9-b4cb-a172abb149eb, 2026-10-22 02:33:39.322461, account.email_change_confirm, success, adfdbae1-0322-4aaf-b69d-b55a66e6dc0b, user, adfdbae1-0322-4aaf-b69d-b55a66e6dc0b, null, null, null, {}, null, null, 2026-10-22 02:33:39.322508).
+2026-10-22T02:34:08.4343467Z  2026-10-22 02:33:39.322 UTC [128] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4344458Z  2026-10-22 02:33:39.348 UTC [130] ERROR:  new row for relation "audit_events" violates check constraint "account_audit_email_cancel_guard"
+2026-10-22T02:34:08.4346254Z  2026-10-22 02:33:39.348 UTC [130] DETAIL:  Failing row contains (65be12f3-8850-4b89-892a-81e08694305b, 2026-10-22 02:33:39.348653, account.email_change_cancel, success, 7f3508ec-878b-4ae7-81e3-6bc98baed2d1, user, 7f3508ec-878b-4ae7-81e3-6bc98baed2d1, null, null, null, {}, null, null, 2026-10-22 02:33:39.348699).
+2026-10-22T02:34:08.4347782Z  2026-10-22 02:33:39.348 UTC [130] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4348772Z  2026-10-22 02:33:39.361 UTC [127] ERROR:  new row for relation "audit_events" violates check constraint "account_audit_forced_clear_guard"
+2026-10-22T02:34:08.4350120Z  2026-10-22 02:33:39.361 UTC [127] DETAIL:  Failing row contains (357e1423-78dd-41b1-be3c-1fc2c9419872, 2026-10-22 02:33:39.361111, account.password_change, success, d8f867e3-588d-4989-883a-2cf426d110fe, user, d8f867e3-588d-4989-883a-2cf426d110fe, null, null, null, {"forced": true}, null, null, 2026-10-22 02:33:39.361181).
+2026-10-22T02:34:08.4351626Z  2026-10-22 02:33:39.361 UTC [127] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4352586Z  2026-10-22 02:33:39.385 UTC [129] ERROR:  new row for relation "audit_events" violates check constraint "account_audit_pw_change_guard"
+2026-10-22T02:34:08.4353908Z  2026-10-22 02:33:39.385 UTC [129] DETAIL:  Failing row contains (705910f6-d12b-41b0-af6b-4dd1a1f6fa69, 2026-10-22 02:33:39.384991, account.password_change, success, 51674910-3270-4cc9-ba47-345eed617d21, user, 51674910-3270-4cc9-ba47-345eed617d21, null, null, null, {"forced": false}, null, null, 2026-10-22 02:33:39.385069).
+2026-10-22T02:34:08.4355398Z  2026-10-22 02:33:39.385 UTC [129] STATEMENT:  INSERT INTO "audit_events" ("metadata","action","actor_id","outcome","actor_type","target_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+2026-10-22T02:34:08.4356415Z  2026-10-22 02:33:42.182 UTC [165] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4356865Z  2026-10-22 02:33:52.271 UTC [188] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4357281Z  2026-10-22 02:34:02.358 UTC [196] FATAL:  role "root" does not exist
+2026-10-22T02:34:08.4364014Z Stop and remove container: 130871a661f442b28dd8b4078b0b92a0_postgres15_98478d
+2026-10-22T02:34:08.4369288Z ##[command]/usr/bin/docker rm --force 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:34:08.6003006Z 3abac2db25217a4de8e6feaed11ee6049f20cdc52f732f63b61b0cb756e58800
+2026-10-22T02:34:08.6030302Z Remove container network: github_network_3124ca6535cd4cfea18ebde672fdafc8
+2026-10-22T02:34:08.6034714Z ##[command]/usr/bin/docker network rm github_network_3124ca6535cd4cfea18ebde672fdafc8
+2026-10-22T02:34:08.6942775Z github_network_3124ca6535cd4cfea18ebde672fdafc8
+2026-10-22T02:34:08.7015139Z Cleaning up orphan processes
+

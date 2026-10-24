@@ -1,0 +1,9 @@
+# Plan172 PR339 offline repairs
+
+The approved3632de bundle remains closed at a4ad7101f:93 canary requests,34 PR requests,7 dispatches,1 draft PR,zero reruns. All six hosted gate cases and separate verifier passed. Actual normal PR339 failed. Docs-only PR never ran. No acceptance result or request budget is reset.
+
+Three actual boundaries were reproduced offline: two unlabeled operator PR-window requests; HTML reporter deleting the independent selection JSON; product publication leaving an old main-parent ledger selected ahead of the corrected source ledger. See diagnosis.json and preserved before logs. The HTML cleanup regression uses the actual installed Playwright and repository config without a browser or network. The product-candidate prohibition suite is run with the real candidate parent planning files present, not the developer workspace's archive layout.
+
+The product fixes are in the working source. operator-fixed.py is an offline recipe for the next bundle; it is not an executable continuation of this stopped attempt and has no approval/allocation/runtime here. Never run its --run option directly. A new bundle must regenerate helpers from its actual new product source, incorporate this request-label fix and retain the receipt/namespace tests, then require its own exact hosted approval. The three new request tests exercise its real request() function. Original raw requests, receipts, ledgers, branch refs, run records and earlier approval remain unchanged.
+
+CHECKS.json records156 passing offline checks plus rejection of the known-bad provenance fixture and independent re-verification of the actual hosted canary. These checks do not make PR339 green. Both original CI requirements remain open, Plan172 remains unfinished and Phase253 is unverified. Continue with $gsd-execute-phase 253 --gaps-only, inside172. No quick or progress scan is needed.

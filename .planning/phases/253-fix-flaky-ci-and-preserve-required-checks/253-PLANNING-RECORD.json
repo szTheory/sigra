@@ -1,0 +1,1393 @@
+{
+  "schema_version": 1,
+  "phase": "253",
+  "command": "$gsd-plan-phase 253",
+  "mode": "standard",
+  "recorded_at": "2026-10-13T03:04:29.907034+00:00",
+  "status": "planning_complete",
+  "planning_review_status": "passed",
+  "implementation_status": "not_started",
+  "phase_verification_status": "not_started",
+  "requirements_closed": 0,
+  "next_command": "$gsd-execute-phase 253",
+  "resume_command": "$gsd-execute-phase 253",
+  "capture": {
+    "head": "cdbc002b163a737b15c1e55106d396b492366c29",
+    "branch": "phase-244-playwright-measurement",
+    "status_hex": "",
+    "clean": true,
+    "exact_committed_planning_readbacks": 2712,
+    "initial_tracking_paths": [
+      {
+        "path": ".planning/HANDOFF.json",
+        "sha256": "110d92895aa30288338d9e5fa4c5569db7b71318cee8e6d6de63abc7a379e949",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "sha256": "47091d993bac2566615552cb3c1ef1162f3a739ce923c38ce7766d07d1a053e7",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "sha256": "00b920d025458e70838231561e10cd4fb7b040b22bb619f6245820cf700c7505",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/STATE.md",
+        "sha256": "8752e1fc9421bd295ba81cc99534fade1fd8b0c6e6b3f0e0f6aa1317d6358a86",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/state.json",
+        "sha256": "2ef21664b7a4fce48f907ff0917fcc78231812f7a30a4e60d85854283704a8df",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "sha256": "0f18a2ba0dba4739010fb1552b1269230dbd0cba7928e33c1df81735fefc854c",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      }
+    ]
+  },
+  "authority": {
+    "planning": "Explicit $gsd-plan-phase 253 invocation",
+    "research_defaults": "Prior explicit user research/delegation: find set of recommendations that are coherent auto follow those",
+    "execution_not_started": true
+  },
+  "runtime": {
+    "packageName": "@opengsd/gsd-core",
+    "version": "1.16.0"
+  },
+  "dispatch": {
+    "schema": {
+      "agent_type": true,
+      "model": true,
+      "reasoning_effort": true,
+      "task_name": true,
+      "fork_turns": true,
+      "fork_context": false,
+      "close_agent": false
+    },
+    "agents": [
+      {
+        "task": "phase253_plan_research",
+        "role": "gsd-phase-researcher",
+        "model": "gpt-6-luna",
+        "effort": "high",
+        "terminal": "RESEARCH COMPLETE"
+      },
+      {
+        "task": "phase253_plan_patterns",
+        "role": "gsd-pattern-mapper",
+        "model": "gpt-6-luna",
+        "effort": "low",
+        "terminal": "PATTERN MAPPING COMPLETE"
+      },
+      {
+        "task": "phase253_planner",
+        "role": "gsd-planner",
+        "model": "gpt-6-sol",
+        "effort": "xhigh",
+        "terminal": "PLANNING INCONCLUSIVE",
+        "resolved_gate": "Existing pinned package audit subsequently recorded; fresh revision returned PLANNING COMPLETE"
+      },
+      {
+        "task": "phase253_plan_check_01",
+        "role": "gsd-plan-checker",
+        "model": "gpt-6-luna",
+        "effort": "low",
+        "terminal": "ISSUES FOUND",
+        "blockers": 1
+      },
+      {
+        "task": "phase253_plan_revision_01",
+        "role": "gsd-planner",
+        "model": "gpt-6-sol",
+        "effort": "xhigh",
+        "terminal": "PLANNING COMPLETE"
+      },
+      {
+        "task": "phase253_plan_check_02",
+        "role": "gsd-plan-checker",
+        "model": "gpt-6-luna",
+        "effort": "low",
+        "terminal": "VERIFICATION PASSED",
+        "blockers": 0
+      }
+    ],
+    "wait_adapter": "Schema has no run_in_background/outputFile fields; used native async dispatch, bounded mailbox waits and actual terminal markers; no fabricated output file. Parent did not do task work during foreground handoffs.",
+    "revision_iterations": 1
+  },
+  "plans": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+      "id": "253-01",
+      "wave": 1,
+      "depends_on": "[]",
+      "files_modified": [
+        "scripts/ci/ci-run-metrics.sh",
+        "scripts/ci/ci-run-metrics.test.sh",
+        "scripts/ci/ci_metrics_security.py",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DIAGNOSIS.json"
+      ],
+      "tasks": 2,
+      "sha256": "9a8e18eceb01e13db0589855c2a1243f697d268b70f07ee073de90ddd9b24b63"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+      "id": "253-02",
+      "wave": 1,
+      "depends_on": "[]",
+      "files_modified": [
+        "scripts/ci/ci-registration-repro.sh",
+        "scripts/ci/ci-registration-repro.test.sh",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts",
+        "test/example/priv/playwright/helpers/adminFlows.ts",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+      ],
+      "tasks": 3,
+      "sha256": "ca9a7ca565420322972f5a843029efef01eb20c39135d37ef52c0dc3f9115b45"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-PLAN.md",
+      "id": "253-03",
+      "wave": 1,
+      "depends_on": "[]",
+      "files_modified": [
+        ".github/workflows/ci.yml",
+        "scripts/ci/honest-skip-verdict.sh",
+        "scripts/ci/honest-skip-verdict.test.sh"
+      ],
+      "tasks": 2,
+      "sha256": "25e2226bd83cbf57dc144731d373678018e7da6a174a6168504c6d621e499f0c"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-PLAN.md",
+      "id": "253-04",
+      "wave": 1,
+      "depends_on": "[]",
+      "files_modified": [
+        ".github/ci-skip-manifest.tsv",
+        "MAINTAINING.md",
+        "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+        "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs"
+      ],
+      "tasks": 2,
+      "sha256": "7d66cf40623446642aac5ccc53e17660ca13d3e25dee1f7b208bb0177ac22e0a"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-PLAN.md",
+      "id": "253-05",
+      "wave": 1,
+      "depends_on": "[]",
+      "files_modified": [
+        "scripts/ci/ci-browser-records.mjs",
+        "scripts/ci/ci-browser-records.test.mjs"
+      ],
+      "tasks": 2,
+      "sha256": "96d9b8ae67f3a628bc6eff8dde8974040f635b6d48a6f19cb1ab9eb59f29ec44"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+      "id": "253-06",
+      "wave": 2,
+      "depends_on": "[253-03, 253-04, 253-05]",
+      "files_modified": [
+        ".github/workflows/ci.yml",
+        "scripts/ci/ci-measure-workflow.test.mjs"
+      ],
+      "tasks": 2,
+      "sha256": "6e83d388d66dbeea4beebd21dd1ecd73034824dd6450514ed134fedc4661f37a"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+      "id": "253-07",
+      "wave": 3,
+      "depends_on": "[253-06]",
+      "files_modified": [
+        "scripts/ci/ci-gate-canary.sh",
+        "scripts/ci/ci-gate-canary.test.sh",
+        "scripts/ci/ci-hosted-gate-verify.py",
+        "scripts/ci/ci-hosted-gate-verify.test.py",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+      ],
+      "tasks": 2,
+      "sha256": "91cb5172420d002cec86cbd1603be5b0f6b9187db367a8512d93f4aba17ca15f"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+      "id": "253-08",
+      "wave": 4,
+      "depends_on": "[253-02, 253-07]",
+      "files_modified": [
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PR-EVIDENCE.json",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-COMPLETION-RECORD.json"
+      ],
+      "tasks": 2,
+      "sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468"
+    }
+  ],
+  "counts": {
+    "plans": 8,
+    "tasks": 17,
+    "waves": 4,
+    "requirements": 2,
+    "decisions": 24
+  },
+  "artifacts": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
+      "sha256": "45e1f701f7aa30c2d1bedd6b9964cabd615d4f7a122c061c17fcda72627b622b"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PATTERNS.md",
+      "sha256": "32a272b7f63d4ad52fcfea529cee80cbf0b00b52936c4ee49319126e23dcc628"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VALIDATION.md",
+      "sha256": "4c73a831c760ee93078427f9e11fbf878715ad2ef169c3193fd6e5ba078297d0"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SOURCE-AUDIT.md",
+      "sha256": "e27e76a3ce0abd98a247f4acd9c1b87a82a867361943e919aa360c6ccdf8a82c"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PACKAGE-AUDIT.json",
+      "sha256": "ac0095e9e0de273f88c32fd89367362dc56854b0db4859e250357d7350018edf"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLAN-CHECK-01.md",
+      "sha256": "c93f621bee0830b9ca81e95833df75f4b3c880aaa4ee7721f1cbfd8f24009074"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLAN-CHECK-02.md",
+      "sha256": "6e915a4e05b81cd251ff35ed0bb5388cdc7796beb49ea53c9704a21640642ea1"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+      "sha256": "9a8e18eceb01e13db0589855c2a1243f697d268b70f07ee073de90ddd9b24b63"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+      "sha256": "ca9a7ca565420322972f5a843029efef01eb20c39135d37ef52c0dc3f9115b45"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-PLAN.md",
+      "sha256": "25e2226bd83cbf57dc144731d373678018e7da6a174a6168504c6d621e499f0c"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-PLAN.md",
+      "sha256": "7d66cf40623446642aac5ccc53e17660ca13d3e25dee1f7b208bb0177ac22e0a"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-PLAN.md",
+      "sha256": "96d9b8ae67f3a628bc6eff8dde8974040f635b6d48a6f19cb1ab9eb59f29ec44"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+      "sha256": "6e83d388d66dbeea4beebd21dd1ecd73034824dd6450514ed134fedc4661f37a"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+      "sha256": "91cb5172420d002cec86cbd1603be5b0f6b9187db367a8512d93f4aba17ca15f"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+      "sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468"
+    }
+  ],
+  "preservation": {
+    "research_draft": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
+      "ref": "4d08f2eefb8f2f3021a8185373ddade2a6a470f1",
+      "sha256": "b31563e529950af86bf4b55a1cb84bfc8d9afd3c966844f4442819c673a0a12f",
+      "read_back_exact": true
+    },
+    "planner_inputs": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
+        "ref": "c87dfb3b5ea73d64708537a3b43aafaa60348bf9",
+        "sha256": "67899812cdd5a637ea6956c93d24688870c214841249e677703e94fdd85da306",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VALIDATION.md",
+        "ref": "c87dfb3b5ea73d64708537a3b43aafaa60348bf9",
+        "sha256": "f5e56c0382c6d4843d0a7e689b1db1acfe5de26427dc568b1961e785698804a5",
+        "read_back_exact": true
+      }
+    ],
+    "all_drafts": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "25e2226bd83cbf57dc144731d373678018e7da6a174a6168504c6d621e499f0c",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN-PRESERVED-20261012.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "0fb430ccc1143f49802fe1d22191e65d784b7fe5a5a1b9604896b36c102945d8",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "b69d1525a8c8eeafe4602a2da6e166a3132939e5790308e5b5e4184c8402a4b3",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "ca9a7ca565420322972f5a843029efef01eb20c39135d37ef52c0dc3f9115b45",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/.gitkeep",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-RECORD.json",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "e625d841c5407218e040ac039a78ec9dbf2e8432016ef133ed1da13282ff7558",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "9a8e18eceb01e13db0589855c2a1243f697d268b70f07ee073de90ddd9b24b63",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN-PRESERVED-20261012.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "af8b2367437150c6a86690b659c95cc1f4fdc7a00af84f0549d51c8c136e9a51",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ROUTING-CHECKS.json",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "cda603de0bbcbe1473d30298d0645cdf5e700b7a5674717c2bef73ee14bd0383",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "7d66cf40623446642aac5ccc53e17660ca13d3e25dee1f7b208bb0177ac22e0a",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SYNTHESIS-REVIEW.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "b9c9f2360ecde74ef640da83401376b504e55e87fff40eb3cf84269b9e476658",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "96d9b8ae67f3a628bc6eff8dde8974040f635b6d48a6f19cb1ab9eb59f29ec44",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "67899812cdd5a637ea6956c93d24688870c214841249e677703e94fdd85da306",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "91cb5172420d002cec86cbd1603be5b0f6b9187db367a8512d93f4aba17ca15f",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "bee3668bc9a7bac5f93b9a695c99af26212178fa2fceeecfb982e58d4684389e",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PATTERNS.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "32a272b7f63d4ad52fcfea529cee80cbf0b00b52936c4ee49319126e23dcc628",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "07e24cd5e01b5869054d577d675b2ddced97be2e677aae6d7c91965282874067",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SOURCE-AUDIT.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "585dd6ffd62b1270f5dd8606970b05c5e9a963bcc3605fce4fb256b45a79a251",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-CHECKS.json",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "90e655f4904e1106ec158b731857439fda4c8ecd28f3f6be1f19ecdfe37deb1a",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VALIDATION.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "4c73a831c760ee93078427f9e11fbf878715ad2ef169c3193fd6e5ba078297d0",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+        "ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "6e83d388d66dbeea4beebd21dd1ecd73034824dd6450514ed134fedc4661f37a",
+        "read_back_exact": true
+      }
+    ],
+    "before_research_resolution": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
+        "ref": "c498c1a6875e86602a73c3adc9a624a2a10588b8",
+        "sha256": "551b8d28d972b5ed2948d5b762e9702a066be38860595c09ffa612c07f39953e",
+        "read_back_exact": true
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SOURCE-AUDIT.md",
+        "ref": "c498c1a6875e86602a73c3adc9a624a2a10588b8",
+        "sha256": "8b06734f0daecd30d4e423054b1b11758262d7f27bc7173b76147037bbeef3d3",
+        "read_back_exact": true
+      }
+    ],
+    "before_sdk_updates": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "recoverable_ref": "438b87a38e5e7294689e3f8c6aa2a372f39b7593",
+        "sha256": "8752e1fc9421bd295ba81cc99534fade1fd8b0c6e6b3f0e0f6aa1317d6358a86",
+        "bytes": 9091,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "recoverable_ref": "438b87a38e5e7294689e3f8c6aa2a372f39b7593",
+        "sha256": "2ef21664b7a4fce48f907ff0917fcc78231812f7a30a4e60d85854283704a8df",
+        "bytes": 1256,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "recoverable_ref": "438b87a38e5e7294689e3f8c6aa2a372f39b7593",
+        "sha256": "110d92895aa30288338d9e5fa4c5569db7b71318cee8e6d6de63abc7a379e949",
+        "bytes": 31840,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "recoverable_ref": "438b87a38e5e7294689e3f8c6aa2a372f39b7593",
+        "sha256": "00b920d025458e70838231561e10cd4fb7b040b22bb619f6245820cf700c7505",
+        "bytes": 10658,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "status": "clean",
+        "recoverable_ref": "438b87a38e5e7294689e3f8c6aa2a372f39b7593",
+        "sha256": "47091d993bac2566615552cb3c1ef1162f3a739ce923c38ce7766d07d1a053e7",
+        "bytes": 198056,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "status": "clean",
+        "recoverable_ref": "438b87a38e5e7294689e3f8c6aa2a372f39b7593",
+        "sha256": "0f18a2ba0dba4739010fb1552b1269230dbd0cba7928e33c1df81735fefc854c",
+        "bytes": 22639,
+        "readback_exact": true
+      }
+    ],
+    "sdk_planned": [
+      {
+        "path": ".planning/STATE.md",
+        "ref": "21e6459b4eb7c32f4e779d2c37b734ab371a7509",
+        "sha256": "4b61d1b5454c6aa23af8d55f6fe495db27b8ed300a8fff325761a20f86b30c6b",
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "ref": "21e6459b4eb7c32f4e779d2c37b734ab371a7509",
+        "sha256": "5b1567b4df7a26b72470fc1e46a6e643d23a03b77b58597a96100bed5fa23cec",
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "ref": "21e6459b4eb7c32f4e779d2c37b734ab371a7509",
+        "sha256": "e6bdb6e084a5d8fece4dd89f922cfcee6c39730f74474016b9407edd2166ec8d",
+        "readback_exact": true
+      }
+    ],
+    "before_final_route": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "recoverable_ref": "dc492e044ae67da84bc2aa022c3aae9b7c25b53b",
+        "sha256": "1abf488641341f76ce3bba75ca5927353f20c4e9655d7caf7f52152cd9aff8e0",
+        "bytes": 9135,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "recoverable_ref": "dc492e044ae67da84bc2aa022c3aae9b7c25b53b",
+        "sha256": "5b1567b4df7a26b72470fc1e46a6e643d23a03b77b58597a96100bed5fa23cec",
+        "bytes": 768,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "recoverable_ref": "dc492e044ae67da84bc2aa022c3aae9b7c25b53b",
+        "sha256": "110d92895aa30288338d9e5fa4c5569db7b71318cee8e6d6de63abc7a379e949",
+        "bytes": 31840,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "recoverable_ref": "dc492e044ae67da84bc2aa022c3aae9b7c25b53b",
+        "sha256": "768f4fdd8a1ab4212ca73ece09fe9652504ce6001bf4dd00ce0efd0072f4fb90",
+        "bytes": 11542,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "status": "clean",
+        "recoverable_ref": "dc492e044ae67da84bc2aa022c3aae9b7c25b53b",
+        "sha256": "47091d993bac2566615552cb3c1ef1162f3a739ce923c38ce7766d07d1a053e7",
+        "bytes": 198056,
+        "readback_exact": true
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "status": "clean",
+        "recoverable_ref": "dc492e044ae67da84bc2aa022c3aae9b7c25b53b",
+        "sha256": "0f18a2ba0dba4739010fb1552b1269230dbd0cba7928e33c1df81735fefc854c",
+        "bytes": 22639,
+        "readback_exact": true
+      }
+    ],
+    "readback_exact": true,
+    "draft_copies": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN-PRESERVED-20261012.md",
+        "recoverable_ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "af8b2367437150c6a86690b659c95cc1f4fdc7a00af84f0549d51c8c136e9a51",
+        "disposition": "Retained historical draft, excluded from executable *-PLAN.md inventory"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN-PRESERVED-20261012.md",
+        "recoverable_ref": "735fe64ba66e094401e3efc27a53f3ba8371317a",
+        "sha256": "0fb430ccc1143f49802fe1d22191e65d784b7fe5a5a1b9604896b36c102945d8",
+        "disposition": "Retained historical draft, excluded from executable *-PLAN.md inventory"
+      }
+    ]
+  },
+  "gates": {
+    "ui": {
+      "frontend": false,
+      "block": false
+    },
+    "context_drift": {
+      "skipped": true,
+      "reason": "no-upstream-artifacts"
+    },
+    "codebase_drift": {
+      "skipped": true,
+      "reason": "no-structure-md"
+    },
+    "api_coverage": {
+      "detected": false,
+      "no_new_service_integration": true
+    },
+    "assumption_delta": {
+      "detected": false
+    },
+    "schema_push": {
+      "required": false,
+      "no_schema_edits": true
+    },
+    "package_audit": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PACKAGE-AUDIT.json",
+      "selected_versions_all_OK": true,
+      "latest_SUS_preserved_as_unselected_version": true
+    },
+    "bounce": {
+      "activated": false,
+      "missing_config_default": false
+    },
+    "specless_probe": {
+      "items": [
+        {
+          "requirement_id": "CIREL-01",
+          "category": "unclassified",
+          "status": "unresolved",
+          "verification": null,
+          "resolution": null,
+          "reason": null,
+          "probe": "unclassified \u2014 review manually"
+        },
+        {
+          "requirement_id": "CIREL-02",
+          "category": "empty",
+          "status": "resolved",
+          "verification": "explicit",
+          "resolution": "Empty, null, singleton, duplicate or incomplete producer record sets cannot produce a passing verdict; exactly five recognized seams are required.",
+          "reason": null,
+          "probe": "What is the result for empty, single-element, or null input?"
+        },
+        {
+          "requirement_id": "CIREL-02",
+          "category": "encoding",
+          "status": "resolved",
+          "verification": "explicit",
+          "resolution": "Required-check and seam identifiers use exact byte equality to the five fixed names/keys; whitespace, case or Unicode normalization variants are rejected.",
+          "reason": null,
+          "probe": "Whose definition of length/equality applies \u2014 bytes, code points, grapheme clusters, or normalized form?"
+        }
+      ],
+      "coverage": {
+        "applicable": 3,
+        "resolved": 2,
+        "unresolved": 1,
+        "unclassified": 1,
+        "byVerification": {
+          "explicit": 2,
+          "backstop": 0
+        }
+      }
+    },
+    "post_gap": {
+      "block": false,
+      "passed": true,
+      "enabled": true,
+      "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n",
+      "summary": "\u2713 All 26 items covered by plans",
+      "counts": {
+        "total": 26,
+        "covered": 26,
+        "uncovered": 0
+      },
+      "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n"
+    }
+  },
+  "readiness": {
+    "executor_model": "gpt-6-luna",
+    "verifier_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "commit_docs": true,
+    "sub_repos": [],
+    "parallelization": true,
+    "context_window": 200000,
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "verifier_enabled": true,
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+    "phase_number": "253",
+    "padded_phase": "253",
+    "phase_name": "Fix Flaky CI and Preserve Required Checks",
+    "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+    "phase_req_ids": "CIREL-01, CIREL-02",
+    "plans": [
+      "253-01-PLAN.md",
+      "253-02-PLAN.md",
+      "253-03-PLAN.md",
+      "253-04-PLAN.md",
+      "253-05-PLAN.md",
+      "253-06-PLAN.md",
+      "253-07-PLAN.md",
+      "253-08-PLAN.md"
+    ],
+    "summaries": [],
+    "incomplete_plans": [
+      "253-01-PLAN.md",
+      "253-02-PLAN.md",
+      "253-03-PLAN.md",
+      "253-04-PLAN.md",
+      "253-05-PLAN.md",
+      "253-06-PLAN.md",
+      "253-07-PLAN.md",
+      "253-08-PLAN.md"
+    ],
+    "plan_count": 8,
+    "incomplete_count": 8,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "halted_plans": [],
+    "blocked_by": {},
+    "runnable_plans": [
+      "253-01-PLAN.md",
+      "253-02-PLAN.md",
+      "253-03-PLAN.md",
+      "253-04-PLAN.md",
+      "253-05-PLAN.md",
+      "253-06-PLAN.md",
+      "253-07-PLAN.md",
+      "253-08-PLAN.md"
+    ],
+    "runnable_count": 8,
+    "branch_name": null,
+    "milestone_version": "v1.50",
+    "milestone_name": "CI-SPEED-AND-RELIABILITY",
+    "milestone_slug": "ci-speed-and-reliability",
+    "state_exists": true,
+    "roadmap_exists": true,
+    "config_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "section_manifest": {
+      "workflow": "execute-phase",
+      "included": [
+        "regression-gate"
+      ],
+      "excluded": [
+        "partial-wave",
+        "gap-closure-artifacts"
+      ],
+      "read": [
+        "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+      ]
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "planning_readiness": {
+    "researcher_model": "gpt-6-luna",
+    "planner_model": "gpt-6-sol",
+    "checker_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "granularity": "fine",
+    "research_enabled": true,
+    "plan_checker_enabled": true,
+    "nyquist_validation_enabled": true,
+    "commit_docs": true,
+    "text_mode": false,
+    "auto_advance": false,
+    "auto_chain_active": false,
+    "mode": "yolo",
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+    "expected_phase_dir": null,
+    "phase_number": "253",
+    "phase_name": "fix-flaky-ci-and-preserve-required-checks",
+    "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+    "padded_phase": "253",
+    "phase_req_ids": "CIREL-01, CIREL-02",
+    "phase_status": "Planned",
+    "has_research": true,
+    "has_context": true,
+    "context_scope": "complete",
+    "has_reviews": false,
+    "has_plans": true,
+    "plan_count": 8,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "planning_exists": true,
+    "roadmap_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "patterns_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PATTERNS.md",
+    "context_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+    "research_path": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
+    "section_manifest": {
+      "workflow": "plan-phase",
+      "included": [],
+      "excluded": [
+        "reviews-prerequisite",
+        "prd-express-gate",
+        "adr-ingest-express-path",
+        "research-only-modifiers",
+        "research-only-early-exit",
+        "chunked-planning-mode"
+      ],
+      "read": []
+    },
+    "prior_verify_commands": [
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "task": "Task 1: Capture and replay one real PR family through its enforced context endpoint",
+        "command": "jq -e '(.status == \"ready\" or .status == \"blocked\") and (.request_count != null) and (if .status == \"blocked\" then (.missing_capabilities != null and .missing_capabilities != []) else true end)' .planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json >/dev/null && bash scripts/ci/ci-run-metrics.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "task": "Task 2: Reject ambiguous identity, changed rules and incomplete source records",
+        "command": "bash scripts/ci/ci-run-metrics.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "task": "Task 1: Emit complete opt-in ExUnit event timing beside the standard formatter",
+        "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "task": "Task 2: Preserve failing test exit and expose partial timing-output diagnostics",
+        "command": "bash scripts/ci/ci-exunit-timing.test.sh"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        "task": "Task 1: Produce one JSON report per existing Playwright invocation",
+        "command": "node --test scripts/ci/ci-playwright-report.test.mjs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        "task": "Task 1: Retain timing and cache provenance from the existing CI owners",
+        "command": "node --test scripts/ci/ci-measure-workflow.test.mjs"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "task": "Task 1: Capture a fresh bounded hosted snapshot and prove offline replay",
+        "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json"
+      },
+      {
+        "phase": "252",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "task": "Task 3: Publish a concise source-linked baseline and reproducible commands",
+        "command": "bash scripts/ci/ci-measure-report.test.sh"
+      }
+    ],
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "remaining_execution_unknowns": [
+    "Current registration root cause",
+    "Actual hosted browser/example dependency versions",
+    "Hosted record/report survival and source identity behavior"
+  ],
+  "execution_limitations": "Missing or exhausted selected proof remains a CIREL requirement gap; independent gate work continues. No no-flake claim from absence.",
+  "phase252_preservation": {
+    "path_count": 94,
+    "sha256_rows": [
+      {
+        "path": ".planning/phases/252-measure-current-ci/.gitkeep",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-01-PLAN.md",
+        "sha256": "286b0b0035fdf16458113d21181ad068be18ffd4c1dd865c8ac16818cd86c7c6",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-01-SUMMARY.md",
+        "sha256": "66dc223490c5074039a1739026ca18c61b6b1453735d9153f00da2050cfc0eef",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-02-PLAN.md",
+        "sha256": "1d801f7c6f953d121c78bbbc5f54c03f69bd87b2b3d8058e3feb0731c2817015",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-02-SUMMARY.md",
+        "sha256": "7842b825ca2310c7790534b7944dde6c70342b82ce5b511f760e0552199491ad",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
+        "sha256": "235a38c6b144a5ad2d6b7de2a0ab2ece5d945a9d82fd12e09188cdb5274ca7e4",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-PLAN.md",
+        "sha256": "3c155bf5eb6d79f67420621efd8b819447a4b2ad21f88ba9f41079b165fda367",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-SUMMARY.md",
+        "sha256": "6b84b5e78f029db45264afbedc124cd6feae04ee5b901a85706cc50f6f1ebecb",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-04-PLAN.md",
+        "sha256": "f7a8d1c5b4a5a86f206b53d4117d03119787b42b04b0b959e888f69efe5de76d",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-04-SUMMARY.md",
+        "sha256": "3ed465ab78e8b8f787225be691994da87135e4dfd9870bdcfc89c2ef5a3e17e2",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-INTEGRATION-RECHECK.json",
+        "sha256": "eb1f60c72320bd1adcb870878c4ec9b7d2daa6ad6bc34b8b6d8afd2785df2168",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-MIX-CI-DIAGNOSTIC.json",
+        "sha256": "d6ad0e6a9b955c9edaac85fe6b5144357896e952e9bf277ba0b65410797cad36",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-PLAN.md",
+        "sha256": "93558bdf70ef52be1eaeeac4c7610ba7e9f7417c410c5eddc51fafa64075d00f",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-STATE-PRESERVATION.json",
+        "sha256": "0a0e1a7eb470ffaa303f595a4ffd6c61428998d4ffd251b400ba2d122e3818dc",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-SUMMARY.md",
+        "sha256": "21269cb122f58d1cc88787a2543b00e29b87788115bb2fadfbb23d300d74b09b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task1-red-evidence.json",
+        "sha256": "c38fbe231ecffa56ca73ebfc11b75ec39c766502c3d5e0052eb52fb263924e15",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task2-red-evidence.json",
+        "sha256": "16b79b472f0380c29bfa88d74f4c345d3807a710ae8ae5f06975159722367b89",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task2-single-red-evidence.json",
+        "sha256": "ce14448b045221757f1ddde99df85ec265fe3bcc1f887473a818b93b53f36544",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-task3-red-evidence.json",
+        "sha256": "528c20082e0cd105d3fcf0f8ab0647a45bfeb671d36b739b7699a88ce0d9707c",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-ACQUISITION-ATTEMPTS.json",
+        "sha256": "c928a3950e780d680cc22453f0d3489d3148109bfff9098ee495547d3aa5ac08",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-PLAN.md",
+        "sha256": "b3652a1ec0aad31b583e0b38b15353b58697783a61e1ff786032d3177ae223ff",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-REPAIR-PRESERVATION.json",
+        "sha256": "9b50221b5628150bae90303674cf99b601edc8b0802a73f15dc584a892b78e6b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION-72c71eb.json",
+        "sha256": "b50d73a9b1b9bac73d13304991bff418d2aee98c8e462755e8534c562713588e",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION.json",
+        "sha256": "838d0e0e59fa342aa52a14f15acf9f4cf3f25d32bb5401b269c1276fc6ba9c89",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-STATE-PRESERVATION.json",
+        "sha256": "10308170bd226c8dd55da958915d66bb64916ceb26c3b53d675e9f45b91f843b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+        "sha256": "4bec33374d0b3441f591c42e2584c09afb3a2e839714a7fb7be937e2fba1913c",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+        "sha256": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-BASELINE.md",
+        "sha256": "7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+        "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CLOSEOUT-CHECKS.json",
+        "sha256": "a4103b3c1f63488c5355e9623e284691bca5a27532120e92ef1557405e80b4d5",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CLOSEOUT-PRESERVATION.json",
+        "sha256": "48cc86cecfc87d6f6e60036b8ba694f0a679a9e5a90f279c95555cc1abf1c804",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+        "sha256": "8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-COMPLETION-RECORD.json",
+        "sha256": "f58eac216b9cf677d3ff91cc364796acf64d1a4b6acbf9fcfb6cbe76fa98ecc8",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+        "sha256": "892880d07c89ee496d8e193d9df3aed38bd78cabd7de87b94a62694674ed155f",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-CHECKS.json",
+        "sha256": "5fd2c553163320d68c2485dfe270420f6afa5229e9a1635fa3ea32a432b02d37",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-LOG.md",
+        "sha256": "9d78d6f019f5bf1b28212f42eda392f65d1f1e4c16851114a6989c4b7b06712d",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+        "sha256": "7f2b58a7f6d584b1a01bb977994c4f678c8b217d849b8de24e840e5c2266fa27",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-active-rulesets.json",
+        "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-branch-protection.json",
+        "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-effective-rules.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-request-ledger.json",
+        "sha256": "9a90c55787767e6a0f8bc7858ba2e5363d99ed77a1bc68c2711c26198364e06c",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json",
+        "sha256": "541e264604dcff484c569cb6f41b5dbf7fcd2fa3f2325057f7142730f1155a7b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-EXECUTION-RECORD.json",
+        "sha256": "8a62370f4f97fa5de97e8e1a4beed3a782e39290d9e83d67ae050471d1ab9349",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PATTERNS.md",
+        "sha256": "6ea28c8da6cd5cab236f374dfacf8cb76c91744ce01b888aa77cc425d20193f7",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-02.md",
+        "sha256": "2bf1dca265bd6c2eb9eed14d876ebc6446af0cccaaf4e004e4787168a75897bd",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
+        "sha256": "ed35576b146817b306cabe201def46acbfff9efd40941243eff2cb0482825e87",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK.md",
+        "sha256": "9edd544e535fa0f13e433203b33d062858ce1fc49d24a2e7cfbbc8870a88d2be",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLANNING-CHECKS.json",
+        "sha256": "b2eec370ff616c2f17280b5fd4073de99f43b6919cbce7e69382ce4c09b0b2c5",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+        "sha256": "f25c84c0a8a6808400c49dbf6017420ae22cfd848651070aa004efd54d32de0c",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-PLANNING-ROUTING-CHECKS.json",
+        "sha256": "0da00230f6c8c666ded2f95ea77d7f3a45c825a073ec81533f7bce0bb25a1d1e",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-RESEARCH.md",
+        "sha256": "aad630f613f7add6f81bb1c3fa5bc54a76442ccbb711fdf8b788e41aa29842a0",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-DISPOSITION.md",
+        "sha256": "1493284fb1c771ce6cbfdf91d68279173293efd1a8bf5ac1c286e749cc46adaa",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-FINAL-RECHECK.md",
+        "sha256": "ebe52fb92c03451007d2ae89e6d2363aadc9a5afa97d6af9880747490eb43a16",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-RECHECK.md",
+        "sha256": "08f7fffc1b6e6ce55998f915fe6450f90c1bcac76d4d88e94420266c019de618",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-REPAIR-FAMILY.json",
+        "sha256": "319706f701da86b1f8cc57f4e696c334ebbe29528e9492ca186cf47d80d51242",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-REPAIR.json",
+        "sha256": "3baaaeba5cea58d097fe4be06b8ef685a5a880446fe2df2273d4e0f521ec3aff",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW-SCOPE.json",
+        "sha256": "ed943f1868b1effa76edeb13b1c6da2b4532a91b638d13e0f7a7eb992d539b63",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-REVIEW.md",
+        "sha256": "d2f38050092cbdb2233adc01c4780af238f681d2102a595f6601232aa978351d",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-ROUTING-CHECKS.json",
+        "sha256": "a300c39b622e0a263d8d2163a01ed6c80169f8f075641f411ef34cbbe0cbd719",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-SECURITY-AUDIT.json",
+        "sha256": "635c3b8896817a2bc03d825bf0cece75db543009170ccf2fcd9b3df077a35956",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-SECURITY.md",
+        "sha256": "435daad1854c8896add2de3a9ceaddfcaf2d47931cfa952ac4a42ceba5bf24ef",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-UI-APPLICABILITY.json",
+        "sha256": "5e1d34f76ea19847cec73243960a0a1c850d2aab3f367d12e11dde5510e1ff2f",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-VALIDATION-AUDIT.json",
+        "sha256": "fc71eb893fd36d7d672112480b3883b1831c56031dd246f6ce3002d1ab6f4a13",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+        "sha256": "872d483b3caf5b9a40e49f4963db3f8e7aa8eaf000e191157628ed67268854f4",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-VERIFICATION.md",
+        "sha256": "970b6a274dfe8f2fdd266a8bc7806ffae655c009c35d15a7a6fa04090b16cee3",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/manifest.json",
+        "sha256": "d0447ae4d0a4c48e9fd4b1c5be9e0bb67dc767c224513f2be553b6383b268995",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/branch-protection.json",
+        "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/check-runs.json",
+        "sha256": "7bbf5c9dec96f3f70847802a083b8d905bf1cb50e36c9853b2d383e587b7f46b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/effective-rules.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
+        "sha256": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs.json",
+        "sha256": "ccd25de7f5dca21a51db5743ff0e72934b0dd2baa20a8b147861bfe4607f2bbf",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rate-limit.json",
+        "sha256": "dde1f90cf8f3a55ed41ea1a49ae760fae33f250e0c52e3472c271f8b9b510fa3",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rulesets.json",
+        "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/run.json",
+        "sha256": "2898f2f5bcb03fab05ffc6908619ce97e0d42399367673acb84c7c1afa9f2a60",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/request-ledger.json",
+        "sha256": "2da3b1533e0bc6f1a734d6efa80c61e151096c0ea279d519a1620f751203d3c7",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407/raw/effective-rules.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407/request-ledger.json",
+        "sha256": "6721aab0d696fe4ab85a9b3f9fc8d4090a0c40539f6cfebbe812eb7057b82a02",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/COVERAGE.md",
+        "sha256": "31f421f3419cf5261adceeb16e9f2d2e664422fa2612933dadb6c9c34ff19644",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/producer-source-run-38317383419.json",
+        "sha256": "da7aebbcc6ff75518bf5f76097d77230d09ba2133b810516f59994752c3d061e",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/security-window-20261012-01.json",
+        "sha256": "e71e1c18c611eafa2e8defa8646e50c46e62cddbd2bee51fcae0f2ba9e13cb54",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/security-window-20261012-02.json",
+        "sha256": "04a70bc53d0ca09c0b65319fed83afd78aef450d2508125b5a72796b098b7d46",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/deferred-items.md",
+        "sha256": "65c3a922ef485b788a0a4c940cbaff045cd15a8b1940a34d8a769c3af3cfbd4e",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/API-ACCESS-NOTES.txt",
+        "sha256": "10499444f2c80269c79966efd92658de5ac09c35c48b00eb853bba1ef61efc65",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/DECISION-PACKET.md",
+        "sha256": "2bba79ffc62fee94dd106f57ad37fc2474d942a62b91c9112f45fb6e439ea356",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request-get.json",
+        "sha256": "8d819d8067067041e3ea58f57ca19dbf93afe3befb0b5cbcbe2567c9ddd9c7f7",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request.json",
+        "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/effective-rules-main.json",
+        "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/manifest.json",
+        "sha256": "295e6ac6eb25f94b5318b1dadb5836931ad12cf71048e049eba5ca5a27804f1b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/representative-pr-jobs.json",
+        "sha256": "041335638f31ebacf709c51b5b45c0de72c694bbb6f1872aab931c52966b98d4",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-pull_request.json",
+        "sha256": "075899712dced9c6c3115cd6dc4f70481cc2d32557ce00f611143c6adb52fb1e",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-push-main.json",
+        "sha256": "ee90cda380016de86d28bb82711c2aac3b6f129f84d07bbea44b84145789454b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-schedule.json",
+        "sha256": "3ddd9defd398479cc30f9b5e4b26291437bb1055cc3ee2726bb1161616c73acf",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/discussion-sources/workflows.json",
+        "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/edge-coverage-resolved.json",
+        "sha256": "2a1a958d91cdb31583779689616461c92ea342fe8cab405603dbb357c923f3c6",
+        "preserved_ref": "cdbc002b163a737b15c1e55106d396b492366c29"
+      }
+    ],
+    "all_unchanged": true,
+    "owner_status": {
+      "status": "passed",
+      "next_action": "Verification passed \u2014 continue.",
+      "next_command": "",
+      "route": ""
+    }
+  },
+  "side_effects": {
+    "branch_changed": false,
+    "application_tests_run": false,
+    "packages_installed": false,
+    "new_dependencies": false,
+    "GitHub_API_acquisition": false,
+    "CI_dispatch": false,
+    "external_mutations": false
+  },
+  "sdk_query_diagnostic": {
+    "wrong_number_argument_status": "phase_dir_not_found",
+    "correct_directory_argument_status": "passed",
+    "treated_as_phase_verdict": false
+  }
+}

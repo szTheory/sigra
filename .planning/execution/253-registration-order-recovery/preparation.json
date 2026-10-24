@@ -1,0 +1,46 @@
+{
+  "checkout": "/private/tmp/sigra-253-original-order-4ayf752e/checkout",
+  "node": "/private/tmp/node-v20.20.2-darwin-arm64/bin/node",
+  "source_commit": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "browser_launches": 0,
+  "github_requests": 0,
+  "node_binary_sha256": "38de4fc456c0c439bac48c727d378f749abb4e31f4116703bb1ee9a746fccbb6",
+  "node_archive_sha256": "466e05f3477c20dfb723054dfebffe55bc74660ee77f612166fca121dacb65b6",
+  "lock_sha256": {
+    "mix.lock": "d5e1ffd653afde7a70fb13fc9756156a10d4a3b0a726d9b79becd4c50afd2b6a",
+    "test/example/mix.lock": "79d82423147d7c237781dbc51ddd765b702a81215f673649656084f4aa835d85",
+    "test/example/priv/playwright/package-lock.json": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e"
+  },
+  "runner_library_sha256": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+  "npm_lock_install_verified": true,
+  "playwright": "1.59.1",
+  "selected_count": 33,
+  "collection_only": true,
+  "compile_exit": 0,
+  "compile_log_sha256": "a52dbaec16abe10f8bfc70d918f550159f402879e17f908216a60c79eefea5ed",
+  "grep": "render bundle: board-mg-(?:[1-8]/(?:populated|zero|loading|error)|9/populated)$",
+  "scope": {
+    "max_browser_invocations": 1,
+    "max_seconds_including_cleanup": 600,
+    "selected_tests": 33,
+    "retries": 0,
+    "stop_at_first_failure": true,
+    "github_requests": 0,
+    "ci_launches": 0,
+    "old_slots_reopened": 0,
+    "acceptance": false
+  },
+  "limitations": [
+    "macOS arm64, original CI was Ubuntu Linux x64",
+    "same-project prefix only; 128 earlier desktop/mobile tests omitted",
+    "original database state unavailable; uses owned fresh PostgreSQL cluster",
+    "a passing diagnostic does not close CIREL-01 or count as an acceptance repeat"
+  ],
+  "replay_sha256": "6631a25b37a541b341a805f4d61b3f9b11b299a6d02c3f12666314320039393d",
+  "browser_executables_available_without_launch": [
+    "chromium-1217",
+    "webkit-2272"
+  ],
+  "prior_attempt_commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+  "setup_repair": "Explicit UTF8 cluster; --setup-check runs initdb, ecto.setup and app readiness without browser or reservation"
+}

@@ -1,0 +1,8 @@
+{
+  "method": "GET",
+  "route_id": "git_get_blob",
+  "category": "publication",
+  "params": {
+    "sha": "072a1ea3793213309d89f0c46d75810c6b7df341"
+  }
+}

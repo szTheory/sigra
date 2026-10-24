@@ -1,0 +1,30 @@
+{
+  "captured_at_utc": "2026-10-11T12:27:31.007104+00:00",
+  "scope": "dirty planning files that may be refreshed during Phase 250 Plan 10 closeout",
+  "entries": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_status_porcelain_v1": " M .planning/HANDOFF.json",
+      "bytes": 71280,
+      "sha256": "096353c850514ecb46adb0b439021c4b5a0e7bf60593c118f2f1d44a161d4d75",
+      "mode": 420,
+      "recovery_path": ".planning/recovery/phase-250-pre-plan10-dispatch-20261011T122730Z/files/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "git_status_porcelain_v1": " M .planning/STATE.md",
+      "bytes": 167463,
+      "sha256": "b44b2372474b31d013c3f3069d12441358aff7de68195c2962d7828b716b682f",
+      "mode": 420,
+      "recovery_path": ".planning/recovery/phase-250-pre-plan10-dispatch-20261011T122730Z/files/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/state.json",
+      "git_status_porcelain_v1": " M .planning/state.json",
+      "bytes": 5223,
+      "sha256": "d9d8e4ef9ae98b2139e643343a6e94a554b5ef1702f1214b6b9ae5442d144554",
+      "mode": 420,
+      "recovery_path": ".planning/recovery/phase-250-pre-plan10-dispatch-20261011T122730Z/files/.planning/state.json"
+    }
+  ]
+}

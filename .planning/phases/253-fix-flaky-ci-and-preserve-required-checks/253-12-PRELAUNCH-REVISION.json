@@ -1,0 +1,83 @@
+{
+  "schema_version": "sigra.phase253-canary-prelaunch-revision/v1",
+  "plan": "253-12",
+  "created_at": "2026-10-13T16:30:51Z",
+  "reason": "Plan12 local startup regression found that Plan11's runner reused original preflight paths/ref, skipped initialization when the sealed candidate SHA was present, and did not write ahead request/evidence mutations.",
+  "prior_freeze": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+    "status_at_capture": "clean",
+    "sha256": "f891b8c5bc8354fc110a8a0be4b8617d8f813c3f2c804e44206294cc6e98af82",
+    "blob": "519c2b84b655360de481aad03dcfce70bce2f985",
+    "ref": "refs/gsd/phase253-12-prior-freeze",
+    "exact_readback": true,
+    "candidate_helper_commit": "b8a3b128d8f2a6f6bc91f40622708d2a2cdd1d62",
+    "fixture_workflow_commit": "ce8e419f6ef409efae45181aa9d2eba903e57bd3",
+    "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T160622Z"
+  },
+  "prior_workflow": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-WORKFLOW.yml",
+    "status_at_capture": "clean",
+    "sha256": "65b56df90ccd19b6152392027276887dcc1d55713462ec7e52d679480265c904",
+    "blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "ref": "refs/gsd/phase253-12-prior-workflow",
+    "exact_readback": true
+  },
+  "intermediate_revisions_preserved_before_metadata_correction": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+      "status": "modified after initial reseal attempt",
+      "sha256": "50cd3075036741999cc9462d03195313ba597839ec29a1583880e0e541dd558c",
+      "ref": "refs/gsd/phase253-12-intermediate-freeze/50cd3075036741999cc9462d03195313ba597839ec29a1583880e0e541dd558c",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION.json",
+      "status": "untracked at correction boundary",
+      "sha256": "e23e11cf1a999e8d9df7c1667ed955ade2a74371948cff52a7202e38d08527cc",
+      "ref": "refs/gsd/phase253-12-intermediate-revision/e23e11cf1a999e8d9df7c1667ed955ade2a74371948cff52a7202e38d08527cc",
+      "exact_readback": true
+    }
+  ],
+  "new_seal": {
+    "candidate_helper_commit": "92ae6cb507f91d0fe82026b58dc907b60c340482",
+    "candidate_helper_ref": "phase-244-playwright-measurement",
+    "fixture_workflow_commit": "c2db172ac23bf4296785f61dd3a7718c8ad4a632",
+    "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T163051Z-plan12",
+    "fixture_ref_creation": "create-only; local; exact commit and workflow blob read back; not pushed"
+  },
+  "source_sha256": {
+    "scripts/ci/ci-gate-canary.sh": "28705861585742bfcbfe408542c0b635d6721b58d205714e2ad7b96c5998c5be",
+    "scripts/ci/ci-gate-canary.test.sh": "7d639b029e3c39802d72b0c48e4bd05738cba98c4ab23ecfa0ba847338e449c6",
+    "scripts/ci/ci-hosted-gate-verify.py": "e46366e315aeb1c1b3a170b0b586941b9897ca2d211114ecfb95d0aaa9e69e95",
+    "scripts/ci/ci-hosted-gate-verify.test.py": "2e0af813e8916e56e6d9272f3e460e4e6831f5a91e27f94d3e95232d074063c3"
+  },
+  "prehost_verification": {
+    "regression": "bash scripts/ci/ci-gate-canary.test.sh",
+    "result": "passed against the actual shell runner in an isolated shared clone with mocked gh responses",
+    "checks": [
+      "three fresh read-only preflight GETs are the only mocked API calls and appear in the planned request ledger",
+      "recovery evidence and request receipts initialize from the exact sealed identity with no prior new evidence",
+      "original Phase253-07 snapshot bytes and refs remain unchanged",
+      "every recorded preservation ref reads back the exact prior bytes",
+      "no mock token appears in recovery receipts",
+      "preflight-only startup performs no fixture-ref mutation or dispatch"
+    ],
+    "other_checks": "bash -n on runner and shell test; Python hosted verifier suite 16/16; git diff --check"
+  },
+  "hosted_outcomes": {
+    "github_api_requests": 0,
+    "workflow_dispatches": 0,
+    "executed_jobs": 0,
+    "source_scenarios": {},
+    "independent_verifier": "not started",
+    "budget_started_epoch": null
+  },
+  "scope": {
+    "scenario_names_and_expected_outcomes_changed": false,
+    "request_job_time_and_retry_bounds_changed": false,
+    "old_fixture_refs_or_original_failed_run_modified": false,
+    "production_workflow_changed": false
+  }
+}

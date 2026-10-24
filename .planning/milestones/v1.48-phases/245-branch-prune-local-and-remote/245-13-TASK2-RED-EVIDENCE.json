@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task": "245-13-task-2",
+  "result": "red_reproduced",
+  "test": "supported-runtime local delete fixture stops at the previous unconditional D-05 guard",
+  "fixture": {
+    "baseline_repository": "/private/tmp/sigra-phase244-plan02-clone",
+    "baseline_commit": "9002e6ce5c3e28efc3893530954794694198b18f",
+    "repository": "throwaway clone with a committed Phase 244 source baseline and disposable bare origin",
+    "git_executable": "/usr/bin/git",
+    "git_version": "git version 2.50.1 (Apple Git-155)"
+  },
+  "command": "PATH=/usr/bin:$PATH bash scripts/maintainers/prune-stale-branches.test.sh",
+  "exit_code": 1,
+  "observed_output": [
+    "SUPPORTED: coordinator symbolic HEAD hook enforced",
+    "prune-stale-branches: FAIL: local_worktree_registration_not_atomically_guardable: runtime hook capability has not been independently established on this checkout; keep local apply disabled",
+    "FAIL: capability-supported local prune did not reach the expected-OID deletion boundary under the coordinator"
+  ],
+  "expected": "The capability-proven fixture reaches expected-OID deletion while the coordinator lock is held, rejects competing worktree attach, then preserves the snapshotted object.",
+  "actual": "Runtime capability passed, but the unconditional D-05 guard stopped local apply before expected-OID deletion.",
+  "project_repository_or_origin_mutated": false
+}

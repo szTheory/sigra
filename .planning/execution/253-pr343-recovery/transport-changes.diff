@@ -1,0 +1,76 @@
+--- .planning/execution/253-plan172-persistent-ledger/runtime/ci-hosted-transport.py
++++ .planning/execution/253-pr343-recovery/runtime/ci-hosted-transport.py
+@@ -45,37 +45,7 @@
+     "x-github-request-id", "x-ratelimit-limit", "x-ratelimit-remaining",
+     "x-ratelimit-reset", "x-ratelimit-resource", "retry-after",
+ }
+-ROUTES = {
+-    "rate_limit": ("GET", "/rate_limit", "json"),
+-    "rules_main": ("GET", "/repos/{repo}/rules/branches/main", "json"),
+-    "branch_protection": ("GET", "/repos/{repo}/branches/main/protection", "json"),
+-    "check_runs": ("GET", "/repos/{repo}/commits/{commit_sha}/check-runs", "json"),
+-    "workflow": ("GET", "/repos/{repo}/actions/workflows/{workflow_id}", "json"),
+-    "workflow_runs": ("GET", "/repos/{repo}/actions/workflows/{workflow_id}/runs", "json"),
+-    "run": ("GET", "/repos/{repo}/actions/runs/{run_id}", "json"),
+-    "run_jobs": ("GET", "/repos/{repo}/actions/runs/{run_id}/jobs", "json"),
+-    "run_artifacts": ("GET", "/repos/{repo}/actions/runs/{run_id}/artifacts", "json"),
+-    "cancel_run": ("POST", "/repos/{repo}/actions/runs/{run_id}/cancel", "json"),
+-    "dispatch": ("POST", "/repos/{repo}/actions/workflows/{workflow_id}/dispatches", "json"),
+-    "git_get_blob": ("GET", "/repos/{repo}/git/blobs/{sha}", "json"),
+-    "git_create_blob": ("POST", "/repos/{repo}/git/blobs", "json"),
+-    "git_get_tree": ("GET", "/repos/{repo}/git/trees/{sha}", "json"),
+-    "git_create_tree": ("POST", "/repos/{repo}/git/trees", "json"),
+-    "git_get_commit": ("GET", "/repos/{repo}/git/commits/{sha}", "json"),
+-    "git_create_commit": ("POST", "/repos/{repo}/git/commits", "json"),
+-    "get_ref": ("GET", "/repos/{repo}/git/ref/heads/{branch}", "json"),
+-    "create_ref": ("POST", "/repos/{repo}/git/refs", "json"),
+-    "artifact_zip": ("GET", "/repos/{repo}/actions/artifacts/{artifact_id}/zip", "download"),
+-    "run_logs": ("GET", "/repos/{repo}/actions/runs/{run_id}/logs", "download"),
+-    "job_logs": ("GET", "/repos/{repo}/actions/jobs/{job_id}/logs", "download"),
+-    "pr_create": ("POST", "/repos/{repo}/pulls", "json"),
+-    "pr_read": ("GET", "/repos/{repo}/pulls/{pull_number}", "json"),
+-    "compare": ("GET", "/repos/{repo}/compare/{base_sha}...{head_sha}", "json"),
+-    "repo_contents": ("GET", "/repos/{repo}/contents/{content_path}", "json"),
+-    "attempt_jobs": ("GET", "/repos/{repo}/actions/runs/{run_id}/attempts/{attempt}/jobs", "json"),
+-    "test_probe": ("GET", "/probe", "test"),
+-    "test_page": ("GET", "/page/{page_ordinal}", "test"),
+-}
++ROUTES = {'rate_limit': ('GET', '/rate_limit', 'json'), 'pr_read': ('GET', '/repos/{repo}/pulls/{pull_number}', 'json'), 'check_runs': ('GET', '/repos/{repo}/commits/{commit_sha}/check-runs', 'json'), 'run': ('GET', '/repos/{repo}/actions/runs/{run_id}', 'json'), 'attempt_jobs': ('GET', '/repos/{repo}/actions/runs/{run_id}/attempts/{attempt}/jobs', 'json'), 'run_artifacts': ('GET', '/repos/{repo}/actions/runs/{run_id}/artifacts', 'json')}
+ 
+ 
+ ALLOCATION_KINDS = ("canary", "production")
+@@ -86,13 +56,9 @@
+     "git_get_tree", "git_create_tree", "git_get_commit", "git_create_commit", "artifact_zip", "run_logs",
+ })
+ CANARY_MAX_REQUESTS = 117
+-PRODUCTION_MAX_REQUESTS = 120
+-# Frozen from 253-LOAD-RECOVERY-BUDGETS.md "Actual normal/docs PRs: one combined allocation" (sum 120).
+-PRODUCTION_CATEGORY_LIMITS = {
+-    "preflight": 8, "docs_publication": 14, "pr_create": 2, "pr_identity": 8, "run_discovery": 4,
+-    "pre_watch_rate": 2, "terminal_polls": 27, "attempt_jobs": 4, "native_checks": 4,
+-    "artifact_metadata": 4, "artifact_downloads": 20, "failure_logs": 2, "infrastructure_rerun": 21,
+-}
++PRODUCTION_MAX_REQUESTS = 7
++# Separate proposed read-only ceiling; historical normal/docs budgets remain closed.
++PRODUCTION_CATEGORY_LIMITS = {'rate': 1, 'pr_identity': 2, 'discovery_checks': 1, 'run_identity': 1, 'attempt_jobs': 1, 'artifact_metadata': 1}
+ REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+ PR_HEAD_REFS = {"gsd/253-replan-proof-5e13621e5-candidate", "gsd/253-replan-proof-5e13621e5-docs-head"}
+ PR_BASE_REFS = {"main", "gsd/253-replan-proof-5e13621e5-docs-base"}
+@@ -513,7 +479,7 @@
+     for field, upper in (("max_elapsed_seconds", 3600), ("max_response_bytes", 4 * 1024 * 1024),
+                          ("max_pages", 100), ("max_hops", 2)):
+         value = allocation.get(field)
+-        if isinstance(value, bool) or not isinstance(value, int) or value < 1 or value > upper:
++        if isinstance(value, bool) or not isinstance(value, int) or value < (0 if field == "max_hops" else 1) or value > upper:
+             raise TransportError("allocation_limit_invalid", f"{field} must be from one through {upper}")
+     kind = allocation.get("allocation_kind", "canary")  # legacy allocations predate the typed purpose and are canary-kind
+     if kind not in ALLOCATION_KINDS:
+@@ -521,7 +487,7 @@
+     max_requests = allocation.get("max_requests")
+     min_requests = 0 if mode == "hermetic-test" else 1
+     if kind == "production":
+-        # Only the production purpose may use 120; it is exactly 120 so a smaller window cannot silently stand in.
++        # This separate read-only recovery purpose is exactly seven requests.
+         in_range = max_requests == PRODUCTION_MAX_REQUESTS
+     elif mode == "live":
+         in_range = isinstance(max_requests, int) and min_requests <= max_requests <= CANARY_MAX_REQUESTS

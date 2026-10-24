@@ -1,0 +1,175 @@
+{
+  "schema_version": "sigra.phase253.load-acceptance-evidence/v1",
+  "status": "diagnosis_incomplete",
+  "target_status": "open",
+  "integration_pending": true,
+  "controls": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+    "sha256": "14df65778c6e1ab924d0ed5430937383af95c499c1f00468028910eda9d9f9a1",
+    "stage": "complete"
+  },
+  "observed_cause": {
+    "summary": "The selected historical failures (archived CI runs 38316396580, 38314896976, 38205503164, 38144039844, 38143881058) are observations; only the CI run-metrics self-test dependency failure is complete, and it is unrelated to registration. All other records are incomplete and unproved. The Node20 loader, host-sleep, R3 control/library, R4 validator and R5 count-query defects were each found and repaired in their own right.",
+    "sources": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DIAGNOSIS.json",
+        "sha256": "37097af5164ba074ad3b52ff29728628e4c63d170fd73df56f9762193ce7b090",
+        "proves": "selected archived failures are observations only; cause_claim \"observations_only; no current flake or application cause proved incomplete\""
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+        "sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb",
+        "proves": "registration replan status diagnosis_incomplete; original preceding order unknown, archived log absent"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json",
+        "sha256": "a4e313b6276ddbc8a2b71a1acdfcd2744fa0e360bbc018ceed5d86b5d8b464e4",
+        "proves": "dark/control failure was the Node20 parse5 loader collection defect; never reached registration"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+        "sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0",
+        "proves": "halted 253-40 host-sleep record"
+      },
+      {
+        "path": ".planning/debug/253-r2-native-controls-all-fail.md",
+        "sha256": "6a67823032622095d96b829599d4690f74249254111a6c915c7ee86a5b4b103d",
+        "proves": "halted 253-51 R2 control-design failure"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+        "sha256": "be47d624e0587459671ce5bc5c25739d39dba5e5cfddea3dab2a04c6fd0b4035",
+        "proves": "R2 halted native record"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json",
+        "sha256": "b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e",
+        "proves": "R3 halted native record (253-63)"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab",
+        "proves": "253-63 halt: validator double-counted mirrored annotations"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+        "sha256": "6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd",
+        "proves": "R4 halted native record (253-73)"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-73-SUMMARY.md",
+        "sha256": "1ccc0d9700cca753f31d16d2b489527d3b29a9459a794edc1123489fe30fddcf",
+        "proves": "253-73 halt: runner account-count query unqualified schema, stderr dropped"
+      }
+    ]
+  },
+  "historical_cause": {
+    "status": "diagnosis_incomplete",
+    "missing": [
+      "original preceding-order log (archived original log absent; rejected as a native receipt)",
+      "original control/DB state for the selected registration collision",
+      "any red-before counterexample on preserved exact source tied to a registration harness seam"
+    ],
+    "causal_link": null,
+    "rejected_as_explanation": [
+      "current passing R5 diagnostics and controls",
+      "loader repair alone",
+      "host-sleep runner fix alone",
+      "R3 control/library/deadline/diagnostics repairs",
+      "R4 validator repair alone",
+      "R5 count-query repair alone",
+      "exhausted budget"
+    ]
+  },
+  "repairs": [
+    {
+      "id": "node20-loader",
+      "defect_class": "node20_loader_collection",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json",
+        "sha256": "a4e313b6276ddbc8a2b71a1acdfcd2744fa0e360bbc018ceed5d86b5d8b464e4"
+      },
+      "explains_historical_cause": false
+    },
+    {
+      "id": "host-sleep-253-40",
+      "defect_class": "host_sleep_runner",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-40-SUMMARY.md",
+        "sha256": "7a658680e8fcbb14da9324119cc3a5e30fd6cbf24905372275daf9436b95f2ce"
+      },
+      "explains_historical_cause": false
+    },
+    {
+      "id": "r3-library-enumeration-253-57",
+      "defect_class": "r3_library_enumeration",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-57-SUMMARY.md",
+        "sha256": "afd806a1446e5207b42e0effd40372fb8c943c86226e852a6a302a9e8576908b"
+      },
+      "explains_historical_cause": false
+    },
+    {
+      "id": "r3-positive-refill-253-58",
+      "defect_class": "r3_control_design",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-58-SUMMARY.md",
+        "sha256": "f4737b63ec9387f8d4f88c11ea36bd3a60466bb3612eac7b93c26cde227fb400"
+      },
+      "explains_historical_cause": false
+    },
+    {
+      "id": "r3-diagnostics-253-59",
+      "defect_class": "r3_diagnostics",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-59-SUMMARY.md",
+        "sha256": "13d0f8b6200c992c44aff64f3aaa3c6002cb5cfddc122f18c7010a105b22da31"
+      },
+      "explains_historical_cause": false
+    },
+    {
+      "id": "r3-setup-accounting-253-60",
+      "defect_class": "r3_deadline_sizing",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-60-SUMMARY.md",
+        "sha256": "6f4496628eaa5756f6b71c231e0ded910a1c4845a0403554651dd6a136e289a9"
+      },
+      "explains_historical_cause": false
+    },
+    {
+      "id": "r4-per-row-union-253-69",
+      "defect_class": "r4_validator_double_count",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-69-SUMMARY.md",
+        "sha256": "47b49500d653165f4b09b6ac912cc26964b4414ac8b00043317ad46ac4521fca"
+      },
+      "explains_historical_cause": false
+    },
+    {
+      "id": "r5-count-query-253-79",
+      "defect_class": "r5_account_count_query",
+      "source": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-79-SUMMARY.md",
+        "sha256": "d0bd09659e47ecd35c3b703beef12cf91083639bbcdda0de536b87af6063b0a4"
+      },
+      "explains_historical_cause": false
+    }
+  ],
+  "acceptance": {
+    "freeze": null,
+    "reserved_ids": [
+      "D20-ACCEPT-admin-eval-1",
+      "D20-ACCEPT-admin-eval-2",
+      "D20-ACCEPT-admin-eval-3",
+      "D20-ACCEPT-admin-eval-mobile-1",
+      "D20-ACCEPT-admin-eval-mobile-2",
+      "D20-ACCEPT-admin-eval-mobile-3",
+      "D20-ACCEPT-admin-eval-dark-1",
+      "D20-ACCEPT-admin-eval-dark-2",
+      "D20-ACCEPT-admin-eval-dark-3"
+    ],
+    "attempts": [],
+    "retry_available": 0,
+    "disposition": "No proved cause: no acceptance freeze, no native window launched; all nine D-20 slots expire unused and CIREL-01 stays open."
+  }
+}

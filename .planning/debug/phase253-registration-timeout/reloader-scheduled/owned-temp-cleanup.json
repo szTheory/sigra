@@ -1,0 +1,7 @@
+{
+  "owned_temp": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-2754",
+  "project_sha256": "7df3c7f0bca243221c6277a8e0e95c9480d21e5e13051e8ecafdba454bd5f470",
+  "helper_sha256": "5243cb31c725f0b9953b63f46adaffc10cc8e84792b391be2c626086b539d0e6",
+  "cleanup_reason": "owned fixture left after killed isolated unit; exact synthetic project/helper matched",
+  "removed": true
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "sigra.phase254.candidate-snapshot/v1",
+  "recorded_at": "2026-10-23T22:06:31.947381+00:00",
+  "tested_source_commit": "38d83b252a55c1dd0bd8cde610ad9db19c46d723",
+  "application_sha": "536645d98a8b4ca18dce2cc2ea083fe0c7b75793",
+  "tree_sha": "d0c0d243839c1c8e7120d0dc916b89deac80d24b",
+  "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "branch": "evidence/phase254-rerun-candidate-20261023",
+  "publication": "draft evidence PR only; do not merge",
+  "tree_readback_verified": true,
+  "root_branch_unchanged": "phase-244-playwright-measurement",
+  "main_changed": false
+}

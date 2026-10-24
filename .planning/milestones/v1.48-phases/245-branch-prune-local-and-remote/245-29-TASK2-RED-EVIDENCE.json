@@ -1,0 +1,9 @@
+{
+  "command": "node --test --test-concurrency=1 --test-reporter=tap --test-name-pattern='safety publication result rejects malformed' scripts/maintainers/prune-stale-branches-current.test.mjs",
+  "exitCode": 1,
+  "targetFile": "scripts/maintainers/prune-stale-branches-current.test.mjs",
+  "targetTest": "safety publication result rejects malformed rows and missing or mismatched origin readback",
+  "expected": "If a publication row contains both expected_oid and oid, both identities match the committed safety allowlist row.",
+  "actual": "The named assertion failed because the result verifier accepted inconsistent expected_oid and oid fields.",
+  "output": "TAP version 13\n# Subtest: safety publication result rejects malformed rows and missing or mismatched origin readback\nnot ok 1 - safety publication result rejects malformed rows and missing or mismatched origin readback\n  ---\n  duration_ms: 4705.981625\n  failureType: 'testCodeFailure'\n  error: 'Missing expected exception: conflicting OID aliases'\n  code: 'ERR_ASSERTION'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n"
+}

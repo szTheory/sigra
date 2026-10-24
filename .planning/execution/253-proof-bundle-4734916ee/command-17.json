@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/runtime/ci-hosted-gate-verify.py",
+    "--mode",
+    "pr",
+    "--family",
+    "normal",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/normal-evidence.json"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "hosted-gate-verify: FAIL: exactly one shared fresh preflight is required\n"
+}

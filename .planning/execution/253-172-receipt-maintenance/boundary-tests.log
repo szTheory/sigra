@@ -1,0 +1,8 @@
+test_first_attempt_bytes_remain_exact (__main__.CollectorBoundary.test_first_attempt_bytes_remain_exact) ... ok
+test_generated_collector_joins_original_operator_receipts (__main__.CollectorBoundary.test_generated_collector_joins_original_operator_receipts) ... ok
+test_generated_collector_rejects_missing_original_receipt (__main__.CollectorBoundary.test_generated_collector_rejects_missing_original_receipt) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.187s
+
+OK

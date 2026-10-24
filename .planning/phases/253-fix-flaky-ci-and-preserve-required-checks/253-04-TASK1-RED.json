@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-name-pattern=\"the terminal browser aggregate is absent\" scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+  "exitCode": 1,
+  "output": "\u2716 the terminal browser aggregate is absent from the docs-only body inventory (0.634459ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 0\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 39.096541\n\n\u2716 failing tests:\n\ntest at scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs:35:1\n\u2716 the terminal browser aggregate is absent from the docs-only body inventory (0.634459ms)\n  AssertionError [ERR_ASSERTION]: the unconditional terminal aggregate is not a docs-only browser body\n  \n  1 !== 0\n  \n      at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs:36:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 1,\n    expected: 0,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "targetTest": "the terminal browser aggregate is absent from the docs-only body inventory",
+  "targetFile": "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+  "expected": "unconditional aggregate excluded from body skip inventory",
+  "actual": "synthetic aggregate manifest entry still present",
+  "semanticAssessment": "Target reads the real manifest and fails on its aggregate row."
+}

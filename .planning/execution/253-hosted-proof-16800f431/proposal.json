@@ -1,0 +1,292 @@
+{
+  "schema": "sigra.phase253.hosted-proof-proposal/v1",
+  "status": "proposal_only_execution_bundle_required",
+  "created_at": "2026-10-21T19:30:02Z",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "source_product_tree": "1a44d3909ef0811e91a43d85f54e795680691cf3",
+  "entry_commit": "647fdbc01481c6bafc63831891873113c45a806e",
+  "publication_manifest": "publication-proposal.json",
+  "publication_manifest_sha256": "30615b0a25b1417dd2a1253ac5d396e995527fe1bdbfea1cc0706462864dc5a3",
+  "local_parent": {
+    "sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "freshness": "unverified_offline",
+    "fresh_fetch_permitted_now": false
+  },
+  "source_reassembly": {
+    "candidate_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+    "candidate_tree": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+    "fixture_commit": "e795647eaadaa99d4bb750daddfff21966ee4d92",
+    "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+    "docs_base_commit": "07950d542c3bb3d2bbb6e28c031eeaaedad47caa",
+    "docs_head_commit": "b30da458d48389b3e94e7cec6c69079f4d2449ad",
+    "commit_date": "2026-10-21T19:30:02Z",
+    "product_paths_equal": 1485,
+    "matches_previously_tested_candidate_tree": true,
+    "disposable_git": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/253-hosted-proposal-oss5l2h2/objects.git",
+    "durable_recipe": "Re-run source_variants using source_sha, local_parent.sha, source_reassembly.commit_date, fixture_file and workflow_path from publication-proposal.json; permit only planning descendants and compare every resulting identity."
+  },
+  "refs": [
+    {
+      "ref": "refs/heads/gsd/253-proof-16800f431-candidate",
+      "sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+      "operation": "create_only",
+      "remote_availability": "not_queried"
+    },
+    {
+      "ref": "refs/heads/gsd/253-proof-16800f431-fixture",
+      "sha": "e795647eaadaa99d4bb750daddfff21966ee4d92",
+      "operation": "create_only",
+      "remote_availability": "not_queried"
+    },
+    {
+      "ref": "refs/heads/gsd/253-proof-16800f431-docs-base",
+      "sha": "07950d542c3bb3d2bbb6e28c031eeaaedad47caa",
+      "operation": "create_only",
+      "remote_availability": "not_queried"
+    },
+    {
+      "ref": "refs/heads/gsd/253-proof-16800f431-docs-head",
+      "sha": "b30da458d48389b3e94e7cec6c69079f4d2449ad",
+      "operation": "create_only",
+      "remote_availability": "not_queried"
+    }
+  ],
+  "approval": {
+    "received": false,
+    "allocation_created": false,
+    "scope": "A later explicit approval must bind the final execution bundle hash, source, candidate/fixture/docs identities, fresh refs, actions and both separate windows. This proposal and all prior yes responses authorize no hosted action.",
+    "stages": [
+      "Offline execution bundle and negative guards first",
+      "Explicit approval of the concrete bundle",
+      "One fresh main fetch plus rate-limit check; stop on changed parent, conflict, occupied ref or low/rate-limited API budget",
+      "New canary window; stop on any unexpected outcome",
+      "Only after all six cases and independent verifier pass, new normal and docs-only draft PR window",
+      "Retain actual results; evaluate current requirements without changing 171 halt or fabricating 172 completion"
+    ]
+  },
+  "proposed_windows": [
+    {
+      "name": "repaired_source_canary",
+      "requests": 117,
+      "seconds": 3600,
+      "max_jobs": 45,
+      "max_dispatches": 7,
+      "max_cancellations": 1,
+      "reruns": 0,
+      "publication_requests_cap": 24,
+      "publication_projection": {
+        "parent_preflight_requests": 1,
+        "fixed_non_tree_requests": 12,
+        "tree_request_count": 5,
+        "binary_blob_requests": 1,
+        "projected_total_requests": 19,
+        "max_requests": 24,
+        "largest_tree_body_bytes": 2092801,
+        "max_tree_body_bytes": 2097152,
+        "complete_product_delta_dropped": false
+      },
+      "category_ceilings": {
+        "artifact_downloads": 12,
+        "artifact_metadata": 7,
+        "attempt_jobs": 7,
+        "cancellation": 1,
+        "dispatch": 7,
+        "failure_logs": 6,
+        "infrastructure_retry": 5,
+        "pre_watch_rate": 7,
+        "preflight": 16,
+        "publication": 24,
+        "run_discovery": 7,
+        "terminal_polls": 18
+      },
+      "reserved_but_disabled_categories": [
+        "infrastructure_retry"
+      ],
+      "scenarios": [
+        {
+          "expected_outcome": "success",
+          "name": "full-pass"
+        },
+        {
+          "expected_outcome": "success",
+          "name": "docs-only"
+        },
+        {
+          "expected_outcome": "failure",
+          "name": "actual-failure"
+        },
+        {
+          "expected_outcome": "failure",
+          "name": "missing-seam"
+        },
+        {
+          "expected_outcome": "failure",
+          "name": "unexpected-skip"
+        },
+        {
+          "expected_outcome": "cancelled",
+          "name": "cancelled"
+        }
+      ],
+      "independent_verifier": true
+    },
+    {
+      "name": "repaired_source_prs",
+      "requests": 120,
+      "seconds": 3600,
+      "max_draft_prs": 2,
+      "reruns": 0,
+      "docs_publication_requests_cap": 14,
+      "category_ceilings": {
+        "artifact_downloads": 20,
+        "artifact_metadata": 4,
+        "attempt_jobs": 4,
+        "docs_publication": 14,
+        "failure_logs": 2,
+        "infrastructure_rerun": 21,
+        "native_checks": 4,
+        "pr_create": 2,
+        "pr_identity": 8,
+        "pre_watch_rate": 2,
+        "preflight": 8,
+        "run_discovery": 4,
+        "terminal_polls": 27
+      },
+      "reserved_but_disabled_categories": [
+        "infrastructure_rerun"
+      ],
+      "families": [
+        {
+          "name": "normal",
+          "base": "main",
+          "head": "gsd/253-proof-16800f431-candidate",
+          "draft": true,
+          "title": "Phase 253 repaired-source normal CI proof (draft, do not merge)",
+          "body": "Draft proof of source 16800f4319cdd0e2554938071d4ebc48caa969ac; never merged. PR338 remains a historical failed attempt."
+        },
+        {
+          "name": "docs-only",
+          "base": "gsd/253-proof-16800f431-docs-base",
+          "head": "gsd/253-proof-16800f431-docs-head",
+          "draft": true,
+          "title": "Phase 253 repaired-source docs-only CI proof (draft, do not merge)",
+          "body": "Draft docs-only proof on the repaired-source CI workflow; never merged."
+        }
+      ]
+    }
+  ],
+  "proposed_actions": [
+    "Fresh main fetch once, before any window; require exact proposed parent, ancestry and clean merge",
+    "Check core API budget before long watch; stop if <=250 or HTTP403/429 until reset/retry time",
+    "Publish complete candidate/fixture objects and create only the two new refs, within the canary publication cap",
+    "Dispatch six named canary cases, cancel only the one cancellation case, then dispatch the independent verifier with receipts",
+    "After canary success, publish docs objects and create only the two fresh docs refs within the PR cap",
+    "Open normal and docs-only draft PRs; one watcher per run, polling no faster than60 seconds; fetch structured summary once, failed logs only for failure",
+    "Charge every request, including failed requests, immediately; persist current partial results on any stop"
+  ],
+  "required_checks": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "stop_rules": [
+    "Any source, manifest, helper hash, fixture identity or product inventory mismatch",
+    "Any changed fetched main; do not rebuild silently after approval",
+    "Any occupied proposed ref; never update or delete it",
+    "Any cap, category cap, job ceiling, archive size limit or elapsed-time limit reached",
+    "Any unexpected case outcome, infrastructure failure or malformed/incomplete response",
+    "Any rate-limit refusal; do not retry immediately",
+    "Any failure in normal or docs-only family; no automatic rerun, new window or new numbered plan"
+  ],
+  "prohibited": [
+    "CI during this task",
+    "reuse or amend any old allocation/approval/ledger",
+    "update PR338 or rerun39651372938",
+    "rerun179",
+    "merge",
+    "auto_merge",
+    "force_update",
+    "delete_ref",
+    "rule_change",
+    "release",
+    "tag",
+    "unmeasured API calls"
+  ],
+  "execution_gaps": [
+    {
+      "item": "Fresh scoped refs are unsupported by the existing closed-window runner",
+      "evidence": "scripts/ci/ci-git-publication.py REF_PAIRS permits only legacy,r8,r9,r10,r11,r12,r13; docs refs are fixed in old freezes.",
+      "resolution": "Prepare an isolated planning-only execution adapter/bundle for these exact new refs, preserving source16800f431 product bytes; test refusal of R13 approval/allocation, old refs, changed source and expired windows. Do not patch or launch an old runner."
+    },
+    {
+      "item": "Current main and remote ref availability have not been checked",
+      "resolution": "Perform only after explicit approval; parent change or ref collision stops before publication and requires a revised concrete proposal."
+    }
+  ],
+  "preservation": {
+    "shared": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean_at_capture",
+        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
+        "sha256": "74daf60906567fd41728de47ad43f193a96f9cd3a96c8a28e02ca134427fd00a",
+        "bytes": 36447,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean_at_capture",
+        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
+        "sha256": "c5b29e4537cecadf91cd735a8f48621eeb122f03c66d309861430aca87d87066",
+        "bytes": 121524,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean_at_capture",
+        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
+        "sha256": "72f7d2bec36755dd763592d9ffc4db49e20e4e8fcda864e6be2fd2ae9e7cd37c",
+        "bytes": 186420,
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/execution/253-CONTINUATION.json",
+        "status": "clean_at_capture",
+        "commit": "647fdbc01481c6bafc63831891873113c45a806e",
+        "sha256": "bc1d4d9b3930b5f9901faafb177250c9a5faacfdfc5ab99f263c4819f24b7ee8",
+        "bytes": 2741,
+        "readback_verified": true
+      }
+    ],
+    "historical_source_commit": "647fdbc01481c6bafc63831891873113c45a806e",
+    "plan171_status": "halted",
+    "plan171_requests": 19,
+    "plan171_max_requests": 120,
+    "canary170_requests": 85,
+    "canary170_max_requests": 117,
+    "historical_measured_requests": 104,
+    "diagnostic_connector_calls": 5,
+    "diagnostic_wire_requests": "unknown; not conflated with measured windows",
+    "all_windows_closed": true,
+    "halts": 29,
+    "implementation_complete": 80,
+    "unsummarized": 74,
+    "plans": 183
+  },
+  "current_task": {
+    "github_requests": 0,
+    "ci_launches": 0,
+    "allocations": 0,
+    "budget_renewals": 0,
+    "acceptance_reruns": 0,
+    "new_numbered_plans": 0
+  },
+  "requirements": {
+    "CIREL_01": "partial_not_reproduced; offline repairs do not prove original selected flaky failure reproduced and fixed",
+    "CIREL_02": "unaccepted; hosted normal/docs and required-check behavior still missing"
+  },
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-quick \"Phase 253: prepare and verify the offline execution bundle for .planning/execution/253-hosted-proof-16800f431/proposal.json; keep source 16800f431 and fresh refs; preserve all closed windows; no CI\""
+}

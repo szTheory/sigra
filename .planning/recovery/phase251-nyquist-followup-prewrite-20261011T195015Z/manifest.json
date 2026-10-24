@@ -1,0 +1,18 @@
+{
+  "purpose": "Exact current Phase 251 plan/validation bytes before focused Nyquist follow-up edits",
+  "captured_at": "2026-10-11T19:50:19.382504+00:00",
+  "files": [
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "sha256": "42e18dfcc663d97d6ec8b92a7a3027e374f2fb71a867256e75ec09eb52aac040",
+      "bytes": 40826,
+      "recovery_path": ".planning/recovery/phase251-nyquist-followup-prewrite-20261011T195015Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "sha256": "ef5cf35640d88f2eae695f96f68ee8e8270dbd6f63502fbd7b1b753d92d3c45a",
+      "bytes": 9914,
+      "recovery_path": ".planning/recovery/phase251-nyquist-followup-prewrite-20261011T195015Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+    }
+  ]
+}

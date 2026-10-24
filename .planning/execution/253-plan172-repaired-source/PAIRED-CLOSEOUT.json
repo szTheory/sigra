@@ -1,0 +1,26 @@
+{
+  "status": "offline_approval_checkpoint_verified",
+  "readiness": {
+    "phase_number": "253",
+    "plan_count": 183,
+    "incomplete_count": 74,
+    "runnable_plans": [
+      "253-172-PLAN.md"
+    ],
+    "runnable_count": 1,
+    "halted_count": null,
+    "blocked_count": null
+  },
+  "protected_inputs_unchanged": 174,
+  "historical_halts_unchanged": 29,
+  "plan179_and180_unchanged": true,
+  "product_source_unchanged": true,
+  "requests_this_turn": 0,
+  "ci_launches_this_turn": 0,
+  "active_allocations": 0,
+  "phase_verified": false,
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_command_conditional": true,
+  "bundle_commit": "f95300006",
+  "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524"
+}

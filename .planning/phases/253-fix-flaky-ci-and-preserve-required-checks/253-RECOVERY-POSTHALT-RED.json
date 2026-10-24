@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "stage": "RED",
+  "scope": "local post-halt repairs only; no browser, app, database, GitHub API, ref publication or workflow run",
+  "commands": [
+    {
+      "command": "node --test scripts/ci/ci-registration-recovery.test.mjs",
+      "exit_code": 1,
+      "output": "✔ diagnostic verification rejects caller-written success without native receipts (41.378708ms)\n✔ the original controls and acceptance verification modes remain unavailable (15.104292ms)\n✔ runner floors fractional millisecond process timeouts before spawnSync (221.686209ms)\n✔ browser attempt output gets a unique directory beside preserved preflight logs (0.387916ms)\n✖ each diagnostic uses its own physical Mix build for setup, server and cleanup (0.480708ms)\n✖ command logs remove development signing keys before a receipt hashes their bytes (22.906417ms)\n✔ native receipt accepts the selected project only with matching report, logs, exit and drop (2.102875ms)\n✔ diagnostic ledger accepts one accurately charged, source-bound native attempt (1.3345ms)\n✔ native receipt rejects source drift, a wrong project, and a missing report (3.143459ms)\n✔ native receipt rejects an empty report, absent database drop and changed log digest (3.350542ms)\n✔ native receipt rejects a failed browser without a retained failure trace (1.14725ms)\n✔ native receipt rejects uncharged controls and attempts over the slot limit (1.832416ms)\nℹ tests 12\nℹ suites 0\nℹ pass 10\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 362.400708\n\n✖ failing tests:\n\ntest at scripts/ci/ci-registration-recovery.test.mjs:62:1\n✖ each diagnostic uses its own physical Mix build for setup, server and cleanup (0.480708ms)\n  TypeError [Error]: recovery.diagnosticEnvironment is not a function\n      at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-registration-recovery.test.mjs:67:26)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)\n\ntest at scripts/ci/ci-registration-recovery.test.mjs:87:1\n✖ command logs remove development signing keys before a receipt hashes their bytes (22.906417ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  undefined !== 1\n  \n      at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-registration-recovery.test.mjs:91:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)\n      at Test.postRun (node:internal/test_runner/test:1542:19)\n      at Test.run (node:internal/test_runner/test:1467:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    {
+      "command": "bash scripts/ci/ci-gate-canary.test.sh",
+      "exit_code": 1,
+      "output": "ci-gate-canary: local fixture contract passed\nci-gate-canary: FAIL: fresh effective required-check names differ from the frozen five-name contract\n"
+    }
+  ],
+  "findings": [
+    "registration environment lacks an attempt-specific physical Mix build path",
+    "development signing-key values are not removed before receipt hashing",
+    "ruleset metadata endpoint cannot establish effective main-branch required checks"
+  ],
+  "halted_evidence_unchanged": true,
+  "browser_launches_added": 0,
+  "github_api_requests_added": 0
+}
