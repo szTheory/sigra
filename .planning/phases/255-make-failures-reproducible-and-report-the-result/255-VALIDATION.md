@@ -1,8 +1,8 @@
 ---
 phase: "255"
 slug: "make-failures-reproducible-and-report-the-result"
-status: remediation_required
-nyquist_compliant: false
+status: validated
+nyquist_compliant: true
 wave_0_complete: true
 created: "2026-10-24"
 ---
@@ -86,3 +86,7 @@ No test infrastructure gap or human-only check was found. Historical Phase 254 s
 ## Review Coverage Gaps
 
 CR-01 needs real outer-runner SIGTERM cleanup; CR-02 child SIGKILL propagation; CR-03 concurrent process budget contention; CR-04 archive-level URL-userinfo/camel-case secret redaction; WR-01 retained missing-file metadata. Existing passing tests remain recorded, but coverage is incomplete until these focused regressions and repairs pass.
+
+## Review Coverage Gap Closure
+
+The independent re-review resolved all five findings. New regressions directly cover outer SIGTERM resource cleanup, child SIGKILL, real concurrent budget writers, finished-archive userinfo/camel/query/form/fragment redaction, and missing-file metadata tampering. See `255-REVIEW-FIX.md` and `255-review-fix/`. A final full Mix run exposed stale live topology assertions and historical contributor reads; the scoped repair passed 57 tests and keeps the exact historical source hash unchanged (`PHASE255-LIVE-TOPOLOGY-REPAIR.json`). The original failed full gate is retained; the fresh full native result is separate.
