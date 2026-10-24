@@ -75,3 +75,14 @@ test('local reproduction exposes a retained native diagnostics mode', () => {
   assert.match(runner.stdout, /--diagnostic-case/);
   assert.match(runner.stdout, /--keep-output/);
 });
+
+test('local reproduction exposes a server-start failure and terminated browser case', () => {
+  const runner = spawnSync('python3', ['-B', 'scripts/ci/ci-browser-local.py', '--help'], {
+    cwd: path.resolve(import.meta.dirname, '../..'),
+    encoding: 'utf8',
+  });
+
+  assert.equal(runner.status, 0, runner.stderr);
+  assert.match(runner.stdout, /--diagnostic-startup-failure/);
+  assert.match(runner.stdout, /pass,fail,terminate/);
+});
