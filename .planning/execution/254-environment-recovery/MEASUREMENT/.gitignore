@@ -1,3 +1,7 @@
 /assembled/
 /requests/*/raw-before/
 /requests/*/raw-after/
+/DIAGNOSTIC/admin-checkpoints.zip
+/DIAGNOSTIC/admin-checkpoints.log
+/EVALUATION.json
+/LOCAL-REGISTRATION/raw/

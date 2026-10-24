@@ -7,10 +7,10 @@ status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_final_live_parity_verification
-stopped_at: Exact final parity-corrected sources running
-last_updated: "2026-10-24T00:54:18.793805+00:00"
-last_activity: 2026-10-24 - Package repair verified on Linux; two fixed-source CI preparations running
+workflow_step: phase254_measured_browser_failure_diagnosis
+stopped_at: Measured pair01 retained; local browser failure diagnosis active
+last_updated: "2026-10-24T02:02:58.039959+00:00"
+last_activity: 2026-10-24 - Preparation passed; first measured baseline failed mobile registration readiness; local diagnosis active
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
   total_phases: 4
@@ -28,7 +28,7 @@ phase254_halted_plans: [254-08]
 phase254_wave_count: 5
 phase254_task_count: 19
 phase254_implementation_status: complete
-phase254_comparison_status: preparing_final_workflow_parity_verification
+phase254_comparison_status: insufficient_data
 phase254_verification_status: pending
 verification_status: pending
 next_command: "$gsd-execute-phase 254"
@@ -41,10 +41,10 @@ phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 
 # Current position
 
-Both preceding sources passed every required context; full CI exposed a live evidence-workflow copy mismatch. The exact two-file correction passed both complete local guard suites and is running in the same evidence PRs.
+Final preparation passed on both sources. The first measured baseline failed mobile registration LiveView readiness; candidate passed. Both originals are retained. This fixed comparison is insufficient_data; diagnose and repair locally without replacing samples or starting a new window.
 
-Continue `$gsd-execute-phase 254` in the same Plan254-08 under current delegated recovery authority `.planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json`. Do not return to an obsolete approval question. Package acquisition and native image authority are verified in hosted runs; all five required contexts passed on both preceding sources. Their overall CI remains failed because the active green-04 evidence copy missed the generated-host install-body change. The exact two-file companion/marker correction passes all93 baseline and118 candidate prohibition tests locally. Strict parity checks and historical fixtures remain intact.
+Continue `$gsd-execute-phase 254` for the scoped local repair and honest result record. Ten initial preparation runs remain retained; final attempt1 in PR348/349 passed full CI, all108 cases, all-warm caches and matching native image proofs. Measured attempt2: baseline40046955449 failed admin-checkpoints-mobile while waiting for initial registration LiveView; candidate40047078287 passed. Root driver stopped and preserved both results; no watcher remains active.
 
-Current sources: baselinefb2d3faa/run40046955449; candidateebb1d3ef/run40047078287, in PR348/349. Exactly two counted source updates, zero retries,60minutes/600HTTPrequests. Eight preceding preparation outcomes remain spent and preserved; total initial preparations started: ten, plus the isolated diagnostic. No measured sample or48-hour window has started; all40 measured invocations remain unspent.
+Two of40 invocations spent,38 unspent; zero valid successful pairs. Frozen window remains2026-10-24T01:04:13Z through2026-10-26T01:04:13Z. At most19 successful pairs remain possible, so this experiment cannot satisfy the20-pair requirement. No automatic resume/replacement/window extension or acceptance-budget renewal. Implementation complete; comparison insufficient_data; whole-phase verification pending; CISPEED-01/02 open.
 
-Implementation is complete; comparison and whole-phase verification pending; CISPEED-01/02 open. Phase253 complete and verified; Phase255 pending. Reconcile `.planning/execution/254-environment-recovery/PARITY-FIX/WATCH.jsonl` and active watcher before any polling. The measurement script and draft are in `.planning/execution/254-environment-recovery/MEASUREMENT`; never start it without actual successful current-source preparation, native/image/cache proof and an immutable future window. Prior shared state: `.planning/execution/254-environment-recovery/PARITY-FIX/STATE-PRIOR.json` at `refs/evidence/phase254-before-live-parity-running-state` (`f66d32198c60c4a20d9093d280da6a2f3b9a6750`).
+Evidence: `.planning/execution/254-environment-recovery/MEASUREMENT/PROGRESS.json`, requests/pair-01/CAPTURE-before.json andCAPTURE-after.json; diagnostic/admin-checkpoints.log. The exact prior shared state, final preparation, and original measured bytes are recoverable from `refs/evidence/phase254-first-measured-stop-before-diagnosis` (`7e8bf07eb5d5c00ce55a6714a344d9fab8bf010d`), with verified hashes in `.planning/execution/254-environment-recovery/MEASUREMENT/STATE-PRIOR.json`. Earlier halted attempts remain unchanged.

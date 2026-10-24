@@ -1,0 +1,10 @@
+{"at": "2026-10-24T01:02:17.856657+00:00", "contract_sha256": "9fc92a9b66546bc514cf5fefb07192ba84e4f07f338fae31c1db47ccc6f442a9", "kind": "started", "measured_samples": 0}
+{"at": "2026-10-24T01:04:13.007613+00:00", "kind": "triggering_once", "reservation_id": "pair-01-before"}
+{"at": "2026-10-24T01:04:18.746760+00:00", "kind": "registered", "measured_samples": 1, "reservation_id": "pair-01-before"}
+{"at": "2026-10-24T01:04:18.747126+00:00", "kind": "triggering_once", "reservation_id": "pair-01-after"}
+{"at": "2026-10-24T01:10:41.926086+00:00", "kind": "registered", "measured_samples": 2, "reservation_id": "pair-01-after"}
+{"at": "2026-10-24T01:32:08.180862+00:00", "conclusion": "failure", "kind": "status", "reservation_id": "pair-01-before", "status": "completed"}
+{"at": "2026-10-24T01:32:09.146213+00:00", "conclusion": "success", "kind": "status", "reservation_id": "pair-01-after", "status": "completed"}
+{"at": "2026-10-24T01:33:05.325511+00:00", "commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c", "kind": "preserved", "receipt": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/CAPTURE-before.json", "ref": "refs/evidence/phase254-measurement-pair-01-before-attempt-2", "reservation_id": "pair-01-before"}
+{"at": "2026-10-24T01:33:06.658795+00:00", "commit": "5df0b52e9773364de9fa1aa8a37b831133c56600", "kind": "preserved", "receipt": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/CAPTURE-after.json", "ref": "refs/evidence/phase254-measurement-pair-01-after-attempt-2", "reservation_id": "pair-01-after"}
+{"at": "2026-10-24T01:33:06.659252+00:00", "automatic_resume": false, "diagnostic": "pair_stopped_after_retention:before:collection_failed,before:failure", "kind": "stopped", "measured_samples": 2}

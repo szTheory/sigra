@@ -18,7 +18,7 @@
       "name": "Speed Up the Measured Slow Jobs",
       "status": "in_progress",
       "implementation_status": "complete",
-      "comparison_status": "preparing_final_workflow_parity_verification",
+      "comparison_status": "insufficient_data",
       "verification_status": "pending"
     },
     {
@@ -29,12 +29,12 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 254",
-    "label": "Finish final workflow parity verification and fixed comparison",
-    "reason": "Both preceding sources passed every required context; full CI exposed a live evidence-workflow copy mismatch. The exact two-file correction passed both complete local guard suites and is running in the same evidence PRs.",
+    "label": "Diagnose and repair the measured browser failure locally",
+    "reason": "Final preparation passed on both sources. The first measured baseline failed mobile registration LiveView readiness; candidate passed. Both originals are retained. This fixed comparison is insufficient_data; diagnose and repair locally without replacing samples or starting a new window.",
     "conditional": false,
-    "condition": "Current user authorized the scoped recovery and bounded verification; finish the same Plan254-08."
+    "condition": "Continue scoped local failure diagnosis only. Original cohort is terminal; no automatic rerun, source amendment, replacement, extra acceptance, or window extension."
   },
-  "updated_at": "2026-10-24T00:54:18.793805+00:00",
+  "updated_at": "2026-10-24T02:02:58.039959+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -42,22 +42,22 @@
     ],
     "total_plans": 8,
     "implementation_status": "complete",
-    "comparison_status": "preparing_final_workflow_parity_verification",
+    "comparison_status": "insufficient_data",
     "verification_status": "pending",
     "resume_plan": "254-08",
-    "resume_task": "254-08-01",
+    "resume_task": "254-08-03",
     "continuation": ".planning/execution/254-CONTINUATION.json",
-    "state_preservation": "fef59a0af7a888c1efeb229d793d9808ef00131c",
+    "state_preservation": "7e8bf07eb5d5c00ce55a6714a344d9fab8bf010d",
     "preparation_runs": 10,
-    "measured_samples": 0,
-    "window_started": false,
+    "measured_samples": 2,
+    "window_started": true,
     "preparation_result": ".planning/execution/254-environment-recovery/PARITY-FIX/RESULT.json",
     "rebaseline_proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
     "active_authorization": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
     "rebaseline_preparation": ".planning/execution/254-rebaseline-preparation",
     "rebaseline_preparation_runs": 2,
     "final_recovery": ".planning/execution/254-rebaseline-preparation/FINAL-RECOVERY.json",
-    "candidate_ci_status": "pending_current_source",
+    "candidate_ci_status": "success_measured_attempt2",
     "candidate_native_cases": 108,
     "extra_preparation_runs_authorized": false,
     "prior_preparation_runs": 8,
@@ -68,17 +68,27 @@
     "prior_preparation_recovery": ".planning/execution/254-environment-recovery/PREPARATION/FINAL-RECOVERY.json",
     "parity_verification_runs": 2,
     "parity_verification": ".planning/execution/254-environment-recovery/PARITY-FIX",
-    "baseline_ci_status": "pending_current_source"
+    "baseline_ci_status": "failure_measured_attempt2",
+    "family_count_started": 2,
+    "family_allowance_spent": 2,
+    "family_allowance_unspent": 38,
+    "window_start_utc": "2026-10-24T01:04:13Z",
+    "window_end_utc": "2026-10-26T01:04:13Z",
+    "measurement": ".planning/execution/254-environment-recovery/MEASUREMENT",
+    "measurement_progress": ".planning/execution/254-environment-recovery/MEASUREMENT/PROGRESS.json",
+    "successful_equivalent_pairs": 0,
+    "automatic_resume": false,
+    "prior_state_before_measured_stop": ".planning/execution/254-environment-recovery/MEASUREMENT/STATE-PRIOR.json"
   },
   "phase254_unblock_decision": {
-    "status": "final_live_parity_verification_running",
+    "status": "measured_pair01_failed_diagnosis_running",
     "authorization": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
     "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
     "notification_created": false,
     "preparation_runs": 10,
-    "measured_samples": 0,
-    "next_decision": "Finish the current two runs; no blind retry or additional numbered plan",
+    "measured_samples": 2,
+    "next_decision": "Continue scoped local failure diagnosis only. Original cohort is terminal; no automatic rerun, source amendment, replacement, extra acceptance, or window extension.",
     "rebaseline_preparation_runs": 2,
-    "result": ".planning/execution/254-rebaseline-preparation/RESULT.json"
+    "result": ".planning/execution/254-environment-recovery/MEASUREMENT/PROGRESS.json"
   }
 }
