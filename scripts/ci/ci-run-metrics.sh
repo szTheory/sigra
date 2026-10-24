@@ -1163,8 +1163,10 @@ for registration in registrations:
             expected_job=f'Example Playwright shard ({seam})' if job_name=='Example Playwright shard' and seam else job_name
             matching=[job for job in jobs if job.get('name')==expected_job]
             if (str(meta.get('run_id'))!=run_id or meta_attempt!=str(attempt) or meta.get('source_sha')!=expected_producer_sha
-                    or meta.get('event')!='pull_request' or len(matching)!=1 or matching[0].get('conclusion')!='success'):
+                    or meta.get('event')!='pull_request' or len(matching)!=1):
                 raise SystemExit(f'attempt_measurement_metadata_origin_invalid:{sample_id}:{artifact_name}')
+            if matching[0].get('conclusion')!='success':
+                raise SystemExit(f"attempt_measurement_job_not_successful:{sample_id}:{expected_job}:{matching[0].get('conclusion')}")
             metadata.append((meta,artifact_name))
     if not metadata: raise SystemExit(f'attempt_measurement_metadata_missing:{sample_id}')
     producer=[(m,n) for m,n in metadata if m.get('job_name')=='Library tests shard' or m.get('job_name')=='Example Playwright shard']
@@ -2495,8 +2497,8 @@ if registrations:
     native_parity['origin_status']='passed' if available_families and len(origin_results)==available_families else 'insufficient_data'
 else:
     issue('comparison_registrations_missing_for_origin_verification')
-before_rows={r.get('pair_id'):r for r in before.get('comparison_families',[]) if r.get('family_role')=='before'}
-after_rows={r.get('pair_id'):r for r in after.get('comparison_families',[]) if r.get('family_role')=='after'}
+before_rows={r.get('pair_id'):r for r in (before.get('comparison_families') or []) if r.get('family_role')=='before'}
+after_rows={r.get('pair_id'):r for r in (after.get('comparison_families') or []) if r.get('family_role')=='after'}
 coverage=contract.get('native_coverage_comparison') or {}
 mapping_relative=coverage.get('mapping_path'); mapping_digest=coverage.get('mapping_sha256')
 try:
@@ -2547,6 +2549,38 @@ try:
 except Exception as error:
     native_parity['diagnostic']=str(error)
     issue('native_coverage_parity_unverified',str(error))
+# Cost is incurred by observed runs, including failed or unpaired runs whose
+# successful-comparison family was never materialized. Reservations that have
+# not actually been registered are not observations and incur no assumed cost.
+cost_observations={}; attempt_scoped=contract.get('sample_identity')=='run_id+run_attempt'
+def observe_cost(label, row):
+    run_id=row.get('run_id'); attempt=row.get('run_attempt') if attempt_scoped else None
+    key=(str(run_id),attempt)
+    if key in cost_observations:
+        saved_label,saved=cost_observations[key]
+        if saved_label!=label: issue('cost_observation_role_conflict',{'run_id':run_id,'run_attempt':attempt})
+        return saved
+    if contract.get('comparison_schedule'):
+        if not str(run_id).isdigit() or (attempt_scoped and (type(attempt) is not int or attempt<1)):
+            raw={'status':'unknown','runner_seconds':None,'runner_known_subtotal_seconds':0,
+                 'diagnostics':['cost_observation_identity_invalid']}
+        else:
+            raw=derive_comparison_family_costs(bundle_paths[label],run_id,
+                contract.get('required_contexts') or [],run_attempt=attempt)
+    else:
+        raw={**row,'status':'complete'}
+    observed={**row,**raw,'family_role':label,'run_id':run_id,'run_attempt':attempt,
+              'cost_status':raw.get('status'),'raw_attempt_costs':raw.get('attempt_costs',[])}
+    cost_observations[key]=(label,observed)
+    if observed.get('runner_seconds') is None:
+        issue(label+'_observed_runner_cost_unknown',{'run_id':run_id,'run_attempt':attempt,
+              'known_subtotal_seconds':observed.get('runner_known_subtotal_seconds',0),
+              'diagnostics':raw.get('diagnostics') or raw.get('runner_diagnostics') or []})
+    return observed
+for label,data in [('before',before),('after',after)]:
+    for row in data.get('comparison_families') or []: observe_cost(label,row)
+for row in (registrations or {}).get('records') or []:
+    if row.get('family_role') in bundle_paths: observe_cost(row['family_role'],row)
 for label, data in [('before',before),('after',after)]:
     if data.get('status') != 'complete': issue(label+'_snapshot_incomplete')
     rows=data.get('comparison_families')
@@ -2555,8 +2589,8 @@ for label, data in [('before',before),('after',after)]:
     seen=set()
     for row in rows:
         if contract.get('comparison_schedule'):
-            raw=derive_comparison_family_costs(bundle_paths[label],row.get('run_id'),contract.get('required_contexts') or data.get('required_contexts') or [],run_attempt=row.get('run_attempt') if contract.get('sample_identity')=='run_id+run_attempt' else None)
-            if raw.get('status')!='complete': issue(label+'_raw_family_invalid',{'run_id':row.get('run_id'),'diagnostics':raw.get('diagnostics')}); continue
+            raw=observe_cost(label,row)
+            if raw.get('cost_status')!='complete': issue(label+'_raw_family_invalid',{'run_id':row.get('run_id'),'diagnostics':raw.get('diagnostics')}); continue
             row={**row,'created_at':raw.get('created_at'),'conclusion':raw.get('conclusion'),
                  'required_result_wait_seconds':raw.get('required_result_wait_seconds'),
                  'runner_seconds':raw.get('runner_seconds'),'runner_known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),
@@ -2600,10 +2634,13 @@ for pair_id in sorted(set(before_rows)&set(after_rows)):
     if not isinstance(b.get('runner_seconds'),(int,float)) or not isinstance(a.get('runner_seconds'),(int,float)): continue
 wait_before=[b['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
 wait_after=[a['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
-runner_before_known=sum(b.get('runner_known_subtotal_seconds',b.get('runner_seconds') or 0) for _,b,a in paired)
-runner_after_known=sum(a.get('runner_known_subtotal_seconds',a.get('runner_seconds') or 0) for _,b,a in paired)
-runner_before=None if any(b.get('runner_seconds') is None for _,b,a in paired) else sum(b['runner_seconds'] for _,b,a in paired)
-runner_after=None if any(a.get('runner_seconds') is None for _,b,a in paired) else sum(a['runner_seconds'] for _,b,a in paired)
+def observed_total(label):
+    rows=[row for side,row in cost_observations.values() if side==label]
+    known=sum(row.get('runner_known_subtotal_seconds',row.get('runner_seconds') or 0) for row in rows)
+    total=None if any(row.get('runner_seconds') is None for row in rows) else sum(row['runner_seconds'] for row in rows)
+    return total,known
+runner_before,runner_before_known=observed_total('before')
+runner_after,runner_after_known=observed_total('after')
 def median(xs):
     xs=sorted(xs); n=len(xs)
     return (xs[(n-1)//2]+xs[n//2])/2 if n else None
@@ -2617,7 +2654,7 @@ else:
     actual_alloc={}
     for _,b,_ in paired: actual_alloc[str(b.get('cache_stratum'))]=actual_alloc.get(str(b.get('cache_stratum')),0)+1
     if actual_alloc!=expected_alloc: issue('cache_stratum_allocation_mismatch',{'expected':expected_alloc,'actual':actual_alloc})
-metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'baseline_runner_known_subtotal_seconds':runner_before_known,'candidate_runner_known_subtotal_seconds':runner_after_known,'family_attempt_costs':[{'pair_id':b.get('pair_id'),'family_role':b.get('family_role'),'run_id':b.get('run_id'),'conclusion':b.get('conclusion'),'runner_seconds':b.get('runner_seconds'),'known_subtotal_seconds':b.get('runner_known_subtotal_seconds',b.get('runner_seconds')),'unknown_jobs':b.get('runner_unknown_jobs',[]),'attempts':b.get('raw_attempt_costs',[])} for _,b,a in paired]+[{'pair_id':a.get('pair_id'),'family_role':a.get('family_role'),'run_id':a.get('run_id'),'conclusion':a.get('conclusion'),'runner_seconds':a.get('runner_seconds'),'known_subtotal_seconds':a.get('runner_known_subtotal_seconds',a.get('runner_seconds')),'unknown_jobs':a.get('runner_unknown_jobs',[]),'attempts':a.get('raw_attempt_costs',[])} for _,b,a in paired],'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead'),'native_parity':native_parity}
+metrics={'pair_count':len(paired),'comparable_successful_pairs':len(wait_before),'baseline_median_seconds':median(wait_before),'candidate_median_seconds':median(wait_after),'baseline_p95_seconds':p95(wait_before),'candidate_p95_seconds':p95(wait_after),'baseline_runner_seconds':runner_before,'candidate_runner_seconds':runner_after,'baseline_runner_known_subtotal_seconds':runner_before_known,'candidate_runner_known_subtotal_seconds':runner_after_known,'family_attempt_costs':[{'pair_id':row.get('pair_id'),'family_role':side,'run_id':row.get('run_id'),'run_attempt':row.get('run_attempt'),'conclusion':row.get('conclusion'),'cost_status':row.get('cost_status'),'runner_seconds':row.get('runner_seconds'),'known_subtotal_seconds':row.get('runner_known_subtotal_seconds',row.get('runner_seconds')),'unknown_jobs':row.get('runner_unknown_jobs',[]),'attempts':row.get('raw_attempt_costs',[])} for side,row in cost_observations.values()],'p95_method':'nearest-rank ceil(0.95*n); for n=20 this is sorted value 19','overhead_disclosure':contract.get('instrumentation_overhead'),'native_parity':native_parity}
 performance_verdict='pass' if len(wait_before)==20 and median(wait_after)<=.8*median(wait_before) and p95(wait_after)<=p95(wait_before) and runner_after is not None and runner_before is not None and runner_after<=runner_before else ('miss' if len(wait_before)==20 else 'insufficient_data')
 if not issues and len(wait_before)==20:
     verdict='pass' if performance_verdict=='pass' and native_parity.get('status')=='passed' and native_parity.get('origin_status')=='passed' else 'miss' if performance_verdict=='miss' else 'insufficient_data'

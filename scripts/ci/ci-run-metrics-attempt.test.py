@@ -565,6 +565,33 @@ else:
                     self.assertEqual(detail['workload'], 'full')
                     self.assertTrue(all(len(list((raw_run.parent / "artifacts/derived-native" / owner).glob("coverage-source.json"))) == 1 for owner in OWNERS))
                     if role == 'before':
+                        # An always-uploaded metadata artifact can have valid
+                        # origin even when its producing browser test failed.
+                        # Retain that failed observation and reject eligibility
+                        # for its actual outcome, never call it an origin error.
+                        failed_jobs = json.loads(json.dumps(jobs))
+                        checkpoint = [job for job in failed_jobs['jobs']
+                                      if job['name'] == 'Example Playwright shard (admin_checkpoints)']
+                        self.assertEqual(len(checkpoint), 1)
+                        checkpoint[0]['conclusion'] = 'failure'
+                        write(directory / 'jobs.json', failed_jobs)
+                        write(directory / 'run.json', {**run, 'conclusion': 'failure'})
+                        failed_bundle = root / 'collected-before-failed-job'
+                        try:
+                            failed_collection = subprocess.run(command[:-1] + [str(failed_bundle)], cwd=ROOT,
+                                env=environment, capture_output=True, text=True, timeout=120)
+                            self.assertNotEqual(failed_collection.returncode, 0)
+                            self.assertIn(f'attempt_measurement_job_not_successful:{rid}-attempt-{attempt}:'
+                                          'Example Playwright shard (admin_checkpoints):failure', failed_collection.stderr)
+                            self.assertNotIn('attempt_measurement_metadata_origin_invalid', failed_collection.stderr)
+                            failed_raw = failed_bundle / f'raw/families/{rid}-attempt-{attempt}'
+                            self.assertEqual(json.loads((failed_raw / 'run.json').read_text())['conclusion'], 'failure')
+                            failed_manifest = json.loads((failed_bundle / 'manifest.json').read_text())
+                            self.assertFalse(failed_manifest.get('comparison_families'))
+                            self.assertFalse((failed_raw / 'artifacts/derived-native').exists())
+                        finally:
+                            write(directory / 'jobs.json', jobs)
+                            write(directory / 'run.json', run)
                         # The isolated diagnostic uses the same bounded, digest-checked artifact transport.
                         chosen = retained_artifacts[0]
                         write(root / 'single-artifact.json', chosen)

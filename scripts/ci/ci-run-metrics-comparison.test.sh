@@ -197,6 +197,62 @@ jq -e '.status=="pass" and .performance_verdict=="pass" and .metrics.native_pari
 cp -R "$TMP/before" "$TMP/before-original"
 cp -R "$TMP/after" "$TMP/after-original"
 cp "$TMP/contract.json" "$TMP/contract-original.json"
+cp "$TMP/registrations.json" "$TMP/registrations-original.json"
+for missing_role in before after; do
+  python3 - "$TMP/$missing_role/manifest.json" <<'PY'
+import json,pathlib,sys
+path=pathlib.Path(sys.argv[1]); data=json.loads(path.read_text())
+data['comparison_families']=None
+path.write_text(json.dumps(data))
+PY
+  run_eval >"$TMP/null-$missing_role-families.json"
+  jq -e --arg reason "${missing_role}_family_inputs_missing" \
+    '.status=="insufficient_data" and .metrics.comparable_successful_pairs==0 and .metrics.baseline_runner_seconds==1400 and .metrics.candidate_runner_seconds==900 and (.metrics.family_attempt_costs|length)==40 and any(.diagnostics[];.reason==$reason)' \
+    "$TMP/null-$missing_role-families.json" >/dev/null
+  # Evaluation diagnoses absent observations; it cannot synthesize families.
+  jq -e '.comparison_families==null' "$TMP/$missing_role/manifest.json" >/dev/null
+  cp "$TMP/$missing_role-original/manifest.json" "$TMP/$missing_role/manifest.json"
+done
+# Only these two slots were started; future reservations are not missing costs.
+python3 - "$TMP" <<'PY'
+import json,pathlib,sys
+root=pathlib.Path(sys.argv[1]); path=root/'registrations.json'; data=json.loads(path.read_text())
+data['records']=data['records'][:2]; path.write_text(json.dumps(data))
+for role in ('before','after'):
+    path=root/role/'manifest.json'; data=json.loads(path.read_text()); data['comparison_families']=None
+    path.write_text(json.dumps(data))
+PY
+run_eval >"$TMP/registered-unmaterialized-costs.json"
+jq -e '.status=="insufficient_data" and .metrics.comparable_successful_pairs==0 and .metrics.baseline_runner_seconds==70 and .metrics.candidate_runner_seconds==45 and (.metrics.family_attempt_costs|length)==2' "$TMP/registered-unmaterialized-costs.json" >/dev/null
+mv "$TMP/before/raw/families/1001" "$TMP/missing-observed-raw"
+run_eval >"$TMP/registered-missing-raw-costs.json"
+jq -e '.status=="insufficient_data" and .metrics.baseline_runner_seconds==null and .metrics.baseline_runner_known_subtotal_seconds==0 and .metrics.candidate_runner_seconds==45 and (.metrics.family_attempt_costs|length)==2 and any(.diagnostics[];.reason=="before_observed_runner_cost_unknown")' "$TMP/registered-missing-raw-costs.json" >/dev/null
+mv "$TMP/missing-observed-raw" "$TMP/before/raw/families/1001"
+cp "$TMP/before-original/manifest.json" "$TMP/before/manifest.json"
+cp "$TMP/after-original/manifest.json" "$TMP/after/manifest.json"
+cp "$TMP/registrations-original.json" "$TMP/registrations.json"
+python3 - "$TMP/before/manifest.json" "$TMP/after/manifest.json" <<'PY'
+import json,pathlib,sys
+before,after=map(pathlib.Path,sys.argv[1:]); b=json.loads(before.read_text()); a=json.loads(after.read_text())
+b['comparison_families'].append(dict(b['comparison_families'][0]))
+a['comparison_families'].pop()
+before.write_text(json.dumps(b)); after.write_text(json.dumps(a))
+PY
+run_eval >"$TMP/duplicate-and-unpaired-costs.json"
+jq -e '.status=="insufficient_data" and .metrics.comparable_successful_pairs==19 and .metrics.baseline_runner_seconds==1400 and .metrics.candidate_runner_seconds==900 and (.metrics.family_attempt_costs|length)==40' "$TMP/duplicate-and-unpaired-costs.json" >/dev/null
+cp "$TMP/before-original/manifest.json" "$TMP/before/manifest.json"
+cp "$TMP/after-original/manifest.json" "$TMP/after/manifest.json"
+python3 - "$TMP/before/raw/families/1001" <<'PY'
+import hashlib,json,pathlib,sys
+family=pathlib.Path(sys.argv[1]); run=family/'run.json'; data=json.loads(run.read_text())
+data['conclusion']='failure'; run.write_text(json.dumps(data))
+manifest=family/'manifest.json'; data=json.loads(manifest.read_text())
+data['source_run_sha256']=hashlib.sha256(run.read_bytes()).hexdigest(); manifest.write_text(json.dumps(data))
+PY
+run_eval >"$TMP/failed-observation-costs.json"
+jq -e '.status=="insufficient_data" and .metrics.comparable_successful_pairs==19 and .metrics.baseline_runner_seconds==1400 and .metrics.candidate_runner_seconds==900 and any(.metrics.family_attempt_costs[];.run_id==1001 and .conclusion=="failure" and .runner_seconds==70)' "$TMP/failed-observation-costs.json" >/dev/null
+cp "$TMP/before-original/raw/families/1001/run.json" "$TMP/before/raw/families/1001/run.json"
+cp "$TMP/before-original/raw/families/1001/manifest.json" "$TMP/before/raw/families/1001/manifest.json"
 python3 - "$TMP/contract.json" "$TMP/performance-contract.json" <<'PY'
 import json,pathlib,sys
 data=json.loads(pathlib.Path(sys.argv[1]).read_text()); data['native_coverage_comparison']['mapping_sha256']='0'*64
