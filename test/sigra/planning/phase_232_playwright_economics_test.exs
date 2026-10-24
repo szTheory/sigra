@@ -104,7 +104,8 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
     assert preparation in [
              [combined_preparation, combined_preparation],
              [sequential_preparation, sequential_preparation]
-           ], "recorder-enabled and direct paths must retain the same exact ordered Mix treatment"
+           ],
+           "recorder-enabled and direct paths must retain the same exact ordered Mix treatment"
 
     assert action =~ "ci-command-record.py"
     assert action =~ "--invocation \"${DIAGNOSTICS_PREFIX}-prepare\""

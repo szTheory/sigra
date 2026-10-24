@@ -346,16 +346,7 @@ def browser_profile(checkout: Path, role: str, owner: str, scratch: Path, env: d
     output = scratch / f"browser-{role}-{owner}.json"
     command = ["node", str(ROOT / "scripts/ci/ci-prep-profile.mjs"), "--root", str(checkout),
                "--output", str(output), "--scope", owner, "--mode", "workload", "--workload-map", WORKLOAD_MAP]
-    diagnostic_root = scratch / f"diagnostics-{role}-{owner}"
-    runner_temp = scratch / f"runner-temp-{role}-{owner}"
-    diagnostic_root.mkdir(mode=0o700, parents=True, exist_ok=False)
-    runner_temp.mkdir(mode=0o700, parents=True, exist_ok=False)
-    native_env = dict(env)
-    native_env.update({"GITHUB_WORKSPACE": str(checkout), "RUNNER_TEMP": str(runner_temp),
-                       "DIAGNOSTICS_ROOT": str(diagnostic_root), "DIAGNOSTICS_PREFIX": f"repaired-{role}-{owner}",
-                       "SIGRA_CI_DIAGNOSTICS": "1", "SIGRA_CI_DIAGNOSTICS_ROOT": str(diagnostic_root),
-                       "SIGRA_CI_TRACE_REGISTRY": str(diagnostic_root / "trace-registry.jsonl"),
-                       "SIGRA_CI_INVOCATION_ID": f"{owner}-{role}", "SIGRA_CI_NATIVE_IDENTITY": f"ci:{owner}"})
+    native_env, _ = browser_workflow_environment(env, checkout, role, owner, scratch)
     result = run(command, cwd=checkout, env=native_env, timeout=1800)
     profile = json.loads(output.read_text()) if output.is_file() else {}
     report_root = output.parent
@@ -436,6 +427,46 @@ def compare_browser_pair(left: dict | None, right: dict | None) -> dict:
     return {"status": "passed" if same else "failed"}
 
 
+def browser_workflow_environment(env: dict[str, str], checkout: Path, role: str, owner: str,
+                                scratch: Path) -> tuple[dict[str, str], Path]:
+    diagnostic_root = scratch / f"diagnostics-{role}-{owner}"
+    runner_temp = scratch / f"runner-temp-{role}-{owner}"
+    diagnostic_root.mkdir(mode=0o700, parents=True, exist_ok=False)
+    runner_temp.mkdir(mode=0o700, parents=True, exist_ok=False)
+    result = dict(env)
+    result.update({"GITHUB_WORKSPACE": str(checkout), "RUNNER_TEMP": str(runner_temp),
+                   "DIAGNOSTICS_ROOT": str(diagnostic_root), "DIAGNOSTICS_PREFIX": f"repaired-{role}-{owner}",
+                   "SIGRA_CI_DIAGNOSTICS": "1", "SIGRA_CI_DIAGNOSTICS_ROOT": str(diagnostic_root),
+                   "SIGRA_CI_TRACE_REGISTRY": str(diagnostic_root / "trace-registry.jsonl"),
+                   "SIGRA_CI_INVOCATION_ID": f"{owner}-{role}", "SIGRA_CI_NATIVE_IDENTITY": f"ci:{owner}"})
+    return result, diagnostic_root
+
+
+def source_preflight(checkout: Path, role: str, scratch: Path, env: dict[str, str],
+                     native_commands: list[dict]) -> None:
+    dependency_dir = checkout / "deps"
+    if not dependency_dir.exists():
+        dependency_dir.symlink_to(ROOT / "deps", target_is_directory=True)
+    format_env = dict(env)
+    format_env.update({"MIX_ENV": "test", "MIX_BUILD_PATH": str(ROOT / "_build")})
+    format_command = ["mix", "format", "--check-formatted"]
+    formatted = run(format_command, cwd=checkout, env=format_env, timeout=300)
+    native_commands.append({"kind": "preflight", "source_role": role, "owner": "source_format",
+                            "command": format_command, "exit_code": formatted["exit_code"],
+                            "status": formatted["status"]})
+    require(formatted["exit_code"] == 0, f"source_format_preflight_failed:{role}")
+
+    profile_env, _ = browser_workflow_environment(env, checkout, role, "preflight", scratch)
+    profile_command = ["node", str(ROOT / "scripts/ci/ci-prep-profile.mjs"), "--root", str(checkout),
+                       "--output", str(scratch / f"preflight-{role}.json"), "--scope", "admin_behavior",
+                       "--mode", "workload", "--workload-map", WORKLOAD_MAP, "--check-only"]
+    checked = run(profile_command, cwd=checkout, env=profile_env, timeout=120)
+    native_commands.append({"kind": "preflight", "source_role": role, "owner": "browser_workflow",
+                            "command": profile_command, "exit_code": checked["exit_code"],
+                            "status": checked["status"]})
+    require(checked["exit_code"] == 0, f"browser_workflow_preflight_failed:{role}")
+
+
 def build_native(args: argparse.Namespace) -> tuple[dict, int]:
     source_index = Path(args.sources).resolve()
     sources = source_rows(source_index)
@@ -471,6 +502,8 @@ def build_native(args: argparse.Namespace) -> tuple[dict, int]:
             checkout, identity = materialize_checkout(role, sources[role], scratch, process_env)
             role_checkouts[role] = checkout
             local["sources"][role] = identity
+        for role in ("control", "candidate"):
+            source_preflight(role_checkouts[role], role, scratch, process_env, local["native_commands"])
         for role in ("control", "candidate"):
             checkout = role_checkouts[role]
             result = report_library(checkout, role, scratch, process_env)
@@ -613,6 +646,20 @@ class RepairedWorkContractTest(unittest.TestCase):
         self.assertEqual(compare_browser_pair(None, None)["status"], "blocked")
         self.assertEqual(compare_browser_pair({"exit_code": 2, "cleanup_status": "failed", "identities": []},
                                               {"exit_code": 2, "cleanup_status": "failed", "identities": []})["status"], "blocked")
+
+    def test_browser_workflow_environment_matches_recorded_action_inputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            checkout = Path(directory) / "source"
+            scratch = Path(directory) / "scratch"
+            checkout.mkdir()
+            scratch.mkdir(mode=0o700)
+            env, diagnostic_root = browser_workflow_environment({}, checkout, "control", "admin_behavior", scratch)
+            self.assertEqual(env["GITHUB_WORKSPACE"], str(checkout))
+            self.assertEqual(env["RUNNER_TEMP"], str(scratch / "runner-temp-control-admin_behavior"))
+            self.assertEqual(env["DIAGNOSTICS_ROOT"], str(diagnostic_root))
+            self.assertEqual(env["DIAGNOSTICS_PREFIX"], "repaired-control-admin_behavior")
+            self.assertEqual(env["SIGRA_CI_DIAGNOSTICS_ROOT"], str(diagnostic_root))
+            self.assertEqual(env["SIGRA_CI_TRACE_REGISTRY"], str(diagnostic_root / "trace-registry.jsonl"))
 
 
 def main(argv: list[str]) -> int:
