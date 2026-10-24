@@ -1,0 +1,847 @@
+{
+  "schema_version": "sigra.ci-comparison-contract/v1",
+  "captured_at_utc": "2026-10-23T19:46:36Z",
+  "status": "draft_waiting_actual_preparation",
+  "blocked_by": "Actual successful native/source/image/cache proof from corrected preparation",
+  "baseline_application_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+  "baseline_identity": {
+    "application_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+    "producer_source_sha": null,
+    "run_id": 40045468739,
+    "run_attempt": 1,
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/38317383419",
+    "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+    "workflow_file_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+    "workflow_revision": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+    "workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa",
+    "tree_sha": "779c0dc6cbbb5671770659c295a3ce3649c42740",
+    "branch": "evidence/phase254-environment-before-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "2b0e51d37184ffb95698dea586eebf3c42a33d85",
+    "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+    "source_ref": "refs/evidence/phase254-native-authority-source-before"
+  },
+  "baseline_runner_image": {
+    "arch": "X64",
+    "image_drift": "diagnostic; do not silently match",
+    "image_os": "ubuntu24",
+    "image_version": "20261004.327.1",
+    "os": "Linux"
+  },
+  "baseline_workflow_revision": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+  "baseline_workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+  "baseline_workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa",
+  "candidate_identity": {
+    "application_sha": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+    "tree_sha": "71f24549e613bc8a6d68c3e396bb28e4626f6812",
+    "branch": "evidence/phase254-environment-after-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "c074333db2658cb0726a9ee23535e4c43a9f8c64",
+    "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+    "source_ref": "refs/evidence/phase254-native-authority-source-after",
+    "workflow_revision": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+    "workflow_file_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+    "workload_revision_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+    "producer_source_sha": null
+  },
+  "comparison_readiness": "blocked_before_preparation_or_collection",
+  "family_reservations": [
+    {
+      "reservation_id": "pair-01-before",
+      "pair_id": "pair-01",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 2
+    },
+    {
+      "reservation_id": "pair-01-after",
+      "pair_id": "pair-01",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 2
+    },
+    {
+      "reservation_id": "pair-02-after",
+      "pair_id": "pair-02",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 3
+    },
+    {
+      "reservation_id": "pair-02-before",
+      "pair_id": "pair-02",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 3
+    },
+    {
+      "reservation_id": "pair-03-before",
+      "pair_id": "pair-03",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 4
+    },
+    {
+      "reservation_id": "pair-03-after",
+      "pair_id": "pair-03",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 4
+    },
+    {
+      "reservation_id": "pair-04-after",
+      "pair_id": "pair-04",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 5
+    },
+    {
+      "reservation_id": "pair-04-before",
+      "pair_id": "pair-04",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 5
+    },
+    {
+      "reservation_id": "pair-05-before",
+      "pair_id": "pair-05",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 6
+    },
+    {
+      "reservation_id": "pair-05-after",
+      "pair_id": "pair-05",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 6
+    },
+    {
+      "reservation_id": "pair-06-after",
+      "pair_id": "pair-06",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 7
+    },
+    {
+      "reservation_id": "pair-06-before",
+      "pair_id": "pair-06",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 7
+    },
+    {
+      "reservation_id": "pair-07-before",
+      "pair_id": "pair-07",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 8
+    },
+    {
+      "reservation_id": "pair-07-after",
+      "pair_id": "pair-07",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 8
+    },
+    {
+      "reservation_id": "pair-08-after",
+      "pair_id": "pair-08",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 9
+    },
+    {
+      "reservation_id": "pair-08-before",
+      "pair_id": "pair-08",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 9
+    },
+    {
+      "reservation_id": "pair-09-before",
+      "pair_id": "pair-09",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 10
+    },
+    {
+      "reservation_id": "pair-09-after",
+      "pair_id": "pair-09",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 10
+    },
+    {
+      "reservation_id": "pair-10-after",
+      "pair_id": "pair-10",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 11
+    },
+    {
+      "reservation_id": "pair-10-before",
+      "pair_id": "pair-10",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 11
+    },
+    {
+      "reservation_id": "pair-11-before",
+      "pair_id": "pair-11",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 12
+    },
+    {
+      "reservation_id": "pair-11-after",
+      "pair_id": "pair-11",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 12
+    },
+    {
+      "reservation_id": "pair-12-after",
+      "pair_id": "pair-12",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 13
+    },
+    {
+      "reservation_id": "pair-12-before",
+      "pair_id": "pair-12",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 13
+    },
+    {
+      "reservation_id": "pair-13-before",
+      "pair_id": "pair-13",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 14
+    },
+    {
+      "reservation_id": "pair-13-after",
+      "pair_id": "pair-13",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 14
+    },
+    {
+      "reservation_id": "pair-14-after",
+      "pair_id": "pair-14",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 15
+    },
+    {
+      "reservation_id": "pair-14-before",
+      "pair_id": "pair-14",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 15
+    },
+    {
+      "reservation_id": "pair-15-before",
+      "pair_id": "pair-15",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 16
+    },
+    {
+      "reservation_id": "pair-15-after",
+      "pair_id": "pair-15",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 16
+    },
+    {
+      "reservation_id": "pair-16-after",
+      "pair_id": "pair-16",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 17
+    },
+    {
+      "reservation_id": "pair-16-before",
+      "pair_id": "pair-16",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 17
+    },
+    {
+      "reservation_id": "pair-17-before",
+      "pair_id": "pair-17",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 18
+    },
+    {
+      "reservation_id": "pair-17-after",
+      "pair_id": "pair-17",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 18
+    },
+    {
+      "reservation_id": "pair-18-after",
+      "pair_id": "pair-18",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 19
+    },
+    {
+      "reservation_id": "pair-18-before",
+      "pair_id": "pair-18",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 19
+    },
+    {
+      "reservation_id": "pair-19-before",
+      "pair_id": "pair-19",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 20
+    },
+    {
+      "reservation_id": "pair-19-after",
+      "pair_id": "pair-19",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 20
+    },
+    {
+      "reservation_id": "pair-20-after",
+      "pair_id": "pair-20",
+      "family_role": "after",
+      "run_id": 40045481175,
+      "run_attempt": 21
+    },
+    {
+      "reservation_id": "pair-20-before",
+      "pair_id": "pair-20",
+      "family_role": "before",
+      "run_id": 40045468739,
+      "run_attempt": 21
+    }
+  ],
+  "native_coverage_comparison": {
+    "mapping_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+    "mapping_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+    "parity_receipt_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8-PARITY-RECEIPT.json",
+    "parity_receipt_sha256": "1dcf212a7b334a11f9cee96cc464fdd0c761a55a89d3b89f90957adb0aea6d14",
+    "parity_status": "passed",
+    "inventories": {
+      "before": {
+        "admin_behavior": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_behavior/coverage-source.json",
+          "descriptor_sha256": "89110f3cb76f3b0d7b1ca903f1f0038adc2be613275801791a43d76a3a927b97",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_behavior/admin-behavior.selection.json",
+          "selection_sha256": "1d0a467a778ab627d394cb2742fad61d809c861cd1aa10ddc3641ba9d88b2111",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "admin_checkpoints": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_checkpoints/coverage-source.json",
+          "descriptor_sha256": "ab4b58eb56cf6ec3603269c944f1cc615777ab91534fc03f0e9a43d22691c06c",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_checkpoints/admin-checkpoints.selection.json",
+          "selection_sha256": "c398bddfdf7419aa3f33a0c49e2ce010f3e9e4c5f761cb323c4e4c4ce02c84e0",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "design_gallery": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/design_gallery/coverage-source.json",
+          "descriptor_sha256": "fe4944f8e737786d910545e05f78c03e820bd6ce456771c6f708e6e850d56cab",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/design_gallery/design-gallery-pr-behavior.selection.json",
+          "selection_sha256": "6f10b564ad79cd02605b4b70e07a5046e5655bfb906d064c43703dfcba5c0921",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "non_admin_smoke": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/non_admin_smoke/coverage-source.json",
+          "descriptor_sha256": "493ee459d724380374e64d9d871f40a5b7a4a1a026ea52d63bb20432c01acb94",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/non_admin_smoke/non-admin-smoke.selection.json",
+          "selection_sha256": "212014664f4041a9c593d22b23e57cbdf51402d11f2d50be96b6c103706bfd5c",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "demo_showcase": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/demo_showcase/coverage-source.json",
+          "descriptor_sha256": "a3eb53148e44f0e2e5c2131fabe6b5be5deaa025b03db670ec1ed7f36e2a752e",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/demo_showcase/demo-showcase.selection.json",
+          "selection_sha256": "5974502b1a7d115dfdae367b407d8f41b37f176a0a26445221dc60be3a5c8ac7",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        }
+      },
+      "after": {
+        "admin_behavior": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_behavior/coverage-source.json",
+          "descriptor_sha256": "853749f167844bbb8b9d1e12cf1191b209c63786a9a2098a2cef3d560d026bbb",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_behavior/admin-behavior.selection.json",
+          "selection_sha256": "c64b98d39739de9c2a4f00256c6360c3cf0d1ee12fc170f8e241d05826294a01",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "admin_checkpoints": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_checkpoints/coverage-source.json",
+          "descriptor_sha256": "b704505cf7290384e3fe32117c03c3cc2923bd52aba42d12ad76fe620fe98f08",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_checkpoints/admin-checkpoints.selection.json",
+          "selection_sha256": "5f812964366721787086c675cb442360b84c10c4ab9d9601af573bb3ca6da660",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "design_gallery": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/design_gallery/coverage-source.json",
+          "descriptor_sha256": "a5814005365da85b1e752a75dc6b5cb1bb050f4d7531a7bf1f24e0433765206a",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/design_gallery/design-gallery-pr-behavior.selection.json",
+          "selection_sha256": "ab1017c6de83eebdbc67921908249626ce93d2076e09aa1749e8cc777efad311",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "non_admin_smoke": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/non_admin_smoke/coverage-source.json",
+          "descriptor_sha256": "30150c9c571310de3be960f706ad13c50e88436a07a0e6e30234d19fc56499d4",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/non_admin_smoke/non-admin-smoke.selection.json",
+          "selection_sha256": "90fa90b49aa6d81549efc4f20f7bd6c328767e808e3d1986362081d049709734",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "demo_showcase": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/demo_showcase/coverage-source.json",
+          "descriptor_sha256": "c3699740df54da8afb315e49db25198084b6fa56826deba72ed092e391c8b309",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/demo_showcase/demo-showcase.selection.json",
+          "selection_sha256": "0da96af46e60a5cc76d367332c36ee5db1bf835c7264ebba23fb787ac0358619",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        }
+      }
+    },
+    "source_equivalence": {
+      "before": {
+        "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "amended_source_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+        "authorization_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
+        "authorization_sha256": "db2ac582484bf3e8331150db91df1074df8f34d72877c534a0c7b77426d3c6df",
+        "snapshots_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/SOURCE-SNAPSHOTS.json",
+        "snapshots_sha256": "ee446ac5a0c39bd65dab60f3b60e8d64b17dfa7fff9cd011c78d733c3e9f63a8"
+      },
+      "after": {
+        "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
+        "amended_source_sha": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+        "authorization_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
+        "authorization_sha256": "db2ac582484bf3e8331150db91df1074df8f34d72877c534a0c7b77426d3c6df",
+        "snapshots_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/SOURCE-SNAPSHOTS.json",
+        "snapshots_sha256": "ee446ac5a0c39bd65dab60f3b60e8d64b17dfa7fff9cd011c78d733c3e9f63a8"
+      }
+    }
+  },
+  "instrumentation": {
+    "comparison_rule": "Same instrumentation identities are required on both paths; retain actual overhead.",
+    "profiling_only_instrumentation": "off"
+  },
+  "limits": {
+    "rest_core_stop_remaining": 250,
+    "window_minutes": 60,
+    "workflow_dispatch_requests": 600
+  },
+  "pair_count": 20,
+  "primary_family_count": 40,
+  "pass_conditions": {
+    "candidate_p95_at_most_baseline": true,
+    "candidate_total_runner_cost_at_most_baseline": true,
+    "equivalent_successful_pairs": 20,
+    "median_candidate_at_most_baseline_fraction": 0.8
+  },
+  "required_contexts": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "runner_class": "Linux X64, ubuntu24",
+  "sampling": {
+    "replacement_families_allowed": false,
+    "required_result_wait_endpoint": "last successful completion of all five currently enforced required contexts, not workflow close",
+    "retry_policy": "At most one diagnosed infrastructure retry, retained within its original family; preserve all attempt outcomes and runner costs.",
+    "sampling_window_extension_allowed": false
+  },
+  "statistics": {
+    "median": "ordinary median; for an even sample average the two middle sorted values",
+    "p95": "nearest-rank ceil(0.95*n); for n=20 use the 19th sorted value",
+    "p95_limitation": "With only 20 pairs the tail estimate is fragile and does not guarantee population performance.",
+    "runner_cost": "sum actual job runner seconds across all attempts for each equivalent family; compare totals over the same 20 pairs"
+  },
+  "window": {
+    "end_utc": null,
+    "extension_allowed": false,
+    "start_utc": null,
+    "status": "not_set_due_to_blocked_baseline_path"
+  },
+  "window_duration_hours": 48,
+  "workload": "full pull request CI; all five currently required contexts",
+  "sample_identity": "run_id+run_attempt",
+  "runner_image_proof_required": true,
+  "runner_image_proof_policy": "v2_native_file_authority",
+  "maximum_pair_start_gap_seconds": 1800,
+  "preparation_compatibility": {
+    "baseline_cache_stratum": "warm",
+    "candidate_cache_stratum": "warm",
+    "runner_image_policy": "Exact native file/OS/version/architecture and raw hashes per library/browser owner; environment disagreements retained as diagnostics under the predeclared v2 authority."
+  },
+  "comparison_schedule": [
+    {
+      "pair_id": "pair-01",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-01",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-02",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-02",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-03",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-03",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-04",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-04",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-05",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-05",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-06",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-06",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-07",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-07",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-08",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-08",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-09",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-09",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-10",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-10",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-11",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-11",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-12",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-12",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-13",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-13",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-14",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-14",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-15",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-15",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-16",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-16",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-17",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-17",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-18",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-18",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-19",
+      "family_role": "before"
+    },
+    {
+      "pair_id": "pair-19",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-20",
+      "family_role": "after"
+    },
+    {
+      "pair_id": "pair-20",
+      "family_role": "before"
+    }
+  ],
+  "collection_passes": [
+    {
+      "pair_id": "pair-01",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01.json",
+      "ledger_id": "0a973a5981e2d18d3172f5716c18f69c94a8fd41b118b1373c255a3634a596a9",
+      "reservation_ids": [
+        "pair-01-before",
+        "pair-01-after"
+      ]
+    },
+    {
+      "pair_id": "pair-02",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-02.json",
+      "ledger_id": "6e091f40b51e7b5ea67584db81fd8944bf6ed532ebaa95482d3f6e74b6d9443f",
+      "reservation_ids": [
+        "pair-02-after",
+        "pair-02-before"
+      ]
+    },
+    {
+      "pair_id": "pair-03",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-03.json",
+      "ledger_id": "bffb491c1ae7822c1dc736e487046ff9fb68aff997948964e8f1ed1359ea43aa",
+      "reservation_ids": [
+        "pair-03-before",
+        "pair-03-after"
+      ]
+    },
+    {
+      "pair_id": "pair-04",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-04.json",
+      "ledger_id": "dee9ca90af463d7d59cc13880d3d708c338ad2ab15fafc1ccb99338e4200f426",
+      "reservation_ids": [
+        "pair-04-after",
+        "pair-04-before"
+      ]
+    },
+    {
+      "pair_id": "pair-05",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-05.json",
+      "ledger_id": "12ef1f0d62163ff96d4235f6697a090ae1abcceff76e7089f745009fb0a50b85",
+      "reservation_ids": [
+        "pair-05-before",
+        "pair-05-after"
+      ]
+    },
+    {
+      "pair_id": "pair-06",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-06.json",
+      "ledger_id": "15c7af209e0169158a55ae5f9fc87ab3c489ef25eaa54f3571e9528cf6199be6",
+      "reservation_ids": [
+        "pair-06-after",
+        "pair-06-before"
+      ]
+    },
+    {
+      "pair_id": "pair-07",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-07.json",
+      "ledger_id": "3135afbe22d281bdf5ad5129a4668ca8ed53df9957448e3c75545e18bd42bd9d",
+      "reservation_ids": [
+        "pair-07-before",
+        "pair-07-after"
+      ]
+    },
+    {
+      "pair_id": "pair-08",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-08.json",
+      "ledger_id": "22ef51a139e42eb776ceab8f93d0401b83f45c7cdcd9234c7627c5f18da4eea0",
+      "reservation_ids": [
+        "pair-08-after",
+        "pair-08-before"
+      ]
+    },
+    {
+      "pair_id": "pair-09",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-09.json",
+      "ledger_id": "9ecfa8c0b302ee7e5b6bf9e4716bc353e331b26ae48676e16c46ac90e51f1dca",
+      "reservation_ids": [
+        "pair-09-before",
+        "pair-09-after"
+      ]
+    },
+    {
+      "pair_id": "pair-10",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-10.json",
+      "ledger_id": "3aa6112004318e44de7885d02c67066df5bcd4df82df3961df50e4c617656020",
+      "reservation_ids": [
+        "pair-10-after",
+        "pair-10-before"
+      ]
+    },
+    {
+      "pair_id": "pair-11",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-11.json",
+      "ledger_id": "fd9b9c4b680ace2ebcdfb5edec0b878765e61b4aa01211e67e566e8fe924a35e",
+      "reservation_ids": [
+        "pair-11-before",
+        "pair-11-after"
+      ]
+    },
+    {
+      "pair_id": "pair-12",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-12.json",
+      "ledger_id": "8b23f8984a18911c23f8a17babb7bbc4ee1c9cc10311f7a04a53ff399d325e51",
+      "reservation_ids": [
+        "pair-12-after",
+        "pair-12-before"
+      ]
+    },
+    {
+      "pair_id": "pair-13",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-13.json",
+      "ledger_id": "b7b18e69587d87a7db11f25218350570b7af0c90ca893313d5ba9dd68c8f7884",
+      "reservation_ids": [
+        "pair-13-before",
+        "pair-13-after"
+      ]
+    },
+    {
+      "pair_id": "pair-14",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-14.json",
+      "ledger_id": "79ae2d2872343aa8b2ac2190c78019da52cff8ee0fa2658c2bf9ae2bd899072f",
+      "reservation_ids": [
+        "pair-14-after",
+        "pair-14-before"
+      ]
+    },
+    {
+      "pair_id": "pair-15",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-15.json",
+      "ledger_id": "5ded1a5261847be8acad0a35a525d111b8ac46917a8d82f68becfde407b57e0b",
+      "reservation_ids": [
+        "pair-15-before",
+        "pair-15-after"
+      ]
+    },
+    {
+      "pair_id": "pair-16",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-16.json",
+      "ledger_id": "95f503ddc9cb5a56aca7a4994de8dd8666db58523dbc282f9d2c1b2ccb982beb",
+      "reservation_ids": [
+        "pair-16-after",
+        "pair-16-before"
+      ]
+    },
+    {
+      "pair_id": "pair-17",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-17.json",
+      "ledger_id": "1a77ebdaa686147ce0fa70a0cb18d418ed4f085acc1d3c9649f5470e95cd26ed",
+      "reservation_ids": [
+        "pair-17-before",
+        "pair-17-after"
+      ]
+    },
+    {
+      "pair_id": "pair-18",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-18.json",
+      "ledger_id": "1718be170293c1693af26bacfa7ef7c527de5fccaabae850fe2af788eadab650",
+      "reservation_ids": [
+        "pair-18-after",
+        "pair-18-before"
+      ]
+    },
+    {
+      "pair_id": "pair-19",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-19.json",
+      "ledger_id": "a17f9969cbcb1ad1a4268f3ba6b2bf0b62f9443e975a3c234170bdc560a07533",
+      "reservation_ids": [
+        "pair-19-before",
+        "pair-19-after"
+      ]
+    },
+    {
+      "pair_id": "pair-20",
+      "ledger_path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-20.json",
+      "ledger_id": "3ab98d855467e454d6e5ff78fc13eeffef9b950e585d20eefeaee91eb1e213f7",
+      "reservation_ids": [
+        "pair-20-after",
+        "pair-20-before"
+      ]
+    }
+  ],
+  "authorized_mutations": [
+    "/repos/szTheory/sigra/actions/runs/40045468739/rerun",
+    "/repos/szTheory/sigra/actions/runs/40045481175/rerun"
+  ],
+  "maximum_mutations": 40,
+  "instrumentation_identity": {
+    "exunit": "sha256:0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+    "playwright": "sha256:de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+  },
+  "amendments": {
+    "rerun_method": ".planning/execution/254-RERUN-AUTHORIZATION.json",
+    "baseline_amendment": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
+    "symmetric_environment_recovery": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
+    "native_authority": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/POLICY.json",
+    "disclosure": "Rerun-based experiment on the explicitly amended baseline and current candidate, with identical environment repairs; not forty new-PR scheduling observations, not the original Phase252 workflow unchanged."
+  }
+}

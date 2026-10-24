@@ -7,9 +7,9 @@ status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_environment_recovery_preparation
-stopped_at: Verified environment repair running in PR348 and PR349
-last_updated: "2026-10-24T00:05:37.507831+00:00"
+workflow_step: phase254_native_image_authority_correction
+stopped_at: Corrected image authority running in existing evidence PRs
+last_updated: "2026-10-24T00:33:52.807047+00:00"
 last_activity: 2026-10-24 - Package repair verified on Linux; two fixed-source CI preparations running
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
@@ -28,7 +28,7 @@ phase254_halted_plans: [254-08]
 phase254_wave_count: 5
 phase254_task_count: 19
 phase254_implementation_status: complete
-phase254_comparison_status: preparing_verified_environment_repair
+phase254_comparison_status: preparing_native_image_authority_correction
 phase254_verification_status: pending
 verification_status: pending
 next_command: "$gsd-execute-phase 254"
@@ -41,12 +41,12 @@ phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 
 # Current position
 
-Scoped package and runner identity fix passed local Linux and hosted diagnostic checks. Fixed-source PR348/baseline and PR349/candidate preparation are running; four previous outcomes remain preserved.
+Verified package acquisition repair plus corrected native image authority are running in the same evidence PRs. Six preceding preparation outcomes remain preserved; no measured sample has started.
 
-Current user recovery authority: `.planning/execution/254-environment-recovery/PREPARATION/AUTHORIZATION.json`. Continue `$gsd-execute-phase 254` in the same Plan 254-08. The isolated hosted probe passed; no APT rate cap was found, all four package downloads agreed, and native image/environment values agreed. The earlier image-cause claim is corrected in `.planning/execution/254-environment-recovery/IMAGE-CORRECTION.json`. A disposable amd64 Ubuntu container installed the complete locked Chromium/WebKit system packages after a 210 MB download in about 42 seconds, without retry. This is development verification, not a speedup acceptance sample.
+Current user delegated recovery authority: `.planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json`. Continue `$gsd-execute-phase 254` in the same Plan 254-08. The bounded signed HTTPS installer worked in real hosted WebKit jobs: package downloads took about 21–22 seconds and package installation about 19–25 seconds. The first environment-repair pair failed because the newly introduced v1 gate required redundant environment metadata to equal the documented native image record. Both failures and their 180-request closed budget are preserved in `.planning/execution/254-environment-recovery/PREPARATION/FINAL-RECOVERY.json`.
 
-Two new initial preparation invocations are running under a separate finite recovery recipe: PR348/run40043060412 baseline; PR349/run40043074317 candidate. Same package transport and early image proof on both sources; browser trees unchanged. Limits: two invocations, zero retries, 60 minutes/600 HTTP requests. Earlier four preparation outcomes and both closed budgets remain spent. Total preparation invocations started: six, plus one isolated diagnostic. No measured sample or 48-hour comparison window has started; all 40 measured invocations remain unspent.
+The reviewed v2 policy fixes the native image file as authority on both roles, preserves environment disagreements as diagnostics, verifies unchanged raw native/OS bytes and execution identity, and still compares canonical images/hashes per owner. Prior failures remain failed. The remaining generated-host OS-package installation now uses the same bounded helper. No dependency was added.
 
-Implementation is complete; comparison and whole-phase verification remain pending. CISPEED-01/02 are open. Phase 253 is complete and verified; Phase 255 remains pending. Source, proposal and native proof contracts are in `.planning/execution/254-environment-recovery/PREPARATION`. Before another action, reconcile `WATCH.jsonl` and the active watcher; do not duplicate polling or start replacements.
+PR348 baseline is now source05f1a4a/run40045468739. PR349 candidate is sourceefff737/run40045481175. Both corrected initial runs are in progress under exactly two non-forcing source updates, zero retries, 60 minutes/600 HTTP requests. Six earlier preparation outcomes remain spent; total preparations started: eight, plus the isolated diagnostic. All 40 measured invocations remain unspent and the 48-hour window has not begun.
 
-Prior shared-state bytes: `.planning/execution/254-environment-recovery/PRIOR-STATE.json` at `refs/evidence/phase254-before-environment-recovery-state` (`a2674e7ed3f21ff29dc3721da8a44bf840163b1b`). Original baseline archives, original halt records and previous preparations remain unchanged. No future notification was scheduled.
+Implementation is complete; comparison and whole-phase verification remain pending; CISPEED-01/02 remain open. Phase 253 is complete and verified; Phase 255 remains pending. Reconcile `.planning/execution/254-environment-recovery/IMAGE-AUTHORITY/WATCH.jsonl` and the existing active watcher before polling. Earlier shared state is recoverable at `refs/evidence/phase254-before-native-authority-running-state` (`f656174dbaca536f421a59e5f28b60b544418e48`), recorded in `.planning/execution/254-environment-recovery/IMAGE-AUTHORITY/STATE-PRIOR.json`. Do not create another numbered repair plan or return to the obsolete approval question.
