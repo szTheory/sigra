@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Real saved-input replay contract; never dispatch collection."""
 import hashlib
+import importlib.util
+import io
+import tarfile
+from unittest.mock import patch
 import json
 from pathlib import Path
 import subprocess
@@ -44,6 +48,81 @@ class ReplayTest(unittest.TestCase):
                                      '--output', str(output)], cwd=tmp, capture_output=True, text=True)
             self.assertEqual(replay.returncode, 0, replay.stderr)
             self.assertEqual(json.loads(output.read_text()), json.loads((SAVED / 'EVALUATION-COSTS.json').read_text()))
+
+    @staticmethod
+    def module():
+        spec = importlib.util.spec_from_file_location('replay', CLI)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_missing_receipt_blob_blocks_preflight_with_path(self):
+        mod = self.module()
+        actual_git = mod.git
+        missing = f'{mod.MEASUREMENT}/requests/pair-01/raw-before/manifest.json'
+        def unavailable(root, *args):
+            if args[0] == 'show' and args[1] == mod.RECEIPTS['before'] + ':' + missing:
+                raise ValueError('unavailable_git_object:' + args[1])
+            return actual_git(root, *args)
+        with patch.object(mod, 'git', unavailable):
+            manifest, _ = mod.preflight_sources(ROOT)
+        self.assertEqual(manifest['status'], 'blocked')
+        self.assertTrue(any(row.get('path') == missing for row in manifest['missing']))
+
+    def test_missing_corrupt_or_changed_dependencies_are_rejected(self):
+        mod = self.module()
+        manifest, data = mod.preflight_sources(ROOT)
+        self.assertEqual(manifest['status'], 'ready')
+        names = [f'{mod.MEASUREMENT}/requests/pair-01/raw-before/manifest.json',
+                 'scripts/ci/ci_metrics_security.py', mod.TIMING]
+        for name in names:
+            for operation in ['remove', 'corrupt']:
+                with self.subTest(path=name, operation=operation), tempfile.TemporaryDirectory() as tmp:
+                    changed = dict(data)
+                    if operation == 'remove':
+                        del changed[name]
+                    else:
+                        changed[name] += b'corrupt'
+                    with self.assertRaisesRegex(ValueError, name):
+                        mod.materialize_inputs(manifest, changed, Path(tmp))
+                    self.assertEqual(list(Path(tmp).iterdir()), [])
+        self.assertIn(mod.TIMING, data)
+        self.assertIn('scripts/ci/exunit_timing_contract.py', data)
+
+    def test_unsafe_archives_are_rejected_before_extraction(self):
+        mod = self.module()
+        for name, kind in [('../escape', 'file'), ('/absolute', 'file'), ('safe', 'symlink'),
+                           ('safe', 'hardlink'), ('safe', 'duplicate'), ('a/./b', 'file')]:
+            with self.subTest(name=name, kind=kind), tempfile.TemporaryDirectory() as tmp:
+                package = Path(tmp) / 'bad.tar.gz'
+                with tarfile.open(package, 'w:gz') as archive:
+                    member = tarfile.TarInfo(name)
+                    if kind in ['symlink', 'hardlink']:
+                        member.type = tarfile.SYMTYPE if kind == 'symlink' else tarfile.LNKTYPE
+                        member.linkname = '../../escape'
+                        archive.addfile(member)
+                    else:
+                        member.size = 1
+                        archive.addfile(member, io.BytesIO(b'x'))
+                        if kind == 'duplicate':
+                            archive.addfile(member, io.BytesIO(b'x'))
+                with self.assertRaises(ValueError):
+                    mod.verify_package(package)
+
+    def test_package_manifest_and_null_family_costs_are_literal(self):
+        mod = self.module()
+        manifest, data = mod.preflight_sources(ROOT)
+        before = json.loads(data[f'{mod.MEASUREMENT}/requests/pair-01/raw-before/manifest.json'])
+        self.assertIsNone(before.get('comparison_families'))
+        result = mod.replay_comparison(manifest, data)
+        costs = {row['family_role']: row for row in result['metrics']['family_attempt_costs']}
+        self.assertEqual(costs['before']['conclusion'], 'failure')
+        self.assertEqual(costs['after']['conclusion'], 'success')
+        self.assertEqual(costs['before']['attempts'], [{'attempt': 2, 'known_subtotal_seconds': 2046}])
+        self.assertEqual(costs['after']['attempts'], [{'attempt': 2, 'known_subtotal_seconds': 1589}])
+        self.assertEqual(result['metrics']['native_parity']['origins_verified'], 1)
+        self.assertEqual(result['metrics']['native_parity']['status'], 'insufficient_data')
+        self.assertIn('before_family_inputs_missing', [row['reason'] for row in result['diagnostics']])
 
 
 if __name__ == '__main__':

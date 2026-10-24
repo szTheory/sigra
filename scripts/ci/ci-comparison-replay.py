@@ -119,6 +119,8 @@ def preflight_sources(root):
                                     'status': git(root, 'status', '--porcelain=v1').decode()},
                 'analysis_identity': ANALYSIS, 'measured_sources': SOURCES,
                 'members': sorted(members.values(), key=lambda row: row['path']),
+                'input_hashes_before': {name: digest(raw) for name, raw in sorted(data.items())},
+                'input_hashes_after': {name: digest(raw) for name, raw in sorted(data.items())},
                 'runtime_requirements': runtimes, 'receipt_counts': counts, 'missing': missing,
                 'producer_identity': 'Synthetic commits need no local objects; captured producer payloads are receipt-verified.'}
     return manifest, data
@@ -178,26 +180,70 @@ def replay_comparison(manifest, data):
         return json.loads(result.stdout)
 
 
+def pack_inputs(manifest, data, output):
+    if manifest['status'] != 'ready':
+        raise ValueError('preflight_blocked:' + json.dumps(manifest['missing']))
+    # Validate independently before opening the output.
+    with tempfile.TemporaryDirectory() as tmp:
+        materialize_inputs(manifest, data, Path(tmp))
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(output, 'w:gz') as archive:
+        for name, raw in [('INPUTS.json', (json.dumps(manifest, indent=2, sort_keys=True) + '\n').encode()), *sorted(data.items())]:
+            member = tarfile.TarInfo(name)
+            member.size = len(raw)
+            member.mode = 0o600
+            archive.addfile(member, io.BytesIO(raw))
+    write(output.parent / 'INPUTS.json', manifest)
+
+
+def verify_package(package):
+    data, total = {}, 0
+    with tarfile.open(package, 'r:gz') as archive:
+        for member in archive:
+            name = safe_path(member.name)
+            if name in data or not member.isfile() or member.size < 0:
+                raise ValueError('unsafe_or_duplicate_archive_member:' + name)
+            total += member.size
+            if total > MAX_BYTES or len(data) >= 4096:
+                raise ValueError('package_size_limit')
+            data[name] = archive.extractfile(member).read()
+    if 'INPUTS.json' not in data:
+        raise ValueError('missing_input:INPUTS.json')
+    manifest = json.loads(data.pop('INPUTS.json'))
+    with tempfile.TemporaryDirectory() as tmp:
+        materialize_inputs(manifest, data, Path(tmp))
+    return manifest, data
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
-    for name in ['preflight', 'replay']:
+    for name in ['preflight', 'pack', 'replay']:
         p = sub.add_parser(name)
         p.add_argument('--root', type=Path, default=ROOT)
         p.add_argument('--output', type=Path, required=True)
         if name == 'replay':
             source = p.add_mutually_exclusive_group(required=True)
             source.add_argument('--from-evidence', action='store_true')
-            source.add_argument('--package', type=Path, help=argparse.SUPPRESS)
+            source.add_argument('--package', type=Path)
     args = parser.parse_args()
     try:
-        manifest, data = preflight_sources(args.root)
+        if args.command == 'replay' and args.package:
+            manifest, data = verify_package(args.package)
+        else:
+            manifest, data = preflight_sources(args.root)
+        if args.output.resolve() in {(args.root / row['path']).resolve() for row in manifest['members']}:
+            raise ValueError('output_would_replace_original_input:' + str(args.output))
         if args.command == 'preflight':
             write(args.output, manifest)
             return int(manifest['status'] != 'ready')
         if manifest['status'] != 'ready':
             raise ValueError('preflight_blocked:' + json.dumps(manifest['missing']))
-        write(args.output, replay_comparison(manifest, data))
+        if args.command == 'pack':
+            pack_inputs(manifest, data, args.output)
+        else:
+            write(args.output, replay_comparison(manifest, data))
         return 0
     except (ValueError, OSError, KeyError, tarfile.TarError, subprocess.TimeoutExpired) as error:
         print(json.dumps({'status': 'blocked', 'diagnostic': str(error)}), file=sys.stderr)
