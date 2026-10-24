@@ -137,21 +137,32 @@ def record_leg(name: str, argv: list[str]) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    sub = parser.add_subparsers(dest="mode", required=True)
-    leg = sub.add_parser("leg")
-    leg.add_argument("name", choices=("ordinary", "scaffold", "dep-off"))
-    leg.add_argument("argv", nargs=argparse.REMAINDER)
-    native = sub.add_parser("native")
-    native.add_argument("--output", required=True)
-    native.add_argument("--report-output")
-    native.add_argument("--inject-failure", choices=("ordinary", "scaffold", "dep-off"))
-    args = parser.parse_args()
+    if sys.argv[1:2] == ["--native"]:
+        native_parser = argparse.ArgumentParser(description=__doc__)
+        native_parser.add_argument("--native", action="store_true")
+        native_parser.add_argument("--output", required=True, help="MIX-RECEIVERS.json output file")
+        native_parser.add_argument("--inject-failure", choices=("ordinary", "scaffold", "dep-off"))
+        native_args = native_parser.parse_args()
+        report_path = pathlib.Path(native_args.output).resolve()
+        output = report_path.parent / f"native-run-{time.time_ns()}"
+        args = argparse.Namespace(mode="native", output=str(output), report_output=str(report_path),
+                                  inject_failure=native_args.inject_failure)
+    else:
+        parser = argparse.ArgumentParser(description=__doc__)
+        sub = parser.add_subparsers(dest="mode", required=True)
+        leg = sub.add_parser("leg")
+        leg.add_argument("name", choices=("ordinary", "scaffold", "dep-off"))
+        leg.add_argument("argv", nargs=argparse.REMAINDER)
+        native = sub.add_parser("native")
+        native.add_argument("--output", required=True)
+        native.add_argument("--report-output")
+        native.add_argument("--inject-failure", choices=("ordinary", "scaffold", "dep-off"))
+        args = parser.parse_args()
 
     if args.mode == "leg":
         argv = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
         if not argv:
-            parser.error("leg requires a native command after --")
+            raise SystemExit("leg requires a native command after --")
         return record_leg(args.name, argv)
 
     output = pathlib.Path(args.output).resolve()

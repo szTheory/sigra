@@ -18,6 +18,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 class MixReceiverReportTest(unittest.TestCase):
+    def test_plan_native_cli_accepts_a_report_file_output(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.py"), "--native", "--help"],
+            cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+        )
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertIn("--output OUTPUT", result.stdout)
+
     def test_accepts_exact_ordinary_scaffold_and_dep_off_identities(self):
         ordinary = {"tests": [{"module": "Sigra.AuthTest", "test_id": "Sigra.AuthTest.login"}], "seed": 81, "failed_test_ids": [], "complete": True, "failed_count": 0}
         scaffold = {"tests": [{"module": module, "test_id": f"{module}.case"} for module in RECEIVERS.SCAFFOLD], "seed": 82, "failed_test_ids": [], "complete": True, "failed_count": 0}
@@ -80,6 +88,47 @@ class MixReceiverReportTest(unittest.TestCase):
             self.assertEqual(suite_report["seed"], command_record["seed"])
             self.assertEqual(suite_report["failed_test_ids"], command_record["failed_test_ids"])
             self.assertEqual(suite, command_record["test_invocation"])
+
+    def test_required_gate_rejects_missing_phx_new_but_standalone_mode_keeps_opt_in_skip(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-hidden-phx-new-") as mix_home:
+            elixir_lib = subprocess.check_output(
+                ["elixir", "-e", "IO.puts(:code.lib_dir(:elixir))"], text=True, timeout=10
+            ).strip()
+            installed_root = pathlib.Path(elixir_lib).parent.parent
+            hex_archive = installed_root / ".mix/archives/hex-2.6.0"
+            archives = pathlib.Path(mix_home) / "archives"
+            archives.mkdir()
+            os.symlink(hex_archive, archives / "hex-2.6.0")
+            env = os.environ.copy()
+            env["MIX_ENV"] = "test"
+            env["MIX_HOME"] = mix_home
+            env["SIGRA_CI_REQUIRED"] = "1"
+            required = subprocess.run(
+                ["mix", "test", "--no-compile", "test/sigra/planning/ci_timing_formatter_test.exs"],
+                cwd=ROOT, env=env, capture_output=True, text=True, check=False, timeout=30,
+            )
+            self.assertNotEqual(0, required.returncode, required.stdout + required.stderr)
+            self.assertIn("SIGRA_CI_REQUIRED=1: required phx_new 1.8.8 archive is unavailable", required.stdout + required.stderr)
+
+            env.pop("SIGRA_CI_REQUIRED")
+            standalone = subprocess.run(
+                ["mix", "test", "--no-compile", "test/sigra/planning/ci_timing_formatter_test.exs"],
+                cwd=ROOT, env=env, capture_output=True, text=True, check=False, timeout=30,
+            )
+            self.assertEqual(0, standalone.returncode, standalone.stdout + standalone.stderr)
+            self.assertIn("Excluding tags: [:upgrade]", standalone.stdout)
+
+    def test_required_gate_rejects_unavailable_test_database_with_explicit_diagnostic(self):
+        env = os.environ.copy()
+        env["MIX_ENV"] = "test"
+        env["SIGRA_CI_REQUIRED"] = "1"
+        env["SIGRA_TEST_PG_DATABASE"] = "sigra_required_gate_missing_database"
+        result = subprocess.run(
+            ["mix", "test", "--no-compile", "test/sigra/planning/ci_timing_formatter_test.exs"],
+            cwd=ROOT, env=env, capture_output=True, text=True, check=False, timeout=30,
+        )
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("SIGRA_CI_REQUIRED=1: required test PostgreSQL query failed", result.stdout + result.stderr)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

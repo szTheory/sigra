@@ -47,6 +47,11 @@ finish() {
 
   if ((cleanup_status != 0)); then
     echo "sigra-dep-off: FAIL: dependency cleanup failed" >&2
+    if ((guard_status != 0)); then
+      echo "sigra-dep-off: preserving primary guard outcome exit ${guard_status}" >&2
+      exit "${guard_status}"
+    fi
+
     exit 1
   fi
 
