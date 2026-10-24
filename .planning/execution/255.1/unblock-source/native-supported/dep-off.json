@@ -1,0 +1,610 @@
+{
+  "complete": true,
+  "unit": "microsecond",
+  "seed": 560644,
+  "diagnostics": [],
+  "invocation": "threadline_guard",
+  "tests": [
+    {
+      "module": "Sigra.ConfigForwardersTest",
+      "name": "test audit[:forwarders] accepts valid shape (D-06) Test 2 \u2014 valid single forwarder entry is accepted and preserved",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 27403,
+      "test_id": "Sigra.ConfigForwardersTest.test audit[:forwarders] accepts valid shape (D-06) Test 2 \u2014 valid single forwarder entry is accepted and preserved"
+    },
+    {
+      "module": "Sigra.ConfigForwardersTest",
+      "name": "test audit[:forwarders] default (D-09) Test 1 \u2014 Config.new!([]) returns audit[:forwarders] == [] by default",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 341,
+      "test_id": "Sigra.ConfigForwardersTest.test audit[:forwarders] default (D-09) Test 1 \u2014 Config.new!([]) returns audit[:forwarders] == [] by default"
+    },
+    {
+      "module": "Sigra.ConfigForwardersTest",
+      "name": "test audit[:forwarders] arbitrary impl-specific keys pass through (D-08) Test 5 \u2014 impl-specific keys (:endpoint, :api_key) are accepted",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 308,
+      "test_id": "Sigra.ConfigForwardersTest.test audit[:forwarders] arbitrary impl-specific keys pass through (D-08) Test 5 \u2014 impl-specific keys (:endpoint, :api_key) are accepted"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test async_email: swoosh true, oban false, no config \u2192 state :available (partial dep present)",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 74341,
+      "test_id": "Sigra.DoctorTest.test async_email: swoosh true, oban false, no config \u2192 state :available (partial dep present)"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test dep-off CI-gate-green: all predicates false, empty config \u2192 verdict :ok",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 7,
+      "test_id": "Sigra.DoctorTest.test dep-off CI-gate-green: all predicates false, empty config \u2192 verdict :ok"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test module_loaded? injection seam: injected fn returns true \u2192 forwarder does not hard-fail (loaded + sync)",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 3,
+      "test_id": "Sigra.DoctorTest.test module_loaded? injection seam: injected fn returns true \u2192 forwarder does not hard-fail (loaded + sync)"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test configured forwarder module not loaded \u2192 verdict :fail, audit_forwarding :configured_but_missing",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 12811,
+      "test_id": "Sigra.DoctorTest.test configured forwarder module not loaded \u2192 verdict :fail, audit_forwarding :configured_but_missing"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test assent predicate true, no oauth providers configured \u2192 oauth row :available, verdict :ok",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 9,
+      "test_id": "Sigra.DoctorTest.test assent predicate true, no oauth providers configured \u2192 oauth row :available, verdict :ok"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test email delivery_mode :async, oban not running \u2192 verdict :fail, async_email :configured_but_missing",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 5,
+      "test_id": "Sigra.DoctorTest.test email delivery_mode :async, oban not running \u2192 verdict :fail, async_email :configured_but_missing"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test absent :passkeys key, no user_schema \u2192 encryption not required, verdict :ok (dep-off safe)",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 4,
+      "test_id": "Sigra.DoctorTest.test absent :passkeys key, no user_schema \u2192 encryption not required, verdict :ok (dep-off safe)"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test passkeys enabled, user_schema configured, encryption_active false \u2192 verdict :fail, encryption :configured_but_missing",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 4,
+      "test_id": "Sigra.DoctorTest.test passkeys enabled, user_schema configured, encryption_active false \u2192 verdict :fail, encryption :configured_but_missing"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test oauth enabled: false master switch \u2192 oauth row :available (not :loaded_active), verdict :ok",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2,
+      "test_id": "Sigra.DoctorTest.test oauth enabled: false master switch \u2192 oauth row :available (not :loaded_active), verdict :ok"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test async_email: swoosh false, oban false, no config \u2192 state :missing",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 12,
+      "test_id": "Sigra.DoctorTest.test async_email: swoosh false, oban false, no config \u2192 state :missing"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test all predicates false, empty host_sigra produces nine :missing rows with verdict :ok",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 7,
+      "test_id": "Sigra.DoctorTest.test all predicates false, empty host_sigra produces nine :missing rows with verdict :ok"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test audit forwarder configured dispatch :async, oban not running \u2192 verdict :fail, audit_forwarding :configured_but_missing",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 5,
+      "test_id": "Sigra.DoctorTest.test audit forwarder configured dispatch :async, oban not running \u2192 verdict :fail, audit_forwarding :configured_but_missing"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test every row has a non-empty hint string",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 19,
+      "test_id": "Sigra.DoctorTest.test every row has a non-empty hint string"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test absent :passkeys key in host_sigra \u2192 passkeys treated as enabled (matches Sigra.Application default)",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 5,
+      "test_id": "Sigra.DoctorTest.test absent :passkeys key in host_sigra \u2192 passkeys treated as enabled (matches Sigra.Application default)"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test assent false, oauth providers configured \u2192 configured_but_missing, verdict :fail",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 5,
+      "test_id": "Sigra.DoctorTest.test assent false, oauth providers configured \u2192 configured_but_missing, verdict :fail"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test result has exactly 9 rows covering all D-05 features",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 5,
+      "test_id": "Sigra.DoctorTest.test result has exactly 9 rows covering all D-05 features"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test every row has a :deps key with a list",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 4,
+      "test_id": "Sigra.DoctorTest.test every row has a :deps key with a list"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test mfa enabled: false master switch \u2192 totp_mfa row :available (not :loaded_active), verdict :ok",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2,
+      "test_id": "Sigra.DoctorTest.test mfa enabled: false master switch \u2192 totp_mfa row :available (not :loaded_active), verdict :ok"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test assent true, oauth providers configured \u2192 oauth row :loaded_active, verdict :ok",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 3,
+      "test_id": "Sigra.DoctorTest.test assent true, oauth providers configured \u2192 oauth row :loaded_active, verdict :ok"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test module_loaded? injection seam: injected fn returns false \u2192 forwarder hard-fail fires deterministically",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 3,
+      "test_id": "Sigra.DoctorTest.test module_loaded? injection seam: injected fn returns false \u2192 forwarder hard-fail fires deterministically"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test run/1 returns same structured map as diagnose/1",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 5,
+      "test_id": "Sigra.DoctorTest.test run/1 returns same structured map as diagnose/1"
+    },
+    {
+      "module": "Sigra.DoctorTest",
+      "name": "test malformed forwarder entry (bare atom) produces hard-fail without crashing doctor",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2,
+      "test_id": "Sigra.DoctorTest.test malformed forwarder entry (bare atom) produces hard-fail without crashing doctor"
+    },
+    {
+      "module": "Sigra.ConfigForwardersTest",
+      "name": "test audit[:forwarders] rejects malformed entries (D-06) Test 4 \u2014 rejects invalid :dispatch value",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 73144,
+      "test_id": "Sigra.ConfigForwardersTest.test audit[:forwarders] rejects malformed entries (D-06) Test 4 \u2014 rejects invalid :dispatch value"
+    },
+    {
+      "module": "Sigra.ConfigForwardersTest",
+      "name": "test audit[:forwarders] rejects malformed entries (D-06) Test 3 \u2014 rejects entry missing required :module key",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 410,
+      "test_id": "Sigra.ConfigForwardersTest.test audit[:forwarders] rejects malformed entries (D-06) Test 3 \u2014 rejects entry missing required :module key"
+    },
+    {
+      "module": "Sigra.Workers.AuditForwardTest",
+      "name": "test Test 2 \u2014 backoff/1 byte-for-byte match with EmailDelivery (D-15) source contains the exact backoff body from EmailDelivery",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 305,
+      "test_id": "Sigra.Workers.AuditForwardTest.test Test 2 \u2014 backoff/1 byte-for-byte match with EmailDelivery (D-15) source contains the exact backoff body from EmailDelivery"
+    },
+    {
+      "module": "Sigra.Workers.AuditForwardTest",
+      "name": "test Test 5 \u2014 perform/1 never raises (D-17, Pitfall 2) forwarder failure returns {:error, _} without raising",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 63282,
+      "test_id": "Sigra.Workers.AuditForwardTest.test Test 5 \u2014 perform/1 never raises (D-17, Pitfall 2) forwarder failure returns {:error, _} without raising"
+    },
+    {
+      "module": "Sigra.Workers.AuditForwardTest",
+      "name": "test Test 6 \u2014 thin job args (D-13) AuditForward source reads only 'forwarder', 'audit_event_id', 'occurred_at' from args",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 105,
+      "test_id": "Sigra.Workers.AuditForwardTest.test Test 6 \u2014 thin job args (D-13) AuditForward source reads only 'forwarder', 'audit_event_id', 'occurred_at' from args"
+    },
+    {
+      "module": "Sigra.Workers.AuditForwardTest",
+      "name": "test Test 1 \u2014 Oban.Worker shape (D-14) uses queue :sigra_audit_forward with max_attempts: 5",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 17752,
+      "test_id": "Sigra.Workers.AuditForwardTest.test Test 1 \u2014 Oban.Worker shape (D-14) uses queue :sigra_audit_forward with max_attempts: 5"
+    },
+    {
+      "module": "Sigra.Workers.AuditForwardTest",
+      "name": "test Test 4 \u2014 cancel :unknown_forwarder (D-16) returns {:cancel, :unknown_forwarder} when forwarder module doesn't exist",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 9,
+      "test_id": "Sigra.Workers.AuditForwardTest.test Test 4 \u2014 cancel :unknown_forwarder (D-16) returns {:cancel, :unknown_forwarder} when forwarder module doesn't exist"
+    },
+    {
+      "module": "Sigra.Workers.AuditForwardTest",
+      "name": "test Test 3 \u2014 cancel :audit_event_not_found (D-16) returns {:cancel, :audit_event_not_found} when audit row not found",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 7,
+      "test_id": "Sigra.Workers.AuditForwardTest.test Test 3 \u2014 cancel :audit_event_not_found (D-16) returns {:cancel, :audit_event_not_found} when audit row not found"
+    },
+    {
+      "module": "Sigra.Workers.AuditForwardTest",
+      "name": "test Test 2 \u2014 backoff/1 byte-for-byte match with EmailDelivery (D-15) returns a positive integer for attempts 1, 2, 3",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 31,
+      "test_id": "Sigra.Workers.AuditForwardTest.test Test 2 \u2014 backoff/1 byte-for-byte match with EmailDelivery (D-15) returns a positive integer for attempts 1, 2, 3"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test hammer_available?/0 equals Code.ensure_loaded?(Hammer) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 20230,
+      "test_id": "Sigra.OptionalDepsTest.test hammer_available?/0 equals Code.ensure_loaded?(Hammer) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test bcrypt_available?/0 equals Code.ensure_loaded?(Bcrypt) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 3,
+      "test_id": "Sigra.OptionalDepsTest.test bcrypt_available?/0 equals Code.ensure_loaded?(Bcrypt) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test swoosh_available?/0 equals Code.ensure_loaded?(Swoosh) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 24895,
+      "test_id": "Sigra.OptionalDepsTest.test swoosh_available?/0 equals Code.ensure_loaded?(Swoosh) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test joken_available?/0 equals Code.ensure_loaded?(Joken) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 35940,
+      "test_id": "Sigra.OptionalDepsTest.test joken_available?/0 equals Code.ensure_loaded?(Joken) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test req_available?/0 equals Code.ensure_loaded?(Req) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 20490,
+      "test_id": "Sigra.OptionalDepsTest.test req_available?/0 equals Code.ensure_loaded?(Req) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test oban_available?/0 equals Code.ensure_loaded?(Oban) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2,
+      "test_id": "Sigra.OptionalDepsTest.test oban_available?/0 equals Code.ensure_loaded?(Oban) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test assent_available?/0 equals Code.ensure_loaded?(Assent) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 26089,
+      "test_id": "Sigra.OptionalDepsTest.test assent_available?/0 equals Code.ensure_loaded?(Assent) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test threadline_available?/0 equals Code.ensure_loaded?(Threadline) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 21392,
+      "test_id": "Sigra.OptionalDepsTest.test threadline_available?/0 equals Code.ensure_loaded?(Threadline) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test encryption_active?/1 returns false for stub mode \u2014 mirrors stub-vs-real config check, D-07",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 10,
+      "test_id": "Sigra.OptionalDepsTest.test encryption_active?/1 returns false for stub mode \u2014 mirrors stub-vs-real config check, D-07"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test eqrcode_available?/0 equals Code.ensure_loaded?(EQRCode) \u2014 D-01, D-03",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 27300,
+      "test_id": "Sigra.OptionalDepsTest.test eqrcode_available?/0 equals Code.ensure_loaded?(EQRCode) \u2014 D-01, D-03"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test encryption_active?/1 returns false when no :user_schema key is present \u2014 D-07",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2,
+      "test_id": "Sigra.OptionalDepsTest.test encryption_active?/1 returns false when no :user_schema key is present \u2014 D-07"
+    },
+    {
+      "module": "Sigra.OptionalDepsTest",
+      "name": "test encryption_active?/1 returns true for real vault mode \u2014 mirrors stub-vs-real config check, D-07",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 8,
+      "test_id": "Sigra.OptionalDepsTest.test encryption_active?/1 returns true for real vault mode \u2014 mirrors stub-vs-real config check, D-07"
+    },
+    {
+      "module": "Mix.Tasks.Sigra.DoctorTest",
+      "name": "test output from run_with_opts/1 includes all nine feature names",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 8043,
+      "test_id": "Mix.Tasks.Sigra.DoctorTest.test output from run_with_opts/1 includes all nine feature names"
+    },
+    {
+      "module": "Mix.Tasks.Sigra.DoctorTest",
+      "name": "test misconfig opts produce exit({:shutdown, 1}) on :fail verdict",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 3261,
+      "test_id": "Mix.Tasks.Sigra.DoctorTest.test misconfig opts produce exit({:shutdown, 1}) on :fail verdict"
+    },
+    {
+      "module": "Mix.Tasks.Sigra.DoctorTest",
+      "name": "test on :fail verdict, output is non-empty before exit({:shutdown, 1}) is called",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 270,
+      "test_id": "Mix.Tasks.Sigra.DoctorTest.test on :fail verdict, output is non-empty before exit({:shutdown, 1}) is called"
+    },
+    {
+      "module": "Mix.Tasks.Sigra.DoctorTest",
+      "name": "test smoke: dep-off run produces non-empty output and does not exit",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 404,
+      "test_id": "Mix.Tasks.Sigra.DoctorTest.test smoke: dep-off run produces non-empty output and does not exit"
+    },
+    {
+      "module": "Mix.Tasks.Sigra.DoctorTest",
+      "name": "test unknown flag raises Mix.Error",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 4184,
+      "test_id": "Mix.Tasks.Sigra.DoctorTest.test unknown flag raises Mix.Error"
+    },
+    {
+      "module": "Mix.Tasks.Sigra.DoctorTest",
+      "name": "test --quiet flag parses without error and verdict still appears",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 175,
+      "test_id": "Mix.Tasks.Sigra.DoctorTest.test --quiet flag parses without error and verdict still appears"
+    },
+    {
+      "module": "Mix.Tasks.Sigra.DoctorTest",
+      "name": "test Mix.Tasks.Sigra.Doctor has a non-empty @shortdoc",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 7,
+      "test_id": "Mix.Tasks.Sigra.DoctorTest.test Mix.Tasks.Sigra.Doctor has a non-empty @shortdoc"
+    },
+    {
+      "module": "Sigra.Audit.Forwarders.NoopTest",
+      "name": "test Sigra.Audit.Forwarders.Noop.attach/1 does NOT subscribe to :telemetry \u2014 D-22, D-23",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 13,
+      "test_id": "Sigra.Audit.Forwarders.NoopTest.test Sigra.Audit.Forwarders.Noop.attach/1 does NOT subscribe to :telemetry \u2014 D-22, D-23"
+    },
+    {
+      "module": "Sigra.Audit.Forwarders.NoopTest",
+      "name": "test Sigra.Audit.Forwarders.Noop.attach/1 returns :ok \u2014 D-22",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 0,
+      "test_id": "Sigra.Audit.Forwarders.NoopTest.test Sigra.Audit.Forwarders.Noop.attach/1 returns :ok \u2014 D-22"
+    },
+    {
+      "module": "Sigra.Audit.Forwarders.NoopTest",
+      "name": "test Sigra.Audit.Forwarders.Noop.attach/1 does NOT emit any Logger output \u2014 D-23",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 1609,
+      "test_id": "Sigra.Audit.Forwarders.NoopTest.test Sigra.Audit.Forwarders.Noop.attach/1 does NOT emit any Logger output \u2014 D-23"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test attach_forwarders/0 Test 8 (D-25 \u2014 valid :auto, Oban absent): does NOT raise, attach_forwarders/0 returns :ok",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 41,
+      "test_id": "Sigra.ApplicationForwardersTest.test attach_forwarders/0 Test 8 (D-25 \u2014 valid :auto, Oban absent): does NOT raise, attach_forwarders/0 returns :ok"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test maybe_warn_missing_forwarder_deps/0 Test 2 (D-25 \u2014 present dep): does NOT warn when module IS loaded",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2058,
+      "test_id": "Sigra.ApplicationForwardersTest.test maybe_warn_missing_forwarder_deps/0 Test 2 (D-25 \u2014 present dep): does NOT warn when module IS loaded"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test attach_forwarders/0 Test 6 (D-26 \u2014 :async + no Oban raises): raises ArgumentError naming module, dep, :auto",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 3611,
+      "test_id": "Sigra.ApplicationForwardersTest.test attach_forwarders/0 Test 6 (D-26 \u2014 :async + no Oban raises): raises ArgumentError naming module, dep, :auto"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test attach_forwarders/0 Test 7 (D-26 \u2014 raise message): raise names the offending forwarder module",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 51,
+      "test_id": "Sigra.ApplicationForwardersTest.test attach_forwarders/0 Test 7 (D-26 \u2014 raise message): raise names the offending forwarder module"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test attach_forwarders/0 Test 9 (D-27 \u2014 config cascade): reads via otp_app \u2192 sigra_config \u2192 audit \u2192 forwarders",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2157,
+      "test_id": "Sigra.ApplicationForwardersTest.test attach_forwarders/0 Test 9 (D-27 \u2014 config cascade): reads via otp_app \u2192 sigra_config \u2192 audit \u2192 forwarders"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test maybe_warn_missing_forwarder_deps/0 Test 1 (D-25 \u2014 missing dep): emits one Logger.warning naming the missing module and recipe link",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 2897,
+      "test_id": "Sigra.ApplicationForwardersTest.test maybe_warn_missing_forwarder_deps/0 Test 1 (D-25 \u2014 missing dep): emits one Logger.warning naming the missing module and recipe link"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test maybe_warn_missing_forwarder_deps/0 Test 5 (T-131-14 \u2014 redaction): Logger.warning does NOT leak :api_key or :endpoint",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 3018,
+      "test_id": "Sigra.ApplicationForwardersTest.test maybe_warn_missing_forwarder_deps/0 Test 5 (T-131-14 \u2014 redaction): Logger.warning does NOT leak :api_key or :endpoint"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test maybe_warn_missing_forwarder_deps/0 Test 4 (D-09 \u2014 absent audit key): no warnings when :audit not configured",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 893,
+      "test_id": "Sigra.ApplicationForwardersTest.test maybe_warn_missing_forwarder_deps/0 Test 4 (D-09 \u2014 absent audit key): no warnings when :audit not configured"
+    },
+    {
+      "module": "Sigra.ApplicationForwardersTest",
+      "name": "test maybe_warn_missing_forwarder_deps/0 Test 3 (D-09 \u2014 empty forwarders): zero overhead, no warnings",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "threadline_guard",
+      "duration_us": 1763,
+      "test_id": "Sigra.ApplicationForwardersTest.test maybe_warn_missing_forwarder_deps/0 Test 3 (D-09 \u2014 empty forwarders): zero overhead, no warnings"
+    }
+  ],
+  "counts": {
+    "excluded": 2647,
+    "failed": 0,
+    "passed": 65,
+    "skipped": 0
+  },
+  "test_duration_sum_us": 481176,
+  "async_us": 2653543,
+  "excluded_count": 2647,
+  "failed_count": 0,
+  "failed_test_ids": [],
+  "load_us": null,
+  "passed_count": 65,
+  "run_us": 2694468,
+  "skipped_count": 0,
+  "suite_elapsed_us": 2694460
+}
