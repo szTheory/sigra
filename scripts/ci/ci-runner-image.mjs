@@ -6,7 +6,11 @@ import { machine as currentMachine } from 'node:os';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const SCHEMA = 'sigra.ci-runner-image/v1';
+const SCHEMA = 'sigra.ci-runner-image/v2';
+// GitHub documents Set up job / Runner Image as the inventory for the exact
+// runner. The image build writes this file separately from ImageVersion env.
+// Always use the native file, for every role and regardless of which is newer.
+const AUTHORITY = 'runner_native_image_file';
 const IMAGE_PATH = '/imagegeneration/imagedata.json';
 const OS_PATH = '/etc/os-release';
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -65,11 +69,13 @@ export function captureRunnerImage({ imageData, osRelease, machine, env, now = n
     image_version: safe(env.ImageVersion, /^[0-9]{8}\.[0-9]+\.[0-9]+$/),
   };
   const identity = identityFromEnvironment(env);
-  const result = { schema_version: SCHEMA, captured_at: now, status: 'image_identity_unavailable',
+  const result = { schema_version: SCHEMA, identity_authority: AUTHORITY,
+    captured_at: now, status: 'image_identity_unavailable',
     image_file: { path: IMAGE_PATH, sha256: hash(imageBytes) },
     os_release_file: { path: OS_PATH, sha256: hash(osBytes) },
     machine: safe(machine, /^(x86_64|aarch64)$/), identity,
-    environment_image: environment, file_image: null, runner_image: null, diagnostics: [] };
+    environment_image: environment, environment_agrees: false,
+    file_image: null, runner_image: null, diagnostics: [] };
   try {
     result.file_image = parseImageData(imageBytes);
     result.os_release = osIdentity(osBytes);
@@ -82,14 +88,14 @@ export function captureRunnerImage({ imageData, osRelease, machine, env, now = n
   result.image_file.base64 = imageBytes.toString('base64');
   result.os_release_file.base64 = osBytes.toString('base64');
   if (!result.machine || Object.entries(identity).some(([key, value]) => key !== 'matrix_seam' && value === null)
-      || (env.MATRIX_SEAM && identity.matrix_seam === null) || !environment.image_os || !environment.image_version) {
+      || (env.MATRIX_SEAM && identity.matrix_seam === null)) {
     result.diagnostics.push('runner_environment_identity_missing_or_invalid');
     return result;
   }
-  if (environment.image_os !== result.file_image.image_os || environment.image_version !== result.file_image.image_version) {
-    result.status = 'image_identity_conflict';
+  result.environment_agrees = environment.image_os === result.file_image.image_os
+    && environment.image_version === result.file_image.image_version;
+  if (!result.environment_agrees) {
     result.diagnostics.push('runner_file_and_environment_disagree');
-    return result;
   }
   result.status = 'verified';
   result.runner_image = result.file_image;
@@ -98,11 +104,13 @@ export function captureRunnerImage({ imageData, osRelease, machine, env, now = n
 
 export function verifyRunnerImage({ proof, imageData, osRelease, machine, env, now = new Date().toISOString() }) {
   const current = captureRunnerImage({ imageData, osRelease, machine, env, now });
-  const compact = { schema_version: SCHEMA, status: 'image_identity_conflict',
+  const compact = { schema_version: SCHEMA, identity_authority: AUTHORITY, status: 'image_identity_conflict',
     captured_at: proof?.captured_at ?? null, verified_at: now,
     image_file_sha256: current.image_file.sha256, os_release_sha256: current.os_release_file.sha256,
-    machine: current.machine, identity: current.identity, runner_image: null, diagnostics: [] };
-  if (proof?.schema_version !== SCHEMA || proof?.status !== 'verified') {
+    machine: current.machine, identity: current.identity, runner_image: null,
+    environment_image: current.environment_image, environment_agrees: current.environment_agrees,
+    diagnostics: [] };
+  if (proof?.schema_version !== SCHEMA || proof?.identity_authority !== AUTHORITY || proof?.status !== 'verified') {
     compact.diagnostics.push('early_image_proof_not_verified');
     return compact;
   }
@@ -113,7 +121,7 @@ export function verifyRunnerImage({ proof, imageData, osRelease, machine, env, n
       return compact;
     }
     const decoded = Buffer.from(stored.base64, 'base64');
-    if (decoded.toString('base64') !== stored.base64 || hash(decoded) !== stored.sha256
+    if (stored.path !== current[key].path || decoded.toString('base64') !== stored.base64 || hash(decoded) !== stored.sha256
         || stored.sha256 !== current[key].sha256) {
       compact.diagnostics.push('runner_image_bytes_changed_or_invalid');
       return compact;
@@ -121,9 +129,15 @@ export function verifyRunnerImage({ proof, imageData, osRelease, machine, env, n
   }
   // Reconstruct the early values from their retained original bytes, so modified
   // parsed fields cannot be accepted just because the file hashes still match.
+  const earlyEnvironment = {
+    image_os: normalizeImageOS(proof.environment_image?.image_os),
+    image_version: safe(proof.environment_image?.image_version, /^[0-9]{8}\.[0-9]+\.[0-9]+$/),
+  };
   const reconstructed = captureRunnerImage({ imageData: Buffer.from(proof.image_file.base64, 'base64'),
-    osRelease: Buffer.from(proof.os_release_file.base64, 'base64'), machine, env, now: proof.captured_at });
-  const fields = ['machine', 'identity', 'environment_image', 'file_image', 'runner_image', 'os_release'];
+    osRelease: Buffer.from(proof.os_release_file.base64, 'base64'), machine,
+    env: { ...env, ImageOS: earlyEnvironment.image_os, ImageVersion: earlyEnvironment.image_version },
+    now: proof.captured_at });
+  const fields = ['machine', 'identity', 'environment_image', 'environment_agrees', 'file_image', 'runner_image', 'os_release'];
   if (current.status !== 'verified' || reconstructed.status !== 'verified'
       || fields.some((key) => JSON.stringify(proof[key]) !== JSON.stringify(reconstructed[key]))) {
     compact.diagnostics.push('runner_image_or_job_identity_changed');
@@ -131,6 +145,10 @@ export function verifyRunnerImage({ proof, imageData, osRelease, machine, env, n
   }
   compact.status = 'verified';
   compact.runner_image = current.runner_image;
+  compact.early_environment_image = earlyEnvironment;
+  compact.environment_changed = JSON.stringify(earlyEnvironment) !== JSON.stringify(current.environment_image);
+  compact.diagnostics.push(...current.diagnostics);
+  if (compact.environment_changed) compact.diagnostics.push('runner_image_environment_changed');
   return compact;
 }
 
@@ -158,7 +176,7 @@ function main(args) {
       try {
         result = captureFromSystem();
       } catch {
-        result = { schema_version: SCHEMA, status: 'image_identity_unavailable', diagnostics: ['runner_image_files_unavailable'] };
+        result = { schema_version: SCHEMA, identity_authority: AUTHORITY, status: 'image_identity_unavailable', diagnostics: ['runner_image_files_unavailable'] };
       }
       writeFileSync(args[2], JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
       process.stdout.write(JSON.stringify({ status: result.status, diagnostics: result.diagnostics }) + '\n');
@@ -167,7 +185,7 @@ function main(args) {
       process.stdout.write(JSON.stringify(result) + '\n');
     }
   } catch {
-    process.stdout.write(JSON.stringify({ schema_version: SCHEMA, status: 'image_identity_unavailable', diagnostics: ['runner_image_proof_io_or_json_invalid'] }) + '\n');
+    process.stdout.write(JSON.stringify({ schema_version: SCHEMA, identity_authority: AUTHORITY, status: 'image_identity_unavailable', diagnostics: ['runner_image_proof_io_or_json_invalid'] }) + '\n');
     return 1;
   }
   return result.status === 'verified' ? 0 : 1;
