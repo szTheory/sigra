@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import uuid
@@ -22,6 +23,16 @@ NATIVE_EVIDENCE = ROOT / ".planning/phases/255-make-failures-reproducible-and-re
 
 
 class BrowserLocalSafetyTests(unittest.TestCase):
+    def test_recorded_signal_is_reported_as_a_shell_compatible_exit_code(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            source = "import os, signal; os.kill(os.getpid(), signal.SIGTERM)"
+            code = local.run_recorded([sys.executable, "-c", source], ROOT, root, "signal-probe", dict(os.environ))
+            record = json.loads((root / "signal-probe" / "record.json").read_text())
+
+        self.assertEqual(128 + signal.SIGTERM, code)
+        self.assertEqual(signal.SIGTERM, record["primary_signal"])
+
     def test_missing_postgres_role_uses_os_user_for_local_preparation(self):
         observed_roles = []
         environment = {"PGDATABASE": ""}

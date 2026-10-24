@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B scripts/ci/ci-browser-local.test.py",
+  "exitCode": 1,
+  "output": "........F...\n======================================================================\nFAIL: test_recorded_signal_is_reported_as_a_shell_compatible_exit_code (__main__.BrowserLocalSafetyTests.test_recorded_signal_is_reported_as_a_shell_compatible_exit_code)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-browser-local.test.py\", line 33, in test_recorded_signal_is_reported_as_a_shell_compatible_exit_code\n    self.assertEqual(128 + signal.SIGTERM, code)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 143 != -15\n\n----------------------------------------------------------------------\nRan 12 tests in 0.617s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_recorded_signal_is_reported_as_a_shell_compatible_exit_code",
+  "targetFile": "scripts/ci/ci-browser-local.test.py",
+  "expected": "a child SIGTERM is recorded and surfaced as exit code 143",
+  "actual": "the local runner returned Python subprocess return code -15",
+  "semanticAssessment": "The named unittest launched a real child that self-terminated with SIGTERM. The command recorder wrote primary_signal 15, but the local runner asserted against raw subprocess return code -15 and failed its exit contract assertion."
+}
