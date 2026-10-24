@@ -152,6 +152,29 @@ class DiagnosticBundleTest(unittest.TestCase):
             self.assertNotEqual(0, checked.returncode)
             self.assertIn("identity", (checked.stderr + checked.stdout).lower())
 
+    def test_archive_payload_cannot_be_replaced_even_if_its_inner_hash_is_updated(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            manifest, _ = self.make_manifest(root, [("command.stderr", b"original failure\n", "command_stderr")])
+            output = pathlib.Path(temp) / "diagnostics.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertEqual(0, staged.returncode, staged.stderr)
+            rewritten = pathlib.Path(temp) / "rewritten.zip"
+            with zipfile.ZipFile(output) as source:
+                members = {name: source.read(name) for name in source.namelist()}
+            metadata = json.loads(members["bundle-manifest.json"])
+            altered = b"different failure\n"
+            members["command.stderr"] = altered
+            metadata["members"]["command.stderr"]["sha256"] = hashlib.sha256(altered).hexdigest()
+            members["bundle-manifest.json"] = (json.dumps(metadata, sort_keys=True, indent=2) + "\n").encode()
+            with zipfile.ZipFile(rewritten, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                for name, payload in members.items():
+                    archive.writestr(name, payload)
+            checked = self.command("verify", root, manifest, rewritten)
+            self.assertNotEqual(0, checked.returncode)
+            self.assertIn("source_bytes", (checked.stderr + checked.stdout).lower())
+
     def test_passing_trace_requires_synthetic_registered_provenance_and_missing_context_is_explicit(self):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp) / "invocation"
