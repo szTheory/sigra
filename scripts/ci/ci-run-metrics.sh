@@ -2281,8 +2281,9 @@ PY
   if [[ "$REQUEST_METHOD" == POST ]]; then
     PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" "$COMPARISON_ROLE" "$RESERVATION_ID" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
 import hashlib,json,pathlib,sys,time
-from ci_metrics_security import _comparison_budget_read,_comparison_budget_append
+from ci_metrics_security import _comparison_budget_read,_comparison_budget_append,validate_comparison_pass_reservation
 c=json.loads(pathlib.Path(sys.argv[1]).read_text()); path=pathlib.Path(sys.argv[2]); ledger=_comparison_budget_read(path,c)
+if c.get('sample_identity')=='run_id+run_attempt': validate_comparison_pass_reservation(c,path,sys.argv[6])
 prior=[row for row in ledger['records'] if row.get('kind')=='mutation']
 key=sys.argv[6] if c.get('sample_identity')=='run_id+run_attempt' else sys.argv[5] if c.get('preparation_order') else sys.argv[3]
 if len(prior)>=c.get('maximum_mutations',0) or any(row.get('mutation_key',row['endpoint'])==key for row in prior): raise SystemExit(1)

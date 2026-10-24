@@ -654,6 +654,15 @@ console.log(JSON.stringify({repository:env.GITHUB_REPOSITORY,run_id:'9001',run_a
         row=json.loads(result.stdout)
         actual=comparison_runner_images([row],require_proof=True)
         self.assertEqual(actual['Example Playwright shard (design_gallery)']['image_version'],'20261012.334.1')
+        differing = javascript.replace("ImageVersion:'20261012.334.1'", "ImageVersion:'20261023.334.3'")
+        observed = subprocess.run(['node','--input-type=module','-e',differing],capture_output=True,text=True,check=True)
+        diagnostic_row = json.loads(observed.stdout)
+        self.assertFalse(diagnostic_row['runner_image']['source_proof']['environment_agrees'])
+        self.assertEqual(comparison_runner_images([diagnostic_row],require_proof=True), actual)
+        historical = ROOT/'.planning/execution/254-environment-recovery/PREPARATION/IMAGE-METADATA-before.json'
+        if historical.is_file():
+            with self.assertRaisesRegex(ValueError,'comparison_runner_image_proof_invalid'):
+                comparison_runner_images([json.loads(historical.read_text())],require_proof=True)
         for mutation in ('missing','bytes','environment','run','verification'):
             changed=json.loads(json.dumps(row))
             if mutation=='missing':changed['runner_image'].pop('source_proof')

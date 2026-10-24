@@ -1860,7 +1860,7 @@ jobs:
 
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Phase 230 (FAST-07): only the timeout value and its position changed
     # here. 15 replaces the prior 60 -- about 16x this job's 3.73m measured
     # duration (230-EVIDENCE.md) -- against the same 2x sizing rule applied
@@ -1910,7 +1910,10 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
+        run: |
+          python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
+            --playwright-dir "$PWD" --report "$RUNNER_TEMP/generated-playwright-os-deps.json" chromium webkit
+          npx playwright install chromium webkit
       - name: Run generated admin acceptance smoke
         env:
           PGUSER: postgres

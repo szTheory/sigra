@@ -543,7 +543,7 @@ def comparison_runner_images(metadata: list[dict], *, require_proof: bool = Fals
         proof = image.get('source_proof')
         if require_proof or proof is not None:
             try:
-                if proof.get('status') != 'verified' or proof.get('schema_version') != 'sigra.ci-runner-image/v1':
+                if proof.get('status') != 'verified' or proof.get('schema_version') not in ('sigra.ci-runner-image/v1', 'sigra.ci-runner-image/v2'):
                     raise ValueError('unverified')
                 raw = {}
                 for field in ('image_file', 'os_release_file'):
@@ -562,9 +562,15 @@ def comparison_runner_images(metadata: list[dict], *, require_proof: bool = Fals
                 actual = {'image_os': normalize(names[0]), 'image_version': versions[0]}
                 if (len(names) != 1 or len(versions) != 1 or actual['image_os'] is None
                         or not re.fullmatch(r'[0-9]{8}\.[0-9]+\.[0-9]+', actual['image_version'])
-                        or any(proof.get(field) != actual for field in ('environment_image', 'file_image', 'runner_image'))
+                        or any(proof.get(field) != actual for field in ('file_image', 'runner_image'))
                         or image.get('image_os') != actual['image_os'] or image.get('image_version') != actual['image_version']):
                     raise ValueError('image_conflict')
+                if proof['schema_version'] == 'sigra.ci-runner-image/v1':
+                    if proof.get('environment_image') != actual:
+                        raise ValueError('v1_environment_conflict')
+                elif (proof.get('identity_authority') != 'runner_native_image_file'
+                      or proof.get('environment_agrees') is not (proof.get('environment_image') == actual)):
+                    raise ValueError('native_image_authority_or_diagnostic_invalid')
                 os_fields = dict(line.split('=', 1) for line in raw['os_release_file'].splitlines() if re.match(r'^(ID|VERSION_ID)=', line))
                 if os_fields.get('ID', '').strip('"') != 'ubuntu' or os_fields.get('VERSION_ID', '').strip('"') != '24.04':
                     raise ValueError('os')
@@ -578,6 +584,11 @@ def comparison_runner_images(metadata: list[dict], *, require_proof: bool = Fals
                         or verification.get('image_file_sha256') != proof['image_file']['sha256']
                         or verification.get('os_release_sha256') != proof['os_release_file']['sha256']
                         or verification.get('machine') != proof.get('machine')
+                        or (proof['schema_version'] == 'sigra.ci-runner-image/v2' and (
+                            verification.get('identity_authority') != 'runner_native_image_file'
+                            or verification.get('early_environment_image') != proof.get('environment_image')
+                            or verification.get('environment_agrees') is not (verification.get('environment_image') == actual)
+                            or verification.get('environment_changed') is not (verification.get('environment_image') != proof.get('environment_image'))))
                         or proof.get('machine') != {'X64': 'x86_64', 'ARM64': 'aarch64'}.get(row.get('runner_arch'))):
                     raise ValueError('verification')
             except (ValueError, TypeError, KeyError, IndexError, AttributeError) as error:
@@ -587,6 +598,9 @@ def comparison_runner_images(metadata: list[dict], *, require_proof: bool = Fals
             raise ValueError('comparison_runner_image_missing_or_duplicate_owner')
         result[key] = {'runner_os':row['runner_os'],'runner_arch':row['runner_arch'],
                        'image_os':image['image_os'],'image_version':image['image_version']}
+        if proof and proof.get('schema_version') == 'sigra.ci-runner-image/v2':
+            result[key]['image_file_sha256'] = proof['image_file']['sha256']
+            result[key]['os_release_sha256'] = proof['os_release_file']['sha256']
     return result
 
 
@@ -846,12 +860,73 @@ class CoreRequestBudget:
         return True
 
 
+def _comparison_budget_pass(contract: dict, path: pathlib.Path) -> dict | None:
+    """Bind a measured pass to its predeclared, repository-confined ledger path."""
+    if "collection_passes" not in contract:
+        return None
+    passes = contract["collection_passes"]
+    if not isinstance(passes, list) or not passes:
+        raise ValueError("request_budget_collection_passes_invalid")
+    root = pathlib.Path.cwd().resolve()
+    requested = pathlib.Path(path).absolute()
+    selected = None
+    paths, identities, pairs, reservations = set(), set(), set(), set()
+    declared_reservations = {row.get("reservation_id"): row.get("pair_id")
+                             for row in contract.get("family_reservations", [])}
+    for row in passes:
+        if not isinstance(row, dict):
+            raise ValueError("request_budget_collection_passes_invalid")
+        relative, ledger_id, pair_id = row.get("ledger_path"), row.get("ledger_id"), row.get("pair_id")
+        slots = row.get("reservation_ids")
+        if (not isinstance(relative, str) or not relative or "\\" in relative
+                or pathlib.PurePosixPath(relative).is_absolute()
+                or ".." in pathlib.PurePosixPath(relative).parts
+                or pathlib.PurePosixPath(relative).as_posix() != relative
+                or not isinstance(ledger_id, str) or not re.fullmatch(r"[0-9a-f]{64}", ledger_id)
+                or not isinstance(pair_id, str) or not re.fullmatch(r"pair-[0-9]{2}", pair_id)
+                or not isinstance(slots, list) or len(slots) != 2
+                or any(not isinstance(slot, str) or not slot for slot in slots)
+                or len(set(slots)) != 2):
+            raise ValueError("request_budget_collection_passes_invalid")
+        candidate = root / relative
+        resolved = candidate.resolve()
+        if not resolved.is_relative_to(root) or resolved != candidate:
+            raise ValueError("request_budget_collection_pass_path_invalid")
+        if (relative in paths or ledger_id in identities or pair_id in pairs
+                or reservations.intersection(slots)):
+            raise ValueError("request_budget_collection_passes_duplicate")
+        if declared_reservations and any(declared_reservations.get(slot) != pair_id for slot in slots):
+            raise ValueError("request_budget_collection_pass_reservations_invalid")
+        paths.add(relative); identities.add(ledger_id); pairs.add(pair_id); reservations.update(slots)
+        if requested == candidate:
+            selected = row
+    if selected is None:
+        raise ValueError("request_budget_collection_pass_path_undeclared")
+    return selected
+
+
+def _comparison_budget_expected_id(contract: dict, path: pathlib.Path) -> str:
+    selected = _comparison_budget_pass(contract, path)
+    ledger_id = selected["ledger_id"] if selected is not None else contract.get("request_budget_ledger_id")
+    if not isinstance(ledger_id, str) or not re.fullmatch(r"[0-9a-f]{64}", ledger_id):
+        raise ValueError("request_budget_ledger_id_missing")
+    return ledger_id
+
+
+def validate_comparison_pass_reservation(contract: dict, path: pathlib.Path, reservation_id: str) -> None:
+    """Prevent another pair's fresh budget from authorizing this pair's mutation."""
+    selected = _comparison_budget_pass(contract, path)
+    if selected is not None and reservation_id not in selected["reservation_ids"]:
+        raise ValueError("request_budget_collection_pass_reservation_mismatch")
+
+
 def _comparison_budget_read(path: pathlib.Path, contract: dict) -> dict:
+    ledger_id = _comparison_budget_expected_id(contract, path)
     ledger = json.loads(path.read_text())
     expected = comparison_contract_sha256(contract)
     if (ledger.get("schema_version") != "sigra.ci-comparison-request-budget/v1"
             or ledger.get("contract_sha256") != expected
-            or ledger.get("ledger_id") != contract.get("request_budget_ledger_id")):
+            or ledger.get("ledger_id") != ledger_id):
         raise ValueError("request_budget_ledger_contract_mismatch")
     previous = "0" * 64
     for index, row in enumerate(ledger.get("records") or []):
@@ -865,6 +940,8 @@ def _comparison_budget_read(path: pathlib.Path, contract: dict) -> dict:
 
 def _comparison_budget_append(path: pathlib.Path, ledger: dict, event: dict) -> dict:
     records = ledger.get("records") or []
+    if any(row.get("stop_reason") for row in records):
+        raise ValueError("request_budget_ledger_closed")
     row = {"sequence": len(records), "previous_sha256": records[-1]["record_sha256"] if records else "0" * 64, **event}
     row["record_sha256"] = hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     updated = {**ledger, "records": records + [row]}
@@ -884,9 +961,7 @@ def _comparison_budget_append(path: pathlib.Path, ledger: dict, event: dict) -> 
 def initialize_comparison_request_budget(contract: dict, path: pathlib.Path, *, now: int | None = None) -> dict:
     """Create or read back a contract-bound pass ledger; never reset an existing pass."""
     path = pathlib.Path(path)
-    ledger_id = contract.get("request_budget_ledger_id")
-    if not isinstance(ledger_id, str) or not re.fullmatch(r"[0-9a-f]{64}", ledger_id):
-        raise ValueError("request_budget_ledger_id_missing")
+    ledger_id = _comparison_budget_expected_id(contract, path)
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         return _comparison_budget_read(path, contract)

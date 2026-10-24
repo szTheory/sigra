@@ -32,15 +32,26 @@ test('captures exact official file bytes and verifies aliases without recording 
   assert.equal(normalizeImageOS('ubuntu-22.04'), null);
 });
 
-test('a stale file and newer environment fail closed instead of choosing either version', () => {
+test('native file is always authoritative and a newer environment remains a visible diagnostic', () => {
   const source = inputs();
   source.env.ImageVersion = '20261023.334.3';
   const proof = captureRunnerImage(source);
-  assert.equal(proof.status, 'image_identity_conflict');
+  assert.equal(proof.schema_version, 'sigra.ci-runner-image/v2');
+  assert.equal(proof.identity_authority, 'runner_native_image_file');
+  assert.equal(proof.status, 'verified');
   assert.equal(proof.file_image.image_version, '20261012.334.1');
   assert.equal(proof.environment_image.image_version, '20261023.334.3');
-  assert.equal(proof.runner_image, null);
-  assert.equal(verifyRunnerImage({ proof, ...source }).status, 'image_identity_conflict');
+  assert.deepEqual(proof.runner_image, proof.file_image);
+  assert.equal(proof.environment_agrees, false);
+  assert.deepEqual(proof.diagnostics, ['runner_file_and_environment_disagree']);
+  const verified = verifyRunnerImage({ proof, ...source });
+  assert.equal(verified.status, 'verified');
+  assert.equal(verified.environment_agrees, false);
+  assert.deepEqual(verified.runner_image, proof.file_image);
+  // The authority does not change when the environment happens to be older.
+  const older = captureRunnerImage({ ...source, env: { ...source.env, ImageVersion: '20261001.100.1' } });
+  assert.deepEqual(older.runner_image, proof.file_image);
+  assert.equal(older.environment_agrees, false);
 });
 
 test('invalid JSON, duplicate rows and ambiguous fields never become verified', () => {
@@ -73,17 +84,53 @@ test('changing either raw file, its proof hash, parsed values or the job identit
   assert.equal(verifyRunnerImage({ proof: changedParsed, ...source }).status, 'image_identity_conflict');
 });
 
-test('missing or invalid machine, source, version, seam and OS identity fail closed', () => {
+test('missing or invalid machine, source, seam and native OS identity fail closed', () => {
   const source = inputs();
   for (const changed of [{ ...source, machine: 'other' },
     { ...source, osRelease: Buffer.from('ID=ubuntu\nVERSION_ID="26.04"\n') },
     { ...source, env: { ...source.env, GITHUB_SHA: undefined } },
-    { ...source, env: { ...source.env, ImageVersion: 'SECRET' } },
     { ...source, env: { ...source.env, MATRIX_SEAM: '../SECRET' } }]) {
     const result = captureRunnerImage(changed);
     assert.equal(result.status, 'image_identity_unavailable');
     assert.ok(!JSON.stringify(result).includes('SECRET'));
   }
+});
+
+test('missing, malformed or changing image environment does not veto unchanged native identity', () => {
+  const source = inputs();
+  for (const env of [{ ...source.env, ImageVersion: 'SECRET' },
+    { ...source.env, ImageVersion: undefined, ImageOS: undefined }]) {
+    const proof = captureRunnerImage({ ...source, env });
+    assert.equal(proof.status, 'verified');
+    assert.equal(proof.environment_agrees, false);
+    assert.ok(!JSON.stringify(proof).includes('SECRET'));
+    const result = verifyRunnerImage({ proof, ...source });
+    assert.equal(result.status, 'verified');
+    assert.equal(result.environment_changed, true);
+    assert.equal(result.environment_agrees, true);
+    assert.ok(result.diagnostics.includes('runner_image_environment_changed'));
+  }
+});
+
+test('retained hosted file and contradictory environment reproduce the corrected native-authority behavior', () => {
+  // Exact native Runner Image detail from retained baseline install_smoke run
+  // 40043060412; its v1 failure is history, not a v2 accepted execution.
+  const source = inputs();
+  source.env = { ...source.env, ImageVersion: '20261023.334.3', GITHUB_RUN_ID: '40043060412',
+    GITHUB_SHA: 'fcf451d23bebbf02024ea32ba41445d5b8a71952', GITHUB_JOB: 'install_smoke' };
+  delete source.env.MATRIX_SEAM;
+  const proof = captureRunnerImage(source);
+  assert.equal(proof.image_file.sha256, '4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe');
+  assert.equal(proof.status, 'verified');
+  assert.equal(proof.runner_image.image_version, '20261012.334.1');
+  assert.equal(proof.environment_image.image_version, '20261023.334.3');
+  assert.equal(proof.environment_agrees, false);
+  const previous = { ...proof, schema_version: 'sigra.ci-runner-image/v1', status: 'image_identity_conflict' };
+  assert.equal(verifyRunnerImage({ proof: previous, ...source }).status, 'image_identity_conflict');
+  const oldVerified = { ...proof, schema_version: 'sigra.ci-runner-image/v1' };
+  assert.equal(verifyRunnerImage({ proof: oldVerified, ...source }).status, 'image_identity_conflict');
+  const wrongAuthority = { ...proof, identity_authority: 'environment' };
+  assert.equal(verifyRunnerImage({ proof: wrongAuthority, ...source }).status, 'image_identity_conflict');
 });
 
 test('CLI refuses path overrides and existing outputs; malformed proofs produce safe JSON', () => {
