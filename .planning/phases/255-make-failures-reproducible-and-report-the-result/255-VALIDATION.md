@@ -1,8 +1,8 @@
 ---
 phase: "255"
 slug: "make-failures-reproducible-and-report-the-result"
-status: validated
-nyquist_compliant: true
+status: remediation_required
+nyquist_compliant: false
 wave_0_complete: true
 created: "2026-10-24"
 ---
@@ -82,3 +82,7 @@ Audited source: `04b16705abfabb90b6d06f8f09eb9631e812dc58`. Current fast checks:
 - Report semantics: `scripts/ci/ci-comparison-report.test.py`, six tests.
 
 No test infrastructure gap or human-only check was found. Historical Phase 254 speed requirements remain open and are outside this phase's completion claim.
+
+## Review Coverage Gaps
+
+CR-01 needs real outer-runner SIGTERM cleanup; CR-02 child SIGKILL propagation; CR-03 concurrent process budget contention; CR-04 archive-level URL-userinfo/camel-case secret redaction; WR-01 retained missing-file metadata. Existing passing tests remain recorded, but coverage is incomplete until these focused regressions and repairs pass.

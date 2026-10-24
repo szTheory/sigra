@@ -155,9 +155,10 @@
   },
   "current_plan": null,
   "phase255_completed_plans": 7,
-  "phase255_implementation_status": "complete",
+  "phase255_implementation_status": "review_repairs",
   "phase255_verification_status": "in_progress",
-  "workflow_step": "phase255_verifying",
+  "workflow_step": "phase255_review_repairs",
   "next_command": "$gsd-execute-phase 255",
-  "resume_command": "$gsd-execute-phase 255"
+  "resume_command": "$gsd-execute-phase 255",
+  "phase255_review_open": 5
 }

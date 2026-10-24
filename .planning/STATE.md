@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Phase 255 implementation complete; review and final verification in progress
+stopped_at: Phase 255 review found four critical issues; scoped repairs in progress
 last_updated: "2026-10-24T19:47:41.137091+00:00"
 state_head: a0bc58dbfc62283c66bb97b408528ca0a9ae14a4
 progress:
@@ -11,7 +11,7 @@ progress:
   completed_phases: 2
   percent: 50
 milestone_status: active
-workflow_step: phase255_verifying
+workflow_step: phase255_review_repairs
 last_activity: 2026-10-24 - Phase 255 planning checked: 7 plans, 14 tasks, 6 waves
 requirements_approved: true
 roadmap_approved: true
@@ -36,7 +36,7 @@ resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-resu
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 phase255_discussion_status: complete
 phase255_planning_status: passed
-phase255_implementation_status: complete
+phase255_implementation_status: review_repairs
 phase255_verification_status: in_progress
 current_phase_name: Make Failures Reproducible and Report the Result
 current_phase: 255
