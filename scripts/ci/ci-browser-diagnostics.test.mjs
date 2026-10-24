@@ -30,6 +30,18 @@ test('reporter records startup errors before any test-end events', () => {
     assert.equal(record.invocation_id, 'diagnostic-invocation-01');
     assert.equal(record.native_identity, 'chromium:playwright-diagnostics.spec.ts');
     assert.equal(record.error.message, 'No tests found');
+    assert.equal(record.trace_unavailable_reason, 'context_not_created');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('reporter marks browser-launch failures as missing-context evidence', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-playwright-launch-error-'));
+  const outputFile = path.join(directory, 'failure.jsonl');
+  const reporter = new FailureJsonlReporter({ outputFile, invocationId: 'browser-launch-01', nativeIdentity: 'chromium:playwright-diagnostics.spec.ts' });
+  try {
+    reporter.onTestEnd({ title: 'launch fails before context', location: { file: 'fixtures/browser.spec.ts', line: 5 }, expectedStatus: 'passed', ok: () => false, parent: { project: () => ({ name: 'chromium' }) } }, { status: 'failed', duration: 0, retry: 0, errors: [{ message: 'browserType.launch: Executable does not exist' }] });
+    const [record] = fs.readFileSync(outputFile, 'utf8').trim().split('\n').map(JSON.parse);
+    assert.equal(record.trace_unavailable_reason, 'context_not_created');
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
 
