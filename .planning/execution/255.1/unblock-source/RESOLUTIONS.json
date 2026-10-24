@@ -1,0 +1,147 @@
+{
+  "main": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "phase_parent": "c8db6253949570b6e94bf62466e94ccf4b80508e",
+  "rows": [
+    {
+      "path": ".github/workflows/phase-244-playwright-measure.yml",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": ".github/workflows/phase-247-hex-dry-run.yml",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": ".github/workflows/release-pr-automerge.yml",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": ".github/workflows/release-run-observer.yml",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/phase-247-hex-dry-run.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/phase-247-hex-dry-run.test.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/refresh-release-docs.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/refresh-release-docs.test.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-canary.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-canary.test.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-candidate-preflight.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-candidate-preflight.test.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-exact-source.test.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-observer.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-observer.test.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/release-receipt.test.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "scripts/ci/run-playwright-drift.sh",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/install/generated_confirmation_ci_contract_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/planning/phase_222_release_lane_hardening_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/planning/phase_234_action_pinning_contract_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/planning/phase_242_shift_left_contract_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/planning/phase_248_release_gate_contract_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/planning/phase_248_release_observer_contract_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/planning/phase_249_release_docs_contract_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": "test/sigra/planning/phase_250_canary_contract_test.exs",
+      "resolution": "Exact main: shipped pre-v1.50 release behavior, test source expectations and fixes. Old phase source remains recoverable."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "resolution": "Union: retain main exact Phase246 guarded route/exclusions and test-v2 cache isolation; retain phase receiver/diagnostic/full-work selections and removal of redundant Hex/Rebar."
+    },
+    {
+      "path": ".github/ci-skip-manifest.tsv",
+      "resolution": "Union: phase classifier/native per-seam rows plus main guarded dispatch exclusions."
+    },
+    {
+      "path": "scripts/ci/honest-skip-verdict.sh",
+      "resolution": "Union: preserve phase-only fail-closed classifier, real unit owner, readiness controls and shared native browser selection; retain nonconflicting upstream changes."
+    },
+    {
+      "path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+      "resolution": "Union: preserve phase-only fail-closed classifier, real unit owner, readiness controls and shared native browser selection; retain nonconflicting upstream changes."
+    },
+    {
+      "path": "test/sigra/planning/phase_146_release_validation_test.exs",
+      "resolution": "Union: preserve phase-only fail-closed classifier, real unit owner, readiness controls and shared native browser selection; retain nonconflicting upstream changes."
+    },
+    {
+      "path": "test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+      "resolution": "Union: preserve phase-only fail-closed classifier, real unit owner, readiness controls and shared native browser selection; retain nonconflicting upstream changes."
+    },
+    {
+      "path": "scripts/ci/test-sigra-dep-off.sh",
+      "resolution": "Union: all phase failure/cancellation/report preservation cases plus main conditional-forwarder restoration assertion."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "resolution": "Union: keep shipped main1.6\u20131.7.2 release entries and phase Unreleased registration security note."
+    },
+    {
+      "path": ".planning/STATE.md",
+      "resolution": "Keep active user phase metadata, not old main milestone position; both originals recoverable by parents."
+    },
+    {
+      "path": ".planning/estimation-calibration.json",
+      "resolution": "Keep active user phase metadata, not old main milestone position; both originals recoverable by parents."
+    }
+  ],
+  "product_resolution": "Six paths resolved separately by product specialist; see RECOMMENDATIONS.md."
+}

@@ -1,0 +1,137 @@
+{
+  "admin_behavior": [
+    {
+      "id": "admin_behavior",
+      "invocations": [
+        {
+          "grep": null,
+          "grepInvert": null,
+          "projectArgs": [
+            "chromium"
+          ],
+          "projects": [
+            "chromium"
+          ],
+          "reportPath": "admin-behavior.json",
+          "retries": 0,
+          "selectionPath": "admin-behavior.selection.json",
+          "specs": [
+            "tests/admin-user-operations.spec.ts",
+            "tests/impersonation.spec.ts",
+            "tests/admin-audit.spec.ts",
+            "tests/admin-theme.spec.ts",
+            "tests/admin-coherence-sweep.spec.ts",
+            "tests/admin-modal-interaction.spec.ts",
+            "tests/admin-flow-platform-admin.spec.ts",
+            "tests/admin-flow-support-investigator.spec.ts",
+            "tests/admin-flow-org-admin.spec.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "admin_checkpoints": [
+    {
+      "id": "admin_checkpoints",
+      "invocations": [
+        {
+          "grep": null,
+          "grepInvert": null,
+          "projectArgs": [
+            "admin-checkpoints-chromium",
+            "admin-checkpoints-mobile",
+            "admin-checkpoints-dark"
+          ],
+          "projects": [
+            "admin-checkpoints-chromium",
+            "admin-checkpoints-mobile",
+            "admin-checkpoints-dark"
+          ],
+          "reportPath": "admin-checkpoints.json",
+          "retries": 0,
+          "selectionPath": "admin-checkpoints.selection.json",
+          "specs": [
+            "tests/admin-checkpoints.spec.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "demo_showcase": [
+    {
+      "id": "demo_showcase",
+      "invocations": [
+        {
+          "grep": null,
+          "grepInvert": null,
+          "projectArgs": [
+            "demo-showcase-chromium"
+          ],
+          "projects": [
+            "demo-showcase-chromium"
+          ],
+          "reportPath": "demo-showcase.json",
+          "retries": 0,
+          "selectionPath": "demo-showcase.selection.json",
+          "specs": [
+            "tests/demo-showcase.spec.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "design_gallery": [
+    {
+      "id": "design_gallery",
+      "invocations": [
+        {
+          "grep": null,
+          "grepInvert": "@snapshot",
+          "projectArgs": [
+            "admin-design-chromium",
+            "admin-design-mobile",
+            "admin-design-dark"
+          ],
+          "projects": [
+            "admin-design-chromium",
+            "admin-design-mobile",
+            "admin-design-dark"
+          ],
+          "reportPath": "design-gallery-pr-behavior.json",
+          "retries": 0,
+          "selectionPath": "design-gallery-pr-behavior.selection.json",
+          "specs": [
+            "tests/admin-design.spec.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "non_admin_smoke": [
+    {
+      "id": "non_admin_smoke",
+      "invocations": [
+        {
+          "grep": null,
+          "grepInvert": null,
+          "projectArgs": [],
+          "projects": [
+            "chromium",
+            "mobile"
+          ],
+          "reportPath": "non-admin-smoke.json",
+          "retries": 0,
+          "selectionPath": "non-admin-smoke.selection.json",
+          "specs": [
+            "tests/golden-path.spec.ts",
+            "tests/ga-uat-shift-left.spec.ts",
+            "tests/passkeys-hooks.spec.ts",
+            "tests/organizations.spec.ts",
+            "tests/passkey-login.spec.ts",
+            "tests/passkey-options.spec.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

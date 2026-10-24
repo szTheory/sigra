@@ -2,18 +2,15 @@
   "acceptance_samples": 0,
   "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
   "blocking_items": [
-    "proposed_PR_merge_blocked:control:merge_conflicts",
-    "proposed_PR_merge_blocked:candidate:merge_conflicts",
-    "local_main_compiled_cache_inputs_differ_from_repaired_sources",
     "current_main_source_and_branch_rules_not_independently_observed",
-    "eligible_base_scope_exact_cache_entries_not_observed",
+    "eligible_exact_cache_entries_not_observed",
     "actual_PR_head_base_merge_and_producer_not_observed",
     "complete_equivalent_work_receipt_pending_plan02",
     "six_owner_actual_exact_warm_restores_pending_separate_approval"
   ],
   "cache_inputs": {
     "base_identity": "e52464e2348374d740a2bc370b1d719aa8192070a1875c8f7a016e05a03991f8",
-    "candidate_identity": "700cf6ab61d6b69a9c6b98efb874360869f80e9dcc1128c71d9ef0e476e74c02",
+    "candidate_identity": "191833395d468a479a9a5285718d8af5c236fe27fbf02c56fa3d98f9d7b651bc",
     "input_paths": [
       "lib/mix/tasks/sigra.doctor.ex",
       "lib/mix/tasks/sigra.fixture.rebless_golden.ex",
@@ -262,11 +259,26 @@
     "method": "compare Git path/blob bytes selected by key input globs; not an Actions key emulator",
     "same_inputs": false
   },
-  "cache_structure_status": "blocked_eligible_exact_base_entries_unproved",
+  "cache_structure_status": "local_rules_enumerated_actual_eligibility_unproved",
+  "diagnostics": [
+    "local_main_compiled_cache_inputs_differ_from_repaired_sources"
+  ],
   "distinct_PR_concurrency": true,
+  "hosted_blocking_items": [
+    "current_main_source_and_branch_rules_not_independently_observed",
+    "eligible_exact_cache_entries_not_observed",
+    "actual_PR_head_base_merge_and_producer_not_observed",
+    "complete_equivalent_work_receipt_pending_plan02",
+    "six_owner_actual_exact_warm_restores_pending_separate_approval"
+  ],
+  "hosted_status": "blocked",
   "hosted_warm_status": "unproved",
+  "local_blocking_items": [],
   "local_only": true,
-  "merge_status": "blocked",
+  "local_status": "ready",
+  "merge_status": "local_only_ready",
+  "next_local_plan": "255.1-02",
+  "performance_verdict": "insufficient_data",
   "remote_mutations": 0,
   "remote_requests": 0,
   "requirements": {
@@ -281,11 +293,17 @@
       "actual_runner_os": null,
       "browsers_key_expression": null,
       "condition": "needs.release_ref_guard succeeds",
+      "eligible_scope_rules": [
+        "default branch",
+        "actual PR base branch",
+        "same actual head branch",
+        "same actual PR merge ref"
+      ],
       "eligible_shared_scope": "refs/heads/main",
       "exact_restore_required": true,
       "fallback_qualifies_as_warm": false,
       "hosted_warm_status": "unproved",
-      "key_expression": "${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1",
+      "key_expression": "${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-v2-${{ hashFiles('mix.lock') }}",
       "matched_key": null,
       "mix_env": "test",
       "owner": "library_tests_shard",
@@ -295,9 +313,10 @@
       ],
       "port": null,
       "pr_scope": "refs/pull/<number>/merge",
-      "restore_prefix": "${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-",
+      "restore_prefix": "${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-v2-",
       "runner_label": "ubuntu-24.04",
       "runtime_isolation": ".tool-versions OTP/Elixir, MIX_ENV and endpoint PORT in compiled cache",
+      "scope_status": "rules_only_actual_consumer_refs_not_frozen",
       "sibling_pr_scope_eligible": false
     },
     {
@@ -310,6 +329,12 @@
       ],
       "ci": "true",
       "condition": "PR classifier success and docs_only != true; per-seam native step; not cancelled",
+      "eligible_scope_rules": [
+        "default branch",
+        "actual PR base branch",
+        "same actual head branch",
+        "same actual PR merge ref"
+      ],
       "eligible_shared_scope": "refs/heads/main",
       "exact_restore_required": true,
       "fallback_qualifies_as_warm": false,
@@ -327,6 +352,7 @@
       "restore_prefix": "${{ runner.os }}-example-dev-port4001-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-",
       "runner_label": "ubuntu-24.04",
       "runtime_isolation": ".tool-versions OTP/Elixir, MIX_ENV and endpoint PORT in compiled cache",
+      "scope_status": "rules_only_actual_consumer_refs_not_frozen",
       "sibling_pr_scope_eligible": false
     },
     {
@@ -339,6 +365,12 @@
       ],
       "ci": "true",
       "condition": "PR classifier success and docs_only != true; per-seam native step; not cancelled",
+      "eligible_scope_rules": [
+        "default branch",
+        "actual PR base branch",
+        "same actual head branch",
+        "same actual PR merge ref"
+      ],
       "eligible_shared_scope": "refs/heads/main",
       "exact_restore_required": true,
       "fallback_qualifies_as_warm": false,
@@ -356,6 +388,7 @@
       "restore_prefix": "${{ runner.os }}-example-dev-port4002-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-",
       "runner_label": "ubuntu-24.04",
       "runtime_isolation": ".tool-versions OTP/Elixir, MIX_ENV and endpoint PORT in compiled cache",
+      "scope_status": "rules_only_actual_consumer_refs_not_frozen",
       "sibling_pr_scope_eligible": false
     },
     {
@@ -368,6 +401,12 @@
       ],
       "ci": "true",
       "condition": "PR classifier success and docs_only != true; per-seam native step; not cancelled",
+      "eligible_scope_rules": [
+        "default branch",
+        "actual PR base branch",
+        "same actual head branch",
+        "same actual PR merge ref"
+      ],
       "eligible_shared_scope": "refs/heads/main",
       "exact_restore_required": true,
       "fallback_qualifies_as_warm": false,
@@ -385,6 +424,7 @@
       "restore_prefix": "${{ runner.os }}-example-dev-port4003-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-",
       "runner_label": "ubuntu-24.04",
       "runtime_isolation": ".tool-versions OTP/Elixir, MIX_ENV and endpoint PORT in compiled cache",
+      "scope_status": "rules_only_actual_consumer_refs_not_frozen",
       "sibling_pr_scope_eligible": false
     },
     {
@@ -397,6 +437,12 @@
       ],
       "ci": "true",
       "condition": "PR classifier success and docs_only != true; per-seam native step; not cancelled",
+      "eligible_scope_rules": [
+        "default branch",
+        "actual PR base branch",
+        "same actual head branch",
+        "same actual PR merge ref"
+      ],
       "eligible_shared_scope": "refs/heads/main",
       "exact_restore_required": true,
       "fallback_qualifies_as_warm": false,
@@ -414,6 +460,7 @@
       "restore_prefix": "${{ runner.os }}-example-dev-port4004-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-",
       "runner_label": "ubuntu-24.04",
       "runtime_isolation": ".tool-versions OTP/Elixir, MIX_ENV and endpoint PORT in compiled cache",
+      "scope_status": "rules_only_actual_consumer_refs_not_frozen",
       "sibling_pr_scope_eligible": false
     },
     {
@@ -426,6 +473,12 @@
       ],
       "ci": "true",
       "condition": "PR classifier success and docs_only != true; per-seam native step; not cancelled",
+      "eligible_scope_rules": [
+        "default branch",
+        "actual PR base branch",
+        "same actual head branch",
+        "same actual PR merge ref"
+      ],
       "eligible_shared_scope": "refs/heads/main",
       "exact_restore_required": true,
       "fallback_qualifies_as_warm": false,
@@ -443,11 +496,12 @@
       "restore_prefix": "${{ runner.os }}-example-dev-port4005-otp${{ inputs.otp-version || steps.setup_beam.outputs.otp-version }}-elixir${{ inputs.elixir-version || steps.setup_beam.outputs.elixir-version }}-dev-",
       "runner_label": "ubuntu-24.04",
       "runtime_isolation": ".tool-versions OTP/Elixir, MIX_ENV and endpoint PORT in compiled cache",
+      "scope_status": "rules_only_actual_consumer_refs_not_frozen",
       "sibling_pr_scope_eligible": false
     }
   ],
-  "smallest_corrective_step": "Reconcile the common candidate source with the named main snapshot conflicts, preserving both sets of product and release behavior; then repeat clean source/treatment/merge checks. Independently verify current main, branch rules and eligible exact cache entries before any preparation. No main changes or hosted runs are authorized by this record.",
-  "source_sha": "92275024483f7b835596f109168247cf7762ffba",
+  "smallest_corrective_step": "Continue local Plan02 to retain and compare complete useful work; keep hosted preparation and collection unauthorized.",
+  "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
   "source_status": "constructed_treatment_only",
   "status": "blocked",
   "trigger_main_pr": true,
