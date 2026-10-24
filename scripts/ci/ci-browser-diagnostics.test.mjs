@@ -72,6 +72,24 @@ test('local reproduction exposes retained native failure, startup and terminatio
   assert.match(result.stdout, /pass,fail,terminate/);
 });
 
+test('native evidence collector rejects files, directories and dangling symlinks safely', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-diagnostic-collector-'));
+  const selected = path.join(directory, 'command.stdout.bin');
+  const dangling = path.join(directory, 'dangling-report.json');
+  const nestedDirectory = path.join(directory, 'nested');
+  fs.writeFileSync(selected, 'selected command stream');
+  fs.mkdirSync(nestedDirectory);
+  fs.symlinkSync(path.join(directory, 'missing-target'), dangling);
+  const entries = [];
+  try {
+    collectFile(directory, selected, 'command_stdout', entries);
+    assert.throws(() => collectFile(directory, dangling, 'report', entries), /rejects symlinks/);
+    assert.throws(() => collectFile(directory, nestedDirectory, 'report', entries), /accepts files only/);
+    assert.equal(entries.length, 1);
+    assert.equal(entries[0].path, 'command.stdout.bin');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
 function freePort() {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
@@ -100,16 +118,64 @@ function runOwnedCase(parent, name, args = [], extraEnv = {}) {
   return { output, result, owner: JSON.parse(fs.readFileSync(path.join(output, 'resource-owner.json'), 'utf8')) };
 }
 
-function traceFiles(directory) {
-  return walk(directory).filter((file) => file.endsWith('.zip') && /trace/i.test(file));
+function traceAttachments(report) {
+  const found = [];
+  const visit = (suites = []) => {
+    for (const suite of suites) {
+      for (const spec of suite.specs ?? []) {
+        for (const entry of spec.tests ?? []) {
+          for (const result of entry.results ?? []) {
+            for (const attachment of result.attachments ?? []) {
+              if (attachment.name === 'trace' && attachment.contentType === 'application/zip' && attachment.path) found.push(attachment.path);
+            }
+          }
+        }
+      }
+      visit(suite.suites ?? []);
+    }
+  };
+  visit(report.suites ?? []);
+  return [...new Set(found.map((file) => path.resolve(file)))];
 }
 
-function walk(directory) {
-  if (!fs.existsSync(directory)) return [];
-  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const full = path.join(directory, entry.name);
-    return entry.isDirectory() ? walk(full) : [full];
-  });
+function collectFile(evidenceRoot, file, kind, entries) {
+  const base = path.resolve(evidenceRoot);
+  const absolute = path.resolve(file);
+  const relative = path.relative(base, absolute);
+  assert.ok(relative && !relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative), `collection path escapes invocation root: ${file}`);
+  let cursor = base;
+  for (const component of relative.split(path.sep)) {
+    cursor = path.join(cursor, component);
+    const stat = fs.lstatSync(cursor);
+    assert.ok(!stat.isSymbolicLink(), `diagnostic collector rejects symlinks before opening: ${cursor}`);
+  }
+  const stat = fs.lstatSync(absolute);
+  assert.ok(stat.isFile(), `diagnostic collector accepts files only: ${absolute}`);
+  assert.ok(stat.size <= 5 * 1024 * 1024, `diagnostic collector file exceeds 5 MiB: ${absolute}`);
+  const bytes = fs.readFileSync(absolute);
+  entries.push({ path: relative.split(path.sep).join('/'), sha256: digest(bytes), kind });
+  return absolute;
+}
+
+function collectOptionalFile(evidenceRoot, file, kind, entries) {
+  try { fs.lstatSync(file); } catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+  return collectFile(evidenceRoot, file, kind, entries);
+}
+
+function collectCommandDirectory(evidenceRoot, directory, entries) {
+  for (const name of ['record.json', 'stdout.bin', 'stderr.bin', 'cleanup.stdout.bin', 'cleanup.stderr.bin']) {
+    collectOptionalFile(evidenceRoot, path.join(directory, name), name.includes('stdout') ? 'command_stdout' : name.includes('stderr') ? 'command_stderr' : 'report', entries);
+  }
+}
+
+function collectOwnedRun(evidenceRoot, runName, caseName, entries) {
+  const run = path.join(evidenceRoot, runName);
+  for (const name of ['resource-owner.json', 'server.stdout.bin', 'server.stderr.bin']) {
+    collectFile(evidenceRoot, path.join(run, name), name.endsWith('.bin') ? (name.includes('stdout') ? 'command_stdout' : 'command_stderr') : 'report', entries);
+  }
+  for (const name of ['prepare-deps', 'prepare-compile', 'prepare-ecto-create', 'prepare-ecto-migrate', 'prepare-seeds', `diagnostic-${caseName}`]) {
+    if (caseName && fs.existsSync(path.join(run, name))) collectCommandDirectory(evidenceRoot, path.join(run, name), entries);
+  }
 }
 
 function traceFacts(files) {
@@ -147,20 +213,26 @@ async function nativeRun(outputFile) {
   rows.push({ case: 'first_assertion_failure', expected_wrapper_exit: 0, observed_wrapper_exit: firstFailure.result.status, observed_playwright_exit: firstFailure.owner.native_diagnostic?.exit_code, owner: firstFailure.owner, invocation_root: path.relative(outputRoot, firstFailure.output) });
   assert.equal(firstFailure.result.status, 0, firstFailure.result.stderr);
   assert.notEqual(firstFailure.owner.native_diagnostic?.exit_code, 0, 'the assertion failure must be real and reported by Playwright');
-  const firstTraces = traceFiles(firstFailure.output);
-  assert.ok(firstTraces.length >= 2, `expected Playwright and adminTheme traces, found ${firstTraces.length}`);
   const traceRegistryPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'trace-registry.jsonl');
   const traceRegistrations = fs.readFileSync(traceRegistryPath, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
   const adminThemeRegistration = traceRegistrations.find((entry) => entry.context_kind === 'admin-theme-test' && entry.synthetic_account === true && entry.registered === true && entry.path);
   assert.ok(adminThemeRegistration, 'adminTheme manual-context trace lacks explicit synthetic-account registration');
   const adminThemeTrace = path.resolve(firstFailure.owner.native_diagnostic.output_root, adminThemeRegistration.path);
-  assert.ok(firstTraces.includes(adminThemeTrace), 'registered adminTheme trace ZIP was not present in the invocation output');
+  const failureNativeReportPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'native-report.json');
+  const failureNativeReport = JSON.parse(fs.readFileSync(failureNativeReportPath, 'utf8'));
+  const firstTraces = [...traceAttachments(failureNativeReport), adminThemeTrace];
+  assert.equal(new Set(firstTraces).size, firstTraces.length, 'trace registration duplicates a Playwright attachment');
+  assert.ok(firstTraces.length >= 2, `expected Playwright and adminTheme traces, found ${firstTraces.length}`);
+  for (const file of firstTraces) assert.ok(path.resolve(file).startsWith(`${path.resolve(evidenceRoot)}${path.sep}`), `trace attachment escaped its invocation: ${file}`);
   const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], bundle_path: path.relative(evidenceRoot, file).split(path.sep).join('/'), ...assertReadableTrace(file) }));
 
   const followingPass = runOwnedCase(evidenceRoot, '02-pass-after-failure', ['--diagnostic-case', 'pass']);
   rows.push({ case: 'pass_after_failure', expected_exit: 0, observed_exit: followingPass.result.status, owner: followingPass.owner, invocation_root: path.relative(outputRoot, followingPass.output) });
   assert.equal(followingPass.result.status, 0, followingPass.result.stderr);
-  assert.equal(traceFiles(followingPass.output).length, 0, 'passing invocation retained a trace');
+  const passReport = JSON.parse(fs.readFileSync(path.join(followingPass.owner.native_diagnostic.output_root, 'native-report.json'), 'utf8'));
+  assert.equal(traceAttachments(passReport).length, 0, 'passing invocation retained a Playwright trace attachment');
+  const passRegistry = path.join(followingPass.owner.native_diagnostic.output_root, 'trace-registry.jsonl');
+  assert.ok(!fs.existsSync(passRegistry) || fs.readFileSync(passRegistry, 'utf8').trim() === '', 'passing invocation registered a custom-context trace');
   assert.deepEqual(traceFacts(firstTraces), firstTraceFacts.map(({ path: itemPath, sha256, size }) => ({ path: itemPath, sha256, size })), 'the later invocation changed the earlier failure traces');
 
   const startup = runOwnedCase(evidenceRoot, '03-startup-failure', ['--diagnostic-startup-failure']);
@@ -226,16 +298,29 @@ async function nativeRun(outputFile) {
   fs.writeFileSync(staleOutput, 'stale report from another invocation');
 
   const manifestFiles = [];
-  for (const file of walk(evidenceRoot)) {
-    const relative = path.relative(evidenceRoot, file).split(path.sep).join('/');
-    if (relative.includes('.auth/') || /storage.?state/i.test(relative)) continue;
-    if (file === staleOutput) continue;
-    const bytes = fs.readFileSync(file);
-    if (bytes.length > 5 * 1024 * 1024) continue;
-    if (relative.endsWith('.zip') && !/trace/i.test(relative)) continue;
-    const kind = relative.endsWith('.zip') ? 'trace' : relative.endsWith('.bin') ? (relative.includes('stdout') ? 'command_stdout' : 'command_stderr') : relative.endsWith('.jsonl') ? 'log' : 'report';
-    manifestFiles.push({ path: relative, sha256: digest(bytes), kind });
+  for (const [runName, caseName] of [['01-failure', 'fail'], ['02-pass-after-failure', 'pass'], ['03-startup-failure', null], ['04-runner-terminated', 'terminate']]) {
+    collectOwnedRun(evidenceRoot, runName, caseName, manifestFiles);
+    const run = path.join(evidenceRoot, runName);
+    const nativeRoot = path.join(run, 'native-diagnostics', caseName ?? 'none');
+    if (caseName) {
+      collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'native-report.json'), 'report', manifestFiles);
+      collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'failure-events.jsonl'), 'log', manifestFiles);
+      collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'trace-registry.jsonl'), 'log', manifestFiles);
+    }
   }
+  for (const name of ['discovery', 'browser-launch', 'signal-and-cleanup']) {
+    collectCommandDirectory(evidenceRoot, path.join(diagnosticOutput, name, name === 'signal-and-cleanup' ? name : name), manifestFiles);
+  }
+  for (const id of ['discovery-negative', 'browser-launch-negative']) {
+    const nativeRoot = path.join(diagnosticOutput, `${id}-native`);
+    collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'native-report.json'), 'report', manifestFiles);
+    collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'failure-events.jsonl'), 'log', manifestFiles);
+  }
+  collectCommandDirectory(evidenceRoot, path.join(diagnosticOutput, 'cleanup-fails'), manifestFiles);
+  collectOptionalFile(evidenceRoot, cleanupArgvFile, 'report', manifestFiles);
+  collectFile(evidenceRoot, failureNativeReportPath, 'report', manifestFiles);
+  collectFile(evidenceRoot, traceRegistryPath, 'log', manifestFiles);
+  for (const file of firstTraces) collectFile(evidenceRoot, file, 'trace', manifestFiles);
   for (const [file, kind] of [[plantedSecretTrace, 'trace'], [plantedAuth, 'auth'], [plantedSentinel, 'log']]) {
     manifestFiles.push({ path: path.relative(evidenceRoot, file).split(path.sep).join('/'), sha256: digest(fs.readFileSync(file)), kind });
   }
