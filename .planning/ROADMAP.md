@@ -41,7 +41,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 - [x] **Phase 252: Measure Current CI** — Contributors and maintainers can identify today's CI waiting time, failure patterns, and largest runtime costs before choosing fixes. (completed 2026-10-12)
 - [x] **Phase 253: Fix Flaky CI and Preserve Required Checks** — Selected flaky CI failures are reproducible and fixed, while real failures still prevent the required checks from passing. (completed 2026-10-23)
 - [ ] **Phase 254: Speed Up the Measured Slow Jobs** — Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
-- [ ] **Phase 255: Make Failures Reproducible and Report the Result** — Contributors can reproduce updated CI checks locally and maintainers can independently replay the final speed and reliability comparison.
+- [x] **Phase 255: Make Failures Reproducible and Report the Result** — Contributors can reproduce updated CI checks locally and maintainers can independently replay the final speed and reliability comparison. (completed 2026-10-24)
 
 ## Phase Details
 
@@ -358,7 +358,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
   3. A documented calculation replays the final before/after comparison from saved inputs, including sample sizes, literal failure/cancellation/rerun outcomes, cache conditions, and limitations.
   4. The final report names the tested code, states whether the 20% median and non-increasing p95/runner-time targets hold, and records any remaining failures separately from implemented changes. Missing old release approvals or signed historical performance archives are not required inputs.
 
-**Plans**: 7/7 plans executed in 6 waves (14 tasks; implementation complete, final phase verification in progress)
+**Plans**: 7/7 plans complete in 6 waves (14 tasks; implementation complete, final phase verification in progress)
 
 Plans:
 **Wave 1**
@@ -389,7 +389,7 @@ Plans:
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Complete; verified6/6 | 2026-10-23 |
 | 254. Speed Up the Measured Slow Jobs | v1.50 | 7/8; 1 halted | Implementation complete; comparison insufficient_data; verification pending | — |
-| 255. Make Failures Reproducible and Report the Result | v1.50 | 7/7 | Implementation complete; verification in progress | — |
+| 255. Make Failures Reproducible and Report the Result | v1.50 | 7/7 | Complete    | 2026-10-24 |
 
 ## Historical Closeout
 

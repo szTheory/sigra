@@ -66,13 +66,13 @@ The user confirmed all nine requirements and approved the four-phase roadmap. Ea
 |-------------|-------|--------|
 | CIMEAS-01 | Phase 252 | Complete |
 | CIMEAS-02 | Phase 252 | Complete |
-| CIMEAS-03 | Phase 255 | Pending |
+| CIMEAS-03 | Phase 255 | Complete |
 | CISPEED-01 | Phase 254 | Pending |
 | CISPEED-02 | Phase 254 | Pending |
 | CIREL-01 | Phase 253 | Complete |
 | CIREL-02 | Phase 253 | Complete |
-| CIDX-01 | Phase 255 | Pending |
-| CIDX-02 | Phase 255 | Pending |
+| CIDX-01 | Phase 255 | Complete |
+| CIDX-02 | Phase 255 | Complete |
 
 **Coverage:** 9 requirements; 9 mapped exactly once; 0 unmapped; 0 duplicate assignments.
 

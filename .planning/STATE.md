@@ -3,16 +3,18 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Phase 255 implementation and all execution gates passed; final goal verification in progress
-last_updated: "2026-10-24T19:47:41.137091+00:00"
-state_head: a0bc58dbfc62283c66bb97b408528ca0a9ae14a4
+stopped_at: Phase 255 complete, ready to verify Phase 254
+last_updated: "2026-10-24T20:35:51.163Z"
+state_head: d40a3d3f8e09bbca4dae231680b4ffd5e0014b88
 progress:
   total_phases: 4
-  completed_phases: 2
-  percent: 50
+  completed_phases: 3
+  total_plans: 131
+  completed_plans: 131
+  percent: 75
 milestone_status: active
 workflow_step: phase255_goal_verification
-last_activity: 2026-10-24 - Phase 255 planning checked: 7 plans, 14 tasks, 6 waves
+last_activity: "2026-10-24 - Phase 255 planning checked: 7 plans, 14 tasks, 6 waves"
 requirements_approved: true
 roadmap_approved: true
 phase252_verification_status: passed
@@ -28,8 +30,8 @@ phase254_implementation_status: complete
 phase254_comparison_status: insufficient_data
 phase254_verification_status: pending
 verification_status: pending
-next_command: "$gsd-execute-phase 255"
-resume_command: "$gsd-execute-phase 255"
+next_command: $gsd-execute-phase 255
+resume_command: $gsd-execute-phase 255
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
 resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-SUMMARY.md
@@ -38,14 +40,14 @@ phase255_discussion_status: complete
 phase255_planning_status: passed
 phase255_implementation_status: complete
 phase255_verification_status: in_progress
-current_phase_name: Make Failures Reproducible and Report the Result
-current_phase: 255
-current_plan: null
 phase255_plan_count: 7
 phase255_task_count: 14
 phase255_wave_count: 6
 phase255_plan_check: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json
 phase255_completed_plans: 7
+current_phase: 254
+current_phase_name: Speed Up the Measured Slow Jobs
+current_plan: null
 ---
 
 # Current position
@@ -65,5 +67,5 @@ The later connection repair passed separate development CI in PR 353/source `8b3
 ## Session
 
 **Last session:** 2026-10-24T16:07:24.464820+00:00
-**Stopped at:** Phase 255 execution gates passed; final goal verification in progress
+**Stopped at:** Phase 255 complete, ready to verify Phase 254
 **Resume file:** .planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-SUMMARY.md
