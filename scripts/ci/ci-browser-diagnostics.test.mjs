@@ -318,9 +318,8 @@ async function nativeRun(outputFile) {
   }
   collectCommandDirectory(evidenceRoot, path.join(diagnosticOutput, 'cleanup-fails'), manifestFiles);
   collectOptionalFile(evidenceRoot, cleanupArgvFile, 'report', manifestFiles);
-  collectFile(evidenceRoot, failureNativeReportPath, 'report', manifestFiles);
-  collectFile(evidenceRoot, traceRegistryPath, 'log', manifestFiles);
   for (const file of firstTraces) collectFile(evidenceRoot, file, 'trace', manifestFiles);
+  assert.equal(new Set(manifestFiles.map((entry) => entry.path)).size, manifestFiles.length, 'native evidence allowlist contains duplicate paths');
   for (const [file, kind] of [[plantedSecretTrace, 'trace'], [plantedAuth, 'auth'], [plantedSentinel, 'log']]) {
     manifestFiles.push({ path: path.relative(evidenceRoot, file).split(path.sep).join('/'), sha256: digest(fs.readFileSync(file)), kind });
   }
@@ -351,7 +350,8 @@ async function nativeRun(outputFile) {
   const withheldReasons = JSON.stringify(bundleMetadata.withheld);
   assert.match(withheldReasons, /secret_sentinel_detected/);
   assert.match(withheldReasons, /auth_state_excluded/);
-  assert.match(withheldReasons, /stale-prior-invocation/);
+  assert.ok(fs.existsSync(staleOutput), 'stale output negative control is missing');
+  assert.ok(!manifestFiles.some((entry) => entry.path.includes('stale-prior-invocation')), 'collector included stale output in the current invocation allowlist');
   assert.doesNotMatch(bundleMetadata.members && Object.keys(bundleMetadata.members).join(' '), /stale-prior-invocation|SECRET_SENTINEL/);
   const escapePath = path.join(evidenceRoot, 'escape-link');
   fs.symlinkSync(path.join(os.tmpdir(), 'sigra-not-inside-invocation'), escapePath);
