@@ -176,3 +176,7 @@ Plan 255-06 has a verified success artifact, a real failed run with logs and art
 ---
 *Phase: 255-make-failures-reproducible-and-report-the-result*
 *Completed: 2026-10-24*
+
+## Final review follow-up
+
+Final changed-source overhead was measured again after review repairs: exactly six passing local invocations on `0e35a4c83a94db813d1cb19b504f09badc95e1ce`, off mean 473.375 ms / on mean 541.071 ms. See `.planning/execution/255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json`. This noisy development observation adds zero comparison samples. Original hosted producer identity and closed allowances remain unchanged; no additional dispatch, request, push, or fetch was used.

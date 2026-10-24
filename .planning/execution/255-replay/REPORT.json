@@ -11,7 +11,9 @@
       "run_attempt": 2,
       "conclusion": "failure",
       "runner_seconds": 2046,
-      "missing_required_contexts": ["Example Playwright smoke (full lifecycle)"],
+      "missing_required_contexts": [
+        "Example Playwright smoke (full lifecycle)"
+      ],
       "receipt_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
       "receipt_entries_verified": 69
     },
@@ -40,7 +42,10 @@
     "local_diagnostic_evidence_writer_source": "7bad04a200ffcecc759cd1d947c141609d96a037",
     "trace_overhead_source": "d6ce89a067c75308fb254a637691feadf2061349",
     "distribution_publisher_helper_source": "e41aabd0c399b95d22262da2ebd45ae69250f290",
-    "corrected_verification_controller_source": "83b62cd55"
+    "corrected_verification_controller_source": "83b62cd55",
+    "final_local_native_diagnostics_tested_source": "8243a25bec776782a527386e2623041ba7fbe347",
+    "final_trace_overhead_source": "0e35a4c83a94db813d1cb19b504f09badc95e1ce",
+    "hosted_source_boundary": "Hosted runs retain their original 7aae47281 producer identity. Later local repair commits were tested locally; they were not dispatched again under the closed hosted allowance."
   },
   "observations": {
     "measured_invocations": 2,
@@ -54,7 +59,9 @@
     "window_extended": false,
     "preparations_counted_as_samples": 0,
     "unused_reservations_counted_as_samples": 0,
-    "run_attempts_in_terminal_observations": [2]
+    "run_attempts_in_terminal_observations": [
+      2
+    ]
   },
   "statistics": {
     "status": "insufficient_data",
@@ -88,7 +95,9 @@
   "reruns": {
     "baseline_run_attempt": 2,
     "candidate_run_attempt": 2,
-    "recorded_job_attempts": [2],
+    "recorded_job_attempts": [
+      2
+    ],
     "all_attempt_costs": {
       "baseline": 2046,
       "candidate": 1589
@@ -150,28 +159,38 @@
     "success_run": 40122912945,
     "failure_run": 40123954650,
     "cancelled_run": 40124112173,
-    "conclusions": ["success", "failure", "cancelled"],
+    "conclusions": [
+      "success",
+      "failure",
+      "cancelled"
+    ],
     "controller_requests": 37,
     "invocations": 3,
     "pushes": 1,
     "infrastructure_retries": 0,
     "test_retries": 0,
     "artifact_retention_expires": "2026-10-31",
-    "cancellation_missing_files": ["final-output.log", "final-trace.zip"],
-    "browser_trace_unavailable_reasons": ["context_not_created", "runner_terminated"],
+    "cancellation_missing_files": [
+      "final-output.log",
+      "final-trace.zip"
+    ],
+    "browser_trace_unavailable_reasons": [
+      "context_not_created",
+      "runner_terminated"
+    ],
     "synthetic_accounts_only": true,
     "auth_storage_sensitivity": "Temporary authentication state and raw traces can contain session material; store privately, never commit, and use the sanitized tracked bundle for sharing."
   },
   "trace_overhead": {
-    "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+    "source_sha": "0e35a4c83a94db813d1cb19b504f09badc95e1ce",
     "pairs": 3,
     "retries": 0,
     "workers": 1,
-    "off_mean_ms": 519.208,
-    "on_mean_ms": 478.235,
-    "observed_difference_ms": -40.973,
+    "off_mean_ms": 473.375,
+    "on_mean_ms": 541.071,
     "status": "noisy_inconclusive",
-    "interpretation": "A small local sample; not a speed improvement and not a correction to the historical comparison."
+    "interpretation": "Six local development observations on the final diagnostic code. No statistical speed claim and no correction or new samples for the closed comparison.",
+    "observed_difference_ms": 67.696
   },
   "development_verification": {
     "pull_request": 353,
@@ -232,9 +251,9 @@
     "manifest_path_in_evidence_commit": ".planning/execution/255-replay/distributed/INPUTS.json"
   },
   "requirements": {
-    "CIMEAS-03": "implementation evidence present; phase review and verification pending",
-    "CIDX-01": "phase review pending",
-    "CIDX-02": "phase review pending",
+    "CIMEAS-03": "Implementation and automated evidence present; final phase status is recorded in 255-VERIFICATION.md.",
+    "CIDX-01": "Implementation and automated evidence present; final phase status is recorded in 255-VERIFICATION.md.",
+    "CIDX-02": "Implementation and automated evidence present; final phase status is recorded in 255-VERIFICATION.md.",
     "CISPEED-01": "open",
     "CISPEED-02": "open"
   },
@@ -255,6 +274,24 @@
     "diagnostic_canary": ".planning/execution/255-diagnostics-canary/RESULT.json",
     "local_diagnostics": ".planning/execution/255-local/BROWSER-DIAGNOSTICS.json",
     "trace_overhead": ".planning/execution/255-local/TRACE-OVERHEAD.json",
-    "distribution": ".planning/execution/255-replay/DISTRIBUTION.json"
+    "distribution": ".planning/execution/255-replay/DISTRIBUTION.json",
+    "final_native_mix": ".planning/execution/255-verification/FINAL-MIX-RECEIVERS-AFTER-REPAIR.json",
+    "mix_source_identity": ".planning/execution/255-verification/MIX-CAPTURE.json",
+    "final_local_diagnostics": ".planning/execution/255-verification/BROWSER-DIAGNOSTICS-AFTER-REVIEW.json",
+    "final_trace_overhead": ".planning/execution/255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json",
+    "regression_gate": ".planning/execution/255-verification/REGRESSION-GATE.json",
+    "code_review": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md",
+    "final_phase_verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md"
+  },
+  "trace_overhead_before_review": {
+    "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+    "pairs": 3,
+    "retries": 0,
+    "workers": 1,
+    "off_mean_ms": 519.208,
+    "on_mean_ms": 478.235,
+    "observed_difference_ms": -40.973,
+    "status": "noisy_inconclusive",
+    "interpretation": "A small local sample; not a speed improvement and not a correction to the historical comparison."
   }
 }

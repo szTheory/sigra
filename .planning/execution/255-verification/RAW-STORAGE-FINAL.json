@@ -1,0 +1,109 @@
+{
+  "schema_version": "sigra.phase255.raw-storage/v1",
+  "moves": [
+    {
+      "original": ".planning/execution/255-verification/native-run-1792872663498252000",
+      "recovery": ".gsd/phase255-native-raw/final-native-run-1792872663498252000",
+      "entries": {
+        "commands/mix-ci/record.json": {
+          "sha256": "ee9b7019f3bb6b428db61683cd4b107fa75cdecdecc3ffe031535f4415b68d32",
+          "size": 2088
+        },
+        "commands/mix-ci/stderr.bin": {
+          "sha256": "d00ba0ab49ce0145aa0a9502d821c807369984d5e485dcb91fe187f290f8e4ce",
+          "size": 696
+        },
+        "commands/mix-ci/stdout.bin": {
+          "sha256": "f39172fc477287bfd67358b68320802df0ccf1ff556274af96c53741e8d6d04f",
+          "size": 1084
+        },
+        "commands/ordinary/record.json": {
+          "sha256": "043d8e16127182ac1bc2fae1fa0c03a5f4171516078893c4bda60ea303fa13b5",
+          "size": 3954
+        },
+        "commands/ordinary/stderr.bin": {
+          "sha256": "8c246e7b77592c768d40919c804ed017e7717bf6b1a6f95feec0374a352f8e55",
+          "size": 14572
+        },
+        "commands/ordinary/stdout.bin": {
+          "sha256": "a7a13dcabff45ab1cb9b00c62995cd547ff4099bf02d4a767b54ef79eb9364e2",
+          "size": 18171
+        },
+        "legs/ordinary/exunit.json": {
+          "sha256": "410822c2a2ebc59c2b22162e4f95756583bcb118a30c12d0cab2382ebcf955d4",
+          "size": 891751
+        }
+      },
+      "read_back_equal": true
+    },
+    {
+      "original": ".planning/execution/255-verification/native-run-1792873056026836000",
+      "recovery": ".gsd/phase255-native-raw/final-native-run-1792873056026836000",
+      "entries": {
+        "commands/dep-off/record.json": {
+          "sha256": "9467ebd30bd1e0542199cc50bf30d83b79ea576d165e7142b2615d860d923d42",
+          "size": 2719
+        },
+        "commands/dep-off/stderr.bin": {
+          "sha256": "f97133707c0c11c752284d1f66dd07d5f54339ede6fa29a1eea35923bf4f3f37",
+          "size": 12577
+        },
+        "commands/dep-off/stdout.bin": {
+          "sha256": "3cac4446691a4483083fea59157a5a1034a0c8c0214050cc66b67537dea17d7f",
+          "size": 1681
+        },
+        "commands/mix-ci/record.json": {
+          "sha256": "211e6a228ad41b7fbc34b5b8a5990d1909af9d8377388820a4aa0ed5b7981168",
+          "size": 2290
+        },
+        "commands/mix-ci/stderr.bin": {
+          "sha256": "72c7bfcd667e59f826d2fcc0aa122df864709d3129832302f833496ff9f11077",
+          "size": 361
+        },
+        "commands/mix-ci/stdout.bin": {
+          "sha256": "a6e17dceb691e4e5823ad7e30fb4b80ddc02c3dbd100fcb7b426238eb323d624",
+          "size": 1084
+        },
+        "commands/ordinary/record.json": {
+          "sha256": "f6e8470b854892cb3e76444de6d84e0f17a448c2a777f148bb28ec5b89e2bd29",
+          "size": 2516
+        },
+        "commands/ordinary/stderr.bin": {
+          "sha256": "f39f8bf0f49fd2f3f356682dac88cfbb16d4266b880b035385771f7afdbe849a",
+          "size": 14572
+        },
+        "commands/ordinary/stdout.bin": {
+          "sha256": "310590aa078962bf3e249fa03c2bfa16ec72f5eb04bebf7288c66d18b205ada3",
+          "size": 11918
+        },
+        "commands/scaffold/record.json": {
+          "sha256": "1d41a7d4bb04b08d0bef581c69e9fcaa36db16ad2a85ae8150e5b70d92d00b12",
+          "size": 3006
+        },
+        "commands/scaffold/stderr.bin": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "commands/scaffold/stdout.bin": {
+          "sha256": "a0c0652388e3db7e0e1cde25b8cd5ae8f165059e9e71611a94a2f6f7cb0b9530",
+          "size": 146
+        },
+        "legs/dep-off/threadline_guard.json": {
+          "sha256": "2acf3129d6b4e7253bb061b033207ae498afa6e01e0b60c929bb84899997f99b",
+          "size": 23597
+        },
+        "legs/ordinary/exunit.json": {
+          "sha256": "31b28aa485372814eaab980b3240da92a348e0432a0d4b7f3d895befee6f1eea",
+          "size": 890301
+        },
+        "legs/scaffold/exunit.json": {
+          "sha256": "c6148c20ef2f277ad8712d9feed4643c41734ad6146c9007ccdc6982da2cd335",
+          "size": 9427
+        }
+      },
+      "read_back_equal": true
+    }
+  ],
+  "raw_browser_root": ".gsd/temp/phase255-final",
+  "auth_bearing_raw_committed": false
+}

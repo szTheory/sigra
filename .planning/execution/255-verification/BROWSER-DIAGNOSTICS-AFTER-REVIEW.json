@@ -1,0 +1,1792 @@
+{
+  "schema": "sigra.browser-diagnostics.native/v1",
+  "generated_at": "2026-10-24T20:20:49.251Z",
+  "source_identity": {
+    "source_sha": "8243a25bec776782a527386e2623041ba7fbe347",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirty_status": ""
+  },
+  "runtime": {
+    "node": "v20.19.5",
+    "playwright": "1.59.1",
+    "platform": "darwin",
+    "browser": "Playwright Chromium, locked revision"
+  },
+  "configuration": {
+    "retries": 0,
+    "workers": 1,
+    "synthetic_accounts_only": true,
+    "postgres_role_fallback": "getpass.getuser()",
+    "diagnostics_opt_in": true
+  },
+  "cases": [
+    {
+      "case": "first_assertion_failure",
+      "expected_wrapper_exit": 0,
+      "observed_wrapper_exit": 0,
+      "observed_playwright_exit": 1,
+      "owner": {
+        "cleanup_errors": [],
+        "compiled_port": 51102,
+        "database_comment": null,
+        "database_created": false,
+        "dirty_status": "M .planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md\n?? .planning/execution/255-verification/FINAL-MIX-RECEIVERS.json\n?? .planning/execution/255-verification/FINAL-REGRESSION.json\n?? .planning/execution/255-verification/native-run-1792872663498252000/\n?? .planning/execution/255-verification/native-run-1792873056026836000/\n?? scripts/ci/__pycache__/",
+        "ended_at": 1792873125.115513,
+        "event": "push",
+        "example_postgres": {
+          "PGDATABASE": "sigra_repro_84918_2cc3d8d37eb4",
+          "PGHOST": "localhost",
+          "PGPORT": "5432",
+          "PGUSER": "jon"
+        },
+        "host_os": "darwin",
+        "native_diagnostic": {
+          "case": "fail",
+          "exit_code": 1,
+          "invocation_id": "01-failure-fail",
+          "native_identity": "chromium:playwright-diagnostics.spec.ts",
+          "observed_signal": null,
+          "output_root": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure/native-diagnostics/fail",
+          "trace_unavailable_reason": null
+        },
+        "native_test_filter": null,
+        "owned_database": "sigra_repro_84918_2cc3d8d37eb4",
+        "owned_mix_build_path": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure/mix-build",
+        "owned_output_root": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure",
+        "owned_pid": null,
+        "owned_process_group": null,
+        "ownership_token": "2cc3d8d37eb44f7e8c6c46ee0578aecd",
+        "postgres_admin_database": "jon",
+        "runtime": {
+          "browser_equivalence": "behavior only on macOS; Ubuntu 24.04 is required for font/pixel parity",
+          "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+          "host_os": "darwin",
+          "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
+          "node": "v20.19.5",
+          "playwright": "1.59.1"
+        },
+        "schema_version": "sigra.browser-local-owner/v1",
+        "seam": "admin_behavior",
+        "server_argv": [
+          "mix",
+          "phx.server"
+        ],
+        "server_cwd": "/Users/jon/projects/sigra/test/example",
+        "server_status": "ready",
+        "server_stderr": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure/server.stderr.bin",
+        "server_stdout": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure/server.stdout.bin",
+        "serving_port": 51102,
+        "source_ref": "phase-244-playwright-measurement",
+        "source_sha": "9b6a71386a5bac589fa62dda2b5d720fee896f3e",
+        "test_result": "diagnostic_fail_observed"
+      },
+      "invocation_root": "browser-diagnostics-1792873088959/01-failure"
+    },
+    {
+      "case": "pass_after_failure",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "owner": {
+        "cleanup_errors": [],
+        "compiled_port": 51518,
+        "database_comment": null,
+        "database_created": false,
+        "dirty_status": "?? .planning/execution/255-verification/FINAL-MIX-RECEIVERS.json\n?? .planning/execution/255-verification/FINAL-REGRESSION.json\n?? .planning/execution/255-verification/native-run-1792872663498252000/\n?? .planning/execution/255-verification/native-run-1792873056026836000/\n?? scripts/ci/__pycache__/",
+        "ended_at": 1792873161.362536,
+        "event": "push",
+        "example_postgres": {
+          "PGDATABASE": "sigra_repro_98826_ad40c4d3cb61",
+          "PGHOST": "localhost",
+          "PGPORT": "5432",
+          "PGUSER": "jon"
+        },
+        "host_os": "darwin",
+        "native_diagnostic": {
+          "case": "pass",
+          "exit_code": 0,
+          "invocation_id": "02-pass-after-failure-pass",
+          "native_identity": "chromium:playwright-diagnostics.spec.ts",
+          "observed_signal": null,
+          "output_root": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/02-pass-after-failure/native-diagnostics/pass",
+          "trace_unavailable_reason": null
+        },
+        "native_test_filter": null,
+        "owned_database": "sigra_repro_98826_ad40c4d3cb61",
+        "owned_mix_build_path": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/02-pass-after-failure/mix-build",
+        "owned_output_root": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/02-pass-after-failure",
+        "owned_pid": null,
+        "owned_process_group": null,
+        "ownership_token": "ad40c4d3cb614198a499819e1ed2d1c6",
+        "postgres_admin_database": "jon",
+        "runtime": {
+          "browser_equivalence": "behavior only on macOS; Ubuntu 24.04 is required for font/pixel parity",
+          "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+          "host_os": "darwin",
+          "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
+          "node": "v20.19.5",
+          "playwright": "1.59.1"
+        },
+        "schema_version": "sigra.browser-local-owner/v1",
+        "seam": "admin_behavior",
+        "server_argv": [
+          "mix",
+          "phx.server"
+        ],
+        "server_cwd": "/Users/jon/projects/sigra/test/example",
+        "server_status": "ready",
+        "server_stderr": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/02-pass-after-failure/server.stderr.bin",
+        "server_stdout": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/02-pass-after-failure/server.stdout.bin",
+        "serving_port": 51518,
+        "source_ref": "phase-244-playwright-measurement",
+        "source_sha": "8243a25bec776782a527386e2623041ba7fbe347",
+        "test_result": "diagnostic_pass_observed"
+      },
+      "invocation_root": "browser-diagnostics-1792873088959/02-pass-after-failure"
+    },
+    {
+      "case": "phoenix_startup_failure",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "owner": {
+        "cleanup_errors": [],
+        "compiled_port": 51984,
+        "database_comment": null,
+        "database_created": false,
+        "dirty_status": "M .planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md\n?? .planning/execution/255-verification/FINAL-MIX-RECEIVERS.json\n?? .planning/execution/255-verification/FINAL-REGRESSION.json\n?? .planning/execution/255-verification/native-run-1792872663498252000/\n?? .planning/execution/255-verification/native-run-1792873056026836000/\n?? scripts/ci/__pycache__/",
+        "ended_at": 1792873203.690777,
+        "event": "push",
+        "example_postgres": {
+          "PGDATABASE": "sigra_repro_14836_0f44ec61d456",
+          "PGHOST": "localhost",
+          "PGPORT": "5432",
+          "PGUSER": "jon"
+        },
+        "host_os": "darwin",
+        "native_test_filter": null,
+        "owned_database": "sigra_repro_14836_0f44ec61d456",
+        "owned_mix_build_path": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/03-startup-failure/mix-build",
+        "owned_output_root": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/03-startup-failure",
+        "owned_pid": null,
+        "owned_process_group": null,
+        "ownership_token": "0f44ec61d45645a6a6f398583f6eb74c",
+        "postgres_admin_database": "jon",
+        "primary_error": "example server exited before readiness (status 1)",
+        "primary_exit_code": 1,
+        "runtime": {
+          "browser_equivalence": "behavior only on macOS; Ubuntu 24.04 is required for font/pixel parity",
+          "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+          "host_os": "darwin",
+          "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
+          "node": "v20.19.5",
+          "playwright": "1.59.1"
+        },
+        "schema_version": "sigra.browser-local-owner/v1",
+        "seam": "admin_behavior",
+        "server_argv": [
+          "mix",
+          "phx.server"
+        ],
+        "server_cwd": "/Users/jon/projects/sigra/test/example",
+        "server_startup_failure": {
+          "error": "example server exited before readiness (status 1)",
+          "observed": true,
+          "trace_unavailable_reason": "context_not_created"
+        },
+        "server_status": "starting",
+        "server_stderr": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/03-startup-failure/server.stderr.bin",
+        "server_stdout": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/03-startup-failure/server.stdout.bin",
+        "serving_port": 51984,
+        "source_ref": "phase-244-playwright-measurement",
+        "source_sha": "8243a25bec776782a527386e2623041ba7fbe347",
+        "test_result": "failed",
+        "trace_unavailable_reason": "context_not_created"
+      },
+      "invocation_root": "browser-diagnostics-1792873088959/03-startup-failure",
+      "trace_unavailable_reason": "context_not_created"
+    },
+    {
+      "case": "runner_sigterm",
+      "expected_wrapper_exit": 0,
+      "observed_wrapper_exit": 0,
+      "expected_child_exit": 143,
+      "observed_child_exit": 143,
+      "expected_signal": 15,
+      "observed_signal": 15,
+      "owner": {
+        "cleanup_errors": [],
+        "compiled_port": 52402,
+        "database_comment": null,
+        "database_created": false,
+        "dirty_status": "M .planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md\n?? .planning/execution/255-verification/FINAL-MIX-RECEIVERS.json\n?? .planning/execution/255-verification/FINAL-REGRESSION.json\n?? .planning/execution/255-verification/native-run-1792872663498252000/\n?? .planning/execution/255-verification/native-run-1792873056026836000/\n?? scripts/ci/__pycache__/",
+        "ended_at": 1792873245.031345,
+        "event": "push",
+        "example_postgres": {
+          "PGDATABASE": "sigra_repro_36330_591fff026160",
+          "PGHOST": "localhost",
+          "PGPORT": "5432",
+          "PGUSER": "jon"
+        },
+        "host_os": "darwin",
+        "native_diagnostic": {
+          "case": "terminate",
+          "exit_code": 143,
+          "invocation_id": "04-runner-terminated-terminate",
+          "native_identity": "chromium:playwright-diagnostics.spec.ts",
+          "observed_signal": 15,
+          "output_root": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/04-runner-terminated/native-diagnostics/terminate",
+          "trace_unavailable_reason": "runner_terminated"
+        },
+        "native_test_filter": null,
+        "owned_database": "sigra_repro_36330_591fff026160",
+        "owned_mix_build_path": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/04-runner-terminated/mix-build",
+        "owned_output_root": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/04-runner-terminated",
+        "owned_pid": null,
+        "owned_process_group": null,
+        "ownership_token": "591fff02616048a5a78bb157ae192b39",
+        "postgres_admin_database": "jon",
+        "runtime": {
+          "browser_equivalence": "behavior only on macOS; Ubuntu 24.04 is required for font/pixel parity",
+          "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+          "host_os": "darwin",
+          "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
+          "node": "v20.19.5",
+          "playwright": "1.59.1"
+        },
+        "schema_version": "sigra.browser-local-owner/v1",
+        "seam": "admin_behavior",
+        "server_argv": [
+          "mix",
+          "phx.server"
+        ],
+        "server_cwd": "/Users/jon/projects/sigra/test/example",
+        "server_status": "ready",
+        "server_stderr": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/04-runner-terminated/server.stderr.bin",
+        "server_stdout": "/Users/jon/projects/sigra/.gsd/temp/phase255-final/browser-diagnostics-1792873088959/04-runner-terminated/server.stdout.bin",
+        "serving_port": 52402,
+        "source_ref": "phase-244-playwright-measurement",
+        "source_sha": "8243a25bec776782a527386e2623041ba7fbe347",
+        "test_result": "diagnostic_terminate_observed"
+      },
+      "invocation_root": "browser-diagnostics-1792873088959/04-runner-terminated",
+      "trace_unavailable_reason": "runner_terminated"
+    },
+    {
+      "case": "pretest_discovery_error",
+      "observed_exit": 1,
+      "observed_signal": null,
+      "invocation_root": "browser-diagnostics-1792873088959/05-precontext/discovery/discovery",
+      "trace_unavailable_reason": "context_not_created"
+    },
+    {
+      "case": "browser_launch_before_context",
+      "observed_exit": 1,
+      "observed_signal": null,
+      "invocation_root": "browser-diagnostics-1792873088959/05-precontext/browser-launch/browser-launch",
+      "trace_unavailable_reason": "context_not_created"
+    },
+    {
+      "case": "cleanup_failure_preserves_primary",
+      "expected_exit": 4,
+      "observed_exit": 4,
+      "cleanup_exit": 7
+    }
+  ],
+  "traces": [
+    {
+      "path": ".gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-ret-f5bb9-fault-context-first-failure-chromium/trace.zip",
+      "sha256": "f30cd2b3b62ba8f6265e12d25de7e32b4ad14af2fd70a8b05528a7cd901e095a",
+      "size": 507528,
+      "bundle_path": "01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-ret-f5bb9-fault-context-first-failure-chromium/trace.zip",
+      "members": [
+        "resources/src@98601f70be661c885de1b8942c5ee106df81bdbf.txt",
+        "resources/50b430d7f490ae7a402e156d75e3b7a01d90a160",
+        "resources/1836fe60faaf799266b051c8e1a221be3870eeaa",
+        "test.trace",
+        "0-trace.trace",
+        "0-trace.network",
+        "resources/page@f8d19880324d7d99f257cf185c9ebff7-1792873123074.jpeg",
+        "resources/page@f8d19880324d7d99f257cf185c9ebff7-1792873123106.jpeg",
+        "resources/page@f8d19880324d7d99f257cf185c9ebff7-1792873123116.jpeg",
+        "resources/130e74c1862f833b377ce080a53bec1e0de05900.css",
+        "resources/f31d6b30718b64ba2c4dfe5c9f3a67f5c07821bd.css",
+        "resources/42b25130d56d4d7b67eefd945453229a8c416bb0.svg",
+        "resources/a8011be8094f6c3409a22211ff8394b38ae4055d.css",
+        "resources/b4327f55f8b481e44b298d43c06ce073adbf3176.css",
+        "resources/d7d779e5d5dfddf668e5b93ae8835d72261c23b0.html",
+        "resources/87de591aa3325ca793663d877c92e735b5fe9ea5.woff2",
+        "resources/1dc044f4824fd5af6bfed67fee48be70fa069f3f.woff2",
+        "0-trace.stacks"
+      ],
+      "trace_member": "test.trace",
+      "sanitized_sha256": "382da36665f47b8148126335df0e4388468323389349945c6af1c9d65dbbd20c",
+      "redactions": [
+        {
+          "action": "field_removed",
+          "field": "test.trace[7].params.storageState"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[0].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[0].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[1].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[1].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[2].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[2].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[3].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[3].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[4].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[4].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[5].snapshot.response.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[5].snapshot.response.headers[7].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[6].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[6].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[7].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[7].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[8].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[8].snapshot.request.headers[4].value"
+        }
+      ]
+    },
+    {
+      "path": ".gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-discards-a-default-context-pass-chromium/trace.zip",
+      "sha256": "799db8637bcca4ae91c91cd9f0da8a85ab1ce3e8781e3b007fed5d338f71a83a",
+      "size": 573741,
+      "bundle_path": "01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-discards-a-default-context-pass-chromium/trace.zip",
+      "members": [
+        "resources/src@98601f70be661c885de1b8942c5ee106df81bdbf.txt",
+        "resources/2f64d1c672074fd7d1dc40964b48fb12d43301c6",
+        "resources/1836fe60faaf799266b051c8e1a221be3870eeaa",
+        "test.trace",
+        "0-trace.trace",
+        "0-trace.network",
+        "resources/page@e66ed357d458ea2bff548d86749ba5b9-1792873123713.jpeg",
+        "resources/page@e66ed357d458ea2bff548d86749ba5b9-1792873123717.jpeg",
+        "resources/page@e66ed357d458ea2bff548d86749ba5b9-1792873123724.jpeg",
+        "resources/f31d6b30718b64ba2c4dfe5c9f3a67f5c07821bd.css",
+        "resources/130e74c1862f833b377ce080a53bec1e0de05900.css",
+        "resources/a8011be8094f6c3409a22211ff8394b38ae4055d.css",
+        "resources/b4327f55f8b481e44b298d43c06ce073adbf3176.css",
+        "resources/42b25130d56d4d7b67eefd945453229a8c416bb0.svg",
+        "resources/53e171400d746bb075608e1007deeb1ed2d3ef3f.html",
+        "resources/87de591aa3325ca793663d877c92e735b5fe9ea5.woff2",
+        "resources/1dc044f4824fd5af6bfed67fee48be70fa069f3f.woff2",
+        "0-trace.stacks"
+      ],
+      "trace_member": "test.trace",
+      "sanitized_sha256": "880db5f4a1f793a2bd0af7da358f0d2892fcd010795c513ffbdac6562e731f65",
+      "redactions": [
+        {
+          "action": "field_removed",
+          "field": "test.trace[7].params.storageState"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[0].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[0].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[1].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[1].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[2].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[2].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[3].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[3].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[4].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[4].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[5].snapshot.response.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[5].snapshot.response.headers[7].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[6].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[6].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[7].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[7].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[8].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "0-trace.network[8].snapshot.request.headers[4].value"
+        }
+      ]
+    },
+    {
+      "path": ".gsd/temp/phase255-final/browser-diagnostics-1792873088959/01-failure/native-diagnostics/fail/traces/admin-theme-test-2aaa9b6b-1877-46aa-a1b0-4eeb3d66d40a-97333-c285cebef63c3eed.zip",
+      "sha256": "a046c99f8359cf4b4f9386875c94ec1c23f8e30fb4a9a84bdc0891da04581e4d",
+      "size": 326210,
+      "bundle_path": "01-failure/native-diagnostics/fail/traces/admin-theme-test-2aaa9b6b-1877-46aa-a1b0-4eeb3d66d40a-97333-c285cebef63c3eed.zip",
+      "members": [
+        "trace.trace",
+        "trace.network",
+        "resources/page@2801e3cbb14a2a598b5a3922cd0bf69f-1792873122478.jpeg",
+        "resources/page@2801e3cbb14a2a598b5a3922cd0bf69f-1792873122564.jpeg",
+        "resources/page@2801e3cbb14a2a598b5a3922cd0bf69f-1792873122571.jpeg",
+        "resources/130e74c1862f833b377ce080a53bec1e0de05900.css",
+        "resources/f31d6b30718b64ba2c4dfe5c9f3a67f5c07821bd.css",
+        "resources/a8011be8094f6c3409a22211ff8394b38ae4055d.css",
+        "resources/b4327f55f8b481e44b298d43c06ce073adbf3176.css",
+        "resources/42b25130d56d4d7b67eefd945453229a8c416bb0.svg",
+        "resources/090ffa6295d10a69a9613630ce32e98d50aad038.html",
+        "resources/87de591aa3325ca793663d877c92e735b5fe9ea5.woff2",
+        "resources/1dc044f4824fd5af6bfed67fee48be70fa069f3f.woff2",
+        "trace.stacks",
+        "resources/src@8d2c338e0e43094836ab12ead04791380401091b.txt",
+        "resources/src@460a04ebee23c8203e709a91dd7e52f0797bf04c.txt"
+      ],
+      "trace_member": "trace.trace",
+      "sanitized_sha256": "383cd2140faa8d101a439bf6b6cc73006cb79c911b4437091f224dbba565efab",
+      "redactions": [
+        {
+          "action": "field_removed",
+          "field": "trace.trace[0].options.storageState"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[0].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[0].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[1].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[1].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[2].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[2].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[3].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[3].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[4].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[4].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[5].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[5].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[6].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[6].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[7].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[7].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[8].snapshot.request.cookies[0].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.network[8].snapshot.request.headers[4].value"
+        },
+        {
+          "action": "value_redacted",
+          "field": "trace.trace[9].snapshot.html[4][7][3][5][3][11][5][1].data-csrf"
+        }
+      ]
+    }
+  ],
+  "passing_trace_count": 0,
+  "selected_native_identities": [
+    {
+      "project": "chromium",
+      "file": "playwright-admin-theme-diagnostics.spec.ts",
+      "title": "retains an adminTheme manual-context first failure and discards its pass",
+      "status": "failed",
+      "retry": 0
+    },
+    {
+      "project": "chromium",
+      "file": "playwright-diagnostics.spec.ts",
+      "title": "retains a default-context first failure",
+      "status": "failed",
+      "retry": 0
+    },
+    {
+      "project": "chromium",
+      "file": "playwright-diagnostics.spec.ts",
+      "title": "discards a default-context pass",
+      "status": "failed",
+      "retry": 0
+    }
+  ],
+  "bundle": {
+    "path": ".gsd/temp/phase255-final/browser-diagnostics-1792873088959/diagnostics.zip",
+    "sha256": "3ff29adc46025a253835e9a8a9c05aacb4e13cdb09c956947a0d1b45a26163c9",
+    "size": 1496164,
+    "verified": true,
+    "member_paths": [
+      "01-failure/diagnostic-fail/record.json",
+      "01-failure/diagnostic-fail/stderr.bin",
+      "01-failure/diagnostic-fail/stdout.bin",
+      "01-failure/native-diagnostics/fail/failure-events.jsonl",
+      "01-failure/native-diagnostics/fail/native-report.json",
+      "01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-discards-a-default-context-pass-chromium/trace.zip",
+      "01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-ret-f5bb9-fault-context-first-failure-chromium/trace.zip",
+      "01-failure/native-diagnostics/fail/trace-registry.jsonl",
+      "01-failure/native-diagnostics/fail/traces/admin-theme-test-2aaa9b6b-1877-46aa-a1b0-4eeb3d66d40a-97333-c285cebef63c3eed.zip",
+      "01-failure/prepare-compile/record.json",
+      "01-failure/prepare-compile/stderr.bin",
+      "01-failure/prepare-compile/stdout.bin",
+      "01-failure/prepare-deps/record.json",
+      "01-failure/prepare-deps/stderr.bin",
+      "01-failure/prepare-deps/stdout.bin",
+      "01-failure/prepare-ecto-create/record.json",
+      "01-failure/prepare-ecto-create/stderr.bin",
+      "01-failure/prepare-ecto-create/stdout.bin",
+      "01-failure/prepare-ecto-migrate/record.json",
+      "01-failure/prepare-ecto-migrate/stderr.bin",
+      "01-failure/prepare-ecto-migrate/stdout.bin",
+      "01-failure/prepare-seeds/record.json",
+      "01-failure/prepare-seeds/stderr.bin",
+      "01-failure/prepare-seeds/stdout.bin",
+      "01-failure/resource-owner.json",
+      "01-failure/server.stderr.bin",
+      "01-failure/server.stdout.bin",
+      "02-pass-after-failure/diagnostic-pass/record.json",
+      "02-pass-after-failure/diagnostic-pass/stderr.bin",
+      "02-pass-after-failure/diagnostic-pass/stdout.bin",
+      "02-pass-after-failure/native-diagnostics/pass/failure-events.jsonl",
+      "02-pass-after-failure/native-diagnostics/pass/native-report.json",
+      "02-pass-after-failure/prepare-compile/record.json",
+      "02-pass-after-failure/prepare-compile/stderr.bin",
+      "02-pass-after-failure/prepare-compile/stdout.bin",
+      "02-pass-after-failure/prepare-deps/record.json",
+      "02-pass-after-failure/prepare-deps/stderr.bin",
+      "02-pass-after-failure/prepare-deps/stdout.bin",
+      "02-pass-after-failure/prepare-ecto-create/record.json",
+      "02-pass-after-failure/prepare-ecto-create/stderr.bin",
+      "02-pass-after-failure/prepare-ecto-create/stdout.bin",
+      "02-pass-after-failure/prepare-ecto-migrate/record.json",
+      "02-pass-after-failure/prepare-ecto-migrate/stderr.bin",
+      "02-pass-after-failure/prepare-ecto-migrate/stdout.bin",
+      "02-pass-after-failure/prepare-seeds/record.json",
+      "02-pass-after-failure/prepare-seeds/stderr.bin",
+      "02-pass-after-failure/prepare-seeds/stdout.bin",
+      "02-pass-after-failure/resource-owner.json",
+      "02-pass-after-failure/server.stderr.bin",
+      "02-pass-after-failure/server.stdout.bin",
+      "03-startup-failure/resource-owner.json",
+      "03-startup-failure/server.stderr.bin",
+      "03-startup-failure/server.stdout.bin",
+      "04-runner-terminated/diagnostic-terminate/record.json",
+      "04-runner-terminated/diagnostic-terminate/stderr.bin",
+      "04-runner-terminated/diagnostic-terminate/stdout.bin",
+      "04-runner-terminated/prepare-compile/record.json",
+      "04-runner-terminated/prepare-compile/stderr.bin",
+      "04-runner-terminated/prepare-compile/stdout.bin",
+      "04-runner-terminated/prepare-deps/record.json",
+      "04-runner-terminated/prepare-deps/stderr.bin",
+      "04-runner-terminated/prepare-deps/stdout.bin",
+      "04-runner-terminated/prepare-ecto-create/record.json",
+      "04-runner-terminated/prepare-ecto-create/stderr.bin",
+      "04-runner-terminated/prepare-ecto-create/stdout.bin",
+      "04-runner-terminated/prepare-ecto-migrate/record.json",
+      "04-runner-terminated/prepare-ecto-migrate/stderr.bin",
+      "04-runner-terminated/prepare-ecto-migrate/stdout.bin",
+      "04-runner-terminated/prepare-seeds/record.json",
+      "04-runner-terminated/prepare-seeds/stderr.bin",
+      "04-runner-terminated/prepare-seeds/stdout.bin",
+      "04-runner-terminated/resource-owner.json",
+      "04-runner-terminated/server.stderr.bin",
+      "04-runner-terminated/server.stdout.bin",
+      "05-precontext/browser-launch-negative-native/failure-events.jsonl",
+      "05-precontext/browser-launch-negative-native/native-report.json",
+      "05-precontext/browser-launch/browser-launch/record.json",
+      "05-precontext/browser-launch/browser-launch/stderr.bin",
+      "05-precontext/browser-launch/browser-launch/stdout.bin",
+      "05-precontext/cleanup-argv.json",
+      "05-precontext/cleanup-fails/cleanup.stderr.bin",
+      "05-precontext/cleanup-fails/cleanup.stdout.bin",
+      "05-precontext/cleanup-fails/record.json",
+      "05-precontext/cleanup-fails/stderr.bin",
+      "05-precontext/cleanup-fails/stdout.bin",
+      "05-precontext/discovery-negative-native/failure-events.jsonl",
+      "05-precontext/discovery-negative-native/native-report.json",
+      "05-precontext/discovery/discovery/record.json",
+      "05-precontext/discovery/discovery/stderr.bin",
+      "05-precontext/discovery/discovery/stdout.bin",
+      "05-precontext/signal-and-cleanup/signal-and-cleanup/record.json",
+      "05-precontext/signal-and-cleanup/signal-and-cleanup/stderr.bin",
+      "05-precontext/signal-and-cleanup/signal-and-cleanup/stdout.bin"
+    ],
+    "member_metadata": {
+      "01-failure/diagnostic-fail/record.json": {
+        "kind": "report",
+        "sha256": "a6c8f828e4d84dcf1cd3318c31dec90972cb80602892c2728892e46969a6dd13",
+        "size": 2977,
+        "source_sha256": "a6c8f828e4d84dcf1cd3318c31dec90972cb80602892c2728892e46969a6dd13",
+        "source_size": 2977
+      },
+      "01-failure/diagnostic-fail/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "01-failure/diagnostic-fail/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "f3d9ec8f7e5ded76fc15fb3d58a5dd485be3b6ffdd03999b411143803bd59a62",
+        "size": 9461,
+        "source_sha256": "d1377e3206aef36f72402d15bdddbbe7ebe13b8387a6f7e0bcbab97ba7932aed",
+        "source_size": 9461,
+        "truncated": false
+      },
+      "01-failure/native-diagnostics/fail/failure-events.jsonl": {
+        "kind": "log",
+        "sanitized": true,
+        "sha256": "d62af57deb7126e94c75eda38cb457f081f25d26b1917e2e39a34ec44db12838",
+        "size": 2394,
+        "source_sha256": "9a46213fa485eee928a2935b3f5f34731919d46c5fa2fb09e75714ccb0d79761",
+        "source_size": 2394,
+        "truncated": false
+      },
+      "01-failure/native-diagnostics/fail/native-report.json": {
+        "kind": "report",
+        "sha256": "b47c87278756ffe17bddb2a9fe965f1ce0c9b0d6ece408540c9e5055e0d15b10",
+        "size": 28723,
+        "source_sha256": "b47c87278756ffe17bddb2a9fe965f1ce0c9b0d6ece408540c9e5055e0d15b10",
+        "source_size": 28723
+      },
+      "01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-discards-a-default-context-pass-chromium/trace.zip": {
+        "kind": "trace",
+        "redactions": [
+          {
+            "action": "field_removed",
+            "field": "test.trace[7].params.storageState"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[0].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[0].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[1].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[1].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[2].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[2].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[3].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[3].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[4].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[4].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[5].snapshot.response.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[5].snapshot.response.headers[7].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[6].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[6].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[7].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[7].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[8].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[8].snapshot.request.headers[4].value"
+          }
+        ],
+        "sanitized": true,
+        "sha256": "880db5f4a1f793a2bd0af7da358f0d2892fcd010795c513ffbdac6562e731f65",
+        "size": 571348,
+        "source_sha256": "799db8637bcca4ae91c91cd9f0da8a85ab1ce3e8781e3b007fed5d338f71a83a",
+        "source_size": 573741
+      },
+      "01-failure/native-diagnostics/fail/test-output/playwright-diagnostics-ret-f5bb9-fault-context-first-failure-chromium/trace.zip": {
+        "kind": "trace",
+        "redactions": [
+          {
+            "action": "field_removed",
+            "field": "test.trace[7].params.storageState"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[0].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[0].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[1].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[1].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[2].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[2].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[3].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[3].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[4].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[4].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[5].snapshot.response.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[5].snapshot.response.headers[7].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[6].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[6].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[7].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[7].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[8].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "0-trace.network[8].snapshot.request.headers[4].value"
+          }
+        ],
+        "sanitized": true,
+        "sha256": "382da36665f47b8148126335df0e4388468323389349945c6af1c9d65dbbd20c",
+        "size": 505177,
+        "source_sha256": "f30cd2b3b62ba8f6265e12d25de7e32b4ad14af2fd70a8b05528a7cd901e095a",
+        "source_size": 507528
+      },
+      "01-failure/native-diagnostics/fail/trace-registry.jsonl": {
+        "kind": "log",
+        "sanitized": true,
+        "sha256": "52f862c04d473f8b69958a5c36c56657e27dd1d7cc9bfd294980b600bdd86d5d",
+        "size": 223,
+        "source_sha256": "2c44c34e29736fcaa9a92396673f67f378284ffb51d6a21f1b871a45f9971106",
+        "source_size": 223,
+        "truncated": false
+      },
+      "01-failure/native-diagnostics/fail/traces/admin-theme-test-2aaa9b6b-1877-46aa-a1b0-4eeb3d66d40a-97333-c285cebef63c3eed.zip": {
+        "kind": "trace",
+        "redactions": [
+          {
+            "action": "field_removed",
+            "field": "trace.trace[0].options.storageState"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[0].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[0].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[1].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[1].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[2].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[2].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[3].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[3].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[4].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[4].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[5].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[5].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[6].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[6].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[7].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[7].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[8].snapshot.request.cookies[0].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.network[8].snapshot.request.headers[4].value"
+          },
+          {
+            "action": "value_redacted",
+            "field": "trace.trace[9].snapshot.html[4][7][3][5][3][11][5][1].data-csrf"
+          }
+        ],
+        "sanitized": true,
+        "sha256": "383cd2140faa8d101a439bf6b6cc73006cb79c911b4437091f224dbba565efab",
+        "size": 323679,
+        "source_sha256": "a046c99f8359cf4b4f9386875c94ec1c23f8e30fb4a9a84bdc0891da04581e4d",
+        "source_size": 326210
+      },
+      "01-failure/prepare-compile/record.json": {
+        "kind": "report",
+        "sha256": "a0e81f6b25c575820ad31bfd06cd883710c329929f45617d08bbd685cc180110",
+        "size": 2497,
+        "source_sha256": "a0e81f6b25c575820ad31bfd06cd883710c329929f45617d08bbd685cc180110",
+        "source_size": 2497
+      },
+      "01-failure/prepare-compile/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "d679dd03745d6c1cc2db0a9e1e310a1d8b56f55cd7ad05eb7bba5ee9aa61781e",
+        "size": 279,
+        "source_sha256": "faf7f713e15b2664b2e6c00dc05b57f9d7a0a86becefbdb57ad11e75366cb5bd",
+        "source_size": 279,
+        "truncated": false
+      },
+      "01-failure/prepare-compile/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "9d242d0869cd466d7183a9d8eb9a24a13b1f351a48f3811f6cc869c8979ce106",
+        "size": 4054,
+        "source_sha256": "19936999a6d3f24248bbb4ebc7a7238210d69f012d168eb9224427a65644c93e",
+        "source_size": 4054,
+        "truncated": false
+      },
+      "01-failure/prepare-deps/record.json": {
+        "kind": "report",
+        "sha256": "8536126fe4dfa05dace488e685cee37a45432af80d0bbdaf9e50a67e833e18e8",
+        "size": 2447,
+        "source_sha256": "8536126fe4dfa05dace488e685cee37a45432af80d0bbdaf9e50a67e833e18e8",
+        "source_size": 2447
+      },
+      "01-failure/prepare-deps/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "3ac5c44e5600744425c5ba2ab1bb4fc8aab24ce046e14d66803185af4ef9c9c4",
+        "size": 361,
+        "source_sha256": "72c7bfcd667e59f826d2fcc0aa122df864709d3129832302f833496ff9f11077",
+        "source_size": 361,
+        "truncated": false
+      },
+      "01-failure/prepare-deps/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "47b65a5a023dac0b598be2b0e75f8812a0b573e92787321d27328b62a4f977ba",
+        "size": 6944,
+        "source_sha256": "462c870b6327da74d8093cee3c466d019e2c58e30207defb2df7ba18811bce6e",
+        "source_size": 6944,
+        "truncated": false
+      },
+      "01-failure/prepare-ecto-create/record.json": {
+        "kind": "report",
+        "sha256": "590a6f35c364c9ac2c86ad9db192d37a8b50d212383cb80b1a53e85f5665e9db",
+        "size": 2483,
+        "source_sha256": "590a6f35c364c9ac2c86ad9db192d37a8b50d212383cb80b1a53e85f5665e9db",
+        "source_size": 2483
+      },
+      "01-failure/prepare-ecto-create/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "01-failure/prepare-ecto-create/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "01-failure/prepare-ecto-migrate/record.json": {
+        "kind": "report",
+        "sha256": "53594d6cf418454155c9a24408035959cf35694323e9dd4cf357f82cef65f00b",
+        "size": 2486,
+        "source_sha256": "53594d6cf418454155c9a24408035959cf35694323e9dd4cf357f82cef65f00b",
+        "source_size": 2486
+      },
+      "01-failure/prepare-ecto-migrate/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "01-failure/prepare-ecto-migrate/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "01-failure/prepare-seeds/record.json": {
+        "kind": "report",
+        "sha256": "81243af4778116e12f9ec81cdd773319a2196a1edfed0a78640b5b30321a8c95",
+        "size": 2485,
+        "source_sha256": "81243af4778116e12f9ec81cdd773319a2196a1edfed0a78640b5b30321a8c95",
+        "source_size": 2485
+      },
+      "01-failure/prepare-seeds/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "01-failure/prepare-seeds/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "625d739ccb8f28ce59b96248664a2a7c4e22dad4454b2c93eb43ea523daa1cf9",
+        "size": 110387,
+        "source_sha256": "c5ce280acf52ce349b7efdde81b1a251e82e627cf207411d286373d05e8f425d",
+        "source_size": 110387,
+        "truncated": true
+      },
+      "01-failure/resource-owner.json": {
+        "kind": "report",
+        "sha256": "4f739c0368151751de16e6f83a05d85651424bb45608def6ec9cf727d89a9abf",
+        "size": 2794,
+        "source_sha256": "4f739c0368151751de16e6f83a05d85651424bb45608def6ec9cf727d89a9abf",
+        "source_size": 2794
+      },
+      "01-failure/server.stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "01-failure/server.stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "94e71564a186d51eee870e0669394afba6c478c26ec0ea5062d62969523df5ff",
+        "size": 19375,
+        "source_sha256": "48513b68b70dea60f9bd6cba39179f4103c8b3162f829ac1b8372cd263332a15",
+        "source_size": 19375,
+        "truncated": false
+      },
+      "02-pass-after-failure/diagnostic-pass/record.json": {
+        "kind": "report",
+        "sha256": "d5d9ba8c79b9f16bb4cc056089b5497c1d656d7526949d4ff51d7bf644b1d462",
+        "size": 3076,
+        "source_sha256": "d5d9ba8c79b9f16bb4cc056089b5497c1d656d7526949d4ff51d7bf644b1d462",
+        "source_size": 3076
+      },
+      "02-pass-after-failure/diagnostic-pass/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "02-pass-after-failure/diagnostic-pass/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "a4779c737217dea58f372ab88c342a1e307a2b2b497986d9004327f49944b059",
+        "size": 524,
+        "source_sha256": "46da31199a3610c1393b31a11f196556152ee2fcaeda5f7fcc81cf68f30822bc",
+        "source_size": 524,
+        "truncated": false
+      },
+      "02-pass-after-failure/native-diagnostics/pass/failure-events.jsonl": {
+        "kind": "log",
+        "sanitized": true,
+        "sha256": "4eed5987beac770d009ce288637c0438434cc960c06cc085920604ba4768fb91",
+        "size": 1387,
+        "source_sha256": "5680c45f6aa90956607df6ddcbb238823a76b5809d832a6766540ede501a2c13",
+        "source_size": 1387,
+        "truncated": false
+      },
+      "02-pass-after-failure/native-diagnostics/pass/native-report.json": {
+        "kind": "report",
+        "sha256": "f15ad459a7155baa7d15453fae6524584a35e5270b6612c0fbe981562f753f9b",
+        "size": 15878,
+        "source_sha256": "f15ad459a7155baa7d15453fae6524584a35e5270b6612c0fbe981562f753f9b",
+        "source_size": 15878
+      },
+      "02-pass-after-failure/prepare-compile/record.json": {
+        "kind": "report",
+        "sha256": "caaa12dd59635da28a4e98c887be961a8ca980a5358bf11476966eabb19c07ff",
+        "size": 2497,
+        "source_sha256": "caaa12dd59635da28a4e98c887be961a8ca980a5358bf11476966eabb19c07ff",
+        "source_size": 2497
+      },
+      "02-pass-after-failure/prepare-compile/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "d679dd03745d6c1cc2db0a9e1e310a1d8b56f55cd7ad05eb7bba5ee9aa61781e",
+        "size": 279,
+        "source_sha256": "faf7f713e15b2664b2e6c00dc05b57f9d7a0a86becefbdb57ad11e75366cb5bd",
+        "source_size": 279,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-compile/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "3eb751d779989f18a9f4d4a72d35d8579e0bd8331f83500c2173f6330ff1bf7d",
+        "size": 4076,
+        "source_sha256": "a0f45675edf04d02d3572067ef052bcab2ead9c4d862b7a5cb9523d3e35b74f0",
+        "source_size": 4076,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-deps/record.json": {
+        "kind": "report",
+        "sha256": "743af1694528328d586f137ba510e0f3bf1f00c0b79348786ab72f6c94e94471",
+        "size": 2447,
+        "source_sha256": "743af1694528328d586f137ba510e0f3bf1f00c0b79348786ab72f6c94e94471",
+        "source_size": 2447
+      },
+      "02-pass-after-failure/prepare-deps/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "3ac5c44e5600744425c5ba2ab1bb4fc8aab24ce046e14d66803185af4ef9c9c4",
+        "size": 361,
+        "source_sha256": "72c7bfcd667e59f826d2fcc0aa122df864709d3129832302f833496ff9f11077",
+        "source_size": 361,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-deps/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "8e25ce81fd11f657bfc8a13fc18b98a465db36ba0604eed676ed3de874ed6866",
+        "size": 6944,
+        "source_sha256": "9f449672f416a45f98d0a07f892933965464476b9e31933b2757d76b53a9d5ab",
+        "source_size": 6944,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-ecto-create/record.json": {
+        "kind": "report",
+        "sha256": "88a528650a3b00734f669beb14d31fab84bdaa8a1a7740e2753b280f62e87291",
+        "size": 2576,
+        "source_sha256": "88a528650a3b00734f669beb14d31fab84bdaa8a1a7740e2753b280f62e87291",
+        "source_size": 2576
+      },
+      "02-pass-after-failure/prepare-ecto-create/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-ecto-create/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-ecto-migrate/record.json": {
+        "kind": "report",
+        "sha256": "6659dd660e91d0325df1a959773944f03a74fd3d8a26f17aadd6f07fc8ea7ba7",
+        "size": 2579,
+        "source_sha256": "6659dd660e91d0325df1a959773944f03a74fd3d8a26f17aadd6f07fc8ea7ba7",
+        "source_size": 2579
+      },
+      "02-pass-after-failure/prepare-ecto-migrate/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-ecto-migrate/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-seeds/record.json": {
+        "kind": "report",
+        "sha256": "6e6925091fd62d669d69bce65da5cb0e56b77751afca695d15a915a132d5e8bd",
+        "size": 2578,
+        "source_sha256": "6e6925091fd62d669d69bce65da5cb0e56b77751afca695d15a915a132d5e8bd",
+        "source_size": 2578
+      },
+      "02-pass-after-failure/prepare-seeds/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "02-pass-after-failure/prepare-seeds/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "8caaff96bdfdaa75bcc7694ff4b2cdf4a15137d659166c2d33d54d5519a2250a",
+        "size": 110367,
+        "source_sha256": "7038f63a7cd132a6a1230d0f4995090f794f6da8b7c6abc6f791278ffda55c23",
+        "source_size": 110367,
+        "truncated": true
+      },
+      "02-pass-after-failure/resource-owner.json": {
+        "kind": "report",
+        "sha256": "d1a19efc20e0c273263aca9c453587368c50e95ebd54c8cb1056cdc7d3abd7b8",
+        "size": 2773,
+        "source_sha256": "d1a19efc20e0c273263aca9c453587368c50e95ebd54c8cb1056cdc7d3abd7b8",
+        "source_size": 2773
+      },
+      "02-pass-after-failure/server.stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "02-pass-after-failure/server.stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "4407e1e09b3b09a4eea80c285ea10f86b9a47cb5f047b507c8411b24c6fde1b4",
+        "size": 19397,
+        "source_sha256": "e8e11410bc057de42abcf851ce2ea3469761bc90a598537382d4bfa4c0ff920b",
+        "source_size": 19397,
+        "truncated": false
+      },
+      "03-startup-failure/resource-owner.json": {
+        "kind": "report",
+        "sha256": "2dcd7e0e60e54e697abd803d2c20e987153f9f22e77a0c33d9249ad5c3659ef2",
+        "size": 2755,
+        "source_sha256": "2dcd7e0e60e54e697abd803d2c20e987153f9f22e77a0c33d9249ad5c3659ef2",
+        "source_size": 2755
+      },
+      "03-startup-failure/server.stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "a3cef4869eecc3eb808037da001e2dcf25e9ec363d12c8af60c6008eaa7e707b",
+        "size": 328,
+        "source_sha256": "aa11110502fd701f404fc6925478acffc9fc0bb14efbe2922edf98b1a07d7078",
+        "source_size": 328,
+        "truncated": false
+      },
+      "03-startup-failure/server.stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "d86d6801038753fb24997d4bd3dd6beba62e68021161b98deab043fb4c88ba8e",
+        "size": 3052,
+        "source_sha256": "c4863e6257e7a09478d9f43c7cffad72ce6cbfe2fe9e3304e788a7c5ba46c322",
+        "source_size": 3052,
+        "truncated": false
+      },
+      "04-runner-terminated/diagnostic-terminate/record.json": {
+        "kind": "report",
+        "sha256": "271cc6841bef0dff327b342ef91e4349ac1d72b4d62ca3810e72b0b3db16eda3",
+        "size": 3365,
+        "source_sha256": "271cc6841bef0dff327b342ef91e4349ac1d72b4d62ca3810e72b0b3db16eda3",
+        "source_size": 3365
+      },
+      "04-runner-terminated/diagnostic-terminate/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "04-runner-terminated/diagnostic-terminate/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "0b883dd709157193aac9bdefbb6c881c2e087e9fc2946b489c18b65d9dd8aae0",
+        "size": 32,
+        "source_sha256": "9f032126e08c2eb02f74ca3f36f615b22075e9f266f56392235cf3e3634b8ac1",
+        "source_size": 32,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-compile/record.json": {
+        "kind": "report",
+        "sha256": "b581f66e882963507de803e03dec9a812b2d312c93145ee44dd426e55235acb8",
+        "size": 2590,
+        "source_sha256": "b581f66e882963507de803e03dec9a812b2d312c93145ee44dd426e55235acb8",
+        "source_size": 2590
+      },
+      "04-runner-terminated/prepare-compile/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "d679dd03745d6c1cc2db0a9e1e310a1d8b56f55cd7ad05eb7bba5ee9aa61781e",
+        "size": 279,
+        "source_sha256": "faf7f713e15b2664b2e6c00dc05b57f9d7a0a86becefbdb57ad11e75366cb5bd",
+        "source_size": 279,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-compile/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "54b0d38b8acc6f51af92789825f4ef9c22525161ac7194ced22e27ca9023f04f",
+        "size": 4074,
+        "source_sha256": "9e998d9601cd80c4e0977d47b7e1d36c671db42a857414df3908a18b288abd2c",
+        "source_size": 4074,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-deps/record.json": {
+        "kind": "report",
+        "sha256": "0b9e4cd1f052503d79759a9e339b886b77db1be03fac0ec511008d5127785050",
+        "size": 2540,
+        "source_sha256": "0b9e4cd1f052503d79759a9e339b886b77db1be03fac0ec511008d5127785050",
+        "source_size": 2540
+      },
+      "04-runner-terminated/prepare-deps/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "3ac5c44e5600744425c5ba2ab1bb4fc8aab24ce046e14d66803185af4ef9c9c4",
+        "size": 361,
+        "source_sha256": "72c7bfcd667e59f826d2fcc0aa122df864709d3129832302f833496ff9f11077",
+        "source_size": 361,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-deps/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "22072a194248608244bb7771f070263307bbe5c553f3a0e90493bcbbff606780",
+        "size": 6944,
+        "source_sha256": "1fda293a445da697713a17c8dd5fb047c90a4372649622892cce1f49f7069d9c",
+        "source_size": 6944,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-ecto-create/record.json": {
+        "kind": "report",
+        "sha256": "acb3f09005b60ea4e8b3bc4a9c331909276e9e31b11efcdfc1cdb1d56236e586",
+        "size": 2731,
+        "source_sha256": "acb3f09005b60ea4e8b3bc4a9c331909276e9e31b11efcdfc1cdb1d56236e586",
+        "source_size": 2731
+      },
+      "04-runner-terminated/prepare-ecto-create/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-ecto-create/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-ecto-migrate/record.json": {
+        "kind": "report",
+        "sha256": "c956d7c033e6ff6e07c8063242cb8c1a697f212228dea4ae21fe82d9e307c90f",
+        "size": 2734,
+        "source_sha256": "c956d7c033e6ff6e07c8063242cb8c1a697f212228dea4ae21fe82d9e307c90f",
+        "source_size": 2734
+      },
+      "04-runner-terminated/prepare-ecto-migrate/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-ecto-migrate/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-seeds/record.json": {
+        "kind": "report",
+        "sha256": "54d9493fb279580807a5b69091384834ae97bcc87f3d5f84ceaf6f79ee944448",
+        "size": 2733,
+        "source_sha256": "54d9493fb279580807a5b69091384834ae97bcc87f3d5f84ceaf6f79ee944448",
+        "source_size": 2733
+      },
+      "04-runner-terminated/prepare-seeds/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "04-runner-terminated/prepare-seeds/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "ce860e1aec93ed6786f3772ce216144a19532b1cc3bf923caaf8f430e580d22d",
+        "size": 110373,
+        "source_sha256": "1cfa0312524026abbedb9d5ee8b503423d684f0a13b25a74ce1aedfd6b413529",
+        "source_size": 110373,
+        "truncated": true
+      },
+      "04-runner-terminated/resource-owner.json": {
+        "kind": "report",
+        "sha256": "28e540cc36bfc9d4461f29b3fac3b812e34bc4694abd8c5d63b78da0cda191a1",
+        "size": 2889,
+        "source_sha256": "28e540cc36bfc9d4461f29b3fac3b812e34bc4694abd8c5d63b78da0cda191a1",
+        "source_size": 2889
+      },
+      "04-runner-terminated/server.stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "04-runner-terminated/server.stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "1477755e01f72bf384645c4d0b61b5b11f9050f4c3113ec3da178bd73cf1d042",
+        "size": 457,
+        "source_sha256": "fc1d27102ac505c7a0f159244d81d46161907f6ff8393cf20bc49dc12b0af1fb",
+        "source_size": 457,
+        "truncated": false
+      },
+      "05-precontext/browser-launch-negative-native/failure-events.jsonl": {
+        "kind": "log",
+        "sanitized": true,
+        "sha256": "57e0d70299d3adebf3281562f6f81a18d601ac07bde6b51e7ebd2f44e9a1688f",
+        "size": 1528,
+        "source_sha256": "996a492b195904592d8def76f23ab2f7943797cf2a30863fe0032ab7c654142e",
+        "source_size": 1528,
+        "truncated": false
+      },
+      "05-precontext/browser-launch-negative-native/native-report.json": {
+        "kind": "report",
+        "sha256": "827bf1d6425b23820a91e5899a5b6237884d14cf1b50073a35b470b5cfb1d13a",
+        "size": 17646,
+        "source_sha256": "827bf1d6425b23820a91e5899a5b6237884d14cf1b50073a35b470b5cfb1d13a",
+        "source_size": 17646
+      },
+      "05-precontext/browser-launch/browser-launch/record.json": {
+        "kind": "report",
+        "sha256": "df7a3ca71541ea834f4535d120ed35988fbdbcc08ec9e6ad09a1ada13eef2bc0",
+        "size": 3510,
+        "source_sha256": "df7a3ca71541ea834f4535d120ed35988fbdbcc08ec9e6ad09a1ada13eef2bc0",
+        "source_size": 3510
+      },
+      "05-precontext/browser-launch/browser-launch/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "05-precontext/browser-launch/browser-launch/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "21d6cbc1263d1d5910c3405b88c77fe1f6130a746b1911cbf8806fc2829d161d",
+        "size": 2732,
+        "source_sha256": "c2bef609dba58832c8524a650c154b05e59ba761506e6df87815d8cfd5bea497",
+        "source_size": 2732,
+        "truncated": false
+      },
+      "05-precontext/cleanup-argv.json": {
+        "kind": "report",
+        "sha256": "39d4752a3500e60b559fce71ec347e1318aff89bb1dbd3bbb5dedabe4b36387f",
+        "size": 76,
+        "source_sha256": "39d4752a3500e60b559fce71ec347e1318aff89bb1dbd3bbb5dedabe4b36387f",
+        "source_size": 76
+      },
+      "05-precontext/cleanup-fails/cleanup.stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "05-precontext/cleanup-fails/cleanup.stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "05-precontext/cleanup-fails/record.json": {
+        "kind": "report",
+        "sha256": "f68124495b9b2c60c7b22cc276457f5269c24868b58bfa2cf8b2ed924e27bd11",
+        "size": 2671,
+        "source_sha256": "f68124495b9b2c60c7b22cc276457f5269c24868b58bfa2cf8b2ed924e27bd11",
+        "source_size": 2671
+      },
+      "05-precontext/cleanup-fails/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "05-precontext/cleanup-fails/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "05-precontext/discovery-negative-native/failure-events.jsonl": {
+        "kind": "log",
+        "sanitized": true,
+        "sha256": "ea48fdaea07d5e0fc0f1547b73c611d9cd5a787cb33216c2fdd38410b8c26640",
+        "size": 273,
+        "source_sha256": "fe1fe9dabef561ece5d7940016ecd92797974dc8abf29dbbdec177f0f144b2c9",
+        "source_size": 273,
+        "truncated": false
+      },
+      "05-precontext/discovery-negative-native/native-report.json": {
+        "kind": "report",
+        "sha256": "acb4edae490f832ac6294184b5effac0dd6706d72e23a2b5236c9ce0374a0f8f",
+        "size": 11593,
+        "source_sha256": "acb4edae490f832ac6294184b5effac0dd6706d72e23a2b5236c9ce0374a0f8f",
+        "source_size": 11593
+      },
+      "05-precontext/discovery/discovery/record.json": {
+        "kind": "report",
+        "sha256": "b5de68b73687581720412825a9011a291a19fe2cdfc72fdaf3ad383d723f5182",
+        "size": 3318,
+        "source_sha256": "b5de68b73687581720412825a9011a291a19fe2cdfc72fdaf3ad383d723f5182",
+        "source_size": 3318
+      },
+      "05-precontext/discovery/discovery/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "05-precontext/discovery/discovery/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "f37eab9673bc7caf4b716d5a47be14b45087a75eb293d6f6a27607955af270b3",
+        "size": 23,
+        "source_sha256": "bef44b71926303f638fcf3917875642de7e01f8828d85d994561945390fde863",
+        "source_size": 23,
+        "truncated": false
+      },
+      "05-precontext/signal-and-cleanup/signal-and-cleanup/record.json": {
+        "kind": "report",
+        "sha256": "e33fb96ec1e20058dea7bc1f11ad55e920568d422a162b4a01dc8fe91fc777a3",
+        "size": 2900,
+        "source_sha256": "e33fb96ec1e20058dea7bc1f11ad55e920568d422a162b4a01dc8fe91fc777a3",
+        "source_size": 2900
+      },
+      "05-precontext/signal-and-cleanup/signal-and-cleanup/stderr.bin": {
+        "kind": "command_stderr",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      },
+      "05-precontext/signal-and-cleanup/signal-and-cleanup/stdout.bin": {
+        "kind": "command_stdout",
+        "sanitized": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_size": 0,
+        "truncated": false
+      }
+    },
+    "withheld": [
+      {
+        "path": "planted-secret-trace.zip",
+        "reason": "secret_sentinel_detected"
+      },
+      {
+        "path": ".auth/storageState.json",
+        "reason": "auth_state_excluded"
+      },
+      {
+        "path": "planted-secret.log",
+        "reason": "secret_sentinel_detected"
+      }
+    ]
+  },
+  "negative_cases": {
+    "nested_secret_rejected": true,
+    "auth_paths_excluded": true,
+    "secret_sentinel_rejected": true,
+    "stale_output_excluded": true,
+    "escaping_paths_rejected": true
+  },
+  "trace_unavailable_reasons": [
+    {
+      "case": "phoenix_startup_failure",
+      "reason": "context_not_created"
+    },
+    {
+      "case": "runner_sigterm",
+      "reason": "runner_terminated"
+    },
+    {
+      "case": "pretest_discovery_error",
+      "reason": "context_not_created"
+    },
+    {
+      "case": "browser_launch_before_context",
+      "reason": "context_not_created"
+    }
+  ]
+}

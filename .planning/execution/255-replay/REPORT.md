@@ -76,4 +76,12 @@ The recorded `mix ci` receivers were `mix test --exclude scaffold` (ExUnit seed 
 
 ## Status
 
-The original comparison remains closed as `insufficient_data`. `CISPEED-01` and `CISPEED-02` remain open. The report and package replay provide implementation evidence; phase review and final verification are still pending. See the machine-readable [REPORT.json](REPORT.json) and the source results linked above.
+The original comparison remains closed as `insufficient_data`. `CISPEED-01` and `CISPEED-02` remain open. The report and package replay provide implementation evidence. The independent code review is clean; the canonical final phase verdict is in [255-VERIFICATION.md](../../phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md). See the machine-readable [REPORT.json](REPORT.json) and the source results linked above.
+
+## Final local checks after review repairs
+
+The native Mix gate passed in 381.237 s with 2,695 ordinary checks, 22 scaffold checks and 65 dependency-off checks, each with an observed seed and zero failures. The first final-gate attempt remains recorded as failed; five contract-test repairs preserve the original historical contributor hash. The [capture record](../255-verification/MIX-CAPTURE.json) lists actual per-process Git identities and verifies that planning-only commits during the run changed none of the 48 scoped source files.
+
+The [final local browser check](../255-verification/BROWSER-DIAGNOSTICS-AFTER-REVIEW.json) passed seven cases and verified three sanitized retained traces on source `8243a25bec776782a527386e2623041ba7fbe347`. Later review fixes were checked locally; the earlier hosted runs remain tied to their original producer commit.
+
+The [final six-run tracing observation](../255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json) used source `0e35a4c83a94db813d1cb19b504f09badc95e1ce`, one worker, and zero retries. Tracing-off averaged 473.375 ms and tracing-on 541.071 ms (on minus off: 67.696 ms). This small sample is noisy and inconclusive. The earlier six-run observation is retained separately; neither observation adds acceptance samples or changes the original comparison.

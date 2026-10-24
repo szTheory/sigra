@@ -358,7 +358,7 @@ Future waves2–8 are blocked on successful182 and execution-time amendments:179
   3. A documented calculation replays the final before/after comparison from saved inputs, including sample sizes, literal failure/cancellation/rerun outcomes, cache conditions, and limitations.
   4. The final report names the tested code, states whether the 20% median and non-increasing p95/runner-time targets hold, and records any remaining failures separately from implemented changes. Missing old release approvals or signed historical performance archives are not required inputs.
 
-**Plans**: 6/7 plans executed in 6 waves (14 tasks; planning only, execution and phase verification not started)
+**Plans**: 7/7 plans executed in 6 waves (14 tasks; implementation complete, final phase verification in progress)
 
 Plans:
 **Wave 1**
@@ -378,25 +378,21 @@ Plans:
 - [x] 255-06-PLAN.md — Verify real bounded hosted success/failure/cancellation delivery and trace overhead (wave5).
 
 **Wave 6** *(blocked on Wave 5 completion)*
-- [ ] 255-07-PLAN.md — Distribute immutable replay inputs and document the actual final result (wave6).
+- [x] 255-07-PLAN.md — Distribute immutable replay inputs and document the actual final result (wave6).
 
 ## Progress
 
-**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has seven completed implementation plans and one hosted prerequisite halt; comparison and phase verification remain pending. Phase 255 has seven checked plans; implementation and phase verification are not started.
+**Execution order:**252→253→254→255. Phase252 is complete. Phase253 is complete and verified;81implementations,29halts and73retired unused recipes remain distinct. Phase254 has seven completed implementation plans and one preserved hosted prerequisite halt; the original comparison is terminal insufficient_data and phase verification remains pending. Phase255 has all seven implementation summaries, clean code review, and passing native/regression checks; its final phase verifier is in progress.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 252. Measure Current CI | v1.50 | 6/6 | Complete    | 2026-10-12 |
 | 253. Fix Flaky CI and Preserve Required Checks | v1.50 | 81 implementations; 29 halts; 73 superseded | Complete; verified6/6 | 2026-10-23 |
-| 254. Speed Up the Measured Slow Jobs | v1.50 | 7/8; 1 halted | Implementation complete; hosted baseline blocked | — |
-| 255. Make Failures Reproducible and Report the Result | v1.50 | 6/7 | In Progress; ready to execute | — |
+| 254. Speed Up the Measured Slow Jobs | v1.50 | 7/8; 1 halted | Implementation complete; comparison insufficient_data; verification pending | — |
+| 255. Make Failures Reproducible and Report the Result | v1.50 | 7/7 | Implementation complete; verification in progress | — |
 
 ## Historical Closeout
 
 Phases 246–251 are archived under `milestones/v1.49-phases/`. Phase 251 implementation is summarized; its verification remains `gaps_found` at 9/10. The strict v1.49 audit remains 8/9. See [the closeout decision](milestones/v1.49-CLOSEOUT-DECISION.json) and [known gaps](milestones/v1.49-CLOSEOUT.md).
 
-**Latest execution — Plan183:** Task1 complete; Task2 halted on6tests/1failure/2errors. Task3unrun;179/180unchanged;0runnable plans. Both requirements and whole-phase verification stay open. The repeated evidence-checker repair loop needs review before another successor. Record:`.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-EXECUTION-RECORD.json`. Next:`$gsd-plan-phase 253 --gaps`.
-
-**Current recovery route:** User-requested lessons and process reset recorded in`253-LEARNINGS.md` and`253-RECOVERY-RESET.md`. Local checker suite26/26passed;no new numbered plan or acceptance. Original requirements remain open. Read the reset before choosing further work. Immediate status command:`$gsd-progress`;old gap-planning routes above are historical.
-
-**Current final-verification route:** Completed R4/R5 controls reverify22/22;73never-executed recovery recipes are explicitly superseded with exact originals preserved. Active incomplete count is0. Next:`$gsd-execute-phase 253`(unfiltered) for normal final gates. Phase253 is not yet verified or marked complete. Record:`.planning/execution/253-final-review/README.md`.
+**Historical Phase253 recovery:** Plan183 and the later reset/final-review routes below this point in older revisions are preserved history. Phase253 subsequently passed verification and is complete. See `253-183-EXECUTION-RECORD.json`, `253-RECOVERY-RESET.md`, `253-LEARNINGS.md` and `.planning/execution/253-final-review/README.md`; those earlier routes are not current commands.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T19:53:30.998980+00:00",
+  "updated_at": "2026-10-24T20:29:15.678104+00:00",
   "status": "verifying",
   "current_milestone": "v1.50",
   "current_phase": 255,
@@ -15,8 +15,8 @@
     "255-07"
   ],
   "remaining_plans": [],
-  "implementation_status": "review_repairs",
-  "verification_status": "blocked_on_review_repairs",
+  "implementation_status": "complete",
+  "verification_status": "in_progress",
   "next_command": "$gsd-execute-phase 255",
   "resume_command": "$gsd-execute-phase 255",
   "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-SUMMARY.md",
@@ -54,7 +54,12 @@
     "evidence_writer_source": "7bad04a20",
     "raw_local_recovery": ".planning/execution/255-local/RAW-STORAGE.json",
     "sanitized_bundle": ".planning/execution/255-local/browser-diagnostics-1792865705155/diagnostics.zip",
-    "review_scope": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW-SCOPE.json"
+    "review_scope": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW-SCOPE.json",
+    "final_native_mix": ".planning/execution/255-verification/FINAL-MIX-RECEIVERS-AFTER-REPAIR.json",
+    "final_native_browser": ".planning/execution/255-verification/BROWSER-DIAGNOSTICS-AFTER-REVIEW.json",
+    "final_trace_overhead": ".planning/execution/255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json",
+    "regression_gate": ".planning/execution/255-verification/REGRESSION-GATE.json",
+    "final_raw_recovery": ".planning/execution/255-verification/RAW-STORAGE-FINAL.json"
   },
   "constraints": [
     "Keep Phase 254 comparison terminal insufficient_data; no new comparison runs or renewed historical budget.",
@@ -97,14 +102,13 @@
     "evidence_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb"
   },
   "pending_gates": [
-    "fix CR-01/02/03/04 and WR-01 with regression tests",
-    "final native Mix/prior-phase regressions",
-    "phase goal verifier"
+    "independent phase goal verifier"
   ],
   "review": {
     "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md",
-    "critical": 4,
-    "warning": 1,
-    "disposition": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW-DISPOSITION.md"
+    "critical": 0,
+    "warning": 0,
+    "disposition": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW-DISPOSITION.md",
+    "original_findings_fixed": 5
   }
 }

@@ -24,11 +24,11 @@
     {
       "number": "255",
       "name": "Make Failures Reproducible and Report the Result",
-      "status": "ready_to_execute",
+      "status": "in_progress",
       "discussion_status": "complete",
       "planning_status": "passed",
-      "implementation_status": "not_started",
-      "verification_status": "not_started",
+      "implementation_status": "complete",
+      "verification_status": "in_progress",
       "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
       "plan_count": 7,
       "task_count": 14,
@@ -44,7 +44,8 @@
         "summaries": [],
         "blocked_by": {},
         "threat_id_duplicates": []
-      }
+      },
+      "completed_plans": 7
     }
   ],
   "next": {
@@ -52,7 +53,7 @@
     "label": "Resume phase verification",
     "reason": "All seven plans summarized; final gates and verifier pending"
   },
-  "updated_at": "2026-10-24T19:47:41.137091+00:00",
+  "updated_at": "2026-10-24T20:29:15.678104+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -133,8 +134,8 @@
   "phase255": {
     "discussion_status": "complete",
     "planning_status": "passed",
-    "implementation_status": "not_started",
-    "verification_status": "not_started",
+    "implementation_status": "complete",
+    "verification_status": "in_progress",
     "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
     "discussion_commit": "48a0546bdafd611612aa42e3338df20cda481a62",
     "readiness": {
@@ -151,14 +152,15 @@
     "plan_count": 7,
     "task_count": 14,
     "wave_count": 6,
-    "plan_check": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json"
+    "plan_check": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json",
+    "completed_plans": 7
   },
   "current_plan": null,
   "phase255_completed_plans": 7,
-  "phase255_implementation_status": "review_repairs",
+  "phase255_implementation_status": "complete",
   "phase255_verification_status": "in_progress",
-  "workflow_step": "phase255_review_repairs",
+  "workflow_step": "phase255_goal_verification",
   "next_command": "$gsd-execute-phase 255",
   "resume_command": "$gsd-execute-phase 255",
-  "phase255_review_open": 5
+  "phase255_review_open": 0
 }

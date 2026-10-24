@@ -172,3 +172,7 @@ Plan 03's native receiver and seed evidence is available to Plans 04–07. This 
 - Summary file exists and the four task commits are ancestors of the current HEAD.
 - Measured plan commit count is four, from the persisted ledger base `6ba9077c56c4b2419f74662f5c794b2a8258d8c4` to `bb5b305921d57fc42c33baea3ddfe8b2e8deb08b`.
 - Both RED records passed `tdd-red-evidence`; required focused tests and the native report have the results listed above.
+
+## Final review follow-up
+
+The exact planned `.test.py --native` entry point passed on the repaired source: 2695 ordinary, 22 scaffold and 65 dependency-off checks, zero failures, 381.237 s. See `.planning/execution/255-verification/FINAL-MIX-RECEIVERS-AFTER-REPAIR.json` and `MIX-CAPTURE.json`; the earlier failed gate and its contract-test repair remain separate.

@@ -3,7 +3,7 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
-stopped_at: Phase 255 review found four critical issues; scoped repairs in progress
+stopped_at: Phase 255 implementation and all execution gates passed; final goal verification in progress
 last_updated: "2026-10-24T19:47:41.137091+00:00"
 state_head: a0bc58dbfc62283c66bb97b408528ca0a9ae14a4
 progress:
@@ -11,7 +11,7 @@ progress:
   completed_phases: 2
   percent: 50
 milestone_status: active
-workflow_step: phase255_review_repairs
+workflow_step: phase255_goal_verification
 last_activity: 2026-10-24 - Phase 255 planning checked: 7 plans, 14 tasks, 6 waves
 requirements_approved: true
 roadmap_approved: true
@@ -36,7 +36,7 @@ resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-resu
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 phase255_discussion_status: complete
 phase255_planning_status: passed
-phase255_implementation_status: review_repairs
+phase255_implementation_status: complete
 phase255_verification_status: in_progress
 current_phase_name: Make Failures Reproducible and Report the Result
 current_phase: 255
@@ -50,11 +50,11 @@ phase255_completed_plans: 7
 
 # Current position
 
-Phase 255 execution has committed summaries for all seven plans. Plan 01 reproduces the exact saved insufficient-data comparison from 191 packaged inputs. Plan 02 retains native command outcomes and stages verified diagnostics. Plan 03 fixes the skipped scaffold receiver and preserves primary dep-off failures; native `mix ci` ran 2695 ordinary, 22 scaffold and 65 threadline_guard tests with zero failures. Plan 04 shares exact browser selections and passed the real local lifecycle/ownership gate. Plan 05 passed its seven-case native diagnostics gate on `59ed88c32` with three real traces; evidence-only normalization was checked separately on `7bad04a20`. See each committed plan SUMMARY for exact source and test boundaries.
+Phase255 has all seven implementation summaries. Independent review is clean across 48 source files; all five original findings are fixed. Final native Mix passed in381.237s with2695 ordinary,22 scaffold and65 dependency-off checks, each with a recorded seed and zero failures. Final native browser diagnostics passed seven cases with three verified sanitized traces. Thirteen fast command groups and three prior-phase groups passed. Final trace overhead has six passing local records on0e35a4c83; the observed67.696ms increase is noisy/inconclusive and adds zero acceptance samples. The earlier failed full Mix run and its scoped contract-test repairs remain separately recorded.
 
-Resume phase verification with `$gsd-execute-phase 255`. All implementation plans are summarized; code review, final native/regression tests and phase verification remain pending. Plan 06 verified hosted success run 40122912945, deliberate failure 40123954650 and actual cancellation 40124112173. Cancellation retained a partial artifact; final-output.log and final-trace.zip remain missing. Canary closed at 37/120 requests, 3/4 invocations, 1/2 pushes and zero retries; do not reuse its remaining allowance. Controller-only parser maintenance reused the existing successful run, preserved prior freeze/stop records and kept the original deadline. The six-run trace-overhead sample is noisy/inconclusive and separate from performance acceptance. See 255-06-SUMMARY.md and `.planning/execution/255-diagnostics-canary/RESULT.json`.
+Final goal verification is in progress. Resume `$gsd-execute-phase 255`. Evidence: `.planning/execution/255-verification/`, `255-REVIEW.md`, `255-SECURITY.md` (zero open threats), `255-VALIDATION.md`, and the comparison report `.planning/execution/255-replay/REPORT.md`.
 
-Plan 07 published `refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d` at immutable commit `52d2f3611fa195042d52ab0ef9dba64e4d75a2eb`. Its second independent remote retrieval passed offline calculation of all 191 members; first path-error attempt remains failed. Distribution is closed at one successful create-only push, zero retries and two retrieval attempts. Do not fetch/push again to repeat verification. The final report is `.planning/execution/255-replay/REPORT.md`. Requirements remain open until the phase verifier passes.
+Hosted diagnostics remain closed at37/120requests,3/4invocations,1/2pushes and zero retries. Success40122912945, deliberate failure40123954650 and actual cancellation40124112173 retained source-bound surviving artifacts; cancellation final-output.log/final-trace.zip remain missing. Later review repairs were tested locally and do not replace the hosted producer identity. Replay distribution is closed at one successful create-only push, zero retries and two retrieval attempts; second independent remote retrieval passed offline replay of191members. Do not repeat either closed allowance.
 
 Original auth-bearing trace/build directories are retained locally under `.gsd/phase255-native-raw/`, outside Git. Every moved entry passed exact read-back; `.planning/execution/255-local/RAW-STORAGE.json` maps recovery locations. The verified sanitized bundle stays tracked. The pre-existing Python bytecode directory remains untracked and must not be cleaned; agent compile commands regenerated bytecode during execution, as recorded in summaries.
 
@@ -65,5 +65,5 @@ The later connection repair passed separate development CI in PR 353/source `8b3
 ## Session
 
 **Last session:** 2026-10-24T16:07:24.464820+00:00
-**Stopped at:** Phase 255 planned and checked; ready to execute
-**Resume file:** .planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md
+**Stopped at:** Phase 255 execution gates passed; final goal verification in progress
+**Resume file:** .planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-SUMMARY.md
