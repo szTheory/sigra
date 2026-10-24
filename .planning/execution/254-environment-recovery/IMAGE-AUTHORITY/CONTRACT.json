@@ -4,8 +4,11 @@
   "authorization_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
   "authorization_sha256": "db2ac582484bf3e8331150db91df1074df8f34d72877c534a0c7b77426d3c6df",
   "request_budget_ledger_id": "091b88332ed5e28e89250390a1361aa099b407d1a710660a7d9ce41570eaeadf",
-  "maximum_mutations": 0,
-  "authorized_mutations": [],
+  "maximum_mutations": 2,
+  "authorized_mutations": [
+    "/repos/szTheory/sigra/git/refs/heads/evidence/phase254-environment-before-20261024",
+    "/repos/szTheory/sigra/git/refs/heads/evidence/phase254-environment-after-20261024"
+  ],
   "maximum_invocations": 2,
   "invocation_retries": 0,
   "maximum_elapsed_minutes": 60,
@@ -46,6 +49,10 @@
   "prior_preparation_invocations": 6,
   "runner_image_proof_policy": "v2_native_file_authority",
   "source_update_order": [
+    "before",
+    "after"
+  ],
+  "preparation_order": [
     "before",
     "after"
   ]

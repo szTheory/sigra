@@ -1,0 +1,36 @@
+{"at": "2026-10-24T00:04:53.419507+00:00", "kind": "started", "runs": [{"attempt": 1, "role": "before", "run_id": 40043060412}, {"attempt": 1, "role": "after", "run_id": 40043074317}]}
+{"at": "2026-10-24T00:05:54.450946+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:05:55.450095+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:06:56.495789+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:06:57.545650+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:07:58.578410+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:07:59.586012+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:09:00.645733+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:09:01.660773+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:10:02.707456+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:10:03.787642+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:11:05.017003+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:11:05.980711+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:12:06.997979+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:12:08.039767+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:13:09.128785+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:13:10.090121+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:14:11.126749+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:14:12.086388+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:15:13.214212+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "queued"}
+{"at": "2026-10-24T00:15:14.325237+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:16:15.469167+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "in_progress"}
+{"at": "2026-10-24T00:16:16.496687+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:20:02.632388+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "in_progress"}
+{"at": "2026-10-24T00:20:03.802371+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40043074317, "status": "queued"}
+{"at": "2026-10-24T00:21:04.906840+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "in_progress"}
+{"at": "2026-10-24T00:21:06.084104+00:00", "attempt": 1, "conclusion": "failure", "kind": "status", "role": "after", "run_id": 40043074317, "status": "completed"}
+{"at": "2026-10-24T00:21:43.821076+00:00", "collection_exit_code": 1, "kind": "captured", "role": "after", "source_bundle": ".planning/execution/254-environment-recovery/PREPARATION/RAW-after"}
+{"at": "2026-10-24T00:21:46.140676+00:00", "commit": "1217af03b096ed739864b4e3c3d0cb11b35526bc", "files": 208, "kind": "preserved", "ref": "refs/evidence/phase254-environment-preparation-after-attempt-1", "role": "after"}
+{"at": "2026-10-24T00:22:47.199249+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "in_progress"}
+{"at": "2026-10-24T00:23:48.339078+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "in_progress"}
+{"at": "2026-10-24T00:24:49.468490+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40043060412, "status": "in_progress"}
+{"at": "2026-10-24T00:25:50.661097+00:00", "attempt": 1, "conclusion": "failure", "kind": "status", "role": "before", "run_id": 40043060412, "status": "completed"}
+{"at": "2026-10-24T00:26:18.821808+00:00", "collection_exit_code": 1, "kind": "captured", "role": "before", "source_bundle": ".planning/execution/254-environment-recovery/PREPARATION/RAW-before"}
+{"at": "2026-10-24T00:26:22.510805+00:00", "commit": "0d16ea838ddf041042b0e47f3143f7a60463ca44", "files": 292, "kind": "preserved", "ref": "refs/evidence/phase254-environment-preparation-before-attempt-1", "role": "before"}
+{"at": "2026-10-24T00:26:22.510957+00:00", "completed": ["after", "before"], "kind": "finished", "measured_samples": 0}

@@ -707,6 +707,41 @@ console.log(JSON.stringify({repository:env.GITHUB_REPOSITORY,run_id:'9001',run_a
 
 
 class BoundedPreparation(unittest.TestCase):
+    def test_fixed_source_update_is_nonforcing_once_only_and_checks_previous_head(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);binary=root/'bin';binary.mkdir();calls=root/'calls.jsonl'
+            stub=binary/'gh'
+            stub.write_text("""#!/usr/bin/env python3
+import json,os,sys
+args=sys.argv[1:];method=args[args.index('--method')+1];endpoint=args[args.index('--method')+2]
+with open(os.environ['SOURCE_UPDATE_CALLS'],'a') as out:out.write(json.dumps([method,endpoint])+'\\n')
+if endpoint=='rate_limit':print(json.dumps({'resources':{'core':{'remaining':5000,'reset':2000000000}}}))
+else:print(json.dumps({'ref':'refs/heads/evidence/phase254-fixture','object':{'sha':'b'*40 if method=='PATCH' else os.environ.get('SOURCE_UPDATE_OLD','a'*40)}}))
+""")
+            stub.chmod(0o755)
+            endpoint='/repos/szTheory/sigra/git/refs/heads/evidence/phase254-fixture'
+            contract={'request_budget_ledger_id':'f'*64,'maximum_mutations':2,'authorized_mutations':[endpoint],
+                'preparation_order':['before','after'],'baseline_identity':{'branch':'evidence/phase254-fixture','application_sha':'b'*40,'reviewed_source':'a'*40}}
+            write(root/'contract.json',contract);write(root/'body.json',{'sha':'b'*40,'force':False})
+            env={**os.environ,'PATH':str(binary)+os.pathsep+os.environ['PATH'],'SOURCE_UPDATE_CALLS':str(calls)}
+            command=['bash',str(ROOT/'scripts/ci/ci-run-metrics.sh'),'--bounded-request',endpoint,'--request-method','PATCH',
+                '--request-body',str(root/'body.json'),'--comparison-role','before','--contract',str(root/'contract.json'),
+                '--request-budget-ledger',str(root/'budget.json')]
+            first=subprocess.run(command+['--output',str(root/'first.json')],env=env,cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertEqual(first.returncode,0,first.stderr)
+            self.assertIn(['GET', endpoint.replace('/git/refs/', '/git/ref/')], [json.loads(line) for line in calls.read_text().splitlines()])
+            again=subprocess.run(command+['--output',str(root/'again.json')],env=env,cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertNotEqual(again.returncode,0)
+            self.assertEqual(sum(json.loads(line)[0]=='PATCH' for line in calls.read_text().splitlines()),1)
+            write(root/'body.json',{'sha':'b'*40,'force':True})
+            forcing=subprocess.run(command+['--output',str(root/'forcing.json')],env=env,cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertNotEqual(forcing.returncode,0)
+            write(root/'body.json',{'sha':'b'*40,'force':False})
+            changed=subprocess.run(command+['--output',str(root/'changed.json')],env={**env,'SOURCE_UPDATE_OLD':'c'*40},cwd=ROOT,capture_output=True,text=True,timeout=30)
+            self.assertNotEqual(changed.returncode,0)
+            self.assertIn('source_update_previous_ref_changed',changed.stderr)
+            self.assertEqual(sum(json.loads(line)[0]=='PATCH' for line in calls.read_text().splitlines()),1)
+
     def test_two_initial_pr_triggers_have_distinct_frozen_roles_and_no_retries(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

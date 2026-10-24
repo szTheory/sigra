@@ -2240,6 +2240,13 @@ import json,pathlib,re,sys
 c=json.loads(pathlib.Path(sys.argv[1]).read_text()); endpoint,method,body,role,reservation_id=sys.argv[2:]
 if method=='GET':
     if not (endpoint=='rate_limit' or endpoint.startswith('/repos/szTheory/sigra/')): raise SystemExit(1)
+elif method=='PATCH':
+    identity=c.get('baseline_identity') if role=='before' else c.get('candidate_identity') if role=='after' else None
+    payload=json.loads(pathlib.Path(body).read_text()) if body else {}
+    if (not identity or endpoint not in c.get('authorized_mutations',[])
+            or endpoint!='/repos/szTheory/sigra/git/refs/heads/'+identity['branch']
+            or not identity['branch'].startswith('evidence/phase254-')
+            or payload!={'sha':identity['application_sha'],'force':False}): raise SystemExit(1)
 elif method=='POST':
     if endpoint not in c.get('authorized_mutations',[]) or not (endpoint=='/repos/szTheory/sigra/pulls' or re.fullmatch(r'/repos/szTheory/sigra/actions/runs/[1-9][0-9]*/rerun',endpoint)): raise SystemExit(1)
     if c.get('sample_identity')=='run_id+run_attempt':
@@ -2266,6 +2273,17 @@ PY
   if [[ "$BOUNDED_REQUEST" != rate_limit ]]; then
     api_get rate_limit "$API_TEMP_DIR/rate.json" || fail "bounded_request_rate_preflight_blocked"
   fi
+  if [[ "$REQUEST_METHOD" == PATCH ]]; then
+    source_ref_endpoint="${BOUNDED_REQUEST/\/git\/refs\//\/git\/ref\/}"
+    api_get "$source_ref_endpoint" "${DIAGNOSIS_OUTPUT}.previous-ref.json" || fail "source_update_previous_ref_unavailable"
+    python3 - "$CONTRACT_FILE" "$COMPARISON_ROLE" "${DIAGNOSIS_OUTPUT}.previous-ref.json" <<'PYREF' || fail "source_update_previous_ref_changed_no_update_sent"
+import json,pathlib,sys
+c=json.loads(pathlib.Path(sys.argv[1]).read_text()); role=sys.argv[2]
+identity=c['baseline_identity'] if role=='before' else c['candidate_identity']
+previous=json.loads(pathlib.Path(sys.argv[3]).read_text())
+if previous.get('object',{}).get('sha')!=identity.get('reviewed_source'): raise SystemExit(1)
+PYREF
+  fi
   if [[ "$REQUEST_METHOD" == POST ]] && jq -e '.sample_identity=="run_id+run_attempt"' "$CONTRACT_FILE" >/dev/null; then
     [[ -n "$REGISTRATIONS_FILE" && -s "$CAPTURE_RECEIPT_FILE" ]] || fail "measured_trigger_requires_registration_ledger_and_previous_capture_receipt"
     measured_run="$(jq -r --arg rid "$RESERVATION_ID" '.family_reservations[]|select(.reservation_id==$rid)|.run_id' "$CONTRACT_FILE")"
@@ -2278,7 +2296,7 @@ validate_next_comparison_trigger(c,sys.argv[2],json.loads(registrations.read_tex
     json.loads(pathlib.Path(sys.argv[4]).read_text()),json.loads(pathlib.Path(sys.argv[5]).read_text()),pathlib.Path(sys.argv[6]))
 PY
   fi
-  if [[ "$REQUEST_METHOD" == POST ]]; then
+  if [[ "$REQUEST_METHOD" == POST || "$REQUEST_METHOD" == PATCH ]]; then
     PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$BOUNDED_REQUEST" "$REQUEST_BODY" "$COMPARISON_ROLE" "$RESERVATION_ID" <<'PY' || fail "preparation_mutation_already_spent_or_limit_reached"
 import hashlib,json,pathlib,sys,time
 from ci_metrics_security import _comparison_budget_read,_comparison_budget_append,validate_comparison_pass_reservation
