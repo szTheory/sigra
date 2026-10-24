@@ -1,46 +1,66 @@
 {
   "schema_version": 1,
   "timestamp": "2026-10-23T22:31:10.936343+00:00",
-  "updated_at": "2026-10-24T02:34:53.875883+00:00",
+  "updated_at": "2026-10-24T03:09:28.169415+00:00",
   "status": "ready",
   "current_milestone": "v1.50",
   "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
-  "current_phase": 254,
-  "current": "The connection handoff repair passed full CI in PR353, including all five required checks, ci-gate, the new regression and108 browser cases. The original fixed comparison is terminal insufficient_data; Phase254 speed requirements remain open. Phase255 readiness allows discussion of reproducibility and reporting without another comparison.",
-  "next_command": "$gsd-discuss-phase 255",
-  "resume_command": "$gsd-discuss-phase 255",
+  "current_phase": 255,
+  "current": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
+  "next_command": "$gsd-plan-phase 255",
+  "resume_command": "$gsd-plan-phase 255",
   "next_command_conditional": false,
-  "resume_file": ".planning/execution/254-transport-development-check/REPAIR-SUMMARY.md",
-  "next_action": "$gsd-discuss-phase 255. Reporting can proceed; Phase254 speed requirements remain unaccepted.",
+  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
+  "next_action": "$gsd-plan-phase 255. Discussion complete; implementation and phase verification have not started.",
   "route": {
     "status": "ready",
-    "next_command": "$gsd-discuss-phase 255",
-    "resume_command": "$gsd-discuss-phase 255",
+    "next_command": "$gsd-plan-phase 255",
+    "resume_command": "$gsd-plan-phase 255",
     "conditional": false,
-    "reason": "The connection handoff repair passed full CI in PR353, including all five required checks, ci-gate, the new regression and108 browser cases. The original fixed comparison is terminal insufficient_data; Phase254 speed requirements remain open. Phase255 readiness allows discussion of reproducibility and reporting without another comparison.",
-    "current_phase": 254,
+    "reason": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
+    "current_phase": 255,
     "next_phase": 255,
-    "checkpoint": "repair_verified_comparison_terminal",
-    "continuation": ".planning/execution/254-transport-development-check/REPAIR-SUMMARY.md",
+    "checkpoint": "phase255_context_ready_for_planning",
+    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
     "readiness": ".planning/execution/254-transport-development-check/FORWARD-ROUTE.json",
     "phase254_not_marked_complete": true,
     "historical_verification_is_forward_blocker": false,
-    "condition": "Proceed to next-phase discussion only. Do not restart the terminal comparison, replace samples, or create another numbered repair plan."
+    "condition": "Planning only. Keep the original comparison terminal; no old acceptance budget is renewed.",
+    "readiness_check": {
+      "checked_at": "2026-10-24T03:09:28.169415+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+      "phase_number": "255",
+      "phase_status": "Pending",
+      "has_context": true,
+      "has_research": false,
+      "has_plans": false,
+      "prerequisite_blocker_reported": false
+    }
   },
   "current_routing": {
     "status": "ready",
-    "next_command": "$gsd-discuss-phase 255",
-    "resume_command": "$gsd-discuss-phase 255",
+    "next_command": "$gsd-plan-phase 255",
+    "resume_command": "$gsd-plan-phase 255",
     "conditional": false,
-    "reason": "The connection handoff repair passed full CI in PR353, including all five required checks, ci-gate, the new regression and108 browser cases. The original fixed comparison is terminal insufficient_data; Phase254 speed requirements remain open. Phase255 readiness allows discussion of reproducibility and reporting without another comparison.",
-    "current_phase": 254,
+    "reason": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
+    "current_phase": 255,
     "next_phase": 255,
-    "checkpoint": "repair_verified_comparison_terminal",
-    "continuation": ".planning/execution/254-transport-development-check/REPAIR-SUMMARY.md",
+    "checkpoint": "phase255_context_ready_for_planning",
+    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
     "readiness": ".planning/execution/254-transport-development-check/FORWARD-ROUTE.json",
     "phase254_not_marked_complete": true,
     "historical_verification_is_forward_blocker": false,
-    "condition": "Proceed to next-phase discussion only. Do not restart the terminal comparison, replace samples, or create another numbered repair plan."
+    "condition": "Planning only. Keep the original comparison terminal; no old acceptance budget is renewed.",
+    "readiness_check": {
+      "checked_at": "2026-10-24T03:09:28.169415+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+      "phase_number": "255",
+      "phase_status": "Pending",
+      "has_context": true,
+      "has_research": false,
+      "has_plans": false,
+      "prerequisite_blocker_reported": false
+    }
   },
   "workflow": {
     "phase253_implementation_status": "complete",
@@ -53,7 +73,11 @@
       "254-08"
     ],
     "phase254_plan_count": 8,
-    "next_required_gate": "Phase255 discussion/context; any future speed claim still needs a valid separately declared comparison"
+    "next_required_gate": "Phase 255 planning; Phase 254 speed requirements remain open",
+    "phase255_discussion_status": "complete",
+    "phase255_planning_status": "not_started",
+    "phase255_implementation_status": "not_started",
+    "phase255_verification_status": "not_started"
   },
   "phase253_canonical_verification": {
     "status": "passed",
@@ -188,14 +212,10 @@
     "phase252_revision_source": "Run 38144377407 returned pull_requests: []; its bundle proves one source SHA. Multi-revision timing remains unknown until each revision has retained source data."
   },
   "authorization": {
-    "scope": "User invoked $gsd-execute-phase254. Implementation and conditional fixed comparison are authorized within the plans.",
-    "extra_preparation_runs_authorized": false,
-    "previous_phase253_allowances": "unchanged; not reused",
-    "baseline_method_changed": true,
-    "baseline_amendment_authority": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
-    "current_preparation_allowance_spent": true,
-    "current_recovery_authorization": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
-    "environment_recovery_allowance": "Current ordinary parity correction: two counted non-forcing source updates, zero retries,60minutes/600HTTPrequests; previous eight outcomes preserved"
+    "scope": "User invoked Phase 255 discussion and delegated researched defaults after parallel review. Capture context and route to planning only.",
+    "phase255_execution_authorized": false,
+    "new_comparison_authorized": false,
+    "prior_allowances": "unchanged; closed allowances are not reused"
   },
   "phase254_unblock_decision": {
     "status": "repair_CI_verified_measurement_closed",
@@ -211,5 +231,32 @@
   "prior_state_before_live_parity": ".planning/execution/254-environment-recovery/PARITY-FIX/STATE-PRIOR.json",
   "prior_state_before_measured_stop": ".planning/execution/254-environment-recovery/MEASUREMENT/STATE-PRIOR.json",
   "prior_state_before_development_CI": ".planning/execution/254-transport-development-check/STATE-PRIOR.json",
-  "prior_state_before_final_closeout": ".planning/execution/254-transport-development-check/FINAL-RECOVERY.json"
+  "prior_state_before_final_closeout": ".planning/execution/254-transport-development-check/FINAL-RECOVERY.json",
+  "phase255": {
+    "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
+    "discussion_log": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-DISCUSSION-LOG.md",
+    "discussion_commit": "48a0546bdafd611612aa42e3338df20cda481a62",
+    "readiness": {
+      "checked_at": "2026-10-24T03:09:28.169415+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+      "phase_number": "255",
+      "phase_status": "Pending",
+      "has_context": true,
+      "has_research": false,
+      "has_plans": false,
+      "prerequisite_blocker_reported": false
+    },
+    "implementation_started": false,
+    "hosted_acceptance_started": false
+  },
+  "prior_execution_authorization": {
+    "scope": "User invoked $gsd-execute-phase254. Implementation and conditional fixed comparison are authorized within the plans.",
+    "extra_preparation_runs_authorized": false,
+    "previous_phase253_allowances": "unchanged; not reused",
+    "baseline_method_changed": true,
+    "baseline_amendment_authority": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
+    "current_preparation_allowance_spent": true,
+    "current_recovery_authorization": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
+    "environment_recovery_allowance": "Current ordinary parity correction: two counted non-forcing source updates, zero retries,60minutes/600HTTPrequests; previous eight outcomes preserved"
+  }
 }

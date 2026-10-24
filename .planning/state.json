@@ -24,17 +24,22 @@
     {
       "number": "255",
       "name": "Make Failures Reproducible and Report the Result",
-      "status": "pending"
+      "status": "pending",
+      "discussion_status": "complete",
+      "planning_status": "not_started",
+      "implementation_status": "not_started",
+      "verification_status": "not_started",
+      "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md"
     }
   ],
   "next": {
-    "command": "$gsd-discuss-phase 255",
-    "label": "Discuss Phase255 reproducibility and actual-result reporting",
-    "reason": "The connection handoff repair passed full CI in PR353, including all five required checks, ci-gate, the new regression and108 browser cases. The original fixed comparison is terminal insufficient_data; Phase254 speed requirements remain open. Phase255 readiness allows discussion of reproducibility and reporting without another comparison.",
+    "command": "$gsd-plan-phase 255",
+    "label": "Plan Phase 255 reproducibility and actual-result reporting",
+    "reason": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
     "conditional": false,
-    "condition": "Proceed to next-phase discussion only. Do not restart the terminal comparison, replace samples, or create another numbered repair plan."
+    "condition": "Planning only. No phase execution or new comparison is authorized by discussion."
   },
-  "updated_at": "2026-10-24T02:34:53.875883+00:00",
+  "updated_at": "2026-10-24T03:09:28.169415+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -44,8 +49,8 @@
     "implementation_status": "complete",
     "comparison_status": "insufficient_data",
     "verification_status": "pending",
-    "resume_plan": "254-08",
-    "resume_task": "254-08-03",
+    "resume_plan": null,
+    "resume_task": null,
     "continuation": ".planning/execution/254-CONTINUATION.json",
     "state_preservation": "cf2107cd871960355c0cc06f2b45ceaa24a40c61",
     "preparation_runs": 10,
@@ -110,5 +115,24 @@
     "rebaseline_preparation_runs": 2,
     "result": ".planning/execution/254-transport-development-check/RESULT.json",
     "next_command": "$gsd-discuss-phase 255"
+  },
+  "current_phase": "255",
+  "phase255": {
+    "discussion_status": "complete",
+    "planning_status": "not_started",
+    "implementation_status": "not_started",
+    "verification_status": "not_started",
+    "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
+    "discussion_commit": "48a0546bdafd611612aa42e3338df20cda481a62",
+    "readiness": {
+      "checked_at": "2026-10-24T03:09:28.169415+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+      "phase_number": "255",
+      "phase_status": "Pending",
+      "has_context": true,
+      "has_research": false,
+      "has_plans": false,
+      "prerequisite_blocker_reported": false
+    }
   }
 }

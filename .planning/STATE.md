@@ -4,17 +4,15 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 status: in_progress
 stopped_at: Phase 255 context gathered (assumptions mode; researched defaults)
-last_updated: "2026-10-24T03:08:02.343Z"
-state_head: 7ff20056b69e2a716b322d8a0415f9a818ecec91
+last_updated: "2026-10-24T03:09:28.169415+00:00"
+state_head: 48a0546bdafd611612aa42e3338df20cda481a62
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 124
-  completed_plans: 124
   percent: 50
 milestone_status: active
-workflow_step: phase254_repair_verified_next_phase255_discussion
-last_activity: 2026-10-24 - Repair verified in full CI; original comparison closed honestly; forward route checked
+workflow_step: phase255_context_gathered_ready_for_planning
+last_activity: 2026-10-24 - Phase 255 researched discussion complete; planning route checked
 requirements_approved: true
 roadmap_approved: true
 phase252_verification_status: passed
@@ -30,28 +28,30 @@ phase254_implementation_status: complete
 phase254_comparison_status: insufficient_data
 phase254_verification_status: pending
 verification_status: pending
-next_command: $gsd-discuss-phase 255
-resume_command: $gsd-discuss-phase 255
+next_command: "$gsd-plan-phase 255"
+resume_command: "$gsd-plan-phase 255"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-resume_file: .planning/execution/254-transport-development-check/REPAIR-SUMMARY.md
+resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
-current_phase: 254
-current_phase_name: Speed Up the Measured Slow Jobs
-current_plan: 08
+current_phase: 255
+current_phase_name: Make Failures Reproducible and Report the Result
+current_plan: null
+phase255_discussion_status: complete
+phase255_planning_status: not_started
+phase255_implementation_status: not_started
+phase255_verification_status: not_started
 ---
 
 # Current position
 
-The connection handoff repair passed full CI in PR353, including all five required checks, ci-gate, the new regression and108 browser cases. The original fixed comparison is terminal insufficient_data; Phase254 speed requirements remain open. Phase255 readiness allows discussion of reproducibility and reporting without another comparison.
+Phase 255 discussion is complete. Three parallel reviews and primary-source checks produced the decisions in `.planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md`. The user delegated the researched defaults. No Phase 255 plan, implementation or hosted acceptance has started.
 
-Next command: `$gsd-discuss-phase 255`. `init.plan-phase 255` reports Pending with no context, research or plans and no prerequisite blocker. This moves reproducibility/reporting forward without declaring Phase254 complete or accepting its speed requirements. No old verification report or numbered repair plan changes this route.
+Next command: `$gsd-plan-phase 255`. After context capture, `init.plan-phase 255` reports Pending, context present, no research/plans and no prerequisite blocker. Focus on actual local/CI command execution, safe first-failure diagnostics, clean-checkout offline replay and an accurate final report. A standalone pinned Mix probe exposed a nested-test alias risk; verify actual Sigra receivers before claiming parity.
 
-The repair is committed at `e2ab83edb`; collector reporting fixes at `d5b7300c8`. Draft PR353/source8b3c3d8c passed full CI run40054033393/attempt1, including all five required contexts, ci-gate, the new handoff regression and108 executed browser cases. Local proof:141 selected tests, seven deterministic connection regressions, WebKit/Chromium forced fallback and five normal mobile navigations. No dependency, timeout, selector, retry or required-check relaxation. This was one separate development verification,65 API HTTP requests,zero retries; its budget is closed. All local temporary resources are stopped and no watcher remains active. See `.planning/execution/254-transport-development-check/RESULT.json` and VERIFICATION.json.
+Phase 254 implementation remains complete; its fixed comparison is terminal `insufficient_data`, with zero successful comparable pairs. Baseline run 40046955449/attempt 2 failed; candidate run 40047078287/attempt 2 passed. Observed costs 2046/1589 runner-seconds are retained observations, not a demonstrated improvement. CISPEED-01/02 and Phase 254 verification remain open. Do not restart collection, replace samples, renew the window or reuse closed budgets.
 
-Original fixed comparison: `.planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json` remains insufficient_data. Baseline40046955449 attempt2 failed; candidate40047078287 attempt2 passed. Two of40 invocations spent,38 unspent,zero successful comparable pairs; actual costs2046 and1589 runner-seconds retained. The frozen sources/window/outcomes remain unchanged. The remaining schedule cannot yield20 successful pairs. Do not restart, replace samples, reopen the window or silently renew acceptance. Whole-phase verification and CISPEED-01/02 remain open.
-
-Final raw data, traces, closed ledgers and exact prior shared state are recoverable at `refs/evidence/phase254-transport-development-final-recovery` (`cf2107cd871960355c0cc06f2b45ceaa24a40c61`), with read-back hashes in `.planning/execution/254-transport-development-check/FINAL-RECOVERY.json`. Earlier stopped attempts and original summary remain unchanged.
+The later connection repair passed separate development CI in PR 353/source `8b3c3d8c75152438bb3259c1226b1044da717b3c`, run 40054033393/attempt 1, with 108 browser cases and zero acceptance samples. See `.planning/execution/254-transport-development-check/RESULT.json`, `VERIFICATION.json` and `REPAIR-SUMMARY.md`; the original comparison is `.planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json`. Exact prior state and final raw captures remain recoverable through `refs/evidence/phase254-transport-development-final-recovery` at `cf2107cd871960355c0cc06f2b45ceaa24a40c61` and its `FINAL-RECOVERY.json`.
 
 ## Session
 
