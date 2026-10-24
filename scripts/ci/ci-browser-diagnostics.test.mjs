@@ -149,6 +149,12 @@ async function nativeRun(outputFile) {
   assert.notEqual(firstFailure.owner.native_diagnostic?.exit_code, 0, 'the assertion failure must be real and reported by Playwright');
   const firstTraces = traceFiles(firstFailure.output);
   assert.ok(firstTraces.length >= 2, `expected Playwright and adminTheme traces, found ${firstTraces.length}`);
+  const traceRegistryPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'trace-registry.jsonl');
+  const traceRegistrations = fs.readFileSync(traceRegistryPath, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
+  const adminThemeRegistration = traceRegistrations.find((entry) => entry.context_kind === 'admin-theme-test' && entry.synthetic_account === true && entry.registered === true && entry.path);
+  assert.ok(adminThemeRegistration, 'adminTheme manual-context trace lacks explicit synthetic-account registration');
+  const adminThemeTrace = path.resolve(firstFailure.owner.native_diagnostic.output_root, adminThemeRegistration.path);
+  assert.ok(firstTraces.includes(adminThemeTrace), 'registered adminTheme trace ZIP was not present in the invocation output');
   const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], bundle_path: path.relative(evidenceRoot, file).split(path.sep).join('/'), ...assertReadableTrace(file) }));
 
   const followingPass = runOwnedCase(evidenceRoot, '02-pass-after-failure', ['--diagnostic-case', 'pass']);
