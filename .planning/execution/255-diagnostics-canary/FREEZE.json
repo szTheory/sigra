@@ -446,9 +446,29 @@
         "response_status": 200,
         "scenario": null,
         "test_retry": false
+      },
+      {
+        "at": "2026-10-24T19:02:10+00:00",
+        "infrastructure_retry": false,
+        "invocation": false,
+        "operation": "artifact-download-url:12572360759",
+        "push": false,
+        "request": true,
+        "scenario": null,
+        "test_retry": false
+      },
+      {
+        "at": "2026-10-24T19:02:10+00:00",
+        "infrastructure_retry": false,
+        "invocation": false,
+        "operation": "artifact-storage-download:12572360759",
+        "push": false,
+        "request": true,
+        "scenario": null,
+        "test_retry": false
       }
     ],
-    "controller_requests": 15,
+    "controller_requests": 17,
     "elapsed_started_at": 1792867909.20091,
     "infrastructure_retries": 0,
     "invocations": 1,
