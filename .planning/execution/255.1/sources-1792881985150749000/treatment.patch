@@ -1,0 +1,287 @@
+diff --git a/.github/actions/example-playwright-boot/action.yml b/.github/actions/example-playwright-boot/action.yml
+index 57a3a00c3..6800e529b 100644
+--- a/.github/actions/example-playwright-boot/action.yml
++++ b/.github/actions/example-playwright-boot/action.yml
+@@ -111,9 +111,9 @@ runs:
+           python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py" \
+             --cwd "$GITHUB_WORKSPACE/test/example" --output-root "$DIAGNOSTICS_ROOT" \
+             --invocation "${DIAGNOSTICS_PREFIX}-prepare" -- \
+-            bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'
++            mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
+         else
+-          bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'
++          mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
+         fi
+ 
+     - name: Install Playwright dependencies
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 2757b7f54..0c2e54930 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -596,10 +596,6 @@ jobs:
+       # phx_new archive is required by test/sigra/install/golden_diff_test.exs
+       # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
+       # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
+-      - name: Install Hex + Rebar
+-        run: |
+-          mix local.hex --force
+-          mix local.rebar --force
+       - name: Install phx_new archive
+         run: >-
+           python3 -B scripts/ci/ci-command-record.py
+diff --git a/test/example/priv/playwright/tests/admin-theme.spec.ts b/test/example/priv/playwright/tests/admin-theme.spec.ts
+index 2e25661f9..4bd0ae6cb 100644
+--- a/test/example/priv/playwright/tests/admin-theme.spec.ts
++++ b/test/example/priv/playwright/tests/admin-theme.spec.ts
+@@ -1,5 +1,6 @@
+ import AxeBuilder from "@axe-core/playwright";
+ import { test, expect, type Locator, type Page } from "@playwright/test";
++import { adminThemeTest } from "../fixtures/adminTheme";
+ import { TEST_PASSWORD } from "../helpers/fixtures";
+ 
+ const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
+@@ -371,17 +372,16 @@ async function restoreBrandingDefaults(page: Page) {
+   await expect(page.getByText("Source: Config defaults")).toBeVisible();
+ }
+ 
+-test.afterEach(async ({ page }, testInfo) => {
++adminThemeTest.afterEach(async ({ page }, testInfo) => {
+   if (testInfo.title.startsWith("auth branding")) {
+     await restoreBrandingDefaults(page);
+   }
+ });
+ 
+ test.describe("admin theme switch", () => {
+-  test("renders stable topbar controls and overview notice before deferred app JS", async ({
++  adminThemeTest("renders stable topbar controls and overview notice before deferred app JS", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.addInitScript(() => {
+       window.localStorage.setItem("sigra.admin.theme", "dark");
+     });
+@@ -414,10 +414,9 @@ test.describe("admin theme switch", () => {
+     await expect(notice).not.toHaveAttribute("data-phx-id", /.+/);
+   });
+ 
+-  test("persists Light, Dark, and System without global DaisyUI theme state", async ({
++  adminThemeTest("persists Light, Dark, and System without global DaisyUI theme state", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin");
+     await waitForLiveViewReady(page);
+ 
+@@ -611,10 +610,9 @@ test.describe("admin theme switch", () => {
+     await expect(page).toHaveURL(/\/admin\/users\?needs_review=true/);
+   });
+ 
+-  test("users summary metrics expose accessible help on desktop and mobile", async ({
++  adminThemeTest("users summary metrics expose accessible help on desktop and mobile", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/users");
+     await waitForLiveViewReady(page);
+ 
+@@ -737,10 +735,9 @@ test.describe("admin theme switch", () => {
+     expect(overflow).toBeLessThanOrEqual(1);
+   });
+ 
+-  test("workspace navigation stays inside the LiveView session", async ({
++  adminThemeTest("workspace navigation stays inside the LiveView session", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/users");
+     await waitForLiveViewReady(page);
+ 
+@@ -775,10 +772,9 @@ test.describe("admin theme switch", () => {
+     expect(documentRequests).toEqual([]);
+   });
+ 
+-  test("admin page loading rail follows route-level LiveView navigation", async ({
++  adminThemeTest("admin page loading rail follows route-level LiveView navigation", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin");
+     await waitForLiveViewReady(page);
+ 
+@@ -864,10 +860,9 @@ test.describe("admin theme switch", () => {
+     await expect(root).not.toHaveAttribute("data-sg-admin-page-loading", /.+/);
+   });
+ 
+-  test("user detail uses breadcrumbs for filtered list context", async ({
++  adminThemeTest("user detail uses breadcrumbs for filtered list context", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/users?order_by=inserted_at&order_direction=desc");
+     await waitForLiveViewReady(page);
+ 
+@@ -905,10 +900,9 @@ test.describe("admin theme switch", () => {
+     );
+   });
+ 
+-  test("overview keeps notices and task cards without duplicate info sections", async ({
++  adminThemeTest("overview keeps notices and task cards without duplicate info sections", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin");
+     await waitForLiveViewReady(page);
+ 
+@@ -947,10 +941,9 @@ test.describe("admin theme switch", () => {
+     ).toHaveCount(0);
+   });
+ 
+-  test("keeps primary button hover contrast readable in dark mode", async ({
++  adminThemeTest("keeps primary button hover contrast readable in dark mode", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/users");
+     await waitForLiveViewReady(page);
+ 
+@@ -972,10 +965,9 @@ test.describe("admin theme switch", () => {
+     ).toBeGreaterThanOrEqual(4.5);
+   });
+ 
+-  test("auth branding theme picker updates login and email previews", async ({
++  adminThemeTest("auth branding theme picker updates login and email previews", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/auth-branding?panel=details");
+     await waitForLiveViewReady(page);
+ 
+@@ -1035,11 +1027,10 @@ test.describe("admin theme switch", () => {
+     expect(darkStyles.emailTransition).toContain("background");
+   });
+ 
+-  test("auth branding details field help works on hover, keyboard, and touch", async ({
++  adminThemeTest("auth branding details field help works on hover, keyboard, and touch", async ({
+     page,
+   }) => {
+     await page.setViewportSize(DESKTOP_VIEWPORT);
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/auth-branding?panel=details");
+     await waitForLiveViewReady(page);
+ 
+@@ -1090,10 +1081,9 @@ test.describe("admin theme switch", () => {
+     await expect(replyToHelp).toBeHidden();
+   });
+ 
+-  test("auth branding color changes update local previews before save", async ({
++  adminThemeTest("auth branding color changes update local previews before save", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/auth-branding?panel=light");
+     await waitForLiveViewReady(page);
+ 
+@@ -1130,10 +1120,9 @@ test.describe("admin theme switch", () => {
+       .toBe("#111827");
+   });
+ 
+-  test("auth branding color input updates previews before a LiveView round trip", async ({
++  adminThemeTest("auth branding color input updates previews before a LiveView round trip", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/auth-branding?panel=light");
+     await waitForLiveViewReady(page);
+ 
+@@ -1199,8 +1188,7 @@ test.describe("admin theme switch", () => {
+     });
+   });
+ 
+-  test("auth branding save toast can be dismissed", async ({ page }) => {
+-    await logInAsPlatformAdmin(page);
++  adminThemeTest("auth branding save toast can be dismissed", async ({ page }) => {
+     await page.goto("/admin/auth-branding?panel=details");
+     await waitForLiveViewReady(page);
+ 
+@@ -1217,10 +1205,9 @@ test.describe("admin theme switch", () => {
+     await expect(flash).toBeHidden();
+   });
+ 
+-  test("auth branding restore defaults is explicit and confirmed", async ({
++  adminThemeTest("auth branding restore defaults is explicit and confirmed", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/auth-branding?panel=details");
+     await waitForLiveViewReady(page);
+ 
+@@ -1287,10 +1274,9 @@ test.describe("admin theme switch", () => {
+     await expect(page.getByText("Source: Config defaults")).toBeVisible();
+   });
+ 
+-  test("auth branding discard changes only clears the unsaved preview", async ({
++  adminThemeTest("auth branding discard changes only clears the unsaved preview", async ({
+     page,
+   }) => {
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/auth-branding?panel=details");
+     await waitForLiveViewReady(page);
+ 
+@@ -1319,11 +1305,10 @@ test.describe("admin theme switch", () => {
+     ).toBeVisible();
+   });
+ 
+-  test("auth branding color palettes keep swatches and hex values aligned", async ({
++  adminThemeTest("auth branding color palettes keep swatches and hex values aligned", async ({
+     page,
+   }) => {
+     await page.setViewportSize(DESKTOP_VIEWPORT);
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/auth-branding?panel=light");
+     await waitForLiveViewReady(page);
+ 
+@@ -1361,8 +1346,7 @@ test.describe("admin theme switch", () => {
+     }
+   });
+ 
+-  test("keyboard navigation uses radiogroup semantics", async ({ page }) => {
+-    await logInAsPlatformAdmin(page);
++  adminThemeTest("keyboard navigation uses radiogroup semantics", async ({ page }) => {
+     await page.goto("/admin");
+     await waitForLiveViewReady(page);
+ 
+@@ -1388,13 +1372,12 @@ test.describe("admin theme switch", () => {
+     );
+   });
+ 
+-  test("tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)", async ({
++  adminThemeTest("tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)", async ({
+     page,
+   }) => {
+     // This test covers color pairs that axe skips because the backgrounds are
+     // alpha-composited color-mix() values resolved at render time. The four
+     // tone notices and the brand-soft metric icon are the critical surfaces.
+-    await logInAsPlatformAdmin(page);
+     await page.goto("/admin/_design");
+     await waitForLiveViewReady(page);
+ 
+diff --git a/test/example/priv/playwright/tests/organizations.spec.ts b/test/example/priv/playwright/tests/organizations.spec.ts
+index 33855a4a0..6e3f061c6 100644
+--- a/test/example/priv/playwright/tests/organizations.spec.ts
++++ b/test/example/priv/playwright/tests/organizations.spec.ts
+@@ -461,7 +461,6 @@ test('organization invitations: new user accepts through the mailbox signup path
+   const orgSlug = `invite-org-${suffix}`;
+ 
+   await registerAndConfirmUser(page, ownerEmail, ownerPassword);
+-  await logInIfNeeded(page, ownerEmail, ownerPassword);
+   await assertAuthenticatedZeroOrganizationState(page);
+   await createOrganizationFromZeroState(page, orgName, orgSlug);
+   await sendInvitation(page, inviteeEmail);
+@@ -513,7 +512,6 @@ test('organization invitations: signed-in matching user accepts through the mail
+   const orgSlug = `match-org-${suffix}`;
+ 
+   await registerAndConfirmUser(page, ownerEmail, ownerPassword);
+-  await logInIfNeeded(page, ownerEmail, ownerPassword);
+   await assertAuthenticatedZeroOrganizationState(page);
+   await createOrganizationFromZeroState(page, orgName, orgSlug);
+   await sendInvitation(page, inviteeEmail);

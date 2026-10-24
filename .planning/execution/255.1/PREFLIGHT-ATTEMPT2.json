@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "stage": "local_PR_merge_preview",
+  "exit_code": 1,
+  "cause": "Both source histories conflict with the saved main snapshot in 41 paths. Original implementation raised instead of recording the designed blocked result.",
+  "retained_partial_files": [
+    {
+      "path": "sources-1792881985150749000/common-repairs.patch",
+      "sha256": "b79f4f2b6b1cf072dde624468f65478d7c889ea9a23bb6ca0f5d556a6f43983e"
+    },
+    {
+      "path": "sources-1792881985150749000/treatment.patch",
+      "sha256": "a5dbca90d7737d394fdb793e27e4707fc410ea0d84404a8f818f8ec6bbbadcee"
+    },
+    {
+      "path": "sources-1792881985150749000/control.tar.gz",
+      "sha256": "fb8d6a918e8efca5ac19a4d7200ea8883c3f0a2e61b80d02b7670438817a68a1"
+    }
+  ],
+  "source_control_ref": "refs/evidence/phase255-1/source-control-92275024483f",
+  "source_control_sha": "303e20d0cf2c0996974128d9a03fba2b10bee376",
+  "retry": "Record exit-1 merge conflicts as a blocked prerequisite, retaining exact output; do not auto-select product changes.",
+  "diagnostics": [
+    "MERGE-DIAGNOSTIC-control.json",
+    "MERGE-DIAGNOSTIC-candidate.json"
+  ],
+  "remote_requests": 0,
+  "remote_mutations": 0
+}

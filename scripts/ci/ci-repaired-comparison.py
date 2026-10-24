@@ -225,14 +225,353 @@ def local_tracer(source, output, repository=ROOT):
     return 0 if receipt['status'] == 'passed' else 2
 
 
+TREATMENT_PATHS = (
+    'test/example/priv/playwright/tests/admin-theme.spec.ts',
+    'test/example/priv/playwright/tests/organizations.spec.ts',
+    '.github/actions/example-playwright-boot/action.yml',
+    '.github/workflows/ci.yml',
+)
+HISTORICAL_THEME_PARENT = 'f89de5b11a502b9034180446b15ba7777c9147c5'
+HISTORICAL_THEME_SELECTED = '20614c85e929c19d52b9a6ffd9e909aff23aeeef'
+HISTORICAL_BASE = 'd4dcc1939bd1f1590f6ca01d55b861e31acc745f'
+
+
+def sha256_text(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def replace_exact(text, old, new, count):
+    if text.count(old) != count:
+        raise ValueError('treatment_anchor_count_changed:' + old[:50])
+    return text.replace(old, new)
+
+
+def build_control(candidate_files, repository):
+    """Reverse only reviewed speed work; keep later diagnostics and repairs.
+
+    Theme inputs are pinned to their retained selected bytes. If later edits
+    arrive, refuse to discard them and require a newly reviewed hunk mapping.
+    """
+    files = dict(candidate_files)
+    theme_path, org_path, action_path, workflow_path = TREATMENT_PATHS
+    historical = git('show', f'{HISTORICAL_THEME_SELECTED}:{theme_path}', repository=repository) + '\n'
+    if files[theme_path] != historical:
+        raise ValueError('admin_theme_source_changed_requires_hunk_review')
+    old_theme = git('show', f'{HISTORICAL_THEME_PARENT}:{theme_path}', repository=repository) + '\n'
+    # Backend restoration was a correctness fix, so carry its exact current
+    # implementation into the anonymous/per-test-registration control.
+    cleanup = historical.split('async function restoreBrandingDefaults(', 1)[1].split('\ntest.describe(', 1)[0]
+    cleanup = 'async function restoreBrandingDefaults(' + cleanup.replace('adminThemeTest.afterEach', 'test.afterEach')
+    files[theme_path] = replace_exact(old_theme, 'test.describe("admin theme switch",',
+                                     cleanup + '\ntest.describe("admin theme switch",', 1)
+    files[org_path] = replace_exact(files[org_path],
+        '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n  await assertAuthenticatedZeroOrganizationState(page);',
+        '  await registerAndConfirmUser(page, ownerEmail, ownerPassword);\n  await logInIfNeeded(page, ownerEmail, ownerPassword);\n  await assertAuthenticatedZeroOrganizationState(page);', 2)
+    combined = 'mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs'
+    separate = "bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'"
+    files[action_path] = replace_exact(files[action_path], combined, separate, 2)
+    start = files[workflow_path].index('\n  library_tests_shard:')
+    end_match = re.search(r'\n  [A-Za-z_]+:', files[workflow_path][start + 1:])
+    end = start + 1 + end_match.start() if end_match else len(files[workflow_path])
+    library = files[workflow_path][start:end]
+    duplicate = ('      - name: Install Hex + Rebar\n        run: |\n'
+                 '          mix local.hex --force\n          mix local.rebar --force\n')
+    library = replace_exact(library, '      - name: Install phx_new archive\n',
+                            duplicate + '      - name: Install phx_new archive\n', 1)
+    files[workflow_path] = files[workflow_path][:start] + library + files[workflow_path][end:]
+    descriptions = (
+        'Reverse invocation-local auth reuse; retain identical tests, real registration/lockout, and branding restoration.',
+        'Restore two redundant owner logins; retain authentication-state assertions and invitee lifecycle.',
+        'Run the same five native preparation tasks in separate Mix VMs; retain outer recorder, all env/readiness/cache/OS dependencies.',
+        'Restore duplicate Hex/Rebar installation after pinned setup-beam; retain cold fetch and sole seven-leg mix ci.',
+    )
+    changes = {name: {'control_sha256': sha256_text(files[name]),
+                      'candidate_sha256': sha256_text(candidate_files[name]), 'classification': description}
+               for name, description in zip(TREATMENT_PATHS, descriptions)}
+    return files, changes
+
+
+def validate_treatment_files(control, candidate, changes):
+    differing = {name for name in set(control) | set(candidate) if control.get(name) != candidate.get(name)}
+    if differing != set(changes):
+        raise ValueError('treatment_file_set_mismatch')
+    for name, row in changes.items():
+        if sha256_text(control[name]) != row['control_sha256'] or sha256_text(candidate[name]) != row['candidate_sha256']:
+            raise ValueError('treatment_bytes_mismatch:' + name)
+
+
+def validate_warm_receipts(rows, eligible_scope):
+    errors = []
+    if {row.get('owner') for row in rows} != set(OWNERS) or len(rows) != 6:
+        errors.append('six_cache_owner_receipts_required')
+    for row in rows:
+        if row.get('scope') != eligible_scope:
+            errors.append('cache_scope_ineligible:' + str(row.get('owner')))
+        if row.get('restore') != 'exact' or not row.get('key') or row.get('matched_key') != row.get('key'):
+            errors.append('cache_restore_not_exact:' + str(row.get('owner')))
+    return errors
+
+
+def validate_pr_identity(observed, expected):
+    return ['pr_identity_mismatch:' + key for key in ('head', 'base', 'merge_tree')
+            if not expected.get(key) or observed.get(key) != expected[key]]
+
+
+def job_block(workflow, name):
+    match = re.search(r'^  ' + re.escape(name) + r':\s*$', workflow, re.M)
+    if not match:
+        raise ValueError('required_job_missing:' + name)
+    rest = workflow[match.end():]
+    next_job = re.search(r'^  [A-Za-z_][A-Za-z_0-9]*:\s*$', rest, re.M)
+    return rest[:next_job.start()] if next_job else rest
+
+
+def inspect_workflow(workflow, action):
+    library = job_block(workflow, 'library_tests_shard')
+    browser = job_block(workflow, 'example_playwright_shard')
+    def required(pattern, text, label):
+        match = re.search(pattern, text, re.M)
+        if not match:
+            raise ValueError('workflow_shape_changed:' + label)
+        return match.group(1)
+    example_key = required(r'^        key: (.+-example-dev-port.+)$', action, 'example_key')
+    example_restore = required(r'^        restore-keys: (.+)$', action, 'example_restore')
+    library_key = required(r'^          key: (.+)$', library, 'library_key')
+    library_restore = required(r'^          restore-keys: (.+)$', library, 'library_restore')
+    rows = [{'owner': OWNERS[0], 'key_expression': library_key, 'restore_prefix': library_restore,
+             'paths': ['deps', '_build'], 'condition': 'needs.release_ref_guard succeeds',
+             'mix_env': 'test', 'port': None, 'browsers_key_expression': None}]
+    for owner in OWNERS[1:]:
+        match = re.search(r'^          - seam: ' + owner + r'\n(.*?)(?=^          - seam:|^    services:)', browser, re.M | re.S)
+        if not match:
+            raise ValueError('browser_owner_missing:' + owner)
+        block = match.group(1)
+        port = required(r'^            port: "(\d+)"$', block, 'port:' + owner)
+        binary_key = required(r'^            browser_cache_key: (.+)$', block, 'browser_key:' + owner)
+        rows.append({'owner': owner, 'key_expression': example_key.replace('${{ inputs.app-port }}', port),
+                     'restore_prefix': example_restore.replace('${{ inputs.app-port }}', port),
+                     'paths': ['test/example/deps', 'test/example/_build'],
+                     'browsers_key_expression': '${{ runner.os }}-' + binary_key,
+                     'browsers_paths': ['~/.cache/ms-playwright'],
+                     'condition': 'PR classifier success and docs_only != true; per-seam native step; not cancelled',
+                     'mix_env': 'dev', 'ci': 'true', 'port': port})
+    for row in rows:
+        row.update({'eligible_shared_scope': 'refs/heads/main', 'pr_scope': 'refs/pull/<number>/merge',
+                    'sibling_pr_scope_eligible': False, 'hosted_warm_status': 'unproved',
+                    'matched_key': None, 'runner_label': 'ubuntu-24.04', 'actual_runner_os': None,
+                    'actual_runner_arch': None, 'actual_runner_image': None,
+                    'runtime_isolation': '.tool-versions OTP/Elixir, MIX_ENV and endpoint PORT in compiled cache',
+                    'exact_restore_required': True, 'fallback_qualifies_as_warm': False})
+    return {'owners': rows,
+            'trigger_main_pr': bool(re.search(r'^  pull_request:\s*\n\s+branches: \[main\]', workflow, re.M)),
+            'distinct_pr_concurrency': 'github.event.pull_request.number || github.run_id' in workflow,
+            'preserved_commands': [command for command in ('npm ci', 'ci-playwright-os-deps.py', 'npx playwright install $BROWSERS') if command in action]}
+
+
+def archive_source(repository, sha, output):
+    # Planning evidence is separately retained; archive every tracked top-level
+    # production entry, with the exclusion explicitly recorded in SOURCES.
+    entries = git('ls-tree', '--name-only', sha, repository=repository).splitlines()
+    entries = [name for name in entries if name != '.planning']
+    with Path(output).open('xb') as stream:
+        subprocess.run(['git', 'archive', '--format=tar.gz', sha, '--', *entries],
+                       cwd=repository, stdout=stream, stderr=subprocess.PIPE, check=True, timeout=90)
+    return {'path': Path(output).name, 'sha256': digest(output), 'excluded_top_level': ['.planning']}
+
+
+def merge_preview(repository, base, head, expected_tree):
+    child = subprocess.run(['git', 'merge-tree', '--write-tree', base, head],
+                           cwd=repository, capture_output=True, text=True, timeout=60)
+    lines = child.stdout.splitlines()
+    if child.returncode not in (0, 1) or not lines or not re.fullmatch('[0-9a-f]{40}', lines[0]):
+        raise ValueError('merge_preview_unavailable')
+    conflicts = sorted({line.split('\t', 1)[1] for line in lines[1:]
+                        if re.match(r'^[0-7]{6} [0-9a-f]{40} [123]\t', line)})
+    ready = child.returncode == 0 and lines[0] == expected_tree
+    return {'status': 'ready' if ready else 'blocked', 'exit_code': child.returncode,
+            'base_sha': base, 'head_sha': head, 'expected_tree': expected_tree,
+            'computed_tree': lines[0], 'conflicting_paths': conflicts,
+            'reason': None if ready else 'merge_conflicts' if child.returncode else 'merge_tree_differs_from_frozen_source',
+            'stdout': child.stdout, 'stderr': child.stderr}
+
+
+def materialize_sources(source, output, base='origin/main', repository=ROOT):
+    output = Path(output).resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    source_sha = git('rev-parse', '--verify', '--end-of-options', source + '^{commit}', repository=repository)
+    base_sha = git('rev-parse', '--verify', '--end-of-options', base + '^{commit}', repository=repository)
+    original_base = git('rev-parse', '--verify', HISTORICAL_BASE + '^{commit}', repository=repository)
+    with tempfile.TemporaryDirectory(prefix='sigra-repaired-sources-') as temp:
+        checkout = Path(temp) / 'source'
+        run(['git', '-c', 'core.hooksPath=/dev/null', 'clone', '--shared', '--no-checkout',
+             '--', str(repository), str(checkout)], timeout=60)
+        git('checkout', '--detach', source_sha, repository=checkout)
+        candidate_files = {name: (checkout / name).read_text() for name in TREATMENT_PATHS}
+        control_files, changes = build_control(candidate_files, repository)
+        validate_treatment_files(control_files, candidate_files, changes)
+        for name, text in control_files.items():
+            (checkout / name).write_text(text)
+        git('add', '--', *TREATMENT_PATHS, repository=checkout)
+        control_tree = git('write-tree', repository=checkout)
+        proposed_control_sha = run(['git', '-c', 'user.name=Sigra local feasibility', '-c', 'user.email=local@sigra.invalid',
+                           'commit-tree', control_tree, '-p', source_sha, '-m',
+                           'Repaired control for Phase 255.1; local construction only'], cwd=checkout)
+        durable_ref = 'refs/evidence/phase255-1/source-control-' + source_sha[:12]
+        existing_ref = subprocess.run(['git', 'show-ref', '--verify', '--quiet', durable_ref], cwd=repository).returncode == 0
+        control_sha = git('rev-parse', durable_ref, repository=repository) if existing_ref else proposed_control_sha
+        if existing_ref and (git('rev-parse', control_sha + '^{tree}', repository=repository) != control_tree
+                             or git('rev-parse', control_sha + '^', repository=repository) != source_sha):
+            raise ValueError('source_preservation_ref_already_exists_with_different_source')
+        candidate_tree = git('rev-parse', source_sha + '^{tree}', repository=checkout)
+        patch = subprocess.check_output(['git', 'diff', '--binary', control_sha, source_sha,
+                                         '--', *TREATMENT_PATHS], cwd=checkout)
+        (output / 'treatment.patch').write_bytes(patch)
+        changed_paths = git('diff', '--name-only', control_sha, source_sha, repository=checkout).splitlines()
+        if set(changed_paths) != set(TREATMENT_PATHS):
+            raise ValueError('unexpected_source_diff_outside_declared_treatment')
+        git('checkout', '--detach', control_sha, repository=checkout)
+        run(['git', 'apply', '--index', str(output / 'treatment.patch')], cwd=checkout)
+        if git('write-tree', repository=checkout) != candidate_tree:
+            raise ValueError('treatment_round_trip_tree_mismatch')
+        # Persist the exact new Git objects under a scoped local ref. This is
+        # local Git transport, never a network fetch or a default-branch change.
+        temp_ref = 'refs/heads/phase255-1-repaired-control'
+        git('update-ref', temp_ref, control_sha, repository=checkout)
+        if not existing_ref:
+            git('fetch', '--no-tags', str(checkout), temp_ref + ':' + durable_ref, repository=repository)
+        if git('rev-parse', durable_ref + '^{tree}', repository=repository) != control_tree:
+            raise ValueError('control_source_ref_readback_failed')
+        common_patch = subprocess.check_output(['git', 'diff', '--binary', original_base, control_sha,
+                                                '--', *[name for name in git('ls-tree', '--name-only', source_sha, repository=checkout).splitlines() if name != '.planning']], cwd=checkout)
+        (output / 'common-repairs.patch').write_bytes(common_patch)
+        records = {}
+        for role, sha in (('control', control_sha), ('candidate', source_sha)):
+            archive = archive_source(checkout, sha, output / (role + '.tar.gz'))
+            file_hashes = {}
+            for name in (*TREATMENT_PATHS, 'mix.exs', 'mix.lock', '.tool-versions',
+                         'scripts/ci/ci-mix-receivers.py', 'scripts/ci/ci-run-metrics.sh',
+                         'scripts/ci/docs-only-classify.sh', 'test/example/priv/static/assets/js/app.js',
+                         'test/example/priv/playwright/playwright.config.ts'):
+                blob = subprocess.check_output(['git', 'show', f'{sha}:{name}'], cwd=checkout)
+                file_hashes[name] = hashlib.sha256(blob).hexdigest()
+            tree = git('rev-parse', sha + '^{tree}', repository=checkout)
+            merge = merge_preview(checkout, base_sha, sha, tree)
+            write_new(output / (role + '-merge.json'), merge)
+            records[role] = {'source_sha': sha, 'tree_sha': git('rev-parse', sha + '^{tree}', repository=checkout),
+                             'source_ref': durable_ref if role == 'control' else source_sha,
+                             'producer_sha': sha, 'application_sha': sha,
+                             'workflow_revision': sha, 'file_sha256': file_hashes,
+                             'workflow_sha256': file_hashes['.github/workflows/ci.yml'],
+                             'archive': archive, 'proposed_pr_base_sha': base_sha,
+                             'merge_preview': merge,
+                             'proposed_merge_tree': merge['computed_tree'] if merge['status'] == 'ready' else None,
+                             'proposed_pr_head_sha': sha, 'proposed_target_branch': 'main',
+                             'pr_number': None, 'hosted_merge_sha': None}
+        return {'schema_version': 'sigra.ci-repaired-sources/v1', 'status': 'constructed',
+                'local_only': True, 'acceptance_samples': 0, 'remote_requests': 0,
+                'candidate_capture_sha': source_sha, 'constructor_sha256': digest(__file__),
+                'historical_source_unchanged': original_base,
+                'common_repaired_source': control_sha, 'common_tree': control_tree,
+                'common_patch': {'path': 'common-repairs.patch', 'sha256': digest(output / 'common-repairs.patch')},
+                'treatment_patch': {'path': 'treatment.patch', 'sha256': digest(output / 'treatment.patch')},
+                'treatment_round_trip_tree_equal': True, 'treatment_files': changes,
+                'sources': records, 'base_ref_input': base, 'base_sha': base_sha,
+                'base_ref_freshness': 'local snapshot only; no remote request authorized',
+                'control_ref_readback_equal': True}
+
+
+def evaluate_feasibility(sources, repository=ROOT):
+    candidate = sources['sources']['candidate']['source_sha']
+    workflow = git('show', candidate + ':.github/workflows/ci.yml', repository=repository) + '\n'
+    action = git('show', candidate + ':.github/actions/example-playwright-boot/action.yml', repository=repository) + '\n'
+    inspected = inspect_workflow(workflow, action)
+    blockers = []
+    for role, record in sources['sources'].items():
+        if record['merge_preview']['status'] != 'ready':
+            blockers.append('proposed_PR_merge_blocked:' + role + ':' + record['merge_preview']['reason'])
+    if not inspected['trigger_main_pr']:
+        blockers.append('main_pull_request_trigger_missing')
+    if not inspected['distinct_pr_concurrency']:
+        blockers.append('distinct_PR_cancellation_groups_not_proved')
+    base = sources['base_sha']
+    # Resolve exact hashFiles inputs from Git objects rather than assuming
+    # identical key expressions mean identical compiled cache keys.
+    patterns = ('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex',
+                'lib/**/*.ex', 'mix.exs')
+    import fnmatch
+    def cache_input_identity(sha):
+        names = git('ls-tree', '-r', '--name-only', sha, repository=repository).splitlines()
+        variants = set(patterns)
+        for pattern in patterns:
+            variants.add(pattern.replace('**/', ''))
+        selected = sorted(name for name in names if any(fnmatch.fnmatchcase(name, pattern) for pattern in variants))
+        payload = b''
+        for name in selected:
+            blob = subprocess.check_output(['git', 'show', f'{sha}:{name}'], cwd=repository)
+            payload += name.encode() + b'\0' + hashlib.sha256(blob).digest()
+        # This is an input-byte comparison, NOT an emulation of Actions hashFiles.
+        return hashlib.sha256(payload).hexdigest(), selected
+    base_inputs, _ = cache_input_identity(base)
+    candidate_inputs, input_paths = cache_input_identity(candidate)
+    if base_inputs != candidate_inputs:
+        blockers.append('local_main_compiled_cache_inputs_differ_from_repaired_sources')
+    blockers += ['current_main_source_and_branch_rules_not_independently_observed',
+                 'eligible_base_scope_exact_cache_entries_not_observed',
+                 'actual_PR_head_base_merge_and_producer_not_observed',
+                 'complete_equivalent_work_receipt_pending_plan02',
+                 'six_owner_actual_exact_warm_restores_pending_separate_approval']
+    return {'schema_version': 'sigra.ci-repaired-feasibility/v1', 'status': 'blocked',
+            'local_only': True, 'acceptance_samples': 0, 'remote_requests': 0, 'remote_mutations': 0,
+            'source_status': 'constructed_treatment_only', 'work_status': 'pending_plan02',
+            'trigger_status': 'local_main_filter_verified',
+            'merge_status': 'blocked' if any(record['merge_preview']['status'] != 'ready' for record in sources['sources'].values()) else 'local_only_ready',
+            'cache_structure_status': 'blocked_eligible_exact_base_entries_unproved',
+            'hosted_warm_status': 'unproved', 'six_owner_cache_rows': inspected['owners'],
+            'cache_inputs': {'method': 'compare Git path/blob bytes selected by key input globs; not an Actions key emulator',
+                             'base_identity': base_inputs, 'candidate_identity': candidate_inputs,
+                             'same_inputs': base_inputs == candidate_inputs, 'input_paths': input_paths},
+            'blocking_items': blockers, 'source_sha': candidate, 'base_sha': base,
+            'trigger_main_pr': inspected['trigger_main_pr'], 'distinct_PR_concurrency': inspected['distinct_pr_concurrency'],
+            'smallest_corrective_step': 'Reconcile the common candidate source with the named main snapshot conflicts, preserving both sets of product and release behavior; then repeat clean source/treatment/merge checks. Independently verify current main, branch rules and eligible exact cache entries before any preparation. No main changes or hosted runs are authorized by this record.',
+            'requirements': {'CISPEED-01': 'open', 'CISPEED-02': 'open'}}
+
+
+def preflight(source, output, base='origin/main'):
+    output = Path(output).resolve()
+    if output.exists():
+        raise ValueError('output_exists_preserve_prior_bytes_before_refresh')
+    sources_path = output.parent / 'SOURCES.json'
+    if sources_path.exists():
+        raise ValueError('sources_exists_preserve_prior_bytes_before_refresh')
+    sources_dir = output.parent / ('sources-' + str(time.time_ns()))
+    sources = materialize_sources(source, sources_dir, base)
+    # All payload paths are relative to SOURCES.json, not to a temporary checkout.
+    for record in sources['sources'].values():
+        record['archive']['path'] = sources_dir.name + '/' + record['archive']['path']
+    for field in ('common_patch', 'treatment_patch'):
+        sources[field]['path'] = sources_dir.name + '/' + sources[field]['path']
+    sources['artifact_directory'] = sources_dir.name
+    write_new(sources_path, sources)
+    result = evaluate_feasibility(sources)
+    write_new(output, result)
+    print(json.dumps({'status': result['status'], 'output': str(output), 'blockers': result['blocking_items']}))
+    return 2 if result['status'] == 'blocked' else 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
     tracer = sub.add_parser('local-tracer')
     tracer.add_argument('--source', required=True)
     tracer.add_argument('--output', required=True)
+    prep = sub.add_parser('preflight')
+    prep.add_argument('--source', required=True)
+    prep.add_argument('--output', required=True)
+    prep.add_argument('--base', default='origin/main')
     args = parser.parse_args()
     try:
+        if args.command == 'preflight':
+            return preflight(args.source, args.output, args.base)
         return local_tracer(args.source, args.output)
     except (ValueError, OSError) as error:
         print(type(error).__name__ + ': ' + str(error), file=sys.stderr)

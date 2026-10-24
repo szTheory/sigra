@@ -155,7 +155,8 @@ class SourceFeasibilityTests(unittest.TestCase):
         theme = control[module.TREATMENT_PATHS[0]]
         self.assertIn('async function restoreBrandingDefaults', theme)
         self.assertIn('test.afterEach', theme)
-        self.assertEqual(theme.count('await logInAsPlatformAdmin(page);'), 18)
+        # Eighteen restored calls plus the unchanged lockout registration.
+        self.assertEqual(theme.count('await logInAsPlatformAdmin(page);'), 19)
         org = control[module.TREATMENT_PATHS[1]]
         self.assertEqual(org.count('await logInIfNeeded(page, ownerEmail, ownerPassword);'), 2)
         self.assertEqual(org.count('await assertAuthenticatedZeroOrganizationState(page);'), 2)
@@ -195,6 +196,37 @@ class SourceFeasibilityTests(unittest.TestCase):
         self.assertEqual(module.validate_pr_identity(expected, expected), [])
         for field in expected:
             self.assertTrue(module.validate_pr_identity({**expected, field: 'd' * 40}, expected))
+
+    def test_real_git_merge_conflicts_and_wrong_frozen_tree_stay_blocked(self):
+        module = load()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def git(*args):
+                return subprocess.check_output(['git', '-c', 'user.name=Fixture',
+                    '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null',
+                    *args], cwd=root, stderr=subprocess.DEVNULL, text=True).strip()
+            git('init', '-q')
+            (root / 'app.ex').write_text('original\n')
+            git('add', '.')
+            git('commit', '-qm', 'original')
+            ancestor = git('rev-parse', 'HEAD')
+            (root / 'app.ex').write_text('main correction\n')
+            git('commit', '-qam', 'main')
+            base = git('rev-parse', 'HEAD')
+            git('checkout', '-q', '--detach', ancestor)
+            (root / 'app.ex').write_text('candidate correction\n')
+            git('commit', '-qam', 'candidate')
+            head = git('rev-parse', 'HEAD')
+            tree = git('rev-parse', 'HEAD^{tree}')
+            conflict = module.merge_preview(root, base, head, tree)
+            self.assertEqual(conflict['status'], 'blocked')
+            self.assertEqual(conflict['reason'], 'merge_conflicts')
+            self.assertEqual(conflict['conflicting_paths'], ['app.ex'])
+            clean = module.merge_preview(root, ancestor, head, tree)
+            self.assertEqual(clean['status'], 'ready')
+            wrong = module.merge_preview(root, ancestor, head, '0' * 40)
+            self.assertEqual(wrong['status'], 'blocked')
+            self.assertEqual(wrong['reason'], 'merge_tree_differs_from_frozen_source')
 
     def test_workflow_cache_enumeration_does_not_call_missing_receipts_warm(self):
         module = load()
