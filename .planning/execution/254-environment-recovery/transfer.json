@@ -1,0 +1,106 @@
+{
+  "schema_version": "sigra.ci-apt-transfer-probe/v1",
+  "package": "libflite1",
+  "captured_at": "2026-10-23T23:57:22.528081+00:00",
+  "installs_packages": false,
+  "changes_apt_configuration": false,
+  "apt_authentication_disabled": false,
+  "probes": [
+    {
+      "name": "apt_current",
+      "exit_code": 0,
+      "elapsed_seconds": 4.344,
+      "size_bytes": 13601102,
+      "bytes_per_second": 3131168.6,
+      "status": "complete",
+      "sha256": "367f1d0da5cd38759a0515eafc27aa133b2d7bf99308cac34831df0212e96b75",
+      "apt_sha256_verified": false,
+      "uses_original_apt_authentication": true,
+      "maximum_seconds": 60
+    },
+    {
+      "name": "apt_no_download_cap",
+      "exit_code": 0,
+      "elapsed_seconds": 5.106,
+      "size_bytes": 13601102,
+      "bytes_per_second": 2663885.3,
+      "status": "complete",
+      "sha256": "367f1d0da5cd38759a0515eafc27aa133b2d7bf99308cac34831df0212e96b75",
+      "apt_sha256_verified": false,
+      "uses_original_apt_authentication": true,
+      "maximum_seconds": 60
+    },
+    {
+      "name": "curl_current_endpoint",
+      "endpoint": {
+        "scheme": "http",
+        "host": "azure.archive.ubuntu.com"
+      },
+      "exit_code": 0,
+      "http_status": 200,
+      "elapsed_seconds": 1.554,
+      "size_bytes": 13601102,
+      "bytes_per_second": 8803439.0,
+      "status": "complete",
+      "sha256": "367f1d0da5cd38759a0515eafc27aa133b2d7bf99308cac34831df0212e96b75",
+      "apt_sha256_verified": false,
+      "diagnostic_download_only_never_installed": true,
+      "maximum_seconds": 30,
+      "minimum_bytes_per_second_over_10_seconds": 102400
+    },
+    {
+      "name": "curl_official_https",
+      "endpoint": {
+        "scheme": "https",
+        "host": "archive.ubuntu.com"
+      },
+      "exit_code": 0,
+      "http_status": 200,
+      "elapsed_seconds": 3.045,
+      "size_bytes": 13601102,
+      "bytes_per_second": 4476971.0,
+      "status": "complete",
+      "sha256": "367f1d0da5cd38759a0515eafc27aa133b2d7bf99308cac34831df0212e96b75",
+      "apt_sha256_verified": false,
+      "diagnostic_download_only_never_installed": true,
+      "maximum_seconds": 30,
+      "minimum_bytes_per_second_over_10_seconds": 102400
+    }
+  ],
+  "diagnostics": [],
+  "effective_apt_acquire": {
+    "retries": 1,
+    "http_timeout": 15,
+    "https_timeout": 15,
+    "http_dl_limit": null,
+    "https_dl_limit": null
+  },
+  "apt_config_exit_code": 0,
+  "configured_endpoints": [
+    {
+      "scheme": "http",
+      "host": "azure.archive.ubuntu.com"
+    },
+    {
+      "scheme": "https",
+      "host": "archive.ubuntu.com"
+    },
+    {
+      "scheme": "https",
+      "host": "security.ubuntu.com"
+    },
+    {
+      "scheme": "local_mirror_list"
+    }
+  ],
+  "current_curl_endpoint_selection": "first_http_mirror_list_entry_not_proof_of_apt_backend",
+  "package_metadata": {
+    "filename": "libflite1_2.2-6build3_amd64.deb",
+    "size_bytes": 13601102,
+    "apt_sha256": null,
+    "source_endpoint": {
+      "scheme": "local_mirror_list"
+    }
+  },
+  "status": "diagnostic_complete"
+}

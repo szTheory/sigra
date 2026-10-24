@@ -1,0 +1,50 @@
+{
+  "schema_version": "sigra.phase254.rebaseline-proposal/v1",
+  "status": "proposed_requires_user_decision",
+  "recorded_at": "2026-10-23T22:22:23.431962+00:00",
+  "reason": "The approved original rerun retained its original workflow but failed before an equivalent full test run. Its shallow fetch deterministically breaks the merge-base lookup after main advances; ECR also refused PostgreSQL pulls. A blind retry cannot repair the shallow-fetch defect.",
+  "original_baseline_preserved": true,
+  "proposed_baseline_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f plus only the attached workflow patch",
+  "changes": [
+    {
+      "area": "Change detector",
+      "change": "Keep Git history when fetching main. If fetch/diff fails, emit docs_only=false and run the full workload."
+    },
+    {
+      "area": "PostgreSQL service image",
+      "change": "Use postgres:15, as the candidate preparation successfully did, instead of public.ecr.aws/docker/library/postgres:15.",
+      "occurrences": 15
+    },
+    {
+      "area": "Live workflow test expectation",
+      "path": "test/sigra/planning/phase_232_playwright_economics_test.exs",
+      "change": "Change only the expected PostgreSQL image string to postgres:15 in the newly amended source. Retain original historical fixture bytes at d4dcc193 and in the archive."
+    }
+  ],
+  "original_workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+  "proposed_workflow_sha256": "240ea9e4c4fd5410bbba9af69d52a77bbf00dfb3f7fbfe50bbf54fad1cd7ddd3",
+  "patch_path": ".planning/execution/254-rerun-preparation/PROPOSED-BASELINE-REPAIR.patch",
+  "patch_sha256": "6a7aada92dc0d4ea50b76c44aa6fec172fee577065476c330cd5fbfcbeeef873",
+  "application_test_and_playwright_files": "All application and browser files byte-for-byte original; one live workflow-test image assertion updated to match the proposed registry. Original history unchanged.",
+  "candidate": "Current local candidate after the documented test assertion and change-detector fixes. Preserve failed PR345 unchanged; publish separate reviewed draft snapshots.",
+  "preparation_allowance_requested": {
+    "new_full_CI_invocations": 2,
+    "recipe": [
+      "One initial real-PR run of the explicitly amended baseline",
+      "One initial real-PR run of the locally corrected candidate"
+    ],
+    "trigger_retries": 0,
+    "minutes": 60,
+    "total_HTTP_requests": 600,
+    "rest_core_stop_remaining": 250,
+    "hard_403_429_stop": true
+  },
+  "prior_preparation": "Two invocations spent, both failures, no retries remain; never reset or reuse that allowance.",
+  "measured_comparison": "Same unspent 20 pairs/40 invocations, fixed source-and-attempt identities, balanced order, all-warm/cache/image/native checks, same thresholds and one future48-hour window. Freeze a separately amended contract only after successful preparation.",
+  "amendment_disclosure": "This changes the reference baseline after implementation. Retain the Phase252 baseline as history and label all new results as using the explicitly amended baseline, never the original frozen baseline unchanged.",
+  "hosted_actions_started_for_this_proposal": 0,
+  "approval_needed": "Explicit permission to replace the frozen baseline with this precisely bounded workflow amendment and spend a separate two-invocation preparation allowance.",
+  "next_command_after_approval": "$gsd-execute-phase 254",
+  "proposed_candidate_local_source_commit": "dd4e3b437f13ee374cacb39922dc04915f521257",
+  "baseline_fixture_development_check": "6 original-source workflow tests passed in a temporary workspace with only the proposed registry assertion and workflow amendments."
+}

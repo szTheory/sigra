@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B scripts/ci/ci-browser-local.test.py",
+  "exitCode": 1,
+  "output": ".....F.....\n======================================================================\nFAIL: test_missing_postgres_role_uses_os_user_for_local_preparation (__main__.BrowserLocalSafetyTests.test_missing_postgres_role_uses_os_user_for_local_preparation)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-browser-local.test.py\", line 38, in test_missing_postgres_role_uses_os_user_for_local_preparation\n    self.assertEqual(observed_roles, [getpass.getuser()])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [] != ['jon']\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n'jon'\n\n- []\n+ ['jon']\n\n----------------------------------------------------------------------\nRan 11 tests in 0.007s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_missing_postgres_role_uses_os_user_for_local_preparation",
+  "targetFile": "scripts/ci/ci-browser-local.test.py",
+  "expected": "preparation uses the OS-user PostgreSQL role when PGUSER is unset",
+  "actual": "preparation raised KeyError before setting a role; assertion observed no role",
+  "semanticAssessment": "The named unittest test caught KeyError and then failed its explicit role assertion. All 11 tests were discovered; this was not a load error."
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": "sigra.phase254.amended-baseline-preparation/v1",
+  "purpose": "preparation_only_not_measured_acceptance",
+  "authorization_path": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
+  "authorization_sha256": "8f48415f992507627289bb2be7110737d522c78dc6b6679276c7bc7e3a995a30",
+  "request_budget_ledger_id": "cfb8ec493dfc0a903a351658312f62bcdad9b62234e5b7ea4f6ae81ac099bd69",
+  "maximum_mutations": 2,
+  "authorized_mutations": [
+    "/repos/szTheory/sigra/pulls"
+  ],
+  "preparation_order": [
+    "before",
+    "after"
+  ],
+  "maximum_invocations": 2,
+  "invocation_retries": 0,
+  "maximum_elapsed_minutes": 60,
+  "maximum_total_http_requests": 600,
+  "baseline_application_sha": "7e8cf6ac845ef4f5dbeb5ca63f45632bca954560",
+  "baseline_identity": {
+    "application_sha": "7e8cf6ac845ef4f5dbeb5ca63f45632bca954560",
+    "tree_sha": "8d4070c7b74ca3137e482f4e10814ce99c936ec7",
+    "branch": "evidence/phase254-amended-before-20261023",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "workflow_sha256": "240ea9e4c4fd5410bbba9af69d52a77bbf00dfb3f7fbfe50bbf54fad1cd7ddd3"
+  },
+  "candidate_identity": {
+    "application_sha": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+    "tree_sha": "e9d39623b5f574f17413839d56aad90a20738ab1",
+    "branch": "evidence/phase254-amended-after-20261023",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "dd4e3b437f13ee374cacb39922dc04915f521257",
+    "workflow_sha256": "6dec5b0aaf1c3405188843583ecd28a4b3960873cd968231d6f33ad1bc8136a9"
+  },
+  "required_contexts": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "original_baseline_history_unchanged": true,
+  "prior_preparation_budget_not_reused": true,
+  "measured_samples": 0,
+  "measurement_window_started_at": null
+}

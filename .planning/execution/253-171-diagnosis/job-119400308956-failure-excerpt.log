@@ -1,0 +1,62 @@
+690: 2026-10-21T18:18:56.9395060Z .............................................................................................................................................
+691: 2026-10-21T18:18:56.9399624Z 
+692: 2026-10-21T18:18:56.9441413Z   1) test safety closeout preserves raw halt evidence and later requirement dispositions (Sigra.Planning.Phase242ShiftLeftContractTest)
+693: 2026-10-21T18:18:56.9490405Z ##[error]     test/sigra/planning/phase_242_shift_left_contract_test.exs:39
+694: 2026-10-21T18:18:56.9504000Z      ** (File.Error) could not read file "/home/runner/work/sigra/sigra/.planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md": no such file or directory
+695: 2026-10-21T18:18:56.9505914Z      code: closeout = phase_dir |> Path.join("242-SAFETY-CLOSEOUT.md") |> File.read!()
+696: 2026-10-21T18:18:56.9506670Z      stacktrace:
+697: 2026-10-21T18:18:56.9507128Z        (elixir 1.19.5) lib/file.ex:435: File.read!/1
+698: 2026-10-21T18:18:56.9507893Z        test/sigra/planning/phase_242_shift_left_contract_test.exs:46: (test)
+699: 2026-10-21T18:18:56.9508436Z 
+700: 2026-10-21T18:18:57.4215116Z .......................................................********..........
+
+816: 2026-10-21T18:19:03.2622260Z .............................................................................................................................................................................................................................................................................................................................................................................................................****................................................................................
+817: 2026-10-21T18:19:03.2644081Z 
+818: 2026-10-21T18:19:03.2654120Z   2) test Phase 236 retains exactly three run-backed evidence slots (Sigra.Planning.Phase236EvidenceProvenanceGuardTest)
+819: 2026-10-21T18:19:03.2679043Z ##[error]     test/sigra/planning/phase_236_evidence_provenance_guard_test.exs:52
+820: 2026-10-21T18:19:03.2681852Z      ** (File.Error) could not read file ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md": no such file or directory
+821: 2026-10-21T18:19:03.2683276Z      code: evidence = File.read!(@phase_236_archived_ledger)
+822: 2026-10-21T18:19:03.2683915Z      stacktrace:
+823: 2026-10-21T18:19:03.2684360Z        (elixir 1.19.5) lib/file.ex:435: File.read!/1
+824: 2026-10-21T18:19:03.2685166Z        test/sigra/planning/phase_236_evidence_provenance_guard_test.exs:53: (test)
+825: 2026-10-21T18:19:03.2685764Z 
+826: 2026-10-21T18:19:03.3781167Z     warning: redefining module Sigra.TestUserToken (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUserToken.beam)
+827: 2026-10-21T18:19:03.3810355Z     │
+828: 2026-10-21T18:19:03.3815862Z   1 │ defmodule Sigra.TestUserToken do
+829: 2026-10-21T18:19:03.3840207Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+830: 2026-10-21T18:19:03.3862396Z     │
+831: 2026-10-21T18:19:03.3900386Z     └─ test/support/test_user_token.ex:1: Sigra.TestUserToken (module)
+832: 2026-10-21T18:19:03.3901002Z 
+833: 2026-10-21T18:19:03.4123424Z     warning: redefining module Sigra.InvitationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.InvitationsFixtures.beam)
+834: 2026-10-21T18:19:03.4150185Z     │
+835: 2026-10-21T18:19:03.4151149Z   1 │ defmodule Sigra.InvitationsFixtures do
+836: 2026-10-21T18:19:03.4151650Z     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+837: 2026-10-21T18:19:03.4151954Z     │
+838: 2026-10-21T18:19:03.4152444Z     └─ test/support/fixtures/invitations_fixtures.ex:1: Sigra.InvitationsFixtures (module)
+839: 2026-10-21T18:19:03.4152921Z 
+840: 2026-10-21T18:19:03.6780980Z ...................................................................
+841: 2026-10-21T18:19:03.6781806Z 
+842: 2026-10-21T18:19:03.6783607Z   3) test admin_behavior explicitly owns both useful orphan specs on retry-zero chromium (Sigra.Planning.Phase234PlaywrightInventoryContractTest)
+843: 2026-10-21T18:19:03.6788092Z ##[error]     test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:27
+844: 2026-10-21T18:19:03.6790371Z      admin_behavior must name tests/admin-theme.spec.ts exactly once
+845: 2026-10-21T18:19:03.6791474Z      code: for spec <- ["admin-theme.spec.ts", "admin-coherence-sweep.spec.ts"] do
+846: 2026-10-21T18:19:03.6792457Z      stacktrace:
+847: 2026-10-21T18:19:03.6794259Z        test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:34: anonymous fn/3 in Sigra.Planning.Phase234PlaywrightInventoryContractTest."test admin_behavior explicitly owns both useful orphan specs on retry-zero chromium"/1
+848: 2026-10-21T18:19:03.6796374Z        (elixir 1.19.5) lib/enum.ex:2520: Enum."-reduce/3-lists^foldl/2-0-"/3
+849: 2026-10-21T18:19:03.6797556Z        test/sigra/planning/phase_234_playwright_inventory_contract_test.exs:33: (test)
+850: 2026-10-21T18:19:03.6798434Z 
+
+1072: 2026-10-21T18:19:11.3747943Z https://hexdocs.pm/telemetry/telemetry.html#attach/4
+1073: 2026-10-21T18:19:12.4801481Z ...................................................................................
+1074: 2026-10-21T18:19:12.4802807Z Finished in 18.7 seconds (16.3s async, 2.4s sync)
+1075: 2026-10-21T18:19:12.4806236Z 33 doctests, 3 properties, 2656 tests, 3 failures, 12 skipped (22 excluded)
+1076: 2026-10-21T18:19:13.0182667Z Unlocked deps:
+1077: 2026-10-21T18:19:13.0183104Z * threadline
+
+1420: 2026-10-21T18:19:32.3707092Z Generated threadline app
+1421: 2026-10-21T18:19:32.5343577Z ==> sigra
+1422: 2026-10-21T18:19:32.5345018Z Compiling 178 files (.ex)
+1423: 2026-10-21T18:19:38.3382015Z Generated sigra app
+1424: 2026-10-21T18:19:38.4778122Z ##[error]Process completed with exit code 2.
+1425: 2026-10-21T18:19:38.4850494Z ##[group]Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+1426: 2026-10-21T18:19:38.4850957Z with:

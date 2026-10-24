@@ -1,0 +1,31 @@
+{
+  "ref": "refs/evidence/phase254-before-amended-prep-closeout",
+  "commit": "fef59a0af7a888c1efeb229d793d9808ef00131c",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "4c24a3dbb2a85e2bde35d19ef18e0497c6ad904bd5c2ec009fef2674f6853204",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "855027c55e73120c49a0cd3e088419c37a8dd291a9facf32cd90b1e403c49609",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "ec26933a69b863ac4af46d778655da74b399d2f72aea3e83ac27100980026c85",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/254-CONTINUATION.json",
+      "status": "clean",
+      "sha256": "7bff8cbe5a3f7bf07207713eb692985533a77111a409fb67bdeee71e6962b787",
+      "readback_verified": true
+    }
+  ],
+  "readback_verified": true
+}

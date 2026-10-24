@@ -1,0 +1,25 @@
+test_actual_trace_auth_cookies_are_redacted_without_dropping_trace_records (__main__.DiagnosticBundleTest.test_actual_trace_auth_cookies_are_redacted_without_dropping_trace_records) ... FAIL
+test_archive_payload_cannot_be_replaced_even_if_its_inner_hash_is_updated (__main__.DiagnosticBundleTest.test_archive_payload_cannot_be_replaced_even_if_its_inner_hash_is_updated) ... ok
+test_bundle_identity_must_match_its_invocation_manifest (__main__.DiagnosticBundleTest.test_bundle_identity_must_match_its_invocation_manifest) ... ok
+test_escaping_symlink_duplicate_member_and_identity_mismatch_are_rejected (__main__.DiagnosticBundleTest.test_escaping_symlink_duplicate_member_and_identity_mismatch_are_rejected) ... ok
+test_missing_promised_file_is_reported_and_absolute_paths_are_rejected (__main__.DiagnosticBundleTest.test_missing_promised_file_is_reported_and_absolute_paths_are_rejected) ... ok
+test_passing_trace_requires_synthetic_registered_provenance_and_missing_context_is_explicit (__main__.DiagnosticBundleTest.test_passing_trace_requires_synthetic_registered_provenance_and_missing_context_is_explicit) ... ok
+test_secret_sentinel_and_auth_storage_are_withheld_with_named_reason (__main__.DiagnosticBundleTest.test_secret_sentinel_and_auth_storage_are_withheld_with_named_reason) ... ok
+test_staged_archive_contains_only_hashed_current_invocation_files_and_identity (__main__.DiagnosticBundleTest.test_staged_archive_contains_only_hashed_current_invocation_files_and_identity) ... ok
+test_trace_archive_payload_is_scanned_after_decompression (__main__.DiagnosticBundleTest.test_trace_archive_payload_is_scanned_after_decompression) ... ok
+test_trace_archive_rejects_inner_symlink_members (__main__.DiagnosticBundleTest.test_trace_archive_rejects_inner_symlink_members) ... ok
+test_trace_archive_rejects_inner_traversal_symlinks_and_auth_paths (__main__.DiagnosticBundleTest.test_trace_archive_rejects_inner_traversal_symlinks_and_auth_paths) ... ok
+
+======================================================================
+FAIL: test_actual_trace_auth_cookies_are_redacted_without_dropping_trace_records (__main__.DiagnosticBundleTest.test_actual_trace_auth_cookies_are_redacted_without_dropping_trace_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/scripts/ci/ci-diagnostic-bundle.test.py", line 144, in test_actual_trace_auth_cookies_are_redacted_without_dropping_trace_records
+    self.assertIn("trace.zip", metadata["members"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'trace.zip' not found in {}
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.869s
+
+FAILED (failures=1)

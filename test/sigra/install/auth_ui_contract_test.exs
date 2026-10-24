@@ -133,6 +133,13 @@ defmodule Sigra.Install.AuthUIContractTest do
     refute confirmation =~ "JS.focus"
   end
 
+  test "registration renders flash so the enumeration-safe duplicate-email message is visible" do
+    registration = File.read!("priv/templates/sigra.install/core/registration_live.ex")
+
+    assert registration =~ "<.sigra_auth_page flash={@flash}>"
+    assert registration =~ "If this email is available, your account has been created."
+  end
+
   test "confirmation validation removes only ASCII spaces before strict ASCII digit matching" do
     confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
     submit_handler = confirmation |> String.split("defp do_confirm(socket, code)") |> Enum.at(1)

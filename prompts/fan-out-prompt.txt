@@ -1,0 +1,23 @@
+Investigate and complete the current task using a bounded, adversarial fan-out.
+
+Start with the actual objective, current source identities, authorized actions, and a repeatable check that distinguishes failure from success. Read the project instructions and existing decisions. Preserve dirty user work before replacement.
+
+Enumerate decisions that materially affect the outcome. Select relevant stakeholder and technical lenses: security, product behavior, accessibility, architecture, runtime, data integrity, operations, contributor experience, or maintenance. Use only lenses that can change this task's decision.
+
+Assign each reviewer a distinct question, exact source references, ownership boundaries, and an output contract. Request evidence, competing explanations, pros/cons, examples, likely failure modes, and the smallest check that could disprove the recommendation. Ask what choosing either alternative would lose. Centralize shared-file edits and staging.
+
+Prefer primary sources for platform behavior and current technical facts. Separate observations, inferences, assumptions, and unavailable evidence. Refresh mutable references before relying on them. In secondary clones, resolve the exact intended commit; familiar remote names can refer to a different repository's stale local branch.
+
+For divergent histories, distinguish shipping upstream behavior, changes required by the current task, and historical experiments. Review automatically merged files as well as conflict files. Preserve required behavior from both histories through a reviewed integration. Verify ancestry, source bytes, generated output, versions, and locks, then rerun tests on that exact source.
+
+Prefer existing tools and small local implementations. Another small copy-and-paste can be better than another dependency when responsibility stays clear. Add a dependency only when its concrete benefit exceeds its security, abstraction, maintenance, and transitive-dependency cost.
+
+Synthesize one coherent recommendation per decision with its material tradeoffs. Apply researched project-consistent defaults within the authorized scope. Escalate only a real unresolved product, security, public-contract, or external-authority choice. Complete authorized reversible work before requesting a concrete approval.
+
+Have an independent reviewer attack the combined result: dropped protections, source mismatches, silent version changes, circular prerequisites, missing failure cases, and unsupported claims. Each further review should answer a new material uncertainty. Stop when further reviews no longer change the recommendation or tests.
+
+Keep local correctness, source feasibility, external-service readiness, and acceptance outcomes separate. A later task's missing receipt should not circularly block that task's authorized local implementation; keep the receipt unproved until produced. Preserve historical failures, once-only attempts, and spent budgets.
+
+Implement fixes, run the original failure check and meaningful regressions, and retain compact results bound to the tested source. Repair ordinary development errors locally rather than creating numbered successor plans or renewing acceptance budgets.
+
+Report changed behavior, test evidence, remaining blockers, and the exact next action in plain English. Record general lessons that prevent demonstrated failures, and link detailed records instead of copying raw ledgers into every handoff.

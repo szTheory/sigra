@@ -1,0 +1,588 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 40,
+  "captured_at": "2026-10-04T18:17:58.830Z",
+  "outcome": "blocked",
+  "repo_04_status": "open",
+  "source_status": "complete",
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "authority": {
+    "approval_or_mutation_authorized": false,
+    "approval_decision": "not_requested",
+    "note": "Task 1 stopped before admission and approval because one direct OID in the fresh exact origin capture is unreadable locally at its recorded type. No approval was requested and no production ref or PR operation occurred."
+  },
+  "approval": {
+    "decision": "not_requested",
+    "reason": "Task 1 object-recoverability predicate failed before a new exact admission could be offered."
+  },
+  "current_contract": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-40-CURRENT-CONTRACT.json",
+    "sha256": "5b6405a5cdaf78b14b3bb5c3b22b6236133cc0f60d74ef644eadfed6c71ead01",
+    "capture_head_ref": "refs/heads/phase-244-playwright-measurement",
+    "capture_head_oid": "ad2042a83f1d54263fd359c74884324a91cf46f6",
+    "local_refs": 119,
+    "origin_refs": 361,
+    "open_prs": 14,
+    "source_digests": {
+      "local_refs_sha256": "5c174c29d6c2911fa1666ab439bad37cff284960ac4b9870b7ce37948d2dab0c",
+      "origin_refs_sha256": "e854eb4a7eb33aab2128d1efa719da1cbf90d5beca1f655457e511b86677b703",
+      "open_prs_sha256": "e123ab15ddfa674a25d9c085217bcbc6b384c65e43fc80a5fe9f4db87a95b002"
+    },
+    "commit": "172f056f666d57643d59c0b3a8f51f1a71d53ba5",
+    "before_stage_verifier": {
+      "command": [
+        "node",
+        "scripts/maintainers/prune-stale-branches-current.mjs",
+        "verify",
+        "--repo",
+        ".",
+        "--stage",
+        "before",
+        "--contract",
+        ".planning/phases/245-branch-prune-local-and-remote/245-40-CURRENT-CONTRACT.json",
+        "--contract-commit",
+        "172f056f666d57643d59c0b3a8f51f1a71d53ba5"
+      ],
+      "exit_code": 0,
+      "result": "passed_current_source_contract_only"
+    }
+  },
+  "readiness_check": {
+    "phase_244_complete": true,
+    "plan23_readiness": "passed",
+    "plan37_d06_readiness": "passed",
+    "coordinator": "verified_free_zero_leases",
+    "pinned_git": "/usr/bin/git version 2.50.1 (Apple Git-155)",
+    "origin_default": {
+      "ref": "refs/remotes/origin/HEAD",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit",
+      "peeled_oid": null,
+      "peeled_type": null,
+      "symref": "refs/heads/main"
+    },
+    "safety_refs": [
+      {
+        "ref": "refs/heads/ci/phase-235-16-source-complete",
+        "local": {
+          "ref": "refs/heads/ci/phase-235-16-source-complete",
+          "oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        },
+        "origin": {
+          "ref": "refs/heads/ci/phase-235-16-source-complete",
+          "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        }
+      },
+      {
+        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "local": {
+          "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        },
+        "origin": {
+          "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+          "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        }
+      },
+      {
+        "ref": "refs/tags/archive/local-main-pre-235-recovery",
+        "local": {
+          "ref": "refs/tags/archive/local-main-pre-235-recovery",
+          "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        },
+        "origin": {
+          "ref": "refs/tags/archive/local-main-pre-235-recovery",
+          "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        }
+      }
+    ],
+    "live_open_pr_count": 14,
+    "pr_capture_pages": [
+      {
+        "page": 1,
+        "item_count": 14,
+        "has_next": false,
+        "source": "github-api"
+      }
+    ]
+  },
+  "history": {
+    "plan38_applied_rows": 9,
+    "plan38_rows_absent_currently": true,
+    "plan38_typed_objects_readable": true,
+    "plan39_result": "blocked_before_approval",
+    "plan39_approval": "not_requested",
+    "plan39_production_ref_operations": 0,
+    "plan39_remaining_rows_match_current_local_tracking_refs": 14,
+    "plan39_rows_origin_absent_currently": 14,
+    "plan39_rows_authority": "historical_only",
+    "historical_audits": {
+      "pr_11_rows": "unresolved",
+      "cleanup_30_rows": "unresolved"
+    }
+  },
+  "candidate_review": {
+    "status": "blocked_before_admission",
+    "counts": {
+      "local_heads": 33,
+      "origin_heads": 51,
+      "tracking_refs": 42,
+      "total": 126,
+      "unresolved": 1,
+      "eligible_deletions_not_admitted": 14
+    },
+    "blocked_rows": [],
+    "historical_plan39_rows_currently_present_but_not_admitted": [
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+        "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0\t204ce7f59ad2b1a2f709261f69bc35235bdc813c\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+        "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1\t9f5150bd3a000dc122e8c185bf06c102ac720667\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+        "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4\tc06cc1475ca91519765b3792958bcadd9f131601\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+        "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/phase-236-flake-root-cause\t337538c48b79c358f19a9e1c514a7a373379d353\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/phase-236-flake-root-cause",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+        "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/phase-239-priv-templates-sweep\t5abd3ede7fc11f96a66739e53283f9d5aec3c6ec\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/phase-239-priv-templates-sweep",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+        "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/phase-240-closeout\t9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/phase-240-closeout",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+        "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/phase-240-green-main-evidence\t4429657a725ef5601fe2e0b25cebcd54c314540e\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/phase-240-green-main-evidence",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/phase-241-context",
+        "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/phase-241-context\te6b63ca1698e23adb99c84f088fc9ad469122496\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/phase-241-context",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/phase-241-plans",
+        "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/phase-241-plans\ta38651a37875a340462c647d5f9b1beed30893dd\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/phase-241-plans",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/phase-241-research",
+        "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/phase-241-research\t62906d14da1cd4c72e5080c1fa686ba4d6948ca8\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/phase-241-research",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+        "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/quick-260918-lfq-bookkeeping\tdaa8b41f3d458c66ecacb7a0276ab8b65ffc38d6\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/quick-260918-lfq-bookkeeping",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+        "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/quick-green-04-collector-guards\tcea7098347086166ec3ec6e1a8e0db0403d5b9c0\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/quick-green-04-collector-guards",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+        "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/gsd/state-reconcile-241\t21c6c25a996ec3497cf89b656bcd0759e5176039\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/gsd/state-reconcile-241",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      },
+      {
+        "side": "tracking",
+        "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+        "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "type": "commit",
+        "disposition": "not_admitted",
+        "reason": "Exact current tracking identity remains, and matching live origin branch is absent; this row is withheld because the contract object-recoverability gate failed.",
+        "proof": {
+          "status": "passed_for_row_only",
+          "predicate": "exact_live_origin_branch_absent_and_no_protected_overlap",
+          "source_rows": [
+            "local\trefs/remotes/origin/v1.37-auth-branding-admin-polish\tb9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f\tcommit"
+          ],
+          "command": [
+            "/usr/bin/git",
+            "ls-remote",
+            "--symref",
+            "origin"
+          ],
+          "command_exit": 0,
+          "readback": "No live origin row for refs/heads/v1.37-auth-branding-admin-polish",
+          "origin_ref_absent": true,
+          "open_pr_head_or_base_absent": true,
+          "default_or_safety_overlap_absent": true
+        }
+      }
+    ]
+  },
+  "object_check": {
+    "status": "blocked",
+    "unique_direct_and_peeled_oids_checked": 364,
+    "readable_at_recorded_type": 363,
+    "unreadable": [
+      {
+        "oid": "74e6bda47b3d4eb3354eeefc1adf33b67e82a23e",
+        "type": "commit",
+        "ref": "refs/heads/gh-pages",
+        "source": "fresh complete Plan 40 origin capture",
+        "verification_command": [
+          "/usr/bin/git",
+          "cat-file",
+          "-t",
+          "74e6bda47b3d4eb3354eeefc1adf33b67e82a23e"
+        ],
+        "exit_code": 128,
+        "stderr": "fatal: git cat-file: could not get object info"
+      }
+    ]
+  },
+  "changed_identities_since_plan39": [
+    {
+      "side": "local",
+      "ref": "refs/heads/phase-244-playwright-measurement",
+      "old_oid": "eaf92768b857d7c1604a58184ea1fc5c817edfed",
+      "current_oid": "ad2042a83f1d54263fd359c74884324a91cf46f6",
+      "disposition": "current checkout head retained"
+    },
+    {
+      "side": "origin",
+      "ref": "refs/heads/gh-pages",
+      "old_oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+      "current_oid": "74e6bda47b3d4eb3354eeefc1adf33b67e82a23e",
+      "disposition": "current origin identity captured; object unreadable locally"
+    }
+  ],
+  "failed_predicates": [
+    "typed_object_readability:refs/heads/gh-pages:74e6bda47b3d4eb3354eeefc1adf33b67e82a23e"
+  ],
+  "first_failed_predicate": "typed_object_readability:refs/heads/gh-pages:74e6bda47b3d4eb3354eeefc1adf33b67e82a23e",
+  "mutation_boundary": {
+    "fetches": 0,
+    "origin_ref_writes": 0,
+    "local_ref_writes": 0,
+    "stash_changes": 0,
+    "worktree_changes": 0,
+    "object_cleanup": 0
+  },
+  "admission": {
+    "status": "blocked_not_created",
+    "reason": "typed_object_readability failed; no operator-compatible allowlist or approval admission was created",
+    "unresolved_predicates": [
+      "typed_object_readability:refs/heads/gh-pages:74e6bda47b3d4eb3354eeefc1adf33b67e82a23e"
+    ]
+  },
+  "coordinator_commit_attempt": {
+    "initial_sandbox_attempt": "denied_before_staging:coordinator gate mkdir Operation not permitted",
+    "authorized_coordinator_retry": "succeeded"
+  }
+}

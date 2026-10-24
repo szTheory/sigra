@@ -1,0 +1,393 @@
+{
+  "status": "native_inputs_ready",
+  "role": "after",
+  "run_id": 40035537413,
+  "run_attempt": 1,
+  "application_sha": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+  "producer_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+  "tree_sha": "e9d39623b5f574f17413839d56aad90a20738ab1",
+  "workflow_sha256": "6dec5b0aaf1c3405188843583ecd28a4b3960873cd968231d6f33ad1bc8136a9",
+  "source_checks": "passed",
+  "origin_checks": "passed",
+  "raw_hash_checks": "passed",
+  "current_reports": "actual authenticated preparation artifact bytes",
+  "selection_inventories": "retained original inventory; full Playwright tree and explicit workflow amendment checked",
+  "owners": {
+    "admin_behavior": {
+      "coverage-source.json": "beb8416ad9d77fdad967f546f554e03336afb061fb7e460b028062fa76fe69cc",
+      "report.json": "5525c623d6dda053366d32596bf8ed0cf4179358aa4b73d6ae6f5d7f2ca9f991",
+      "selection.json": "c64b98d39739de9c2a4f00256c6360c3cf0d1ee12fc170f8e241d05826294a01"
+    },
+    "admin_checkpoints": {
+      "coverage-source.json": "07c31d491202c2e2b21f510b638f429cb2d9b65bb261b73bd0573cc47f8afd1b",
+      "report.json": "2ef16e207c6f3afc28d4b75dcbdbc28a8681abe9c4c1ca958afc3551e5388a4a",
+      "selection.json": "5f812964366721787086c675cb442360b84c10c4ab9d9601af573bb3ca6da660"
+    },
+    "design_gallery": {
+      "coverage-source.json": "7821e32a7fab501b2b86bc0adfc7147653eb069b495b905d4ae63a611b25c94f",
+      "report.json": "46e1115e0bf5d54c67bcab728dc743b80474485307421250fc1926febe8d931b",
+      "selection.json": "ab1017c6de83eebdbc67921908249626ce93d2076e09aa1749e8cc777efad311"
+    },
+    "non_admin_smoke": {
+      "coverage-source.json": "40e99a89fed3f78f4987d0262ce34f9a882ff92de71ae4f1a892150998012457",
+      "report.json": "772f7e8bd59c0362323d650c537fcda05ce6b0dc38efd8f319adc4c9d0878641",
+      "selection.json": "90fa90b49aa6d81549efc4f20f7bd6c328767e808e3d1986362081d049709734"
+    },
+    "demo_showcase": {
+      "coverage-source.json": "f7906f4baeba1bbdb8dadb274decb42673c310224fa011ab1141ce666e8b0db5",
+      "report.json": "60f0477a9e60fd4f3a6bbd870ac4f79eaccfbbc26ec2ea2cd71713faffb018d7",
+      "selection.json": "0da96af46e60a5cc76d367332c36ee5db1bf835c7264ebba23fb787ac0358619"
+    }
+  },
+  "metadata": [
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": "non_admin_smoke",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "cache_outcome": {
+        "example_deps": "miss",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": "design_gallery",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "cache_outcome": {
+        "example_deps": "miss",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Example HTTP smoke (boot + curl critical routes)",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "cache_outcome": {
+        "example_deps": "miss"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": null
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Example unit smoke (ExUnit + ConnTest)",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "cache_outcome": {
+        "example_deps": "miss"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": null
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Library tests shard",
+      "timing_artifact_name": "library-test-timing-40035537413-1",
+      "exunit_reports": [
+        {
+          "invocation": "main",
+          "path": "ci-exunit-timing-main.json"
+        },
+        {
+          "invocation": "threadline_guard",
+          "path": "ci-exunit-timing-threadline-guard.json"
+        }
+      ],
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "cache_outcome": {
+        "library_deps": "miss"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": "admin_checkpoints",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "cache_outcome": {
+        "example_deps": "miss",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": "demo_showcase",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      },
+      "cache_outcome": {
+        "example_deps": "miss",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Install smoke (fresh phx.new + sigra.install)",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      },
+      "cache_outcome": {
+        "library_deps": "miss"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": null
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40035537413",
+      "run_attempt": "1",
+      "source_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "event": "pull_request",
+      "matrix_seam": "admin_behavior",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "cache_outcome": {
+        "example_deps": "miss",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      }
+    }
+  ]
+}

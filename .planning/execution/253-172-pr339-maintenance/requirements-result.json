@@ -1,0 +1,16 @@
+{
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "actual_canary_verified": true,
+  "actual_normal_pr_conclusion": "failure",
+  "docs_only_pr_created": false,
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "evidence": {
+    "canary": ".planning/execution/253-proof-bundle-16800f431-compatible/canary-evidence.json",
+    "normal": ".planning/execution/253-proof-bundle-16800f431-compatible/normal-evidence.json",
+    "diagnosis": ".planning/execution/253-172-pr339-maintenance/diagnosis.json"
+  },
+  "phase_verification_status": "not_started"
+}

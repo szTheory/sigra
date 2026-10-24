@@ -1,0 +1,25 @@
+{
+  "application_sha": "8b3c3d8c75152438bb3259c1226b1044da717b3c",
+  "tree_sha": "e62a4e2b89beaba64ed1db2bf5131fe0d6bf6d8d",
+  "parent": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+  "source_ref": "refs/evidence/phase254-transport-development-source",
+  "branch": "evidence/phase254-transport-development-20261024",
+  "root_implementation_commit": "e2ab83edbdf85dfe8afebae8eb4f76c53a5472c4",
+  "files": {
+    ".github/workflows/ci.yml": "1e3155a42576a694abdecf3a6b022ef7ca7e9dafbfb913bd81761149df805020",
+    "test/example/priv/static/assets/js/app.js": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2",
+    "scripts/ci/ci-phoenix-connection.test.mjs": "f9c353295772ef0e80188150bd304964a7bc4466a09ae24fef913969ad5f768d",
+    "scripts/ci/ci-run-metrics.sh": "2a4e54049575a3ab2ed14865e1051bcac19beda0e083061dfd71ba68f92876d8",
+    "scripts/ci/ci-run-metrics-attempt.test.py": "2b5d3c750e35457d73ae873db8965acb985b713ad300aab87fbcfa8ac51971ad",
+    "scripts/ci/ci-run-metrics-comparison.test.sh": "fdffa45075d6a01d18249625b0aadd203fe59e9e73c18cc824bed0debc91caed"
+  },
+  "readback_verified": true,
+  "changed_paths": [
+    ".github/workflows/ci.yml",
+    "scripts/ci/ci-phoenix-connection.test.mjs",
+    "scripts/ci/ci-run-metrics-attempt.test.py",
+    "scripts/ci/ci-run-metrics-comparison.test.sh",
+    "scripts/ci/ci-run-metrics.sh",
+    "test/example/priv/static/assets/js/app.js"
+  ]
+}

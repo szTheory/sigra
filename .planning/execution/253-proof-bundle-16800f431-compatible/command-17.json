@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/runtime/ci-hosted-gate-verify.py",
+    "--mode",
+    "pr",
+    "--family",
+    "normal",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/normal-evidence.json"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "hosted-gate-verify: FAIL: transaction lacks a typed family\n"
+}

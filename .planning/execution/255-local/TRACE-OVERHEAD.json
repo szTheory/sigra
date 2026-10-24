@@ -1,0 +1,128 @@
+{
+  "configuration": {
+    "retries": 0,
+    "selected_behavior": [
+      "--grep",
+      "discards a default-context pass"
+    ],
+    "workers": 1
+  },
+  "environment_note": {
+    "initial_sandbox_attempt": "Chromium terminated before test execution with MachPortRendezvousServer Permission denied (1100); no duration counted.",
+    "interpretation": "Tracing-on measured faster in this three-pair sample; treat the difference as noisy and inconclusive, not as a performance improvement or correction to historic measurements.",
+    "observed_difference_ms": -40.973333333333244,
+    "observed_difference_percent": -7.891506551003302,
+    "off_mean_ms": 519.208,
+    "on_mean_ms": 478.2346666666667,
+    "successful_measurement": "Same six-run command completed under process permissions enabled; first attempt retained separately in ignored raw storage."
+  },
+  "node": "v26.10.0",
+  "off_durations_ms": [
+    607.2479999999999,
+    481.58000000000004,
+    468.79599999999994
+  ],
+  "on_durations_ms": [
+    510.41400000000004,
+    507.14799999999997,
+    417.14200000000005
+  ],
+  "pairs": 3,
+  "playwright": "1.59.1",
+  "raw_evidence_root": ".gsd/temp/phase255-browser-diagnostics-overhead-Mg3FPO",
+  "records": [
+    {
+      "duration_ms": 607.2479999999999,
+      "pair": 1,
+      "raw_output_root": ".gsd/temp/phase255-browser-diagnostics-overhead-Mg3FPO/pair-1-off/native-diagnostics/pass",
+      "source_hashes": {
+        "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+        "scripts/ci/ci-browser-local.py": "f886db48e678ff617d23ea68accc3aa1edd79ae62cc28fd76d1dcbed607cf212",
+        "scripts/ci/ci-diagnostics-canary.py": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+        "scripts/ci/fixtures/playwright-diagnostics.config.ts": "c9adef0eeecac9ca18e311bc5332fbd722d8c619ba11b3dd9d6510207b3cdc76",
+        "scripts/ci/fixtures/playwright-diagnostics.spec.ts": "5c9fa4f3f81555f5c29d10644f354eeef6260bda7cb55c8c201631ca068c0116"
+      },
+      "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+      "tracing": "off"
+    },
+    {
+      "duration_ms": 510.41400000000004,
+      "pair": 1,
+      "raw_output_root": ".gsd/temp/phase255-browser-diagnostics-overhead-Mg3FPO/pair-1-on/native-diagnostics/pass",
+      "source_hashes": {
+        "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+        "scripts/ci/ci-browser-local.py": "f886db48e678ff617d23ea68accc3aa1edd79ae62cc28fd76d1dcbed607cf212",
+        "scripts/ci/ci-diagnostics-canary.py": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+        "scripts/ci/fixtures/playwright-diagnostics.config.ts": "c9adef0eeecac9ca18e311bc5332fbd722d8c619ba11b3dd9d6510207b3cdc76",
+        "scripts/ci/fixtures/playwright-diagnostics.spec.ts": "5c9fa4f3f81555f5c29d10644f354eeef6260bda7cb55c8c201631ca068c0116"
+      },
+      "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+      "tracing": "on"
+    },
+    {
+      "duration_ms": 481.58000000000004,
+      "pair": 2,
+      "raw_output_root": ".gsd/temp/phase255-browser-diagnostics-overhead-Mg3FPO/pair-2-off/native-diagnostics/pass",
+      "source_hashes": {
+        "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+        "scripts/ci/ci-browser-local.py": "f886db48e678ff617d23ea68accc3aa1edd79ae62cc28fd76d1dcbed607cf212",
+        "scripts/ci/ci-diagnostics-canary.py": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+        "scripts/ci/fixtures/playwright-diagnostics.config.ts": "c9adef0eeecac9ca18e311bc5332fbd722d8c619ba11b3dd9d6510207b3cdc76",
+        "scripts/ci/fixtures/playwright-diagnostics.spec.ts": "5c9fa4f3f81555f5c29d10644f354eeef6260bda7cb55c8c201631ca068c0116"
+      },
+      "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+      "tracing": "off"
+    },
+    {
+      "duration_ms": 507.14799999999997,
+      "pair": 2,
+      "raw_output_root": ".gsd/temp/phase255-browser-diagnostics-overhead-Mg3FPO/pair-2-on/native-diagnostics/pass",
+      "source_hashes": {
+        "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+        "scripts/ci/ci-browser-local.py": "f886db48e678ff617d23ea68accc3aa1edd79ae62cc28fd76d1dcbed607cf212",
+        "scripts/ci/ci-diagnostics-canary.py": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+        "scripts/ci/fixtures/playwright-diagnostics.config.ts": "c9adef0eeecac9ca18e311bc5332fbd722d8c619ba11b3dd9d6510207b3cdc76",
+        "scripts/ci/fixtures/playwright-diagnostics.spec.ts": "5c9fa4f3f81555f5c29d10644f354eeef6260bda7cb55c8c201631ca068c0116"
+      },
+      "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+      "tracing": "on"
+    },
+    {
+      "duration_ms": 468.79599999999994,
+      "pair": 3,
+      "raw_output_root": ".gsd/temp/phase255-browser-diagnostics-overhead-Mg3FPO/pair-3-off/native-diagnostics/pass",
+      "source_hashes": {
+        "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+        "scripts/ci/ci-browser-local.py": "f886db48e678ff617d23ea68accc3aa1edd79ae62cc28fd76d1dcbed607cf212",
+        "scripts/ci/ci-diagnostics-canary.py": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+        "scripts/ci/fixtures/playwright-diagnostics.config.ts": "c9adef0eeecac9ca18e311bc5332fbd722d8c619ba11b3dd9d6510207b3cdc76",
+        "scripts/ci/fixtures/playwright-diagnostics.spec.ts": "5c9fa4f3f81555f5c29d10644f354eeef6260bda7cb55c8c201631ca068c0116"
+      },
+      "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+      "tracing": "off"
+    },
+    {
+      "duration_ms": 417.14200000000005,
+      "pair": 3,
+      "raw_output_root": ".gsd/temp/phase255-browser-diagnostics-overhead-Mg3FPO/pair-3-on/native-diagnostics/pass",
+      "source_hashes": {
+        "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+        "scripts/ci/ci-browser-local.py": "f886db48e678ff617d23ea68accc3aa1edd79ae62cc28fd76d1dcbed607cf212",
+        "scripts/ci/ci-diagnostics-canary.py": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+        "scripts/ci/fixtures/playwright-diagnostics.config.ts": "c9adef0eeecac9ca18e311bc5332fbd722d8c619ba11b3dd9d6510207b3cdc76",
+        "scripts/ci/fixtures/playwright-diagnostics.spec.ts": "5c9fa4f3f81555f5c29d10644f354eeef6260bda7cb55c8c201631ca068c0116"
+      },
+      "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+      "tracing": "on"
+    }
+  ],
+  "schema": "sigra.browser-diagnostics-overhead/v1",
+  "source_hashes": {
+    "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+    "scripts/ci/ci-browser-local.py": "f886db48e678ff617d23ea68accc3aa1edd79ae62cc28fd76d1dcbed607cf212",
+    "scripts/ci/ci-diagnostics-canary.py": "9716f1f7476756df3165b45e5a119548431099b02077b45afa62801e870b0c68",
+    "scripts/ci/fixtures/playwright-diagnostics.config.ts": "c9adef0eeecac9ca18e311bc5332fbd722d8c619ba11b3dd9d6510207b3cdc76",
+    "scripts/ci/fixtures/playwright-diagnostics.spec.ts": "5c9fa4f3f81555f5c29d10644f354eeef6260bda7cb55c8c201631ca068c0116"
+  },
+  "source_sha": "d6ce89a067c75308fb254a637691feadf2061349"
+}

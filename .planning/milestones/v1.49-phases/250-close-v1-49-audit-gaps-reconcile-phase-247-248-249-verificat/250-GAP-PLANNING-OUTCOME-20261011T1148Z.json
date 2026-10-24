@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T11:48:38Z",
+  "phase": "250",
+  "mode": "gap_closure",
+  "result": "planning_inconclusive",
+  "new_plan_created": false,
+  "rationale": [
+    "Existing Plan 250-07 already defines a new packet, explicit approval checkpoint, exact canary execution and AUTO-02 proof; a separate plan would duplicate it.",
+    "Plan 250-08 still has zero eligible READY tuples, so Plans 250-09 through 250-12 remain blocked by existing dependencies."
+  ],
+  "readiness": {
+    "execute_phase": {
+      "plan_count": 12,
+      "summaries_present": 8,
+      "incomplete_plans": [
+        "250-09-PLAN.md",
+        "250-10-PLAN.md",
+        "250-11-PLAN.md",
+        "250-12-PLAN.md"
+      ],
+      "halted_plans": [
+        "250-07-PLAN.md",
+        "250-08-PLAN.md"
+      ],
+      "runnable_count": 0
+    },
+    "plan_phase": {
+      "context_exists": true,
+      "research_exists": true,
+      "existing_plan_count": 12
+    }
+  },
+  "new_evidence": {
+    "main_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "repair_pr": 325,
+    "repair_ci_run_id": 38135909462,
+    "repair_ci_conclusion": "success",
+    "merge_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "merged_tree_matches_ci_head": true,
+    "packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json",
+    "packet_sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628",
+    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json",
+    "dispatch_attempted": false,
+    "source_identity_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json",
+    "source_identity_sha256": "de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3",
+    "preflight_validation": "passed",
+    "controller_input_validation": "accepted"
+  },
+  "next_action": "Await an explicit decision on this exact packet. If authorized, revalidate current main and preflight freshness before one bounded no-publish run; if declined, do not dispatch.",
+  "next_gsd_command": null,
+  "phase_verification_status": "gaps_found"
+}

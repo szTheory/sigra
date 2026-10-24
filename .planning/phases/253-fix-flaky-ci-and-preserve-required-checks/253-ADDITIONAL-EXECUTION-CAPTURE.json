@@ -1,0 +1,1920 @@
+{
+  "created_at": "2026-10-13T18:30:49.644739+00:00",
+  "command": "$gsd-execute-phase 253 --gaps-only",
+  "capture_head": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+  "branch": "phase-244-playwright-measurement",
+  "initial_status": " M .planning/config.json\n",
+  "scoped_clean_readbacks": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "3cd027d2ab8c63414840b8fe56717fd3429f2035de32a5a7b7acb583d09e9719",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "status": "clean",
+      "sha256": "5f3c20567c4c59ecb451a8d6b9f00139d96112e085314c6d184e7df6d58fd863",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "bc9f3583d6b034f6d60b17aee2282244410d20d72a2f15b89d3f4c562163d24b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "b990bbf9c88efb03f1d1fd58174dedee4b7b9de2ec7416e50dd27094ddffaa1f",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/.gitkeep",
+      "status": "clean",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-01-PLAN.md",
+      "status": "clean",
+      "sha256": "286b0b0035fdf16458113d21181ad068be18ffd4c1dd865c8ac16818cd86c7c6",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-01-SUMMARY.md",
+      "status": "clean",
+      "sha256": "66dc223490c5074039a1739026ca18c61b6b1453735d9153f00da2050cfc0eef",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-02-PLAN.md",
+      "status": "clean",
+      "sha256": "1d801f7c6f953d121c78bbbc5f54c03f69bd87b2b3d8058e3feb0731c2817015",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-02-SUMMARY.md",
+      "status": "clean",
+      "sha256": "7842b825ca2310c7790534b7944dde6c70342b82ce5b511f760e0552199491ad",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
+      "status": "clean",
+      "sha256": "235a38c6b144a5ad2d6b7de2a0ab2ece5d945a9d82fd12e09188cdb5274ca7e4",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-03-PLAN.md",
+      "status": "clean",
+      "sha256": "3c155bf5eb6d79f67420621efd8b819447a4b2ad21f88ba9f41079b165fda367",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-03-SUMMARY.md",
+      "status": "clean",
+      "sha256": "6b84b5e78f029db45264afbedc124cd6feae04ee5b901a85706cc50f6f1ebecb",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-04-PLAN.md",
+      "status": "clean",
+      "sha256": "f7a8d1c5b4a5a86f206b53d4117d03119787b42b04b0b959e888f69efe5de76d",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-04-SUMMARY.md",
+      "status": "clean",
+      "sha256": "3ed465ab78e8b8f787225be691994da87135e4dfd9870bdcfc89c2ef5a3e17e2",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-INTEGRATION-RECHECK.json",
+      "status": "clean",
+      "sha256": "eb1f60c72320bd1adcb870878c4ec9b7d2daa6ad6bc34b8b6d8afd2785df2168",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-MIX-CI-DIAGNOSTIC.json",
+      "status": "clean",
+      "sha256": "d6ad0e6a9b955c9edaac85fe6b5144357896e952e9bf277ba0b65410797cad36",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-PLAN.md",
+      "status": "clean",
+      "sha256": "93558bdf70ef52be1eaeeac4c7610ba7e9f7417c410c5eddc51fafa64075d00f",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-STATE-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "0a0e1a7eb470ffaa303f595a4ffd6c61428998d4ffd251b400ba2d122e3818dc",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-SUMMARY.md",
+      "status": "clean",
+      "sha256": "21269cb122f58d1cc88787a2543b00e29b87788115bb2fadfbb23d300d74b09b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-task1-red-evidence.json",
+      "status": "clean",
+      "sha256": "c38fbe231ecffa56ca73ebfc11b75ec39c766502c3d5e0052eb52fb263924e15",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-task2-red-evidence.json",
+      "status": "clean",
+      "sha256": "16b79b472f0380c29bfa88d74f4c345d3807a710ae8ae5f06975159722367b89",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-task2-single-red-evidence.json",
+      "status": "clean",
+      "sha256": "ce14448b045221757f1ddde99df85ec265fe3bcc1f887473a818b93b53f36544",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-05-task3-red-evidence.json",
+      "status": "clean",
+      "sha256": "528c20082e0cd105d3fcf0f8ab0647a45bfeb671d36b739b7699a88ce0d9707c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-ACQUISITION-ATTEMPTS.json",
+      "status": "clean",
+      "sha256": "c928a3950e780d680cc22453f0d3489d3148109bfff9098ee495547d3aa5ac08",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-PLAN.md",
+      "status": "clean",
+      "sha256": "b3652a1ec0aad31b583e0b38b15353b58697783a61e1ff786032d3177ae223ff",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-REPAIR-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "9b50221b5628150bae90303674cf99b601edc8b0802a73f15dc584a892b78e6b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION-72c71eb.json",
+      "status": "clean",
+      "sha256": "b50d73a9b1b9bac73d13304991bff418d2aee98c8e462755e8534c562713588e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "838d0e0e59fa342aa52a14f15acf9f4cf3f25d32bb5401b269c1276fc6ba9c89",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-STATE-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "10308170bd226c8dd55da958915d66bb64916ceb26c3b53d675e9f45b91f843b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+      "status": "clean",
+      "sha256": "4bec33374d0b3441f591c42e2584c09afb3a2e839714a7fb7be937e2fba1913c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "status": "clean",
+      "sha256": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.md",
+      "status": "clean",
+      "sha256": "7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+      "status": "clean",
+      "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-CLOSEOUT-CHECKS.json",
+      "status": "clean",
+      "sha256": "a4103b3c1f63488c5355e9623e284691bca5a27532120e92ef1557405e80b4d5",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-CLOSEOUT-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "48cc86cecfc87d6f6e60036b8ba694f0a679a9e5a90f279c95555cc1abf1c804",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+      "status": "clean",
+      "sha256": "8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-COMPLETION-RECORD.json",
+      "status": "clean",
+      "sha256": "f58eac216b9cf677d3ff91cc364796acf64d1a4b6acbf9fcfb6cbe76fa98ecc8",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+      "status": "clean",
+      "sha256": "892880d07c89ee496d8e193d9df3aed38bd78cabd7de87b94a62694674ed155f",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-CHECKS.json",
+      "status": "clean",
+      "sha256": "5fd2c553163320d68c2485dfe270420f6afa5229e9a1635fa3ea32a432b02d37",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-LOG.md",
+      "status": "clean",
+      "sha256": "9d78d6f019f5bf1b28212f42eda392f65d1f1e4c16851114a6989c4b7b06712d",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+      "status": "clean",
+      "sha256": "7f2b58a7f6d584b1a01bb977994c4f678c8b217d849b8de24e840e5c2266fa27",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-active-rulesets.json",
+      "status": "clean",
+      "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-branch-protection.json",
+      "status": "clean",
+      "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-effective-rules.json",
+      "status": "clean",
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT-request-ledger.json",
+      "status": "clean",
+      "sha256": "9a90c55787767e6a0f8bc7858ba2e5363d99ed77a1bc68c2711c26198364e06c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json",
+      "status": "clean",
+      "sha256": "541e264604dcff484c569cb6f41b5dbf7fcd2fa3f2325057f7142730f1155a7b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-EXECUTION-RECORD.json",
+      "status": "clean",
+      "sha256": "8a62370f4f97fa5de97e8e1a4beed3a782e39290d9e83d67ae050471d1ab9349",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-PATTERNS.md",
+      "status": "clean",
+      "sha256": "6ea28c8da6cd5cab236f374dfacf8cb76c91744ce01b888aa77cc425d20193f7",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-02.md",
+      "status": "clean",
+      "sha256": "2bf1dca265bd6c2eb9eed14d876ebc6446af0cccaaf4e004e4787168a75897bd",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK-03.md",
+      "status": "clean",
+      "sha256": "ed35576b146817b306cabe201def46acbfff9efd40941243eff2cb0482825e87",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-PLAN-CHECK.md",
+      "status": "clean",
+      "sha256": "9edd544e535fa0f13e433203b33d062858ce1fc49d24a2e7cfbbc8870a88d2be",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-PLANNING-CHECKS.json",
+      "status": "clean",
+      "sha256": "b2eec370ff616c2f17280b5fd4073de99f43b6919cbce7e69382ce4c09b0b2c5",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-PLANNING-RECORD.json",
+      "status": "clean",
+      "sha256": "f25c84c0a8a6808400c49dbf6017420ae22cfd848651070aa004efd54d32de0c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-PLANNING-ROUTING-CHECKS.json",
+      "status": "clean",
+      "sha256": "0da00230f6c8c666ded2f95ea77d7f3a45c825a073ec81533f7bce0bb25a1d1e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-RESEARCH.md",
+      "status": "clean",
+      "sha256": "aad630f613f7add6f81bb1c3fa5bc54a76442ccbb711fdf8b788e41aa29842a0",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-REVIEW-DISPOSITION.md",
+      "status": "clean",
+      "sha256": "1493284fb1c771ce6cbfdf91d68279173293efd1a8bf5ac1c286e749cc46adaa",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-REVIEW-FINAL-RECHECK.md",
+      "status": "clean",
+      "sha256": "ebe52fb92c03451007d2ae89e6d2363aadc9a5afa97d6af9880747490eb43a16",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-REVIEW-RECHECK.md",
+      "status": "clean",
+      "sha256": "08f7fffc1b6e6ce55998f915fe6450f90c1bcac76d4d88e94420266c019de618",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-REVIEW-REPAIR-FAMILY.json",
+      "status": "clean",
+      "sha256": "319706f701da86b1f8cc57f4e696c334ebbe29528e9492ca186cf47d80d51242",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-REVIEW-REPAIR.json",
+      "status": "clean",
+      "sha256": "3baaaeba5cea58d097fe4be06b8ef685a5a880446fe2df2273d4e0f521ec3aff",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-REVIEW-SCOPE.json",
+      "status": "clean",
+      "sha256": "ed943f1868b1effa76edeb13b1c6da2b4532a91b638d13e0f7a7eb992d539b63",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-REVIEW.md",
+      "status": "clean",
+      "sha256": "d2f38050092cbdb2233adc01c4780af238f681d2102a595f6601232aa978351d",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-ROUTING-CHECKS.json",
+      "status": "clean",
+      "sha256": "a300c39b622e0a263d8d2163a01ed6c80169f8f075641f411ef34cbbe0cbd719",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-SECURITY-AUDIT.json",
+      "status": "clean",
+      "sha256": "635c3b8896817a2bc03d825bf0cece75db543009170ccf2fcd9b3df077a35956",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-SECURITY.md",
+      "status": "clean",
+      "sha256": "435daad1854c8896add2de3a9ceaddfcaf2d47931cfa952ac4a42ceba5bf24ef",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-UI-APPLICABILITY.json",
+      "status": "clean",
+      "sha256": "5e1d34f76ea19847cec73243960a0a1c850d2aab3f367d12e11dde5510e1ff2f",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-VALIDATION-AUDIT.json",
+      "status": "clean",
+      "sha256": "fc71eb893fd36d7d672112480b3883b1831c56031dd246f6ce3002d1ab6f4a13",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-VALIDATION.md",
+      "status": "clean",
+      "sha256": "872d483b3caf5b9a40e49f4963db3f8e7aa8eaf000e191157628ed67268854f4",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-VERIFICATION.md",
+      "status": "clean",
+      "sha256": "970b6a274dfe8f2fdd266a8bc7806ffae655c009c35d15a7a6fa04090b16cee3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/manifest.json",
+      "status": "clean",
+      "sha256": "d0447ae4d0a4c48e9fd4b1c5be9e0bb67dc767c224513f2be553b6383b268995",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/branch-protection.json",
+      "status": "clean",
+      "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/check-runs.json",
+      "status": "clean",
+      "sha256": "7bbf5c9dec96f3f70847802a083b8d905bf1cb50e36c9853b2d383e587b7f46b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/effective-rules.json",
+      "status": "clean",
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
+      "status": "clean",
+      "sha256": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs.json",
+      "status": "clean",
+      "sha256": "ccd25de7f5dca21a51db5743ff0e72934b0dd2baa20a8b147861bfe4607f2bbf",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rate-limit.json",
+      "status": "clean",
+      "sha256": "dde1f90cf8f3a55ed41ea1a49ae760fae33f250e0c52e3472c271f8b9b510fa3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/rulesets.json",
+      "status": "clean",
+      "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/run.json",
+      "status": "clean",
+      "sha256": "2898f2f5bcb03fab05ffc6908619ce97e0d42399367673acb84c7c1afa9f2a60",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/request-ledger.json",
+      "status": "clean",
+      "sha256": "2da3b1533e0bc6f1a734d6efa80c61e151096c0ea279d519a1620f751203d3c7",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407/raw/effective-rules.json",
+      "status": "clean",
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-run-family-38144377407/request-ledger.json",
+      "status": "clean",
+      "sha256": "6721aab0d696fe4ab85a9b3f9fc8d4090a0c40539f6cfebbe812eb7057b82a02",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/COVERAGE.md",
+      "status": "clean",
+      "sha256": "31f421f3419cf5261adceeb16e9f2d2e664422fa2612933dadb6c9c34ff19644",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/producer-source-run-38317383419.json",
+      "status": "clean",
+      "sha256": "da7aebbcc6ff75518bf5f76097d77230d09ba2133b810516f59994752c3d061e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/security-window-20261012-01.json",
+      "status": "clean",
+      "sha256": "e71e1c18c611eafa2e8defa8646e50c46e62cddbd2bee51fcae0f2ba9e13cb54",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/acquisition-attempts/security-window-20261012-02.json",
+      "status": "clean",
+      "sha256": "04a70bc53d0ca09c0b65319fed83afd78aef450d2508125b5a72796b098b7d46",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/deferred-items.md",
+      "status": "clean",
+      "sha256": "65c3a922ef485b788a0a4c940cbaff045cd15a8b1940a34d8a769c3af3cfbd4e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/API-ACCESS-NOTES.txt",
+      "status": "clean",
+      "sha256": "10499444f2c80269c79966efd92658de5ac09c35c48b00eb853bba1ef61efc65",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/DECISION-PACKET.md",
+      "status": "clean",
+      "sha256": "2bba79ffc62fee94dd106f57ad37fc2474d942a62b91c9112f45fb6e439ea356",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request-get.json",
+      "status": "clean",
+      "sha256": "8d819d8067067041e3ea58f57ca19dbf93afe3befb0b5cbcbe2567c9ddd9c7f7",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request.json",
+      "status": "clean",
+      "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/effective-rules-main.json",
+      "status": "clean",
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/manifest.json",
+      "status": "clean",
+      "sha256": "295e6ac6eb25f94b5318b1dadb5836931ad12cf71048e049eba5ca5a27804f1b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/representative-pr-jobs.json",
+      "status": "clean",
+      "sha256": "041335638f31ebacf709c51b5b45c0de72c694bbb6f1872aab931c52966b98d4",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-pull_request.json",
+      "status": "clean",
+      "sha256": "075899712dced9c6c3115cd6dc4f70481cc2d32557ce00f611143c6adb52fb1e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-push-main.json",
+      "status": "clean",
+      "sha256": "ee90cda380016de86d28bb82711c2aac3b6f129f84d07bbea44b84145789454b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-schedule.json",
+      "status": "clean",
+      "sha256": "3ddd9defd398479cc30f9b5e4b26291437bb1055cc3ee2726bb1161616c73acf",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/workflows.json",
+      "status": "clean",
+      "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/edge-coverage-resolved.json",
+      "status": "clean",
+      "sha256": "2a1a958d91cdb31583779689616461c92ea342fe8cab405603dbb357c923f3c6",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/.gitkeep",
+      "status": "clean",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-CHECKS.json",
+      "status": "clean",
+      "sha256": "25bf34ad7c6ab6226601051d138ef990a2372161527c9624b76e7f4239a52813",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+      "status": "clean",
+      "sha256": "9a8e18eceb01e13db0589855c2a1243f697d268b70f07ee073de90ddd9b24b63",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-SUMMARY.md",
+      "status": "clean",
+      "sha256": "f9aaa2975a7a9a944a15e75b8a4238f7840c9e06f519ddab83688f77930173fb",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-TASK1-RED.json",
+      "status": "clean",
+      "sha256": "4e05c00dc2a6feed914eedb0bf30d779d4f900d9d04b573afbfafd78026a70a1",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-TASK2-RED.json",
+      "status": "clean",
+      "sha256": "03871a65ec9672d9f7b272c44d52b39dc2d0eb5a8a0862de5c68ae66be454c4f",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+      "status": "clean",
+      "sha256": "ca9a7ca565420322972f5a843029efef01eb20c39135d37ef52c0dc3f9115b45",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-SUMMARY.md",
+      "status": "clean",
+      "sha256": "42f37bedde342052bf90a5ae4b417d6d6264dd0e32e65d2893caddc10e39d009",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-CHECKS.json",
+      "status": "clean",
+      "sha256": "6d613034cd26096f004c54cbc4cb3f987bacf2120d0dd0ac328fd64e860fdefe",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-PLAN.md",
+      "status": "clean",
+      "sha256": "25e2226bd83cbf57dc144731d373678018e7da6a174a6168504c6d621e499f0c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-SUMMARY.md",
+      "status": "clean",
+      "sha256": "3e5e39cf17f8d470e42373b23babf30d9f1cdca88c3d2f5d584998151ed3ff58",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-TASK1-RED.json",
+      "status": "clean",
+      "sha256": "5c9c2c34ee6c4587a5eebb5d9d8a2b074634875b224aad50e7c068a80469cf6a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-TASK2-RED.json",
+      "status": "clean",
+      "sha256": "2ae52b11d9de46b4172dc91379c24baea4dab0c8e4fada956f6858124bbaf035",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-CHECKS.json",
+      "status": "clean",
+      "sha256": "148a24e8115ea6f36aaa7c63adeba2d874ef79aaa784f44b45a92335c0441ec3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-PLAN.md",
+      "status": "clean",
+      "sha256": "7d66cf40623446642aac5ccc53e17660ca13d3e25dee1f7b208bb0177ac22e0a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-SUMMARY.md",
+      "status": "clean",
+      "sha256": "ad4f7a276fee89337ad432a226dc481661670596c52442feb126e48ed2470669",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-TASK1-RED-TAP.json",
+      "status": "clean",
+      "sha256": "ab1cb6c78bdb4ca35d5d3b59f8bdbea318ebfd2e2cb1e72511ee648b77ce4659",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-TASK1-RED.json",
+      "status": "clean",
+      "sha256": "2aeb57e6a7291106156ef95241bc2d60e56f281f9e71baa049187de51a316a1b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-TASK2-RED.json",
+      "status": "clean",
+      "sha256": "1a19f19204d18e52d524fe193023d56042f812c0aeba069b98308c98ca2d2438",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-CHECKS.json",
+      "status": "clean",
+      "sha256": "8e0fd21b5de1d17fecc92a27ca320819916bcc94b69d46eecd04424478c50b76",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-PLAN.md",
+      "status": "clean",
+      "sha256": "96d9b8ae67f3a628bc6eff8dde8974040f635b6d48a6f19cb1ab9eb59f29ec44",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-SUMMARY.md",
+      "status": "clean",
+      "sha256": "fe4c0c69841d6e45b06b84bcea683903ef7f587afe0dbcdc62f1f0ee517b4400",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-TASK1-RED.json",
+      "status": "clean",
+      "sha256": "47006a463c9c308dd2ded3040b890959d3f018548c7720c7915a05b56eca0bf5",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-TASK2-RED.json",
+      "status": "clean",
+      "sha256": "30afd7f1bad26004bb533d2f8e0a14925a2c553b861302b7c78de47c69afe1ed",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-CHECKS.json",
+      "status": "clean",
+      "sha256": "2b0141b0004f02c1b429ccf843d9f0e127c14fc00f3f46295231be83d03148b8",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN-PRESERVED-20261012.md",
+      "status": "clean",
+      "sha256": "af8b2367437150c6a86690b659c95cc1f4fdc7a00af84f0549d51c8c136e9a51",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+      "status": "clean",
+      "sha256": "6e83d388d66dbeea4beebd21dd1ecd73034824dd6450514ed134fedc4661f37a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-SUMMARY.md",
+      "status": "clean",
+      "sha256": "7636df018e13a3813a87718222bf2085ab6018076e36c06e8e16b11aff26cd90",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-TASK1-RED.json",
+      "status": "clean",
+      "sha256": "181fe05020e98aa950b902501cd228773accb02ac941b2de2b007fbfe1fb41ca",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-TASK2-RED.json",
+      "status": "clean",
+      "sha256": "33cb88ecbf76ea50d7fc367c20b70d98acc2bee1ca61107793690d28137d8dd1",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-CLASSIFIER-RED.json",
+      "status": "clean",
+      "sha256": "52c21fb7e1ccb1a292b6b0e9b0df6d060df98411efd1f73b05f56406cedcd07e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN-PRESERVED-20261012.md",
+      "status": "clean",
+      "sha256": "0fb430ccc1143f49802fe1d22191e65d784b7fe5a5a1b9604896b36c102945d8",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+      "status": "clean",
+      "sha256": "91cb5172420d002cec86cbd1603be5b0f6b9187db367a8512d93f4aba17ca15f",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-SUMMARY.md",
+      "status": "clean",
+      "sha256": "e6683a1e773bd5d79ddd43736d147bcb43902c244cf583a73325e962a9113e11",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-TASK1-RED.json",
+      "status": "clean",
+      "sha256": "cdc0249f7249317be6d468ddc3ac7dded1d6b7afad998ddfa2ceb1cb3c191284",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-TASK1-RED.txt",
+      "status": "clean",
+      "sha256": "869a3496918aaa5324e53447938b4d92237b7212570a9a7ed7b7e9508c714dc3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-TASK2-BROKEN-SOURCE-NEGATIVE-CONTROL.json",
+      "status": "clean",
+      "sha256": "762ce08bd38bfa0b628df1938aac808de13a93568dae9598602001efb4f6df53",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-TASK2-RED.json",
+      "status": "clean",
+      "sha256": "7c35bd2df5654c682f3c6e81b875784480171e850a4c014f0c3aae0a765c1b07",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+      "status": "clean",
+      "sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-DIRECTORY-COLLISION.raw.log",
+      "status": "clean",
+      "sha256": "60d07fb24114cd56b37ec63fdbb41a2c4fbad208271895eec5e71f66f8fb5910",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-GREEN-EVIDENCE.json",
+      "status": "clean",
+      "sha256": "ab110752a73dfb6e1edba71f75b2a99d86f51bb99c3d4ec753dd8ba73d030521",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-GREEN-REPORT.tap",
+      "status": "clean",
+      "sha256": "2783605310a8bc0391d83cb8a96104b273b68e830b45de8f29f32b0c4e9d3a1f",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-METADATA-PRESERVATION-CHECK.json",
+      "status": "clean",
+      "sha256": "f18f65251d26d76a3c260bd9b3ae4ddb84501ab237c026404a173aad3fd3b8a8",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-PLAN.md",
+      "status": "clean",
+      "sha256": "d86806b9dfa929bb19a29c907582d1212900d2b91a4e051f6286628f0d1edca4",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-PREFLIGHT-SETUP.json",
+      "status": "clean",
+      "sha256": "5d8afa2039c70e434f16b1cbfa411097a796cb10e41b05bc0e452e869d9deef0",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RED-EVIDENCE.json",
+      "status": "clean",
+      "sha256": "fafe36efb2cc5cfc2fd111799abf0cb80beb1f9a2663b913fc0215767cb39249",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RED-REPORT.tap",
+      "status": "clean",
+      "sha256": "316128fa2295d00c13c6ce7a95c2eb43d64a74875d6261754349ee6f2d07332c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-ROOT-RECONCILIATION.json",
+      "status": "clean",
+      "sha256": "40a2513451b50d2cf3a15d94e760a000a4922a9f6a18b3f16fad7336cda9c8c8",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RUNNER-DIRECTORY-COLLISION.json",
+      "status": "clean",
+      "sha256": "b7136b9c95d04528283b22a8192b2ee2514bbf2d84c5c062f4f3ffefa2304bc4",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RUNNER-PREFLIGHT-FAILURE.json",
+      "status": "clean",
+      "sha256": "4edd9fa286ef148268a0016dbe282618d9890f9ce53ece23b7c9f177cf8932b0",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-SUMMARY.md",
+      "status": "clean",
+      "sha256": "3b20e573fcde4d927900ddce15d3cdd5030531ae6bb1f389edb5f0209d409fdf",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+      "status": "clean",
+      "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-PLAN.md",
+      "status": "clean",
+      "sha256": "c3b6240b1c95bd65448f68fc7d5d54e0ba70b90d766380889402758b61240f34",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-PLAN.md",
+      "status": "clean",
+      "sha256": "ba051a82d5145b2cce491d3e4800417b03012244bb41a0ecd57c3fe47ad8d01b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-SUMMARY.md",
+      "status": "clean",
+      "sha256": "6482e93a54e1cf8e30533fb956448208c6209967f40f30c8dc69b6cefdfdf87b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-TASK1-GREEN.json",
+      "status": "clean",
+      "sha256": "d076321b9b87c6fe67c228961eeb490c58e8834a0ae5125fd2525be52f421d7b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-TASK1-RED.json",
+      "status": "clean",
+      "sha256": "1bb2a77c1a7917337438c5111bac8f451b48c465228f2899dcfe020619bd13d3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PLAN.md",
+      "status": "clean",
+      "sha256": "6db2445f21d793e5a651b673a0150d01f691211ed74a8d42054666a4ee69ab33",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION-02.json",
+      "status": "clean",
+      "sha256": "14f364486b6cfbb8fdc18744c4585986fe0f4d35aa5387265747b0fa8a3cfef9",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION.json",
+      "status": "clean",
+      "sha256": "2c9e0fea97a6d900f96763f7376f88b30678e346106162135707f1547bb0d887",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-EFFECTIVE-RULES.json",
+      "status": "clean",
+      "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-RATE-LIMIT.json",
+      "status": "clean",
+      "sha256": "ae404a52273333e9e857fe3042b9fa77f46a029ddd94d047efad127e2e8e87ae",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-REGISTERED-WORKFLOW.json",
+      "status": "clean",
+      "sha256": "963957343ba110ce175bd31d6551e7a8ce3f11d2fbfec453a7922d268c9726cd",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-SUMMARY.md",
+      "status": "clean",
+      "sha256": "8a1faf8383f58bad968279d26e2f990c4ebd7cd04255db15ffec90bf08beef61",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-13-PLAN.md",
+      "status": "clean",
+      "sha256": "16c458406ca333eac6db2d8150c36734c53063dbcad37177064b534fedc5ae33",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-14-PLAN.md",
+      "status": "clean",
+      "sha256": "ce6cdcb30bf9472b1849df30cc2777dff7dd59cbce40486d82d0244378989cc9",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-PLAN.md",
+      "status": "clean",
+      "sha256": "823b401f191adc8ab102e8b392a4495410dbe5fcb49d4ac53606dd62ab42c7bb",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-PLAN.md",
+      "status": "clean",
+      "sha256": "cc57e323b81d242597c86541cde3f47ebb40a66e8ee4153f7382770f30fc37de",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-17-PLAN.md",
+      "status": "clean",
+      "sha256": "74b8a8d0ed6de9b00d5c562ab6f458973d7136a56a5655f1e3edf2edb9c5b188",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-18-PLAN.md",
+      "status": "clean",
+      "sha256": "c4696a34cd2ec299f19c900ccd9a37d38fcbc01b9bcb3b683663d41780f075da",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-19-PLAN.md",
+      "status": "clean",
+      "sha256": "22be54dca53ae084c597cfd03054f411bac820df69bf2e6ec72a761e79cf035e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-20-PLAN.md",
+      "status": "clean",
+      "sha256": "b6e5cb64d7fff979e95f991529b6a431d4f660b5555dcbc7342248a1bb66f773",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-21-PLAN.md",
+      "status": "clean",
+      "sha256": "dd2a668631568a9bb7857c2c50ef3a3747f35e5140fb3e1446202fd9af2607b5",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-22-PLAN.md",
+      "status": "clean",
+      "sha256": "fe1b86e2bc5b1bdae9be3c2a0bed8213d7e7f6dd93d51346acbb8aa833588a91",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-23-PLAN.md",
+      "status": "clean",
+      "sha256": "77d98a1aeddb9d9902c7093fdd1bb7c4d2f461bac797a3724d080de5b5a395dd",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-24-PLAN.md",
+      "status": "clean",
+      "sha256": "d868523f6df3bd2ac6b52a780b8425741dcd6e91580ed3bc650ff87ab9107690",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-25-PLAN.md",
+      "status": "clean",
+      "sha256": "be7b7480209289e398ef0107c986a6606c33a045fb5baf8d6cab24ae12829039",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json",
+      "status": "clean",
+      "sha256": "ab75c1550bb2b25e4eff06dcbfdb2d64320e9447c4985c95f8e94c1da159b6d2",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json",
+      "status": "clean",
+      "sha256": "e9062f00250c89f1e49684f6cd4a4bc859077c6b8a307db03902ccbe42ff8a41",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-PREFLIGHT-effective-rules.json",
+      "status": "clean",
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-PREFLIGHT-rate.json",
+      "status": "clean",
+      "sha256": "42990cb6ba783d284e3c17eb5250a4391cbf277ee1a0f113ee64586984ae8ea3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-PREFLIGHT-registered-workflow.json",
+      "status": "clean",
+      "sha256": "963957343ba110ce175bd31d6551e7a8ce3f11d2fbfec453a7922d268c9726cd",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-RECOVERY-RED.json",
+      "status": "clean",
+      "sha256": "2861d79f2eda73105f78f552b91f34458eaf18163d7af5c397df7aa9cc932f83",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-REQUESTS.json",
+      "status": "clean",
+      "sha256": "45b96e9d81c15015dc29aafc15f42ebce0dbb0fc8f68fe03c419eeb0c2bb76c1",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-WORKFLOW.yml",
+      "status": "clean",
+      "sha256": "c487ada89cf56089c7dbf404fa2a51360a10c20d9b352a2469ac93236c936fff",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CLOSEOUT-CHECKS.json",
+      "status": "clean",
+      "sha256": "c1aa0594a98601c97a51484031b1050437b88ba8c96f80cc57e16bab725648de",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+      "status": "clean",
+      "sha256": "bee3668bc9a7bac5f93b9a695c99af26212178fa2fceeecfb982e58d4684389e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DIAGNOSIS.json",
+      "status": "clean",
+      "sha256": "37097af5164ba074ad3b52ff29728628e4c63d170fd73df56f9762193ce7b090",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCOVERY.json",
+      "status": "clean",
+      "sha256": "07e24cd5e01b5869054d577d675b2ddced97be2e677aae6d7c91965282874067",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-CHECKS.json",
+      "status": "clean",
+      "sha256": "90e655f4904e1106ec158b731857439fda4c8ecd28f3f6be1f19ecdfe37deb1a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-LOG.md",
+      "status": "clean",
+      "sha256": "b69d1525a8c8eeafe4602a2da6e166a3132939e5790308e5b5e4184c8402a4b3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DISCUSSION-RECORD.json",
+      "status": "clean",
+      "sha256": "e625d841c5407218e040ac039a78ec9dbf2e8432016ef133ed1da13282ff7558",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-CAPTURE.json",
+      "status": "clean",
+      "sha256": "5349439152e3887712874149e6c1bc02415e2679cd1c17f1ec5bbb5e75bdc977",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "status": "clean",
+      "sha256": "3b2dee2d593fcdb7957fd018d9eb17286c469e6f509dd2b057fb43b8b87669de",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PACKAGE-AUDIT.json",
+      "status": "clean",
+      "sha256": "ac0095e9e0de273f88c32fd89367362dc56854b0db4859e250357d7350018edf",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PATTERNS.md",
+      "status": "clean",
+      "sha256": "32a272b7f63d4ad52fcfea529cee80cbf0b00b52936c4ee49319126e23dcc628",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLAN-CHECK-01.md",
+      "status": "clean",
+      "sha256": "c93f621bee0830b9ca81e95833df75f4b3c880aaa4ee7721f1cbfd8f24009074",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLAN-CHECK-02.md",
+      "status": "clean",
+      "sha256": "6e915a4e05b81cd251ff35ed0bb5388cdc7796beb49ea53c9704a21640642ea1",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLANNING-CHECKS.json",
+      "status": "clean",
+      "sha256": "043fed648fcf664a8f2d239592a318da3efb196975d927f00b2a3e3571386461",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLANNING-RECORD.json",
+      "status": "clean",
+      "sha256": "820bf1093f5f1888b8239140e97cfd4a3042ef5247aad3906c7e3d8cf928da25",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PLANNING-ROUTING-CHECKS.json",
+      "status": "clean",
+      "sha256": "a0602b38fba583e39bf46b7996599248d4eb6a0651b267888216b081ca3d8a63",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-POSTEXEC-CHECKS.json",
+      "status": "clean",
+      "sha256": "51c4227717c03c28697a17983df29a972493e41f1676e41bbede5e661330171a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-POSTEXEC-DISPOSITION.md",
+      "status": "clean",
+      "sha256": "32c4aae62f5ce6adce72a768d28a2e125e1635311a73640999d898c46e4eb5db",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-POSTEXEC-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "6175cb45ecba7d64ed1a906c286195f3e10b669490802d0511cc606b32b861b0",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PREHOST-REVIEW.md",
+      "status": "clean",
+      "sha256": "b81d6eea9a1ab4d423da3b1282ee9e81f39169b900c0b807836045c5e69bd055",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "status": "clean",
+      "sha256": "fea7da00e5451a98eccf461f6b909c29e83cdd006ec95dd8e77da59c0891ec54",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+      "status": "clean",
+      "sha256": "dd9cf6aaf052990a09200732441ecf47bab0284b5bc35a172a74498295e63fdc",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "status": "clean",
+      "sha256": "f2a2a77e9e42ab9b7e3d49bf85ecde24c70ba9e46e73d03419ff274e0cb4219a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-WORKFLOW.yml",
+      "status": "clean",
+      "sha256": "65b56df90ccd19b6152392027276887dcc1d55713462ec7e52d679480265c904",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EDGE-COVERAGE.json",
+      "status": "clean",
+      "sha256": "423747512803fdde50f305be24dadced844c6bafecee02aa72bbedf90db95ce7",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EVIDENCE-START-REVISION-02.json",
+      "status": "clean",
+      "sha256": "bc4e9130c31a9f726241ef6257dff89738f2c436c3e718b0e018bb5b60d412c5",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CAPTURE.json",
+      "status": "clean",
+      "sha256": "435340af0b2b2b103ba705ae9d6e72d121dd0428835f0cad70bd6ead2ac988f2",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-CLOSEOUT.json",
+      "status": "clean",
+      "sha256": "9673c8d298c0395066ca665afaf4d44a2ef9e983ac8da881a40eb5150cf9c34e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-PROGRESS-01.json",
+      "status": "clean",
+      "sha256": "dba20a97a6d98394b81d3549c78648ae330fad0d7404511b173f81bdb11c777a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-PROGRESS-02.json",
+      "status": "clean",
+      "sha256": "f41c2c0aa903e14f2f3430e5f0b5630c219040a8d30e8d3eb2fc043a8a74b59a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-ROUTING-CHECKS.json",
+      "status": "clean",
+      "sha256": "a07b8ccad531b97deef8de1593f88e36f3e817c9793a2da170af863caf533c64",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-EXECUTION-START.json",
+      "status": "clean",
+      "sha256": "95adf17b88ef4dda134319ccc9d3231c886997808b942986bcf6f2ba9a962898",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PLAN-CHECK-01.md",
+      "status": "clean",
+      "sha256": "6eeb2d60f3fd060e68c72a33d387c4005bd3c999fd16dbddcfb30d1acfe41fda",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PLAN-CHECK-02.md",
+      "status": "clean",
+      "sha256": "459e3cfae849fcc7bd79babde54728cabe643ae2978b333820b6f822ae0ff6e3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PLANNING-CAPTURE.json",
+      "status": "clean",
+      "sha256": "c3ddb96dd67be8c1345e73ebfd5a3f98f3a0cab99f19fac394cee352ec841931",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PLANNING-CHECKS.json",
+      "status": "clean",
+      "sha256": "fbb7c157e69df6a4a414a88bbcdc74d1a8af6bb957ff0ee3149be0820aa8423b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PLANNING-RECORD.json",
+      "status": "clean",
+      "sha256": "2358efaf838d46882dab15b08bcaaf170d36c0033ad53927873d8a7b938130eb",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-POSTHALT-GREEN.json",
+      "status": "clean",
+      "sha256": "e044a85d886929fcb1f4e67bf994f32cfbd7d31aa513d482a0919a71d3f478de",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-POSTHALT-RED-02.json",
+      "status": "clean",
+      "sha256": "ca6348f74aef1065a173e20bdcf8368711148c15a85d0872c34c990884867bc9",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-POSTHALT-RED.json",
+      "status": "clean",
+      "sha256": "0fd37c205e5a7d20cfa1446ae531ecfc4e051a4253a7226f431365dd43c0f494",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+      "status": "clean",
+      "sha256": "17a7f9b3f0a30be002d177b70924a7efdc3dcaa5e047525951830d47ebfbfc18",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/app-log.log",
+      "status": "clean",
+      "sha256": "be710de0b509fb27809254ea9d38bd6b5ee96905053431fbb8edab7d3aa93117",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/drop-log.log",
+      "status": "clean",
+      "sha256": "57cd1940345dacaaa82795b966bbed7a72e5ce007d3a7afe70365ff8b584c09c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/setup-log.log",
+      "status": "clean",
+      "sha256": "57cd1940345dacaaa82795b966bbed7a72e5ce007d3a7afe70365ff8b584c09c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/test-log.log",
+      "status": "clean",
+      "sha256": "2970504b5aea9867a4fdb0cc69e5a22c72d1423a9ef73f08835bb8f4e0e1a2ae",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01/drop-log.log",
+      "status": "clean",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01/runner-preflight-error.log",
+      "status": "clean",
+      "sha256": "29c0cf5407f4390b40ab34cce1216a1e46696de7d10dae83b979099fbe90b479",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01/setup-log.log",
+      "status": "clean",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-01.json",
+      "status": "clean",
+      "sha256": "b20adf12b7b07ede9d11a85fd813d90c6c3f4bd7fcdf38eaf564797f06baf5db",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-02.json",
+      "status": "clean",
+      "sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-03.json",
+      "status": "clean",
+      "sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-04.json",
+      "status": "clean",
+      "sha256": "127c445addd23c59d871670e6b06f0b9c42714ecccecfb482e4b628483ce228a",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+      "status": "clean",
+      "sha256": "e662f7fe9045b576320b8885126c726c00d650261991e1d46db35d02bf868308",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REPLAN-CAPTURE.json",
+      "status": "clean",
+      "sha256": "4c5511cbcbbd61312be817a064e71ba07300fd64f06ac15552b04722e9ca025e",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REVISION-01.json",
+      "status": "clean",
+      "sha256": "13260ca3a3ed5b22aac3a69cdcaa6dbb6be065df23b4d031698ef3acb2f44be5",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-ROUTING-CHECKS.json",
+      "status": "clean",
+      "sha256": "bb083fd9bd5764f4475e3b526fa248d64b22a6d1dd68e0006965cf8930e889a3",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SDK-STATE-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "a678576a648b34765787d9860d66c5ca4ec8ad602229f15bc505fe1609366491",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SOURCE-AUDIT.md",
+      "status": "clean",
+      "sha256": "b3210e4c77726a8426b1621884e237e0f22de4c52723f334347b3ac4caf07224",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-STATE-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "51ffce8b5b32cfc9018a01b3c9daf6db7f7f63bbee9c1e37a781515f825b138b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-VALIDATION.md",
+      "status": "clean",
+      "sha256": "afd9974465be97adf69e3d9ba80cdbf1ceabc4d47924a7e0aab105daeacca5f5",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json",
+      "status": "clean",
+      "sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-VERIFIER-RED.json",
+      "status": "clean",
+      "sha256": "eb0af00e1dae23aeac76d6b2af1d6a5e1ca652e3f129e89fae4b859ec866e256",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-BUDGET-ARITHMETIC-CHECK.json",
+      "status": "clean",
+      "sha256": "482726098b5a6735355e8b78e842b1fd47831ae5e08b73dfb5086ff3c83038c4",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-BUDGETS.md",
+      "status": "clean",
+      "sha256": "af2d0bb9b4d1da4d9a6669c215f1a2f03d85acedddab4bb857f0a47b111331aa",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-CLOSEOUT.json",
+      "status": "clean",
+      "sha256": "51a3449d11360cfcb92cd8c5b847daa10e75d553438a6cf010bbe380039b4e05",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-COVERAGE.md",
+      "status": "clean",
+      "sha256": "272975a8455a0c2c597b8df02d1410160c8f03eaa56eda759e675e291650bd29",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-DRAFT-CHECKS.json",
+      "status": "clean",
+      "sha256": "2bfcd57b1ffc95851d5eedd8e6ef4c5bd35d849b0a9abfcd13785478fbc0bb41",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-EDGE-COVERAGE.json",
+      "status": "clean",
+      "sha256": "70449a1d0cfcb373d296528866441ce504850e26eec3dab51b2e632053131649",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PLAN-CHECK-01.md",
+      "status": "clean",
+      "sha256": "501412f9b2a2360124a2b9311a8eebdeaa318b0e31dc18df8e3c03a918751656",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PLAN-CHECK-02.md",
+      "status": "clean",
+      "sha256": "3b2b6ba947bcca75c43a26fb02925c86df994abda30329dd2ff988c228bec66b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PLANNING-RECORD.json",
+      "status": "clean",
+      "sha256": "fcd280ffd721680775798247d2b27bb64d51b2d6501449ec0d240343baa0fa82",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-ROUTING-CHECKS.json",
+      "status": "clean",
+      "sha256": "6a266ff9fc970c90c4a94f594ca36b53ec6fb746fba530026757e73c3987a6e1",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-SDK-TRANSITION.json",
+      "status": "clean",
+      "sha256": "88ab4c52f4e5b18d9364d3e08083bf01cbd0314eaa8f64d6f9bfdd025fe544b2",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-SHARED-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "f5e29bee55f5e63e4623bcb949352f63e4e9ae05ee891fc3095f1ad3a9291e8b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-SOURCE-AUDIT.md",
+      "status": "clean",
+      "sha256": "fa93d7d710f2d1cee969c2a2f96eeca5270706891e37bffb32a6686063f022bf",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-VALIDATION.md",
+      "status": "clean",
+      "sha256": "a22795a6d10fcf2a141c5a31ad8a78014046620315596ff93b3879940e26fbc7",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json",
+      "status": "clean",
+      "sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RESEARCH.md",
+      "status": "clean",
+      "sha256": "45e1f701f7aa30c2d1bedd6b9964cabd615d4f7a122c061c17fcda72627b622b",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ROUTING-CHECKS.json",
+      "status": "clean",
+      "sha256": "cda603de0bbcbe1473d30298d0645cdf5e700b7a5674717c2bef73ee14bd0383",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SOURCE-AUDIT.md",
+      "status": "clean",
+      "sha256": "e27e76a3ce0abd98a247f4acd9c1b87a82a867361943e919aa360c6ccdf8a82c",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SUMMARY-SCOPE-PRESERVATION.json",
+      "status": "clean",
+      "sha256": "bc8bb74bde9e98cd705ed605a0e581cb1909dc9f3e9f0dfe525a2510fc9009c8",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-SYNTHESIS-REVIEW.md",
+      "status": "clean",
+      "sha256": "b9c9f2360ecde74ef640da83401376b504e55e87fff40eb3cf84269b9e476658",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VALIDATION.md",
+      "status": "clean",
+      "sha256": "4c73a831c760ee93078427f9e11fbf878715ad2ef169c3193fd6e5ba078297d0",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/COVERAGE.md",
+      "status": "clean",
+      "sha256": "0fa567a6a1d67b39aa41b3e60e949f97d233f26df867db0a571bfb63c85f96af",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "5ac96867d1218cfad2b8ff940bd85990d51ac2f44a2eeec24c54cec104de5c96",
+      "preservation_commit": "578f8afdd492ca2be4b2ef47f1ab1f5fc10bc2c0",
+      "readback_exact": true
+    }
+  ],
+  "dirty_config": {
+    "path": ".planning/config.json",
+    "status": " M",
+    "ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+    "blob": "ab8aa3007f17294e2f224d4ac8482522b79bda24",
+    "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+    "readback_exact": true,
+    "leave_unstaged": true
+  },
+  "old_halted_plans": [
+    "253-02",
+    "253-07",
+    "253-09",
+    "253-12"
+  ],
+  "old_blocked_plans": [
+    "253-08",
+    "253-10",
+    "253-13",
+    "253-14"
+  ],
+  "new_execution_plans": [
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25
+  ],
+  "verification_status": "not_started"
+}

@@ -1,0 +1,108 @@
+{
+  "legacy_sha256": "041dcbea95d1b5b18e8699d71f984c59c2039466a10e5eb10daa8a3fdcd9d36d",
+  "versioned_functions": {
+    "verify_receipt": {
+      "legacy_function_sha256": "fd60361574d2c19df67b26fcb0ab5abaa42335e4f9e5261c6b5b3a086180d127",
+      "v2_function_sha256": "fd60361574d2c19df67b26fcb0ab5abaa42335e4f9e5261c6b5b3a086180d127"
+    },
+    "_git_manifest": {
+      "legacy_function_sha256": "88a9009fabc02098bffc1c658efe4b672aec484065feb540db5fe0333ae94cd1",
+      "v2_function_sha256": "88a9009fabc02098bffc1c658efe4b672aec484065feb540db5fe0333ae94cd1"
+    },
+    "_filesystem_manifest": {
+      "legacy_function_sha256": "95ffcae2fa098fa114bf20e5b199e0afa8bbe4863edd1f62b4b8c14c7416002c",
+      "v2_function_sha256": "95ffcae2fa098fa114bf20e5b199e0afa8bbe4863edd1f62b4b8c14c7416002c"
+    },
+    "_assert_sdk_source_binding": {
+      "legacy_function_sha256": "e445d6eca261ae265b206bd62b763545e06f0277635d6e1bc7d26af6e5c3ff65",
+      "v2_function_sha256": "e445d6eca261ae265b206bd62b763545e06f0277635d6e1bc7d26af6e5c3ff65"
+    },
+    "validate_sdk_index_rows": {
+      "legacy_function_sha256": "8013ac2034c73254295bfa555094d92d3b471b2654ef59db0917166802e9e692",
+      "v2_function_sha256": "e4bacc91be2416b9285fb47218bb4f86f74832d973ed0ce57f8223a93ea36868"
+    },
+    "expected_169_script": {
+      "legacy_function_sha256": "0e99301de5152ebb494e501aa9353a84a3f2b5adbaedb46dfe17dc2df9653518",
+      "v2_function_sha256": "9cdddbb4784274600e08f84539d337c8f8b47f5fdf80e7cc6cbd989b15cff850"
+    },
+    "validate_169_executable_contract": {
+      "legacy_function_sha256": "d995063e032cd5652f291ead1a8dbf0654259e5c20c60f806fc0537f5c534504",
+      "v2_function_sha256": "bbf3f8b033c873c4d9d61862dbba8a00c3d38c2d0dc65881360577cedfe9a829"
+    },
+    "validate_168_receipt_placement": {
+      "legacy_function_sha256": "f30fd3f5467c7ca17962704544cb1d9aae6c78691033555291cb913c69284746",
+      "v2_function_sha256": "e4b5073bbbf866ae05481dbc042f1ff3621b7ae497640636bcb8ec02929102eb"
+    },
+    "expected_plan_amendment": {
+      "legacy_function_sha256": "2f472aaf62b35d631aa79b1c613ff0df61ab69346692453f379489f940fd4310",
+      "v2_function_sha256": "eafdde7bf4b4f554b196406bbb5549cccf38515de4ba959584f5dbc37b48b3c4"
+    },
+    "validate_169_owner_contract": {
+      "legacy_function_sha256": "d91c8b1c4c83df472dc782b40581eb314dec0b434210b55a36767a2dfb5749e9",
+      "v2_function_sha256": "d91c8b1c4c83df472dc782b40581eb314dec0b434210b55a36767a2dfb5749e9"
+    },
+    "run_sdk_copy": {
+      "legacy_function_sha256": "23e20d8a83a7eb612742a1fee5cdfae1022fc35e90329b0c24ade506bac9e6be",
+      "v2_function_sha256": "a9a645271c9135482193c30247170d265f226f2ebccc2c57c06e11aeb5e11d0f"
+    },
+    "canonical_json_bytes": {
+      "legacy_function_sha256": "f84c76b322e3bb36ff2a0b2f6a3fc942a9e527d71bd5a79fcea4b9e4baf2a8a7",
+      "v2_function_sha256": "f84c76b322e3bb36ff2a0b2f6a3fc942a9e527d71bd5a79fcea4b9e4baf2a8a7"
+    },
+    "validate_contract_limits": {
+      "legacy_function_sha256": "7839d30ea4e8889a1c597234237cf4832a99f0bce06e617857ac5d91cc98fe62",
+      "v2_function_sha256": "7839d30ea4e8889a1c597234237cf4832a99f0bce06e617857ac5d91cc98fe62"
+    },
+    "validate_scoped_plan_diff": {
+      "legacy_function_sha256": "a468cc0184efe8341676fd69c2eb9ff9cb80a9be0644e7b48119b545d6792284",
+      "v2_function_sha256": "a468cc0184efe8341676fd69c2eb9ff9cb80a9be0644e7b48119b545d6792284"
+    },
+    "validate_sdk_copy_report_data": {
+      "legacy_function_sha256": "419d2b7935009959678cb75130e4265f719ae38643f1a63b12fe036e32ef6207",
+      "v2_function_sha256": "696c24f58305c6cef3295bcebf952479723de2642ce45f4422c1b10adbd45e95"
+    },
+    "validate_sdk_copy_report": {
+      "legacy_function_sha256": "f720cf638a7db9c97acb36c0293137d0624765977299ab94c56cc854b629a4f8",
+      "v2_function_sha256": "f720cf638a7db9c97acb36c0293137d0624765977299ab94c56cc854b629a4f8"
+    },
+    "validate_bridge": {
+      "legacy_function_sha256": "a6e0028c292fbd1d00d467218ba6660a9a60395453ce786a5c3c722bbf089329",
+      "v2_function_sha256": "015c03565d42af7bd16bb57b7e92e8d9d209eeec5c29efed1bd6d75a264691be"
+    }
+  },
+  "inherited_leaves": [
+    "ContractError",
+    "EXPECTED_173_FINDINGS",
+    "EXPECTED_PLAN_IDS",
+    "NEVER_RAN_IDS",
+    "PHASE",
+    "PLAN_174",
+    "PLAN_179",
+    "R12_CONTRACT",
+    "R12_CONTRACT_SHA256",
+    "RECEIPT_179",
+    "REVIEW_173",
+    "REVIEW_173_SHA256",
+    "SHARED",
+    "SUCCESSOR_SCHEMA",
+    "_replace_exactly_once",
+    "acceptance_prerequisite",
+    "bound_file",
+    "check_historical_inputs",
+    "clean_status",
+    "command_body",
+    "expected_acceptance_body",
+    "git",
+    "parse_log",
+    "read_bytes",
+    "read_json",
+    "read_source_bytes",
+    "sdk_identity",
+    "sdk_query",
+    "sdk_write_summary",
+    "sha256",
+    "validate_preflight",
+    "validate_probe_object"
+  ],
+  "current_instruction_renderer": "current_169_instructions makes partition/owner prose agree with exact executable arrays; preserves original64-hex pins and deadline commands."
+}

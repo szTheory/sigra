@@ -1,0 +1,309 @@
+    warning: redefining module Sigra.MockRepo.Behaviour (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.MockRepo.Behaviour.beam)
+    │
+  1 │ defmodule Sigra.MockRepo.Behaviour do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/mock_repo_behaviour.ex:1: Sigra.MockRepo.Behaviour (module)
+
+    warning: redefining module Sigra.Test.AuditEvent (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditEvent.beam)
+    │
+  1 │ defmodule Sigra.Test.AuditEvent do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_test_event.ex:1: Sigra.Test.AuditEvent (module)
+
+    warning: redefining module Sigra.Test.MultiStub (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MultiStub.beam)
+    │
+  1 │ defmodule Sigra.Test.MultiStub do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/multi_stub.ex:1: Sigra.Test.MultiStub (module)
+
+    warning: function build_user/0 is unused
+    │
+ 47 │   defp build_user do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_session_test.exs:47:8: Sigra.Plug.FetchSessionTest (module)
+
+    warning: redefining module Sigra.Test.AuditQueryIndexScratchRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditQueryIndexScratchRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.AuditQueryIndexScratchRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_query_index_scratch_repo.ex:2: Sigra.Test.AuditQueryIndexScratchRepo (module)
+
+    warning: the underscored variable "_key" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                  ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:34: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_window_ms" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                        ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:40: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_limit" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                                    ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:52: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: redefining module Sigra.OrganizationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.OrganizationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.OrganizationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/organizations_fixtures.ex:1: Sigra.OrganizationsFixtures (module)
+
+    warning: redefining module Sigra.Test.Support.PasskeyFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.Support.PasskeyFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.Support.PasskeyFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/passkey_fixtures.ex:1: Sigra.Test.Support.PasskeyFixtures (module)
+
+    warning: default values for the optional arguments in the private function build_membership/1 are never used
+    │
+ 94 │   defp build_membership(attrs \\ %{}),
+    │        ~
+    │
+    └─ test/sigra/live_view/organization_scope_test.exs:94:8: Sigra.LiveView.OrganizationScopeTest (module)
+
+    warning: redefining module Sigra.Test.PlanningPaths (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PlanningPaths.beam)
+    │
+  1 │ defmodule Sigra.Test.PlanningPaths do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/planning_paths.ex:1: Sigra.Test.PlanningPaths (module)
+
+    warning: redefining module Sigra.TestUserToken (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUserToken.beam)
+    │
+  1 │ defmodule Sigra.TestUserToken do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_token.ex:1: Sigra.TestUserToken (module)
+
+    warning: redefining module Sigra.Test.UserSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.UserSession.beam)
+    │
+  1 │ defmodule Sigra.Test.UserSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_session.ex:1: Sigra.Test.UserSession (module)
+
+    warning: redefining module Sigra.Test.PostgresRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_test_repo.ex:2: Sigra.Test.PostgresRepo (module)
+
+    warning: redefining module Sigra.Test.PostgresCase (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresCase.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresCase do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_case.ex:2: Sigra.Test.PostgresCase (module)
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+error: undefined variable "web_module"
+└─ nofile:1:15
+
+    warning: redefining module Sigra.Test.OAuthHelpers (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.OAuthHelpers.beam)
+    │
+  1 │ defmodule Sigra.Test.OAuthHelpers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:1: Sigra.Test.OAuthHelpers (module)
+
+    warning: redefining module Sigra.Test.MockUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockUser.beam)
+    │
+ 32 │ defmodule Sigra.Test.MockUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:32: Sigra.Test.MockUser (module)
+
+    warning: redefining module Sigra.Test.MockIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockIdentity.beam)
+    │
+ 44 │ defmodule Sigra.Test.MockIdentity do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:44: Sigra.Test.MockIdentity (module)
+
+    warning: redefining module Sigra.Test.MockSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSession.beam)
+    │
+ 63 │ defmodule Sigra.Test.MockSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:63: Sigra.Test.MockSession (module)
+
+    warning: redefining module Sigra.Test.MockSessionStore (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSessionStore.beam)
+    │
+ 66 │ defmodule Sigra.Test.MockSessionStore do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:66: Sigra.Test.MockSessionStore (module)
+
+    warning: redefining module Sigra.Test.InstallFixture (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.InstallFixture.beam)
+    │
+  1 │ defmodule Sigra.Test.InstallFixture do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/install_fixture.ex:1: Sigra.Test.InstallFixture (module)
+
+    warning: redefining module Sigra.Test.MockRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockRepo.beam)
+    │
+ 70 │ defmodule Sigra.Test.MockRepo do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:70: Sigra.Test.MockRepo (module)
+
+      warning: default values for the optional arguments in the private function build_session/1 are never used
+      │
+ 1213 │   defp build_session(overrides \\ %{}) do
+      │        ~
+      │
+      └─ test/sigra/auth_test.exs:1213:8: Sigra.AuthTest (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.ExistingIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.ExistingIdentity.beam)
+     │
+ 122 │ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:122: Sigra.Test.CallbackRepo.ExistingIdentity (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.EmailMismatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMismatch.beam)
+     │
+ 167 │ defmodule Sigra.Test.CallbackRepo.EmailMismatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:167: Sigra.Test.CallbackRepo.EmailMismatch (module)
+
+    warning: default values for the optional arguments in the private function test_config/1 are never used
+    │
+ 16 │   defp test_config(overrides \\ []) do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_bearer_test.exs:16:8: Sigra.Plug.FetchBearerTest (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.EmailMatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMatch.beam)
+     │
+ 196 │ defmodule Sigra.Test.CallbackRepo.EmailMatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:196: Sigra.Test.CallbackRepo.EmailMatch (module)
+
+     warning: redefining module Sigra.Test.CallbackRepo.NewUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.NewUser.beam)
+     │
+ 210 │ defmodule Sigra.Test.CallbackRepo.NewUser do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:210: Sigra.Test.CallbackRepo.NewUser (module)
+
+    warning: redefining module Sigra.Test.EmailFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.EmailFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.EmailFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/email_fixtures.ex:1: Sigra.Test.EmailFixtures (module)
+
+    warning: default values for the optional arguments in the private function base_attrs/1 are never used
+    │
+ 11 │   defp base_attrs(overrides \\ %{}) do
+    │        ~
+    │
+    └─ test/sigra/audit/changeset_test.exs:11:8: Sigra.Audit.ChangesetTest (module)
+
+    warning: redefining module Sigra.TestUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUser.beam)
+    │
+  1 │ defmodule Sigra.TestUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user.ex:1: Sigra.TestUser (module)
+
+    warning: redefining module Sigra.Test.CITimingFormatter (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CITimingFormatter.beam)
+    │
+  1 │ defmodule Sigra.Test.CITimingFormatter do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/ci_timing_formatter.ex:1: Sigra.Test.CITimingFormatter (module)
+
+    warning: redefining module Sigra.InvitationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.InvitationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.InvitationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/invitations_fixtures.ex:1: Sigra.InvitationsFixtures (module)
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.get_by/2 is undefined or private
+└─ nofile:141:10: Sigra.Test.OrgsTemplateCompile1.Organizations.get_auth_policy/1
+└─ nofile:225:23: Sigra.Test.OrgsTemplateCompile1.Organizations.local_auth_policy_for/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Accounts.OrganizationAuthPolicy.changeset/2 is undefined or private. Did you mean:
+
+    * __changeset__/0
+
+└─ nofile:153:31: Sigra.Test.OrgsTemplateCompile1.Organizations.change_auth_policy/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.insert_or_update/1 is undefined or private
+└─ nofile:162:13: Sigra.Test.OrgsTemplateCompile1.Organizations.save_auth_policy/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.all/1 is undefined or private
+└─ nofile:179:13: Sigra.Test.OrgsTemplateCompile1.Organizations.list_auth_policy_exemptions/1
+└─ nofile:191:13: Sigra.Test.OrgsTemplateCompile1.Organizations.list_break_glass_candidates/1
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.transaction/1 is undefined or private
+└─ nofile:204:12: Sigra.Test.OrgsTemplateCompile1.Organizations.enable_sso_only/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.rollback/1 is undefined or private
+└─ nofile:209:36: Sigra.Test.OrgsTemplateCompile1.Organizations.enable_sso_only/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.delete_all/1 is undefined or private
+└─ nofile:281:15: Sigra.Test.OrgsTemplateCompile1.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Accounts.OrganizationAuthPolicyExemption.changeset/2 is undefined or private. Did you mean:
+
+    * __changeset__/0
+
+└─ nofile:287:49: Sigra.Test.OrgsTemplateCompile1.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.insert/1 is undefined or private
+└─ nofile:288:22: Sigra.Test.OrgsTemplateCompile1.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile1.Repo.exists?/1 is undefined or private
+└─ nofile:302:10: Sigra.Test.OrgsTemplateCompile1.Organizations.break_glass_exempt?/2
+

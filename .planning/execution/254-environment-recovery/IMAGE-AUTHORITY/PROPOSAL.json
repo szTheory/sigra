@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "method": "symmetric_environment_transport_recovery",
+  "patches": {
+    "before": {
+      "base_sha": "2b0e51d37184ffb95698dea586eebf3c42a33d85",
+      "path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/before.patch",
+      "sha256": "ac6920157c286f6c2391515c861db23c979cf20a4d1e81b5fee2270153f8919a",
+      "allowed_paths": [
+        ".github/workflows/ci.yml",
+        "scripts/ci/ci-runner-image.mjs",
+        "scripts/ci/ci-runner-image.test.mjs"
+      ]
+    },
+    "after": {
+      "base_sha": "c074333db2658cb0726a9ee23535e4c43a9f8c64",
+      "path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/after.patch",
+      "sha256": "ae8e20efbebf77e2f0a1f433528a48e89bbde177b55940c7a3da4ae88c014630",
+      "allowed_paths": [
+        ".github/workflows/ci.yml",
+        "scripts/ci/ci-runner-image.mjs",
+        "scripts/ci/ci-runner-image.test.mjs"
+      ]
+    }
+  },
+  "inventory_sources": {
+    "before": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "after": "da6401170e4295cba8099fd6f3ec348c6867de47"
+  },
+  "policy_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/POLICY.json",
+  "policy_sha256": "1f37060d0335a7300c620a36445b6f53933fe235b2459ea34d0ec5914499429a",
+  "execution_recipe": "After preserving the preceding failed runs, fast-forward each existing evidence PR once to this exact corrected source; one initial full-workflow run per PR. Preserve every earlier run and cache context.",
+  "budget": {
+    "new_full_CI_invocations": 2,
+    "source_update_retries": 0,
+    "maximum_minutes": 60,
+    "maximum_HTTP_requests": 600
+  },
+  "measurement_started": false,
+  "prior_spent_allowances_unchanged": true,
+  "prior_unexecuted_proposal": {
+    "ref": "refs/evidence/phase254-native-authority-draft-before-generated-setup",
+    "commit": "458f143ab3cf66a1ad164d3fc6b314dacf731269"
+  },
+  "generated_browser_path": "Same bounded package helper on the generated-host browser installation; Ubuntu24.04 pin, unchanged browser/package selection."
+}

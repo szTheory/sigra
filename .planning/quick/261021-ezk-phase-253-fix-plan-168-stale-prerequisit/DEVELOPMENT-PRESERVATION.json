@@ -1,0 +1,11 @@
+{
+  "ref": "refs/gsd/phase253-quick-261021-ezk-path-diagnostics",
+  "commit": "066e84f9a81bd532f7a30b4b47a56e38432deabe",
+  "sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py": "897738c7e2c7fff0889b8f4e3a3112e4e771c249e2090ab3b9d9b9519aa9e3a9",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.test.py": "6ced7c5723e656a071dc13fc234b56598ed37026bfab2e79e5343782ec92cb89",
+    ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/CONSUMER-TESTS.log": "b6a137026fa688af44c350483214a7f581953c9d0aac9395e94b6214a3015981",
+    ".planning/quick/261021-ezk-phase-253-fix-plan-168-stale-prerequisit/GREEN.log": "02d4d6e6af1b1d413def3732c0f504328cafb9425bf7c5cfaea2fe6fa824cbcf",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md": "9ffdc1d58cd02840a6b25e724f85d3abaf69e64e74e30dd733cb99faba3394f1"
+  }
+}

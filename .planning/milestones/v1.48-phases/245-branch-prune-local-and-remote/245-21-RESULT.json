@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "21",
+  "outcome": "blocked",
+  "captured_at": "2026-09-30T20:52:06.629Z",
+  "failed_stage": "D-06-current-origin-object-acquisition",
+  "failed_predicate": "The explicitly permitted exact-object fetch changed refs/remotes/origin/gh-pages from 5fd13b954b3c68ecacfa9c110970ebedb9acf96 to dd671004a276c24fafa8ece80e341706085a999e. No current contract, admission, allowlist row, held coordinator lock, or cumulative operation readback authorized that ref update.",
+  "command": "/usr/bin/git -c gc.auto=0 -c maintenance.auto=false fetch --no-tags --no-write-fetch-head origin refs/heads/gh-pages",
+  "command_exit_code": 0,
+  "command_stdout": "From https://github.com/szTheory/sigra\n + 5fd13b95...dd671004 gh-pages   -> origin/gh-pages  (forced update)",
+  "command_stderr": "",
+  "origin_gh_pages": {
+    "expected_oid": "dd671004a276c24fafa8ece80e341706085a999e",
+    "observed_after_oid": "dd671004a276c24fafa8ece80e341706085a999e",
+    "identity_unchanged": true,
+    "object_readable_after": true
+  },
+  "local_refs": {
+    "before_count": 128,
+    "before_sha256": "6e1aab7e1166ac10990643522777f5d8da83d39b79ae7aa38fe04f5697bd0a18",
+    "after_count": 128,
+    "after_sha256": "46ab4b525f891e94a97a86d8e36f1169bb23d5cdd3da95ed2067d543396a6d4f",
+    "delta": [
+      {
+        "ref": "refs/remotes/origin/gh-pages",
+        "before": {
+          "ref": "refs/remotes/origin/gh-pages",
+          "oid": "5fd13b954b3c68ec98b0a5dc56fb81ce98d72d53",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        },
+        "after": {
+          "ref": "refs/remotes/origin/gh-pages",
+          "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+          "type": "commit",
+          "peeled_oid": null,
+          "peeled_type": null,
+          "symref": null
+        }
+      }
+    ],
+    "unexpected_ref_operations": 1
+  },
+  "coordinator": {
+    "verification": "passed",
+    "lock_held_for_fetch": false,
+    "ref_readback_after_fetch": "captured directly; unexpected local tracking ref update confirmed"
+  },
+  "plan19_provenance": {
+    "pinned_contract_commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+    "blocked_result_commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+    "prior_admitted_local_deletion_count": 1,
+    "deleted_ref": "refs/heads/agent-241-08",
+    "deleted_ref_redeleted": false,
+    "deleted_object_readable": true,
+    "remaining_tracking_refs": [
+      "refs/remotes/origin/brandbook-rail-accent-logo-system",
+      "refs/remotes/origin/v1.37-auth-branding-admin-polish"
+    ]
+  },
+  "production_ref_operations_after_failed_gate": 0,
+  "contract_or_admission_committed": false,
+  "tracking_ref_removal_attempted": false,
+  "origin_or_pr_ref_mutation_attempted": false,
+  "requirements": {
+    "REPO-04": "open"
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "halt": "No further ref operation or Plan 21 contract/evidence commit performed after detecting the unexpected fetch ref update."
+}

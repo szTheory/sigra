@@ -1,0 +1,149 @@
+{
+  "scope": "controlled local transport fault; not evidence of original failure cause",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "darwin",
+  "results": [
+    {
+      "mode": "drop_primary_replies",
+      "passed": false,
+      "error": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n",
+      "state": {
+        "readyState": "complete",
+        "connected": 0,
+        "socketConnected": false,
+        "transport": "g",
+        "xhrEvents": [
+          {
+            "type": "readystatechange",
+            "readyState": 1,
+            "status": 0,
+            "at": 2926
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 4,
+            "status": 0,
+            "at": 2927
+          },
+          {
+            "type": "abort",
+            "readyState": 4,
+            "status": 0,
+            "at": 2927
+          },
+          {
+            "type": "loadend",
+            "readyState": 4,
+            "status": 0,
+            "at": 2927
+          }
+        ],
+        "xhr": [
+          {
+            "readyState": 0,
+            "status": 0,
+            "responseLength": 0
+          }
+        ]
+      },
+      "events": [
+        {
+          "ms": 178,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 394,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 399,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 3131,
+          "type": "socket_replaceTransport",
+          "stack": "@\nh@http://localhost:4317/assets/js/app.js:1088:34"
+        },
+        {
+          "ms": 3132,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3132,
+          "type": "socket_onConnClose",
+          "stack": "@"
+        },
+        {
+          "ms": 3133,
+          "type": "socket_reloadWithJitter",
+          "stack": "@\nforEach@[native code]\nonConnClose@http://localhost:4317/assets/js/app.js:1203:48\n@"
+        },
+        {
+          "ms": 3133,
+          "type": "socket_disconnect",
+          "stack": "@\nreloadWithJitter@http://localhost:4317/assets/js/app.js:6174:67\n@\nforEach@[native code]\nonConnClose@http://localhost:4317/assets/js/app.js:1203:48\n@"
+        },
+        {
+          "ms": 3133,
+          "type": "socket_disconnect",
+          "stack": "@\ndisconnect@http://localhost:4317/assets/js/app.js:6117:33\n@\nreloadWithJitter@http://localhost:4317/assets/js/app.js:6174:67\n@\nforEach@[native code]\nonConnClose@http://localhost:4317/assets/js/app.js:1203:48\n@"
+        },
+        {
+          "ms": 3133,
+          "type": "socket_teardown",
+          "stack": "@\ndisconnect@http://localhost:4317/assets/js/app.js:998:22\n@\ndisconnect@http://localhost:4317/assets/js/app.js:6117:33\n@\nreloadWithJitter@http://localhost:4317/assets/js/app.js:6174:67\n@\nforEach@[native code]\nonConnClose@http://localhost:4317/assets/js/app.js:1203:48\n@"
+        },
+        {
+          "ms": 3133,
+          "type": "xhr_abort_stack",
+          "stack": "@web-inspector://bootstrap.js:834:195\nclose@http://localhost:4317/assets/js/app.js:663:41\n@http://localhost:4317/assets/js/app.js:1164:43\nwaitForBufferDone@http://localhost:4317/assets/js/app.js:1178:10\nteardown@http://localhost:4317/assets/js/app.js:1163:29\n@\ndisconnect@http://localhost:4317/assets/js/app.js:998:22\n@\ndisconnect@http://localhost:4317/assets/js/app.js:6117:33\n@\nreloadWithJitter@http://localhost:4317/assets/js/app.js:6174:67\n@\nforEach@[native code]\nonConnClose@http://localhost:4317/assets/js/app.js:1203:48\n@"
+        },
+        {
+          "ms": 3134,
+          "type": "socket_onConnError",
+          "stack": "@\n@http://localhost:4317/assets/js/app.js:622:32\n@http://localhost:4317/assets/js/app.js:682:53\n@http://localhost:4317/assets/js/app.js:502:14\nabort@[native code]\n@web-inspector://bootstrap.js:834:223\nclose@http://localhost:4317/assets/js/app.js:663:41\n@http://localhost:4317/assets/js/app.js:1164:43\nwaitForBufferDone@http://localhost:4317/assets/js/app.js:1178:10\nteardown@http://localhost:4317/assets/js/app.js:1163:29\n@\ndisconnect@http://localhost:4317/assets/js/app.js:998:22\n@\ndisconnect@http://localhost:4317/assets/js/app.js:6117:33\n@\nreloadWithJitter@http://localhost:4317/assets/js/app.js:6174:67\n@\nforEach@[native code]\nonConnClose@http://localhost:4317/assets/js/app.js:1203:48\n@"
+        },
+        {
+          "ms": 8299,
+          "type": "console",
+          "message": "phx-GOFVWjPXl1gxLwhH join: encountered 0 consecutive reloads -  undefined"
+        },
+        {
+          "ms": 8300,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 8506,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 8509,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 11226,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 11227,
+          "type": "xhr_abort_stack",
+          "stack": "@web-inspector://bootstrap.js:834:195\nclose@http://localhost:4317/assets/js/app.js:663:41\n@http://localhost:4317/assets/js/app.js:1164:43\nwaitForBufferDone@http://localhost:4317/assets/js/app.js:1178:10\nteardown@http://localhost:4317/assets/js/app.js:1163:29\ndisconnect@http://localhost:4317/assets/js/app.js:998:22\ndisconnect@http://localhost:4317/assets/js/app.js:6117:33\nreloadWithJitter@http://localhost:4317/assets/js/app.js:6174:67\nforEach@[native code]\nonConnClose@http://localhost:4317/assets/js/app.js:1203:48"
+        }
+      ]
+    }
+  ]
+}

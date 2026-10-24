@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "status": "required_contexts_passed_full_CI_failed_live_evidence_parity",
+  "runs": [
+    {
+      "role": "before",
+      "run_id": 40045468739,
+      "conclusion": "failure",
+      "required_contexts_verified": true,
+      "failed_jobs": [
+        {
+          "id": 120726049801,
+          "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Phase 230 prohibition guards"
+          ]
+        },
+        {
+          "id": 120728518033,
+          "name": "ci-gate",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Honest-skip verdict (GATE-03)"
+          ]
+        }
+      ],
+      "preservation_ref": "refs/evidence/phase254-native-authority-preparation-before-attempt-1"
+    },
+    {
+      "role": "after",
+      "run_id": 40045481175,
+      "conclusion": "failure",
+      "required_contexts_verified": true,
+      "failed_jobs": [
+        {
+          "id": 120726092414,
+          "name": "Fast checks (milestone/installer/contracts/snapshot/ledger guards)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Phase 230 prohibition guards"
+          ]
+        },
+        {
+          "id": 120727644306,
+          "name": "ci-gate",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Honest-skip verdict (GATE-03)"
+          ]
+        }
+      ],
+      "preservation_ref": "refs/evidence/phase254-native-authority-preparation-after-attempt-1"
+    }
+  ],
+  "invocations": 2,
+  "retries": 0,
+  "HTTP_requests": 144,
+  "total_preparation_invocations": 8,
+  "measured_samples": 0,
+  "window_started": false,
+  "cause": "Generated-app live CI browser-install body changed but its active evidence-workflow copy did not. Full local prohibition suite reproduced the mismatch; updating the copy retains the strict guard.",
+  "next_correction": "../PARITY-FIX/PROPOSAL.json"
+}

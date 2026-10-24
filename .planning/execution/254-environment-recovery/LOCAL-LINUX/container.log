@@ -1,0 +1,8 @@
+Unable to find image 'ubuntu:24.04' locally
+24.04: Pulling from library/ubuntu
+f2b4ef06ff01: Pulling fs layer
+f2b4ef06ff01: Verifying Checksum
+f2b4ef06ff01: Download complete
+f2b4ef06ff01: Pull complete
+Digest: sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+Status: Downloaded newer image for ubuntu:24.04

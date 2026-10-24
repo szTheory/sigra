@@ -1,5 +1,61 @@
 # Milestones
 
+## v1.49 RELEASE-1.6.0 (Closed: 2026-10-12 — override_closeout)
+
+**Classification:** Planning milestone closed at the user's instruction with one known failed readiness requirement. Sigra 1.6.0 was already published; this closeout performs no new release action.
+**Implementation:** Six phases (246–251), 47 active plans with matching summaries, 73 tasks; four earlier plans were explicitly superseded.
+**Verification:** 8/9 requirements proved. READY-01 remains unchecked and unsatisfied; READY-02 is satisfied. Phase 251 remains `gaps_found` at 9/10; Phase 246 is stale and the manager parser cannot read Phase 247's legacy verification format. No failed or missing check is promoted to passed.
+
+**Key accomplishments:**
+- Made generated confirmation work through an explicit submit, accept pasted spaced codes for the correct account, and show accessible success/error feedback.
+- Added recurring generated-host confirmation checks on the required CI path.
+- Hardened the release lane to check the exact source commit, restrict publish credentials, preserve active release evaluation, and retain success/failure/cancellation records.
+- Proved the published 1.6.0 package, versioned docs, tag, and tested source agree in the recorded release evidence.
+- Added an automatic ExDoc-index refresh and drift check for Release Please candidates.
+- Accounted for all 15 captured PRs and 2,421 inherited items with recorded decisions and readable preservation copies.
+
+### Known Gaps
+
+- **READY-01:** The original exact-code approval was not found, saved readiness/non-publishing test records name different code, and the old owner report could not be independently confirmed. Bounded recovery is exhausted. These failures stay recorded and do not block new planning.
+- The immutable published 1.6.0 source lacks its upgrade guide and README link. A separate current-documentation fix is queued; a later fix cannot change what the original package contained.
+- Historical report freshness/parser issues remain overrides. The strict audit stays `gaps_found`, 8/9, with its original bytes retained.
+
+**Known verification overrides:** 2 current records newly acknowledged as unfinished, 52 carried forward from earlier closes. Thirty unrelated open audit items were retained; a new corrective guide task remains open. This is not an all-items-clear or fully verified closeout.
+
+**Archives:** `milestones/v1.49-ROADMAP.md`, `v1.49-REQUIREMENTS.md`, `v1.49-MILESTONE-AUDIT.md`, and `v1.49-phases/`. Exact byte comparisons cover all 361 phase files. Previous full state and handoff snapshots remain available.
+**Tags:** None; internal milestone tags remain disabled.
+**Next:** `$gsd-new-milestone` for the previously queued CI speed and reliability work. No missing historical record is required from the user.
+
+---
+
+## v1.48 CLEAN-BASELINE (Closed: 2026-10-05 — override_closeout)
+
+**Classification:** Internal planning milestone closeout; no Hex release was published.
+**Phases / plans / tasks:** 10 phases, 109 plans, 154 tasks.
+**Outcome:** 21/27 requirements satisfied; GREEN-04, GREEN-05, REL-05, and SURF-01 partial; REL-06 and REPO-04 unsatisfied.
+**Current verification:** 2/10 phases complete and passed; seven historical reports stale; Phase 245 gaps_found. These remain overrides, not passes.
+**Git range:** b6e889c4 (2026-09-15) → 41c1d4ab (2026-10-05), 324 commits. No v1.48 git tag; milestone tags are disabled.
+
+**Key accomplishments:**
+- Reproduced and fixed the generated-admin audit-filter navigation race without retry-wrapping; preserved repeatable RED/GREEN evidence.
+- Added a server-side planning-tag shape guard and removed the allowlisted planning/proof tags while preserving release tags.
+- Removed adopter-visible bookkeeping from installer templates and added fail-closed leakage guards and a monotonic documentation ratchet.
+- Reconciled the Hex retirement and docs-revert steps against the live API and HexDocs root; 1.5.1 was not published and Hex still reports 1.20.0 as latest stable.
+- Measured the isolated Playwright update and deferred it with nonzero visual drift recorded; no recapture was opened.
+- Kept branch cleanup fail-closed where historical identities and complete signed operation history could not be proven.
+
+**Known gaps and carried debt:**
+- REL-06: no 1.5.1 release receipt; latest_stable_version remains 1.20.0.
+- REPO-04: 11 historical PR-base rows and 30 cleanup-history phase/family pairs remain unresolved; the approved tracking ref remains.
+- Four requirements remain partial; seven phase reports are stale and Phase 245 remains gaps_found.
+- The grep-driven inventory found 69 pending todo files, one unfinished quick task, three open seeds, four deferred items, one dormant seed, and two implemented seeds. No items were suppressed or acknowledged in this closeout because the repository marks audit-open unreliable/deprecated; see the audit and STATE.md.
+
+**Verification overrides:** 8 phase statuses (seven stale, one gaps_found); no audit-open items newly acknowledged. The milestone audit remains status gaps_found and is archived at milestones/v1.48-MILESTONE-AUDIT.md.
+
+**Next:** Define scope through $gsd-new-milestone. No Phase 246 is on the roadmap.
+
+---
+
 ## v1.47 CI-EFFICIENCY (Shipped: 2026-09-15)
 
 **Phases completed:** 6 phases, 67 plans, 93 tasks
@@ -261,6 +317,12 @@ All eight carry full diagnosis, file:line evidence, and a recommended fix in `to
 - [v1.39 Requirements](milestones/v1.39-REQUIREMENTS.md)
 
 ---
+
+---
+
+## v1.38 BRAND-V2 (Shipped: 2026-06-13)
+
+**Note:** Backfilled from the archived roadmap snapshot on 2026-09-23; the original shipped date is recorded in that snapshot.
 
 ## v1.37 AUTH-BRANDING-WHITELABEL (Shipped: 2026-06-07)
 

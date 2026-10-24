@@ -1,0 +1,418 @@
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import net from 'node:net';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import test from 'node:test';
+import FailureJsonlReporter from '../../test/example/priv/playwright/lib/reporters/failure-jsonl.mjs';
+
+const root = path.resolve(import.meta.dirname, '../..');
+const python = process.env.PYTHON ?? 'python3';
+const node = process.execPath;
+const runner = path.join(root, 'scripts/ci/ci-browser-local.py');
+const recorder = path.join(root, 'scripts/ci/ci-command-record.py');
+const playwright = path.join(root, 'test/example/priv/playwright');
+const config = path.join(root, 'scripts/ci/fixtures/playwright-diagnostics.config.ts');
+const fixture = path.join(root, 'scripts/ci/fixtures/playwright-diagnostics.spec.ts');
+const digest = (payload) => crypto.createHash('sha256').update(payload).digest('hex');
+
+test('reporter records startup errors before any test-end events', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-playwright-diagnostics-'));
+  const outputFile = path.join(directory, 'failure.jsonl');
+  const reporter = new FailureJsonlReporter({ outputFile, invocationId: 'diagnostic-invocation-01', nativeIdentity: 'chromium:playwright-diagnostics.spec.ts' });
+  try {
+    assert.equal(typeof reporter.onError, 'function');
+    reporter.onError({ message: 'No tests found', location: { file: 'fixtures/missing.spec.ts', line: 1, column: 1 } });
+    const [record] = fs.readFileSync(outputFile, 'utf8').trim().split('\n').map(JSON.parse);
+    assert.equal(record.type, 'error');
+    assert.equal(record.invocation_id, 'diagnostic-invocation-01');
+    assert.equal(record.native_identity, 'chromium:playwright-diagnostics.spec.ts');
+    assert.equal(record.error.message, 'No tests found');
+    assert.equal(record.trace_unavailable_reason, 'context_not_created');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('reporter marks browser-launch failures as missing-context evidence', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-playwright-launch-error-'));
+  const outputFile = path.join(directory, 'failure.jsonl');
+  const reporter = new FailureJsonlReporter({ outputFile, invocationId: 'browser-launch-01', nativeIdentity: 'chromium:playwright-diagnostics.spec.ts' });
+  try {
+    reporter.onTestEnd({ title: 'launch fails before context', location: { file: 'fixtures/browser.spec.ts', line: 5 }, expectedStatus: 'passed', ok: () => false, parent: { project: () => ({ name: 'chromium' }) } }, { status: 'failed', duration: 0, retry: 0, errors: [{ message: 'browserType.launch: Executable does not exist' }] });
+    const [record] = fs.readFileSync(outputFile, 'utf8').trim().split('\n').map(JSON.parse);
+    assert.equal(record.trace_unavailable_reason, 'context_not_created');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('onTestEnd preserves the established schema while adding invocation identity', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-playwright-test-end-'));
+  const outputFile = path.join(directory, 'failure.jsonl');
+  const reporter = new FailureJsonlReporter({ outputFile, invocationId: 'diagnostic-invocation-02', nativeIdentity: 'chromium:admin-theme.spec.ts' });
+  try {
+    reporter.onTestEnd({ title: 'admin theme toggles dark mode', location: { file: 'tests/admin-theme.spec.ts', line: 12 }, expectedStatus: 'passed', ok: () => false, parent: { project: () => ({ name: 'chromium' }) } }, { status: 'failed', duration: 42, retry: 0, errors: [{ message: 'assertion failed' }] });
+    const [record] = fs.readFileSync(outputFile, 'utf8').trim().split('\n').map(JSON.parse);
+    assert.equal(record.schema, 'sigra.phase253.playwright-test-end/v1');
+    assert.equal(record.title, 'admin theme toggles dark mode');
+    assert.equal(record.status, 'failed');
+    assert.equal(record.retry, 0);
+    assert.deepEqual(record.errors.map((error) => error.message), ['assertion failed']);
+    assert.equal(record.invocation_id, 'diagnostic-invocation-02');
+    assert.equal(record.native_identity, 'chromium:admin-theme.spec.ts');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('local reproduction exposes retained native failure, startup and termination modes', () => {
+  const result = spawnSync(python, ['-B', runner, '--help'], { cwd: root, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /--diagnostic-case/);
+  assert.match(result.stdout, /--keep-output/);
+  assert.match(result.stdout, /--diagnostic-startup-failure/);
+  assert.match(result.stdout, /--diagnostics-off/);
+  assert.match(result.stdout, /pass,fail,terminate/);
+});
+
+test('native evidence collector rejects files, directories and dangling symlinks safely', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-diagnostic-collector-'));
+  const selected = path.join(directory, 'command.stdout.bin');
+  const dangling = path.join(directory, 'dangling-report.json');
+  const nestedDirectory = path.join(directory, 'nested');
+  fs.writeFileSync(selected, 'selected command stream');
+  fs.mkdirSync(nestedDirectory);
+  fs.symlinkSync(path.join(directory, 'missing-target'), dangling);
+  const entries = [];
+  try {
+    collectFile(directory, selected, 'command_stdout', entries);
+    assert.throws(() => collectFile(directory, dangling, 'report', entries), /rejects symlinks/);
+    assert.throws(() => collectFile(directory, nestedDirectory, 'report', entries), /accepts files only/);
+    assert.equal(entries.length, 1);
+    assert.equal(entries[0].path, 'command.stdout.bin');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      const port = server.address().port;
+      server.close((error) => error ? reject(error) : resolve(port));
+    });
+  });
+}
+
+function freshDirectory(parent, name) {
+  const destination = path.join(parent, name);
+  fs.mkdirSync(destination, { recursive: true });
+  return destination;
+}
+
+function runOwnedCase(parent, name, args = [], extraEnv = {}) {
+  const output = path.join(parent, name);
+  const port = spawnSync(python, ['-B', '-c', 'import socket;s=socket.socket();s.bind(("127.0.0.1",0));print(s.getsockname()[1]);s.close()'], { encoding: 'utf8' });
+  assert.equal(port.status, 0, port.stderr);
+  const env = { ...process.env, ...extraEnv, PATH: `/Users/jon/.asdf/installs/nodejs/20.19.5/bin:${process.env.PATH}` };
+  delete env.PGUSER;
+  const result = spawnSync(python, ['-B', runner, '--seam', 'admin_behavior', '--event', 'push', '--port', port.stdout.trim(), '--keep-output', '--output-root', output, ...args], { cwd: root, env, encoding: 'utf8', timeout: 600000, maxBuffer: 8 * 1024 * 1024 });
+  assert.ok(fs.existsSync(path.join(output, 'resource-owner.json')), `missing owner record for ${name}: ${result.stderr}`);
+  return { output, result, owner: JSON.parse(fs.readFileSync(path.join(output, 'resource-owner.json'), 'utf8')) };
+}
+
+function traceAttachments(report) {
+  const found = [];
+  const visit = (suites = []) => {
+    for (const suite of suites) {
+      for (const spec of suite.specs ?? []) {
+        for (const entry of spec.tests ?? []) {
+          for (const result of entry.results ?? []) {
+            for (const attachment of result.attachments ?? []) {
+              if (attachment.name === 'trace' && attachment.contentType === 'application/zip' && attachment.path) found.push(attachment.path);
+            }
+          }
+        }
+      }
+      visit(suite.suites ?? []);
+    }
+  };
+  visit(report.suites ?? []);
+  return [...new Set(found.map((file) => path.resolve(file)))];
+}
+
+function collectFile(evidenceRoot, file, kind, entries) {
+  const base = path.resolve(evidenceRoot);
+  const absolute = path.resolve(file);
+  const relative = path.relative(base, absolute);
+  assert.ok(relative && !relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative), `collection path escapes invocation root: ${file}`);
+  let cursor = base;
+  for (const component of relative.split(path.sep)) {
+    cursor = path.join(cursor, component);
+    const stat = fs.lstatSync(cursor);
+    assert.ok(!stat.isSymbolicLink(), `diagnostic collector rejects symlinks before opening: ${cursor}`);
+  }
+  const stat = fs.lstatSync(absolute);
+  assert.ok(stat.isFile(), `diagnostic collector accepts files only: ${absolute}`);
+  assert.ok(stat.size <= 5 * 1024 * 1024, `diagnostic collector file exceeds 5 MiB: ${absolute}`);
+  const bytes = fs.readFileSync(absolute);
+  entries.push({ path: relative.split(path.sep).join('/'), sha256: digest(bytes), kind });
+  return absolute;
+}
+
+function collectOptionalFile(evidenceRoot, file, kind, entries) {
+  try { fs.lstatSync(file); } catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+  return collectFile(evidenceRoot, file, kind, entries);
+}
+
+function collectCommandDirectory(evidenceRoot, directory, entries) {
+  for (const name of ['record.json', 'stdout.bin', 'stderr.bin', 'cleanup.stdout.bin', 'cleanup.stderr.bin']) {
+    collectOptionalFile(evidenceRoot, path.join(directory, name), name.includes('stdout') ? 'command_stdout' : name.includes('stderr') ? 'command_stderr' : 'report', entries);
+  }
+}
+
+function collectOwnedRun(evidenceRoot, runName, caseName, entries) {
+  const run = path.join(evidenceRoot, runName);
+  for (const name of ['resource-owner.json', 'server.stdout.bin', 'server.stderr.bin']) {
+    collectFile(evidenceRoot, path.join(run, name), name.endsWith('.bin') ? (name.includes('stdout') ? 'command_stdout' : 'command_stderr') : 'report', entries);
+  }
+  for (const name of ['prepare-deps', 'prepare-compile', 'prepare-ecto-create', 'prepare-ecto-migrate', 'prepare-seeds', `diagnostic-${caseName}`]) {
+    if (caseName && fs.existsSync(path.join(run, name))) collectCommandDirectory(evidenceRoot, path.join(run, name), entries);
+  }
+}
+
+function traceFacts(files) {
+  return files.map((file) => ({ path: path.relative(root, file), sha256: digest(fs.readFileSync(file)), size: fs.statSync(file).size }));
+}
+
+function assertReadableTrace(file) {
+  const listing = spawnSync('unzip', ['-Z1', file], { encoding: 'utf8' });
+  assert.equal(listing.status, 0, listing.stderr);
+  const members = listing.stdout.trim().split('\n');
+  const traceMember = members.find((name) => name === 'trace.trace') ?? members.find((name) => /\.trace$/.test(name));
+  assert.ok(traceMember, `trace archive lacks trace records: ${members.join(', ')}`);
+  const text = spawnSync('unzip', ['-p', file, traceMember], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
+  assert.equal(text.status, 0, text.stderr);
+  assert.match(text.stdout, /context|page|action|frame/i);
+  return { members, trace_member: traceMember, sha256: digest(fs.readFileSync(file)) };
+}
+
+function toolRecorderCase(directory, name, argv, env = {}) {
+  const output = path.join(directory, name);
+  fs.mkdirSync(output, { recursive: true });
+  const invocation = name.replace(/[^A-Za-z0-9._-]/g, '-');
+  const result = spawnSync(python, ['-B', recorder, '--cwd', playwright, '--output-root', output, '--invocation', invocation, '--', ...argv], { cwd: root, env: { ...process.env, ...env, PATH: `/Users/jon/.asdf/installs/nodejs/20.19.5/bin:${process.env.PATH}` }, encoding: 'utf8', timeout: 120000, maxBuffer: 4 * 1024 * 1024 });
+  const base = path.join(output, invocation);
+  const record = JSON.parse(fs.readFileSync(path.join(base, 'record.json'), 'utf8'));
+  return { output: base, result, record };
+}
+
+async function nativeRun(outputFile) {
+  const outputRoot = path.dirname(path.resolve(outputFile));
+  fs.mkdirSync(outputRoot, { recursive: true });
+  const evidenceRoot = freshDirectory(outputRoot, `browser-diagnostics-${Date.now()}`);
+  const rows = [];
+  const firstFailure = runOwnedCase(evidenceRoot, '01-failure', ['--diagnostic-case', 'fail']);
+  rows.push({ case: 'first_assertion_failure', expected_wrapper_exit: 0, observed_wrapper_exit: firstFailure.result.status, observed_playwright_exit: firstFailure.owner.native_diagnostic?.exit_code, owner: firstFailure.owner, invocation_root: path.relative(outputRoot, firstFailure.output) });
+  assert.equal(firstFailure.result.status, 0, firstFailure.result.stderr);
+  assert.notEqual(firstFailure.owner.native_diagnostic?.exit_code, 0, 'the assertion failure must be real and reported by Playwright');
+  const traceRegistryPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'trace-registry.jsonl');
+  const traceRegistrations = fs.readFileSync(traceRegistryPath, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
+  const adminThemeRegistration = traceRegistrations.find((entry) => entry.context_kind === 'admin-theme-test' && entry.synthetic_account === true && entry.registered === true && entry.path);
+  assert.ok(adminThemeRegistration, 'adminTheme manual-context trace lacks explicit synthetic-account registration');
+  const adminThemeTrace = path.resolve(firstFailure.owner.native_diagnostic.output_root, adminThemeRegistration.path);
+  const failureNativeReportPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'native-report.json');
+  const failureNativeReport = JSON.parse(fs.readFileSync(failureNativeReportPath, 'utf8'));
+  const firstTraces = [...traceAttachments(failureNativeReport), adminThemeTrace];
+  assert.equal(new Set(firstTraces).size, firstTraces.length, 'trace registration duplicates a Playwright attachment');
+  assert.ok(firstTraces.length >= 2, `expected Playwright and adminTheme traces, found ${firstTraces.length}`);
+  for (const file of firstTraces) assert.ok(path.resolve(file).startsWith(`${path.resolve(evidenceRoot)}${path.sep}`), `trace attachment escaped its invocation: ${file}`);
+  const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], bundle_path: path.relative(evidenceRoot, file).split(path.sep).join('/'), ...assertReadableTrace(file) }));
+
+  const followingPass = runOwnedCase(evidenceRoot, '02-pass-after-failure', ['--diagnostic-case', 'pass']);
+  rows.push({ case: 'pass_after_failure', expected_exit: 0, observed_exit: followingPass.result.status, owner: followingPass.owner, invocation_root: path.relative(outputRoot, followingPass.output) });
+  assert.equal(followingPass.result.status, 0, followingPass.result.stderr);
+  const passReport = JSON.parse(fs.readFileSync(path.join(followingPass.owner.native_diagnostic.output_root, 'native-report.json'), 'utf8'));
+  assert.equal(traceAttachments(passReport).length, 0, 'passing invocation retained a Playwright trace attachment');
+  const passRegistry = path.join(followingPass.owner.native_diagnostic.output_root, 'trace-registry.jsonl');
+  assert.ok(!fs.existsSync(passRegistry) || fs.readFileSync(passRegistry, 'utf8').trim() === '', 'passing invocation registered a custom-context trace');
+  assert.deepEqual(traceFacts(firstTraces), firstTraceFacts.map(({ path: itemPath, sha256, size }) => ({ path: itemPath, sha256, size })), 'the later invocation changed the earlier failure traces');
+
+  const startup = runOwnedCase(evidenceRoot, '03-startup-failure', ['--diagnostic-startup-failure']);
+  rows.push({ case: 'phoenix_startup_failure', expected_exit: 1, observed_exit: startup.result.status, owner: startup.owner, invocation_root: path.relative(outputRoot, startup.output), trace_unavailable_reason: startup.owner.server_startup_failure?.trace_unavailable_reason });
+  assert.notEqual(startup.result.status, 0);
+  assert.equal(startup.owner.server_startup_failure?.observed, true);
+  assert.equal(startup.owner.server_startup_failure?.trace_unavailable_reason, 'context_not_created');
+  assert.ok(fs.statSync(path.join(startup.output, 'server.stderr.bin')).size > 0, 'startup failure has no independent server stderr');
+  const startupServerOutput = `${fs.readFileSync(path.join(startup.output, 'server.stdout.bin'), 'utf8')}\n${fs.readFileSync(path.join(startup.output, 'server.stderr.bin'), 'utf8')}`;
+  assert.match(startupServerOutput, /eaddrinuse|address already in use/i, 'Phoenix did not report the intended occupied-port failure');
+
+  const terminate = runOwnedCase(evidenceRoot, '04-runner-terminated', ['--diagnostic-case', 'terminate']);
+  rows.push({ case: 'runner_sigterm', expected_wrapper_exit: 0, observed_wrapper_exit: terminate.result.status, expected_child_exit: 143, observed_child_exit: terminate.owner.native_diagnostic?.exit_code, expected_signal: 15, observed_signal: terminate.owner.native_diagnostic?.observed_signal, owner: terminate.owner, invocation_root: path.relative(outputRoot, terminate.output), trace_unavailable_reason: terminate.owner.native_diagnostic?.trace_unavailable_reason });
+  assert.equal(terminate.owner.native_diagnostic?.exit_code, 143, 'signal-compatible child exit code was not retained');
+  assert.equal(terminate.owner.native_diagnostic?.observed_signal, 15, JSON.stringify(terminate.owner.native_diagnostic));
+  assert.equal(terminate.owner.native_diagnostic?.trace_unavailable_reason, 'runner_terminated');
+
+  const diagnosticOutput = path.join(evidenceRoot, '05-precontext');
+  fs.mkdirSync(diagnosticOutput, { recursive: true });
+  const precontextEnv = (id) => ({ SIGRA_CI_DIAGNOSTICS: '1', SIGRA_CI_DIAGNOSTICS_ROOT: path.join(diagnosticOutput, `${id}-native`), SIGRA_CI_TRACE_REGISTRY: path.join(diagnosticOutput, `${id}-native/trace-registry.jsonl`), SIGRA_CI_INVOCATION_ID: id, SIGRA_CI_NATIVE_IDENTITY: 'chromium:playwright-diagnostics.spec.ts' });
+  const discovery = toolRecorderCase(diagnosticOutput, 'discovery', [node, path.join(playwright, 'node_modules/playwright/cli.js'), 'test', '--config', config, '--project=chromium', '--retries=0', '--grep', 'SIGRA_NO_SUCH_TEST_255'], precontextEnv('discovery-negative'));
+  assert.notEqual(discovery.result.status, 0);
+  assert.equal(discovery.record.primary_signal, null);
+  assert.ok(fs.statSync(path.join(discovery.output, 'stdout.bin')).size + fs.statSync(path.join(discovery.output, 'stderr.bin')).size > 0);
+  const discoveryReport = path.join(diagnosticOutput, 'discovery-negative-native/failure-events.jsonl');
+  assert.ok(fs.existsSync(discoveryReport), 'pre-test discovery error did not produce reporter output');
+  assert.ok(fs.readFileSync(discoveryReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse).some((event) => event.type === 'error'), 'discovery reporter has no onError record');
+  const browserLaunch = toolRecorderCase(diagnosticOutput, 'browser-launch', [node, path.join(playwright, 'node_modules/playwright/cli.js'), 'test', '--config', config, '--project=chromium', '--retries=0', '--grep', 'retains a default-context first failure'], { ...precontextEnv('browser-launch-negative'), PLAYWRIGHT_BROWSERS_PATH: path.join(diagnosticOutput, 'empty-browsers') });
+  assert.notEqual(browserLaunch.result.status, 0);
+  assert.ok(fs.statSync(path.join(browserLaunch.output, 'stdout.bin')).size + fs.statSync(path.join(browserLaunch.output, 'stderr.bin')).size > 0);
+  const launchReport = path.join(diagnosticOutput, 'browser-launch-negative-native/failure-events.jsonl');
+  assert.ok(fs.existsSync(launchReport), 'browser launch error did not produce reporter output');
+  const launchEvents = fs.readFileSync(launchReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
+  assert.ok(launchEvents.some((event) => event.trace_unavailable_reason === 'context_not_created'), 'browser launch report lacks its missing-context reason');
+  rows.push({ case: 'pretest_discovery_error', observed_exit: discovery.result.status, observed_signal: discovery.record.primary_signal, invocation_root: path.relative(outputRoot, discovery.output), trace_unavailable_reason: 'context_not_created' });
+  rows.push({ case: 'browser_launch_before_context', observed_exit: browserLaunch.result.status, observed_signal: browserLaunch.record.primary_signal, invocation_root: path.relative(outputRoot, browserLaunch.output), trace_unavailable_reason: 'context_not_created' });
+
+  const failingCleanup = toolRecorderCase(diagnosticOutput, 'signal-and-cleanup', [node, '-e', "process.kill(process.pid, 'SIGTERM')"], {});
+  // A separate recorder call below exercises cleanup failure without replacing the primary status.
+  assert.equal(failingCleanup.record.primary_signal, 15);
+  const cleanupArgvFile = path.join(diagnosticOutput, 'cleanup-argv.json');
+  fs.writeFileSync(cleanupArgvFile, JSON.stringify([node, '-e', 'process.exit(7)']));
+  const cleanup = spawnSync(python, ['-B', recorder, '--cwd', root, '--output-root', diagnosticOutput, '--invocation', 'cleanup-fails', '--cleanup-argv-file', cleanupArgvFile, '--', node, '-e', 'process.exit(4)'], { cwd: root, encoding: 'utf8' });
+  const cleanupRecord = JSON.parse(fs.readFileSync(path.join(diagnosticOutput, 'cleanup-fails/record.json'), 'utf8'));
+  assert.equal(cleanup.status, 4);
+  assert.equal(cleanupRecord.primary_exit_code, 4);
+  assert.equal(cleanupRecord.cleanup_exit_code, 7);
+  rows.push({ case: 'cleanup_failure_preserves_primary', expected_exit: 4, observed_exit: cleanup.status, cleanup_exit: cleanupRecord.cleanup_exit_code });
+
+  const sourceDiff = spawnSync('git', ['diff', '--binary', '--', 'scripts/ci/ci-browser-local.py', 'scripts/ci/ci-browser-diagnostics.test.mjs', 'scripts/ci/ci-diagnostic-bundle.py', 'scripts/ci/fixtures/playwright-diagnostics.spec.ts'], { cwd: root, encoding: 'buffer' });
+  const head = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  const sourceIdentity = { source_sha: head, source_diff_sha256: digest(sourceDiff.stdout), dirty_status: spawnSync('git', ['status', '--short', '--untracked-files=no', '--', 'scripts/ci/ci-browser-local.py', 'scripts/ci/ci-browser-diagnostics.test.mjs', 'scripts/ci/ci-diagnostic-bundle.py', 'scripts/ci/ci-diagnostic-bundle.test.py', 'scripts/ci/fixtures/playwright-diagnostics.spec.ts', 'test/example/priv/playwright/playwright.config.ts', 'test/example/priv/playwright/fixtures/adminTheme.ts', 'test/example/priv/playwright/lib/reporters/failure-jsonl.mjs'], { cwd: root, encoding: 'utf8' }).stdout.trim() };
+  const runtime = { node: process.version, playwright: JSON.parse(fs.readFileSync(path.join(playwright, 'node_modules/@playwright/test/package.json'))).version, platform: process.platform, browser: 'Playwright Chromium, locked revision' };
+
+  const plantedSecretTrace = path.join(evidenceRoot, 'planted-secret-trace.zip');
+  const traceFixture = spawnSync('python3', ['-B', '-c', "import zipfile,sys; z=zipfile.ZipFile(sys.argv[1],'w'); z.writestr('trace.trace','SECRET_SENTINEL_DO_NOT_UPLOAD'); z.close()", plantedSecretTrace], { encoding: 'utf8' });
+  assert.equal(traceFixture.status, 0, traceFixture.stderr);
+  const plantedAuth = path.join(evidenceRoot, '.auth/storageState.json');
+  fs.mkdirSync(path.dirname(plantedAuth), { recursive: true });
+  fs.writeFileSync(plantedAuth, '{"synthetic":"auth should be excluded"}');
+  const plantedSentinel = path.join(evidenceRoot, 'planted-secret.log');
+  fs.writeFileSync(plantedSentinel, 'SECRET_SENTINEL_DO_NOT_UPLOAD');
+  const staleOutput = path.join(evidenceRoot, 'stale-prior-invocation.log');
+  fs.writeFileSync(staleOutput, 'stale report from another invocation');
+
+  const manifestFiles = [];
+  for (const [runName, caseName] of [['01-failure', 'fail'], ['02-pass-after-failure', 'pass'], ['03-startup-failure', null], ['04-runner-terminated', 'terminate']]) {
+    collectOwnedRun(evidenceRoot, runName, caseName, manifestFiles);
+    const run = path.join(evidenceRoot, runName);
+    const nativeRoot = path.join(run, 'native-diagnostics', caseName ?? 'none');
+    if (caseName) {
+      collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'native-report.json'), 'report', manifestFiles);
+      collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'failure-events.jsonl'), 'log', manifestFiles);
+      collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'trace-registry.jsonl'), 'log', manifestFiles);
+    }
+  }
+  for (const name of ['discovery', 'browser-launch', 'signal-and-cleanup']) {
+    collectCommandDirectory(evidenceRoot, path.join(diagnosticOutput, name, name === 'signal-and-cleanup' ? name : name), manifestFiles);
+  }
+  for (const id of ['discovery-negative', 'browser-launch-negative']) {
+    const nativeRoot = path.join(diagnosticOutput, `${id}-native`);
+    collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'native-report.json'), 'report', manifestFiles);
+    collectOptionalFile(evidenceRoot, path.join(nativeRoot, 'failure-events.jsonl'), 'log', manifestFiles);
+  }
+  collectCommandDirectory(evidenceRoot, path.join(diagnosticOutput, 'cleanup-fails'), manifestFiles);
+  collectOptionalFile(evidenceRoot, cleanupArgvFile, 'report', manifestFiles);
+  for (const file of firstTraces) collectFile(evidenceRoot, file, 'trace', manifestFiles);
+  assert.equal(new Set(manifestFiles.map((entry) => entry.path)).size, manifestFiles.length, 'native evidence allowlist contains duplicate paths');
+  for (const [file, kind] of [[plantedSecretTrace, 'trace'], [plantedAuth, 'auth'], [plantedSentinel, 'log']]) {
+    manifestFiles.push({ path: path.relative(evidenceRoot, file).split(path.sep).join('/'), sha256: digest(fs.readFileSync(file)), kind });
+  }
+  const manifest = { schema_version: 'sigra.ci-diagnostic-invocation/v1', invocation_id: 'phase255-plan05-native', source_sha: head, run_id: 'local', run_attempt: 1, job_id: 'sigra-ci-browser-local', seam: 'diagnostic-browser-native', files: manifestFiles, trace_provenance: { synthetic_account: true, registered: true }, trace_unavailable_reasons: rows.filter((row) => row.trace_unavailable_reason).map(({ case: name, trace_unavailable_reason }) => ({ case: name, reason: trace_unavailable_reason })) };
+  const manifestPath = path.join(evidenceRoot, 'invocation.json');
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  const bundlePath = path.join(evidenceRoot, 'diagnostics.zip');
+  for (const mode of ['stage', 'verify']) {
+    const args = mode === 'stage' ? ['stage', '--invocation-root', evidenceRoot, '--manifest', manifestPath, '--output', bundlePath] : ['verify', '--bundle', bundlePath, '--manifest', manifestPath];
+    const check = spawnSync(python, ['-B', path.join(root, 'scripts/ci/ci-diagnostic-bundle.py'), ...args], { cwd: root, encoding: 'utf8', timeout: 60000 });
+    assert.equal(check.status, 0, `${mode} failed: ${check.stderr}`);
+  }
+  const bundle = fs.readFileSync(bundlePath);
+  const bundleMetadata = JSON.parse(spawnSync(python, ['-B', '-c', "import sys,zipfile; print(zipfile.ZipFile(sys.argv[1]).read('bundle-manifest.json').decode())", bundlePath], { encoding: 'utf8' }).stdout);
+  const retainedTraceFacts = firstTraceFacts.map((fact) => {
+    const member = bundleMetadata.members[fact.bundle_path];
+    assert.ok(member, `actual trace missing from safe bundle: ${fact.bundle_path}`);
+    assert.equal(member.source_sha256, fact.sha256, `bundle trace source hash mismatch: ${fact.bundle_path}`);
+    assert.ok(member.redactions?.length > 0, `trace auth data was not recorded as sanitized: ${fact.bundle_path}`);
+    return { ...fact, sanitized_sha256: member.sha256, redactions: member.redactions };
+  });
+  const selectedNativeIdentities = [];
+  const nativeReportPath = path.join(firstFailure.owner.native_diagnostic.output_root, 'native-report.json');
+  const nativeReport = JSON.parse(fs.readFileSync(nativeReportPath, 'utf8'));
+  const visit = (suites, file = '') => { for (const suite of suites ?? []) { const suiteFile = suite.file ?? file; for (const spec of suite.specs ?? []) for (const testEntry of spec.tests ?? []) for (const result of testEntry.results ?? []) selectedNativeIdentities.push({ project: result.projectName ?? 'chromium', file: (spec.file ?? suiteFile).replaceAll('\\', '/'), title: spec.title, status: result.status, retry: result.retry ?? 0 }); visit(suite.suites, suiteFile); } };
+  visit(nativeReport.suites);
+  assert.ok(selectedNativeIdentities.length >= 3, 'native Playwright identities are missing');
+  const withheldReasons = JSON.stringify(bundleMetadata.withheld);
+  assert.match(withheldReasons, /secret_sentinel_detected/);
+  assert.match(withheldReasons, /auth_state_excluded/);
+  assert.ok(fs.existsSync(staleOutput), 'stale output negative control is missing');
+  assert.ok(!manifestFiles.some((entry) => entry.path.includes('stale-prior-invocation')), 'collector included stale output in the current invocation allowlist');
+  assert.doesNotMatch(bundleMetadata.members && Object.keys(bundleMetadata.members).join(' '), /stale-prior-invocation|SECRET_SENTINEL/);
+  const escapePath = path.join(evidenceRoot, 'escape-link');
+  fs.symlinkSync(path.join(os.tmpdir(), 'sigra-not-inside-invocation'), escapePath);
+  const escapeManifest = { ...manifest, invocation_id: 'escape-probe', files: [{ path: 'escape-link', sha256: digest(Buffer.from('')), kind: 'log' }] };
+  const escapeManifestPath = path.join(evidenceRoot, 'escape-probe.json');
+  fs.writeFileSync(escapeManifestPath, JSON.stringify(escapeManifest));
+  const escapeStage = spawnSync(python, ['-B', path.join(root, 'scripts/ci/ci-diagnostic-bundle.py'), 'stage', '--invocation-root', evidenceRoot, '--manifest', escapeManifestPath, '--output', path.join(evidenceRoot, 'escape.zip')], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(escapeStage.status, 0, 'escaping symlink path unexpectedly staged');
+  fs.unlinkSync(escapePath);
+  const result = { schema: 'sigra.browser-diagnostics.native/v1', generated_at: new Date().toISOString(), source_identity: sourceIdentity, runtime, configuration: { retries: 0, workers: 1, synthetic_accounts_only: true, postgres_role_fallback: 'getpass.getuser()', diagnostics_opt_in: true }, cases: rows, traces: retainedTraceFacts, passing_trace_count: 0, selected_native_identities: selectedNativeIdentities, bundle: { path: path.relative(root, bundlePath), sha256: digest(bundle), size: bundle.length, verified: true, member_paths: Object.keys(bundleMetadata.members).sort(), member_metadata: bundleMetadata.members, withheld: bundleMetadata.withheld }, negative_cases: { nested_secret_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret-trace.zip' && entry.reason === 'secret_sentinel_detected'), auth_paths_excluded: bundleMetadata.withheld.some((entry) => entry.path.includes('storageState.json') && entry.reason === 'auth_state_excluded'), secret_sentinel_rejected: bundleMetadata.withheld.some((entry) => entry.path === 'planted-secret.log' && entry.reason === 'secret_sentinel_detected'), stale_output_excluded: !Object.keys(bundleMetadata.members).some((name) => name.includes('stale-prior-invocation')) && fs.existsSync(staleOutput), escaping_paths_rejected: escapeStage.status !== 0 }, trace_unavailable_reasons: rows.filter((row) => row.trace_unavailable_reason).map(({ case: name, trace_unavailable_reason }) => ({ case: name, reason: trace_unavailable_reason })) };
+  fs.writeFileSync(path.resolve(outputFile), JSON.stringify(result, null, 2) + '\n');
+  return result;
+}
+
+async function measureOverhead(outputFile, pairs) {
+  assert.equal(pairs, 3, 'the development overhead probe must run exactly three paired comparisons');
+  const rawParent = path.join(root, '.gsd', 'temp');
+  fs.mkdirSync(rawParent, { recursive: true });
+  const evidenceRoot = fs.mkdtempSync(path.join(rawParent, 'phase255-browser-diagnostics-overhead-'));
+  const records = [];
+  const source = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  const sourceFiles = ['scripts/ci/ci-diagnostics-canary.py', 'scripts/ci/ci-browser-diagnostics.test.mjs',
+    'scripts/ci/ci-browser-local.py', 'scripts/ci/fixtures/playwright-diagnostics.config.ts',
+    'scripts/ci/fixtures/playwright-diagnostics.spec.ts'];
+  const sourceHashes = Object.fromEntries(sourceFiles.map((file) => [file, digest(fs.readFileSync(path.join(root, file)))]));
+  const focused = ['--grep', 'discards a default-context pass'];
+  for (let pair = 1; pair <= pairs; pair += 1) {
+    for (const enabled of [false, true]) {
+      const args = ['--diagnostic-case', 'pass', ...(enabled ? [] : ['--diagnostics-off']), ...focused];
+      const row = runOwnedCase(evidenceRoot, `pair-${pair}-${enabled ? 'on' : 'off'}`, args);
+      assert.equal(row.result.status, 0, row.result.stderr);
+      const report = JSON.parse(fs.readFileSync(path.join(row.owner.native_diagnostic.output_root, 'native-report.json'), 'utf8'));
+      assert.ok(Number.isFinite(report.stats.duration), 'Playwright native report lacks execution duration');
+      records.push({ pair, tracing: enabled ? 'on' : 'off', duration_ms: report.stats.duration,
+        source_sha: source, source_hashes: sourceHashes,
+        raw_output_root: path.relative(root, row.owner.native_diagnostic.output_root).split(path.sep).join('/') });
+    }
+  }
+  const report = { schema: 'sigra.browser-diagnostics-overhead/v1', source_sha: source, source_hashes: sourceHashes,
+    raw_evidence_root: path.relative(root, evidenceRoot).split(path.sep).join('/'), node: process.version,
+    playwright: JSON.parse(fs.readFileSync(path.join(playwright, 'node_modules/@playwright/test/package.json'))).version,
+    configuration: { workers: 1, retries: 0, selected_behavior: focused },
+    off_durations_ms: records.filter((item) => item.tracing === 'off').map((item) => item.duration_ms),
+    on_durations_ms: records.filter((item) => item.tracing === 'on').map((item) => item.duration_ms),
+    records, pairs };
+  fs.writeFileSync(path.resolve(outputFile), JSON.stringify(report, null, 2) + '\n');
+  return report;
+}
+
+if (process.argv.includes('--native') || process.argv.includes('--measure-overhead')) {
+  const outputIndex = process.argv.indexOf('--output');
+  const output = outputIndex >= 0 ? process.argv[outputIndex + 1] : null;
+  assert.ok(output, '--output PATH is required for native or overhead mode');
+  if (process.argv.includes('--native')) {
+    const result = await nativeRun(output);
+    process.stdout.write(`${JSON.stringify({ status: 'native_passed', output, cases: result.cases.length, traces: result.traces.length, bundle: result.bundle.sha256 })}\n`);
+  } else {
+    const pairsIndex = process.argv.indexOf('--pairs');
+    const pairs = pairsIndex >= 0 ? Number(process.argv[pairsIndex + 1]) : 0;
+    const result = await measureOverhead(output, pairs);
+    process.stdout.write(`${JSON.stringify({ status: 'overhead_measured', output, pairs: result.pairs })}\n`);
+  }
+}

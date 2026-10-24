@@ -1,0 +1,62 @@
+{
+  "capture_errors": [],
+  "cleanup_exit_code": null,
+  "command_argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import sys; print('injected receiver failure', file=sys.stderr); sys.exit(42)"
+  ],
+  "configuration": {
+    "MIX_ENV": "test"
+  },
+  "cwd": "/Users/jon/projects/sigra",
+  "dirty_status": "M mix.exs\n M scripts/ci/ci-mix-receivers.py\n M scripts/ci/ci-mix-receivers.test.py\n M scripts/ci/ci-prep-semantics.test.mjs\n M test/sigra/planning/ci_timing_formatter_test.exs\n M test/sigra/planning/phase_198_contributor_dx_contract_test.exs\n M test/sigra/planning/phase_233_library_economics_contract_test.exs\n M test/support/ci_timing_formatter.ex\n M test/test_helper.exs\n?? .planning/execution/255-local/\n?? scripts/ci/__pycache__/",
+  "ended_at": "2026-10-24T16:48:38+00:00",
+  "invocation_id": "ordinary",
+  "primary_exit_code": 42,
+  "primary_signal": null,
+  "reproduction": "cd -- /Users/jon/projects/sigra && /opt/homebrew/opt/python@3.14/bin/python3.14 -c 'import sys; print('\"'\"'injected receiver failure'\"'\"', file=sys.stderr); sys.exit(42)'",
+  "runtime_versions": {
+    "bash": {
+      "available": true,
+      "path": "/opt/homebrew/bin/bash",
+      "version": "GNU bash, version 5.2.37(1)-release (aarch64-apple-darwin24.2.0)\nCopyright (C) 2022 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software; you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
+    },
+    "git": {
+      "available": true,
+      "path": "/opt/homebrew/bin/git",
+      "version": "git version 2.41.0"
+    },
+    "mix": {
+      "available": true,
+      "path": "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/mix",
+      "version": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)"
+    },
+    "node": {
+      "available": true,
+      "path": "/Users/jon/.asdf/shims/node",
+      "version": "v26.10.0"
+    },
+    "npm": {
+      "available": true,
+      "path": "/Users/jon/.asdf/shims/npm",
+      "version": "11.19.1"
+    },
+    "psql": {
+      "available": true,
+      "path": "/opt/homebrew/bin/psql",
+      "version": "psql (PostgreSQL) 14.17 (Homebrew)"
+    },
+    "python3": {
+      "available": true,
+      "path": "/opt/homebrew/bin/python3",
+      "version": "Python 3.14.4"
+    }
+  },
+  "schema_version": "sigra.ci-command-record/v1",
+  "seed": null,
+  "seed_reason": "not_applicable",
+  "source_ref": "phase-244-playwright-measurement",
+  "source_sha": "69deb03a69b60426b24be7017b96b2dc99969ff0",
+  "started_at": "2026-10-24T16:48:38+00:00"
+}

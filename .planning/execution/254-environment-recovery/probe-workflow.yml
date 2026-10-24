@@ -1,0 +1,32 @@
+name: Phase 254 APT transfer diagnosis
+on:
+  push:
+    branches: [evidence/phase254-apt-probe-20261023]
+permissions:
+  contents: read
+jobs:
+  apt_transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Preserve runner image sources before package work
+        run: |
+          mkdir -p "$RUNNER_TEMP/phase254-apt-probe"
+          python3 - <<'PYIMAGE'
+          import json, os, pathlib, platform
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'phase254-apt-probe'
+          image=pathlib.Path('/imagegeneration/imagedata.json')
+          result={'ImageOS':os.environ.get('ImageOS'),'ImageVersion':os.environ.get('ImageVersion'),'machine':platform.machine(),'os_release':pathlib.Path('/etc/os-release').read_text(),'native_imagedata':json.loads(image.read_text()) if image.is_file() else None}
+          (root/'image-sources.json').write_text(json.dumps(result,indent=2)+'\n')
+          PYIMAGE
+      - name: Inspect bounded package transfers
+        run: bash scripts/ci/ci-apt-transfer-probe.sh --output "$RUNNER_TEMP/phase254-apt-probe/transfer.json"
+      - name: Preserve diagnosis
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: phase254-apt-probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/phase254-apt-probe
+          if-no-files-found: error
+          retention-days: 7

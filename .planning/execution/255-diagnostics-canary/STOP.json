@@ -1,0 +1,39 @@
+{
+  "artifact_discovery": {
+    "expired": false,
+    "matching_name_count": 1,
+    "retrieved": false,
+    "workflow_run_identity": "mismatch_or_incomplete"
+  },
+  "diagnostic_files": [
+    ".planning/execution/255-diagnostics-canary/FREEZE.json",
+    ".planning/execution/255-diagnostics-canary/RESULT.json",
+    ".planning/execution/255-diagnostics-canary/REMOTE-PUSH-RECONCILIATION-2.json"
+  ],
+  "fixture_commit": "504aaa25ca047792ca70a62f78c164f8d908ddd9",
+  "fixture_ref": "refs/heads/evidence/phase255-canary",
+  "fixture_remote_commit_verified": true,
+  "no_other_scenario_dispatched": true,
+  "no_retry": true,
+  "reason": "artifact_run_identity_mismatch",
+  "schema_version": "sigra.ci-diagnostics-canary-stop/v1",
+  "source_sha": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
+  "status": "blocked",
+  "success_attempt": null,
+  "success_conclusion": "success",
+  "success_run_id": 40122912945,
+  "usage": {
+    "deadline": "2026-10-24T19:51:49+00:00",
+    "infrastructure_retries": 0,
+    "infrastructure_retry_limit": 1,
+    "invocation_limit": 4,
+    "invocations": 1,
+    "push_limit": 2,
+    "pushes": 1,
+    "remaining_elapsed_seconds": 3224,
+    "request_limit": 120,
+    "requests": 13,
+    "test_retries": 0,
+    "test_retry_limit": 0
+  }
+}

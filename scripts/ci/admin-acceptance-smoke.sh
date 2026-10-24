@@ -263,6 +263,12 @@ if [[ ! -d "${PLAYWRIGHT_DIR}/node_modules" ]]; then
   (cd "${PLAYWRIGHT_DIR}" && npm ci)
 fi
 
+# A responding HTTP page does not prove that the LiveView JavaScript exists.
+# Build synchronously so watcher downloads/builds cannot race the browser tests;
+# a failed asset build must stop this smoke before any browser is launched.
+echo "==> admin-acceptance: building generated host assets"
+mix assets.build
+
 echo "==> admin-acceptance: booting generated host on port ${PORT}"
 PORT="${PORT}" PHX_SERVER=true mix phx.server > "${SERVER_LOG}" 2>&1 &
 SERVER_PID=$!

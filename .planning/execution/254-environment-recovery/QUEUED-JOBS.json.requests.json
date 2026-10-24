@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "request_count": 2,
+  "stop_reason": null,
+  "reset_or_retry_at": "1792801609",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/actions/runs/40041742541/attempts/1/jobs?per_page=100"
+  ]
+}

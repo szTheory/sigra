@@ -1,0 +1,181 @@
+{
+  "verdict": "SECURED",
+  "phase": 252,
+  "source_head": "05d4bf293d5e0277ad0c1b1e5acc164609033fc1",
+  "asvs_level": 1,
+  "block_on": "high",
+  "register_authored_at_plan_time": true,
+  "counts": {
+    "total": 20,
+    "closed": 20,
+    "open": 0,
+    "blocking_open": 0,
+    "nonblocking_open": 0,
+    "threats_open": 0
+  },
+  "threats": [
+    {
+      "id": "T-252-01",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:922-931,1197-1223,1239-1274; scripts/ci/ci_metrics_security.py:297-366",
+      "reason": "Native API jobs preserved; every required check bound to verified attempt jobs before endpoint/cost publication; conflicts rejected."
+    },
+    {
+      "id": "T-252-02",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:22-176; scripts/ci/ci-run-metrics.sh:1330-1333",
+      "reason": "All retained populations, requests, changed paths, ZIPs/members/extracted bytes hash-checked."
+    },
+    {
+      "id": "T-252-03",
+      "severity": "medium",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:408-415,426-450",
+      "reason": "Ledgers omit bearer headers and signed redirects."
+    },
+    {
+      "id": "T-252-04",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:196-205,715-721,761-770",
+      "reason": "API artifact ID, digest, producing run and head checked."
+    },
+    {
+      "id": "T-252-05",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:208-255",
+      "reason": "ZIP path, type, count and byte limits enforced."
+    },
+    {
+      "id": "T-252-06",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:335-400,408-415; scripts/ci/ci_metrics_security.py:405-435",
+      "reason": "Validated counted HTTPS hops; retained logs bounded/redacted."
+    },
+    {
+      "id": "T-252-07",
+      "severity": "medium",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:322-330,372-379,435-449",
+      "reason": "Request/time/core budgets enforced before calls; rate limits stop; retries counted."
+    },
+    {
+      "id": "T-252-08",
+      "severity": "medium",
+      "status": "CLOSED",
+      "evidence": "test/support/ci_timing_formatter.ex:119-134,174-186; scripts/ci/exunit_timing_contract.py:35-84",
+      "reason": "Atomic producer; consumers reject empty, malformed or inconsistent reports."
+    },
+    {
+      "id": "T-252-09",
+      "severity": "medium",
+      "status": "CLOSED",
+      "evidence": "test/support/ci_timing_formatter.ex:43-68,119-134",
+      "reason": "Timing rows exclude assertion and environment values."
+    },
+    {
+      "id": "T-252-10",
+      "severity": "medium",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-playwright-report.mjs:71-97,121-175,209-223",
+      "reason": "Native report shape, identity, results, timing and counts validated."
+    },
+    {
+      "id": "T-252-11",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-playwright-report.mjs:260-299",
+      "reason": "Explicit CLI destinations and atomic output; report paths treated as data."
+    },
+    {
+      "id": "T-252-12",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:1354-1530,1602-1610,1663-1675; scripts/ci/ci_metrics_security.py:192-237",
+      "reason": "All metadata claims require complete artifact/upload-job/attempt/source proof."
+    },
+    {
+      "id": "T-252-13",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:667-673,1577-1600; scripts/ci/ci_metrics_security.py:267-294",
+      "reason": "Native job conflicts rejected before ranking; local labels cannot override API identity."
+    },
+    {
+      "id": "T-252-14",
+      "severity": "medium",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:1611-1649",
+      "reason": "Literal failures and verified source references retained; missing evidence unknown."
+    },
+    {
+      "id": "T-252-15",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:262-273,733-739; scripts/ci/ci_metrics_security.py:405-435",
+      "reason": "Only bounded redacted failed-log excerpts retained."
+    },
+    {
+      "id": "T-252-16",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:192-264; scripts/ci/ci-run-metrics.sh:1509-1527",
+      "reason": "Artifact owner/run/head/upload, merge parents, commit/tree/workflow blob and hashes bound."
+    },
+    {
+      "id": "T-252-17",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:502-637; scripts/ci/ci-run-metrics.sh:1776-1801",
+      "reason": "Actual archive digest and frozen contract checked; retained queued API bytes, chained registration, reservations/window validated."
+    },
+    {
+      "id": "T-252-18",
+      "severity": "medium",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci-run-metrics.sh:1611-1651; scripts/ci/ci-measure-report.sh:59-69,89-100",
+      "reason": "Rankings and signatures retain run/attempt references and literal outcomes."
+    },
+    {
+      "id": "T-252-19",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "scripts/ci/ci_metrics_security.py:370-379,405-461; scripts/ci/ci-run-metrics.sh:1618-1639; scripts/ci/ci-measure-report.sh:24-43",
+      "reason": "Canonical contained hashed logs; escaped redacted prose with restricted links."
+    },
+    {
+      "id": "T-252-SC",
+      "severity": "high",
+      "status": "CLOSED",
+      "evidence": "git diff --name-only 282091eaa^ HEAD; scripts/ci/sigra-dep-off.sh:29",
+      "reason": "No new dependency manifests, lockfiles or install changes."
+    }
+  ],
+  "unregistered_flags": [],
+  "accepted_risks": [],
+  "files_written": [],
+  "validation": [
+    "14 security,44 collector,8 ExUnit,comparison/report,5 Node tests passed.",
+    "Whole CLI foreign checks/native identity/forged metadata reject; archive baseline ready/no diagnostics; matching bundle/baseline/contract digests."
+  ],
+  "next": "Refresh validation coverage, code review, and goal verification; phase requirements remain pending.",
+  "audited_at_utc": "2026-10-13T00:31:51.644825+00:00",
+  "prior_reports_preserved": [
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-SECURITY.md",
+      "ref": "05d4bf293d5e0277ad0c1b1e5acc164609033fc1",
+      "sha256": "f36eba80c8ebeefcf522badb8c452489c7e540317a3cb57aa6922e32ba19e684",
+      "byte_exact_readback": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-SECURITY-AUDIT.json",
+      "ref": "05d4bf293d5e0277ad0c1b1e5acc164609033fc1",
+      "sha256": "8b29aff829e6243a983bc74b7aba6da4ecd3862644ecc480b742778e7f4e4a92",
+      "byte_exact_readback": true
+    }
+  ]
+}

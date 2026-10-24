@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-27",
+  "captured_at": "2026-10-01T20:58:00Z",
+  "outcome": "blocked",
+  "failed_stage": "task1_scoped_code_commit",
+  "failed_predicates": [
+    {
+      "code": "coordinator_admission_gate_busy_or_stale",
+      "stage": "coordinator_commit_admission",
+      "reason": "Two scoped Task 1 commit attempts were refused by repo-mutation-coordinator.sh run with coordinator_admission_gate_busy_or_stale. Subsequent read-only coordinator status/verify reported verified, lock free, zero transaction leases, and no gate directory. No gate or lock was removed or repaired; no further acquisition was attempted after the orchestrator confirmed no known concurrent GSD executor.",
+      "commands": [
+        {
+          "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/repo-mutation-coordinator.sh run --repo . --operation phase245-plan27-task1-ci-safety-gate -- git commit -m 'fix(245-27): admit exact CI safety publication'",
+          "exit_code": 2,
+          "stderr": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155); repo-mutation-coordinator: FAIL: coordinator_admission_gate_busy_or_stale"
+        },
+        {
+          "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/repo-mutation-coordinator.sh run --repo . --operation phase245-plan27-task1-ci-safety-gate-retry -- git commit -m 'fix(245-27): admit exact CI safety publication'",
+          "exit_code": 2,
+          "stderr": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155); repo-mutation-coordinator: FAIL: coordinator_admission_gate_busy_or_stale"
+        },
+        {
+          "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/repo-mutation-coordinator.sh status --repo .",
+          "exit_code": 0,
+          "stdout": "coordinator=verified; common_dir=/Users/jon/projects/sigra/.git; lock=free; transaction_leases=0"
+        },
+        {
+          "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/repo-mutation-coordinator.sh verify --repo .",
+          "exit_code": 0,
+          "stdout": "PASS: shared branch/worktree coordinator hook and worktree paths verified."
+        }
+      ],
+      "disposition": "stop_without_contract_or_production_ref_operations"
+    }
+  ],
+  "task1_verification": {
+    "named_regression": "passed",
+    "public_plan23_readiness": "passed",
+    "scoped_changes_staged": [
+      "scripts/maintainers/prune-stale-branches.sh",
+      "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs"
+    ],
+    "scoped_commit_created": false
+  },
+  "execution_preflight": {
+    "latest_committed_receipt": "245-27-EXEC-PREFLIGHT.json",
+    "receipt_verdict_at_capture": "ready",
+    "receipt_active_head": "a63674bd12250693276c304c4538c9187ac04019",
+    "receipt_is_current_for_uncommitted_task1_changes": false,
+    "fresh_post_commit_census": "not_run_because_task1_commit_was_blocked"
+  },
+  "reference_inventory": {
+    "observation_source": "latest committed 245-27-EXEC-PREFLIGHT.json; no production ref command was run after that census",
+    "local_refs": {
+      "count": 128,
+      "canonical_sha256": "17b7250416ea41ebac7f6e90ff219d3fcb0ed7916f91801d91e7f69fd57ab3e3"
+    },
+    "origin_refs": {
+      "count": 357,
+      "canonical_sha256": "25e6c0693c607c468a0a985455547840c16deb0f96c9b08c7a94ecee03778312"
+    },
+    "open_prs": {
+      "count": 13,
+      "canonical_sha256": "f7543e04fb05fa163b62c6e6c3e7e12f4953d1ea022665f5b36b4ee8e9efb98e"
+    },
+    "production_ref_operations": 0,
+    "observed_production_ref_delta_after_latest_census": "none; no production ref operations were attempted"
+  },
+  "repo_04_status": "open",
+  "plan16_status": "blocked_by_plan14",
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved",
+    "unavailable_historical_baseline": "unknown",
+    "independent_full_window_cleanup_trust_registry": "unknown"
+  },
+  "task_disposition": {
+    "task1": "verification passed; required scoped commit blocked by coordinator admission refusal",
+    "task2": "not started",
+    "task3": "not started"
+  }
+}

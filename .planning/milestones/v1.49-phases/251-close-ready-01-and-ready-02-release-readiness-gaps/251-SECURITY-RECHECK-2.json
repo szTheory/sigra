@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "status": "OPEN_THREATS",
+  "asvs_level": 1,
+  "block_on": "high",
+  "threats_open": 1,
+  "closed": 21,
+  "total": 22,
+  "auditor": "phase251_security_audit",
+  "threats": [
+    {
+      "id": "T-251-01",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:238-293,316-347 exact tuple/CI/readiness/dry-run identities"
+    },
+    {
+      "id": "T-251-02",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:255-281,328-347 complete contemporaneous approval history"
+    },
+    {
+      "id": "T-251-03",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:407-427,557-575,905-930 complete stable PR identity joins"
+    },
+    {
+      "id": "T-251-04",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:590-612,669-727 scoped dirty-byte capture and readback"
+    },
+    {
+      "id": "T-251-05",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-v149-traceability.mjs:162-220 pinned historical owner/amendment bytes"
+    },
+    {
+      "id": "T-251-06",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-v149-traceability.mjs:703-719,879-911 owner-derived verdicts and checkbox contradiction checks"
+    },
+    {
+      "id": "T-251-07",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-v149-traceability.mjs:943-946,1136-1158 source-derived audit checks"
+    },
+    {
+      "id": "T-251-08",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:356-405,760-769 persisted preflight/source identity gate"
+    },
+    {
+      "id": "T-251-09",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "validate-release-readiness.mjs:811-818 full identity disposition invalidation; test:632-659"
+    },
+    {
+      "id": "T-251-10",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "validate-release-readiness.mjs:109-131,470-482 identity completeness/duplicates/null guards"
+    },
+    {
+      "id": "T-251-11",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:125-183,204-293 exact Git blob content and derived assertions; forged README pass rejected"
+    },
+    {
+      "id": "T-251-12",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-v149-traceability.mjs:523-566,606-683 independent immutable blob reads/content predicates; fake object digests and mutable content rejected"
+    },
+    {
+      "id": "T-251-13",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-v149-traceability.mjs:703-782 full inherited ID set from all worktree status rows; coherently omitted dirty identity yields unsatisfied 7/9"
+    },
+    {
+      "id": "T-251-14",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "OPEN",
+      "evidence": "verify-v149-traceability.mjs:476,489,498 selects byte/tombstone proof from mutable disposition.source kind/status. Dirty-to-committed_path and deletion-D-to-modification-M relabels with coherent record hashes both bypass source-byte/tombstone checks."
+    },
+    {
+      "id": "T-251-15",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:407-427,557-575,1121-1126 complete paginated stable PR snapshots"
+    },
+    {
+      "id": "T-251-16",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:238-293 original interval and tuple-bound approval"
+    },
+    {
+      "id": "T-251-17",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:108-123,152-204 exact published guide identity and trusted 404 findings"
+    },
+    {
+      "id": "T-251-18",
+      "severity": "medium",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-247-readiness.mjs:736-757 packet digest/capture ID consistency"
+    },
+    {
+      "id": "T-251-19",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-v149-traceability.mjs:446-470,902-911 owner/packet references"
+    },
+    {
+      "id": "T-251-20",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "verify-v149-traceability.mjs:879-947,1136-1158 owner-derived count/status"
+    },
+    {
+      "id": "T-251-21",
+      "severity": "medium",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "validate-release-readiness.test.mjs:632,687,716 and verify-247-readiness.test.mjs:676,805 retained regression evidence; dispositions remain subject to new audit gaps"
+    },
+    {
+      "id": "T-251-SC",
+      "severity": "high",
+      "disposition": "mitigate",
+      "status": "CLOSED",
+      "evidence": "Existing Node/Git/gh only; no install tasks or commands."
+    }
+  ],
+  "accepted_risks": [],
+  "prior_security_report": {
+    "commit": "f3214912e056e50ea373b8e235a7f107231e83b3",
+    "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY.md",
+    "sha256": "776ce7cfb1f2bb109bd06199d8acae0172b17618e1343d3cdfb1168bff6e1ad6",
+    "readback_verified": true
+  },
+  "observed_at": "2026-10-12T00:11:06.164514+00:00",
+  "source_head": "8b2a88844aff14345b9edc5ffca7b65f1d1c924f",
+  "correctness_gap": null,
+  "assertion_predicates_verified": 23,
+  "current_dirty_record_readbacks_verified": 5
+}

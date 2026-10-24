@@ -1,0 +1,388 @@
+{
+  "config": {
+    "configFile": "/work/test/example/priv/playwright/playwright.config.ts",
+    "rootDir": "/work/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/(admin-user-operations|admin-audit|admin-theme|admin-coherence-sweep|impersonation|admin-flow-).*\\.spec\\.ts/",
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/passkeys-hooks\\.spec\\.ts|passkey-options\\.spec\\.ts|passkey-login\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-modal-interaction\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-chromium",
+        "name": "admin-checkpoints-chromium",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-mobile",
+        "name": "admin-checkpoints-mobile",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-dark",
+        "name": "admin-checkpoints-dark",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-generated",
+        "name": "admin-generated",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-generated\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "generated-host-chromium",
+        "name": "generated-host-chromium",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/generated-confirmation\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "demo-showcase-chromium",
+        "name": "demo-showcase-chromium",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/demo-showcase\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-chromium",
+        "name": "admin-design-setup-chromium",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-chromium",
+        "name": "admin-design-chromium",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-mobile",
+        "name": "admin-design-setup-mobile",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-mobile",
+        "name": "admin-design-mobile",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-dark",
+        "name": "admin-design-setup-dark",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-dark",
+        "name": "admin-design-dark",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/evidence/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/work/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "admin-eval.spec.ts",
+      "file": "admin-eval.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Admin eval — render matrix, probes, bundles",
+          "file": "admin-eval.spec.ts",
+          "line": 639,
+          "column": 6,
+          "specs": [
+            {
+              "title": "render bundle: board-mg-9/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6701,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T00:55:03.218Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-411c7c9cafac7bae94b0",
+              "file": "admin-eval.spec.ts",
+              "line": 671,
+              "column": 11
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T00:55:02.294Z",
+    "duration": 8158.904999999999,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

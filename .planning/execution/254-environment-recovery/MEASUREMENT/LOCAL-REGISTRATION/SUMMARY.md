@@ -1,0 +1,9 @@
+# Local registration transport diagnosis
+
+The archived measured baseline failed under a controlled lost-WebSocket-reply condition. Its late old-WebSocket close event acted on the new LongPoll connection. The captured JavaScript stack shows `onConnClose → reloadWithJitter → disconnect → teardown → LongPoll.close → XMLHttpRequest.abort`. The first longpoll request was aborted within one millisecond of opening. This was not a slow package, database, or HTTP-endpoint response.
+
+Five ordinary mobile navigations passed. Direct browser fetch, direct XMLHttpRequest and curl all received the endpoint's valid initial JSON status410. Both a native WebSocket-message-drop control and a Chromium routed control reproduced the broken fallback. The partial callback guard alone let the first poll complete but left the original channel join pending, which timed out. That failed intermediate result is preserved.
+
+The complete local backport binds all four transport callbacks to their physical connection. Transport replacement clears the previous connection, assigns the new transport, closes the old connection and explicitly resets channel errors before opening the replacement. Under the identical lost-reply condition, WebKit and Chromium both recovered to connected LongPoll. Five normal WebKit navigations also passed. No readiness timeout, selector or product assertion was changed. `CONNECTION-HANDOFF-FINAL.patch` is the exact tested isolated patch.
+
+These are local development results against baseline source fb2d3faa4b25918d14415dd00a51545f0a9c6683 on macOS; they do not replace failed hosted results or establish Linux acceptance. The original hosted initiating response delay is not captured, so only the downstream failure mechanism is matched. See `DIAGNOSIS.json`, `ABORT-FALLBACK-RESULT.json` and the final browser traces. Scripts are copied here for root's production-copy check. Temporary server/db must be stopped afterward.

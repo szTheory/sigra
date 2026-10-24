@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "phase": "255.1",
+  "checked_at": "2026-10-24T22:06:54.976583+00:00",
+  "status": "passed",
+  "scope": "Discussion records, approved amendment, preservation and routing; no CI performance acceptance",
+  "checks_passed": 109,
+  "checks": [
+    {
+      "check": "capture_ref_identity",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/PROJECT.md",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/STATE.md",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/.gitkeep",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION-CHECK.json",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+      "passed": true
+    },
+    {
+      "check": "capture_bytes:.planning/state.json",
+      "passed": true
+    },
+    {
+      "check": "capture_status_manifest",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:contract",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:flavor",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:milestone",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase254",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase254_unblock_decision",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:current_phase",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase255",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:current_plan",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase255_completed_plans",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase255_implementation_status",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase255_verification_status",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase255_review_open",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:historical_verification_is_forward_blocker",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:phase255_completion_preservation",
+      "passed": true
+    },
+    {
+      "check": "old_state_field:milestone_audit",
+      "passed": true
+    },
+    {
+      "check": "prior_phase:252",
+      "passed": true
+    },
+    {
+      "check": "prior_phase:253",
+      "passed": true
+    },
+    {
+      "check": "prior_phase:254",
+      "passed": true
+    },
+    {
+      "check": "prior_phase:255",
+      "passed": true
+    },
+    {
+      "check": "insertion_detail:status",
+      "passed": true
+    },
+    {
+      "check": "insertion_detail:implementation_status",
+      "passed": true
+    },
+    {
+      "check": "insertion_detail:verification_status",
+      "passed": true
+    },
+    {
+      "check": "insertion_detail:directory",
+      "passed": true
+    },
+    {
+      "check": "insertion_detail:insertion",
+      "passed": true
+    },
+    {
+      "check": "insertion_detail:state_restoration",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:phase254",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:prior_phase255",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:hosted_canary",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:distribution",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:milestone_audit",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:insertion_recovery",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:constraints",
+      "passed": true
+    },
+    {
+      "check": "handoff_history:remaining_milestone_items",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:summaries_directory",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:replay",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:native_browser_diagnostics",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:native_source",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:evidence_writer_source",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:raw_local_recovery",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:sanitized_bundle",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:review_scope",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:final_native_mix",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:final_native_browser",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:final_trace_overhead",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:regression_gate",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:final_raw_recovery",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:verification",
+      "passed": true
+    },
+    {
+      "check": "old_evidence:milestone_audit",
+      "passed": true
+    },
+    {
+      "check": "aligned_forward_route",
+      "passed": true
+    },
+    {
+      "check": "readiness_context_no_plans",
+      "passed": true
+    },
+    {
+      "check": "claim_approved_not_runs",
+      "passed": true
+    },
+    {
+      "check": "implementation_verification_pending",
+      "passed": true
+    },
+    {
+      "check": "speed_requirements_still_open",
+      "passed": true
+    },
+    {
+      "check": "old_outcome_retained",
+      "passed": true
+    },
+    {
+      "check": "historical_roadmap_section:252",
+      "passed": true
+    },
+    {
+      "check": "historical_roadmap_section:253",
+      "passed": true
+    },
+    {
+      "check": "historical_roadmap_section:254",
+      "passed": true
+    },
+    {
+      "check": "historical_roadmap_section:255",
+      "passed": true
+    },
+    {
+      "check": "context_section:domain",
+      "passed": true
+    },
+    {
+      "check": "context_section:decisions",
+      "passed": true
+    },
+    {
+      "check": "context_section:canonical_refs",
+      "passed": true
+    },
+    {
+      "check": "context_section:code_context",
+      "passed": true
+    },
+    {
+      "check": "context_section:specifics",
+      "passed": true
+    },
+    {
+      "check": "context_section:deferred",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:AGENTS.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/METHODOLOGY.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/PROJECT.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/PRESERVATION.json",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/252-measure-current-ci/252-CONTEXT.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTEXT.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LEARNINGS.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/execution/254-rerun-preparation/RESULT.json",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/execution/254-environment-recovery/MEASUREMENT/CONTRACT.json",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/execution/254-transport-development-check/REPAIR-SUMMARY.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/execution/255-replay/REPORT.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:.planning/v1.50-MILESTONE-AUDIT.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:prompts/elixir-oss-lib-ci-cd-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:prompts/elixir-opensource-libs-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:prompts/elixir-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:prompts/ecto-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "check": "canonical_ref:prompts/Phoenix Auth Library \u2014 Jobs to Be Done, Personas & User Flows.md",
+      "passed": true
+    },
+    {
+      "check": "insertion_bytes_unchanged:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/.gitkeep",
+      "passed": true
+    },
+    {
+      "check": "insertion_bytes_unchanged:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION-CHECK.json",
+      "passed": true
+    },
+    {
+      "check": "insertion_bytes_unchanged:.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+      "passed": true
+    },
+    {
+      "check": "no_product_changes",
+      "passed": true
+    },
+    {
+      "check": "inherited_nonplanning_status_unchanged",
+      "passed": true
+    },
+    {
+      "check": "diff_whitespace",
+      "passed": true
+    }
+  ],
+  "preservation_ref": "refs/evidence/phase255-1-discussion/capture-56db18eda3a6",
+  "collection_authorized": false,
+  "implementation_status": "not_started",
+  "verification_status": "pending",
+  "next_command": "$gsd-plan-phase 255.1",
+  "file_sha256": {
+    ".planning/PROJECT.md": "1f2ea765cc4518a9266ded0e039b1b41f89d3d741bc1ecac00009c09bcc4776a",
+    ".planning/REQUIREMENTS.md": "6a78ad5d67d26ab64899565aa1cea461383b7b9e331df4f2f0a271ca61ba83d7",
+    ".planning/ROADMAP.md": "58ab3fb1176212bc69f21373e6021d6270c4a8e7f6c038283ac12f395e2ee6ed",
+    ".planning/STATE.md": "cbd19ae9bd042e08e133ca672a286b5beffb78c19b5891528dae556719484299",
+    ".planning/state.json": "09b6a15df9ff220358223844b833c02f478bd04763b1b43033b13965435faadc",
+    ".planning/HANDOFF.json": "a34012f0cb04412e490d24adc61384f36c8a5c2aa41f85a797b466f663529276",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md": "9b7f4235367f21b4f3fed5b5112b85458d0899e4d12d4326b670cabeb521658f",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-DISCUSSION-LOG.md": "597d201362dc546a41bbe43767d7b8eb8c9f99546e4ec9f751cb2a84016160c7",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json": "21a1c6b254b159f266f620d1fc406aef9a398538a9ddcc0fb95a6c013988a4ff",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json": "c6d2d32ecf1ba9bb4034653ca8d174932459615c89f628c35aa0b50c8d475182",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION-CHECK.json": "46e3bec4ec5f7645f24bd977546653f3970312d1230614f3af903963f3d1389d",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json": "dc22588f183135ed2f3fbd7ad1a0063a8e9441e2a492ff85262dd56640acfa63",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/PRESERVATION.json": "927d1c5ec0c1eed03a9ba438137d5af35ab1eb200a72f8c647fd16020fbc52a2"
+  }
+}

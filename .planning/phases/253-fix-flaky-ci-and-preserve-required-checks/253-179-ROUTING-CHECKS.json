@@ -1,0 +1,259 @@
+{
+  "schema": "sigra.phase253.offline-acceptance-routing/v1",
+  "next_command": "$gsd-progress",
+  "readiness": {
+    "plan_count": 183,
+    "completed_implementation_count": 76,
+    "halted_count": 28,
+    "without_summary": 79,
+    "incomplete_count": 79,
+    "runnable_count": 1,
+    "ready_plans": [
+      "253-180-PLAN.md"
+    ],
+    "operationally_ready_plans": [],
+    "precondition_blocked_plans": [
+      "253-180"
+    ]
+  },
+  "before_routing": {
+    "commit": "46099155e6c481f7e2e505c25707d26370028d71",
+    "sha256": {
+      ".planning/STATE.md": "571490726ed30074dc8bded856d8eed4a01940087d6c4f512667e0f23d99cdbf",
+      ".planning/state.json": "f2dacde236a6c91bcafcdc6908ae28108589f73a6f4d7c87bfebb2a9a942b168",
+      ".planning/HANDOFF.json": "172470c759776e3f729722590f2905aafea605d03cab2e93aebb767f5cbc8b6e",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md": "69ebcf53ccb1264577cabd398afd20470d67a9a7e1a60f3a7ffbdb5118d1bb1a"
+    },
+    "readback": "exact",
+    "capture_status": "clean"
+  },
+  "receipt_verified_at_commit": "e33460e9b68d4b6a7c205caa01177a6c433332e2",
+  "diagnostic_ref": "refs/gsd/phase253-179-offline-acceptance-diagnostics",
+  "next_phase254_readiness": {
+    "researcher_model": "gpt-6-luna",
+    "planner_model": "gpt-6.1-sol",
+    "checker_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "granularity": "fine",
+    "research_enabled": true,
+    "plan_checker_enabled": true,
+    "nyquist_validation_enabled": true,
+    "commit_docs": true,
+    "text_mode": false,
+    "auto_advance": false,
+    "auto_chain_active": false,
+    "mode": "yolo",
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/254-speed-up-the-measured-slow-jobs",
+    "expected_phase_dir": null,
+    "phase_number": "254",
+    "phase_name": "Speed Up the Measured Slow Jobs",
+    "phase_slug": "speed-up-the-measured-slow-jobs",
+    "padded_phase": "254",
+    "phase_req_ids": "CISPEED-01, CISPEED-02",
+    "phase_status": "Pending",
+    "has_research": false,
+    "has_context": false,
+    "context_scope": "complete",
+    "has_reviews": false,
+    "has_plans": false,
+    "plan_count": 0,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "planning_exists": true,
+    "roadmap_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "patterns_path": null,
+    "section_manifest": {
+      "workflow": "plan-phase",
+      "included": [],
+      "excluded": [
+        "reviews-prerequisite",
+        "prd-express-gate",
+        "adr-ingest-express-path",
+        "research-only-modifiers",
+        "research-only-early-exit",
+        "chunked-planning-mode"
+      ],
+      "read": []
+    },
+    "prior_verify_commands": [
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+        "task": "Task 1: Diagnose the saved Test D/Test Z family end to end",
+        "command": "bash scripts/ci/ci-run-metrics.test.sh && bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+        "task": "Task 1: Freeze and run the real registration path across all three projects",
+        "command": "bash scripts/ci/ci-registration-repro.test.sh && bash scripts/ci/ci-registration-repro.sh --run-frozen .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+        "task": "Task 2: Prove readiness, trace and state controls against the real app",
+        "command": "bash scripts/ci/ci-registration-repro.sh --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+        "task": "Task 3: Fix only a demonstrated cause and retain the conditional result",
+        "command": "bash scripts/ci/ci-registration-repro.sh --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-PLAN.md",
+        "task": "Task 1: Carry Example unit smoke through the real ci-gate path",
+        "command": "bash scripts/ci/honest-skip-verdict.test.sh"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-PLAN.md",
+        "task": "Task 1: Correct one selected browser body and aggregate parity path",
+        "command": "node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-PLAN.md",
+        "task": "Task 1: Validate one real-shaped full-body record and native report",
+        "command": "node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+        "task": "Task 1: Connect one browser producer through artifact and aggregate verdict",
+        "command": "node --test scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-browser-records.test.mjs"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+        "task": "Task 2: Complete all five seams and honest docs-only classification",
+        "command": "node --test scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs && bash scripts/ci/honest-skip-verdict.test.sh"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+        "task": "Task 1: Run a sealed full-pass fixture and independently verify its origin",
+        "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-gate-canary.sh --scenario full-pass --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+        "task": "Task 2: Exercise all negative hosted outcomes and separate verifier",
+        "command": "bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-gate-canary.sh --remaining-scenarios --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+        "task": "Task 1: Prove one normal production PR required-check family",
+        "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode pr --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-PR-EVIDENCE.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+        "task": "Task 2: Reconcile selected fixes and gate proof into an honest requirement record",
+        "command": "python3 scripts/ci/ci-hosted-gate-verify.py --mode completion --evidence .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-COMPLETION-RECORD.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-PLAN.md",
+        "task": "Task 1: Freeze and run one real selected registration path",
+        "command": "node --test scripts/ci/ci-registration-recovery.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-diagnostic .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-PLAN.md",
+        "task": "Task 1: Drive real readiness, state and trace controls through registration",
+        "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-controls .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json --stage first"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-PLAN.md",
+        "task": "Task 2: Apply only observed cause repair and freeze fresh acceptance runs",
+        "command": "node --test scripts/ci/ci-registration-recovery.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs && node scripts/ci/ci-registration-recovery.mjs --verify-acceptance .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json"
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-100-PLAN.md",
+        "task": "Task 1: Route-mapping tests through a recording stub transport, captured RED, then brace every capture expansion",
+        "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; N=\"$HOME/.asdf/installs/nodejs/20.18.1/bin/node\"; P=.planning/phases/253-fix-flaky-ci-and-preserve-required-checks; R=$P/253-LOAD-RECOVERY-CANARY-ROUTES-RED-R8.json; python3 scripts/ci/ci-gate-canary-flow.test.py && bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-gate-canary-recovery.test.py; rc=$?; rm -rf scripts/ci/__pycache__; test $rc -eq 0 && test -z \"$(grep -nE '\\$BASH_REMATCH\\[' scripts/ci/ci-gate-canary.sh)\" && test \"$(grep -c '\\${BASH_REMATCH\\[' scripts/ci/ci-gate-canary.sh)\" -ge 10 && RC=$(git log --diff-filter=A --format=%H -- \"$R\") && test -n \"$RC\" && FC=$(git log -1 --format=%H -S 'BASH_REMATCH[1]}' -- scripts/ci/ci-gate-canary.sh) && test -n \"$FC\" && test \"$RC\" != \"$FC\" && git merge-base --is-ancestor \"$RC\" \"$FC\" && \"$N\" -e 'const r=JSON.parse(require(\"fs\").readFileSync(process.argv[1],\"utf8\"));const e=r.entries||[];if(r.schema!==\"sigra.phase253.canary-routes-red/v1\")process.exit(1);if(e.length<1||e.some(x=>!(Number(x.exit_code)>0)||!Array.isArray(x.failing_tests)||x.failing_tests.length<5))process.exit(2);if(!JSON.stringify(e).includes(\"[1]\"))process.exit(3)' \"$R\""
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-100-PLAN.md",
+        "task": "Task 3: The decided check source, then the success-returning dispatch_scenario, as two separate RED-first commits",
+        "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; N=\"$HOME/.asdf/installs/nodejs/20.18.1/bin/node\"; P=.planning/phases/253-fix-flaky-ci-and-preserve-required-checks; D=$P/253-LOAD-RECOVERY-CHECK-SOURCE-DECISION-R8.json; python3 scripts/ci/ci-gate-canary-flow.test.py && bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-gate-canary-recovery.test.py && python3 scripts/ci/ci-hosted-gate-verify.test.py && python3 scripts/ci/ci-hosted-transport.test.py && python3 scripts/ci/ci-git-publication.test.py && bash scripts/ci/ci-pr-proof.test.sh && \"$N\" $P/253-LOAD-RECOVERY-reconcile.mjs --prepare-contract --output $P/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT.json --check-only >/dev/null && \"$N\" $P/253-LOAD-RECOVERY-reconcile.mjs --revision r2 --prepare-contract --output $P/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R2.json --check-only >/dev/null && \"$N\" $P/253-LOAD-RECOVERY-reconcile.mjs --revision r3 --prepare-contract --output $P/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R3.json --check-only >/dev/null && \"$N\" $P/253-LOAD-RECOVERY-reconcile.mjs --revision r4 --prepare-contract --output $P/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R4.json --check-only >/dev/null && \"$N\" $P/253-LOAD-RECOVERY-reconcile.mjs --revision r5 --prepare-contract --output $P/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R5.json --check-only >/dev/null && \"$N\" $P/253-LOAD-RECOVERY-reconcile.mjs --revision r6 --prepare-contract --output $P/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R6.json --check-only >/dev/null && \"$N\" $P/253-LOAD-RECOVERY-reconcile.mjs --revision r7 --prepare-contract --output $P/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R7.json --check-only >/dev/null; rc=$?; rm -rf scripts/ci/__pycache__; S=$(git status --porcelain --untracked-files=all) && test $rc -eq 0 && jq -e '.schema_version == \"sigra.phase253.check-source-decision/v1\" and (.decision | IN(\"server-parent-identity\",\"server-parent-strict\",\"defer-to-pr\"))' \"$D\" >/dev/null && DC=$(git log --diff-filter=A --format=%H -- \"$D\") && test -n \"$DC\" && DF=$(git show --name-only --format= \"$DC\") && test -z \"$(printf '%s\\n' \"$DF\" | grep -v -e \"^$D$\" -e \"^$\")\" && test -z \"$(grep -nE '\\$BASH_REMATCH\\[' scripts/ci/ci-gate-canary.sh)\" && test \"$(shasum -a 256 $P/253-LOAD-RECOVERY-CANARY-EVIDENCE-R7.json | cut -d' ' -f1)\" = e5be215080eba76848abb451f758483dae19b898d55865cdf882c3310a768d34 && test \"$(shasum -a 256 .planning/config.json | cut -d' ' -f1)\" = 8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d && test \"$(wc -c < .planning/state.json | tr -d ' ')\" = 70229 && test -z \"$(printf '%s\\n' \"$S\" | grep -v '^ M .planning/config.json$')\""
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-101-PLAN.md",
+        "task": "Task 1: Hermetic canary routing, a local fake GitHub and publish-only plus full-pass end to end through the real driver, transport, publisher and verifier",
+        "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN; O=\"${TMPDIR:-/tmp}/253-101-t1.json\"; O7=\"${TMPDIR:-/tmp}/253-101-r7.json\"; python3 scripts/ci/ci-hosted-transport.test.py && python3 scripts/ci/ci-hosted-gate-verify.test.py && python3 scripts/ci/ci-gate-canary-flow.test.py && python3 scripts/ci/ci-gate-canary-dryrun.py --stop-after full-pass > \"$O\" && jq -e '.status == \"passed\" and (.scenarios | index(\"full-pass\")) != null and .synthetic == true and .journal_requests == .requests_total' \"$O\" >/dev/null && { python3 scripts/ci/ci-gate-canary-dryrun.py --driver-from 97665bd2a56443a2bb10f894aafd46c5f06e4ce9 --stop-after full-pass > \"$O7\"; test $? -ne 0; } && jq -e '.status == \"failed\" and (.stop | tostring | test(\"invalid_route_parameter\"))' \"$O7\" >/dev/null; rc=$?; rm -rf scripts/ci/__pycache__; rm -f \"$O\" \"$O7\"; S=$(git status --porcelain --untracked-files=all) && test $rc -eq 0 && test -z \"$(printf '%s\\n' \"$S\" | grep -v '^ M .planning/config.json$')\""
+      },
+      {
+        "phase": "253",
+        "plan": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-101-PLAN.md",
+        "task": "Task 2: Once-per-window preflight and fail-closed halt marking (separate RED-first commits), then the full six-scenario sequence and the synthetic completion gap",
+        "command": "export PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\"; unset GH_TOKEN GITHUB_TOKEN; O=\"${TMPDIR:-/tmp}/253-101-t2.json\"; python3 scripts/ci/ci-gate-canary-dryrun.test.py && python3 scripts/ci/ci-gate-canary-dryrun.py > \"$O\" && jq -e '.status == \"passed\" and .synthetic == true and ((.scenarios | sort) == ([\"actual-failure\",\"cancelled\",\"docs-only\",\"full-pass\",\"missing-seam\",\"unexpected-skip\"])) and .verifier.status == \"passed\" and .requests_by_category.preflight <= 8 and .requests_total <= 117' \"$O\" >/dev/null && python3 scripts/ci/ci-gate-canary-flow.test.py && bash scripts/ci/ci-gate-canary.test.sh && python3 scripts/ci/ci-gate-canary-recovery.test.py && python3 scripts/ci/ci-hosted-gate-verify.test.py; rc=$?; rm -rf scripts/ci/__pycache__; rm -f \"$O\"; S=$(git status --porcelain --untracked-files=all) && test $rc -eq 0 && test -z \"$(printf '%s\\n' \"$S\" | grep -v '^ M .planning/config.json$')\""
+      }
+    ],
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "shared_route_updated_after_receipt_verification": true,
+  "requirements_unchanged": true,
+  "phase_verification_status": "not_started",
+  "ci_launches": 0,
+  "budgets_renewed": false,
+  "routing_draft_preservation": {
+    "ref": "refs/gsd/phase253-179-routing-draft",
+    "commit": "0397812b6d4b220604af6dc98b522fb5ea72a767",
+    "readback": "exact",
+    "files": [
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": " M",
+        "sha256": "2c5f508560a0e2c60ebd1ae8ab3130a6cb8201e3c6ab48696debae7690524663",
+        "bytes": 175255,
+        "blob": "eb157afa050a1ce31805ee0ae4d1c15b8c2be4f4"
+      },
+      {
+        "path": ".planning/STATE.md",
+        "status": " M",
+        "sha256": "5dda55ee15736cc0647cbb5b9547aeed87359e71955a19a4462fa5a0d8c4fea6",
+        "bytes": 30206,
+        "blob": "103c22193ab913144ad69985589b909158781d70"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
+        "status": " M",
+        "sha256": "5f93c721468ab6a0e8bfc555bae073ab92b79b21e1cc71b16ac149a9f7571168",
+        "bytes": 2801,
+        "blob": "c3c0a9ac232ff1e4f2f6e2d0d6c5f1b92caa7936"
+      },
+      {
+        "path": ".planning/state.json",
+        "status": " M",
+        "sha256": "bd88c0c824b68288001a90d593f8ae702958f2419012885367dc220a2feee9c8",
+        "bytes": 106305,
+        "blob": "e475e775a23dd49623a4d7e7e3211b2a94456417"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-ROUTING-CHECKS.json",
+        "status": "??",
+        "sha256": "b47defd007b107eea0d707d48516ad00722ce1494f47c1ec8743da63ee467725",
+        "bytes": 18198,
+        "blob": "5d46339f79864d3d235ca254f888a6d92a3b8891"
+      }
+    ]
+  },
+  "protected_reset_document": "Retained at exact acceptance-source bytes. Its prior route predates179 completion; current STATE/HANDOFF and179 summary route to progress."
+}

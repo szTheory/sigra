@@ -1,0 +1,197 @@
+{
+  "scope": "controlled local transport fault; not evidence of original failure cause",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "darwin",
+  "results": [
+    {
+      "mode": "drop_primary_replies",
+      "passed": false,
+      "error": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n\u001b[2m    - waiting for\" http://localhost:4317/users/register\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://localhost:4317/users/register\"\u001b[",
+      "state": {
+        "readyState": "complete",
+        "connected": 0,
+        "socketConnected": false,
+        "transport": "g"
+      },
+      "events": [
+        {
+          "ms": 178,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 481,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 487,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 759,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "liveview",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 759,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "phoenix",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 3253,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 8336,
+          "type": "console",
+          "message": "phx-GOFVCy-M4wArKgGG join: encountered 0 consecutive reloads -  undefined"
+        },
+        {
+          "ms": 8336,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 8556,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 8558,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 8790,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "liveview",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 8790,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "phoenix",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 11285,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        }
+      ]
+    },
+    {
+      "mode": "drop_primary_health_reply",
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "WebSocket"
+      },
+      "events": [
+        {
+          "ms": 95,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 347,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 351,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 697,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "liveview",
+          "status": "ok",
+          "dropped": false
+        },
+        {
+          "ms": 697,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "phoenix",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 698,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 3188,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 8236,
+          "type": "console",
+          "message": "phx-GOFVDsan7oe0_QbI join: encountered 0 consecutive reloads -  undefined"
+        },
+        {
+          "ms": 8237,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 8488,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 8491,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 8748,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "liveview",
+          "status": "ok",
+          "dropped": false
+        },
+        {
+          "ms": 8748,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "phoenix",
+          "status": "ok",
+          "dropped": true
+        }
+      ]
+    }
+  ]
+}

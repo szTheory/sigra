@@ -1,0 +1,194 @@
+{
+  "schema_version": "sigra.phase255.research-preflight/v1",
+  "status": "ready_with_distribution_deliverable",
+  "checked_at_utc": "2026-10-24",
+  "scope": "read-only feasibility check; no replay, test, network request, or ref mutation performed",
+  "local_preservation": {
+    "before_ref": {
+      "ref": "refs/evidence/phase254-measurement-pair-01-before-attempt-2",
+      "commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "resolves": true,
+      "contains": [
+        "69 receipt-listed paths",
+        "run 40046955449 attempt 2 metadata and artifacts",
+        "before source/workflow capture"
+      ]
+    },
+    "after_ref": {
+      "ref": "refs/evidence/phase254-measurement-pair-01-after-attempt-2",
+      "commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "resolves": true,
+      "contains": [
+        "109 receipt-listed paths",
+        "run 40047078287 attempt 2 metadata and artifacts",
+        "after source/workflow capture"
+      ]
+    },
+    "analysis_source": {
+      "commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "scripts/ci/ci-run-metrics.sh": "object resolves",
+      "scripts/ci/ci_metrics_security.py": "required helper; resolve and hash-pin during plan execution",
+      "scripts/ci/ci-browser-records.mjs": "required transitive coverage comparison helper; resolve and hash-pin during plan execution",
+      "scripts/ci/ci-hosted-gate-verify.py": "related verifier; resolve and hash-pin if replay/report invokes it",
+      "planning_runner": ".planning/execution/254-environment-recovery/MEASUREMENT/run.py"
+    },
+    "saved_results": {
+      "comparison": ".planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json",
+      "evaluation_costs": ".planning/execution/254-environment-recovery/MEASUREMENT/EVALUATION-COSTS.json",
+      "independent_cost_replay": ".planning/execution/254-environment-recovery/MEASUREMENT/REPLAYED-COSTS.json",
+      "baseline_receipt": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/CAPTURE-before.json",
+      "candidate_receipt": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/CAPTURE-after.json"
+    }
+  },
+  "distribution": {
+    "accessible_from_clean_checkout": false,
+    "evidence_refs_found_in_remote_branches": false,
+    "ignored_or_untracked_raw_replay_directories_exist_locally": true,
+    "accessible_exact_byte_archive_found": false,
+    "required_plan_deliverable": "Publish the two immutable bundles through a maintainer-accessible exact-byte archive or scoped refs, then prove clean-checkout retrieval/materialization and receipt hash validation without network during replay. Do not treat local refs or expiring Actions artifact URLs as distribution."
+  },
+  "saved_observation": {
+    "comparison_status": "insufficient_data",
+    "measured_invocations": 2,
+    "baseline": {
+      "run_id": 40046955449,
+      "attempt": 2,
+      "conclusion": "failure",
+      "runner_seconds": 2046
+    },
+    "candidate": {
+      "run_id": 40047078287,
+      "attempt": 2,
+      "conclusion": "success",
+      "runner_seconds": 1589
+    },
+    "successful_comparable_pairs": 0,
+    "median_seconds": null,
+    "p95_seconds": null,
+    "speed_claim_supported": false,
+    "original_observations_must_remain_unchanged": true
+  },
+  "missing_non_reconstructible_prerequisites": [],
+  "execution_boundary": "Historical inputs exist locally and can be bundled. Clean-checkout accessibility is not established yet and must be implemented/proven during Phase 255; it does not justify renewing measurement or replacing observations.",
+  "deterministic_object_checks": [
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci-run-metrics.sh",
+      "blob": "c7cfed349eec5ee2da65dee57ca49f47407ff241",
+      "sha256": "2a4e54049575a3ab2ed14865e1051bcac19beda0e083061dfd71ba68f92876d8"
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci_metrics_security.py",
+      "blob": "42b411e063a14dff561d528b2e52ae292f88cf1c",
+      "sha256": "b46841213929ceb229d360019a92ad21ca661f761e6066989c7e51551fb2661f"
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci-browser-records.mjs",
+      "blob": "083c4f481c31db3825c9875120c4f521f0be0b92",
+      "sha256": "55e28a75e7847a3c0aff158bf82959e45c20ae54901784710390dfb9a807ada1"
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci-hosted-gate-verify.py",
+      "blob": "df93adaf25ba770f44af07245edff9d5b4d05fd3",
+      "sha256": "a40844dcf94ec0cab97cb25626fd9742262ddcb61b561eb2ced2954d113f42dc"
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+      "blob": "cf888d8bef130164533627ff14575ed5ba9a98b3",
+      "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30"
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+      "blob": "9aac262bc294e4ea94344c2fb6735e67633cf655",
+      "sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4"
+    },
+    {
+      "role": "before",
+      "receipt_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "verified_blobs": 69,
+      "hash_mismatches": []
+    },
+    {
+      "role": "before",
+      "identity": "application_sha",
+      "commit": "fb2d3faa4b25918d14415dd00a51545f0a9c6683"
+    },
+    {
+      "role": "before",
+      "identity": "workflow_revision",
+      "commit": "fb2d3faa4b25918d14415dd00a51545f0a9c6683"
+    },
+    {
+      "role": "before",
+      "identity": "producer_source_sha",
+      "sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "git_commit_available": false,
+      "resolution": "Preserved GitHub commit/tree/workflow payloads resolve as hash-verified blobs in receipt evidence commit; include these for existing offline origin verifier. Do not require a missing synthetic producer Git object or infer source divergence.",
+      "captured_payloads": [
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/commit.json",
+          "sha256": "2cad393816695d1cba44478a315b6120940e31ff273c0dc184d96db45236b278"
+        },
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/workflow-content.json",
+          "sha256": "045d6442238899f9c0b0d5c9e83b65331bc748c554ea3a3ebed82e73aeffc24f"
+        },
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/ci.yml",
+          "sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e"
+        },
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/tree.json",
+          "sha256": "22a3c719242be777e3c092de8596f3154a199850d892b953aac39d45d0ac7bba"
+        }
+      ]
+    },
+    {
+      "role": "after",
+      "receipt_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "verified_blobs": 109,
+      "hash_mismatches": []
+    },
+    {
+      "role": "after",
+      "identity": "application_sha",
+      "commit": "ebb1d3ef0207d64f5f22f409032cf6125abab941"
+    },
+    {
+      "role": "after",
+      "identity": "workflow_revision",
+      "commit": "ebb1d3ef0207d64f5f22f409032cf6125abab941"
+    },
+    {
+      "role": "after",
+      "identity": "producer_source_sha",
+      "sha": "cd931364639de70d888f04132ce3c980ae491b3d",
+      "git_commit_available": false,
+      "resolution": "Preserved GitHub commit/tree/workflow payloads resolve as hash-verified blobs in receipt evidence commit; include these for existing offline origin verifier. Do not require a missing synthetic producer Git object or infer source divergence.",
+      "captured_payloads": [
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/commit.json",
+          "sha256": "e98516b098fe1b496cf8f4ac0a2f97905f96b970c9ae4d6f25a4e76e2c06e9fc"
+        },
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/workflow-content.json",
+          "sha256": "b7681de451b372d7821a69db47b7a04b817834f830757cff8bb343afa6463769"
+        },
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/ci.yml",
+          "sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1"
+        },
+        {
+          "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/tree.json",
+          "sha256": "cf32daa1925ae9cd976d52e18760d3129492323014a670bbad664b7e95a0d4ae"
+        }
+      ]
+    }
+  ],
+  "preflight_limits": "Named measured application/workflow commits and analysis/helper/archive/map blobs resolve; all 178 receipt entries verified from preserved Git blobs. Synthetic producer commits are absent locally but captured commit/tree/workflow payloads exist and hashes pass. Transitive runtime discovery and distribution remain execution checks; no hosted availability claim."
+}

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/execution/253-registration-integration/validate.py", line 130, in <module>
+    execute()
+    ~~~~~~~^^
+  File "/Users/jon/projects/sigra/.planning/execution/253-registration-integration/validate.py", line 49, in execute
+    authorize(proposal)
+    ~~~~~~~~~^^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/execution/253-registration-integration/validate.py", line 39, in authorize
+    assert (HERE / 'approval.json').exists(), 'STOP: offline-only scope; five-group integration proposal is not approved'
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+AssertionError: STOP: offline-only scope; five-group integration proposal is not approved

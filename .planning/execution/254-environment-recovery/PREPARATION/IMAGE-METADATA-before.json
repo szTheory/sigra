@@ -1,0 +1,98 @@
+{
+  "schema_version": "sigra.ci-measurement-metadata/v1",
+  "repository": "szTheory/sigra",
+  "run_id": "40043060412",
+  "run_attempt": "1",
+  "source_sha": "fcf451d23bebbf02024ea32ba41445d5b8a71952",
+  "event": "pull_request",
+  "matrix_seam": null,
+  "job_name": "Install smoke (fresh phx.new + sigra.install)",
+  "runner_os": "Linux",
+  "runner_arch": "X64",
+  "runner_image": {
+    "image_os": null,
+    "image_version": null,
+    "source_proof": {
+      "schema_version": "sigra.ci-runner-image/v1",
+      "captured_at": "2026-10-24T00:10:50.553Z",
+      "status": "image_identity_conflict",
+      "image_file": {
+        "path": "/imagegeneration/imagedata.json",
+        "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+      },
+      "os_release_file": {
+        "path": "/etc/os-release",
+        "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+        "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+      },
+      "machine": "x86_64",
+      "identity": {
+        "repository": "szTheory/sigra",
+        "run_id": "40043060412",
+        "run_attempt": "1",
+        "source_sha": "fcf451d23bebbf02024ea32ba41445d5b8a71952",
+        "job": "install_smoke",
+        "matrix_seam": null
+      },
+      "environment_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      },
+      "file_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "runner_image": null,
+      "diagnostics": [
+        "runner_file_and_environment_disagree"
+      ],
+      "os_release": {
+        "id": "ubuntu",
+        "version_id": "24.04"
+      }
+    },
+    "verification": {
+      "schema_version": "sigra.ci-runner-image/v1",
+      "status": "image_identity_conflict",
+      "captured_at": "2026-10-24T00:10:50.553Z",
+      "verified_at": "2026-10-24T00:10:50.675Z",
+      "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+      "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+      "machine": "x86_64",
+      "identity": {
+        "repository": "szTheory/sigra",
+        "run_id": "40043060412",
+        "run_attempt": "1",
+        "source_sha": "fcf451d23bebbf02024ea32ba41445d5b8a71952",
+        "job": "install_smoke",
+        "matrix_seam": null
+      },
+      "runner_image": null,
+      "diagnostics": [
+        "early_image_proof_not_verified"
+      ]
+    }
+  },
+  "cache_outcome": {
+    "library_deps": null
+  },
+  "configured_versions": {
+    "erlang": "28.5",
+    "elixir": "1.19.5-otp-28",
+    "node": null,
+    "playwright": null
+  },
+  "observed_versions": {
+    "erlang": null,
+    "elixir": null,
+    "node": null,
+    "playwright": null
+  },
+  "version_unavailable": {
+    "erlang": "binary_missing",
+    "elixir": "binary_missing",
+    "node": "not_applicable",
+    "playwright": "not_applicable"
+  }
+}

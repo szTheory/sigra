@@ -1,0 +1,2703 @@
+[
+  {
+    "phase": "252-measure-current-ci",
+    "summaries": [
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-01-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Bounded read-only Actions and rule-source collection with durable request ledgers.",
+          "Hash-checked offline replay for required-check wait and runner cost.",
+          "Current-effective required-context preflight evidence."
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/252-measure-current-ci/252-EVIDENCE-PREFLIGHT.json",
+            ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/manifest.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-run-metrics.sh",
+            "scripts/ci/ci-run-metrics.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-02-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Fixed-cutoff, 30-day CI populations separated by PR, main push and schedule.",
+          "Interrupted snapshot bundles with verified request and selection ledgers for offline replay.",
+          "Bounded artifact and failed-job-log intake with source checks and redaction."
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-run-metrics.sh",
+            "scripts/ci/ci-run-metrics.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-03-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Opt-in ExUnit test and suite timing in explicit microseconds beside the standard CLI formatter.",
+          "Process checks proving write failures keep the original ExUnit result and cannot produce a complete timing measurement."
+        ],
+        "key_files": {
+          "created": [
+            "test/support/ci_timing_formatter.ex",
+            "test/sigra/planning/ci_timing_formatter_test.exs",
+            "scripts/ci/ci-exunit-timing.test.sh",
+            ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json"
+          ],
+          "modified": [
+            "test/test_helper.exs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-04-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Opt-in native Playwright JSON output alongside the existing list and HTML reporters.",
+          "A dependency-free normalizer that preserves project, test, retry, result, duration and completeness data."
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-playwright-report.mjs",
+            "scripts/ci/ci-playwright-report.test.mjs"
+          ],
+          "modified": [
+            "test/example/priv/playwright/playwright.config.ts"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-05-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Existing CI owners retain per-run timing and runtime/cache metadata",
+          "Offline replay ranks measured job wait, runner cost, steps, tests, and artifact facts",
+          "Bounded current failure analysis keeps unsupported or missing evidence unknown"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-run-metrics-replay.test.mjs",
+            ".planning/phases/252-measure-current-ci/252-05-task1-red-evidence.json",
+            ".planning/phases/252-measure-current-ci/252-05-task2-red-evidence.json",
+            ".planning/phases/252-measure-current-ci/252-05-task2-single-red-evidence.json",
+            ".planning/phases/252-measure-current-ci/252-05-task3-red-evidence.json",
+            ".planning/phases/252-measure-current-ci/252-05-MIX-CI-DIAGNOSTIC.json",
+            ".planning/phases/252-measure-current-ci/252-05-STATE-PRESERVATION.json"
+          ],
+          "modified": [
+            ".github/workflows/ci.yml",
+            "scripts/ci/ci-measure-workflow.test.mjs",
+            "scripts/ci/ci-run-metrics.sh",
+            "scripts/ci/ci-run-metrics.test.sh",
+            ".planning/WINDOWS.md"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "source-bound-current-baseline",
+          "immutable-hosted-evidence",
+          "matched-comparison-contract",
+          "reproducible-baseline-report"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-run-metrics-comparison.test.sh",
+            "scripts/ci/exunit_timing_contract.py",
+            "scripts/ci/exunit_timing_contract_test.py",
+            "scripts/ci/ci-measure-report.sh",
+            "scripts/ci/ci-measure-report.test.sh",
+            "scripts/ci/ci_metrics_security.py",
+            "scripts/ci/ci-metrics-security.test.py",
+            ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+            ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+            ".planning/phases/252-measure-current-ci/252-BASELINE.md",
+            ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+            ".planning/phases/252-measure-current-ci/252-06-STATE-PRESERVATION.json",
+            ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION.json",
+            ".planning/phases/252-measure-current-ci/252-06-ACQUISITION-ATTEMPTS.json",
+            ".planning/phases/252-measure-current-ci/acquisition-attempts/",
+            ".planning/phases/252-measure-current-ci/252-06-SECURITY-REFRESH-PRESERVATION-72c71eb.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-exunit-timing.test.sh",
+            "scripts/ci/sigra-dep-off.sh",
+            "scripts/ci/test-sigra-dep-off.sh",
+            "test/sigra/planning/ci_timing_formatter_test.exs",
+            "test/support/ci_timing_formatter.ex",
+            "scripts/ci/ci-run-metrics.sh",
+            "scripts/ci/ci-run-metrics.test.sh",
+            "scripts/ci/ci-run-metrics-replay.test.mjs",
+            "scripts/ci/ci-run-metrics-comparison.test.sh",
+            "scripts/ci/ci-metrics-security.test.py",
+            "scripts/ci/ci_metrics_security.py",
+            "scripts/ci/ci-measure-report.sh",
+            "scripts/ci/ci-measure-report.test.sh",
+            ".github/workflows/ci.yml",
+            ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "phase": "253-fix-flaky-ci-and-preserve-required-checks",
+    "summaries": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "versioned failure diagnosis",
+          "bounded source-indexed context"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DIAGNOSIS.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-run-metrics.sh",
+            "scripts/ci/ci-run-metrics.test.sh",
+            "scripts/ci/ci_metrics_security.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Frozen registration reproduction selection and bounded execution limits",
+          "Durable record of setup failures and the unresolved CIREL-01 gap"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-registration-repro.sh",
+            "scripts/ci/ci-registration-repro.test.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "unit smoke internal gate ownership"
+        ],
+        "key_files": {
+          "modified": [
+            ".github/workflows/ci.yml",
+            "scripts/ci/honest-skip-verdict.sh",
+            "scripts/ci/honest-skip-verdict.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "exact selected-body inventory",
+          "verified PR body eligibility"
+        ],
+        "key_files": {
+          "modified": [
+            ".github/workflows/ci.yml",
+            ".github/ci-skip-manifest.tsv",
+            "MAINTAINING.md",
+            "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+            "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "five-seam record validator",
+          "source selection inventory matching",
+          "bounded producer writer"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-browser-records.mjs",
+            "scripts/ci/ci-browser-records.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "five producer artifacts and native aggregate validation"
+        ],
+        "key_files": {
+          "modified": [
+            ".github/workflows/ci.yml",
+            "scripts/ci/ci-measure-workflow.test.mjs",
+            "scripts/ci/ci-playwright-report.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "scoped dispatch-only canary workflow and bounded runner",
+          "independent hosted receipt verifier and durable first-run diagnostics",
+          "fail-closed docs-only classification for unit, install, and HTTP heavy steps"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-WORKFLOW.yml",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json"
+          ],
+          "modified": [
+            ".github/workflows/ci.yml",
+            ".github/ci-skip-manifest.tsv",
+            "MAINTAINING.md",
+            "scripts/ci/honest-skip-verdict.sh",
+            "scripts/ci/honest-skip-verdict.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Source-bound recovery runner and native receipt verifier with forged-success rejection tests",
+          "Pre-result diagnostic freeze reserving Plan 09 and Plan 10 slots and cumulative time",
+          "Redacted terminal record for the first diagnostic setup stop"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-repro.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-100-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "braced canary route captures",
+          "server-parent check-source rule (D-12 decision)",
+          "success-returning dispatch_scenario",
+          "route/check-source/errexit offline tests"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-gate-canary-flow.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ROUTES-RED-R8.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CHECK-SOURCE-DECISION-R8.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-101-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "offline dry-run gate scripts/ci/ci-gate-canary-dryrun.py (--revision-freeze for 253-102/104)",
+          "hermetic canary routing",
+          "once-per-window preflight",
+          "fail-closed halt marking",
+          "request-free discovery wait and first-poll interval",
+          "synthetic-only hermetic-https verification and completion gap"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py"
+          ],
+          "modified": [
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-102-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "freeze-selected scoped ref pair (legacy default, r8)",
+          "253-LOAD-RECOVERY-CANARY-PUBLICATION-R8.json",
+          "253-LOAD-RECOVERY-CANARY-FREEZE-R8.json (plan 253-102, ref pair r8)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-R8.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R8.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-103-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "additive --revision r8 in the reconciliation helper (contract, dry-run, prepare, apply, check-index)",
+          "committed R8 reconciliation contract (46 never-executed responsibilities, 13 halted records, final owner 253-106)",
+          "three-digit plan id helpers (planIdOf, comparePlanIds, parsePlanFile)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R8.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-104-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed fresh canary-section approval bound to the R8 outward_actions.canary sha256 (e272c040...)",
+          "Committed declared live canary HTTP allocation (117 requests / 3600 s) bound to FREEZE-R8",
+          "Actual server publication: both r8 create-only refs exist at the frozen SHAs (live-origin receipt valid)",
+          "Halted partial evidence, five preflight copies and HTTP ledger (30 of 117 requests)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R8.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R8.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R8.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R8.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R8.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R8-PREFLIGHT-rate.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R8-PREFLIGHT-effective-rules.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R8-PREFLIGHT-registered-workflow.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R8-PREFLIGHT-legacy-protection.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R8-PREFLIGHT-check-runs.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-107-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "live approved-redirect hop in scripts/ci/ci-hosted-transport.py (_trusted_download_host)",
+          "test-only live-policy shim scripts/ci/ci-live-policy-shim.py (used by 253-108 and 253-109)",
+          "dry-run window guard in scripts/ci/ci-hosted-gate-verify.py",
+          "253-LOAD-RECOVERY-PRESERVATION-R9.sha256 and 253-LOAD-RECOVERY-TRANSPORT-REDIRECT-RED-R9.json"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-live-policy-shim.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PRESERVATION-R9.sha256",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TRANSPORT-REDIRECT-RED-R9.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-108-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "ci-gate-canary-dryrun.py --live-policy: the whole canary runs offline through the LIVE transport policy (live allocation, TLS fake routed by Host header, 302-to-blob downloads)",
+          "--transport-from (253-104 sensitivity control), --seed-r8-refs, --sleep-scale, and a truthful --ref-pair help",
+          "new summary keys: mode, live_hops, authorization, requested_sleeps, shim_refusals, shim_connect_hosts, violations, allocation, publication, transport_from, seeded_r8_refs_changed",
+          "publication receipts now carry origin.window_id (a live-only defect this gate found, fixed RED-first)"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            "scripts/ci/ci-git-publication.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-109-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "ci-pr-proof.test.sh LiveWorld: the PR universe on the LIVE transport policy (live publication and production allocations, Host-routed TLS fake, 302-to-blob producer ZIPs, shim env with a dummy token)",
+          "LivePolicyPRTests: normal and docs-only families, the pair, the completion gap, token/host scoping and a live required-check-failure negative",
+          "LivePolicySensitivityTests: the pre-fix transport (FC^) fails the live normal family with origin_rejected; FC passes; the hermetic pre-fix result is recorded"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-pr-proof.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Explicit charged 60-second hosted-run polling with bounded redirect handling and independent request reconciliation",
+          "Locally checked, distinct unpushed canary workflow and finite six-scenario freeze"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-WORKFLOW.yml",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-TASK1-RED.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-TASK1-GREEN.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-110-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R9.json: all 69 hermetic-vs-live sites in the five hosted-proof files plus 2 supplementary rows (71 rows). Each row has an offline live-side test, a live-policy gate assertion or a stated residual risk.",
+          "scripts/ci/ci-hermetic-live-audit.test.py: a durable checker covering the stated matcher, anchors, lines, refs, live markers and summary assertions, plus test_no_gap_rows and 9 positive controls",
+          "verify_transport_v2 live canary transaction host rule (verify_live_transaction_host)",
+          "offline live-side tests for every former gap row (transport, verifier, publisher)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R9.json",
+            "scripts/ci/ci-hermetic-live-audit.test.py"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-git-publication.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-111-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "r9 scoped ref pair (gsd/253-replan-r9-candidate / gsd/253-replan-r9-fixture), selected by the freeze, in the publisher, the transport PR-head allowlist, ci-pr-proof.sh and the verifier",
+          "253-LOAD-RECOVERY-CANARY-PUBLICATION-R9.json: packed graph from the reviewed source 283b2562 (17 projected requests, largest tree body 2,083,078 bytes)",
+          "253-LOAD-RECOVERY-CANARY-FREEZE-R9.json: plan 253-111, ref pair r9, new section digests, both offline gate modes pass on it"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-R9.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R9.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-112-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "additive --revision r9 in the reconciliation helper (contract, dry-run, prepare, apply, check-index)",
+          "committed R9 reconciliation contract (48 never-executed responsibilities, 14 halted records, final owner 253-115)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R9.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-113-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed fresh canary-section approval bound to the R9 outward_actions.canary sha256 (f4210ba5...)",
+          "Committed declared live canary HTTP allocation (117 requests / 3600 s) bound to FREEZE-R9 (3ddde073...)",
+          "Actual server publication: both r9 create-only refs exist at the frozen SHAs (live-origin receipt valid)",
+          "First live proof of the 253-107 redirect fix: artifact_zip hop 0 api.github.com 302, hop 1 productionresultssa15.blob.core.windows.net 200",
+          "Halted partial evidence, five preflight copies and HTTP ledger (31 of 117 requests)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R9.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R9.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R9.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R9.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R9.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R9-PREFLIGHT-rate.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R9-PREFLIGHT-effective-rules.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R9-PREFLIGHT-registered-workflow.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R9-PREFLIGHT-legacy-protection.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R9-PREFLIGHT-check-runs.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-116-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Run-name identity rule (expected_run_title / require_run_title) used by verify_scenario and verify_separate_verifier",
+          "Canary receipt-to-ledger binding (verify_canary_bindings) on the replan path: run, discovery, dispatch scenario, jobs, artifacts, archive raw digest and run_attempts",
+          "R10 preservation checklist (62 lines)",
+          "RED receipts for both fixes, captured on the unfixed verifier",
+          "R10 hermetic-vs-live audit record (72 rows, zero gaps); the checker now reads it"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PRESERVATION-R10.sha256",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RUN-IDENTITY-RED-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-BINDING-RED-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R10.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-hermetic-live-audit.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-117-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Dry-run fake that serves GitHub's recorded run, listing, job, step and artifact shapes (read from the committed R9 ledger at run time)",
+          "response_shape gate block in both dry-run modes, with a bare-name fault (run-shape-bare-name) as its positive control",
+          "Closed set of four skipped-producer forms in verify_separate_verifier",
+          "Live-policy verifier-job model: the candidate's verify_sources on the decoded compact matrix (verifier_job_model verify_sources); hermetic keeps scenario-set",
+          "Real-shape verifier fixtures pinned by FixtureShapeFidelityTests on three real samples"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R10.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-118-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Response-shape class in the R10 audit record (schema sigra.phase253.hermetic-live-audit/r10): 29 rows, one per non-test ROUTES route plus the canary-fixture and ci.yml workflow sources",
+          "Checker for the class: route completeness against the imported ROUTES, hashed real-sample locators (ledger sequence, JSON pointer, archive member, source file), per-field resolution in real bytes, consumer symbols, real-sample markers on cited tests; 13 positive controls",
+          "PR real-shape tests: ci.yml job inventory after matrix expansion, the expansion rule against GitHub's real job names, the shared attempt/run job schema, check-run to job links, and the canary driver's preflight jq reads on real R9 bodies",
+          "Publication real-shape test on the R9 ledger and receipt",
+          "Real-shape compact matrix test: 34764 characters for six real-derived receipts, margin 29747 under 64511"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R10.json",
+            "scripts/ci/ci-hermetic-live-audit.test.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-git-publication.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-119-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "r10 scoped ref pair (gsd/253-replan-r10-candidate / gsd/253-replan-r10-fixture), selected by the freeze, in the publisher, the transport PR-head allowlist, ci-pr-proof.sh and the verifier",
+          "--seed-r9-refs and seeded_r9_refs_changed in the dry-run harness (combinable with --seed-r8-refs)",
+          "Final W2 review of every R10 product change (253-116..119): no accepted finding needed a code change",
+          "Early R10 publication projection: ready-local-proposal, 17 of 22 requests, 4 trees, largest body 2,083,078 of 2,097,152 bytes"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R10.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Fixed frozen-candidate startup and recovery receipt initialization in the canary runner",
+          "Added preflight-only and create-only scoped-ref checks with charged request records",
+          "Preserved the live preflight responses that stopped the hosted run"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-gate-canary.test.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION-02.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-EFFECTIVE-RULES.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-RATE-LIMIT.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-REGISTERED-WORKFLOW.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-gate-canary.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-120-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "253-LOAD-RECOVERY-CANARY-PUBLICATION-R10.json: packed graph from the reviewed source 7e681e6a (17 of 22 projected requests, largest tree body 2,083,078 of 2,097,152 bytes)",
+          "253-LOAD-RECOVERY-CANARY-FREEZE-R10.json: plan 253-120, ref pair r10, new section digests; both offline gate modes pass on it with the r8 and r9 refs seeded and unchanged"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R10.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-121-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "additive --revision r10 in the reconciliation helper (contract, dry-run, prepare, apply, check-index)",
+          "committed R10 reconciliation contract (50 never-executed responsibilities, 15 halted records, final owner 253-124)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R10.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-122-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed fresh canary-section approval bound to the R10 outward_actions.canary sha256 (3ef4162b...)",
+          "Committed self-contained operator runner (253-R10-CANARY-OPERATOR.sh, sha256 da70cbba...)",
+          "Runner-committed live canary allocation (117 requests / 3600 s) bound to FREEZE-R10 (69eb3df7...)",
+          "Actual server publication: both r10 create-only refs exist at the frozen SHAs (live-origin receipt valid)",
+          "Live proof that the 253-116 run-name fix works: full-pass run 38962706886 and docs-only run 38963059240 accepted by the frozen verifier",
+          "First live run_logs response: 302 to results-receiver.actions.githubusercontent.com (ledger seq 47), refused by the trusted download policy",
+          "Halted partial evidence, five preflight copies, HTTP ledger (47 of 117 requests) and publication receipt"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-R10-CANARY-OPERATOR.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R10.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R10-PREFLIGHT-rate.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R10-PREFLIGHT-effective-rules.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R10-PREFLIGHT-registered-workflow.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R10-PREFLIGHT-legacy-protection.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R10-PREFLIGHT-check-runs.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-125-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "RESULTS_RECEIVER_HOST admitted by exact name only as hop 1 of the run_logs route (transport) and in the live host rule (verifier)",
+          "253-LOAD-RECOVERY-PRESERVATION-R11.sha256 (87 lines: the 62 R10 lines plus 25 R10-round pins)",
+          "two RED receipts (-TRANSPORT-RESULTS-RECEIVER-RED-R11, -LIVE-HOST-RED-R11)",
+          "253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R11.json, and the checker now reads it"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PRESERVATION-R11.sha256",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TRANSPORT-RESULTS-RECEIVER-RED-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-LIVE-HOST-RED-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R11.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-hermetic-live-audit.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-126-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "scripts/ci/ci-shape-probe.py, a read-only probe driver (--check-requests, --check-only, --run) that sends every GET through request_one / fetch_pages / follow_download",
+          "scripts/ci/ci-shape-probe.test.py, 19 tests: the live-policy rehearsal of the probe chain and the refusal matrix",
+          "253-LOAD-RECOVERY-PROBE-REQUESTS-R11-PROBE.json, the five-GET list Jon's 253-127 approval binds (sha256 375c5758...)",
+          "the R11 audit record at schema r11 with the driver in its matcher"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-shape-probe.py",
+            "scripts/ci/ci-shape-probe.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-REQUESTS-R11-PROBE.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-hermetic-live-audit.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R11.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-127-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "real-shape fixtures (fixtures only, never acceptance evidence) for 253-128/129, in the R11 probe allocation, ledger, evidence and bodies records",
+          "observed: run_logs hop 0 is a 302 to results-receiver.actions.githubusercontent.com, and hop 1 is a 200 application/zip from results-receiver itself, with no hop 2 (h = 2)",
+          "observed: the real cancelled ci.yml run (38141825287) and its 27 jobs: key sets and conclusion values",
+          "observed: job_logs is a 302 to productionresultssa18.blob.core.windows.net"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-127-SUMMARY.md"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-128-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "the dry-run fake's failed-log chain driven at run time by the committed probe records and R10 ledger seq 47",
+          "response_shape.run_logs_checked and response_shape.cancelled_run_checked, both required for a full gate run",
+          "authorization.results_receiver_with (must be 0)",
+          "faults run-logs-legacy-blob-redirect and cancelled-shape-drift (positive controls)",
+          "the transport test that replays the probe-observed run_logs chain",
+          "the verifier's cancelled-scenario fixture built on the recorded cancelled run"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-128-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R11.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-129-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "observed-route checker rule test_probe_observed_routes_are_not_justified, with four positive controls",
+          "shape-run_logs and shape-job_logs on real probe samples (real-shape-test); probe samples on rate_limit, run and run_jobs",
+          "top-level unobserved_live_shapes (14 entries), each with its fail-closed stop and first hosted window"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-129-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-hermetic-live-audit.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R11.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-130-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "r11 scoped ref pair (gsd/253-replan-r11-candidate / gsd/253-replan-r11-fixture), selected by the freeze, in the publisher, the transport PR-head allowlist, ci-pr-proof.sh and the verifier",
+          "--seed-r10-refs and seeded_r10_refs_changed in the dry-run harness (combinable with --seed-r8-refs and --seed-r9-refs)",
+          "Final W2 review of every R11 product change (253-125..130): no finding needed a code change",
+          "Early R11 publication projection: ready-local-proposal, 17 of 22 requests, 4 trees, largest body 2,094,030 of 2,097,152 bytes, binary_blob_requests 0"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-130-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R11.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-131-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "253-LOAD-RECOVERY-CANARY-PUBLICATION-R11.json: packed graph from the reviewed source 8d648821 (17 of 22 projected requests, largest tree body 2,094,030 of 2,097,152 bytes, binary_blob_requests 0)",
+          "253-LOAD-RECOVERY-CANARY-FREEZE-R11.json: plan 253-131, ref pair r11, new section digests; both offline gate modes pass on it with the r8, r9 and r10 refs seeded and unchanged"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R11.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-132-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "additive --revision r11 in the reconciliation helper (contract, dry-run, prepare, apply, check-index)",
+          "committed R11 reconciliation contract (52 never-executed responsibilities, 16 halted records, final owner 253-135)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R11.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-133-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Committed fresh canary-section approval bound to the FREEZE-R11 outward_actions.canary sha256 (898ffa48...a410f)",
+          "Committed self-contained operator runner 253-R11-CANARY-OPERATOR.sh (sha256 5f5cc0c7...8787), run by Jon",
+          "Runner-committed live canary allocation (117 requests / 3600 s, 43 download hosts) bound to FREEZE-R11",
+          "Actual server publication: both r11 create-only refs at the frozen SHAs (live-origin receipt valid)",
+          "Six actual hosted canary outcomes plus a separate hosted verifier, all accepted by the frozen verifier (canary_verified, transport_verified)",
+          "First live fresh-run results-receiver log retrieval: three run_logs 302 -> results-receiver hop 1 200 application/zip, no hop 2",
+          "Sealed accounting: 82/117 requests, 37/45 executed jobs, 845/3600 s"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-R11-CANARY-OPERATOR.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-rate.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-effective-rules.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-registered-workflow.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-legacy-protection.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R11-PREFLIGHT-check-runs.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-133-SUMMARY.md"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-134-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed docs_and_prs approval bound to the FREEZE-R11 section sha256 (f0e47f00...6ee2)",
+          "Committed PR freeze (offline --prepare, sha256 8c82430d...07e3) and self-contained operator runner (253-R11-PR-OPERATOR.sh, sha256 4d59c9d5...6108)",
+          "Runner-committed production PR allocation (120 requests / 3600 s, window 253-134-pr-window-1, 42 hosts, no results-receiver)",
+          "First live pr_create response: draft PR #337 (open, draft, mergeable null, mergeable_state unknown, base main at 09df342a)",
+          "Halted normal-family evidence and the PR HTTP ledger (7 of 120 requests)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-ACTION-APPROVAL-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-FREEZE-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-R11-PR-OPERATOR.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-ALLOCATION-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-HTTP-LEDGER-R11.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-NORMAL-EVIDENCE-R11.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-136-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "PRESERVATION-R12.sha256: 128 lines (87 PRESERVATION-R11 lines unchanged and in order, plus 41 R11 lines), sha256 72ea87c5c9fe7c7cb2a9798b20122a65435823dc1e04a9fdbc8d47c3344ad16d; shasum -c exits 0",
+          "Jon's main_fetch read approval (committed alone, 886c8d8ef, sha256 b21172c6...2ade)",
+          "Committed fetch runner 253-R12-MAIN-FETCH-OPERATOR.sh (8b1a17f39, sha256 ff77049e...6b66), run by Jon",
+          "Runner-committed MAIN-FETCH-R12 record (c9397e566): fetched main 09df342a82e03c3d5d40173c912b70e827f7eadc, the R12 server parent",
+          "253-134 diagnosis confirmed against real main: R11 candidate 2b239a98 vs 09df342a exits 1 with the same five conflicts; the 84ebcea60 control exits 0"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PRESERVATION-R12.sha256",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-MAIN-FETCH-APPROVAL-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-R12-MAIN-FETCH-OPERATOR.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-MAIN-FETCH-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-136-SUMMARY.md"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-137-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "r12 scoped ref pair (gsd/253-replan-r12-candidate / gsd/253-replan-r12-fixture), selected by the freeze, in the publisher REF_PAIRS, the transport PR_HEAD_REFS, ci-pr-proof.sh NORMAL_HEADS and the verifier PR_NORMAL_HEADS",
+          "--seed-r11-refs, R11_REFS and seeded_r11_refs_changed in the dry-run harness (combinable with --seed-r8/r9/r10-refs)",
+          "R12 hermetic-vs-live audit record (schema sigra.phase253.hermetic-live-audit/r12); the checker points at it"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-137-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-hermetic-live-audit.test.py",
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-138-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "merge_preflight(repo, head_sha, base_sha) in ci-git-publication.py: the one git merge-tree --write-tree merge test ({head, base, exit, clean, conflicts})",
+          "ci-git-publication.py --prepare --main-record: the record must be a fetched r12 record, its main must be local and must be the server parent, and local origin/main must equal it; the candidate must merge cleanly; the manifest gets a main_freshness block",
+          "--build-freeze --ref-pair r12 requires a clean main_freshness on the server parent and binds bound_documents.main_freshness_record; check_revision_freeze re-hashes it and never reads origin/main",
+          "ci-pr-proof.sh --prepare --main-record: the r12 head requires it; the PR freeze carries source.fetched_main_sha, source.main_record_sha256 and mergeability_preflight, and binds the record",
+          "ci-gate-canary-dryrun.py prepare_clone (derived-freeze branch, r12 only): a synthetic main-fetch record committed in the temporary clone and bound to its synthetic server parent",
+          "253-LOAD-RECOVERY-MAIN-FRESHNESS-RED-R12.json: RED receipts (four entries, copied from real runs)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-MAIN-FRESHNESS-RED-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-138-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R12.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-139-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "ci-pr-proof.sh --main-preflight --freeze PR-FREEZE --current-main SHA --output FILE [--repo-root DIR]: offline step-0 preflight, schema sigra.phase253.pr-main-preflight/r12, exclusive-create, status clean|conflicted|rewritten, exit 0 only for clean",
+          "ci-pr-proof.sh --family normal on an r12 freeze requires --main-preflight FILE, re-derived before any write or request; evidence.base_preflight = the file's fields + sha256; docs-only on r12 records {status: not_applicable, reason}; pre-r12 records nothing",
+          "a created PR base other than base_preflight.current_main stops the window ('main moved between the step-0 preflight and PR creation')",
+          "no run after both discovery attempts: one diagnostic pr_read (pr_identity) and one of three verdicts",
+          "ci-hosted-gate-verify.py verify_base_preflight, called from verify_pr_family right after check_pr(created)",
+          "ci-pr-proof.sh --family docs-only --docs-publication-receipt OUT: exclusive-create sigra.phase253.pr-docs-publication-receipt/r12 built only from the ledger's docs_publication rows",
+          "PR fake models 253-134: real R11 sequence-5 create key set (read at test time), base.sha = the fake's current main, pr_read mergeability, no run for conflicted/unknown/no-run heads, three-dot compare",
+          "253-LOAD-RECOVERY-PR-MERGEABILITY-RED-R12.json (RED receipt, two entries)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PR-MERGEABILITY-RED-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-139-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R12.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-140-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "ci-hermetic-live-audit.test.py check_fields_backed: every compared field is backed by a hash-, route-, sequence- and status-checked real sample, or has a per-field reason plus a residual risk",
+          "check_window_observed_routes: every 2xx/3xx route in CANARY-HTTP-LEDGER-R11 and PR-HTTP-LEDGER-R11 has a real-shape-test row that cites one of that window's own rows",
+          "PR_BODY_KEYS (pr_create, pr_read) enforced against fields_compared. A code scan (PR_READ_REGIONS) and a grep keep the list in step with ci-pr-proof.sh and the verifier in both directions",
+          "R12 audit: shape-pr_create real-shape-test on R11 PR seq 5; shape-pr_read justified, with the mergeability fields and a 253-144 residual risk; shape-cancel_run real-shape-test on R11 canary seq 73; every R11-observed route cites its window sample",
+          "R12 unobserved_live_shapes: ten entries, each with a 253-143/253-144 first window and a literal stop with file:line"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-140-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-hermetic-live-audit.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R12.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-141-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "253-LOAD-RECOVERY-CANARY-PUBLICATION-R12.json: packed graph from the reviewed source ded90ae9c on the fetched main 09df342a (17 of 22 projected requests, largest tree body 2,082,931 of 2,097,152 bytes, binary_blob_requests 0, main_freshness clean)",
+          "253-LOAD-RECOVERY-CANARY-FREEZE-R12.json: plan 253-141, ref pair r12, server parent 09df342a, MAIN-FETCH-R12 bound, new section digests; both offline gate modes pass on it with the r8, r9, r10 and r11 refs seeded and unchanged"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R12.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-142-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "additive --revision r12 in the reconciliation helper (contract, dry-run, prepare, apply, check-index)",
+          "committed R12 reconciliation contract (53 never-executed responsibilities, 17 halted records, final owner 253-145)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R12.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-143-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed fresh canary-section approval bound to the R12 outward_actions.canary sha256 (e5068578...bd29), committed by Jon via ! (W1 fallback)",
+          "Committed self-contained operator runner (253-R12-CANARY-OPERATOR.sh, sha256 650acc67...1733)",
+          "Runner-committed live canary allocation (117 requests / 3600 s, window 253-143-canary-window-1, 43 hosts) bound to FREEZE-R12 (fd1a27cb...f309)",
+          "Actual server publication: both r12 create-only refs exist at the frozen SHAs (live-origin receipt valid)",
+          "First live paginated GitHub response: check_runs on fetched main 09df342a, total_count 209, Link rel next/last in the /repositories/<numeric id>/ form, refused by the transport",
+          "Halted partial evidence, HTTP ledger (21 of 117 requests) and publication receipt"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-R12-CANARY-OPERATOR.sh",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R12.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R12.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-146-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "PRESERVATION-R13.sha256: 152 lines (128 R12 lines unchanged + 24 R12 records/SUMMARYs/runners), sha256 178458587b7d93545433c5afeab7e1724f0e31dcb0fc86f84aa1d6547079eadb",
+          "R13 hermetic-vs-live audit record (schema r13), checker pointing at it, green",
+          "Transport: GITHUB_REPOSITORY_ID = 1207487684; live pagination accepts /repositories/1207487684/<same route suffix>",
+          "Verifier: check_run_page_set, multi-page native check sources ({sequences}), legacy {sequence} kept",
+          "Dry-run fake: server parent serves 209 check runs over 100/100/9 with GitHub's Link rels in the mode's form; paginated_reads summary"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PRESERVATION-R13.sha256",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R13.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-hermetic-live-audit.test.py",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "credential-safe-registration-logs",
+          "strict-native-receipt-and-slot-accounting-checks",
+          "saved-desktop-and-mobile-registration-diagnostics"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-CREDENTIAL-RED.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-CREDENTIAL-GREEN.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-RECEIPT-RED.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-RECEIPT-GREEN.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-155-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Driver: duplicate-tolerant server-parent per-name identity check (>= 1 run, all of the frozen commit, one app id+slug)",
+          "Verifier: server_parent_native_sources (strict head_sha, mixed-app refusal, int run ids, newest run is the source, duplicate_count re-derived on verify); PR-head rule unchanged",
+          "Fake: server-parent page 1 = committed R12 ledger sequence 21 body (head_sha rewritten), synthetic duplicate pages 2-3",
+          "Driver: retained_preflight accepts exactly one contiguous multi-page check_runs read",
+          "Both full offline gates (hermetic + live-policy, r12 pair, r8-r11 seeds) pass with preflight 7 and one 3-page check_runs read"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary-flow.test.py",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R13.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-164-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "dry-run --repos-link-form: explicit, scope-checked /repos/ link form for pre-146 --transport-from transports",
+          "summary key link_form_override",
+          "HistoricalTransportLinkFormTests (blind spot #5 positive control + four knob refusals)",
+          "253-155 Task 3 closed by one green block (full dry-run suite 78 tests)"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-165-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "dry-run --paged-listings: two-page run_jobs and run_artifacts listings for the full-pass run, in the mode's link form",
+          "paged_listing() helper and DryRunPagedListingsTests (82-test full dry-run suite)",
+          "PR World flags paged_listings (two-page attempt_jobs and run_artifacts) and pr_head_checks (a >100 PR head)",
+          "PrPaginatedListingsTests: live-policy and hermetic PR universes, and the fail-closed one-page PR-head check bound"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            "scripts/ci/ci-pr-proof.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-166-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "r13 scoped ref pair (gsd/253-replan-r13-candidate / gsd/253-replan-r13-fixture) in publisher REF_PAIRS, transport PR_HEAD_REFS, ci-pr-proof.sh NORMAL_HEADS and verifier PR_NORMAL_HEADS",
+          "MAIN_FRESHNESS_PAIRS = (r12, r13): one main-freshness guard for build_freeze and check_revision_freeze",
+          "CANARY_CATEGORIES_R13 (preflight 16, infrastructure_retry 5, sum 117), carried only by r13 freezes; static_freeze_sections(pair)",
+          "ci-pr-proof.sh MAIN_RECORD_HEADS {r12, r13}: the r13 normal head requires --main-record",
+          "dry-run --seed-r12-refs, R12_REFS, seeded_r12_refs_changed; the derived r13 freeze passes the guard with the clone-local synthetic record"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-166-SUMMARY.md"
+          ],
+          "modified": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-gate-canary-dryrun.py",
+            "scripts/ci/ci-gate-canary-dryrun.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R13.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "paginated_link_fields: rows of fetch_pages routes (parsed from ci-hosted-transport.py at check time) must compare header:link and meta:page_ordinal",
+          "link_forms_modelled(root): every rel=next/last destination in the committed window ledgers is the repos or the repositories-id form, and each observed form is emitted by a fake",
+          "the observed-routes rule reads CANARY-HTTP-LEDGER-R12",
+          "shape-check_runs compares header:link on the real R12 sequence-21 page",
+          "R13 unobserved_live_shapes: 15 entries, each with first_window 253-170 or 253-171 and a literal stop with file:line"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-hermetic-live-audit.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-HERMETIC-LIVE-AUDIT-R13.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-R13.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE-R13.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-169-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R13.json",
+            ".planning/execution/253-169.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-170-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-171-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": [
+          ".planning/execution/253-pr343-remaining-evidence/attempt-result.json",
+          ".planning/execution/253-pr344-closeout/result.json"
+        ]
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "reviewed 253-167 recovery correction",
+          "retained one failed 253-173 regression attempt"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-RECOVERY-REVIEW.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-REGRESSION.log"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "same-process elevated Git permission proof",
+          "retained failed once-only offline acceptance"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-PERMISSION-PREFLIGHT.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-REGRESSION.log"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-REPAIR-REVIEW.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-git-publication.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "halted-178-candidate-diagnostics"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-REPAIR-REVIEW.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": {
+          "created": [
+            "253-179-PERMISSION-PREFLIGHT.json",
+            "253-179-REGRESSION.log",
+            "253-179-RECOVERY-RECEIPT.json",
+            "253-179-EXECUTION-RECORD.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-18-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Measured HTTPS request ledger with pre-I/O charging, response receipts, and terminal stops",
+          "Typed canary API adapter with explicit page and redirect requests",
+          "Real local HTTPS subprocess tests and synthetic Git fixture checks"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-hosted-transport.py"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": {
+          "created": [
+            "253-180-BRIDGE-V2-RECORD.json",
+            "253-180-CHECKS-V2.json"
+          ],
+          "modified": [
+            "253-168-PLAN.md",
+            "253-169-PLAN.md",
+            "253-170-PLAN.md",
+            "253-171-PLAN.md",
+            "253-172-PLAN.md"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-19-SUMMARY.md",
+        "status": null,
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary.test.sh",
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-20-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Bounded unsigned Git blob/tree/commit publication and create-only scoped-ref verification",
+          "Local object-aware HTTPS fixture proving missing-object upload, request accounting, and readback behavior",
+          "Complete receipt verification bound to parent, object, workflow, ledger, and exact scoped refs"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PUBLICATION-PROPOSAL.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Hash-bound offline timeout assessment for the stopped native command",
+          "Shared Node ESM registration-control account and sequencing functions"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-registration-control-audit.mjs",
+            "scripts/ci/ci-registration-control-audit.test.mjs",
+            "test/example/priv/playwright/helpers/registrationControls.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json"
+          ],
+          "modified": [
+            "test/example/priv/playwright/tests/admin-eval.spec.ts"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "bounded native control recovery runner and five-slot freeze",
+          "terminal CR-DARK-FIRST failure receipt with sanitized artifacts"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-RED-01.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-FREEZE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-36-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01"
+        ],
+        "provides": [
+          "Node20-compatible async renderSha256 (cached native import('parse5'))",
+          "offline pinned-transform collection and hash contract (scripts/ci/ci-playwright-load.test.mjs)"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-playwright-load.test.mjs"
+          ],
+          "modified": [
+            "test/example/priv/playwright/lib/eval/canonicalize.ts",
+            "test/example/priv/playwright/lib/eval/bundle.ts",
+            "test/example/priv/playwright/lib/eval/canonicalize.test.ts",
+            "test/example/priv/playwright/tests/admin-eval.spec.ts"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-37-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "validateSanitizedCommandLog (exact safe redaction marker accepted, credentials/headers/keys rejected)",
+          "captureOwnedDatabaseAbsence and verifyDatabaseAbsenceReceipt (independent pg_database zero-row proof)"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-38-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "createRegistrationNativeTreeFixture (labeled synthetic committed-tree/native-receipt fixture)",
+          "clean-candidate runner contracts (node --test and shell) needing no .planning records, refs, server, DB, browser or network",
+          "read-only accepted-only --verify-saved-native audit mode",
+          "runLoggedTree that reaps SIGTERM-resistant descendants"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/fixtures/registration-native-tree.mjs"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs",
+            "scripts/ci/ci-registration-repro.sh",
+            "scripts/ci/ci-registration-repro.test.sh"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-39-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "four-slot load-recovery runner and strict verifier (create/init/prepare/run/verify/check modes)",
+          "scoped per-project Playwright config inheriting production settings",
+          "committed NEW freeze and ready ledger for the four unused regular windows"
+        ],
+        "key_files": {
+          "created": [
+            "test/example/priv/playwright/playwright.registration-recovery.config.ts",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs",
+            "scripts/ci/ci-playwright-load.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-40-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "preserved honest halt of the first native load-recovery window (CR-DESKTOP-MOBILE-FIRST)"
+        ],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-42-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "typed canary/production transport allocations (117 vs exactly 120) with frozen category predebits and bound documents",
+          "typed repository-scoped PR create/read/compare/source-blob/attempt-jobs routes",
+          "scripts/ci/ci-pr-proof.sh finite real PR collector (prepare, check-only, family, verify)",
+          "independent verify_pr_family / verify_pr_pair / verify_completion in ci-hosted-gate-verify.py"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-transport.py",
+            "scripts/ci/ci-hosted-transport.test.py",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-43-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "phase-local accepted-only SDK reconciliation helper with an installed-SDK identity pin",
+          "reconciliation contract naming all 35 originals, 11 completed, 6 halted and 18 unstarted responsibilities",
+          "root-only write-ahead application path that cannot run without real strict completion acceptance"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-48-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "additive R2 revision of scripts/ci/ci-registration-recovery.mjs (carried ledger, slots, freeze/init/prepare/run/verify, approval record, host-sleep preflight, single infrastructure retry, terminal-evidence git binding)",
+          "committed 253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json pinning the fixed runner and preserving 253-40 as spent lineage"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-49-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-02"
+        ],
+        "provides": [
+          "collision-free canary temp files under one private mktemp -d directory",
+          "repeatable recovery refusal and watch contracts (5 tests green)"
+        ],
+        "key_files": {
+          "modified": [
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary-recovery.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-50-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "additive --revision r2 mode in 253-LOAD-RECOVERY-reconcile.mjs (contract, dry-run, prepare, apply, check-index)",
+          "committed R2 contract mapping 23 never-executed responsibilities and 7 halted records to 253-48..56"
+        ],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-51-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-57-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01"
+        ],
+        "provides": [
+          "Sigra.Auth.register/3 enumeration-safe for unsafe_validate_unique and DB-constraint duplicates",
+          "Example and generated registration LiveViews render flash"
+        ],
+        "key_files": {
+          "modified": [
+            "lib/sigra/auth.ex",
+            "test/sigra/auth_test.exs",
+            "test/example/lib/example_web/live/registration_live.ex",
+            "test/example/test/example_web/live/registration_live_test.exs",
+            "test/example/test/example_web/smoke/register_login_logout_test.exs",
+            "priv/templates/sigra.install/core/registration_live.ex",
+            "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex",
+            "test/sigra/install/auth_ui_contract_test.exs",
+            "CHANGELOG.md"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-58-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01"
+        ],
+        "provides": [
+          "held-readiness positive control with mandatory post-readiness refill",
+          "email_value_after_ready_was_empty annotation to confirm/falsify debug cause 1",
+          "offline stage-order contract and static spec pins"
+        ],
+        "key_files": {
+          "modified": [
+            "test/example/priv/playwright/helpers/registrationControls.mjs",
+            "test/example/priv/playwright/tests/admin-eval.spec.ts",
+            "scripts/ci/ci-registration-control-audit.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-59-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "env-gated per-test fsync'd JSONL Playwright reporter",
+          "exported preserveAttemptDiagnostics and verifyAttemptDiagnosticsR3 (for 253-60's R3 path)"
+        ],
+        "key_files": {
+          "created": [
+            "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs"
+          ],
+          "modified": [
+            "test/example/priv/playwright/playwright.config.ts",
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs",
+            "scripts/ci/ci-playwright-load.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-60-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "additive R3 load-recovery revision in scripts/ci/ci-registration-recovery.mjs (create/check/init/prepare/run/verify, R3 approval recorder and reader)",
+          "setup phase (mix ecto.setup) bounded at 60000 ms and charged separately before the browser command deadline starts",
+          "mandatory per-test diagnostics and per_test_rows on every attempt that launched the CLI"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-61-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "additive --revision r3 for contract/dry-run/prepare/apply/check-index in 253-LOAD-RECOVERY-reconcile.mjs",
+          "committed R3 reconciliation contract mapping 28 never-executed responsibilities and 8 halted records to owners 253-57..68"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R3.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-62-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "Committed R3 native freeze pinning final product source, R2 lineage and the R3 budget doc"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed R3 budget approval (approve, retry granted) bound to R3 doc and freeze",
+          "Halted R3 native ledger with the first window's 16 per-test rows preserved"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-69-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "controlContextIdentitiesR4 / crossRowContextReuseR4 and the opt-in per_row_union mode of verifyNativeLoadAttempt",
+          "faithful excerpt fixture of the preserved R3 CR3-DESKTOP-MOBILE-FIRST report",
+          "R4 ledger (2222537 ms / 8 launches / 9 spent), R3-lineage history reader, freeze create/validate/check, evidence init, path routing"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/fixtures/r3-mirrored-context-annotations.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-70-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "R4 run, prepare, evidence verify and approval record/read in scripts/ci/ci-registration-recovery.mjs",
+          "LOAD_PATHS binding of completion load links to the R4 native evidence and acceptance evidence"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-71-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "--revision r4 mode (contract, dry-run, prepare, apply, check-index) in 253-LOAD-RECOVERY-reconcile.mjs",
+          "Committed R4 contract mapping 33 never-executed responsibilities and 9 halted records to owners 253-69..78"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R4.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-72-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "committed R4 native load recovery freeze bound to HEAD 4fdbc82b4 and the R4 budget doc"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-73-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed R4 budget approval (approve, retry granted) bound to R4 doc and freeze",
+          "First R4 window CR4-DESKTOP-MOBILE-FIRST accepted (16/16 rows, verify --stage first exit 0 at that point)",
+          "Terminal halt of CR4-DESKTOP-SECOND with full receipts"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-79-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "R5-only schema-qualified account count with bounded redacted psql stderr",
+          "real-Postgres fail-closed integration test of that count",
+          "R5 ledger, R4-lineage history reader, carried-first-window binding, freeze create/validate/check, evidence init and path routing"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-registration-recovery.pg.test.mjs"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-80-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "R5 second-window run path (prepare and run) with the schema-qualified count wired by default and pinned by an identity test",
+          "R5 attempt and evidence verifiers (--stage progress 0-2, --stage complete 22 rows across carried and new rows)",
+          "recordBudgetApprovalR5 (never called against the real R5 files), R5 run gating, CR5-INFRA-RETRY"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-81-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "additive --revision r5 in the reconciliation helper (contract, dry-run, prepare, apply, check-index)",
+          "committed R5 contract (38 responsibilities, 10 halted records, final owner 253-88)",
+          "completion verifier load_controls bound to the R5 native evidence"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R5.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-82-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "committed R5 native freeze (253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json) bound to the fixed runner, R5 budget doc and carried first window"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-83-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "Jon's R5 budget approval record (approve, retry_granted=1)",
+          "22-row native control proof (16 carried + 6 new) under the R5 freeze, accepted by --stage complete"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R5.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-84-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "--verify-load-acceptance in both argv forms (stage form and bare --require-target-accepted) with an honest accepted-target predicate",
+          "253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json: truthful open record, historical cause diagnosis_incomplete"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-89-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "--create-target-disposition, --record-target-disposition-approval and --verify-load-acceptance E --require-target-disposition runner modes",
+          "Committed, hash-bound, human-approved not_reproduced disposition for the CIREL-01 registration target"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION-RED.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-registration-recovery.mjs",
+            "scripts/ci/ci-registration-recovery.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-90-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "--require-dispositioned completion mode in scripts/ci/ci-hosted-gate-verify.py (optional disposition links, per-requirement statuses)",
+          "--revision r6 in 253-LOAD-RECOVERY-reconcile.mjs and the committed R6 contract (42 responsibilities, 11 halted, final owner 253-94)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R6.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-91-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "actual-github publication origin verified from measured ledger responses; hermetic origin rejected at live acceptance",
+          "registered ci.yml fixture child plus the six-scenario dispatch-only fixture with a no-API compact-receipt verifier",
+          "per-section committed approval enforced in code for every live canary mode, --publish-docs and every live ci-pr-proof.sh --family mode",
+          "253-LOAD-RECOVERY-CANARY-FREEZE.json, -PUBLICATION.json: final source, packed object graph, expired reruns, native_target binding, two-section outward_actions"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-FREEZE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-git-publication.py",
+            "scripts/ci/ci-git-publication.test.py",
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary.test.sh",
+            "scripts/ci/ci-pr-proof.sh",
+            "scripts/ci/ci-pr-proof.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-92-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed canary-section approval bound to outward_actions sha256",
+          "Halted partial canary evidence, HTTP ledger (6 requests) and publication receipt"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-95-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-02"
+        ],
+        "provides": [
+          "Publisher commit readback that accepts GitHub's one stripped trailing newline and nothing else",
+          "Same tolerance in the docs-only PR family verifier",
+          "GitHub-faithful local fake server (stripped commit message, 60-column wrapped blob base64)",
+          "R7 publication manifest and R7 canary freeze bound to the fixed source"
+        ],
+        "key_files": []
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-96-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIREL-01",
+          "CIREL-02"
+        ],
+        "provides": [
+          "additive --revision r7 in the reconciliation helper (contract, dry-run, prepare, apply, check-index)",
+          "committed R7 reconciliation contract (44 never-executed responsibilities, 12 halted records, final owner 253-99)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-RECONCILIATION-CONTRACT-R7.json"
+          ],
+          "modified": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.mjs",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-reconcile.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-97-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Committed fresh canary-section approval bound to the R7 outward_actions.canary sha256",
+          "Committed declared live canary HTTP allocation (117 requests / 3600 s) bound to FREEZE-R7",
+          "Actual server publication: both create-only refs exist at the frozen SHAs (live-origin verified)",
+          "Halted partial evidence and HTTP ledger (20 requests)"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R7.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R7.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R7.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R7.json",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R7.json"
+          ],
+          "modified": []
+        }
+      }
+    ]
+  },
+  {
+    "phase": "254-speed-up-the-measured-slow-jobs",
+    "summaries": [
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-01-SUMMARY.md",
+        "status": null,
+        "requirements_completed": [],
+        "provides": [
+          "Offline preflight that verifies frozen commits, refs, workflow and workload blobs against the archive",
+          "Source-bound local preparation profiles for admin_behavior and non_admin_smoke"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-baseline-source-preflight.mjs",
+            "scripts/ci/ci-baseline-source-preflight.test.mjs",
+            "scripts/ci/ci-prep-profile.mjs",
+            "scripts/ci/ci-prep-profile.test.mjs",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-SOURCE-READINESS.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-PREP-PROFILE.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-02-SUMMARY.md",
+        "status": null,
+        "requirements_completed": [],
+        "provides": [
+          "Source-bound browser product identity, expected-status, actual-result, and owner comparison in ci-browser-records",
+          "Exact five-owner inventory mapping from frozen Phase 252 reports to the pinned pre-optimization selection",
+          "Adversarial fixtures for substitutions, skips, exclusions, setup rows, ownership, source binding, and unsafe paths"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-02-01-red-evidence.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-browser-records.mjs",
+            "scripts/ci/ci-browser-records.test.mjs"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-03-SUMMARY.md",
+        "status": null,
+        "requirements_completed": [],
+        "provides": [
+          "Opt-in worker-scoped admin registration with invocation-private storage and a fresh consumer context per eligible test",
+          "Bounded browser checker for tracer, individual, file, state-controls, and all modes",
+          "Actual local-browser evidence for every eligible admin-theme case and the full original file"
+        ],
+        "key_files": {
+          "created": [
+            "test/example/priv/playwright/fixtures/adminTheme.ts",
+            "scripts/ci/ci-admin-theme-prep.test.mjs",
+            "scripts/ci/ci-admin-theme-check.mjs",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-ADMIN-THEME-CHECK.json"
+          ],
+          "modified": [
+            "test/example/priv/playwright/tests/admin-theme.spec.ts"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-04-SUMMARY.md",
+        "status": null,
+        "requirements_completed": [],
+        "provides": [
+          "Browser-proved authenticated zero-organization state after registration helper return",
+          "Organization invitation owner paths without duplicate login-page navigation",
+          "Native pre-change and post-change browser outcomes for both projects"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-org-prep.test.mjs",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-ORGANIZATION-CHECK.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-04-SUMMARY.md"
+          ],
+          "modified": [
+            "test/example/priv/playwright/tests/organizations.spec.ts"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-05-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Removes only the library job's duplicate Hex/Rebar setup",
+          "Selects combined example Mix preparation after real cold/warm database parity and measured benefit",
+          "Records source hashes, setup command timings, seed/migration snapshots, and failure behavior"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-05-SUMMARY.md"
+          ],
+          "modified": [
+            ".github/workflows/ci.yml",
+            ".github/actions/example-playwright-boot/action.yml",
+            "scripts/ci/ci-prep-semantics.test.mjs",
+            "scripts/ci/ci-prep-profile.mjs",
+            "scripts/ci/ci-prep-profile.test.mjs",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-SETUP-CHECK.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-06-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Frozen comparison schedule and early outcome-blind registration checks",
+          "Raw attempt/job cost and required-check wait derivation",
+          "Shared bounded request accounting for comparison collection",
+          "Independent registered-family origin verification and native parity evaluation"
+        ],
+        "key_files": {
+          "created": [],
+          "modified": [
+            "scripts/ci/ci-run-metrics.sh",
+            "scripts/ci/ci_metrics_security.py",
+            "scripts/ci/ci-metrics-security.test.py",
+            "scripts/ci/ci-run-metrics-comparison.test.sh",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-07-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Five isolated workflow-derived browser owner runs with source-bound native reports",
+          "A 108-row native coverage map and parity receipt with product/setup separation",
+          "A collector preflight that requires the exact map digest and successful source-bound parity receipt",
+          "Separate local implementation and hosted readiness decisions for Plan 08"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COLLECTION-ELIGIBILITY.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-FINAL8-PARITY-RECEIPT.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-07-SECURITY.md",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-REVIEW.md"
+          ],
+          "modified": [
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+            "scripts/ci/ci-prep-profile.mjs",
+            "scripts/ci/ci-browser-records.mjs",
+            "scripts/ci/ci-run-metrics.sh",
+            "scripts/ci/ci-hosted-gate-verify.py"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md",
+        "status": "halted",
+        "requirements_completed": [],
+        "provides": [
+          "Authenticated read-only proof that the current required pull_request path cannot execute the exact frozen baseline tree",
+          "Durable blocked readiness records with preparation and comparison explicitly unstarted"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-RUN-CONTRACT.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-READINESS.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-CACHE-PREPARATION.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-REGISTRATIONS.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-RESULT.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-EVIDENCE.json",
+            ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md"
+          ],
+          "modified": []
+        }
+      }
+    ]
+  },
+  {
+    "phase": "255-make-failures-reproducible-and-report-the-result",
+    "summaries": [
+      {
+        "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIMEAS-03"
+        ],
+        "provides": [
+          "Exact saved-input comparison replay with pinned tools",
+          "Complete validated portable input package",
+          "Real-input and hostile archive regression tests"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-comparison-replay.py",
+            "scripts/ci/ci-comparison-replay.test.py",
+            ".planning/execution/255-replay/PREFLIGHT.json",
+            ".planning/execution/255-replay/INPUTS.json",
+            ".planning/execution/255-replay/RESULT.json",
+            ".planning/execution/255-replay/input-package.tar.gz"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-02-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [
+          "CIDX-02"
+        ],
+        "provides": [
+          "Native command recorder that preserves independent streams, exit codes, and signals across cleanup failures",
+          "Invocation-bound diagnostic staging and final ZIP verification"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-command-record.py",
+            "scripts/ci/ci-command-record.test.py",
+            "scripts/ci/ci-diagnostic-bundle.py",
+            "scripts/ci/ci-diagnostic-bundle.test.py",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-02-01-RED.json",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-02-02-RED.json"
+          ],
+          "modified": []
+        }
+      },
+      {
+        "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-03-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Native observation of ordinary, scaffold, and dependency-off Mix test receivers",
+          "Per-suite observed seed and failure identity reporting",
+          "Dep-off cleanup handling that retains the guard's original status"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-mix-receivers.py",
+            "scripts/ci/ci-mix-receivers.test.py",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-03-01-RED.json",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-03-02-RED.json"
+          ],
+          "modified": [
+            "mix.exs",
+            "scripts/ci/ci-prep-semantics.test.mjs",
+            "scripts/ci/sigra-dep-off.sh",
+            "scripts/ci/test-sigra-dep-off.sh",
+            "test/test_helper.exs",
+            "test/support/ci_timing_formatter.ex",
+            "test/sigra/planning/ci_timing_formatter_test.exs",
+            ".planning/execution/255-local/MIX-RECEIVERS.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "shared-browser-selection",
+          "owned-local-browser-reproduction"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-browser-command.mjs",
+            "scripts/ci/ci-browser-command.test.mjs",
+            "scripts/ci/ci-browser-local.py",
+            "scripts/ci/ci-browser-local.test.py",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-01-RED.json",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-02-RED.json",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-NATIVE-BLOCKER.json",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-NATIVE-POSTCHECK-FAILED.json",
+            ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-NATIVE.json"
+          ],
+          "modified": [
+            "scripts/ci/ci-browser-records.mjs",
+            "scripts/ci/ci-playwright-report.test.mjs",
+            "scripts/ci/ci-measure-workflow.test.mjs",
+            "scripts/ci/ci-hosted-gate-verify.py",
+            ".github/workflows/ci.yml",
+            ".github/actions/example-playwright-boot/action.yml"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-05-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Real zero-retry Playwright failure traces with passing trace disposal, including the adminTheme manual context",
+          "Isolated local browser diagnostics for pre-context failures, startup failures, process signals, and sequential invocations",
+          "Sanitized, source-bound browser evidence and an inspected safe trace bundle"
+        ],
+        "key_files": {
+          "created": [
+            "scripts/ci/ci-browser-diagnostics.test.mjs",
+            "scripts/ci/fixtures/playwright-diagnostics.config.ts",
+            "scripts/ci/fixtures/playwright-diagnostics.spec.ts",
+            "scripts/ci/fixtures/playwright-admin-theme-diagnostics.spec.ts"
+          ],
+          "modified": [
+            "scripts/ci/ci-browser-local.py",
+            "scripts/ci/ci-diagnostic-bundle.py",
+            "scripts/ci/ci-diagnostic-bundle.test.py",
+            "test/example/priv/playwright/fixtures/adminTheme.ts",
+            "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+            "test/example/priv/playwright/playwright.config.ts",
+            ".planning/execution/255-local/BROWSER-DIAGNOSTICS.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-06-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Shared seven-day diagnostic upload for the library and browser CI owners",
+          "Bounded non-publishing hosted canary with retrieved success, failure, and cancellation artifacts",
+          "Final-source tracing overhead measurement with raw run storage references"
+        ],
+        "key_files": {
+          "created": [
+            ".github/actions/ci-diagnostic-upload/action.yml",
+            "scripts/ci/ci-diagnostics-canary.py",
+            "scripts/ci/ci-diagnostics-canary.test.py",
+            ".planning/execution/255-diagnostics-canary/RESULT.json",
+            ".planning/execution/255-local/TRACE-OVERHEAD.json"
+          ],
+          "modified": [
+            ".github/workflows/ci.yml",
+            ".github/actions/example-playwright-boot/action.yml",
+            "scripts/ci/ci-browser-command.mjs",
+            "scripts/ci/ci-run-metrics.sh",
+            ".planning/execution/255-diagnostics-canary/FREEZE.json"
+          ]
+        }
+      },
+      {
+        "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-SUMMARY.md",
+        "status": "complete",
+        "requirements_completed": [],
+        "provides": [
+          "Immutable remotely accessible replay archive with independent clean-checkout replay evidence",
+          "Truthful Phase 254 comparison report and tested reproduction guidance"
+        ],
+        "key_files": {
+          "created": [
+            ".planning/execution/255-replay/DISTRIBUTION.json",
+            ".planning/execution/255-replay/REPORT.json",
+            ".planning/execution/255-replay/REPORT.md",
+            "scripts/ci/ci-comparison-report.test.py"
+          ],
+          "modified": [
+            "scripts/ci/ci-comparison-replay.py",
+            "scripts/ci/ci-comparison-replay.test.py",
+            ".planning/execution/255-replay/DISTRIBUTION-ATTEMPTS.json",
+            "CONTRIBUTING.md",
+            "MAINTAINING.md"
+          ]
+        }
+      }
+    ]
+  }
+]

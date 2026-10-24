@@ -1,0 +1,42 @@
+{
+  "schema_version": "sigra.phase254.read-only-failure-diagnosis/v1",
+  "purpose": "read_only_diagnosis_not_measurement_or_acceptance",
+  "authority": "Current user authorized root-cause repair; no replacement attempts or source updates",
+  "request_budget_ledger_id": "e6d66009c45de6f9f5b3d81f8988db813858abfe301028db2240efb27802016d",
+  "baseline_application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "baseline_identity": {
+    "application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+    "producer_source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+    "run_id": 40046955449,
+    "run_attempt": 1,
+    "run_url": "https://github.com/szTheory/sigra/actions/runs/38317383419",
+    "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+    "workflow_file_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+    "workflow_revision": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+    "workload_revision_sha256": "2f4ece52eb21e9a065a61a943036c88632a2b93b33117db6d992b18b93ca06aa",
+    "tree_sha": "4207b705356619ddc7fdc20edf7190fc7330c117",
+    "branch": "evidence/phase254-environment-before-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 2,
+    "reviewed_source": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+    "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+    "source_ref": "refs/evidence/phase254-parity-fixed-source-before"
+  },
+  "candidate_identity": {
+    "application_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+    "tree_sha": "75a08a5631aed56703f2ef1f20d60bd13ecf5d4a",
+    "branch": "evidence/phase254-environment-after-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+    "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+    "source_ref": "refs/evidence/phase254-parity-fixed-source-after",
+    "workflow_revision": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+    "workflow_file_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+    "workload_revision_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+    "producer_source_sha": "cd931364639de70d888f04132ce3c980ae491b3d"
+  },
+  "authorized_mutations": [],
+  "maximum_invocations": 0,
+  "measured_contract_sha256": "9fc92a9b66546bc514cf5fefb07192ba84e4f07f338fae31c1db47ccc6f442a9"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:18:44Z",
+  "repository_head": "9ccec6c5b89f6417d1c2320603c9efd3be8983a6",
+  "files": [
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "status_at_capture": "M .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "sha256": "f7811ed510fea32418491016f6bfadcbff90e9feb43def0544fda86c2188359e",
+      "recovery_path": ".planning/recovery/phase-250-pre-recapture-snapshot-20261011T121844Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "recovery_sha256": "f7811ed510fea32418491016f6bfadcbff90e9feb43def0544fda86c2188359e",
+      "bytes": 17290
+    }
+  ]
+}

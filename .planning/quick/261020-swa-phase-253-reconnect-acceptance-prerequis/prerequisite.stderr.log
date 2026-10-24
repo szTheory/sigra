@@ -1,0 +1,11 @@
+test_budget_and_acceptance_claims_refuse (__main__.MaintenancePrerequisiteTests.test_budget_and_acceptance_claims_refuse) ... ok
+test_changed_source_or_rehashed_command_refuses (__main__.MaintenancePrerequisiteTests.test_changed_source_or_rehashed_command_refuses) ... ok
+test_current_maintenance_replaces_halted_dependency_without_launch (__main__.MaintenancePrerequisiteTests.test_current_maintenance_replaces_halted_dependency_without_launch) ... ok
+test_historical_halt_and_budget_bytes_refuse_even_if_source_rehashed (__main__.MaintenancePrerequisiteTests.test_historical_halt_and_budget_bytes_refuse_even_if_source_rehashed) ... ok
+test_missing_stale_validation_and_retained_capture_refuse (__main__.MaintenancePrerequisiteTests.test_missing_stale_validation_and_retained_capture_refuse) ... ok
+test_only_bridge_consumer_can_defer_active_plan_checks (__main__.MaintenancePrerequisiteTests.test_only_bridge_consumer_can_defer_active_plan_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 10.449s
+
+OK

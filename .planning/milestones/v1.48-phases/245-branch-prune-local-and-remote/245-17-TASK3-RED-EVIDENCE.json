@@ -1,0 +1,10 @@
+{
+  "command": "node --test scripts/maintainers/prune-stale-branches-admission.test.mjs",
+  "exitCode": 1,
+  "targetTest": "admission blocks missing source-backed D-01 before coordinator install or ref mutation",
+  "targetFile": "scripts/maintainers/prune-stale-branches-admission.test.mjs",
+  "expected": "capture writes a blocked receipt with d01_readiness_source_commit_unavailable:7257f232a38591b0044f1b929bba1fc2e9fa83da and proves refs, worktrees and config unchanged before verify returns the same blocker",
+  "actual": "capture did not persist the required blocked receipt, and local apply rejected --origin-snapshot-commit as unknown_argument before returning the source-backed readiness blocker",
+  "output": "TAP version 13\nnot ok 1 - admission blocks missing source-backed D-01 before coordinator install or ref mutation\n  error: capture must persist a blocked admission receipt before returning its blocker\nnot ok 2 - current local apply checks admission before coordinator setup\n  error: expected d01_readiness_source_commit_unavailable:7257f232a38591b0044f1b929bba1fc2e9fa83da, got unknown_argument: --origin-snapshot-commit\n1..2\n# tests 2\n# suites 0\n# pass 0\n# fail 2\n# cancelled 0\n# skipped 0\n# todo 0",
+  "production_repository_mutated": false
+}

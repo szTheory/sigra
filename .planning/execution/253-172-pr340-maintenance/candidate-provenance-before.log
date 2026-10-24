@@ -1,0 +1,14 @@
+Running ExUnit with seed: 239283, max_cases: 36
+
+.
+
+  1) test p12 names both evidence ledgers (Sigra.Planning.Phase236EvidenceProvenanceGuardTest)
+     test/sigra/planning/phase_236_evidence_provenance_guard_test.exs:12
+     p12 must name the exact Phase 236 evidence path so its RED/GREEN claims run in Fast checks
+     code: assert source =~ @phase_236_ledger,
+     stacktrace:
+       test/sigra/planning/phase_236_evidence_provenance_guard_test.exs:18: (test)
+
+...
+Finished in 0.09 seconds (0.09s on load, 0.00s async, 0.00s sync)
+5 tests, 1 failure

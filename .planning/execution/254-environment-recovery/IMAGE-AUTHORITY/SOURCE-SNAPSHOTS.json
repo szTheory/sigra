@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "sources": {
+    "before": {
+      "application_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+      "tree_sha": "779c0dc6cbbb5671770659c295a3ce3649c42740",
+      "branch": "evidence/phase254-environment-before-20261024",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "2b0e51d37184ffb95698dea586eebf3c42a33d85",
+      "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+      "source_ref": "refs/evidence/phase254-native-authority-source-before"
+    },
+    "after": {
+      "application_sha": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+      "tree_sha": "71f24549e613bc8a6d68c3e396bb28e4626f6812",
+      "branch": "evidence/phase254-environment-after-20261024",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "c074333db2658cb0726a9ee23535e4c43a9f8c64",
+      "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+      "source_ref": "refs/evidence/phase254-native-authority-source-after"
+    }
+  }
+}

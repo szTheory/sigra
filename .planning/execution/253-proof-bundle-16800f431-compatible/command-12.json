@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/runtime/ci-hosted-gate-verify.py",
+    "--mode",
+    "canary",
+    "--scenario",
+    "sources",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-evidence.json"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"checks\": {\n    \"names\": [\n      \"Library tests\",\n      \"Example unit smoke (ExUnit + ConnTest)\",\n      \"Install smoke (fresh phx.new + sigra.install)\",\n      \"Example HTTP smoke (boot + curl critical routes)\",\n      \"Example Playwright smoke (full lifecycle)\"\n    ],\n    \"status\": \"effective_checks_verified\"\n  },\n  \"executed_jobs\": 36,\n  \"scenarios\": [\n    {\n      \"artifact_digest\": \"sha256:81d507dbc1b4063952c262be7bc1c5abb5d8fa515e76bb933b789667e19edf88\",\n      \"artifact_id\": 12389896836,\n      \"conclusion\": \"success\",\n      \"run_id\": \"39693536541\",\n      \"scenario\": \"full-pass\",\n      \"status\": \"verified\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:a4b2556d6ba0673a826e32cea3bd48d678e1dd8cdc4f2d666e9d8914e4222576\",\n      \"artifact_id\": 12389522439,\n      \"conclusion\": \"success\",\n      \"run_id\": \"39693712655\",\n      \"scenario\": \"docs-only\",\n      \"status\": \"verified\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:95f046a3a43e3363b3d3e317d5b95a10e59f935a75fbb31c9f41449c7ce33e61\",\n      \"artifact_id\": 12389806632,\n      \"conclusion\": \"failure\",\n      \"run_id\": \"39693875213\",\n      \"scenario\": \"actual-failure\",\n      \"status\": \"verified_non_green\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:a3f32145b708058dcb0075658ee8db1b47f275b0c771e54607ff2347b2e7a689\",\n      \"artifact_id\": 12390326530,\n      \"conclusion\": \"failure\",\n      \"run_id\": \"39694048534\",\n      \"scenario\": \"missing-seam\",\n      \"status\": \"verified_non_green\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:1aa91abcaef57d01ac588ea8f82099b4f9d673a18348c0265721524ea5e364fa\",\n      \"artifact_id\": 12389098997,\n      \"conclusion\": \"failure\",\n      \"run_id\": \"39694213818\",\n      \"scenario\": \"unexpected-skip\",\n      \"status\": \"verified_non_green\",\n      \"synthetic\": true\n    },\n    {\n      \"artifacts\": 0,\n      \"conclusion\": \"cancelled\",\n      \"run_id\": \"39694387086\",\n      \"scenario\": \"cancelled\",\n      \"status\": \"verified_non_green\"\n    }\n  ],\n  \"status\": \"sources_verified\",\n  \"transport\": {\n    \"requests\": 93,\n    \"status\": \"transport_verified\",\n    \"window_id\": \"253-replan-proof-16800f431-canary-1\"\n  }\n}\n",
+  "stderr": ""
+}

@@ -1,0 +1,9 @@
+{
+  "category": "artifact_downloads",
+  "family": "normal",
+  "method": "GET",
+  "params": {
+    "artifact_id": 12443085302
+  },
+  "route_id": "artifact_zip"
+}

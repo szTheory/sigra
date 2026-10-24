@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "19",
+  "status": "prepared",
+  "stage": "admission",
+  "captured_at": "2026-09-30T17:45:14.987Z",
+  "candidate_ref": "refs/heads/agent-241-08",
+  "candidate_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json",
+  "allowlist_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+  "production_mutations": 0,
+  "d01_readiness": {
+    "status": "ready",
+    "artifact_commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+    "source_commit": "511acbbbc54e604b9fad4be9853636b3cb9d78e9"
+  },
+  "verify_inputs": {
+    "current_contract": {
+      "commit": "self",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json"
+    },
+    "local_snapshot": {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv"
+    },
+    "origin_snapshot": {
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv"
+    },
+    "allowlist": {
+      "commit": "current_contract",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv"
+    },
+    "readiness": {
+      "commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json"
+    },
+    "candidate_ref": "refs/heads/agent-241-08"
+  }
+}

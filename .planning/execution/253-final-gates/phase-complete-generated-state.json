@@ -1,0 +1,33 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
+  "phases": [
+    {
+      "number": "252",
+      "name": "Measure Current CI",
+      "status": "complete"
+    },
+    {
+      "number": "253",
+      "name": "Fix Flaky CI and Preserve Required Checks",
+      "status": "complete"
+    },
+    {
+      "number": "254",
+      "name": "Speed Up the Measured Slow Jobs",
+      "status": "pending"
+    },
+    {
+      "number": "255",
+      "name": "Make Failures Reproducible and Report the Result",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "$gsd-progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 3 of 4 · 50% · executing"
+  },
+  "updated_at": "2026-10-23T15:14:35.743Z"
+}

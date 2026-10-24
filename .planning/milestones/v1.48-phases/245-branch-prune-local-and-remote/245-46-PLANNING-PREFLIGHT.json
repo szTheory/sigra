@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "purpose": "D-06 read-only source feasibility before gap-closure planning",
+  "captured_at_utc": "2026-10-05T20:56:57Z",
+  "scope": "REPO-04 remaining three gaps only",
+  "sources": {
+    "current_tracking_target": {
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "git_show_ref_verify_exit": 0,
+      "git_cat_file_type_exit": 0,
+      "type": "commit",
+      "status": "present_readable",
+      "fresh_live_contract_required_at_execution": true
+    },
+    "historical_pr_baseline": {
+      "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+      "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+      "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+      "local_git_cat_file_type_exit_by_oid": [128, 128, 128],
+      "github_git_commit_or_blob_http_by_oid": [404, 404, 404],
+      "status": "blocked_missing_source",
+      "historical_rows": 11,
+      "row_ids": [219, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275],
+      "reason": "Pinned commit and cited blobs were unavailable from the two D-07 authoritative sources; present-day PR and main ref identities do not prove the past base identity.",
+      "source_contract": "245-PR-INTEGRITY-VERIFICATION.json baseline and 245-PR-IDENTITY-AUDIT.json"
+    },
+    "milestone_cleanup_history": {
+      "phase_range": [236, 245],
+      "command_families": ["git gc", "git reflog expire", "--prune=now"],
+      "rows": 30,
+      "uncovered_pairs": 30,
+      "phase_source_gaps": 10,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "trust_environment_variable_set": false,
+      "committed_trust_key_candidate_paths": 0,
+      "status": "blocked_missing_full_window_source_and_trust_root",
+      "reason": "245-15-CLEANUP-SOURCE-INVENTORY.json and 245-MILESTONE-CLEANUP-AUDIT.json identify no independently trusted complete command-history stream for any phase window; repository path checks found no committed recorder trust key. Current logs are bounded operation records.",
+      "source_contract": "validate-milestone-cleanup-audit.mjs directHistoryMatches and validateAudit"
+    }
+  },
+  "disposition": {
+    "current_tracking_diagnosis": "ready_for_disposable_production_scale_fixture_only",
+    "historical_pr": "blocked_keep_unresolved",
+    "historical_cleanup": "blocked_keep_unknown",
+    "production_ref_operations": 0,
+    "repo_04_status": "open"
+  }
+}

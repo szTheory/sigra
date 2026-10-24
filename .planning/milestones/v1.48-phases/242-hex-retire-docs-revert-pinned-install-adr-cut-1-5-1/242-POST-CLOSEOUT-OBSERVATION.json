@@ -1,0 +1,51 @@
+{
+  "schema": "sigra.phase-242-post-closeout-observation/1",
+  "observed_at_utc": "2026-10-06T00:39:00Z",
+  "workflow_run": {
+    "id": 35714147650,
+    "url": "https://github.com/szTheory/sigra/actions/runs/35714147650",
+    "event": "workflow_dispatch",
+    "created_at": "2026-09-22T10:06:28Z",
+    "updated_at": "2026-09-22T10:06:52Z",
+    "head_sha": "b9f67c65a2fe9425baac28e265c678f1cca74cea",
+    "conclusion": "failure",
+    "steps": [
+      { "number": 7, "name": "Retire sigra 1.20.0 after observed state", "conclusion": "success" },
+      { "number": 8, "name": "AFTER_RETIRE public package observation", "conclusion": "success" },
+      { "number": 9, "name": "Revert only sigra 1.20.0 docs after observed state", "conclusion": "success" },
+      { "number": 10, "name": "AFTER_DOCS_REVERT public package observation", "conclusion": "success" },
+      { "number": 11, "name": "HEXDOCS_ROOT classification", "conclusion": "failure" },
+      { "number": 12, "name": "RESOLVER_BROAD fresh proof", "conclusion": "skipped" },
+      { "number": 13, "name": "RESOLVER_SAFE fresh proof", "conclusion": "skipped" },
+      { "number": 14, "name": "Validate public remediation receipt", "conclusion": "skipped" }
+    ],
+    "uploaded_artifact": {
+      "id": 10688107145,
+      "name": "hex-remediation-public-evidence",
+      "sha256": "a08a375fd738b7e4f81f1521584e52874f31fe0a10ab1e879f8d8537e480f2b7",
+      "complete_validated_receipt": false
+    }
+  },
+  "hex_package_api": {
+    "url": "https://hex.pm/api/packages/sigra",
+    "latest_version": "1.20.0",
+    "latest_stable_version": "1.20.0",
+    "retirements": {
+      "1.20.0": {
+        "reason": "invalid",
+        "message": "Retired: use the supported ~> 1.5.0 requirement instead."
+      }
+    },
+    "release_1_5_1_present": false
+  },
+  "hexdocs_root": {
+    "url": "https://hexdocs.pm/sigra/",
+    "title": "Sigra v1.5.0 — Documentation"
+  },
+  "requirement_disposition": {
+    "REL-03": "satisfied_by_workflow_step_and_current_registry_state",
+    "REL-04": "satisfied_by_workflow_step_and_current_docs_root",
+    "REL-06": "unsatisfied_no_1_5_1_release",
+    "resolver_repair_claim": false
+  }
+}

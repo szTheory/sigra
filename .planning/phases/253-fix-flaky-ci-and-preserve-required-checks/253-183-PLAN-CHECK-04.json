@@ -1,0 +1,72 @@
+{
+  "schema": "sigra.gsd.plan-check/v1",
+  "phase": "253-fix-flaky-ci-and-preserve-required-checks",
+  "plan": "253-183",
+  "status": "passed",
+  "plans_checked": 1,
+  "plan_sha256": "37fe84d5b304c5da7aa6f23cd8c1acd42a04eca5f250ed2cce6f10b72fa33f3c",
+  "plan_metrics": {
+    "tasks": 3,
+    "files_modified": 5,
+    "automated_bodies": 13
+  },
+  "issues": [],
+  "resolved_prior_findings": [
+    {
+      "required_property": "Each finite corrective test run has an executable command, separately captured result, and defined success condition.",
+      "status": "resolved",
+      "evidence": "The plan declares the t1/t2 correction and final slots and t3 recovery/final slots, each with explicit command bodies and success/failure conditions."
+    },
+    {
+      "required_property": "A task's automated verification recognizes the explicitly required expected RED as successful evidence only for the exact intended failure.",
+      "status": "resolved",
+      "evidence": "The capture wrapper checks the exact t1-red and t2-red argv, native exit/count, failure headers/assertions, output, and terminal status before returning verification exit 0 while retaining native exit 1."
+    },
+    {
+      "required_property": "Each finite run slot enforces its declared command and prerequisite before launch, with eligible failure/diagnosis/committed correction and source transitions checked.",
+      "status": "resolved",
+      "evidence": "capture183.py derives a unique argv for every declared slot from the plan's automated bodies and compares invocation argv before launch; it requires the captured slots to form the allowed conditional prefix, checks prior result status and native outcome, enforces diagnosis JSON tied to the failed result and committed changed source for recovery slots, validates unchanged-source transitions and source commits, and requires passing selected full suite and validators before review."
+    },
+    {
+      "required_property": "Every runnable automated command has an explicit failing direction that identifies what output or condition means failure.",
+      "status": "resolved",
+      "evidence": "Review 03\u2019s sole blocker came from the scanner reading the embedded regex literal r\"<automated>(.*?)</automated>\" as plan markup. The plan now constructs the same regex from adjacent string fragments. Python confirms the two regexes match identically; the diff against the preserved review 03 plan is exactly this one-line representation change. All 13 actual automated bodies are unchanged, and the fresh failing-directions probe reports all 13 as ok with zero blocker/warning and no read error."
+    }
+  ],
+  "probe_results": {
+    "verify_paths": {
+      "status": "not_applicable",
+      "readError": null,
+      "rows_for_plan": 13,
+      "blockers": 0,
+      "warnings": 0,
+      "evidence": "/tmp/sigra253-plan183-verify-paths04.json"
+    },
+    "failing_directions": {
+      "status": "ok",
+      "readError": null,
+      "rows_for_plan": 13,
+      "blockers": 0,
+      "warnings": 0,
+      "evidence": "/tmp/sigra253-plan183-failure-directions04.json"
+    }
+  },
+  "preservation": {
+    "ref": "refs/gsd/phase253-plan183-review03-inputs",
+    "commit": "41dad91f96221dc4925e9634f37a5b1eec062447",
+    "readback_verified": true,
+    "previous_plan_sha256": "cb60401e52a7be079e0089d37ec7715c2c1a1e118ba9e9948b860d15a5aba619",
+    "changed_lines": 1,
+    "regex_semantics_identical": true,
+    "automated_bodies_unchanged": true
+  },
+  "evidence_scope": {
+    "review_type": "planning review only",
+    "implementation_run": false,
+    "tests_run": false,
+    "phase_verification": "not_started",
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted",
+    "historical_halts": "unchanged"
+  }
+}

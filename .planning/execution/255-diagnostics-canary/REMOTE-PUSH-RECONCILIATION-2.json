@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-24T18:54:23+00:00",
+  "remaining": 4983,
+  "request": "push-reconciliation-second-read:refs/heads/evidence/phase255-canary",
+  "response": [
+    {
+      "node_id": "REF_kwDOR_jMxNoAI3JlZnMvaGVhZHMvZXZpZGVuY2UvcGhhc2UyNTUtY2FuYXJ5",
+      "object": {
+        "sha": "504aaa25ca047792ca70a62f78c164f8d908ddd9",
+        "type": "commit",
+        "url": "https://api.github.com/repos/szTheory/sigra/git/commits/504aaa25ca047792ca70a62f78c164f8d908ddd9"
+      },
+      "ref": "refs/heads/evidence/phase255-canary",
+      "url": "https://api.github.com/repos/szTheory/sigra/git/refs/heads/evidence/phase255-canary"
+    }
+  ]
+}

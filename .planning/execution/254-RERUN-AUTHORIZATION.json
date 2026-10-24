@@ -1,0 +1,87 @@
+{
+  "schema_version": "sigra.phase254.rerun-authorization/v1",
+  "status": "approved",
+  "recorded_at": "2026-10-23T21:09:52.686054+00:00",
+  "approval": {
+    "source": "current user message following the concrete rerun proposal",
+    "verbatim": "yes i approve",
+    "scope": "Rerun-based twenty-pair comparison and separate finite preparation allowance as proposed and summarized in the preceding assistant message."
+  },
+  "proposal_path": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
+  "proposal_sha256": "5981f6ef7160d84bcb0bf9cad81bfb186de4c05541b4d64fcbc22651acef427e",
+  "supersedes": {
+    "rule": "Distinct primary run IDs required by original Plan254-08",
+    "replacement": "Register each measured full-workflow invocation by (run_id, run_attempt), with attempt-specific queue/start timing, source/origin checks, costs, and immutable outcome."
+  },
+  "method": {
+    "sample_identity": "Use (run_id, run_attempt) for separately preregistered full-workflow invocations, instead of requiring forty distinct run IDs.",
+    "baseline_execution": "Rerun the original baseline PR workflow; GitHub documents preservation of original GITHUB_SHA and GITHUB_REF. Verify actual workflow, checkout SHA/tree and native artifacts before accepting any sample.",
+    "candidate_execution": "Publish and review an exact candidate PR source/merge/workflow, establish its initial real-PR run, then use registered full reruns of that fixed event/source. Stop if source equivalence cannot be proven.",
+    "timing": "Bind a queued attempt before its outcome, retain request/queue timestamps, derive each attempt wait from its own new invocation rather than the original historical run created_at. If an authenticated attempt-specific queued time is unavailable, do not treat this method as feasible or start the comparison window.",
+    "failure_and_cost_policy": "Each reserved sample retains its failure/cancellation and all its own retry/job costs. A later attempt never replaces an unfavorable reserved sample. Primary run cumulative costs must not be counted repeatedly across samples.",
+    "machinery_required": [
+      "Attempt-scoped registration and raw attempt acquisition",
+      "Independent attempt/source/origin/native parity validation",
+      "Attempt-specific queue/wait and cost derivation tests",
+      "Same baseline archive, threshold and no-replacement protections"
+    ]
+  },
+  "unchanged_controls": {
+    "pair_count": 20,
+    "measured_invocations": 40,
+    "balanced_order": "ten baseline-first pairs and ten candidate-first pairs",
+    "maximum_pair_start_gap_seconds": 1800,
+    "window_hours": 48,
+    "cache_stratum": "all-warm; exact-hit proof still required",
+    "runner_images": "compatible actual pair images; disclose historical drift",
+    "thresholds": [
+      "ordinary candidate median <= 0.8 * baseline median",
+      "candidate empirical nearest-rank p95 <= baseline",
+      "candidate actual runner total <= baseline"
+    ],
+    "no_replacements": true,
+    "no_window_extension": true,
+    "phase253_previous_allowances": "not reused"
+  },
+  "preparation_budget": {
+    "user_approved": true,
+    "maximum_invocations": 2,
+    "recipe": [
+      "One full original-baseline rerun to prove original checkout/workflow and warm that fixed PR cache context",
+      "One initial reviewed candidate real-PR run to prove candidate source/merge/workflow and warm its fixed PR cache context"
+    ],
+    "retries": 0,
+    "maximum_elapsed_minutes": 60,
+    "maximum_total_http_requests": 600,
+    "includes": "Registration/retrieval/watch traffic; one watcher per run, interval60; stop at core<=250 and any403/429.",
+    "does_not_renew": "Any Phase253 allowance or spent sample",
+    "invocations_started": 0,
+    "clock_started_at": null,
+    "requests_spent": 0,
+    "status": "authorized_not_started"
+  },
+  "measured_budget": {
+    "invocations": 40,
+    "pairs": 20,
+    "spent": 0,
+    "window_hours": 48,
+    "window_started_at": null,
+    "old_phase253_budgets": "unchanged; not renewed"
+  },
+  "raw_retention": "Capture and preserve every completed attempt before requesting another rerun; GitHub artifacts from earlier attempts may become inaccessible. Verify durable bytes/read-back before continuation. No artifact deletion or source repair is authorized.",
+  "historical_record": "Keep original Phase252 contract/archive, blocked Phase254 contract/proof/summary, and original proposal byte-for-byte; write a separate amended execution contract and continuation.",
+  "disclosure": [
+    "This is a rerun-based fixed-source experiment, not forty new-PR scheduler observations; report that limitation.",
+    "GitHub docs state a maximum of50reruns and eligibility within30days. Baseline attempt1 currently leaves room, but rerun availability must be rechecked before execution.",
+    "Old-cache accessibility, actual runner images, retained frozen producer checkout and authenticated attempt-specific queue time remain prerequisites; no hosted success is yet proven.",
+    "If these prerequisites fail, retain a blocker without spending measured samples or silently switching to a different baseline.",
+    "Any approved amendment is recorded as a change after implementation; never report that the original forty-distinct-PR-family method was executed unchanged or claim rerun samples establish new-PR scheduling performance."
+  ],
+  "prior_state_commit": "97d57050f0eb2e0a63a8410117b68df2f629e990",
+  "current_stage": "attempt_tooling_and_preparation_preflight",
+  "requirements": {
+    "CISPEED-01": "open",
+    "CISPEED-02": "open"
+  },
+  "phase_verification_status": "pending"
+}

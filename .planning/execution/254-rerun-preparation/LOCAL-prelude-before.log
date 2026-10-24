@@ -1,0 +1,18 @@
+Compiling 178 files (.ex)
+Generated sigra app
+Running ExUnit with seed: 824534, max_cases: 36
+
+...
+
+  1) test one shared boot action owns the prelude for every example Playwright consumer (Sigra.Planning.Phase232PlaywrightEconomicsTest)
+     test/sigra/planning/phase_232_playwright_economics_test.exs:74
+     shared action must own mix ecto.create exactly once
+     code: for marker <- ["mix ecto.create", "mix run priv/repo/seeds.exs", "mix phx.server", "curl -sf"] do
+     stacktrace:
+       test/sigra/planning/phase_232_playwright_economics_test.exs:94: anonymous fn/3 in Sigra.Planning.Phase232PlaywrightEconomicsTest."test one shared boot action owns the prelude for every example Playwright consumer"/1
+       (elixir 1.19.5) lib/enum.ex:2520: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/sigra/planning/phase_232_playwright_economics_test.exs:93: (test)
+
+..
+Finished in 0.09 seconds (0.09s on load, 0.00s async, 0.00s sync)
+6 tests, 1 failure

@@ -1,0 +1,63 @@
+{
+  "schema_version": "sigra.phase253.hosted-replan-evidence/v2",
+  "repository": "szTheory/sigra",
+  "action_approval": {
+    "commit": "8e82569cbf30a7cecd6f7ff00df43a96d5be6df8",
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL.json",
+    "section": "canary",
+    "section_sha256": "678e2576b2aec98434410aeb6b1ed9ab257fce850ade6737277c6287b902a071",
+    "sha256": "068d72d5b78c817b4764a50e8c36ccc2ebb74774256e507860255e5531b25b46",
+    "window_wall_start_epoch": 1792026772
+  },
+  "expected": {
+    "candidate_sha": "1351b066c087d04ba3bf3996394df0080ae9d818",
+    "fixture_ref": "refs/heads/gsd/253-replan-fixture",
+    "fixture_ref_state": "pending-publication",
+    "workflow_id": 259268962,
+    "workflow_path": ".github/workflows/ci.yml",
+    "workflow_name": "Phase 253 Gate Canary",
+    "workflow_sha": "f9b7422480a6770604a61345a77ce0303eea6740",
+    "workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+  },
+  "preflight": {},
+  "budget": {
+    "accounted_max_requests": 120,
+    "new_measured_max_requests": 117,
+    "max_requests": 117,
+    "request_count": 0,
+    "max_jobs": 45,
+    "actual_jobs": 0,
+    "max_minutes": 60,
+    "started_epoch": 1792026772,
+    "elapsed_seconds": 0
+  },
+  "transport_ledger": null,
+  "transport_receipts": [],
+  "dispatch_inputs": {},
+  "dispatch_input_metrics": [],
+  "preserved_revisions": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/6502b9472c439e41284d767a2889cc8808edc9ba3d73f5289b8d87755dc2f97a",
+      "sha256": "6502b9472c439e41284d767a2889cc8808edc9ba3d73f5289b8d87755dc2f97a",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER.json",
+      "ref": "",
+      "sha256": "",
+      "status": ""
+    }
+  ],
+  "scenarios": {},
+  "separate_verifier": {
+    "status": "pending"
+  },
+  "diagnostics": [
+    {
+      "kind": "canary-stop",
+      "message": "counted object/ref publication failed"
+    }
+  ],
+  "status": "halted"
+}

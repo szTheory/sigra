@@ -1,0 +1,36 @@
+{
+  "collector_tests": 116,
+  "collector_failures": 0,
+  "docs_continuation_unit_tests": 6,
+  "normal_pr_verification": {
+    "accepted_live": true,
+    "category_counts": {
+      "artifact_downloads": 10,
+      "artifact_metadata": 1,
+      "attempt_jobs": 1,
+      "native_checks": 1,
+      "pr_create": 1,
+      "pr_identity": 3,
+      "pre_watch_rate": 1,
+      "preflight": 6,
+      "run_discovery": 2,
+      "terminal_polls": 8
+    },
+    "family": "normal",
+    "head_sha": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+    "merge_sha": "44c8f97d33a5cce32798d847729c4bebfee5eb6a",
+    "pr_number": 341,
+    "requests": 34,
+    "run_attempt": 1,
+    "run_id": 39706873401,
+    "status": "pr_family_verified",
+    "window_id": "gsd/253-replan-proof-a6838a8f9-prs-1"
+  },
+  "network_requests_after_halt": 0,
+  "logs": {
+    "verifier-after.log": "29eb83a3d6cb4016deb6d4090cbb9434bec6b735982a359439dc9623731f6377",
+    "collector-tests.log": "5bc71605b162521aab2817fa0a264517bec2cedbe3df3f4f78c7d7f2b5854764",
+    "verifier-before.log": "223ca688172f482dcd29a017ddd9afd3b70b967f5171d4578f49ad8300784a9e",
+    "docs-continuation-tests.log": "adac567c500720c3dc6f728c386a1370cc646bca9a3230b51a9093e0e2cd3101"
+  }
+}

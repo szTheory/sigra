@@ -1,0 +1,11 @@
+{
+  "completed_at": "2026-10-24T02:21:33.877339+00:00",
+  "server_pid": 72466,
+  "app_port": 4317,
+  "server_stopped": true,
+  "temporary_container": "3f67400e87ac186e81e0aa09e04da1236c66b851ecd47ab8c87f75337ab06d00",
+  "temporary_container_removed": true,
+  "database_port": 64317,
+  "only_owned_resources_stopped": true,
+  "archive_retained": "/tmp/sigra254-baseline-registration-bk90_9ri/test/example/priv/static/assets/js/app.js"
+}

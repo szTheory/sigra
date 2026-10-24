@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/runtime/ci-hosted-gate-verify.py",
+    "--mode",
+    "canary",
+    "--scenario",
+    "full-pass",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/canary-evidence.json"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"checks\": {\n    \"names\": [\n      \"Library tests\",\n      \"Example unit smoke (ExUnit + ConnTest)\",\n      \"Install smoke (fresh phx.new + sigra.install)\",\n      \"Example HTTP smoke (boot + curl critical routes)\",\n      \"Example Playwright smoke (full lifecycle)\"\n    ],\n    \"status\": \"effective_checks_verified\"\n  },\n  \"scenario\": {\n    \"artifact_digest\": \"sha256:157d0ab810f7b0832b8f66639b7d1e7718424a06b4086610cd9474a05b4cb960\",\n    \"artifact_id\": 12391899935,\n    \"conclusion\": \"success\",\n    \"run_id\": \"39701315583\",\n    \"scenario\": \"full-pass\",\n    \"status\": \"verified\",\n    \"synthetic\": true\n  },\n  \"status\": \"canary_scenario_verified\",\n  \"transport\": {\n    \"requests\": 41,\n    \"status\": \"transport_verified\",\n    \"window_id\": \"gsd/253-replan-proof-4734916ee-canary-1\"\n  }\n}\n",
+  "stderr": ""
+}

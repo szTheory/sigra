@@ -1,0 +1,961 @@
+{
+  "schema_version": "sigra.phase255.plan-check/v1",
+  "checked_at": "2026-10-24T16:07:24.464820+00:00",
+  "scope": "Planning only; no implementation, product/native test, hosted run or phase verification performed.",
+  "capture_boundary": "712391d8f40b30bd5d97db4b235c32dd41536d0e",
+  "initial_planning_recovery": [
+    {
+      "path": ".planning/STATE.md",
+      "capture_status": "clean",
+      "commit": "712391d8f40b30bd5d97db4b235c32dd41536d0e",
+      "blob": "1be124c05590fee49b6a3bf5d4bc6509cdc19e0c",
+      "sha256": "36f9debe98fdef63683bd06666fd3ad9d08ad2c3ec8ba3600557032cf00c4dee",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "capture_status": "clean",
+      "commit": "712391d8f40b30bd5d97db4b235c32dd41536d0e",
+      "blob": "85c30d26632e7416758ff6bd0150c0ce15fa74f7",
+      "sha256": "d4fabf1e0d7719c7096438a0673cb08193c14a0c7dc6732ba2215fe84c5bc49f",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "capture_status": "clean",
+      "commit": "712391d8f40b30bd5d97db4b235c32dd41536d0e",
+      "blob": "c9188c8bd0ce9572741856cccbe0fba52675eb3b",
+      "sha256": "792c2e138411520c150d9d17337fddd1527ea8c43ea04ddc02b96261910c2d4f",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "capture_status": "clean",
+      "commit": "712391d8f40b30bd5d97db4b235c32dd41536d0e",
+      "blob": "d6aa5b4419a1a202e54191abaa44cc47c2f22283",
+      "sha256": "e67e4399a5affb907f6ff0e68044e262b08c9912b6a0fa8e611c2031a99d0cdc",
+      "readback_verified": true
+    }
+  ],
+  "research_commit": "a0bc58dbfc62283c66bb97b408528ca0a9ae14a4",
+  "plan_count": 7,
+  "task_count": 14,
+  "wave_count": 6,
+  "waves": {
+    "1": [
+      "255-01-PLAN.md"
+    ],
+    "2": [
+      "255-02-PLAN.md"
+    ],
+    "3": [
+      "255-03-PLAN.md",
+      "255-04-PLAN.md"
+    ],
+    "4": [
+      "255-05-PLAN.md"
+    ],
+    "5": [
+      "255-06-PLAN.md"
+    ],
+    "6": [
+      "255-07-PLAN.md"
+    ]
+  },
+  "plan_checks": [
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md",
+      "sha256": "ae9915a8677d2f2674b016b38aca56b2acad570965f0c8ba434c69cae7357cce",
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255-01-01: Resolve preserved inputs and calculate the real saved result end to end",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255-01-02: Package the complete replay closure and reject altered or incomplete inputs",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "independent_checker_sha256": "d0c07bdd85b2312c6d24981b3677d75b8a1b93e63517daca60a3d0fee84d05d7"
+    },
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-02-PLAN.md",
+      "sha256": "f9cefe21b6c57fde1bfc648e56b74ac7c84e85cf497e098fca6baff58e0a9574",
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255-02-01: Execute one native failure and retain its original outcome and reproduction",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255-02-02: Stage only invocation-owned diagnostics and verify the finished bundle",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "independent_checker_sha256": "c68e686c973b12eab15aad55a163d4d8c0c18c24539e71be365de9f1995eb953"
+    },
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-03-PLAN.md",
+      "sha256": "c832921f0c4f8408237c8a557b836b9a04ff2ea0e6a1d3ef36e64bc2c890afdb",
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255-03-01: Observe the real seven-leg contributor gate and repair only demonstrated receiver defects",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255-03-02: Record actual test seeds and preserve primary dep-off outcomes during restoration",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "independent_checker_sha256": "657e5ff93e7df803b0e948f1bdf61d7ef70dae3d2d84eb4c6c6d99dc2c2d035b"
+    },
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-PLAN.md",
+      "sha256": "566d790665a2a83caffd46ef0cfe181109777085b1d4c9a98b403b6d0959c680",
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255-04-01: Run one real browser selection through a shared local/CI command",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255-04-02: Prepare and clean a real invocation-owned local example environment",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "independent_checker_sha256": "36ff914e82382a51f9855bfd495cc3dbbe1f77ba8170410af7dc1f856b98a2d3"
+    },
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-05-PLAN.md",
+      "sha256": "0b8bb2fbde9018fcf84155cdedee6a71657655ae439524819ad8ea5e042cae29",
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255-05-01: Retain the first real assertion trace and discard a passing trace",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255-05-02: Exercise local pre-test failures and preserve sequential invocation bundles",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "independent_checker_sha256": "bc6ae83099fea6b42f93fbd7703d8bd3a43d44d542f1ca3204add1b94ee34578"
+    },
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-06-PLAN.md",
+      "sha256": "b45d3c69e85fd40d19a288cdaa6e91089aab77b4892efa8bf506b67b8d4eb29e",
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255-06-01: Retrieve one actual successful canary bundle through the production upload action",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255-06-02: Prove real failure/cancellation delivery and disclose final-source tracing cost",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "independent_checker_sha256": "c6cce4ef30ffd7966ed85d17f9d1dc3fd449c8d54382a2822e32a37c9041819b"
+    },
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-PLAN.md",
+      "sha256": "1f987e5a790682965682e70dca0449e8d20ea4245f6b90865a5ea1c12210154e",
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255-07-01: Retrieve the actual immutable package remotely and replay from a clean checkout",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255-07-02: Write one truthful result report and exact contributor reproduction guidance",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "independent_checker_sha256": "28f6a80ff7ea1a794b7b5ad6d42e36215daf6253b62a63359d0ffc3f2ba99f4b"
+    }
+  ],
+  "requirements": {
+    "passed": true,
+    "total": 3,
+    "covered": 3,
+    "ids": [
+      "CIDX-01",
+      "CIDX-02",
+      "CIMEAS-03"
+    ]
+  },
+  "decision_coverage": {
+    "passed": true,
+    "skipped": false,
+    "total": 17,
+    "covered": 17,
+    "uncovered": [],
+    "message": "All trackable CONTEXT.md decisions are covered by plans."
+  },
+  "independent_checker": {
+    "role": "gsd-plan-checker",
+    "agent": "/root/check_phase255_plans",
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "marker": "VERIFICATION PASSED",
+    "issues": [],
+    "scope": "Plan completeness/executability and constraints; no implementation claim."
+  },
+  "verify_command_paths": {
+    "status": "not_applicable",
+    "commands": [
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-01: Resolve preserved inputs and calculate the real saved result end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.py preflight --root . --output .planning/execution/255-replay/PREFLIGHT.json && python3 -B scripts/ci/ci-comparison-replay.py replay --from-evidence --output .planning/execution/255-replay/RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-01: Resolve preserved inputs and calculate the real saved result end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py && bash scripts/ci/ci-run-metrics-comparison.test.sh && python3 -B scripts/ci/ci-metrics-security.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-02: Package the complete replay closure and reject altered or incomplete inputs"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.py pack --output .planning/execution/255-replay/input-package.tar.gz && python3 -B scripts/ci/ci-comparison-replay.py replay --package .planning/execution/255-replay/input-package.tar.gz --output .planning/execution/255-replay/RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-02: Package the complete replay closure and reject altered or incomplete inputs"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-command-record.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-02-PLAN.md",
+        "task": "255-02-01: Execute one native failure and retain its original outcome and reproduction"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostic-bundle.test.py && python3 -B scripts/ci/ci-command-record.test.py && python3 -B scripts/ci/ci-metrics-security.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-02-PLAN.md",
+        "task": "255-02-02: Stage only invocation-owned diagnostics and verify the finished bundle"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-mix-receivers.test.py && node --test scripts/ci/ci-prep-semantics.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-03-PLAN.md",
+        "task": "255-03-01: Observe the real seven-leg contributor gate and repair only demonstrated receiver defects"
+      },
+      {
+        "command": "MIX_ENV=test python3 -B scripts/ci/ci-mix-receivers.test.py --native --output .planning/execution/255-local/MIX-RECEIVERS.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-03-PLAN.md",
+        "task": "255-03-01: Observe the real seven-leg contributor gate and repair only demonstrated receiver defects"
+      },
+      {
+        "command": "MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs && bash scripts/ci/test-sigra-dep-off.sh && python3 -B scripts/ci/ci-mix-receivers.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-03-PLAN.md",
+        "task": "255-03-02: Record actual test seeds and preserve primary dep-off outcomes during restoration"
+      },
+      {
+        "command": "node --test scripts/ci/ci-browser-command.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-01: Run one real browser selection through a shared local/CI command"
+      },
+      {
+        "command": "node scripts/ci/ci-browser-command.mjs list --seam demo_showcase --event pull_request --output-root /tmp/sigra255-selection",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-01: Run one real browser selection through a shared local/CI command"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-browser-local.test.py && node --test scripts/ci/ci-browser-command.test.mjs scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-prep-semantics.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-02: Prepare and clean a real invocation-owned local example environment"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-browser-local.test.py --native",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-02: Prepare and clean a real invocation-owned local example environment"
+      },
+      {
+        "command": "node --test scripts/ci/ci-browser-diagnostics.test.mjs && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-05-PLAN.md",
+        "task": "255-05-01: Retain the first real assertion trace and discard a passing trace"
+      },
+      {
+        "command": "node --test scripts/ci/ci-browser-diagnostics.test.mjs && python3 -B scripts/ci/ci-diagnostic-bundle.test.py && python3 -B scripts/ci/ci-command-record.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-05-PLAN.md",
+        "task": "255-05-02: Exercise local pre-test failures and preserve sequential invocation bundles"
+      },
+      {
+        "command": "node scripts/ci/ci-browser-diagnostics.test.mjs --native --output .planning/execution/255-local/BROWSER-DIAGNOSTICS.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-05-PLAN.md",
+        "task": "255-05-02: Exercise local pre-test failures and preserve sequential invocation bundles"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostics-canary.test.py && node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs scripts/ci/ci-measure-workflow.test.mjs && python3 -B scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/honest-skip-verdict.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-01: Retrieve one actual successful canary bundle through the production upload action"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario success",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-01: Retrieve one actual successful canary bundle through the production upload action"
+      },
+      {
+        "command": "node scripts/ci/ci-browser-diagnostics.test.mjs --measure-overhead --pairs 3 --output .planning/execution/255-local/TRACE-OVERHEAD.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-02: Prove real failure/cancellation delivery and disclose final-source tracing cost"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario failure && python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario cancellation && python3 -B scripts/ci/ci-diagnostics-canary.py verify --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --output .planning/execution/255-diagnostics-canary/RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-02: Prove real failure/cancellation delivery and disclose final-source tracing cost"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py && python3 -B scripts/ci/ci-comparison-replay.py distribute --remote origin --output .planning/execution/255-replay/DISTRIBUTION.json && python3 -B scripts/ci/ci-comparison-replay.py verify-distribution --record .planning/execution/255-replay/DISTRIBUTION.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-07-PLAN.md",
+        "task": "255-07-01: Retrieve the actual immutable package remotely and replay from a clean checkout"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-report.test.py && python3 -B scripts/ci/ci-comparison-replay.test.py && node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs && python3 -B scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-run-metrics-comparison.test.sh && python3 -B scripts/ci/ci-metrics-security.test.py && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255-07-PLAN.md",
+        "task": "255-07-02: Write one truthful result report and exact contributor reproduction guidance"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 22
+    },
+    "readError": null
+  },
+  "verify_failure_directions": {
+    "status": "ok",
+    "commands": [
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "statement": "Nonzero exit, zero executed tests, or an actual saved-input replay assertion reports differing metrics or changed original bytes.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-01: Resolve preserved inputs and calculate the real saved result end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.py preflight --root . --output .planning/execution/255-replay/PREFLIGHT.json && python3 -B scripts/ci/ci-comparison-replay.py replay --from-evidence --output .planning/execution/255-replay/RESULT.json",
+        "statement": "Nonzero exit; preflight status blocked; missing result; performance_verdict differs from insufficient_data; pairs differs from 0; median/p95 is numeric; costs differ from 2046/1589.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-01: Resolve preserved inputs and calculate the real saved result end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py && bash scripts/ci/ci-run-metrics-comparison.test.sh && python3 -B scripts/ci/ci-metrics-security.test.py",
+        "statement": "Nonzero exit, a missing/corrupt/changed-tool case is accepted, a package replay invokes network, or original hashes change.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-02: Package the complete replay closure and reject altered or incomplete inputs"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.py pack --output .planning/execution/255-replay/input-package.tar.gz && python3 -B scripts/ci/ci-comparison-replay.py replay --package .planning/execution/255-replay/input-package.tar.gz --output .planning/execution/255-replay/RESULT.json",
+        "statement": "Nonzero exit; an unlisted dependency is consumed; archive/hash validation rejects a valid package; or output differs semantically from the saved insufficient-data evaluation.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-01-PLAN.md",
+        "task": "255-01-02: Package the complete replay closure and reject altered or incomplete inputs"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-command-record.test.py",
+        "statement": "Nonzero exit, zero tests, lost stdout/stderr, changed primary code/signal, evaluated metacharacters, leaked environment sentinel, or invented non-test seed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-02-PLAN.md",
+        "task": "255-02-01: Execute one native failure and retain its original outcome and reproduction"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostic-bundle.test.py && python3 -B scripts/ci/ci-command-record.test.py && python3 -B scripts/ci/ci-metrics-security.test.py",
+        "statement": "Nonzero exit, zero bundle tests, a finished bundle contains planted secrets/auth/stale files, an escape is accepted, or a promised missing file is reported present.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-02-PLAN.md",
+        "task": "255-02-02: Stage only invocation-owned diagnostics and verify the finished bundle"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-mix-receivers.test.py && node --test scripts/ci/ci-prep-semantics.test.mjs",
+        "statement": "Nonzero exit, zero process tests, a skipped nested receiver is accepted, or exact owner/order/exclusion assertions differ.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-03-PLAN.md",
+        "task": "255-03-01: Observe the real seven-leg contributor gate and repair only demonstrated receiver defects"
+      },
+      {
+        "command": "MIX_ENV=test python3 -B scripts/ci/ci-mix-receivers.test.py --native --output .planning/execution/255-local/MIX-RECEIVERS.json",
+        "statement": "Nonzero exit, a required receiver/module has no actual executed test record, scaffold runs twice, a prerequisite is absent, or an injected receiver error exits 0.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-03-PLAN.md",
+        "task": "255-03-01: Observe the real seven-leg contributor gate and repair only demonstrated receiver defects"
+      },
+      {
+        "command": "MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs && bash scripts/ci/test-sigra-dep-off.sh && python3 -B scripts/ci/ci-mix-receivers.test.py",
+        "statement": "Nonzero exit, lost or fabricated suite seed, cleanup replaces the guard status, lock bytes differ after successful restoration, or missing prerequisite is accepted in required mode.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-03-PLAN.md",
+        "task": "255-03-02: Record actual test seeds and preserve primary dep-off outcomes during restoration"
+      },
+      {
+        "command": "node --test scripts/ci/ci-browser-command.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs",
+        "statement": "Nonzero exit, zero native-selection tests, a selected spec/project identity changes, snapshot event rules differ, or existing execution reports become invalid.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-01: Run one real browser selection through a shared local/CI command"
+      },
+      {
+        "command": "node scripts/ci/ci-browser-command.mjs list --seam demo_showcase --event pull_request --output-root /tmp/sigra255-selection",
+        "statement": "Nonzero exit, an empty selection, selected identity outside the original demo-showcase-chromium invocation, or missing selection JSON.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-01: Run one real browser selection through a shared local/CI command"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-browser-local.test.py && node --test scripts/ci/ci-browser-command.test.mjs scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-prep-semantics.test.mjs",
+        "statement": "Nonzero exit, unsafe reset/cleanup is accepted, CI/PORT differs between compile and serve, or setup/cache/gate contracts regress.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-02: Prepare and clean a real invocation-owned local example environment"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-browser-local.test.py --native",
+        "statement": "Nonzero exit, the existing focused browser case is absent, readiness is not reached, an occupied port is reused, owned resources remain without diagnostics, or an unrelated resource changes.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-04-PLAN.md",
+        "task": "255-04-02: Prepare and clean a real invocation-owned local example environment"
+      },
+      {
+        "command": "node --test scripts/ci/ci-browser-diagnostics.test.mjs && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+        "statement": "Nonzero exit, zero native browser tests, failure has no usable trace, pass retains a trace, manual-context coverage is absent, a non-opted-in config changes, or retries become nonzero.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-05-PLAN.md",
+        "task": "255-05-01: Retain the first real assertion trace and discard a passing trace"
+      },
+      {
+        "command": "node --test scripts/ci/ci-browser-diagnostics.test.mjs && python3 -B scripts/ci/ci-diagnostic-bundle.test.py && python3 -B scripts/ci/ci-command-record.test.py",
+        "statement": "Nonzero exit, missing pre-test streams, overwritten earlier output, altered primary outcome, unsafe final archive, or a fabricated present trace.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-05-PLAN.md",
+        "task": "255-05-02: Exercise local pre-test failures and preserve sequential invocation bundles"
+      },
+      {
+        "command": "node scripts/ci/ci-browser-diagnostics.test.mjs --native --output .planning/execution/255-local/BROWSER-DIAGNOSTICS.json",
+        "statement": "Nonzero exit, a listed native negative case did not run, a failed trace is unreadable, passing trace remains, or stored source/member identity is missing.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-05-PLAN.md",
+        "task": "255-05-02: Exercise local pre-test failures and preserve sequential invocation bundles"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostics-canary.test.py && node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs scripts/ci/ci-measure-workflow.test.mjs && python3 -B scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/honest-skip-verdict.test.sh",
+        "statement": "Nonzero exit, budget/source tampering is accepted, a production gate/skip/name invariant changes, or a broad unsafe upload remains.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-01: Retrieve one actual successful canary bundle through the production upload action"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario success",
+        "statement": "Nonzero exit, source/limit preflight blocked, expected actual success run missing, retrieved bundle missing/unsafe, or its run/attempt/source/invocation differs.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-01: Retrieve one actual successful canary bundle through the production upload action"
+      },
+      {
+        "command": "node scripts/ci/ci-browser-diagnostics.test.mjs --measure-overhead --pairs 3 --output .planning/execution/255-local/TRACE-OVERHEAD.json",
+        "statement": "Nonzero exit, fewer than six actual duration records, changed executable source/config across modes, missing final-source identity, or an overhead-adjusted historical comparison appears.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-02: Prove real failure/cancellation delivery and disclose final-source tracing cost"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario failure && python3 -B scripts/ci/ci-diagnostics-canary.py run --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --scenario cancellation && python3 -B scripts/ci/ci-diagnostics-canary.py verify --freeze .planning/execution/255-diagnostics-canary/FREEZE.json --output .planning/execution/255-diagnostics-canary/RESULT.json",
+        "statement": "Nonzero controller/verification exit, failure fixture goes green, cancellation is not an actual scoped cancelled run, source/artifact mismatch, missing files are represented as present, or any frozen limit is exceeded.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-06-PLAN.md",
+        "task": "255-06-02: Prove real failure/cancellation delivery and disclose final-source tracing cost"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py && python3 -B scripts/ci/ci-comparison-replay.py distribute --remote origin --output .planning/execution/255-replay/DISTRIBUTION.json && python3 -B scripts/ci/ci-comparison-replay.py verify-distribution --record .planning/execution/255-replay/DISTRIBUTION.json",
+        "statement": "Nonzero exit; remote exact commit/package cannot be retrieved; package bytes/hash differ; isolated Git source objects/helpers are missing; replay uses network or original checkout; or expected insufficient-data fields change.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-07-PLAN.md",
+        "task": "255-07-01: Retrieve the actual immutable package remotely and replay from a clean checkout"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-report.test.py && python3 -B scripts/ci/ci-comparison-replay.test.py && node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs && python3 -B scripts/ci/ci-hosted-gate-verify.test.py && bash scripts/ci/ci-run-metrics-comparison.test.sh && python3 -B scripts/ci/ci-metrics-security.test.py && node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+        "statement": "Nonzero exit, report contradicts saved result/outcome/source/method/cost fields, a documented command is absent or broadens CI selection, later development counts as acceptance, or an existing relevant regression fails.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255-07-PLAN.md",
+        "task": "255-07-02: Write one truthful result report and exact contributor reproduction guidance"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 22
+    },
+    "readError": null
+  },
+  "post_planning_gap_analysis": {
+    "block": false,
+    "passed": true,
+    "enabled": true,
+    "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIDX-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIDX-02 | \u2713 Covered |\n| REQUIREMENTS.md | CIMEAS-03 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n\n\u2713 All 20 items covered by plans\n",
+    "summary": "\u2713 All 20 items covered by plans",
+    "counts": {
+      "total": 20,
+      "covered": 20,
+      "uncovered": 0
+    },
+    "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIDX-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIDX-02 | \u2713 Covered |\n| REQUIREMENTS.md | CIMEAS-03 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n\n\u2713 All 20 items covered by plans\n"
+  },
+  "execute_readiness": {
+    "checked_at": "2026-10-24T16:07:24.464820+00:00",
+    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
+    "phase_number": "255",
+    "plan_count": 7,
+    "incomplete_count": 7,
+    "runnable_count": 7,
+    "summaries": [],
+    "blocked_by": {},
+    "threat_id_duplicates": []
+  },
+  "edge_probe": {
+    "applicable": 3,
+    "resolved": 0,
+    "unclassified_unresolved": 3,
+    "disposition": "Explicitly retained in plan assumptions and assigned to real execution tests; not silently passed."
+  },
+  "historical_comparison": {
+    "status": "insufficient_data",
+    "successful_comparable_pairs": 0,
+    "speed_requirements": [
+      "CISPEED-01",
+      "CISPEED-02"
+    ],
+    "speed_requirements_status": "open",
+    "phase254_verification": "pending",
+    "collection_restart_authorized": false
+  },
+  "next_command": "$gsd-execute-phase 255",
+  "implementation_status": "not_started",
+  "phase_verification_status": "not_started",
+  "state_update": {
+    "generic_updater_dropped_custom_json_fields": true,
+    "recovered_from_commit": "712391d8f40b30bd5d97db4b235c32dd41536d0e",
+    "recovered_path": ".planning/state.json",
+    "result": "Recovered full original JSON before applying Phase255 planning/route fields; historical phase254 objects compared byte-semantically."
+  },
+  "post_check_normalization": "Removed trailing whitespace and extra blank EOF lines only. Original independently checked hashes retained as independent_checker_sha256; structural checks rerun on normalized plans.",
+  "normalized_at": "2026-10-24T16:08:45.145853+00:00"
+}

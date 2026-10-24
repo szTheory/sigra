@@ -1,0 +1,52 @@
+✔ a selected full browser seam requires its complete native report (100.731708ms)
+✔ exactly five browser producers and all native selections are required (73.423542ms)
+▶ adversarial record identity, shape, outcome and report controls fail closed
+  ✔ null record (30.026917ms)
+  ✔ empty record (31.361667ms)
+  ✔ unknown seam (28.966584ms)
+  ✔ case variant (29.099625ms)
+  ✔ space variant (30.324042ms)
+  ✔ unicode variant (32.476042ms)
+  ✔ wrong run (30.262667ms)
+  ✔ wrong attempt (29.506959ms)
+  ✔ wrong source (29.85725ms)
+  ✔ wrong workflow (30.142292ms)
+  ✔ wrong event (30.873959ms)
+  ✔ no selected body (30.845458ms)
+  ✔ duplicate selected body (31.098584ms)
+  ✔ unexpected skip (31.739833ms)
+  ✔ cancelled body (31.691291ms)
+  ✔ masked failed body (31.047791ms)
+  ✔ missing reports (31.491875ms)
+  ✔ wrong hash (31.556083ms)
+  ✔ traversal (31.230416ms)
+✔ adversarial record identity, shape, outcome and report controls fail closed (585.261417ms)
+✔ only a successful actual PR classifier exempts all five selected bodies (269.429375ms)
+✔ missing unknown duplicate and symlink producers cannot pass (180.459584ms)
+✔ native reports cannot lose tests, fail, retry, truncate or change project selection (270.018458ms)
+✔ the producer records actual selected outcomes and copies only native report files (72.57275ms)
+✔ Playwright JSON output is opt-in beside the existing human-readable reporters (2.354291ms)
+✔ the five existing browser seam identifiers and selection commands stay in place (0.895959ms)
+✔ normalizes identity, retry, result and millisecond durations without merging ties (5.72425ms)
+✔ stable identity order is independent of native suite order when durations tie (0.249417ms)
+✔ rejects malformed, empty, truncated, duplicate and invalid-duration reports as incomplete (0.248041ms)
+✔ CLI writes incomplete output atomically and retains a nonzero status for missing or malformed input (99.724959ms)
+✔ CLI keeps a write failure visible and does not publish a partial output (28.176208ms)
+✔ CLI refuses to overwrite its raw Playwright input with normalized output (25.93175ms)
+✔ offline audit writes an exact failed timeout assessment from frozen sources and sanitized logs (129.03375ms)
+✔ audit rejects changed source, changed logs, altered charge, and a fabricated native result (213.046958ms)
+✔ assessment checker rejects altered hashes, changed evidence, and native-acceptance claims (177.980833ms)
+✔ shared held-registration control releases readiness before submit (0.209958ms)
+✔ shared held-registration control requires refillAfterReady before any page interaction (0.218584ms)
+✔ shared control isolates the positive account from the deliberate collision account (0.217208ms)
+✔ shared control reuses exactly one account within the deliberate collision (0.056166ms)
+✔ static spec pin: repaired positive control and unchanged collision expectation (0.218875ms)
+✔ static spec pin discriminates against the preserved R2 spec blob (6.816ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1597.682542

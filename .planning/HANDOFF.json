@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-24T22:55:01.224159+00:00",
+  "status": "source_feasibility_blocked",
+  "current_milestone": "v1.50",
+  "current_phase": "255.1",
+  "current_plan": "255.1-01",
+  "completed_plans": [],
+  "remaining_plans": [
+    "255.1-01-PLAN.md",
+    "255.1-02-PLAN.md",
+    "255.1-03-PLAN.md",
+    "255.1-04-PLAN.md",
+    "255.1-05-PLAN.md",
+    "255.1-06-PLAN.md",
+    "255.1-07-PLAN.md"
+  ],
+  "implementation_status": "partial",
+  "verification_status": "pending",
+  "next_command": "$gsd-execute-phase 255.1",
+  "resume_command": "$gsd-execute-phase 255.1",
+  "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md",
+  "readiness": {
+    "checked_at": "2026-10-24T22:55:01.224159+00:00",
+    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
+    "record": ".planning/execution/255.1/EXECUTION-READINESS.json",
+    "plan_index": ".planning/execution/255.1/PLAN-READINESS.json",
+    "runnable_plans": [],
+    "halted_plans": [
+      "255.1-01"
+    ],
+    "blocked_plans": [
+      "255.1-02",
+      "255.1-03",
+      "255.1-04",
+      "255.1-05",
+      "255.1-06",
+      "255.1-07"
+    ],
+    "next_command": "$gsd-execute-phase 255.1",
+    "next_command_conditional": true,
+    "implementation_status": "partial",
+    "verification_status": "pending",
+    "preparation_authorized": false,
+    "collection_authorized": false,
+    "historical_verification_is_forward_blocker": false
+  },
+  "hosted_canary": {
+    "status": "complete_closed",
+    "summary": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-06-SUMMARY.md",
+    "result": ".planning/execution/255-diagnostics-canary/RESULT.json",
+    "requests_spent": 37,
+    "invocations_spent": 3,
+    "pushes_spent": 1,
+    "retries_spent": 0,
+    "run_ids": {
+      "success": 40122912945,
+      "failure": 40123954650,
+      "cancellation": 40124112173
+    },
+    "remaining_allowance_reusable": false,
+    "missing_cancelled_files": [
+      "final-output.log",
+      "final-trace.zip"
+    ]
+  },
+  "evidence": {
+    "summaries_directory": ".planning/phases/255-make-failures-reproducible-and-report-the-result",
+    "replay": ".planning/execution/255-replay/",
+    "native_browser_diagnostics": ".planning/execution/255-local/BROWSER-DIAGNOSTICS.json",
+    "native_source": "59ed88c32",
+    "evidence_writer_source": "7bad04a20",
+    "raw_local_recovery": ".planning/execution/255-local/RAW-STORAGE.json",
+    "sanitized_bundle": ".planning/execution/255-local/browser-diagnostics-1792865705155/diagnostics.zip",
+    "review_scope": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW-SCOPE.json",
+    "final_native_mix": ".planning/execution/255-verification/FINAL-MIX-RECEIVERS-AFTER-REPAIR.json",
+    "final_native_browser": ".planning/execution/255-verification/BROWSER-DIAGNOSTICS-AFTER-REVIEW.json",
+    "final_trace_overhead": ".planning/execution/255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json",
+    "regression_gate": ".planning/execution/255-verification/REGRESSION-GATE.json",
+    "final_raw_recovery": ".planning/execution/255-verification/RAW-STORAGE-FINAL.json",
+    "verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md",
+    "milestone_audit": ".planning/v1.50-MILESTONE-AUDIT.md",
+    "phase255_1_context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+    "phase255_1_decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+    "phase255_1_plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
+    "phase255_1": {
+      "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
+      "native_tracer": ".planning/execution/255.1/LOCAL-TRACER.json",
+      "sources": ".planning/execution/255.1/SOURCES.json",
+      "feasibility": ".planning/execution/255.1/FEASIBILITY.json",
+      "local_checks": ".planning/execution/255.1/LOCAL-VERIFICATION.json",
+      "implementation_commit": "c623a7eed3956a3ef1a5daea1e3ecafd48b7d0eb",
+      "summary_commit": "c6828cca89251e9acba3805b6c054f7a6662047c",
+      "control_ref": "refs/evidence/phase255-1/source-control-92275024483f",
+      "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json"
+    }
+  },
+  "constraints": [
+    "Keep Phase 254 comparison terminal insufficient_data; no new comparison runs or renewed historical budget.",
+    "Before any external work, test implementation locally and freeze exact code/fixture identities and all limits; charge before every request/mutation.",
+    "One watcher per run at 60-second intervals; core<=250 or 403/429 stops requests until reported reset.",
+    "Never commit raw auth-bearing traces or auth storage. Original raw bytes remain in protected local .gsd storage.",
+    "Use python -B and never py_compile; leave pre-existing scripts/ci/__pycache__/ visible.",
+    "Hold source unchanged during native checks; use captured-output tests to repair parsers before repeating expensive runs."
+  ],
+  "phase254": {
+    "implementation": "complete",
+    "comparison": "insufficient_data",
+    "successful_comparable_pairs": 0,
+    "runner_seconds": [
+      2046,
+      1589
+    ],
+    "verification": "pending",
+    "requirements_open": [
+      "CISPEED-01",
+      "CISPEED-02"
+    ],
+    "preservation_ref": "refs/evidence/phase254-transport-development-final-recovery",
+    "preservation_commit": "cf2107cd871960355c0cc06f2b45ceaa24a40c61"
+  },
+  "prior_handoff": {
+    "commit": "51ca37089d7379f5a8628b721b18be00b9d24f74",
+    "path": ".planning/HANDOFF.json",
+    "sha256": "3fbf88859db089546f17ac52ce8f24540599c81ccf72b0ec3e482c7030167532",
+    "initially_clean": true
+  },
+  "distribution": {
+    "status": "complete_closed",
+    "record": ".planning/execution/255-replay/DISTRIBUTION.json",
+    "successful_pushes": 1,
+    "retrieval_attempts": 2,
+    "transport_retries": 0,
+    "remaining_allowance_reusable": false,
+    "remote_ref": "refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d",
+    "evidence_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb"
+  },
+  "pending_gates": [],
+  "review": {
+    "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md",
+    "critical": 0,
+    "warning": 0,
+    "disposition": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW-DISPOSITION.md",
+    "original_findings_fixed": 5
+  },
+  "next_roadmap_phase": "255.1",
+  "remaining_milestone_items": [
+    "CISPEED-01",
+    "CISPEED-02",
+    "Phase254 verification report",
+    "CIMEAS-01/02 and CIDX-01 summary completion metadata",
+    "Phase253 validation stale sign-off",
+    "Phase254 coverage audit"
+  ],
+  "completion_tool_preservation": {
+    "commit": "8ba5a87607be94d582d3e5daf3e47cbf7fa4dc21",
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "paths": {
+      ".planning/STATE.md": "2084ab9e20e6c07ccb009de69370050c0ad3aaf19ed9c994bfac3b18a972ce40",
+      ".planning/state.json": "5f418a87c82aacb4e2671335df87457bb86f0f989a83386d0d26b964db139d67",
+      ".planning/ROADMAP.md": "9a989e8c5f8584376c1cd9ff68e0a9f2c0a32db792b23d954a66c3b5ac6627d3",
+      ".planning/REQUIREMENTS.md": "6d50998070f35889fbfc47db07dca5e6e7130d14266bb58b3ba9f5728b9a9f78"
+    },
+    "read_back_equal": true
+  },
+  "prior_custom_state": {
+    "commit": "d09e5ce2d",
+    "path": ".planning/state.json",
+    "restored_custom_fields": true
+  },
+  "milestone_audit": {
+    "status": "gaps_found",
+    "report": ".planning/v1.50-MILESTONE-AUDIT.md",
+    "cross_check": ".planning/execution/v1.50-audit/CROSS-CHECK.json",
+    "integration": ".planning/execution/v1.50-audit/INTEGRATION.json",
+    "checks": ".planning/execution/v1.50-audit/CHECKS.json",
+    "route": ".planning/execution/v1.50-audit/FORWARD-ROUTE.json",
+    "prior_tracking_commit": "aaf04c4025e0d74addfcac62e84b7259ad5ef6c8",
+    "prior_tracking_read_back": true
+  },
+  "prior_phase255": {
+    "implementation_status": "complete",
+    "verification_status": "passed",
+    "completed_plans": 7,
+    "report": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md"
+  },
+  "insertion_recovery": {
+    "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+    "refs": [
+      {
+        "ref": "refs/evidence/phase255-1-insertion/after-state-patch",
+        "tree": "d32e4c8c8a294bc50ca21541f68a2450daf07cfe",
+        "read_back_equal": true
+      },
+      {
+        "ref": "refs/evidence/phase255-1-insertion/after-evolution",
+        "tree": "db17dd60f957d9a6fc190887ea7d4f6cbfe62ec3",
+        "read_back_equal": true
+      }
+    ]
+  },
+  "phase255_1": {
+    "discussion_status": "complete",
+    "planning_status": "passed",
+    "implementation_status": "partial",
+    "verification_status": "pending",
+    "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+    "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+    "claim_amendment_approved": true,
+    "collection_authorized": false,
+    "preservation": {
+      "ref": "refs/evidence/phase255-1-discussion/capture-56db18eda3a6",
+      "commit": "56db18eda3a6033e820605ac1934c2bda52fa313",
+      "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/PRESERVATION.json",
+      "read_back_equal": true
+    },
+    "remaining_blockers": [
+      "Both proposed sources have 41 merge conflicts against saved origin/main; see .planning/execution/255.1/FEASIBILITY.json.",
+      "Current hosted source/rule identity, eligible exact warm caches and complete equivalent work remain unproved; no hosted work is authorized."
+    ],
+    "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
+    "status": "source_feasibility_blocked",
+    "directory": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
+    "insertion": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+    "state_restoration": {
+      "original_commit": "2e465d6e18030b37d4576a0b41b76d73043fc5e0",
+      "prior_path": ".planning/state.json",
+      "generated_state_preserved_ref": "refs/evidence/phase255-1-insertion/before-custom-state-restore"
+    },
+    "plan_count": 7,
+    "task_count": 16,
+    "wave_count": 7,
+    "completed_plans": 0,
+    "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
+    "preparation_authorized": false,
+    "readiness": {
+      "checked_at": "2026-10-24T22:55:01.224159+00:00",
+      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
+      "record": ".planning/execution/255.1/EXECUTION-READINESS.json",
+      "plan_index": ".planning/execution/255.1/PLAN-READINESS.json",
+      "runnable_plans": [],
+      "halted_plans": [
+        "255.1-01"
+      ],
+      "blocked_plans": [
+        "255.1-02",
+        "255.1-03",
+        "255.1-04",
+        "255.1-05",
+        "255.1-06",
+        "255.1-07"
+      ],
+      "next_command": "$gsd-execute-phase 255.1",
+      "next_command_conditional": true,
+      "implementation_status": "partial",
+      "verification_status": "pending",
+      "preparation_authorized": false,
+      "collection_authorized": false,
+      "historical_verification_is_forward_blocker": false
+    },
+    "generated_state_preservation": {
+      "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
+      "commit": "48e21b1d70ef5803d63c1e002e21862c6d6a0af9",
+      "capture_head": "73e2ea873659ef130dcd67848c7678071c093e1f",
+      "paths": {
+        ".planning/STATE.md": {
+          "status": " M",
+          "sha256": "3f4eeecd1efbc56e08911334b39fae43890bd3cf963c71280048d041c48c5d6e",
+          "read_back_equal": true
+        },
+        ".planning/state.json": {
+          "status": " M",
+          "sha256": "411a9571a8d8dc33fcc1f9c81af731109721a15bf54f6524d89ce4ca6a3aac9f",
+          "read_back_equal": true
+        }
+      }
+    },
+    "halted_plans": [
+      "255.1-01"
+    ],
+    "blocked_plans": [
+      "255.1-02",
+      "255.1-03",
+      "255.1-04",
+      "255.1-05",
+      "255.1-06",
+      "255.1-07"
+    ],
+    "source_feasibility": ".planning/execution/255.1/FEASIBILITY.json",
+    "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
+    "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
+  },
+  "planning_status": "passed",
+  "generated_state_preservation": {
+    "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
+    "commit": "48e21b1d70ef5803d63c1e002e21862c6d6a0af9",
+    "capture_head": "73e2ea873659ef130dcd67848c7678071c093e1f",
+    "paths": {
+      ".planning/STATE.md": {
+        "status": " M",
+        "sha256": "3f4eeecd1efbc56e08911334b39fae43890bd3cf963c71280048d041c48c5d6e",
+        "read_back_equal": true
+      },
+      ".planning/state.json": {
+        "status": " M",
+        "sha256": "411a9571a8d8dc33fcc1f9c81af731109721a15bf54f6524d89ce4ca6a3aac9f",
+        "read_back_equal": true
+      }
+    }
+  },
+  "halted_plans": [
+    "255.1-01-PLAN.md"
+  ],
+  "next_command_conditional": true,
+  "next_command_precondition": "Reconcile the source histories, repeat exact-source/treatment/merge checks and reconcile the existing halted Plan01 record; retain this stopped attempt.",
+  "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
+  "blockers": [
+    "41 local main merge conflicts in each proposed source; see FEASIBILITY.json",
+    "Eligible exact warm caches, current branch rules, PR identity and complete work parity remain unproved."
+  ],
+  "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
+}

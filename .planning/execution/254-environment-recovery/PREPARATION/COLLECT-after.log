@@ -1,0 +1,3 @@
+snapshot manifest: /Users/jon/projects/sigra/.planning/execution/254-environment-recovery/PREPARATION/RAW-after/manifest.json
+status: complete; requests: 53
+hosted-gate-verify: FAIL: required check did not succeed: Example Playwright smoke (full lifecycle)

@@ -1,0 +1,12 @@
+{
+  "status": "complete",
+  "request_count": 3,
+  "stop_reason": null,
+  "reset_or_retry_at": "1792794380",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "download:job-log:120680795153:api.github.com",
+    "download:job-log:120680795153:productionresultssa16.blob.core.windows.net"
+  ]
+}

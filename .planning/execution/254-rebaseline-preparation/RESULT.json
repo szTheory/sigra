@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "status": "blocked_before_measurement",
+  "closed_at": "2026-10-23T23:37:49.251982+00:00",
+  "authorization": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
+  "runs": [
+    {
+      "role": "before",
+      "run_id": 40035528418,
+      "attempt": 1,
+      "pr": 346,
+      "conclusion": "cancelled",
+      "source_sha": "7e8cf6ac845ef4f5dbeb5ca63f45632bca954560",
+      "producer_sha": "95688d4994535aa2b19d0d723c73795958085470",
+      "tree_sha": "8d4070c7b74ca3137e482f4e10814ce99c936ec7",
+      "workflow_sha256": "240ea9e4c4fd5410bbba9af69d52a77bbf00dfb3f7fbfe50bbf54fad1cd7ddd3",
+      "raw_hashes_verified": true,
+      "source_verified": true,
+      "capture": "RAW-before",
+      "preservation": "refs/evidence/phase254-rebaseline-preparation-before-attempt-1"
+    },
+    {
+      "role": "after",
+      "run_id": 40035537413,
+      "attempt": 1,
+      "pr": 347,
+      "conclusion": "success",
+      "source_sha": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+      "producer_sha": "31e2595fda61e4cbe13b3e81e64beff73c506c9a",
+      "tree_sha": "e9d39623b5f574f17413839d56aad90a20738ab1",
+      "workflow_sha256": "6dec5b0aaf1c3405188843583ecd28a4b3960873cd968231d6f33ad1bc8136a9",
+      "raw_hashes_verified": true,
+      "source_verified": true,
+      "capture": "RAW-after",
+      "preservation": "refs/evidence/phase254-rebaseline-preparation-after-attempt-1"
+    }
+  ],
+  "current_allowance": {
+    "invocations": 2,
+    "success": 1,
+    "cancelled": 1,
+    "retries": 0,
+    "http_requests": 202,
+    "maximum_http_requests": 600,
+    "maximum_minutes": 60,
+    "closed": true,
+    "stop_reason": "preparation_complete_baseline_dependency_installation_timed_out_no_retries"
+  },
+  "prior_allowance": {
+    "invocations": 2,
+    "failures": 2,
+    "http_requests": 186,
+    "unchanged": true
+  },
+  "total_preparation_invocations": 4,
+  "measured_samples": 0,
+  "measured_allowance_spent": 0,
+  "measured_allowance_remaining": 40,
+  "window_started": false,
+  "implementation_status": "complete",
+  "phase_verification_status": "pending",
+  "candidate_native_parity": {
+    "status": "passed",
+    "product_cases": 105,
+    "setup_cases": 3,
+    "report": "CANDIDATE-NATIVE-PARITY.json",
+    "comparison_to": "retained original baseline reports; current baseline browser execution incomplete"
+  },
+  "baseline_failure": {
+    "jobs": [
+      120694317697,
+      120694317757
+    ],
+    "owners": [
+      "admin_checkpoints",
+      "design_gallery"
+    ],
+    "command": "npm exec playwright install-deps chromium webkit",
+    "limit_minutes": 30,
+    "browser_tests_started": false,
+    "phoenix_started": false,
+    "diagnosis": "Ubuntu package downloads continued until the job timeout; cause of slow transfer is not established",
+    "logs": [
+      "TIMEOUT-admin_checkpoints.log",
+      "TIMEOUT-design_gallery.log"
+    ]
+  },
+  "image_compatibility": "IMAGE-COMPATIBILITY.json",
+  "current_pair_eligible": false,
+  "next_command": "$gsd-execute-phase 254",
+  "next_command_conditional": true,
+  "next_condition": "Resolve the WebKit OS dependency installation prerequisite and matching runner images; another baseline invocation requires explicit additional authority. No retry is authorized by the spent allowance.",
+  "main_or_required_checks_changed": false,
+  "original_baseline_and_failed_attempts_unchanged": true
+}

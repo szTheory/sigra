@@ -1,0 +1,14 @@
+test_distribution_commands_are_exposed (__main__.ReplayTest.test_distribution_commands_are_exposed) ... ok
+test_distribution_ref_is_bound_to_full_package_digest (__main__.ReplayTest.test_distribution_ref_is_bound_to_full_package_digest) ... ok
+test_distribution_secret_scan_rejects_real_looking_credentials (__main__.ReplayTest.test_distribution_secret_scan_rejects_real_looking_credentials) ... ok
+test_missing_corrupt_or_changed_dependencies_are_rejected (__main__.ReplayTest.test_missing_corrupt_or_changed_dependencies_are_rejected) ... ok
+test_missing_receipt_blob_blocks_preflight_with_path (__main__.ReplayTest.test_missing_receipt_blob_blocks_preflight_with_path) ... ok
+test_package_manifest_and_null_family_costs_are_literal (__main__.ReplayTest.test_package_manifest_and_null_family_costs_are_literal) ... ok
+test_portable_package_calculates_in_an_empty_directory (__main__.ReplayTest.test_portable_package_calculates_in_an_empty_directory) ... ok
+test_saved_result_is_calculated_without_changing_inputs (__main__.ReplayTest.test_saved_result_is_calculated_without_changing_inputs) ... ok
+test_unsafe_archives_are_rejected_before_extraction (__main__.ReplayTest.test_unsafe_archives_are_rejected_before_extraction) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 26.650s
+
+OK
