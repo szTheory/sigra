@@ -1,0 +1,493 @@
+{
+  "acceptance_samples": 0,
+  "browser_owners": {
+    "admin_behavior": {
+      "control": {
+        "cleanup_status": "passed",
+        "command": [
+          "node",
+          "/Users/jon/projects/sigra/scripts/ci/ci-prep-profile.mjs",
+          "--root",
+          "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control",
+          "--output",
+          "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_behavior.json",
+          "--scope",
+          "admin_behavior",
+          "--mode",
+          "workload",
+          "--workload-map",
+          ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json"
+        ],
+        "command_exit_code": 0,
+        "components": [
+          {
+            "command": "[\"git\",\"clone\",\"--quiet\",\"--shared\",\"--no-checkout\",\"/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control\",\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/repo\"]",
+            "duration_ms": 21,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/logs/disposable-checkout.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "disposable-checkout",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "[\"git\",\"-C\",\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/repo\",\"checkout\",\"--quiet\",\"--detach\",\"98a86338f6381de859dba0c3c08df0d42c067e0a\"]",
+            "duration_ms": 1607,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/logs/checkout-source.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "checkout-source",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nnode --version",
+            "duration_ms": 20,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/logs/shell-node-runtime.log",
+            "log_sha256": "c529e547a19bdcec50dd3ef21634fe4394304396414f29168cd7700e394fbe60",
+            "name": "shell-node-runtime",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nbash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'",
+            "duration_ms": 25340,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/logs/combined-preparation.log",
+            "log_sha256": "1adb73a08278908151f409606b8b7c1e291782d9e7fe01dfefdc689cd3fc74f7",
+            "name": "combined-preparation",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nset -euo pipefail\nif [ -n \"$DIAGNOSTICS_ROOT\" ]; then\n  python3 -B \"$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py\" \\\n    --cwd \"$PWD\" --output-root \"$DIAGNOSTICS_ROOT\" \\\n    --invocation \"${DIAGNOSTICS_PREFIX}-npm-ci\" -- npm ci\nelse\n  npm ci\nfi",
+            "duration_ms": 2615,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/logs/npm-ci.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "npm-ci",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nset -euo pipefail\nif [ -n \"$DIAGNOSTICS_ROOT\" ]; then\n  python3 -B \"$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py\" \\\n    --cwd \"$PWD\" --output-root \"$DIAGNOSTICS_ROOT\" \\\n    --invocation \"${DIAGNOSTICS_PREFIX}-os-deps\" -- \\\n    python3 \"$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py\" \\\n      --playwright-dir \"$PWD\" --report \"$RUNNER_TEMP/playwright-os-deps.json\" $BROWSERS\nelse\n  python3 \"$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py\" \\\n    --playwright-dir \"$PWD\" --report \"$RUNNER_TEMP/playwright-os-deps.json\" $BROWSERS\nfi\nif [ \"$CACHE_HIT\" != \"true\" ]; then\n  if [ -n \"$DIAGNOSTICS_ROOT\" ]; then\n    python3 -B \"$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py\" \\\n      --cwd \"$PWD\" --output-root \"$DIAGNOSTICS_ROOT\" \\\n      --invocation \"${DIAGNOSTICS_PREFIX}-browser-install\" -- \\\n      npx playwright install $BROWSERS\n  else\n    npx playwright install $BROWSERS\n  fi\nfi",
+            "duration_ms": 445,
+            "error": null,
+            "exit_code": 1,
+            "log_excerpt": "",
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/logs/playwright-browser-install.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "playwright-browser-install",
+            "signal": null,
+            "status": "failed"
+          },
+          {
+            "command": "mix ecto.drop --quiet",
+            "duration_ms": 18929,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-DBQtUG/logs/database-cleanup.log",
+            "log_sha256": "48534516c42ae320e1645486f708e0024c0d3133b341661b5c5a04ce738f3c86",
+            "name": "database-cleanup",
+            "signal": null,
+            "status": "measured"
+          }
+        ],
+        "excluded": [],
+        "exit_code": 1,
+        "failure": {
+          "message": "playwright-browser-install_failed_exit_1"
+        },
+        "identities": [],
+        "owner": "admin_behavior",
+        "profile_path": "browser-control-admin_behavior.json",
+        "profile_sha256": "22db999057aa36fd6993cb61e08804d23a934bf6fbdf7587f7d5e4514c7ded5d",
+        "report": {
+          "complete": false,
+          "excluded": [],
+          "skipped": [],
+          "tests": []
+        },
+        "report_path": ".gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_behavior.normalized.json",
+        "report_sha256": "f69168508ad2644d72c3cae2c3d20d87a9c32e16ecf4d2d42fc4561daa13268a",
+        "reports": [],
+        "skipped": [],
+        "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
+        "status": "blocked"
+      }
+    },
+    "admin_checkpoints": {
+      "control": {
+        "cleanup_status": "passed",
+        "command": [
+          "node",
+          "/Users/jon/projects/sigra/scripts/ci/ci-prep-profile.mjs",
+          "--root",
+          "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control",
+          "--output",
+          "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_checkpoints.json",
+          "--scope",
+          "admin_checkpoints",
+          "--mode",
+          "workload",
+          "--workload-map",
+          ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json"
+        ],
+        "command_exit_code": 0,
+        "components": [
+          {
+            "command": "[\"git\",\"clone\",\"--quiet\",\"--shared\",\"--no-checkout\",\"/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control\",\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/repo\"]",
+            "duration_ms": 22,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/logs/disposable-checkout.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "disposable-checkout",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "[\"git\",\"-C\",\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/repo\",\"checkout\",\"--quiet\",\"--detach\",\"98a86338f6381de859dba0c3c08df0d42c067e0a\"]",
+            "duration_ms": 1820,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/logs/checkout-source.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "checkout-source",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nnode --version",
+            "duration_ms": 14,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/logs/shell-node-runtime.log",
+            "log_sha256": "c529e547a19bdcec50dd3ef21634fe4394304396414f29168cd7700e394fbe60",
+            "name": "shell-node-runtime",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nbash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'",
+            "duration_ms": 30076,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/logs/combined-preparation.log",
+            "log_sha256": "e8a5ed3cd9c3b4fa854a80cee896227eda0d390684b91f735bd0caa51cf6a0b4",
+            "name": "combined-preparation",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nset -euo pipefail\nif [ -n \"$DIAGNOSTICS_ROOT\" ]; then\n  python3 -B \"$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py\" \\\n    --cwd \"$PWD\" --output-root \"$DIAGNOSTICS_ROOT\" \\\n    --invocation \"${DIAGNOSTICS_PREFIX}-npm-ci\" -- npm ci\nelse\n  npm ci\nfi",
+            "duration_ms": 2359,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/logs/npm-ci.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "npm-ci",
+            "signal": null,
+            "status": "measured"
+          },
+          {
+            "command": "set -euo pipefail\nset -euo pipefail\nif [ -n \"$DIAGNOSTICS_ROOT\" ]; then\n  python3 -B \"$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py\" \\\n    --cwd \"$PWD\" --output-root \"$DIAGNOSTICS_ROOT\" \\\n    --invocation \"${DIAGNOSTICS_PREFIX}-os-deps\" -- \\\n    python3 \"$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py\" \\\n      --playwright-dir \"$PWD\" --report \"$RUNNER_TEMP/playwright-os-deps.json\" $BROWSERS\nelse\n  python3 \"$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py\" \\\n    --playwright-dir \"$PWD\" --report \"$RUNNER_TEMP/playwright-os-deps.json\" $BROWSERS\nfi\nif [ \"$CACHE_HIT\" != \"true\" ]; then\n  if [ -n \"$DIAGNOSTICS_ROOT\" ]; then\n    python3 -B \"$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py\" \\\n      --cwd \"$PWD\" --output-root \"$DIAGNOSTICS_ROOT\" \\\n      --invocation \"${DIAGNOSTICS_PREFIX}-browser-install\" -- \\\n      npx playwright install $BROWSERS\n  else\n    npx playwright install $BROWSERS\n  fi\nfi",
+            "duration_ms": 793,
+            "error": null,
+            "exit_code": 1,
+            "log_excerpt": "",
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/logs/playwright-browser-install.log",
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "name": "playwright-browser-install",
+            "signal": null,
+            "status": "failed"
+          },
+          {
+            "command": "mix ecto.drop --quiet",
+            "duration_ms": 24782,
+            "error": null,
+            "exit_code": 0,
+            "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-BQlJNS/logs/database-cleanup.log",
+            "log_sha256": "a6fc9d67e4ae0b265bdf797319e74ab6ae08958984c9bca89f727462c4946c83",
+            "name": "database-cleanup",
+            "signal": null,
+            "status": "measured"
+          }
+        ],
+        "excluded": [],
+        "exit_code": 1,
+        "failure": {
+          "message": "playwright-browser-install_failed_exit_1"
+        },
+        "identities": [],
+        "owner": "admin_checkpoints",
+        "profile_path": "browser-control-admin_checkpoints.json",
+        "profile_sha256": "5630176f909f921235ed966304ac674b7c77d28129fcedeba2ee1a49dfd1f668",
+        "report": {
+          "complete": false,
+          "excluded": [],
+          "skipped": [],
+          "tests": []
+        },
+        "report_path": ".gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_checkpoints.normalized.json",
+        "report_sha256": "f69168508ad2644d72c3cae2c3d20d87a9c32e16ecf4d2d42fc4561daa13268a",
+        "reports": [],
+        "skipped": [],
+        "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
+        "status": "blocked"
+      }
+    },
+    "demo_showcase": {},
+    "design_gallery": {},
+    "non_admin_smoke": {}
+  },
+  "completed_at": "2026-10-24T23:56:27Z",
+  "hosted_delivery_gaps": [
+    "New library receiver reports and their changed terminal-outcome manifest payload have no hosted artifact API producer/run/attempt proof.",
+    "This local comparison does not prove artifact upload, retention, retrieval, or workflow terminal delivery.",
+    "Phase 255 diagnostic canary producer/path contracts remain historical; only the manifest and bundle staging helpers are reused locally."
+  ],
+  "hosted_origin_available": false,
+  "hosted_status": "blocked",
+  "library": {
+    "receivers": {
+      "dep_off": {
+        "control": {
+          "command": [
+            "/opt/homebrew/opt/python@3.14/bin/python3.14",
+            "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control/scripts/ci/ci-mix-receivers.py",
+            "--native",
+            "--output",
+            "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/library-control/MIX-RECEIVERS.json"
+          ],
+          "command_exit_code": 1,
+          "complete": false,
+          "excluded": [],
+          "exit_code": 1,
+          "failed_test_ids": [],
+          "path": null,
+          "report": {},
+          "seed": null,
+          "sha256": null,
+          "skipped": [],
+          "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
+          "tests": []
+        }
+      },
+      "ordinary": {
+        "control": {
+          "command": [
+            "/opt/homebrew/opt/python@3.14/bin/python3.14",
+            "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control/scripts/ci/ci-mix-receivers.py",
+            "--native",
+            "--output",
+            "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/library-control/MIX-RECEIVERS.json"
+          ],
+          "command_exit_code": 1,
+          "complete": false,
+          "excluded": [],
+          "exit_code": 1,
+          "failed_test_ids": [],
+          "path": null,
+          "report": {},
+          "seed": null,
+          "sha256": null,
+          "skipped": [],
+          "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
+          "tests": []
+        }
+      },
+      "scaffold": {
+        "control": {
+          "command": [
+            "/opt/homebrew/opt/python@3.14/bin/python3.14",
+            "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control/scripts/ci/ci-mix-receivers.py",
+            "--native",
+            "--output",
+            "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/library-control/MIX-RECEIVERS.json"
+          ],
+          "command_exit_code": 1,
+          "complete": false,
+          "excluded": [],
+          "exit_code": 1,
+          "failed_test_ids": [],
+          "path": null,
+          "report": {},
+          "seed": null,
+          "sha256": null,
+          "skipped": [],
+          "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
+          "tests": []
+        }
+      }
+    }
+  },
+  "local_status": "running",
+  "native_commands": [
+    {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control/scripts/ci/ci-mix-receivers.py",
+        "--native",
+        "--output",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/library-control/MIX-RECEIVERS.json"
+      ],
+      "duration_seconds": 1.176,
+      "exit_code": 1,
+      "kind": "library",
+      "native_report_sha256": "60c5a0c8cfd88a99a361481fb55723b2dfdacc3f81c014267c2019b203389d90",
+      "owner": "ordinary",
+      "primary_exit_code": 1,
+      "source_role": "control",
+      "status": "failed",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control/scripts/ci/ci-mix-receivers.py",
+        "--native",
+        "--output",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/library-control/MIX-RECEIVERS.json"
+      ],
+      "duration_seconds": 1.176,
+      "exit_code": 1,
+      "kind": "library",
+      "native_report_sha256": "60c5a0c8cfd88a99a361481fb55723b2dfdacc3f81c014267c2019b203389d90",
+      "owner": "scaffold",
+      "primary_exit_code": 1,
+      "source_role": "control",
+      "status": "failed",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control/scripts/ci/ci-mix-receivers.py",
+        "--native",
+        "--output",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/library-control/MIX-RECEIVERS.json"
+      ],
+      "duration_seconds": 1.176,
+      "exit_code": 1,
+      "kind": "library",
+      "native_report_sha256": "60c5a0c8cfd88a99a361481fb55723b2dfdacc3f81c014267c2019b203389d90",
+      "owner": "dep_off",
+      "primary_exit_code": 1,
+      "source_role": "control",
+      "status": "failed",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/Users/jon/projects/sigra/scripts/ci/ci-prep-profile.mjs",
+        "--root",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control",
+        "--output",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_behavior.json",
+        "--scope",
+        "admin_behavior",
+        "--mode",
+        "workload",
+        "--workload-map",
+        ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json"
+      ],
+      "exit_code": 1,
+      "failure": {
+        "message": "playwright-browser-install_failed_exit_1"
+      },
+      "kind": "browser",
+      "owner": "admin_behavior",
+      "profile_sha256": "22db999057aa36fd6993cb61e08804d23a934bf6fbdf7587f7d5e4514c7ded5d",
+      "source_role": "control",
+      "status": "blocked"
+    },
+    {
+      "command": [
+        "node",
+        "/Users/jon/projects/sigra/scripts/ci/ci-prep-profile.mjs",
+        "--root",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/source-control",
+        "--output",
+        "/Users/jon/projects/sigra/.gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_checkpoints.json",
+        "--scope",
+        "admin_checkpoints",
+        "--mode",
+        "workload",
+        "--workload-map",
+        ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json"
+      ],
+      "exit_code": 1,
+      "failure": {
+        "message": "playwright-browser-install_failed_exit_1"
+      },
+      "kind": "browser",
+      "owner": "admin_checkpoints",
+      "profile_sha256": "5630176f909f921235ed966304ac674b7c77d28129fcedeba2ee1a49dfd1f668",
+      "source_role": "control",
+      "status": "blocked"
+    }
+  ],
+  "raw_storage": ".gsd/255.1-repaired-work/native-7ix7ht48",
+  "reports": [
+    {
+      "kind": "browser",
+      "owner": "admin_behavior",
+      "path": ".gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_behavior.normalized.json",
+      "report": {
+        "complete": false,
+        "excluded": [],
+        "skipped": [],
+        "tests": []
+      },
+      "sha256": "f69168508ad2644d72c3cae2c3d20d87a9c32e16ecf4d2d42fc4561daa13268a",
+      "source_role": "control",
+      "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a"
+    },
+    {
+      "kind": "browser",
+      "owner": "admin_checkpoints",
+      "path": ".gsd/255.1-repaired-work/native-7ix7ht48/browser-control-admin_checkpoints.normalized.json",
+      "report": {
+        "complete": false,
+        "excluded": [],
+        "skipped": [],
+        "tests": []
+      },
+      "sha256": "f69168508ad2644d72c3cae2c3d20d87a9c32e16ecf4d2d42fc4561daa13268a",
+      "source_role": "control",
+      "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a"
+    }
+  ],
+  "schema_version": "sigra.repaired-work/v1",
+  "sources": {
+    "candidate": {
+      "archive_files_verified": 1535,
+      "archive_sha256": "596531e7bc30a4fdf5c303ec9dee02ebb99434151d5a628e090259436b43075a",
+      "clean_before": true,
+      "source_sha": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "tree_sha": "556c0971b1918c7c41997111efda2587f7c05953"
+    },
+    "control": {
+      "archive_files_verified": 1535,
+      "archive_sha256": "a08181c0360685a107615891193645deb4f2b759814499dbf6695080e914f43b",
+      "clean_before": true,
+      "source_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
+      "tree_sha": "a3cfe360e3d0c56ef0203d08b07c2589ffa64288"
+    }
+  },
+  "status": "running",
+  "toolchain": {
+    "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+    "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
+    "node": "v20.19.5",
+    "python": "3.14.4"
+  }
+}
