@@ -25,6 +25,23 @@ class ReplayTest(unittest.TestCase):
         self.assertIn('distribute', run.stdout)
         self.assertIn('verify-distribution', run.stdout)
 
+    def test_distribution_ref_is_bound_to_full_package_digest(self):
+        mod = self.module()
+        package_hash = '6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23'
+        self.assertEqual(mod.distribution_ref(package_hash),
+                         'refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d')
+        with self.assertRaisesRegex(ValueError, 'invalid_package_sha256'):
+            mod.distribution_ref('not-a-sha')
+
+    def test_distribution_secret_scan_rejects_real_looking_credentials(self):
+        mod = self.module()
+        fake = b'ghp_abcdefghijklmnopqrstuvwxyz01234567890'
+        self.assertEqual(mod.package_secret_findings({'fixture.json': fake}), [])
+        self.assertEqual(mod.package_secret_findings({'capture.json': b'ghp_AbCDef0123456789zYXwvUTSRQ'}),
+                         ['capture.json'])
+        self.assertEqual(mod.package_secret_findings({'key.pem': b'-----BEGIN PRIVATE KEY-----'}),
+                         ['key.pem'])
+
     def test_saved_result_is_calculated_without_changing_inputs(self):
         originals = {p: hashlib.sha256(p.read_bytes()).hexdigest() for p in SAVED.rglob('*') if p.is_file()}
         with tempfile.TemporaryDirectory() as tmp:
