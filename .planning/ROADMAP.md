@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command (conditional):** $gsd-execute-phase 255.1 — Resolve Plan01 common-source/main conflicts and reconcile its halted disposition first. Native local tracer passed; proposed PR merges are blocked. No hosted preparation or collection has started; both speed requirements remain open.
+**Next command:** $gsd-execute-phase 255.1 — Plan01 source recovery is complete; continue local Plan02. Hosted preparation/collection still require their separate approvals; both speed requirements remain open.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -405,13 +405,13 @@ Phases 246–251 are archived under `milestones/v1.49-phases/`. Phase 251 implem
 **Depends on:** Phase 255
 **Scope:** Plan a feasible common-source repaired control/candidate and finite preparation/measurement scope using `255.1-CONTEXT.md`. The user approved the new reference for context/planning, not hosted collection. Preserve closed Phase 254 observations, contracts, thresholds, halted outcomes and budgets. A new pass applies to the amended requirements, never retroactively to the old experiment.
 **Context:** `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md`
-**Discussion:** Complete. **Planning:** Passed. **Execution:** Halted in Plan01; native tracer passed, but both proposed sources have 41 merge conflicts against saved main. Plans02–07 remain blocked. **Phase verification:** Pending. See `.planning/execution/255.1/FEASIBILITY.json`.
+**Discussion:** Complete. **Planning:** Passed. **Execution:** Plan01 local work complete after reviewed source recovery; Plan02 is ready. Hosted readiness remains blocked. **Phase verification:** Pending. See `.planning/execution/255.1/FEASIBILITY.json`.
 **Audit:** `.planning/v1.50-MILESTONE-AUDIT.md`
 **Plans:** 7 plans / 16 tasks / 7 waves
 
 Plans:
 **Wave 1**
-- [ ] 255.1-01-PLAN.md — Local source tracer and PR/cache feasibility
+- [x] 255.1-01-PLAN.md — Local source tracer and PR/cache feasibility
 
 **Wave 2 *(blocked on Wave 1 completion)***
 - [ ] 255.1-02-PLAN.md — Persistent library reports and actual work parity

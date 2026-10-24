@@ -4,19 +4,19 @@ milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: "255.1"
 current_phase_name: "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets"
-status: blocked
-stopped_at: Phase 255.1 Plan01 halted: both proposed PR sources have 41 merge conflicts against saved main
-last_updated: "2026-10-24T22:55:01.224159+00:00"
-state_head: c6828cca89251e9acba3805b6c054f7a6662047c
+status: in_progress
+stopped_at: Source recovery complete; Plan02 local implementation next
+last_updated: "2026-10-24T23:21:31.401196+00:00"
+state_head: e942790a319f06406c5f1bac6cec9220080c4070
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 138
-  completed_plans: 131
+  completed_plans: 132
   percent: 60
 milestone_status: active
-workflow_step: source_feasibility_blocked
-last_activity: "2026-10-24 - Native local tracer passed; proposed PR sources blocked; no hosted work started"
+workflow_step: executing_local
+last_activity: "2026-10-24 - Plan01 source halt resolved; ready for local Plan02; hosted work remains unauthorized"
 requirements_approved: true
 roadmap_approved: true
 phase252_verification_status: passed
@@ -34,7 +34,7 @@ phase254_verification_status: pending
 verification_status: pending
 next_command: $gsd-execute-phase 255.1
 resume_command: $gsd-execute-phase 255.1
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 resume_file: .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
@@ -53,43 +53,36 @@ phase255_wave_count: 6
 phase255_plan_check: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json
 phase255_completed_plans: 7
 milestone_audit_status: gaps_found
-current_plan: "255.1-01"
+current_plan: "255.1-02"
 phase255_1_plan_count: 7
 phase255_1_task_count: 16
 phase255_1_wave_count: 7
 phase255_1_plan_check: .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json
 phase255_1_preparation_authorized: false
 
-phase255_1_completed_plans: 0
-phase255_1_halted_plans: ["255.1-01"]
-phase255_1_blocker_record: .planning/execution/255.1/FEASIBILITY.json
+phase255_1_completed_plans: 1
+phase255_1_halted_plans: []
+phase255_1_blocker_record: .planning/execution/255.1/unblock-source/final-source/FEASIBILITY.json
 phase255_1_state_preservation: .planning/execution/255.1/STATE-PRESERVATION.json
 ---
 
 # Current position
 
 **Current Phase:** 255.1 — Prove CI performance targets
-**Status:** Execution halted in Plan01; local implementation is partial; phase verification is pending.
-**Conditional resume:** $gsd-execute-phase 255.1 after the existing source halt is resolved.
+**Current plan:** 255.1-02 — persistent reports and equivalent useful work
+**Next/resume command:** $gsd-execute-phase 255.1
 
-The genuine local tracer passed 52 configuration tests with seed 93710, native exit 0 and 11.371 seconds elapsed. Ten new Python tests, 14 workflow checks and the existing comparison regression passed. This adds zero acceptance samples and proves no CI speed improvement.
+Plan01 local source work is complete. Real merge 9eb8dd091bd6aea5c90474365b4a1645499b9c37 preserves refreshed main09df342, shipped1.7.2 release/lock behavior and the phase's CI/auth improvements. Both reconstructed source trees merge exactly with main. The new genuine native tracer passes52 tests with seed637948; no old receipt was reused for changed code. Fourteen source/cache tests and focused CI/product/generator checks passed. Full native mix ci validation is continuing; the first outer-sandbox-denied result remains separate.
 
-Both provisional sources conflict with saved origin/main 09df342a82e03c3d5d40173c912b70e827f7eadc in 41 paths each, including the CI workflow and generated confirmation code. The main ref was not refreshed. Resolve the common-source histories without silently choosing product or release behavior, then repeat source/treatment/merge checks and reconcile Plan01's halted disposition. Do not create a numbered successor plan for ordinary local maintenance.
+Fresh init.execute-phase and phase-plan-index report zero halted plans and ready Plan02. The circular gate was fixed: later work/cache receipts remain unproved but do not block their own authorized local implementation. Current sources/feasibility are .planning/execution/255.1/SOURCES.json and FEASIBILITY.json; both requirements remain open, overall/hosted readiness remains blocked, zero acceptance samples. Source result and fresh native tracer: `.planning/execution/255.1/unblock-source/SOURCE-RESULT.json` and LOCAL-TRACER.json.
 
-Plans02–07 remain unexecuted and are blocked by Plan01. The fresh init.execute-phase and phase-plan-index results report no runnable plans. Preparation and collection remain separately unauthorized. Exact cache entries, current branch rules, hosted merge/source identities, complete equal-work reports and actual warm restores remain unproved. CISPEED-01/02 stay open.
-
-Evidence: `.planning/execution/255.1/LOCAL-TRACER.json`, `SOURCES.json`, `FEASIBILITY.json`, `LOCAL-VERIFICATION.json`, `EXECUTION-READINESS.json`, `PLAN-READINESS.json`; summary: `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md`. Control objects are retained at refs/evidence/phase255-1/source-control-92275024483f. These are provisional sources pending Plan02 and Plan05, not final measurement identities.
-
-Generated phase-start state was committed and read back at a5167a9bf00d82c1d43226d788559c1b11fba545; exact identities and original custom-state recovery are recorded in `.planning/execution/255.1/STATE-PRESERVATION.json`. Earlier discussion/planning preservation remains referenced by this phase's PRESERVATION.json.
+Local Plans02–05 may proceed. Plans06/07 still require distinct concrete hosted preparation and measurement approvals. No push, hosted invocation, acceptance family or budget renewal occurred. The original41-conflict source result and earlier stopped attempts remain recoverable from c8db6253949570b6e94bf62466e94ccf4b80508e and prior evidence refs. Reusable fan-out lessons are in prompts/fan-out-prompt.txt.
 
 # Prior work
 
-Phase255 implementation and verification remain complete; see 255-VERIFICATION.md and .planning/execution/255-verification/. Phase254's original comparison remains terminal insufficient_data with zero successful comparable pairs; its pending historical verification does not become a new forward blocker. The v1.50 milestone audit remains gaps_found. Old allowances and the pinned Phase255 replay are unchanged.
-
-Raw auth-bearing prior captures stay outside Git in protected .gsd storage, with recovery maps in .planning/execution/255-local/RAW-STORAGE.json and .planning/execution/255-verification/RAW-STORAGE-FINAL.json. The pre-existing untracked scripts/ci/__pycache__/ remains.
+Phase255 implementation/verification remains complete; Phase254's old comparison remains terminal insufficient_data and its historical verification is separate from this forward route. The v1.50 milestone audit remains gaps_found. Original acceptance budgets, results and Phase255's pinned replay are unchanged. Raw prior captures remain in protected .gsd storage with their existing recovery maps. Pre-existing scripts/ci/__pycache__/ remains untracked.
 
 # Session
 
-**Last session:** 2026-10-24T22:55:01.224159+00:00
-**Stopped at:** Plan01 source feasibility blocked; zero hosted operations.
-**Resume file:** .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md
+**Last session:** 2026-10-24T23:21:31.401196+00:00
+**Resume file:** .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-PLAN.md

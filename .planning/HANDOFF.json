@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:55:01.224159+00:00",
-  "status": "source_feasibility_blocked",
+  "updated_at": "2026-10-24T23:21:31.401196+00:00",
+  "status": "executing_local",
   "current_milestone": "v1.50",
   "current_phase": "255.1",
-  "current_plan": "255.1-01",
-  "completed_plans": [],
+  "current_plan": "255.1-02",
+  "completed_plans": [
+    "255.1-01-PLAN.md"
+  ],
   "remaining_plans": [
-    "255.1-01-PLAN.md",
     "255.1-02-PLAN.md",
     "255.1-03-PLAN.md",
     "255.1-04-PLAN.md",
@@ -19,31 +20,20 @@
   "verification_status": "pending",
   "next_command": "$gsd-execute-phase 255.1",
   "resume_command": "$gsd-execute-phase 255.1",
-  "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md",
+  "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-PLAN.md",
   "readiness": {
-    "checked_at": "2026-10-24T22:55:01.224159+00:00",
-    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
-    "record": ".planning/execution/255.1/EXECUTION-READINESS.json",
-    "plan_index": ".planning/execution/255.1/PLAN-READINESS.json",
-    "runnable_plans": [],
-    "halted_plans": [
-      "255.1-01"
+    "record": ".planning/execution/255.1/unblock-source/EXECUTION-READINESS.json",
+    "plan_index": ".planning/execution/255.1/unblock-source/PLAN-READINESS.json",
+    "ready_plans": [
+      "255.1-02"
     ],
-    "blocked_plans": [
-      "255.1-02",
-      "255.1-03",
-      "255.1-04",
-      "255.1-05",
-      "255.1-06",
-      "255.1-07"
-    ],
+    "halted_plans": [],
     "next_command": "$gsd-execute-phase 255.1",
-    "next_command_conditional": true,
+    "next_command_conditional": false,
     "implementation_status": "partial",
     "verification_status": "pending",
     "preparation_authorized": false,
-    "collection_authorized": false,
-    "historical_verification_is_forward_blocker": false
+    "collection_authorized": false
   },
   "hosted_canary": {
     "status": "complete_closed",
@@ -85,14 +75,15 @@
     "phase255_1_plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
     "phase255_1": {
       "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
-      "native_tracer": ".planning/execution/255.1/LOCAL-TRACER.json",
+      "native_tracer": ".planning/execution/255.1/unblock-source/LOCAL-TRACER.json",
       "sources": ".planning/execution/255.1/SOURCES.json",
       "feasibility": ".planning/execution/255.1/FEASIBILITY.json",
       "local_checks": ".planning/execution/255.1/LOCAL-VERIFICATION.json",
-      "implementation_commit": "c623a7eed3956a3ef1a5daea1e3ecafd48b7d0eb",
+      "implementation_commit": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
       "summary_commit": "c6828cca89251e9acba3805b6c054f7a6662047c",
       "control_ref": "refs/evidence/phase255-1/source-control-92275024483f",
-      "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json"
+      "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
+      "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json"
     }
   },
   "constraints": [
@@ -215,11 +206,12 @@
       "read_back_equal": true
     },
     "remaining_blockers": [
-      "Both proposed sources have 41 merge conflicts against saved origin/main; see .planning/execution/255.1/FEASIBILITY.json.",
-      "Current hosted source/rule identity, eligible exact warm caches and complete equivalent work remain unproved; no hosted work is authorized."
+      "Equivalent-work persistence/parity is the next local task (Plan02).",
+      "Actual hosted PR/cache/runner/rules receipts remain unproved.",
+      "Plans06 and07 retain separate concrete preparation and measurement approvals."
     ],
     "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
-    "status": "source_feasibility_blocked",
+    "status": "in_progress",
     "directory": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
     "insertion": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
     "state_restoration": {
@@ -230,33 +222,22 @@
     "plan_count": 7,
     "task_count": 16,
     "wave_count": 7,
-    "completed_plans": 0,
+    "completed_plans": 1,
     "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
     "preparation_authorized": false,
     "readiness": {
-      "checked_at": "2026-10-24T22:55:01.224159+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
-      "record": ".planning/execution/255.1/EXECUTION-READINESS.json",
-      "plan_index": ".planning/execution/255.1/PLAN-READINESS.json",
-      "runnable_plans": [],
-      "halted_plans": [
-        "255.1-01"
+      "record": ".planning/execution/255.1/unblock-source/EXECUTION-READINESS.json",
+      "plan_index": ".planning/execution/255.1/unblock-source/PLAN-READINESS.json",
+      "ready_plans": [
+        "255.1-02"
       ],
-      "blocked_plans": [
-        "255.1-02",
-        "255.1-03",
-        "255.1-04",
-        "255.1-05",
-        "255.1-06",
-        "255.1-07"
-      ],
+      "halted_plans": [],
       "next_command": "$gsd-execute-phase 255.1",
-      "next_command_conditional": true,
+      "next_command_conditional": false,
       "implementation_status": "partial",
       "verification_status": "pending",
       "preparation_authorized": false,
-      "collection_authorized": false,
-      "historical_verification_is_forward_blocker": false
+      "collection_authorized": false
     },
     "generated_state_preservation": {
       "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
@@ -275,20 +256,12 @@
         }
       }
     },
-    "halted_plans": [
-      "255.1-01"
-    ],
-    "blocked_plans": [
-      "255.1-02",
-      "255.1-03",
-      "255.1-04",
-      "255.1-05",
-      "255.1-06",
-      "255.1-07"
-    ],
+    "halted_plans": [],
+    "blocked_plans": [],
     "source_feasibility": ".planning/execution/255.1/FEASIBILITY.json",
     "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
-    "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
+    "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
+    "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json"
   },
   "planning_status": "passed",
   "generated_state_preservation": {
@@ -308,15 +281,14 @@
       }
     }
   },
-  "halted_plans": [
-    "255.1-01-PLAN.md"
-  ],
-  "next_command_conditional": true,
-  "next_command_precondition": "Reconcile the source histories, repeat exact-source/treatment/merge checks and reconcile the existing halted Plan01 record; retain this stopped attempt.",
+  "halted_plans": [],
+  "next_command_conditional": false,
+  "next_command_precondition": null,
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "blockers": [
-    "41 local main merge conflicts in each proposed source; see FEASIBILITY.json",
-    "Eligible exact warm caches, current branch rules, PR identity and complete work parity remain unproved."
+    "Equivalent-work persistence/parity is the next local task (Plan02).",
+    "Actual hosted PR/cache/runner/rules receipts remain unproved.",
+    "Plans06 and07 retain separate concrete preparation and measurement approvals."
   ],
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
 }

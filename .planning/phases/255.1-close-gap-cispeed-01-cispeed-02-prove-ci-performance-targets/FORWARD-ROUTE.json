@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T22:55:01.224159+00:00",
+  "checked_at": "2026-10-24T23:21:31.401196+00:00",
   "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
   "phase": "255.1",
   "phase_found": true,
@@ -11,26 +11,7 @@
   "wave_count": 7,
   "task_count": 16,
   "incomplete_count": 6,
-  "prerequisite_blockers_reported": {
-    "255.1-02-PLAN.md": [
-      "255.1-01"
-    ],
-    "255.1-03-PLAN.md": [
-      "255.1-01"
-    ],
-    "255.1-04-PLAN.md": [
-      "255.1-01"
-    ],
-    "255.1-05-PLAN.md": [
-      "255.1-01"
-    ],
-    "255.1-06-PLAN.md": [
-      "255.1-01"
-    ],
-    "255.1-07-PLAN.md": [
-      "255.1-01"
-    ]
-  },
+  "prerequisite_blockers_reported": {},
   "next_command": "$gsd-execute-phase 255.1",
   "implementation_status": "partial",
   "verification_status": "pending",
@@ -43,16 +24,26 @@
   "historical_verification_is_forward_blocker": false,
   "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
   "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
-  "status": "source_feasibility_blocked",
-  "next_command_conditional": true,
-  "precondition": "Reconcile the source histories, repeat exact-source/treatment/merge checks and reconcile the existing halted Plan01 record; retain this stopped attempt.",
-  "readiness_record": ".planning/execution/255.1/EXECUTION-READINESS.json",
-  "halted_plans": [
-    "255.1-01"
+  "status": "ready_for_local_plan02",
+  "next_command_conditional": false,
+  "precondition": null,
+  "readiness_record": ".planning/execution/255.1/unblock-source/EXECUTION-READINESS.json",
+  "halted_plans": [],
+  "runnable_plans": [
+    "255.1-02-PLAN.md",
+    "255.1-03-PLAN.md",
+    "255.1-04-PLAN.md",
+    "255.1-05-PLAN.md",
+    "255.1-06-PLAN.md",
+    "255.1-07-PLAN.md"
   ],
-  "runnable_plans": [],
   "blockers": [
-    "Both proposed sources have 41 merge conflicts against saved main."
+    "Equivalent-work persistence/parity is the next local task (Plan02).",
+    "Actual hosted PR/cache/runner/rules receipts remain unproved.",
+    "Plans06 and07 retain separate concrete preparation and measurement approvals."
   ],
-  "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
+  "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
+  "ready_plans": [
+    "255.1-02"
+  ]
 }

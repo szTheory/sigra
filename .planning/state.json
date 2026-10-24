@@ -50,7 +50,7 @@
     {
       "number": "255.1",
       "name": "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets",
-      "status": "blocked",
+      "status": "in_progress",
       "implementation_status": "partial",
       "verification_status": "pending",
       "requirements": [
@@ -64,19 +64,10 @@
       "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
       "claim_amendment_approved": true,
       "collection_authorized": false,
-      "completed_plans": 0,
-      "halted_plans": [
-        "255.1-01"
-      ],
-      "blocked_plans": [
-        "255.1-02",
-        "255.1-03",
-        "255.1-04",
-        "255.1-05",
-        "255.1-06",
-        "255.1-07"
-      ],
-      "blocker_record": ".planning/execution/255.1/FEASIBILITY.json",
+      "completed_plans": 1,
+      "halted_plans": [],
+      "blocked_plans": [],
+      "blocker_record": ".planning/execution/255.1/unblock-source/final-source/FEASIBILITY.json",
       "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
       "preparation_authorized": false,
       "readiness": {
@@ -122,31 +113,17 @@
         "incomplete_count": 6,
         "threat_id_duplicates": [],
         "threat_id_duplicate_count": 0,
-        "halted_plans": [
-          "255.1-01-PLAN.md"
+        "halted_plans": [],
+        "blocked_by": {},
+        "runnable_plans": [
+          "255.1-02-PLAN.md",
+          "255.1-03-PLAN.md",
+          "255.1-04-PLAN.md",
+          "255.1-05-PLAN.md",
+          "255.1-06-PLAN.md",
+          "255.1-07-PLAN.md"
         ],
-        "blocked_by": {
-          "255.1-02-PLAN.md": [
-            "255.1-01"
-          ],
-          "255.1-03-PLAN.md": [
-            "255.1-01"
-          ],
-          "255.1-04-PLAN.md": [
-            "255.1-01"
-          ],
-          "255.1-05-PLAN.md": [
-            "255.1-01"
-          ],
-          "255.1-06-PLAN.md": [
-            "255.1-01"
-          ],
-          "255.1-07-PLAN.md": [
-            "255.1-01"
-          ]
-        },
-        "runnable_plans": [],
-        "runnable_count": 0,
+        "runnable_count": 6,
         "branch_name": null,
         "milestone_version": "v1.50",
         "milestone_name": "CI-SPEED-AND-RELIABILITY",
@@ -183,13 +160,12 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 255.1",
-    "label": "Resume after common source reconciliation",
-    "reason": "Plan01 is halted on 41 local main merge conflicts per side; no dependent plan is runnable.",
-    "conditional": true,
-    "precondition": "Reconcile the source histories, repeat exact-source/treatment/merge checks and reconcile the existing halted Plan01 record; retain this stopped attempt.",
-    "readiness": ".planning/execution/255.1/EXECUTION-READINESS.json"
+    "label": "Execute local Plan02",
+    "reason": "Plan01 source halt resolved; Plan02 is ready. Hosted proof remains a later gate.",
+    "conditional": false,
+    "readiness": ".planning/execution/255.1/unblock-source/EXECUTION-READINESS.json"
   },
-  "updated_at": "2026-10-24T22:55:01.224159+00:00",
+  "updated_at": "2026-10-24T23:21:31.401196+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -288,11 +264,11 @@
     "completed_plans": 7,
     "verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md"
   },
-  "current_plan": "255.1-01",
+  "current_plan": "255.1-02",
   "phase255_completed_plans": 7,
   "phase255_implementation_status": "complete",
   "phase255_verification_status": "passed",
-  "workflow_step": "source_feasibility_blocked",
+  "workflow_step": "executing_local",
   "next_command": "$gsd-execute-phase 255.1",
   "resume_command": "$gsd-execute-phase 255.1",
   "phase255_review_open": 0,
@@ -321,7 +297,7 @@
     "prior_state_commit": "aaf04c4025e0d74addfcac62e84b7259ad5ef6c8"
   },
   "phase255_1": {
-    "status": "source_feasibility_blocked",
+    "status": "in_progress",
     "implementation_status": "partial",
     "verification_status": "pending",
     "directory": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
@@ -347,33 +323,94 @@
     "plan_count": 7,
     "task_count": 16,
     "wave_count": 7,
-    "completed_plans": 0,
+    "completed_plans": 1,
     "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
     "preparation_authorized": false,
     "readiness": {
-      "checked_at": "2026-10-24T22:55:01.224159+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
-      "record": ".planning/execution/255.1/EXECUTION-READINESS.json",
-      "plan_index": ".planning/execution/255.1/PLAN-READINESS.json",
-      "runnable_plans": [],
-      "halted_plans": [
-        "255.1-01"
+      "executor_model": "gpt-6-luna",
+      "verifier_model": "gpt-6-luna",
+      "tdd_mode": false,
+      "commit_docs": true,
+      "sub_repos": [],
+      "parallelization": true,
+      "context_window": 200000,
+      "branching_strategy": "none",
+      "phase_branch_template": "gsd/phase-{phase}-{slug}",
+      "milestone_branch_template": "gsd/{milestone}-{slug}",
+      "verifier_enabled": true,
+      "phase_found": true,
+      "phase_dir": "/Users/jon/projects/sigra/.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
+      "phase_number": "255.1",
+      "padded_phase": "255.1",
+      "phase_name": "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets (INSERTED)",
+      "phase_slug": "close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
+      "phase_req_ids": "CISPEED-01, CISPEED-02 (user-approved repaired-control amendment on 2026-10-24; Phase 254 origin; both remain open)",
+      "plans": [
+        "255.1-01-PLAN.md",
+        "255.1-02-PLAN.md",
+        "255.1-03-PLAN.md",
+        "255.1-04-PLAN.md",
+        "255.1-05-PLAN.md",
+        "255.1-06-PLAN.md",
+        "255.1-07-PLAN.md"
       ],
-      "blocked_plans": [
-        "255.1-02",
-        "255.1-03",
-        "255.1-04",
-        "255.1-05",
-        "255.1-06",
-        "255.1-07"
+      "summaries": [
+        "255.1-01-SUMMARY.md"
       ],
-      "next_command": "$gsd-execute-phase 255.1",
-      "next_command_conditional": true,
-      "implementation_status": "partial",
-      "verification_status": "pending",
-      "preparation_authorized": false,
-      "collection_authorized": false,
-      "historical_verification_is_forward_blocker": false
+      "incomplete_plans": [
+        "255.1-02-PLAN.md",
+        "255.1-03-PLAN.md",
+        "255.1-04-PLAN.md",
+        "255.1-05-PLAN.md",
+        "255.1-06-PLAN.md",
+        "255.1-07-PLAN.md"
+      ],
+      "plan_count": 7,
+      "incomplete_count": 6,
+      "threat_id_duplicates": [],
+      "threat_id_duplicate_count": 0,
+      "halted_plans": [],
+      "blocked_by": {},
+      "runnable_plans": [
+        "255.1-02-PLAN.md",
+        "255.1-03-PLAN.md",
+        "255.1-04-PLAN.md",
+        "255.1-05-PLAN.md",
+        "255.1-06-PLAN.md",
+        "255.1-07-PLAN.md"
+      ],
+      "runnable_count": 6,
+      "branch_name": null,
+      "milestone_version": "v1.50",
+      "milestone_name": "CI-SPEED-AND-RELIABILITY",
+      "milestone_slug": "ci-speed-and-reliability",
+      "state_exists": true,
+      "roadmap_exists": true,
+      "config_exists": true,
+      "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+      "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+      "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+      "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+      "section_manifest": {
+        "workflow": "execute-phase",
+        "included": [
+          "gap-closure-artifacts",
+          "regression-gate"
+        ],
+        "excluded": [
+          "partial-wave"
+        ],
+        "read": [
+          "gsd-core/workflows/execute-phase/steps/gap-closure-artifacts.md",
+          "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+        ]
+      },
+      "project_root": "/Users/jon/projects/sigra",
+      "agents_installed": true,
+      "missing_agents": [],
+      "agents_dir": "/Users/jon/.codex/agents",
+      "agent_runtime": "codex",
+      "project_title": "Sigra"
     },
     "generated_state_preservation": {
       "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
@@ -392,37 +429,31 @@
         }
       }
     },
-    "halted_plans": [
-      "255.1-01"
-    ],
-    "blocked_plans": [
-      "255.1-02",
-      "255.1-03",
-      "255.1-04",
-      "255.1-05",
-      "255.1-06",
-      "255.1-07"
-    ],
+    "halted_plans": [],
+    "blocked_plans": [],
     "remaining_blockers": [
-      "Both proposed sources have 41 merge conflicts against saved origin/main; see .planning/execution/255.1/FEASIBILITY.json.",
-      "Current hosted source/rule identity, eligible exact warm caches and complete equivalent work remain unproved; no hosted work is authorized."
+      "Equivalent-work persistence/parity is the next local task (Plan02).",
+      "Actual hosted PR/cache/runner/rules receipts remain unproved.",
+      "Plans06 and07 retain separate concrete preparation and measurement approvals."
     ],
     "next_command": "$gsd-execute-phase 255.1",
-    "next_command_conditional": true,
-    "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
+    "next_command_conditional": false,
+    "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
+    "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json"
   },
-  "status": "blocked",
+  "status": "in_progress",
   "implementation_status": "partial",
   "verification_status": "pending",
   "progress": {
     "total_plans": 138
   },
   "remaining_blockers": [
-    "Both proposed sources have 41 merge conflicts against saved origin/main; see .planning/execution/255.1/FEASIBILITY.json.",
-    "Current hosted source/rule identity, eligible exact warm caches and complete equivalent work remain unproved; no hosted work is authorized."
+    "Equivalent-work persistence/parity is the next local task (Plan02).",
+    "Actual hosted PR/cache/runner/rules receipts remain unproved.",
+    "Plans06 and07 retain separate concrete preparation and measurement approvals."
   ],
-  "state_head": "c6828cca89251e9acba3805b6c054f7a6662047c",
-  "next_command_conditional": true,
+  "state_head": "e942790a319f06406c5f1bac6cec9220080c4070",
+  "next_command_conditional": false,
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
 }
