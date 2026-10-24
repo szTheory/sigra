@@ -116,6 +116,48 @@ class DiagnosticBundleTest(unittest.TestCase):
                 self.assertNotIn("trace.zip", metadata["members"])
                 self.assertIn("secret_sentinel_detected", json.dumps(metadata["withheld"]))
 
+    def test_actual_trace_auth_cookies_are_redacted_without_dropping_trace_records(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            token = "synthetic-session-cookie-DO-NOT-RETAIN"
+            trace = self.trace_zip({
+                "trace.trace": json.dumps({"type": "context-options", "options": {
+                    "storageState": {"cookies": [{"name": "_example_key", "value": token}]}}}).encode() + b"\n",
+                "trace.network": json.dumps({"type": "resource-snapshot", "snapshot": {
+                    "request": {"url": f"http://127.0.0.1/?access_token={token}",
+                                "queryString": [{"name": "session", "value": token}, {"name": "page", "value": "2"}],
+                                "postData": {"mimeType": "application/json", "text": json.dumps({"password": token, "safe": "retained"})},
+                                "cookies": [{"name": "_example_key", "value": token}],
+                                "headers": [{"name": "Cookie", "value": f"_example_key={token}"}]},
+                    "response": {"headers": [{"name": "Set-Cookie", "value": f"_example_key={token}"}]}}}).encode() + b"\n",
+            })
+            manifest, _ = self.make_manifest(root, [("trace.zip", trace, "trace")],
+                                             trace_provenance={"synthetic_account": True, "registered": True})
+            output = pathlib.Path(temp) / "diagnostics.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertEqual(0, staged.returncode, staged.stderr)
+            checked = self.command("verify", root, manifest, output)
+            self.assertEqual(0, checked.returncode, checked.stderr)
+            with zipfile.ZipFile(output) as archive:
+                metadata = json.loads(archive.read("bundle-manifest.json"))
+                self.assertIn("trace.zip", metadata["members"])
+                safe_trace = archive.read("trace.zip")
+            self.assertNotIn(token.encode(), safe_trace)
+            with zipfile.ZipFile(io.BytesIO(safe_trace)) as archive:
+                trace_event = json.loads(archive.read("trace.trace"))
+                network_event = json.loads(archive.read("trace.network"))
+            self.assertNotIn("storageState", trace_event["options"])
+            request = network_event["snapshot"]["request"]
+            self.assertNotIn(token, request["url"])
+            self.assertEqual("[REDACTED]", request["queryString"][0]["value"])
+            self.assertEqual("2", request["queryString"][1]["value"])
+            self.assertNotIn(token, request["postData"]["text"])
+            self.assertIn("retained", request["postData"]["text"])
+            self.assertEqual("[REDACTED]", request["cookies"][0]["value"])
+            self.assertEqual("[REDACTED]", request["headers"][0]["value"])
+            self.assertEqual("[REDACTED]", network_event["snapshot"]["response"]["headers"][0]["value"])
+
     def test_escaping_symlink_duplicate_member_and_identity_mismatch_are_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp) / "invocation"
