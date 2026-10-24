@@ -1,7 +1,7 @@
 {
   "schema_version": "sigra.phase255.review-scope/v1",
   "capture_base": "86a98d9ad7cb348ba6d620952f90ab2fa941bc59",
-  "source_head": "af1d5904bcd091c100c6bb90abbd57fec08def0f",
+  "source_head": "04b16705abfabb90b6d06f8f09eb9631e812dc58",
   "scope_source": "Actual source changes since this explicitly captured execution start; cross-checked against every reachable task commit",
   "commits": [
     {
@@ -385,6 +385,8 @@
     "scripts/ci/ci-mix-receivers.py",
     "scripts/ci/ci-mix-receivers.test.py",
     "scripts/ci/ci-playwright-report.test.mjs",
+    "scripts/ci/ci-prep-profile.mjs",
+    "scripts/ci/ci-prep-profile.test.mjs",
     "scripts/ci/ci-prep-semantics.test.mjs",
     "scripts/ci/ci-run-metrics.sh",
     "scripts/ci/fixtures/playwright-admin-theme-diagnostics.spec.ts",
