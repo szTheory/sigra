@@ -1,5 +1,5 @@
 {
-  "notes": "The remote ref is immutable and create-only. The remaining retrieval attempt is reserved for the corrected clean-checkout helper path; do not push again.",
+  "notes": "The remote ref is immutable and create-only. The one successful push and both retrieval attempts are spent; do not push or retrieve again.",
   "package_sha256": "6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23",
   "push": {
     "commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",

@@ -731,3 +731,17 @@ For extra guardrails, configure a GitHub **Environment** (e.g. **`hex`**) with *
 | `.github/workflows/hex-publish.yml` | **`workflow_dispatch`** only | **Manual recovery** publish from a chosen tag/SHA + version string |
 
 Configure **`HEX_API_KEY`** (and optionally **`RELEASE_PLEASE_TOKEN`**) under **Settings → Secrets and variables → Actions**. Never add those secrets to `ci.yml` or unrelated jobs.
+
+## Phase 254 comparison result and replay package
+
+The single current result is [Phase 254 comparison: insufficient data](.planning/execution/255-replay/REPORT.md), with exact fields in [REPORT.json](.planning/execution/255-replay/REPORT.json). It records one failed baseline invocation (2,046 runner-seconds) and one successful candidate invocation (1,589 runner-seconds), zero successful matched pairs, and null median/p95. CISPEED-01/02 remain open. Do not describe the difference as a speed improvement or use the later development CI run as a replacement sample.
+
+The exact 59,461,735-byte input package (SHA-256 `6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23`) is available from `https://github.com/szTheory/sigra.git`, ref `refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d`, commit `52d2f3611fa195042d52ab0ef9dba64e4d75a2eb`. To retrieve it without local clone objects and replay offline, use the fetch/checkout/hash/replay commands in [CONTRIBUTING.md](CONTRIBUTING.md#retrieve-the-saved-comparison-inputs). The checked in-repository distribution record can be revalidated with:
+
+```sh
+python3 -B scripts/ci/ci-comparison-replay.py verify-distribution --record .planning/execution/255-replay/DISTRIBUTION.json
+```
+
+The bounded publication used one create-only push, zero retries, two actual fresh-checkout retrieval attempts, and no workflow dispatch. Its first exact fetch exposed a helper-path bug; the retry allowance was not used for that, and the final retrieval replayed successfully. The evidence commit parent is publisher helper source `e41aabd0c399b95d22262da2ebd45ae69250f290`; the corrected verification controller source is `83b62cd55`. Do not move or republish that branch.
+
+Phase 255 diagnostic artifacts expire on **2026-10-31**. Retrieve the deliberate failure with the exact run and artifact name before expiry, as shown in the report. Use `umask 077` and a private temporary download directory. Raw logs, traces, and browser auth state may contain session material; share the sanitized tracked diagnostic bundle instead. The cancellation artifact is incomplete: `final-output.log` and `final-trace.zip` are missing.
