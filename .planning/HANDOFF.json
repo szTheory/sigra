@@ -1,44 +1,50 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T18:26:14.498063+00:00",
+  "updated_at": "2026-10-24T19:16:25.758106+00:00",
   "status": "executing",
   "current_milestone": "v1.50",
   "current_phase": 255,
-  "current_plan": "255-06",
+  "current_plan": "255-07",
   "completed_plans": [
     "255-01",
     "255-02",
     "255-03",
     "255-04",
-    "255-05"
+    "255-05",
+    "255-06"
   ],
   "remaining_plans": [
-    "255-06",
     "255-07"
   ],
   "implementation_status": "in_progress",
   "verification_status": "not_started",
   "next_command": "$gsd-execute-phase 255",
   "resume_command": "$gsd-execute-phase 255",
-  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-06-PLAN.md",
+  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-PLAN.md",
   "readiness": {
     "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
-    "incomplete_count": 2,
-    "ready_plan": "255-06",
+    "incomplete_count": 1,
+    "ready_plan": "255-07",
     "prerequisite_blocker": false
   },
   "hosted_canary": {
-    "started": false,
-    "freeze_exists": false,
-    "budget_spent": 0,
-    "limits_from_plan": {
-      "invocations": 4,
-      "controller_requests": 120,
-      "minutes": 60,
-      "pushes": 2,
-      "transient_infrastructure_retries": 1,
-      "test_retries": 0
-    }
+    "status": "complete_closed",
+    "summary": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-06-SUMMARY.md",
+    "result": ".planning/execution/255-diagnostics-canary/RESULT.json",
+    "requests_spent": 37,
+    "invocations_spent": 3,
+    "pushes_spent": 1,
+    "retries_spent": 0,
+    "run_ids": {
+      "success": 40122912945,
+      "failure": 40123954650,
+      "cancellation": 40124112173
+    },
+    "remaining_allowance_reusable": false,
+    "missing_cancelled_files": [
+      "final-output.log",
+      "final-trace.zip"
+    ]
   },
   "evidence": {
     "summaries_directory": ".planning/phases/255-make-failures-reproducible-and-report-the-result",
@@ -78,5 +84,14 @@
     "path": ".planning/HANDOFF.json",
     "sha256": "3fbf88859db089546f17ac52ce8f24540599c81ccf72b0ec3e482c7030167532",
     "initially_clean": true
+  },
+  "distribution": {
+    "status": "not_started",
+    "limits": {
+      "successful_create_only_pushes": 1,
+      "transient_transport_retries": 1,
+      "retrieval_attempts": 2,
+      "workflow_dispatches": 0
+    }
   }
 }
