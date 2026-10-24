@@ -424,15 +424,20 @@
     "pushes": 1,
     "test_retries": 0
   },
+  "prior_stop": {
+    "reason": "artifact_run_identity_mismatch",
+    "status": "blocked",
+    "stop_time": "2026-10-24T18:58:04+00:00",
+    "superseded_by_verified_artifact_recovery": true,
+    "trace_overhead_status": "not_run",
+    "unattempted_scenarios": [
+      "failure",
+      "cancellation"
+    ]
+  },
   "scenarios": {
     "success": {
       "actual_conclusion": "success",
-      "artifact_discovery": {
-        "api_identity_check": "failed",
-        "attempt_value_retained": false,
-        "exact_name_match_count": 1,
-        "expired": false
-      },
       "artifact_id": 12572360759,
       "artifact_identity": {
         "attempt_source": "exact_artifact_name_and_run_endpoint",
@@ -451,7 +456,6 @@
           "sha256": "e16fcdd2c62bdbbd019754291754d78cb1be5335c63837ed47a20d9eb4e355b7"
         }
       ],
-      "controller_error": "artifact_run_identity_mismatch",
       "fixture_commit": "504aaa25ca047792ca70a62f78c164f8d908ddd9",
       "identity_recovery": {
         "artifact_list_response": ".planning/execution/255-diagnostics-canary/API-ARTIFACT-LIST-40122912945.body.json",
@@ -461,9 +465,20 @@
       "invocation_id": "phase255-success-1792868114",
       "job_id": "diagnostic-fixture",
       "missing_files": [],
-      "note": "The controller fetched and accepted the terminal run conclusion before it failed the artifact run identity comparison. The charged run API path preserves the run ID; the API attempt value and failing artifact identity field were not persisted. No artifact download or retry occurred.",
       "observed_at": "2026-10-24T18:58:04+00:00",
       "partial_capture": null,
+      "prior_controller_attempt": {
+        "artifact_discovery": {
+          "api_identity_check": "failed",
+          "attempt_value_retained": false,
+          "exact_name_match_count": 1,
+          "expired": false
+        },
+        "controller_error": "artifact_run_identity_mismatch",
+        "note": "The controller fetched and accepted the terminal run conclusion before it failed the artifact run identity comparison. The charged run API path preserves the run ID; the API attempt value and failing artifact identity field were not persisted. No artifact download or retry occurred.",
+        "retrieval_status": "not_downloaded",
+        "status": "blocked_identity_validation"
+      },
       "probe_id": "phase255-success-1792868114",
       "retention_expires_at": "2026-10-31T18:55:28Z",
       "retrieval_status": "verified",
@@ -497,15 +512,5 @@
     },
     "source_sha": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
     "tree": "6c81a404715cd1c9c78a04594a5e25eb7e46dbca"
-  },
-  "stop": {
-    "reason": "artifact_run_identity_mismatch",
-    "status": "blocked",
-    "stop_time": "2026-10-24T18:58:04+00:00",
-    "trace_overhead_status": "not_run",
-    "unattempted_scenarios": [
-      "failure",
-      "cancellation"
-    ]
   }
 }
