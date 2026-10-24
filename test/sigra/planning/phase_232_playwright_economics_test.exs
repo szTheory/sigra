@@ -7,6 +7,7 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
   @workflow_path ".github/workflows/ci.yml"
   @lockfile_path "test/example/priv/playwright/package-lock.json"
   @boot_action_path ".github/actions/example-playwright-boot/action.yml"
+  @browser_command_path "scripts/ci/ci-browser-command.mjs"
 
   test "chromium design project depends on one setup project with a private state path" do
     config = File.read!(@config_path)
@@ -91,13 +92,17 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
            "cached compile output must be partitioned by the endpoint's compile-time port"
 
     preparation =
-      Regex.scan(~r/^\s+run: (mix do .+)$/m, action, capture: :all_but_first)
+      Regex.scan(~r/^\s+(mix do .+)$/m, action, capture: :all_but_first)
       |> List.flatten()
 
-    assert preparation == [
-             "mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs"
-           ],
-           "shared action must own one ordered dependency, compile, database and seed invocation"
+    expected_preparation =
+      "mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs"
+
+    assert preparation == [expected_preparation, expected_preparation],
+           "both recorder-enabled and direct paths must execute the same ordered Mix preparation"
+
+    assert action =~ "ci-command-record.py"
+    assert action =~ "--invocation \"${DIAGNOSTICS_PREFIX}-prepare\""
 
     for marker <- ["mix phx.server", "curl -sf"] do
       assert length(Regex.scan(Regex.compile!(Regex.escape(marker)), action)) == 1,
@@ -117,6 +122,7 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
 
   test "five isolated retry-zero shards converge on the protected terminal result" do
     workflow = File.read!(@workflow_path)
+    browser_command = File.read!(@browser_command_path)
     shard = job_body(workflow, "example_playwright_shard")
     terminal = job_body(workflow, "example_playwright_smoke")
 
@@ -144,9 +150,25 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
       assert shard =~ "/tmp/example-playwright-#{String.replace(seam, "_", "-")}.log"
     end
 
-    assert length(Regex.scan(~r/--retries=0/, shard)) >= 6
-    assert shard =~ "--grep-invert '@snapshot'"
-    assert shard =~ "--grep '@snapshot'"
+    assert browser_command =~ "retries: 0"
+    assert browser_command =~ "args.push('--retries=0')"
+    assert browser_command =~ "grepInvert: '@snapshot'"
+    assert browser_command =~ "grep: '@snapshot'"
+
+    for seam <- expected_seams do
+      assert length(Regex.scan(~r/ci-browser-command\.mjs list --seam #{seam} --event/, shard)) >=
+               1
+
+      assert length(Regex.scan(~r/ci-browser-command\.mjs run --seam #{seam} --event/, shard)) >=
+               1
+
+      [policy] = browser_policy!(seam, "pull_request")
+      assert Enum.all?(policy["invocations"], &(&1["retries"] == 0))
+    end
+
+    [gallery_policy] = browser_policy!("design_gallery", "pull_request")
+    [gallery_invocation] = gallery_policy["invocations"]
+    assert gallery_invocation["grepInvert"] == "@snapshot"
 
     assert shard =~
              ~r/seam: non_admin_smoke.*?browsers: chromium webkit/s,
@@ -184,5 +206,14 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
       %{"body" => body} -> body
       _ -> flunk("missing workflow job #{job_id}")
     end
+  end
+
+  defp browser_policy!(seam, event) do
+    script =
+      "import { browserInvocations } from './#{@browser_command_path}'; " <>
+        "process.stdout.write(JSON.stringify(browserInvocations('#{seam}', '#{event}')));"
+
+    {output, 0} = System.cmd("node", ["--input-type=module", "-e", script])
+    Jason.decode!(output)
   end
 end

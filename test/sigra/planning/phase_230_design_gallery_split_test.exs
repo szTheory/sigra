@@ -11,6 +11,7 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
   # phase_153_infra_stability_contract_test.exs idiom.
   @spec_path "test/example/priv/playwright/tests/admin-design.spec.ts"
   @ci_path ".github/workflows/ci.yml"
+  @browser_command_path "scripts/ci/ci-browser-command.mjs"
   @recapture_gate_path "scripts/ci/snapshot-recapture-gate.sh"
 
   # Phase 232: the five runner-isolated seams the matrix must enumerate. A future
@@ -194,9 +195,18 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
     assert gallery_match, "design_gallery step's run: block not found in #{@ci_path}"
     [_, gallery_meta, gallery_run] = gallery_match
 
-    assert gallery_run =~ "--grep-invert",
-           "the design_gallery step's invocation must carry --grep-invert so the PR " <>
-             "lane excludes the 84 @snapshot pixel-diff tests"
+    assert gallery_run =~ "ci-browser-command.mjs list"
+    assert gallery_run =~ "ci-browser-command.mjs run"
+    assert gallery_run =~ "--seam design_gallery --event \"$GITHUB_EVENT_NAME\""
+
+    [pr_policy] = browser_policy!("design_gallery", "pull_request")
+    [pr_invocation] = pr_policy["invocations"]
+    assert pr_invocation["specs"] == ["tests/admin-design.spec.ts"]
+
+    assert pr_invocation["grepInvert"] == "@snapshot",
+           "the shared design_gallery command must exclude @snapshot tests on pull requests"
+
+    assert pr_invocation["retries"] == 0
 
     assert gallery_meta =~ "github.event_name == 'pull_request'"
 
@@ -215,6 +225,12 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
            "the design_gallery_snapshots step's if: must carry " <>
              "github.event_name != 'pull_request' -- without it the 84-test pixel lane " <>
              "would also run on every PR, defeating the whole demotion"
+
+    assert snapshots_body =~ "ci-browser-command.mjs list"
+    assert snapshots_body =~ "ci-browser-command.mjs run"
+    [non_pr_policy] = browser_policy!("design_gallery", "push")
+    assert Enum.map(non_pr_policy["invocations"], & &1["grep"]) == ["@snapshot", nil]
+    assert Enum.map(non_pr_policy["invocations"], & &1["grepInvert"]) == [nil, "@snapshot"]
   end
 
   test "the aggregator enumerates every seam id" do
@@ -229,5 +245,14 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
 
     assert terminal =~ "needs.example_playwright_shard.result"
     assert terminal =~ "if: always()"
+  end
+
+  defp browser_policy!(seam, event) do
+    script =
+      "import { browserInvocations } from './#{@browser_command_path}'; " <>
+        "process.stdout.write(JSON.stringify(browserInvocations('#{seam}', '#{event}')));"
+
+    {output, 0} = System.cmd("node", ["--input-type=module", "-e", script])
+    Jason.decode!(output)
   end
 end

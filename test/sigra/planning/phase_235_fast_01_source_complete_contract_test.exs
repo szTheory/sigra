@@ -12,6 +12,8 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
   @residual ".planning/todos/pending/2026-08-02-fast-01-terminal-p50-miss.md"
   @seed ".planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md"
   @milestone_arc ".planning/MILESTONE-ARC.md"
+  @historical_source_commit "47a88f1480173ace77db2ec4031d2527086b6e42"
+  @historical_contributing_sha "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b"
 
   @source_complete_fragments [
     "2026-08-03T21:37:08Z",
@@ -289,9 +291,15 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
     }
 
     for {path, expected} <- pins do
+      contents =
+        if path == "CONTRIBUTING.md" do
+          historical_contributing!()
+        else
+          File.read!(Sigra.Test.PlanningPaths.resolve(path))
+        end
+
       actual =
-        :crypto.hash(:sha256, File.read!(Sigra.Test.PlanningPaths.resolve(path)))
-        |> Base.encode16(case: :lower)
+        :crypto.hash(:sha256, contents) |> Base.encode16(case: :lower)
 
       assert actual == expected, "immutable digest drift: #{path}"
     end
@@ -315,6 +323,26 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
                requirements
              )
            ) == 1
+  end
+
+  defp historical_contributing! do
+    {resolved, 0} =
+      System.cmd("git", ["rev-parse", "--verify", "#{@historical_source_commit}^{commit}"])
+
+    unless String.trim(resolved) == @historical_source_commit do
+      raise "historical contributor source identity mismatch"
+    end
+
+    {contents, 0} =
+      System.cmd("git", ["show", "#{@historical_source_commit}:CONTRIBUTING.md"])
+
+    actual = :crypto.hash(:sha256, contents) |> Base.encode16(case: :lower)
+
+    unless actual == @historical_contributing_sha do
+      raise "historical contributor blob digest mismatch: #{actual}"
+    end
+
+    contents
   end
 
   test "reversible dispatch preflight is complete and ready for exact authorization" do
