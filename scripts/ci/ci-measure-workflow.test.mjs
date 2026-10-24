@@ -5,6 +5,7 @@ import { browserInvocations } from './ci-browser-command.mjs';
 
 const workflow = stripYamlComments(readRepoFile('.github/workflows/ci.yml'));
 const playwrightConfig = readRepoFile('test/example/priv/playwright/playwright.config.ts');
+const playwrightBootAction = readRepoFile('.github/actions/example-playwright-boot/action.yml');
 const ids = [
   'library_tests_shard',
   'example_unit_smoke',
@@ -160,4 +161,17 @@ test('captures native image identity before setup and rejects changes before art
     assert.ok(block.includes("if(verification.status!=='verified')process.exitCode=1"));
     assert.ok(block.includes('source_proof:proof,verification'));
   }
+});
+
+test('example preparation and serving both set CI=true with the same compile/runtime port', () => {
+  const prepare = playwrightBootAction.split('    - name: Prepare example with combined Mix', 2)[1]?.split('    - name: Install Playwright dependencies', 2)[0];
+  const serve = playwrightBootAction.split('    - name: Boot example app', 2)[1]?.split('    - name: Wait for app and warm routes', 2)[0];
+  assert.ok(prepare && serve, 'boot action must keep separate preparation and server steps');
+  for (const [name, block] of [['preparation', prepare], ['server', serve]]) {
+    assert.match(block, /MIX_ENV: dev/);
+    assert.match(block, /CI: "true"/);
+    assert.match(block, /PORT: \$\{\{ inputs\.app-port \}\}/);
+    assert.match(block, /PGDATABASE: \$\{\{ inputs\.database-name \}\}/);
+  }
+  assert.match(playwrightBootAction, /key: \$\{\{ runner\.os \}\}-example-dev-port\$\{\{ inputs\.app-port \}\}/);
 });

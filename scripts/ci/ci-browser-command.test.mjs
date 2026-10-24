@@ -67,6 +67,25 @@ test('the shared demo showcase list command produces the real native selection',
   } finally { rmSync(output, { recursive: true, force: true }); }
 });
 
+test('a local grep narrows native discovery to the exact browser identities that will run', () => {
+  const output = mkdtempSync(join(tmpdir(), 'sigra-browser-filtered-selection-'));
+  try {
+    const cli = new URL('./ci-browser-command.mjs', import.meta.url).pathname;
+    const result = spawnSync(process.execPath, [cli, 'list', '--seam', 'non_admin_smoke', '--event', 'pull_request',
+      '--grep', 'full user lifecycle', '--output-root', output], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    const report = JSON.parse(readFileSync(join(output, 'non-admin-smoke.selection.json'), 'utf8'));
+    const selected = [];
+    const visit = (suites) => suites.forEach((suite) => {
+      for (const spec of suite.specs ?? []) for (const item of spec.tests) selected.push([item.projectName, spec.file, spec.title]);
+      if (suite.suites) visit(suite.suites);
+    });
+    visit(report.suites);
+    assert.deepEqual(selected.map(([project]) => project).sort(), ['chromium', 'mobile']);
+    assert.ok(selected.every(([, file, title]) => file === 'golden-path.spec.ts' && title === 'full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge'));
+  } finally { rmSync(output, { recursive: true, force: true }); }
+});
+
 test('native Playwright selections match exact spec/project identities for every seam and event', () => {
   const expected = {
     admin_behavior: [['admin-user-operations', 'chromium'], ['impersonation', 'chromium'], ['admin-audit', 'chromium'],

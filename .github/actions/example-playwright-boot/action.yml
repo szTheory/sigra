@@ -88,6 +88,7 @@ runs:
       working-directory: test/example
       env:
         MIX_ENV: dev
+        CI: "true"
         PORT: ${{ inputs.app-port }}
         PGUSER: postgres
         PGPASSWORD: postgres
@@ -141,6 +142,7 @@ runs:
       working-directory: test/example
       env:
         MIX_ENV: dev
+        CI: "true"
         PORT: ${{ inputs.app-port }}
         PGUSER: postgres
         PGPASSWORD: postgres
