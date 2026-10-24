@@ -21,6 +21,45 @@ SPEC.loader.exec_module(CANARY)
 
 
 class CanaryContractTests(unittest.TestCase):
+    def test_artifact_run_identity_accepts_exact_run_scoped_artifact_with_omitted_attempt(self):
+        evidence = ROOT / ".planning/execution/255-diagnostics-canary"
+        run = json.loads((evidence / "API-RUN-40122912945.body.json").read_text(encoding="utf-8"))
+        listing = json.loads((evidence / "API-ARTIFACT-LIST-40122912945.body.json").read_text(encoding="utf-8"))
+        artifact = listing["artifacts"][0]
+        expected_name = (
+            "sigra-ci-7aae47281bb3e91bb38fe2387427f27bd0b44327-40122912945-1-"
+            "diagnostic-fixture-success-phase255-success-1792868114"
+        )
+        self.assertEqual(run["run_attempt"], 1)
+        self.assertEqual(artifact["workflow_run"].get("id"), run["id"])
+        self.assertIsNone(artifact["workflow_run"].get("run_attempt"))
+        self.assertTrue(
+            hasattr(CANARY, "verify_artifact_run_identity"),
+            "an exact artifact on the verified run must remain attributable when GitHub omits workflow_run.run_attempt",
+        )
+        verified = CANARY.verify_artifact_run_identity(artifact, run, expected_name)
+        self.assertEqual(verified["run_id"], run["id"])
+        self.assertEqual(verified["run_attempt"], run["run_attempt"])
+        self.assertEqual(verified["attempt_source"], "exact_artifact_name_and_run_endpoint")
+
+    def test_artifact_run_identity_still_rejects_wrong_explicit_attempt_or_name(self):
+        self.assertTrue(
+            hasattr(CANARY, "verify_artifact_run_identity"),
+            "artifact identity validation must check explicit attempts and exact source-bound names",
+        )
+        run = {"id": 42, "run_attempt": 2}
+        artifact = {"id": 8, "name": "expected", "workflow_run": {"id": 42}}
+        self.assertEqual(
+            CANARY.verify_artifact_run_identity(artifact, run, "expected")["attempt_source"],
+            "exact_artifact_name_and_run_endpoint",
+        )
+        artifact["workflow_run"]["run_attempt"] = 1
+        with self.assertRaisesRegex(CANARY.CanaryError, "artifact_run_attempt_mismatch"):
+            CANARY.verify_artifact_run_identity(artifact, run, "expected")
+        artifact["workflow_run"].pop("run_attempt")
+        with self.assertRaisesRegex(CANARY.CanaryError, "artifact_name_identity_mismatch"):
+            CANARY.verify_artifact_run_identity(artifact, run, "other")
+
     def test_shared_upload_action_stages_explicit_bundle_with_seven_day_retention(self):
         action = ROOT / ".github/actions/ci-diagnostic-upload/action.yml"
         self.assertTrue(action.is_file(), "the shared production diagnostic upload action must exist")

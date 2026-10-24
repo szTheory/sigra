@@ -1,0 +1,21 @@
+test_artifact_run_identity_accepts_exact_run_scoped_artifact_with_omitted_attempt (__main__.CanaryContractTests.test_artifact_run_identity_accepts_exact_run_scoped_artifact_with_omitted_attempt) ... FAIL
+
+======================================================================
+FAIL: test_artifact_run_identity_accepts_exact_run_scoped_artifact_with_omitted_attempt (__main__.CanaryContractTests.test_artifact_run_identity_accepts_exact_run_scoped_artifact_with_omitted_attempt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/scripts/ci/ci-diagnostics-canary.test.py", line 36, in test_artifact_run_identity_accepts_exact_run_scoped_artifact_with_omitted_attempt
+    self.assertTrue(
+    ~~~~~~~~~~~~~~~^
+        hasattr(CANARY, "verify_artifact_run_identity"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "an exact artifact on the verified run must remain attributable when GitHub omits workflow_run.run_attempt",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: False is not true : an exact artifact on the verified run must remain attributable when GitHub omits workflow_run.run_attempt
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
