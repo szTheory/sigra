@@ -44,6 +44,14 @@ class CanaryContractTests(unittest.TestCase):
         ):
             self.assertRegex(source, rf"def {function}\(")
 
+    def test_local_evidence_preflight_ref_and_blob_read_back_are_frozen(self):
+        evidence = CANARY.local_evidence_preflight(ROOT)
+        self.assertEqual(evidence["ref"], "refs/evidence/phase255-local-evidence-preflight")
+        self.assertEqual(evidence["expected_old_oid"], "0" * 40)
+        self.assertEqual(evidence["object_sha"], "292422d5f79151d6f850806d98617adb8a7d16f6")
+        self.assertEqual(evidence["readback_sha256"], hashlib.sha256(b"phase255-local-evidence-preflight-v1\n").hexdigest())
+        self.assertTrue(evidence["readback_exact"])
+
     def test_ci_owners_use_shared_upload_without_changing_required_gate_names(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         browser_shard = workflow.split("  example_playwright_shard:", 2)[1].split("\n  example_playwright_smoke:", 2)[0]

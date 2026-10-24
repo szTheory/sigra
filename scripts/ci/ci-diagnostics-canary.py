@@ -58,6 +58,26 @@ def git(root: pathlib.Path, *args: str) -> str:
     return result.stdout.strip()
 
 
+def local_evidence_preflight(root: pathlib.Path) -> dict:
+    """Verify the previously created evidence blob and its exact local ref read-back."""
+    ref = "refs/evidence/phase255-local-evidence-preflight"
+    object_sha = git(root, "rev-parse", "--verify", ref)
+    object_type = git(root, "cat-file", "-t", object_sha)
+    if object_type != "blob":
+        raise CanaryError("local_evidence_preflight_not_blob")
+    payload = subprocess.run(["git", "cat-file", "-p", object_sha], cwd=root,
+                             check=False, capture_output=True)
+    if payload.returncode:
+        raise CanaryError("local_evidence_preflight_readback_failed")
+    recomputed = subprocess.run(["git", "hash-object", "--stdin"], cwd=root,
+                                input=payload.stdout, check=False, capture_output=True)
+    if recomputed.returncode or recomputed.stdout.decode("ascii", "strict").strip() != object_sha:
+        raise CanaryError("local_evidence_preflight_hash_mismatch")
+    return {"ref": ref, "expected_old_oid": "0" * len(object_sha), "object_type": object_type,
+            "object_sha": object_sha, "readback_sha256": sha256_bytes(payload.stdout),
+            "readback_bytes": len(payload.stdout), "readback_exact": True}
+
+
 def file_digest(root: pathlib.Path, relative: str) -> str:
     path = root / relative
     if path.is_symlink() or not path.is_file():
@@ -248,6 +268,7 @@ def freeze_canary(root: pathlib.Path, output: pathlib.Path, evidence_ref: str, f
         "frozen_at": utc_now(),
         "repository": REPOSITORY,
         "source_identity": production,
+        "local_evidence_preflight": local_evidence_preflight(root),
         "fixture": {
             "commit": fixture_commit,
             "workflow": WORKFLOW,
