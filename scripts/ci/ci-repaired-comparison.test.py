@@ -146,5 +146,72 @@ class LocalTracerTests(unittest.TestCase):
             self.assertEqual(output.read_bytes(), b'preserve these exact prior bytes\n')
 
 
+class SourceFeasibilityTests(unittest.TestCase):
+    def test_control_keeps_repairs_and_restores_only_declared_treatments(self):
+        module = load()
+        files = {name: (ROOT / name).read_text() for name in module.TREATMENT_PATHS}
+        control, changes = module.build_control(files, ROOT)
+        self.assertEqual(set(changes), set(module.TREATMENT_PATHS))
+        theme = control[module.TREATMENT_PATHS[0]]
+        self.assertIn('async function restoreBrandingDefaults', theme)
+        self.assertIn('test.afterEach', theme)
+        self.assertEqual(theme.count('await logInAsPlatformAdmin(page);'), 18)
+        org = control[module.TREATMENT_PATHS[1]]
+        self.assertEqual(org.count('await logInIfNeeded(page, ownerEmail, ownerPassword);'), 2)
+        self.assertEqual(org.count('await assertAuthenticatedZeroOrganizationState(page);'), 2)
+        self.assertIn('ci-command-record.py', control[module.TREATMENT_PATHS[2]])
+        self.assertIn('CI: "true"', control[module.TREATMENT_PATHS[2]])
+        self.assertIn('npm ci', control[module.TREATMENT_PATHS[2]])
+        self.assertIn('mix local.hex --force', control[module.TREATMENT_PATHS[3]])
+        self.assertIn('--invocation library-ci -- mix ci', control[module.TREATMENT_PATHS[3]])
+        module.validate_treatment_files(control, files, changes)
+        for name in files:
+            altered = dict(files)
+            altered[name] += '\nextra unreviewed hunk\n'
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'treatment'):
+                module.validate_treatment_files(control, altered, changes)
+
+    def test_unreviewed_admin_source_is_rejected_instead_of_discarded(self):
+        module = load()
+        files = {name: (ROOT / name).read_text() for name in module.TREATMENT_PATHS}
+        files[module.TREATMENT_PATHS[0]] += '\nnew test assertions\n'
+        with self.assertRaisesRegex(ValueError, 'admin_theme_source_changed'):
+            module.build_control(files, ROOT)
+
+    def test_sibling_scope_fallback_missing_owner_and_wrong_merge_are_blocked(self):
+        module = load()
+        rows = [{'owner': owner, 'scope': 'refs/heads/main', 'restore': 'exact',
+                 'key': owner, 'matched_key': owner} for owner in module.OWNERS]
+        self.assertEqual(module.validate_warm_receipts(rows, 'refs/heads/main'), [])
+        for mutation in ('sibling', 'fallback', 'missing', 'wrong_key'):
+            changed = [dict(row) for row in rows]
+            if mutation == 'sibling': changed[0]['scope'] = 'refs/pull/99/merge'
+            if mutation == 'fallback': changed[0]['restore'] = 'fallback'
+            if mutation == 'missing': changed.pop()
+            if mutation == 'wrong_key': changed[0]['matched_key'] = 'stale-key'
+            with self.subTest(mutation=mutation):
+                self.assertTrue(module.validate_warm_receipts(changed, 'refs/heads/main'))
+        expected = {'head': 'a' * 40, 'base': 'b' * 40, 'merge_tree': 'c' * 40}
+        self.assertEqual(module.validate_pr_identity(expected, expected), [])
+        for field in expected:
+            self.assertTrue(module.validate_pr_identity({**expected, field: 'd' * 40}, expected))
+
+    def test_workflow_cache_enumeration_does_not_call_missing_receipts_warm(self):
+        module = load()
+        result = module.inspect_workflow((ROOT / '.github/workflows/ci.yml').read_text(),
+                                         (ROOT / '.github/actions/example-playwright-boot/action.yml').read_text())
+        self.assertEqual({row['owner'] for row in result['owners']}, set(module.OWNERS))
+        self.assertTrue(result['trigger_main_pr'])
+        for row in result['owners']:
+            self.assertEqual(row['hosted_warm_status'], 'unproved')
+            self.assertTrue(row['key_expression'])
+            self.assertTrue(row['restore_prefix'])
+            self.assertEqual(row['eligible_shared_scope'], 'refs/heads/main')
+        self.assertIn('npm ci', result['preserved_commands'])
+        broken = (ROOT / '.github/workflows/ci.yml').read_text().replace('branches: [main]', 'branches: [other]')
+        self.assertFalse(module.inspect_workflow(broken,
+                         (ROOT / '.github/actions/example-playwright-boot/action.yml').read_text())['trigger_main_pr'])
+
+
 if __name__ == '__main__':
     unittest.main()
