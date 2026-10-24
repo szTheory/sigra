@@ -70,6 +70,34 @@ def validate_native_report(value: dict) -> tuple[bool, list[str]]:
             errors.append(f"incomplete_receiver_report:{name}")
         if report.get("failed_count") != 0 or report.get("failed_test_ids"):
             errors.append(f"receiver_test_failures:{name}")
+        test_rows = report.get("tests", [])
+        test_ids = [row.get("test_id") for row in test_rows if isinstance(row, dict)]
+        if (len(test_ids) != len(test_rows) or any(not isinstance(test_id, str) or not test_id for test_id in test_ids)
+                or len(set(test_ids)) != len(test_ids)
+                or any(row.get("result") not in ("passed", "skipped") for row in test_rows if isinstance(row, dict))):
+            errors.append(f"test_identity_or_status_invalid:{name}")
+        excluded = report.get("excluded_tests")
+        if not isinstance(excluded, list) or not isinstance(report.get("excluded_count"), int):
+            errors.append(f"missing_excluded_identity_field:{name}")
+        elif (len(excluded) != report["excluded_count"]
+              or any(not isinstance(row, dict) or not isinstance(row.get("test_id"), str)
+                     or row.get("result") != "excluded" for row in excluded)
+              or len({row.get("test_id") for row in excluded if isinstance(row, dict)}) != len(excluded)):
+            errors.append(f"excluded_identity_mismatch:{name}")
+        actual_skips = [row for row in report.get("tests", []) if row.get("result") == "skipped"]
+        if not isinstance(report.get("skipped_count"), int) or len(actual_skips) != report["skipped_count"]:
+            errors.append(f"skipped_identity_mismatch:{name}")
+        skipped_rows = report.get("skipped_tests")
+        if (not isinstance(skipped_rows, list)
+                or any(not isinstance(row, dict) or not isinstance(row.get("test_id"), str)
+                       or not isinstance(row.get("reason"), str) or not row["reason"].strip()
+                       for row in skipped_rows)
+                or {row.get("test_id") for row in skipped_rows if isinstance(row, dict)}
+                != {row.get("test_id") for row in actual_skips if isinstance(row, dict)}):
+            errors.append(f"missing_documented_skip_identity:{name}")
+        actual_passes = [row for row in report.get("tests", []) if row.get("result") == "passed"]
+        if not isinstance(report.get("passed_count"), int) or len(actual_passes) != report["passed_count"]:
+            errors.append(f"passed_identity_mismatch:{name}")
 
     for module in SCAFFOLD:
         if module in ordinary_modules:
@@ -86,8 +114,19 @@ def validate_native_report(value: dict) -> tuple[bool, list[str]]:
             errors.append(f"non_guard_test_executed:{row.get('test_id', '<unknown>')}")
 
     for name in ("ordinary", "scaffold", "dep-off"):
-        if not value.get("leg_command_records", {}).get(name):
+        record = value.get("leg_command_records", {}).get(name)
+        if not record:
             errors.append(f"missing_native_command_record:{name}")
+        elif record.get("primary_exit_code") != 0:
+            errors.append(f"native_command_failed:{name}")
+        else:
+            receiver = "threadline_guard" if name == "dep-off" else name
+            if record.get("seed") != (value.get(receiver) or {}).get("seed"):
+                errors.append(f"command_seed_mismatch:{name}")
+            if record.get("excluded_test_ids") != [row.get("test_id") for row in (value.get(receiver) or {}).get("excluded_tests", [])]:
+                errors.append(f"command_exclusions_mismatch:{name}")
+            if record.get("skipped_test_ids") != [row.get("test_id") for row in (value.get(receiver) or {}).get("skipped_tests", [])]:
+                errors.append(f"command_skips_mismatch:{name}")
     return not errors, errors
 
 
@@ -127,6 +166,8 @@ def record_leg(name: str, argv: list[str]) -> int:
             record["seed_reason"] = "observed_exunit_suite" if isinstance(record["seed"], int) else "not_applicable"
             record["failed_test_ids"] = timing_data.get("failed_test_ids", [])
             record["test_invocation"] = timing_data.get("invocation")
+            record["excluded_test_ids"] = [row.get("test_id") for row in timing_data.get("excluded_tests", []) if isinstance(row, dict)]
+            record["skipped_test_ids"] = [row.get("test_id") for row in timing_data.get("skipped_tests", []) if isinstance(row, dict)]
         else:
             record["seed"] = None
             record["seed_reason"] = "not_applicable"

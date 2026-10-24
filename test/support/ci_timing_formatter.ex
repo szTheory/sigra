@@ -12,6 +12,8 @@ defmodule Sigra.Test.CITimingFormatter do
       path: path,
       invocation: invocation,
       tests: [],
+      skipped_tests: [],
+      excluded_tests: [],
       counts: Map.new(@count_keys, &{&1, 0}),
       test_duration_sum_us: 0,
       diagnostics: [],
@@ -48,8 +50,30 @@ defmodule Sigra.Test.CITimingFormatter do
     state = update_in(state.counts[result], &(&1 + 1))
 
     if result == :excluded do
-      {:noreply, state}
+      row = %{
+        test_id: id,
+        module: inspect(test.module),
+        name: Atom.to_string(test.name),
+        result: "excluded"
+      }
+
+      {:noreply, update_in(state.excluded_tests, &[row | &1])}
     else
+      state =
+        if result == :skipped do
+          skipped = %{
+            test_id: id,
+            module: inspect(test.module),
+            name: Atom.to_string(test.name),
+            result: "skipped",
+            reason: skip_reason(test.state)
+          }
+
+          update_in(state.skipped_tests, &[skipped | &1])
+        else
+          state
+        end
+
       case test.time do
         time when is_integer(time) and time >= 0 ->
           row = %{
@@ -123,6 +147,8 @@ defmodule Sigra.Test.CITimingFormatter do
       invocation: state.invocation,
       seed: state.seed,
       tests: Enum.reverse(state.tests),
+      skipped_tests: Enum.reverse(state.skipped_tests),
+      excluded_tests: Enum.reverse(state.excluded_tests),
       failed_test_ids:
         state.tests
         |> Enum.filter(&(&1.result == "failed"))
@@ -162,6 +188,13 @@ defmodule Sigra.Test.CITimingFormatter do
   defp result({:skipped, _}), do: :skipped
   defp result({:excluded, _}), do: :excluded
   defp result(_), do: :failed
+
+  defp skip_reason({:skipped, reason}) when is_binary(reason),
+    do: reason |> String.replace(~r/\s+/, " ") |> String.slice(0, 160)
+
+  defp skip_reason({:skipped, reason}) when is_atom(reason), do: Atom.to_string(reason)
+  defp skip_reason({:skipped, _}), do: "configured_skip"
+  defp skip_reason(_), do: "runtime_skip"
 
   defp suite_seed(opts) when is_list(opts), do: Keyword.get(opts, :seed)
   defp suite_seed(opts) when is_map(opts), do: Map.get(opts, :seed)

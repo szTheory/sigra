@@ -28,6 +28,7 @@ defmodule Sigra.Planning.CITimingFormatterTest do
     assert report["invocation"] == "main"
     assert report["seed"] == 821
     assert report["failed_test_ids"] == []
+    assert report["skipped_tests"] == []
     assert [%{"invocation" => "main", "test_id" => "Example.main_test"}] = report["tests"]
   end
 
@@ -92,8 +93,24 @@ defmodule Sigra.Planning.CITimingFormatterTest do
 
     assert report["test_duration_sum_us"] == 53
     assert report["failed_test_ids"] == ["Example.second"]
+
+    assert report["skipped_tests"] == [
+             %{
+               "test_id" => "Example.third",
+               "module" => "Example",
+               "name" => "third",
+               "result" => "skipped",
+               "reason" => "not run"
+             }
+           ]
+
     assert report["excluded_tests"] == [
-             %{"test_id" => "Example.fourth", "module" => "Example", "name" => "fourth", "result" => "excluded"}
+             %{
+               "test_id" => "Example.fourth",
+               "module" => "Example",
+               "name" => "fourth",
+               "result" => "excluded"
+             }
            ]
 
     assert Enum.map(report["tests"], & &1["test_id"]) == [

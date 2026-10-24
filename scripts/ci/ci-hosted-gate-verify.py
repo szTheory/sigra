@@ -2200,20 +2200,180 @@ def verify_completion(evidence, require_accepted=False, root=REPO_ROOT, load_che
     return result
 
 
+REPAIRED_RECEIVERS = ("ordinary", "scaffold", "dep_off")
+REPAIRED_BROWSER_OWNERS = ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase")
+
+
+def _repaired_report_has_secret(value):
+    """Reject diagnostic payloads that can carry credentials or raw browser auth state."""
+    forbidden_key = re.compile(r"(?i)(authorization|cookie|password|secret|token|storage.?state|trace)")
+    forbidden_value = re.compile(rb"(?i)(GH[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|bearer\s+[A-Za-z0-9._-]{16,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|playwright/.auth|storageState\.json)")
+
+    def visit(item):
+        if isinstance(item, dict):
+            return any(forbidden_key.search(str(key)) or visit(child) for key, child in item.items())
+        if isinstance(item, list):
+            return any(visit(child) for child in item)
+        if isinstance(item, str):
+            return bool(forbidden_value.search(item.encode("utf-8", "replace")))
+        return False
+
+    return visit(value)
+
+
+def verify_repaired_work_reports(evidence, artifact_api):
+    """Opt-in validator for new repaired-source work receipts; historical modes are unchanged."""
+    require(isinstance(evidence, dict) and evidence.get("schema_version") == "sigra.repaired-work/v1",
+            "repaired-work evidence schema mismatch")
+    require(not _repaired_report_has_secret(evidence), "auth-bearing or secret diagnostic payload is forbidden")
+    require(evidence.get("acceptance_samples") == 0, "local repaired-work evidence cannot claim acceptance samples")
+    sources = evidence.get("sources")
+    require(isinstance(sources, dict) and set(sources) == {"control", "candidate"}, "repaired-work source pair is incomplete")
+    for role, source in sources.items():
+        sha = source.get("source_sha") if isinstance(source, dict) else source
+        require(isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha), f"{role} source identity invalid")
+        sources[role] = {**source, "source_sha": sha} if isinstance(source, dict) else {"source_sha": sha}
+    require(sources["control"]["source_sha"] != sources["candidate"]["source_sha"], "repaired-work sources must be distinct")
+
+    require(isinstance(artifact_api, dict) and artifact_api.get("producer") == "github_artifact_api_snapshot",
+            "independent GitHub Artifact API origin is required")
+    require(not _repaired_report_has_secret(artifact_api), "auth-bearing or secret Artifact API payload is forbidden")
+    artifacts = artifact_api.get("artifacts")
+    require(isinstance(artifacts, list) and artifacts, "Artifact API producer inventory is empty")
+    files_by_origin = {}
+    artifact_ids = set()
+    used_artifact_ids = set()
+    for artifact in artifacts:
+        require(isinstance(artifact, dict) and type(artifact.get("id")) is int and artifact["id"] > 0,
+                "Artifact API artifact ID is invalid")
+        require(artifact["id"] not in artifact_ids, "duplicate Artifact API artifact ID")
+        artifact_ids.add(artifact["id"])
+        role = artifact.get("source_role")
+        require(role in sources and artifact.get("source_sha") == sources[role]["source_sha"],
+                "Artifact API source origin mismatch")
+        require(artifact.get("repository_id") == REPOSITORY_ID, "Artifact API repository origin mismatch")
+        run_id = str(artifact.get("run_id", ""))
+        attempt = artifact.get("run_attempt")
+        require(run_id.isdigit() and int(run_id) > 0 and type(attempt) is int and attempt > 0,
+                "Artifact API run/attempt origin is invalid")
+        digest = artifact.get("artifact_digest")
+        downloaded = artifact.get("downloaded_artifact_digest")
+        require(isinstance(digest, str) and re.fullmatch(r"sha256:[0-9a-f]{64}", digest)
+                and downloaded == digest, "Artifact API and downloaded artifact digests differ")
+        files = artifact.get("files")
+        require(isinstance(files, list) and files, "Artifact API artifact has no verified report members")
+        for item in files:
+            require(isinstance(item, dict) and isinstance(item.get("path"), str)
+                    and isinstance(item.get("sha256"), str) and re.fullmatch(r"[0-9a-f]{64}", item["sha256"]),
+                    "Artifact API report member digest is invalid")
+            binding = (role, item["path"], item["sha256"])
+            require(binding not in files_by_origin, "duplicate Artifact API report member binding")
+            files_by_origin[binding] = artifact
+
+    reports = evidence.get("reports")
+    require(isinstance(reports, list), "repaired-work report list is missing")
+    required_keys = {(role, "library", receiver) for role in sources for receiver in REPAIRED_RECEIVERS}
+    required_keys |= {(role, "browser", owner) for role in sources for owner in REPAIRED_BROWSER_OWNERS}
+    report_by_key = {}
+    for item in reports:
+        require(isinstance(item, dict), "repaired-work report row is malformed")
+        role, kind, owner = item.get("source_role"), item.get("kind"), item.get("owner")
+        key = (role, kind, owner)
+        require(key in required_keys and key not in report_by_key, "unknown or duplicate repaired-work report")
+        require(item.get("source_sha") == sources[role]["source_sha"], "report source identity mismatch")
+        path, report_sha = item.get("path"), item.get("sha256")
+        require(isinstance(path, str) and path and not path.startswith("/") and "\\" not in path
+                and all(part not in ("", ".", "..") for part in path.split("/")), "repaired-work report path is unsafe")
+        require(isinstance(report_sha, str) and re.fullmatch(r"[0-9a-f]{64}", report_sha), "repaired-work report digest invalid")
+        require(files_by_origin.get((role, path, report_sha)) is not None,
+                "repaired-work report lacks independent Artifact API file digest binding")
+        origin = files_by_origin[(role, path, report_sha)]
+        used_artifact_ids.add(origin["id"])
+        expected_name = (f"sigra-ci-{sources[role]['source_sha']}-{origin['run_id']}-{origin['run_attempt']}-library_tests_shard-library_ci-library-{origin['run_id']}-{origin['run_attempt']}"
+                         if kind == "library" else f"browser-execution-{owner}-{origin['run_id']}-{origin['run_attempt']}")
+        require(origin.get("name") == expected_name, "Artifact API producer name does not match the report owner")
+        report = item.get("report")
+        require(isinstance(report, dict) and report.get("complete") is True,
+                "repaired-work report is incomplete")
+        require(not _repaired_report_has_secret(report), "auth-bearing or secret diagnostic payload is forbidden")
+        if kind == "library":
+            require(type(report.get("seed")) is int and report["seed"] >= 0, f"library report seed missing: {owner}")
+            tests = report.get("tests")
+            require(isinstance(tests, list) and tests, f"library report has no executed test identities: {owner}")
+            ids = []
+            for test in tests:
+                require(isinstance(test, dict) and isinstance(test.get("test_id"), str) and test["test_id"]
+                        and test.get("status") in ("passed", "skipped"), f"library test identity/status invalid: {owner}")
+                ids.append(test["test_id"])
+            require(len(set(ids)) == len(ids), f"duplicate library test identity: {owner}")
+            skipped = report.get("skipped")
+            excluded = report.get("excluded")
+            require(isinstance(skipped, list) and isinstance(excluded, list), f"library skip/exclusion records missing: {owner}")
+            skipped_ids = {row.get("test_id") for row in skipped if isinstance(row, dict) and isinstance(row.get("reason"), str) and row["reason"].strip()}
+            excluded_ids = {row.get("test_id") for row in excluded if isinstance(row, dict) and isinstance(row.get("reason"), str) and row["reason"].strip()}
+            require(len(skipped_ids) == len(skipped) and len(excluded_ids) == len(excluded), f"undocumented library skip/exclusion: {owner}")
+            require(skipped_ids == {test["test_id"] for test in tests if test["status"] == "skipped"}, f"unexpected library skip: {owner}")
+            require(not excluded_ids.intersection(ids), f"excluded library test was executed: {owner}")
+        else:
+            tests = report.get("tests")
+            require(isinstance(tests, list) and tests, f"browser report has no native identities: {owner}")
+            identities = []
+            for test in tests:
+                require(isinstance(test, dict) and isinstance(test.get("identity"), list) and len(test["identity"]) == 5
+                        and test.get("owner") == owner and test.get("classification") in ("product", "setup")
+                        and test.get("expected_status") in ("passed", "skipped")
+                        and test.get("result") in ("passed", "skipped"), f"browser identity/status invalid: {owner}")
+                identities.append(json.dumps(test["identity"], ensure_ascii=False, separators=(",", ":")))
+            require(len(set(identities)) == len(identities), f"duplicate browser native identity: {owner}")
+            require(all((test["expected_status"] == "skipped") == (test["result"] == "skipped") for test in tests),
+                    f"unexpected browser skip or status: {owner}")
+            require(isinstance(report.get("skipped"), list) and isinstance(report.get("excluded"), list),
+                    f"browser skip/exclusion records missing: {owner}")
+        report_by_key[key] = report
+    require(set(report_by_key) == required_keys, "one or more repaired-work producer reports are missing")
+    require(used_artifact_ids == artifact_ids, "Artifact API inventory includes unused or unrelated producer artifacts")
+
+    for kind, owners in (("library", REPAIRED_RECEIVERS), ("browser", REPAIRED_BROWSER_OWNERS)):
+        for owner in owners:
+            left = report_by_key[("control", kind, owner)]
+            right = report_by_key[("candidate", kind, owner)]
+            if kind == "library":
+                normalize = lambda report: sorted((row["test_id"], row["status"]) for row in report["tests"])
+                require(normalize(left) == normalize(right), f"library test identity/status mismatch: {owner}")
+                require(left["skipped"] == right["skipped"], f"library documented skip mismatch: {owner}")
+                require(left["excluded"] == right["excluded"], f"library exclusion identity/policy mismatch: {owner}")
+            else:
+                normalize = lambda report: sorted((json.dumps(row["identity"], ensure_ascii=False, separators=(",", ":")),
+                    row["owner"], row["classification"], row["expected_status"], row["result"]) for row in report["tests"])
+                require(normalize(left) == normalize(right), f"browser native identity/owner/status mismatch: {owner}")
+                require(sorted((json.dumps(row, sort_keys=True) for row in left["skipped"])) ==
+                        sorted((json.dumps(row, sort_keys=True) for row in right["skipped"])), f"browser skip identity mismatch: {owner}")
+                require(sorted((json.dumps(row, sort_keys=True) for row in left["excluded"])) ==
+                        sorted((json.dumps(row, sort_keys=True) for row in right["excluded"])), f"browser exclusion identity mismatch: {owner}")
+
+    return {"status": "passed", "synthetic": artifact_api.get("synthetic_fixture") is True,
+            "acceptance_samples": 0, "library_reports": 6, "browser_owners": list(REPAIRED_BROWSER_OWNERS),
+            "source_sha": {role: source["source_sha"] for role, source in sources.items()}}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evidence", required=True, help="captured GitHub API and artifact receipt JSON")
-    parser.add_argument("--mode", choices=("legacy", "transport", "preflight", "canary", "pr", "completion", "comparison-family"), default="legacy")
+    parser.add_argument("--mode", choices=("legacy", "transport", "preflight", "canary", "pr", "completion", "comparison-family", "repaired-work"), default="legacy")
     parser.add_argument("--family", choices=("normal", "docs-only", "both"), default="normal")
     parser.add_argument("--docs-evidence", help="docs-only PR evidence when --mode pr --family both")
     parser.add_argument("--registration", help="single early comparison registration JSON for --mode comparison-family")
     parser.add_argument("--registration-json", help="inline single early comparison registration JSON for --mode comparison-family")
+    parser.add_argument("--artifact-api", help="independent Artifact API producer snapshot for --mode repaired-work")
     parser.add_argument("--required-contexts", help="JSON array of the five exact required context names")
     strictness = parser.add_mutually_exclusive_group()
     strictness.add_argument("--require-accepted", action="store_true")
     strictness.add_argument("--require-dispositioned", action="store_true")
     parser.add_argument("--scenario", choices=(*SCENARIOS, "sources", "matrix"), default="full-pass")
     args = parser.parse_args()
+    if args.mode == "repaired-work":
+        require(args.artifact_api, "repaired-work mode requires an independent --artifact-api snapshot")
+        return verify_repaired_work_reports(read_json_file(args.evidence), read_json_file(args.artifact_api))
     if args.mode == "legacy":
         evidence = read_evidence(args.evidence)
         if args.scenario in ("sources", "matrix"):

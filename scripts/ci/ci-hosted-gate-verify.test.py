@@ -3397,18 +3397,21 @@ class RepairedWorkReportVerifierTests(unittest.TestCase):
         artifact_id = 100
         for role, source_sha in sources.items():
             run_id = "7001" if role == "control" else "7002"
+            library_files = []
             for receiver in ("ordinary", "scaffold", "dep_off"):
                 path = f"{role}/library/{receiver}.json"
                 report = {"seed": 42 + artifact_id, "complete": True, "tests": [
-                    {"test_id": f"Sigra.{receiver}.{role}", "status": "passed"}], "skipped": [], "excluded": []}
+                    {"test_id": f"Sigra.{receiver}.test", "status": "passed"}], "skipped": [], "excluded": []}
                 digest = hashlib.sha256(json.dumps(report, sort_keys=True).encode()).hexdigest()
                 evidence["reports"].append({"kind": "library", "source_role": role, "source_sha": source_sha,
                     "owner": receiver, "path": path, "sha256": digest, "report": report})
-                api["artifacts"].append({"id": artifact_id, "name": f"sigra-ci-{source_sha}-{run_id}-1-library_tests_shard-library_ci-library-{run_id}-1",
-                    "source_sha": source_sha, "run_id": run_id, "run_attempt": 1, "repository_id": 1207487684,
-                    "artifact_digest": "sha256:" + "a" * 64, "downloaded_artifact_digest": "sha256:" + "a" * 64,
-                    "files": [{"path": path, "sha256": digest}]})
-                artifact_id += 1
+                library_files.append({"path": path, "sha256": digest})
+            api["artifacts"].append({"id": artifact_id, "source_role": role,
+                "name": f"sigra-ci-{source_sha}-{run_id}-1-library_tests_shard-library_ci-library-{run_id}-1",
+                "source_sha": source_sha, "run_id": run_id, "run_attempt": 1, "repository_id": 1207487684,
+                "artifact_digest": "sha256:" + "a" * 64, "downloaded_artifact_digest": "sha256:" + "a" * 64,
+                "files": library_files})
+            artifact_id += 1
             for owner in ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase"):
                 path = f"{role}/browser/{owner}.json"
                 report = {"complete": True, "tests": [{"identity": ["chromium", f"tests/{owner}.spec.ts",
@@ -3418,7 +3421,7 @@ class RepairedWorkReportVerifierTests(unittest.TestCase):
                 digest = hashlib.sha256(json.dumps(report, sort_keys=True).encode()).hexdigest()
                 evidence["reports"].append({"kind": "browser", "source_role": role, "source_sha": source_sha,
                     "owner": owner, "path": path, "sha256": digest, "report": report})
-                api["artifacts"].append({"id": artifact_id, "name": f"browser-execution-{owner}-{run_id}-1",
+                api["artifacts"].append({"id": artifact_id, "source_role": role, "name": f"browser-execution-{owner}-{run_id}-1",
                     "source_sha": source_sha, "run_id": run_id, "run_attempt": 1, "repository_id": 1207487684,
                     "artifact_digest": "sha256:" + "b" * 64, "downloaded_artifact_digest": "sha256:" + "b" * 64,
                     "files": [{"path": path, "sha256": digest}]})
@@ -3440,6 +3443,74 @@ class RepairedWorkReportVerifierTests(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         self.assertEqual("passed", json.loads(result.stdout)["status"])
         self.assertTrue(json.loads(result.stdout)["synthetic"])
+
+    @staticmethod
+    def refresh_report_binding(evidence, api, index):
+        import json
+        import hashlib
+        row = evidence["reports"][index]
+        digest = hashlib.sha256(json.dumps(row["report"], sort_keys=True).encode()).hexdigest()
+        row["sha256"] = digest
+        for artifact in api["artifacts"]:
+            for member in artifact["files"]:
+                if member["path"] == row["path"]:
+                    member["sha256"] = digest
+
+    def test_rejects_missing_report_seed_digest_and_wrong_api_origin(self):
+        for label in ("missing report", "missing seed", "changed digest", "wrong source origin"):
+            with self.subTest(case=label):
+                evidence, api = self.fixture()
+                if label == "missing report":
+                    evidence["reports"].pop()
+                elif label == "missing seed":
+                    evidence["reports"][0]["report"].pop("seed")
+                    self.refresh_report_binding(evidence, api, 0)
+                elif label == "changed digest":
+                    evidence["reports"][0]["sha256"] = "e" * 64
+                else:
+                    api["artifacts"][0]["source_sha"] = "8" * 40
+                result = self.run_cli(evidence, api)
+                self.assertNotEqual(0, result.returncode)
+
+    def test_rejects_undocumented_skip_or_exclusion_mismatch(self):
+        evidence, api = self.fixture()
+        candidate = next(row for row in evidence["reports"] if row["source_role"] == "candidate"
+                         and row["kind"] == "library" and row["owner"] == "ordinary")
+        candidate["report"]["tests"][0]["status"] = "skipped"
+        candidate["report"]["skipped"] = [{"test_id": candidate["report"]["tests"][0]["test_id"], "reason": "documented"}]
+        self.refresh_report_binding(evidence, api, evidence["reports"].index(candidate))
+        result = self.run_cli(evidence, api)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("identity/status mismatch", result.stderr)
+
+        evidence, api = self.fixture()
+        candidate = next(row for row in evidence["reports"] if row["source_role"] == "candidate"
+                         and row["kind"] == "library" and row["owner"] == "ordinary")
+        candidate["report"]["excluded"] = [{"test_id": "Sigra.Ordinary.excluded", "reason": "scaffold"}]
+        self.refresh_report_binding(evidence, api, evidence["reports"].index(candidate))
+        result = self.run_cli(evidence, api)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("exclusion identity/policy mismatch", result.stderr)
+
+    def test_rejects_browser_identity_status_and_auth_payload_mutations(self):
+        for label in ("identity", "status", "auth payload"):
+            with self.subTest(case=label):
+                evidence, api = self.fixture()
+                candidate = next((index, row) for index, row in enumerate(evidence["reports"])
+                                 if row["source_role"] == "candidate" and row["kind"] == "browser"
+                                 and row["owner"] == "admin_behavior")
+                index, row = candidate
+                if label == "identity":
+                    row["report"]["tests"][0]["identity"][4] = "different case"
+                elif label == "status":
+                    row["report"]["tests"][0]["result"] = "skipped"
+                    row["report"]["tests"][0]["expected_status"] = "skipped"
+                    row["report"]["skipped"] = [{"identity": row["report"]["tests"][0]["identity"], "reason": "declared"}]
+                else:
+                    row["report"]["authorization"] = "Bearer secret-material"
+                self.refresh_report_binding(evidence, api, index)
+                result = self.run_cli(evidence, api)
+                self.assertNotEqual(0, result.returncode)
 
 
 if __name__ == "__main__":

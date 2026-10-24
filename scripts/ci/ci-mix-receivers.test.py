@@ -24,7 +24,7 @@ class MixReceiverReportTest(unittest.TestCase):
         env = os.environ.copy()
         env.update({"MIX_ENV": "test", "SIGRA_CI_REQUIRED": "0"})
         result = subprocess.run(
-            ["mix", "test", "--no-compile", "test/sigra/planning/ci_timing_formatter_test.exs"],
+            ["mix", "test", "test/sigra/planning/ci_timing_formatter_test.exs"],
             cwd=ROOT, env=env, capture_output=True, text=True, check=False, timeout=60,
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
@@ -141,6 +141,27 @@ class MixReceiverReportTest(unittest.TestCase):
             self.assertEqual("failure", report["primary_status"])
             self.assertTrue(report["missing_reports"])
 
+    def test_leg_command_record_retains_skip_and_exclusion_ids(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-receiver-skip-exclude-") as temp:
+            root = pathlib.Path(temp)
+            env = os.environ.copy()
+            env["SIGRA_CI_RECEIVER_OUTPUT"] = str(root)
+            payload = {"seed": 45, "invocation": "ordinary", "complete": True,
+                "tests": [{"test_id": "A.passed", "result": "passed"}, {"test_id": "A.skipped", "result": "skipped"}],
+                "failed_test_ids": [], "failed_count": 0,
+                "skipped_tests": [{"test_id": "A.skipped", "reason": "configured"}],
+                "excluded_tests": [{"test_id": "A.excluded", "result": "excluded"}]}
+            child = "import json,os,pathlib; pathlib.Path(os.environ['SIGRA_EXUNIT_TIMING_JSON']).write_text(" + repr(json.dumps(payload)) + ")"
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.py"), "leg", "ordinary", "--",
+                 sys.executable, "-c", child], cwd=ROOT, env=env, capture_output=True, text=True,
+                check=False, timeout=10,
+            )
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            record = json.loads((root / "commands/ordinary/record.json").read_text())
+            self.assertEqual(["A.skipped"], record["skipped_test_ids"])
+            self.assertEqual(["A.excluded"], record["excluded_test_ids"])
+
     def test_plan_native_cli_accepts_a_report_file_output(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.test.py"), "--native", "--help"],
@@ -150,18 +171,18 @@ class MixReceiverReportTest(unittest.TestCase):
         self.assertIn("--output OUTPUT", result.stdout)
 
     def test_accepts_exact_ordinary_scaffold_and_dep_off_identities(self):
-        ordinary = {"tests": [{"module": "Sigra.AuthTest", "test_id": "Sigra.AuthTest.login"}], "seed": 81, "failed_test_ids": [], "complete": True, "failed_count": 0}
-        scaffold = {"tests": [{"module": module, "test_id": f"{module}.case"} for module in RECEIVERS.SCAFFOLD], "seed": 82, "failed_test_ids": [], "complete": True, "failed_count": 0}
-        threadline = {"tests": [{"module": "Sigra.ConfigForwardersTest", "test_id": "Sigra.ConfigForwardersTest.absent"}], "seed": 83, "failed_test_ids": [], "complete": True, "failed_count": 0}
+        ordinary = {"tests": [{"module": "Sigra.AuthTest", "test_id": "Sigra.AuthTest.login", "result": "passed"}], "seed": 81, "failed_test_ids": [], "complete": True, "failed_count": 0, "passed_count": 1, "excluded_tests": [], "excluded_count": 0, "skipped_tests": [], "skipped_count": 0}
+        scaffold = {"tests": [{"module": module, "test_id": f"{module}.case", "result": "passed"} for module in RECEIVERS.SCAFFOLD], "seed": 82, "failed_test_ids": [], "complete": True, "failed_count": 0, "passed_count": len(RECEIVERS.SCAFFOLD), "excluded_tests": [], "excluded_count": 0, "skipped_tests": [], "skipped_count": 0}
+        threadline = {"tests": [{"module": "Sigra.ConfigForwardersTest", "test_id": "Sigra.ConfigForwardersTest.absent", "result": "passed"}], "seed": 83, "failed_test_ids": [], "complete": True, "failed_count": 0, "passed_count": 1, "excluded_tests": [], "excluded_count": 0, "skipped_tests": [], "skipped_count": 0}
         value = {
             "ordinary": ordinary,
             "scaffold": scaffold,
             "threadline_guard": threadline,
             "leg_records": ["format", "deps.get", "deps.unlock", "compile", "ordinary", "scaffold", "dep-off"],
             "leg_command_records": {
-                "ordinary": {"primary_exit_code": 0},
-                "scaffold": {"primary_exit_code": 0},
-                "dep-off": {"primary_exit_code": 0},
+                "ordinary": {"primary_exit_code": 0, "seed": 81, "excluded_test_ids": [], "skipped_test_ids": []},
+                "scaffold": {"primary_exit_code": 0, "seed": 82, "excluded_test_ids": [], "skipped_test_ids": []},
+                "dep-off": {"primary_exit_code": 0, "seed": 83, "excluded_test_ids": [], "skipped_test_ids": []},
             },
         }
         ok, errors = RECEIVERS.validate_native_report(value)
