@@ -209,9 +209,33 @@
         "request": true,
         "scenario": null,
         "test_retry": false
+      },
+      {
+        "at": "2026-10-24T18:54:23+00:00",
+        "infrastructure_retry": false,
+        "invocation": false,
+        "operation": "push-reconciliation-second-read:refs/heads/evidence/phase255-canary",
+        "push": false,
+        "request": true,
+        "response": [
+          {
+            "node_id": "REF_kwDOR_jMxNoAI3JlZnMvaGVhZHMvZXZpZGVuY2UvcGhhc2UyNTUtY2FuYXJ5",
+            "object": {
+              "sha": "504aaa25ca047792ca70a62f78c164f8d908ddd9",
+              "type": "commit",
+              "url": "https://api.github.com/repos/szTheory/sigra/git/commits/504aaa25ca047792ca70a62f78c164f8d908ddd9"
+            },
+            "ref": "refs/heads/evidence/phase255-canary",
+            "url": "https://api.github.com/repos/szTheory/sigra/git/refs/heads/evidence/phase255-canary"
+          }
+        ],
+        "response_observed_at": "2026-10-24T18:54:23+00:00",
+        "response_remaining_header": 4983,
+        "scenario": null,
+        "test_retry": false
       }
     ],
-    "controller_requests": 6,
+    "controller_requests": 7,
     "elapsed_started_at": 1792867909.20091,
     "infrastructure_retries": 0,
     "invocations": 0,
