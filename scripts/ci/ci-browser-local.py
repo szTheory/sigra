@@ -27,6 +27,7 @@ EXAMPLE = ROOT / "test/example"
 PLAYWRIGHT = EXAMPLE / "priv/playwright"
 RECORDER = ROOT / "scripts/ci/ci-command-record.py"
 BROWSER_COMMAND = ROOT / "scripts/ci/ci-browser-command.mjs"
+DIAGNOSTIC_CONFIG = ROOT / "scripts/ci/fixtures/playwright-diagnostics.config.ts"
 LOCK = PLAYWRIGHT / "package-lock.json"
 OWNER_FILE = "resource-owner.json"
 SCHEMA = "sigra.browser-local-owner/v1"
@@ -478,24 +479,53 @@ def _run_local(args: argparse.Namespace) -> int:
         owner["server_status"] = "ready"
         write_json(output_root / OWNER_FILE, owner)
 
-        command = ["node", str(BROWSER_COMMAND), "list", "--seam", args.seam, "--event", args.event,
-                   "--output-root", str(output_root / "playwright-report")]
-        if args.grep:
-            command.extend(["--grep", args.grep])
-        code = run_recorded(command, ROOT, output_root, "playwright-discovery", app_env)
-        if code:
-            raise BrowserLocalError(f"Playwright selection discovery failed; command streams are in {output_root / 'playwright-discovery'}", code)
-        owner["selected_native_identities"] = selected_identities(output_root / "playwright-report")
-        write_json(output_root / OWNER_FILE, owner)
-        command = ["node", str(BROWSER_COMMAND), "run", "--seam", args.seam, "--event", args.event,
-                   "--output-root", str(output_root / "playwright-report")]
-        if args.grep:
-            command.extend(["--grep", args.grep])
-        code = run_recorded(command, ROOT, output_root, "playwright-run", app_env)
-        if code:
-            raise BrowserLocalError(f"Playwright run failed; command streams and native reports are retained in {output_root / 'playwright-run'}", code)
-        owner["execution_reports"] = verify_execution_identities(output_root / "playwright-report", owner["selected_native_identities"])
-        owner["test_result"] = "passed"
+        if args.diagnostic_case:
+            diagnostic_root = output_root / "native-diagnostics" / args.diagnostic_case
+            invocation_id = f"{output_root.name}-{args.diagnostic_case}"
+            diagnostic_env = dict(app_env)
+            diagnostic_env.update({
+                "SIGRA_CI_DIAGNOSTICS": "1",
+                "SIGRA_CI_DIAGNOSTICS_ROOT": str(diagnostic_root),
+                "SIGRA_CI_TRACE_REGISTRY": str(diagnostic_root / "trace-registry.jsonl"),
+                "SIGRA_CI_INVOCATION_ID": invocation_id,
+                "SIGRA_CI_NATIVE_IDENTITY": "chromium:playwright-diagnostics.spec.ts",
+                "SIGRA_DIAGNOSTIC_CASE": args.diagnostic_case,
+            })
+            command = ["node", str(PLAYWRIGHT / "node_modules/playwright/cli.js"), "test",
+                       "--config", str(DIAGNOSTIC_CONFIG), "--project=chromium", "--retries=0"]
+            code = run_recorded(command, PLAYWRIGHT, output_root, f"diagnostic-{args.diagnostic_case}", diagnostic_env)
+            owner["native_diagnostic"] = {
+                "case": args.diagnostic_case,
+                "invocation_id": invocation_id,
+                "native_identity": "chromium:playwright-diagnostics.spec.ts",
+                "exit_code": code,
+                "output_root": str(diagnostic_root),
+            }
+            write_json(output_root / OWNER_FILE, owner)
+            if args.diagnostic_case == "pass" and code != 0:
+                raise BrowserLocalError(f"passing diagnostic browser invocation failed; streams are in {output_root / f'diagnostic-{args.diagnostic_case}'}", code)
+            if args.diagnostic_case == "fail" and code == 0:
+                raise BrowserLocalError("failing diagnostic browser invocation unexpectedly passed")
+            owner["test_result"] = f"diagnostic_{args.diagnostic_case}_observed"
+        else:
+            command = ["node", str(BROWSER_COMMAND), "list", "--seam", args.seam, "--event", args.event,
+                       "--output-root", str(output_root / "playwright-report")]
+            if args.grep:
+                command.extend(["--grep", args.grep])
+            code = run_recorded(command, ROOT, output_root, "playwright-discovery", app_env)
+            if code:
+                raise BrowserLocalError(f"Playwright selection discovery failed; command streams are in {output_root / 'playwright-discovery'}", code)
+            owner["selected_native_identities"] = selected_identities(output_root / "playwright-report")
+            write_json(output_root / OWNER_FILE, owner)
+            command = ["node", str(BROWSER_COMMAND), "run", "--seam", args.seam, "--event", args.event,
+                       "--output-root", str(output_root / "playwright-report")]
+            if args.grep:
+                command.extend(["--grep", args.grep])
+            code = run_recorded(command, ROOT, output_root, "playwright-run", app_env)
+            if code:
+                raise BrowserLocalError(f"Playwright run failed; command streams and native reports are retained in {output_root / 'playwright-run'}", code)
+            owner["execution_reports"] = verify_execution_identities(output_root / "playwright-report", owner["selected_native_identities"])
+            owner["test_result"] = "passed"
     except KeyboardInterrupt:
         primary_code = 130
         owner["test_result"] = "interrupted"
@@ -519,7 +549,7 @@ def _run_local(args: argparse.Namespace) -> int:
         write_json(output_root / OWNER_FILE, owner)
         if primary_code == 0 and cleanup_errors:
             primary_code = 1
-        if primary_code == 0 and not cleanup_errors:
+        if primary_code == 0 and not cleanup_errors and not args.keep_output:
             try:
                 if output_root.is_symlink() or json.loads((output_root / OWNER_FILE).read_text()).get("ownership_token") != token:
                     raise BrowserLocalError("refusing output cleanup: ownership marker did not match")
@@ -531,7 +561,10 @@ def _run_local(args: argparse.Namespace) -> int:
         if primary_code != 0 or cleanup_errors:
             print(f"Browser reproduction diagnostics: {output_root}", file=sys.stderr)
         else:
-            print(f"Browser reproduction passed: {args.seam} ({args.event}) on port {args.port}")
+            if args.diagnostic_case:
+                print(f"Browser diagnostic case observed: {args.diagnostic_case}; artifacts: {output_root}")
+            else:
+                print(f"Browser reproduction passed: {args.seam} ({args.event}) on port {args.port}")
             print(f"Owned database cleaned: {database}")
             if server_pid is not None:
                 print(f"Owned server stopped: pid {server_pid}")
@@ -551,8 +584,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--event", choices=EVENTS, required=True)
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--grep", help="narrow the selected seam to a matching test title")
+    parser.add_argument("--diagnostic-case", choices=("pass", "fail"), help="run the isolated real-browser diagnostics fixture")
+    parser.add_argument("--keep-output", action="store_true", help="retain the owned output directory after cleanup; diagnostics only")
     parser.add_argument("--output-root", help="new, non-existent directory for this invocation's diagnostics")
     args = parser.parse_args(argv)
+    if args.keep_output and not args.diagnostic_case:
+        parser.error("--keep-output is available only with --diagnostic-case")
     try:
         return _run_local(args)
     except BrowserLocalError as error:
