@@ -1,7 +1,10 @@
 ---
 phase: 255-make-failures-reproducible-and-report-the-result
-reviewed: 2026-10-24T19:50:11Z
+reviewed: 2026-10-24T20:08:45Z
 depth: standard
+re_reviewed: 2026-10-24T20:08:45Z
+re_review_source_commit: dfe8369ee53a57f498df178e4ca823f84d562e1a
+original_review_commit: 6bebfda76
 files_reviewed: 43
 files_reviewed_list:
   - .github/actions/ci-diagnostic-upload/action.yml
@@ -48,60 +51,43 @@ files_reviewed_list:
   - test/support/ci_timing_formatter.ex
   - test/test_helper.exs
 findings:
-  critical: 4
-  warning: 1
+  critical: 1
+  warning: 0
   info: 0
-  total: 5
+  total: 1
 status: issues_found
 ---
 
 # Phase 255: Code Review Report
 
-**Reviewed:** 2026-10-24T19:50:11Z  
+**Reviewed:** 2026-10-24T20:08:45Z  
 **Depth:** standard  
 **Files Reviewed:** 43  
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the authoritative 43-file Phase 255 source scope, including the seven plan/summary pairs and the phase context, security, and validation notes. The review found four correctness/security blockers involving signal cleanup, signal preservation, concurrent hosted-budget reservations, and trace credential redaction, plus one reporting gap where missing files disappear from the uploaded bundle manifest. I reproduced the trace sanitizer retaining URL userinfo and camel-case token fields with a narrow in-memory probe; broad suites were not run.
+This is a focused re-review of the five findings in the original report at commit `6bebfda76`. Fix commits through `dfe8369ee` resolve CR-01, CR-02, CR-03, and WR-01. CR-04's original userinfo and camel-case leaks are fixed, but URL fragments still retain credential values: a trace URL containing `#access_token=fragment-secret` is emitted unchanged. Four focused suites passed: 12 browser-local tests, 5 command-recorder tests, 18 canary tests, and 14 bundle tests. The native SIGTERM result was checked in `.planning/execution/255-review-fix/RESULT.json`; no native or hosted run was repeated.
 
 ## Critical Issues
 
-### CR-01: SIGTERM bypasses owned resource cleanup
+### CR-04: URL fragment credentials remain in retained traces
 
-**File:** `scripts/ci/ci-browser-local.py:567-589`
-**Issue:** `_run_local` handles `KeyboardInterrupt` but installs no SIGTERM handler. If a user, CI cancellation, or parent process sends SIGTERM while the Phoenix server or Playwright command is active, Python exits immediately instead of entering the `finally` block. That leaves the invocation-owned PostgreSQL database and possibly its server process group running. The durable owner record is not enough to recover automatically because the CLI exposes no cleanup command.
-**Fix:** Handle SIGTERM by recording signal 15 as the primary outcome and entering the normal `finally` cleanup path, then return the conventional `143` status after cleanup. Add a real-process test that sends SIGTERM to the local runner and verifies both owned resources are cleaned while unrelated resources remain untouched.
+**File:** `scripts/ci/ci-diagnostic-bundle.py:177-194`
+**Issue:** The fix now strips URL userinfo and redacts sensitive query keys, but `redact_url` returns `parts.fragment` unchanged. A browser trace containing an OAuth implicit-flow or callback URL such as `https://example.test/callback#access_token=fragment-secret&state=ok` therefore retains the access token in the uploaded trace. I confirmed this with a narrow in-memory call: the sanitized URL and redaction list were unchanged/empty. This is a residual of original CR-04, whose userinfo and camel-case cases are resolved.
+**Fix:** Parse fragment parameters with the same sensitive-name policy as query parameters, redact their values, and preserve non-sensitive fragment values. Add an archive-level regression that verifies a fragment `access_token` is absent after staging while an unrelated `state` remains.
 
-### CR-02: SIGKILL child outcome raises before it can be returned
+## Resolved Original Findings
 
-**File:** `scripts/ci/ci-command-record.py:215-219`
-**Issue:** When the recorded child is killed by SIGKILL, `Popen.wait()` returns `-9` and `run_to_files` stores `primary_signal == 9`. The recorder then calls `signal.signal(SIGKILL, SIG_DFL)`, which Python rejects with `OSError: [Errno 22] Invalid argument`. The wrapper consequently exits with an exception instead of preserving the child’s signal-compatible status or re-raising the signal. This occurs for commands terminated by a hard timeout or cancellation.
-**Fix:** Do not call `signal.signal` for uncatchable signals such as SIGKILL; directly use `os.kill(os.getpid(), sig)` when re-raising, or return `128 + sig` if re-raising cannot be performed. Add a process test for a child that terminates itself with SIGKILL.
+- **CR-01 — resolved** in `593d83438`: SIGTERM is recorded, active command groups are stopped, and owned server/database cleanup runs. The focused browser-local suite passed (12 tests); the fix result records the native ownership-preservation probe as passed.
+- **CR-02 — resolved** in `35ffa421a`: SIGKILL/SIGSTOP are no longer passed to `signal.signal`; a child SIGKILL regression confirms `-9` at the caller and signal 9 in the record. The focused command-recorder suite passed (5 tests).
+- **CR-03 — resolved** in `2e33f2721`: a file lock covers budget read/check/update and rate-response writes. Concurrent reservation and response-write regressions passed in the focused canary suite (18 tests).
+- **WR-01 — resolved** in `264c2e368` and `27cae3b6f`: bundle metadata carries `missing_files`, verification binds it to the source manifest, tampering is rejected, and empty legacy v1 metadata remains compatible. The focused bundle suite passed (14 tests).
 
-### CR-03: Concurrent controller calls can exceed frozen request limits
-
-**File:** `scripts/ci/ci-diagnostics-canary.py:331-368`
-**Issue:** `charge_request` performs an unlocked read/check/increment/write of the shared freeze file. Two concurrent controller processes can both read the same remaining allowance, both pass the limit checks, then replace the file with competing updates while both proceed to their HTTP operation. This can undercount requests or invocations and permit more dispatches/pushes than the frozen limits. The atomic file replacement prevents partial JSON but does not make the reservation atomic.
-**Fix:** Serialize each reservation with an OS-level lock held across load, limit checks, counter updates, and durable write; release it before the HTTP request. Add a concurrent-process test near a budget boundary and verify only the allowed number of callers can reserve and proceed.
-
-### CR-04: Trace sanitizer leaves credentials in URL userinfo and camel-case fields
-
-**File:** `scripts/ci/ci-diagnostic-bundle.py:148-163`
-**Issue:** `redact_url` only examines query parameter names and returns `urlsplit(...).netloc` unchanged, so `https://alice:basic-secret@example.test/path` retains both userinfo credentials. The recursive field matcher also requires separator boundaries around sensitive names; common JSON keys such as `accessToken` and `refreshToken` therefore pass through unchanged. I confirmed both cases with a narrow in-memory call to `redact_trace_value`. Since sanitized trace ZIPs are uploaded, these values can leave the runner in the retained diagnostic bundle.
-**Fix:** Strip or redact URL username/password before serialization and recognize sensitive token names case-insensitively across camel-case and separator forms (including access/refresh tokens). Add archive-level tests that stage traces containing URL userinfo and camel-case token fields, then assert the bundle contains neither secret and records each redaction.
-
-## Warnings
-
-### WR-01: Uploaded bundle drops manifest missing-file evidence
-
-**File:** `scripts/ci/ci-diagnostic-bundle.py:340-348`
-**Issue:** `write_manifest` records absent requested artifacts in `missing_files`, but `stage_bundle` omits that field when creating `bundle-manifest.json`. After upload, a consumer cannot tell that an expected report, trace, or command stream was unavailable; it sees only the subset of files that existed. This hides useful failure-state evidence even though the invocation manifest had it.
-**Fix:** Copy a validated `missing_files` list into the bundle metadata and verify it against the invocation manifest. Add a test where one explicitly requested file is absent and assert the uploaded bundle preserves its path as missing.
+The original CR-01 through CR-04 and WR-01 descriptions and fixes remain recorded in the original report commit `6bebfda76`; the dispositions above refer to those exact IDs.
 
 ---
 
-_Reviewed: 2026-10-24T19:50:11Z_  
+_Re-reviewed: 2026-10-24T20:08:45Z_  
 _Reviewer: the agent (gsd-code-reviewer)_  
 _Depth: standard_

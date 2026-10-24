@@ -69,3 +69,14 @@ No GitHub request, workflow dispatch, push, remote fetch, or distribution verifi
 _Fixed: 2026-10-24T20:03:30Z_  
 _Fixer: the agent (gsd-code-fixer)_  
 _Iteration: 1_
+
+## Follow-up: CR-04 URL fragment credentials
+
+**Updated:** 2026-10-24T20:09:40Z
+**Commit:** `871d3c33b`
+
+The focused re-review found that URL fragment credentials were still retained. `redact_url` now applies the same normalized sensitive-key matching to fragment parameters that it applies to query parameters. The finished-archive regression confirms `access_token`, `refreshToken`, and `api-key` values are absent, records all three redactions, and retains safe `state` and `tab` fragment values.
+
+**Verification:** `PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-diagnostic-bundle.test.py` — passed, 15 tests. The new finished-archive test failed before the fix with zero redactions, then passed after the fix. Bytecode writing remained disabled.
+
+Machine-readable follow-up evidence: `.planning/execution/255-review-fix/CR-04-FRAGMENT-FOLLOWUP.json`.
