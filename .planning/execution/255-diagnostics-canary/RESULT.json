@@ -639,6 +639,63 @@
           "sha256": "d5c10ccc06839d74c3f8cd7f2f0d9e8c6559f9d04ebe42a8bb6e9b821ce373ea"
         }
       ],
+      "failed_logs": {
+        "contains_intentional_assertion": true,
+        "member_count": 9,
+        "members": [
+          {
+            "path": "0_Phase 255 diagnostic fixture (failure).txt",
+            "sha256": "3e1d744aa63574840b1eaacf6026a8ea7643936c0ad35204d9079f185574bafe",
+            "size": 25724
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/12_Post Run actions_checkout@3d3c42e5aac5ba805825da76410c181273ba90b1.txt",
+            "sha256": "9690780d47f4f35a2ee40eefda7ca51d3c062e189c7a7e62cc7b80bb7594d967",
+            "size": 4096
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/13_Complete job.txt",
+            "sha256": "ca37f423dcbf5a86376d59c7883a1925517227a0f920d1dcec64b039e98f28ef",
+            "size": 61
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/1_Set up job.txt",
+            "sha256": "d92e767ab42ffea41965aee220baddd629fe0119c6b6cbd79e7e1aaf81deb1bc",
+            "size": 2013
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/2_Run actions_checkout@3d3c42e5aac5ba805825da76410c181273ba90b1.txt",
+            "sha256": "3ecca364c3d36dda6f4c7f690b177d2f471dc5fd716a773d9327b4dd799dfef0",
+            "size": 11023
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/3_Create invocation-owned synthetic diagnostic.txt",
+            "sha256": "5488e522800929be84e190ddff0836148108d377ba32545e252b18839044ead0",
+            "size": 2689
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/4_Upload source-bound diagnostics.txt",
+            "sha256": "7bf41a65a82b8fdbe94885bfdac7f7225c24b8d741b1f40fc3b2f6df3af9ab67",
+            "size": 5045
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/5_Deliberate fixture assertion failure.txt",
+            "sha256": "d4cd710696a94574fedc5b36ddbeba09096901f0232309c66760e5d55f383204",
+            "size": 815
+          },
+          {
+            "path": "Phase 255 diagnostic fixture (failure)/system.txt",
+            "sha256": "e2fd32281b439dda9766d03e8b6d4f158ca11c4b07dc8c6afb9db54922f57f07",
+            "size": 615
+          }
+        ],
+        "observed_at": "2026-10-24T19:10:22.385445+00:00",
+        "raw_bytes": 16754,
+        "raw_path": ".gsd/temp/phase255-failure-logs-40123954650/redirect-response.body.bin",
+        "raw_sha256": "39963d6d3d40d126c615faeff886e1ce831f990294f669f924a6e6e8464cfdb8",
+        "response_status": 200,
+        "retrieved": true
+      },
       "fixture_commit": "504aaa25ca047792ca70a62f78c164f8d908ddd9",
       "invocation_id": "phase255-failure-1792868930",
       "job_id": "diagnostic-fixture",

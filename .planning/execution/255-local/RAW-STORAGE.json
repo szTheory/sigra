@@ -1,4 +1,15 @@
 {
+  "additional_hosted_raw_roots": [
+    {
+      "entries": 2,
+      "exact_readback_verified": true,
+      "inventory_path": ".gsd/temp/phase255-failure-logs-40123954650-INVENTORY.json",
+      "inventory_sha256": "0e1892390e65d8b173d5f4596b1427afd5ca595269fda3f65de958ecce51088d",
+      "recovery_root": ".gsd/temp/phase255-failure-logs-40123954650",
+      "storage_kind": "generated_in_ignored_raw_root",
+      "tracked_files_restored": []
+    }
+  ],
   "additional_overhead_roots": [
     {
       "entries": 12123,
