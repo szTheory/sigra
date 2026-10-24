@@ -244,6 +244,8 @@ jobs:
         run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
       - name: Quality ledger monotonic guard self-test
         run: bash scripts/ci/quality-ledger-monotonic.test.sh
+      - name: Phoenix transport handoff regression
+        run: node --test scripts/ci/ci-phoenix-connection.test.mjs
       # Phase 216 (HARNESS-FOUNDATION): admin eval guards — read committed ledgers + merge-base.
       # These are the merge-blocking forward-only ratchets for the admin eval harness.
       # The expensive render+probe Playwright run is in the separate admin_eval_render job (JUDGE-CI-01).
