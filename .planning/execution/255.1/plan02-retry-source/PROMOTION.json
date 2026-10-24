@@ -1,0 +1,45 @@
+{
+  "status": "local_ready",
+  "candidate_sha": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+  "control_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
+  "local_status": "ready",
+  "hosted_status": "blocked",
+  "acceptance_samples": 0,
+  "prior_revisions": [
+    {
+      "path": ".planning/execution/255.1/SOURCES.json",
+      "sha256": "1838d912bf57a54f8a42deb8040fb4c3c8702fb12edab725835e360151bbbdf4",
+      "recovery_commit": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/execution/255.1/FEASIBILITY.json",
+      "sha256": "1a8f16791a18dc918348973e74370c844046a0de2cadfe15689e5faa77cef975",
+      "recovery_commit": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "3ddd28fda3be14bad2984e330325b8bf9f026fed6e64b2c66efb7ade244fba2c",
+      "recovery_commit": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "9c4a1ea8a50e9b9e50521b2329ec4723beab1390bb5c3dad89c98a3d1c45f4fe",
+      "recovery_commit": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "db0405f215d0ee7a8506999e7321bb34df1bc88a1dcce7e4c68b6282caf5dedc",
+      "recovery_commit": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "read_back_equal": true
+    }
+  ],
+  "failed_parity_recovery": {
+    "commit": "02c66b999deef1307c761f2b9cfaf21e8304c683",
+    "path": ".planning/execution/255.1/EQUIVALENT-WORK.json",
+    "sha256": "771bec9e3504993d08658f1f4157dd28d38e8d32a253b7e410332fdc6fdcf230"
+  }
+}

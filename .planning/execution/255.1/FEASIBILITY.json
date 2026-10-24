@@ -501,7 +501,7 @@
     }
   ],
   "smallest_corrective_step": "Continue local Plan02 to retain and compare complete useful work; keep hosted preparation and collection unauthorized.",
-  "source_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+  "source_sha": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
   "source_status": "constructed_treatment_only",
   "status": "blocked",
   "trigger_main_pr": true,

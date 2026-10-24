@@ -265,12 +265,12 @@
     "active_execution": {
       "task": "/root/execute_plan02",
       "plan": "255.1-02",
-      "status": "native_parity_pending_or_running",
-      "implementation_commit": "7a4e2fc7f52e0cb0a834bcc033624dd32e560599",
-      "source_refresh_commit": "03863a195",
+      "status": "native_parity_retry_pending_or_running",
+      "implementation_commit": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "source_refresh_record": ".planning/execution/255.1/plan02-retry-source/PROMOTION.json",
       "sources": ".planning/execution/255.1/SOURCES.json",
-      "candidate_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
-      "control_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+      "candidate_sha": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+      "control_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
       "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
     },
     "source_native_verification": {
@@ -311,12 +311,12 @@
   "active_execution": {
     "task": "/root/execute_plan02",
     "plan": "255.1-02",
-    "status": "native_parity_pending_or_running",
-    "implementation_commit": "7a4e2fc7f52e0cb0a834bcc033624dd32e560599",
-    "source_refresh_commit": "03863a195",
+    "status": "native_parity_retry_pending_or_running",
+    "implementation_commit": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+    "source_refresh_record": ".planning/execution/255.1/plan02-retry-source/PROMOTION.json",
     "sources": ".planning/execution/255.1/SOURCES.json",
-    "candidate_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
-    "control_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+    "candidate_sha": "fa4cdb6c4060b5850dcb01617614a46f64c4b6a1",
+    "control_sha": "98a86338f6381de859dba0c3c08df0d42c067e0a",
     "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
   }
 }
