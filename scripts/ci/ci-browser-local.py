@@ -209,6 +209,8 @@ def run_recorded(argv: list[str], cwd: Path, root: Path, invocation: str,
     _redact(invocation_root / "record.json", password)
     if result.returncode and result.stderr:
         print(result.stderr.rstrip(), file=sys.stderr)
+    if result.returncode < 0:
+        return 128 + -result.returncode
     return result.returncode
 
 
@@ -453,6 +455,7 @@ def _run_local(args: argparse.Namespace) -> int:
 
     process = None
     server_pid = None
+    startup_failure_listener = None
     primary_code = 0
     cleanup_errors: list[str] = []
     try:
@@ -460,6 +463,12 @@ def _run_local(args: argparse.Namespace) -> int:
         app_env = example_environment(example_env, database, args.port, owned_mix_build_path)
         app_env.update({"PHX_SERVER": "true", "SIGRA_EXAMPLE_URL": f"http://127.0.0.1:{args.port}"})
         argv = ["mix", "phx.server"]
+        if args.diagnostic_startup_failure:
+            startup_failure_listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            startup_failure_listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+            startup_failure_listener.bind(("127.0.0.1", args.port))
+            startup_failure_listener.listen()
+            owner["trace_unavailable_reason"] = "context_not_created"
         server_stdout = (output_root / "server.stdout.bin").open("xb")
         server_stderr = (output_root / "server.stderr.bin").open("xb")
         try:
@@ -477,7 +486,17 @@ def _run_local(args: argparse.Namespace) -> int:
                      serving_port=args.port)
         server_pid = process.pid
         write_json(output_root / OWNER_FILE, owner)
-        wait_ready(f"http://127.0.0.1:{args.port}/", process)
+        try:
+            wait_ready(f"http://127.0.0.1:{args.port}/", process)
+        except BrowserLocalError as error:
+            if not args.diagnostic_startup_failure:
+                raise
+            owner["server_startup_failure"] = {
+                "observed": True,
+                "error": str(error),
+                "trace_unavailable_reason": "context_not_created",
+            }
+            raise
         owner["server_status"] = "ready"
         write_json(output_root / OWNER_FILE, owner)
 
@@ -495,12 +514,18 @@ def _run_local(args: argparse.Namespace) -> int:
             })
             command = ["node", str(PLAYWRIGHT / "node_modules/playwright/cli.js"), "test",
                        "--config", str(DIAGNOSTIC_CONFIG), "--project=chromium", "--retries=0"]
+            if args.diagnostic_case == "terminate":
+                command.extend(["--grep", "retains a default-context first failure"])
             code = run_recorded(command, PLAYWRIGHT, output_root, f"diagnostic-{args.diagnostic_case}", diagnostic_env)
+            command_record_path = output_root / f"diagnostic-{args.diagnostic_case}" / "record.json"
+            command_record = json.loads(command_record_path.read_text()) if command_record_path.is_file() else {}
             owner["native_diagnostic"] = {
                 "case": args.diagnostic_case,
                 "invocation_id": invocation_id,
                 "native_identity": "chromium:playwright-diagnostics.spec.ts",
                 "exit_code": code,
+                "observed_signal": command_record.get("primary_signal"),
+                "trace_unavailable_reason": "runner_terminated" if command_record.get("primary_signal") else None,
                 "output_root": str(diagnostic_root),
             }
             write_json(output_root / OWNER_FILE, owner)
@@ -508,6 +533,8 @@ def _run_local(args: argparse.Namespace) -> int:
                 raise BrowserLocalError(f"passing diagnostic browser invocation failed; streams are in {output_root / f'diagnostic-{args.diagnostic_case}'}", code)
             if args.diagnostic_case == "fail" and code == 0:
                 raise BrowserLocalError("failing diagnostic browser invocation unexpectedly passed")
+            if args.diagnostic_case == "terminate" and command_record.get("primary_signal") != signal.SIGTERM:
+                raise BrowserLocalError("diagnostic browser invocation did not record the expected SIGTERM", code or 1)
             owner["test_result"] = f"diagnostic_{args.diagnostic_case}_observed"
         else:
             command = ["node", str(BROWSER_COMMAND), "list", "--seam", args.seam, "--event", args.event,
@@ -545,6 +572,8 @@ def _run_local(args: argparse.Namespace) -> int:
         owner["primary_error"] = f"{type(error).__name__}: {error}"
         print(owner["primary_error"], file=sys.stderr)
     finally:
+        if startup_failure_listener is not None:
+            startup_failure_listener.close()
         cleanup_errors = cleanup_owned_resources(owner, example_env, process)
         owner["cleanup_errors"] = cleanup_errors
         owner["ended_at"] = time.time()
@@ -586,12 +615,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--event", choices=EVENTS, required=True)
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--grep", help="narrow the selected seam to a matching test title")
-    parser.add_argument("--diagnostic-case", choices=("pass", "fail"), help="run the isolated real-browser diagnostics fixture")
+    parser.add_argument("--diagnostic-case", choices=("pass", "fail", "terminate"), help="run the isolated real-browser diagnostics fixture")
+    parser.add_argument("--diagnostic-startup-failure", action="store_true", help="occupy the owned port to capture a real Phoenix startup failure")
     parser.add_argument("--keep-output", action="store_true", help="retain the owned output directory after cleanup; diagnostics only")
     parser.add_argument("--output-root", help="new, non-existent directory for this invocation's diagnostics")
     args = parser.parse_args(argv)
-    if args.keep_output and not args.diagnostic_case:
-        parser.error("--keep-output is available only with --diagnostic-case")
+    if args.keep_output and not (args.diagnostic_case or args.diagnostic_startup_failure):
+        parser.error("--keep-output is available only with diagnostic mode")
+    if args.diagnostic_case and args.diagnostic_startup_failure:
+        parser.error("choose either --diagnostic-case or --diagnostic-startup-failure")
     try:
         return _run_local(args)
     except BrowserLocalError as error:

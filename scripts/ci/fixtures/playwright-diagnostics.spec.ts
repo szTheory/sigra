@@ -7,6 +7,12 @@ async function exerciseBrowserCase(page: Page) {
   const title = await page.title();
   const mode = process.env.SIGRA_DIAGNOSTIC_CASE;
 
+  if (mode === 'terminate') {
+    process.kill(process.ppid, 'SIGTERM');
+    process.kill(process.pid, 'SIGTERM');
+    return;
+  }
+
   if (mode === 'fail') {
     expect(title, 'intentional diagnostic assertion after a real browser navigation').toBe('Sigra diagnostic mismatch');
     return;
