@@ -1,0 +1,59 @@
+{
+  "budget_usage": {
+    "controller_requests": 13,
+    "elapsed_started_at": 1792867909.20091,
+    "infrastructure_retries": 0,
+    "invocations": 1,
+    "pushes": 1,
+    "test_retries": 0
+  },
+  "scenarios": {
+    "success": {
+      "actual_conclusion": "success",
+      "artifact_discovery": {
+        "api_identity_check": "failed",
+        "attempt_value_retained": false,
+        "exact_name_match_count": 1,
+        "expired": false
+      },
+      "artifacts": [],
+      "controller_error": "artifact_run_identity_mismatch",
+      "fixture_commit": "504aaa25ca047792ca70a62f78c164f8d908ddd9",
+      "invocation_id": "phase255-success-1792868114",
+      "missing_files": [],
+      "note": "The controller fetched and accepted the terminal run conclusion before it failed the artifact run identity comparison. The charged run API path preserves the run ID; the API attempt value and failing artifact identity field were not persisted. No artifact download or retry occurred.",
+      "observed_at": "2026-10-24T18:58:04+00:00",
+      "probe_id": "phase255-success-1792868114",
+      "retrieval_status": "not_downloaded",
+      "run_attempt": null,
+      "run_id": 40122912945,
+      "seam": "success",
+      "source_sha": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
+      "started_at": "2026-10-24T18:55:15+00:00",
+      "status": "blocked_identity_validation"
+    }
+  },
+  "schema_version": "sigra.ci-diagnostics-canary-result/v1",
+  "source_identity": {
+    "files": {
+      ".github/actions/ci-diagnostic-upload/action.yml": "d7f88a5e417abab7195eb7c1e6767cf5e509d7f645b662964b882bbe1c77a7ba",
+      ".github/actions/example-playwright-boot/action.yml": "0492dd0291d521b1f4a5bc4a83fb2e9feaecb6c71f50da73e342b309fbc6b3b5",
+      ".github/workflows/ci.yml": "759773968dc7e995dc7ca22bbb46baf16e0c85b4829433826cb7129a6c903a68",
+      "scripts/ci/ci-browser-command.mjs": "c060a7477ac2408c7672d7773869126a2a261e057bc2f5fe56bcaf2d4a860e01",
+      "scripts/ci/ci-diagnostic-bundle.py": "974db675a209897b155ff87f039aef27d510803812f6ed38739002f4946f0c0d",
+      "scripts/ci/ci-diagnostics-canary.py": "882be31ae4e4c6e40c687efd01f30507496d2329467739be37f151f6363a2345"
+    },
+    "source_sha": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
+    "tree": "6c81a404715cd1c9c78a04594a5e25eb7e46dbca"
+  },
+  "stop": {
+    "reason": "artifact_run_identity_mismatch",
+    "status": "blocked",
+    "stop_time": "2026-10-24T18:58:04+00:00",
+    "trace_overhead_status": "not_run",
+    "unattempted_scenarios": [
+      "failure",
+      "cancellation"
+    ]
+  }
+}
