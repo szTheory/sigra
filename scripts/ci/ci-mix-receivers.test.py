@@ -18,6 +18,25 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 
 class MixReceiverReportTest(unittest.TestCase):
+    def test_finalize_persists_real_receiver_reports_and_explains_missing_legs(self):
+        with tempfile.TemporaryDirectory(prefix="sigra-receiver-finalize-") as temp:
+            root = pathlib.Path(temp)
+            (root / "legs/ordinary").mkdir(parents=True)
+            (root / "legs/ordinary/exunit.json").write_text(json.dumps({"seed": 11, "tests": [{"test_id": "A.one", "status": "passed"}], "complete": True}))
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.py"), "finalize",
+                 "--output", str(root), "--report-output", str(root / "MIX-RECEIVERS.json"),
+                 "--primary-exit", "42"],
+                cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
+            )
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            report = json.loads((root / "MIX-RECEIVERS.json").read_text())
+            self.assertEqual(42, report["primary_exit_code"])
+            self.assertEqual(11, report["ordinary"]["seed"])
+            self.assertEqual("A.one", report["ordinary"]["tests"][0]["test_id"])
+            self.assertIn("legs/scaffold/exunit.json", {row["path"] for row in report["missing_reports"]})
+            self.assertTrue((root / "legs/ordinary/exunit.json").is_file(), "finalize must not remove child reports")
+
     def test_plan_native_cli_accepts_a_report_file_output(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.test.py"), "--native", "--help"],

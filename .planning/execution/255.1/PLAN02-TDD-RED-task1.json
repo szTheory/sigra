@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B scripts/ci/ci-mix-receivers.test.py MixReceiverReportTest.test_finalize_persists_real_receiver_reports_and_explains_missing_legs",
+  "exitCode": 1,
+  "output": "test_finalize_persists_real_receiver_reports_and_explains_missing_legs (__main__.MixReceiverReportTest.test_finalize_persists_real_receiver_reports_and_explains_missing_legs) ... FAIL\n\n======================================================================\nFAIL: test_finalize_persists_real_receiver_reports_and_explains_missing_legs (__main__.MixReceiverReportTest.test_finalize_persists_real_receiver_reports_and_explains_missing_legs)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-mix-receivers.test.py\", line 32, in test_finalize_persists_real_receiver_reports_and_explains_missing_legs\n    self.assertEqual(0, result.returncode, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2 : usage: ci-mix-receivers.py [-h] {leg,native} ...\nci-mix-receivers.py: error: argument mode: invalid choice: 'finalize' (choose from leg, native)\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.050s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_finalize_persists_real_receiver_reports_and_explains_missing_legs",
+  "targetFile": "scripts/ci/ci-mix-receivers.test.py",
+  "expected": "finalize persists receiver files and records unavailable reports",
+  "actual": "the CLI rejects the planned finalize mode",
+  "semanticAssessment": "The named unittest executed and failed because the production CLI has no finalize mode; the failure is the planned behavior gap, not a loader or fixture error."
+}
