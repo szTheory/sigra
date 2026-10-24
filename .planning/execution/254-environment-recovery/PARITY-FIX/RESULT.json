@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runs": {
+    "before": 40046955449,
+    "after": 40047078287
+  },
+  "full_CI_conclusions": {
+    "before": "success",
+    "after": "success"
+  },
+  "source_checks": "passed",
+  "native_cases": 108,
+  "product_cases": 105,
+  "setup_cases": 3,
+  "all_declared_caches": "exact_hits",
+  "native_image_owners": 6,
+  "native_images_match": true,
+  "invocations": 2,
+  "retries": 0,
+  "HTTP_requests": 124,
+  "total_initial_preparation_invocations": 10,
+  "previous_eight_outcomes_unchanged": true,
+  "measured_samples_at_preparation_closeout": 0,
+  "measurement_window_started_at_preparation_closeout": false,
+  "ready_for_fixed_comparison": true,
+  "readiness": "READINESS.json"
+}

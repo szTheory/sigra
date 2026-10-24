@@ -1,0 +1,197 @@
+{
+  "status": "ready",
+  "both_full_CI_runs": "success",
+  "all_declared_caches": "exact_hit",
+  "canonical_images_per_owner_equal": true,
+  "images": {
+    "before": {
+      "Example Playwright shard (admin_checkpoints)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (design_gallery)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (demo_showcase)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (non_admin_smoke)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (admin_behavior)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Library tests shard": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      }
+    },
+    "after": {
+      "Library tests shard": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (admin_behavior)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (design_gallery)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (demo_showcase)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (admin_checkpoints)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      },
+      "Example Playwright shard (non_admin_smoke)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+        "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+      }
+    }
+  },
+  "native_coverage": {
+    "status": "passed",
+    "mapping_rows": 108,
+    "product_rows": 105,
+    "setup_rows": 3,
+    "comparisons": [
+      {
+        "owner": "admin_behavior",
+        "result": {
+          "status": "passed",
+          "before_rows": 43,
+          "after_rows": 43,
+          "before_setup_rows": 0,
+          "after_setup_rows": 0,
+          "before_source": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+          "after_source": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+          "differences": []
+        }
+      },
+      {
+        "owner": "admin_checkpoints",
+        "result": {
+          "status": "passed",
+          "before_rows": 3,
+          "after_rows": 3,
+          "before_setup_rows": 0,
+          "after_setup_rows": 0,
+          "before_source": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+          "after_source": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+          "differences": []
+        }
+      },
+      {
+        "owner": "design_gallery",
+        "result": {
+          "status": "passed",
+          "before_rows": 39,
+          "after_rows": 39,
+          "before_setup_rows": 3,
+          "after_setup_rows": 3,
+          "before_source": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+          "after_source": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+          "differences": []
+        }
+      },
+      {
+        "owner": "non_admin_smoke",
+        "result": {
+          "status": "passed",
+          "before_rows": 16,
+          "after_rows": 16,
+          "before_setup_rows": 0,
+          "after_setup_rows": 0,
+          "before_source": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+          "after_source": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+          "differences": []
+        }
+      },
+      {
+        "owner": "demo_showcase",
+        "result": {
+          "status": "passed",
+          "before_rows": 4,
+          "after_rows": 4,
+          "before_setup_rows": 0,
+          "after_setup_rows": 0,
+          "before_source": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+          "after_source": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+          "differences": []
+        }
+      }
+    ]
+  },
+  "sources": {
+    "before": {
+      "application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+      "producer_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "tree_sha": "4207b705356619ddc7fdc20edf7190fc7330c117",
+      "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e"
+    },
+    "after": {
+      "application_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+      "producer_sha": "cd931364639de70d888f04132ce3c980ae491b3d",
+      "tree_sha": "75a08a5631aed56703f2ef1f20d60bd13ecf5d4a",
+      "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1"
+    }
+  },
+  "measured_samples": 0,
+  "window_started": false
+}
