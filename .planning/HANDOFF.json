@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:21:31.401196+00:00",
+  "updated_at": "2026-10-24T23:40:34.567689+00:00",
   "status": "executing_local",
   "current_milestone": "v1.50",
   "current_phase": "255.1",
@@ -261,7 +261,24 @@
     "source_feasibility": ".planning/execution/255.1/FEASIBILITY.json",
     "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
     "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
-    "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json"
+    "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json",
+    "active_execution": {
+      "task": "/root/execute_plan02",
+      "plan": "255.1-02",
+      "status": "native_parity_pending_or_running",
+      "implementation_commit": "7a4e2fc7f52e0cb0a834bcc033624dd32e560599",
+      "source_refresh_commit": "03863a195",
+      "sources": ".planning/execution/255.1/SOURCES.json",
+      "candidate_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "control_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+      "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
+    },
+    "source_native_verification": {
+      "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+      "status": "passed",
+      "record": ".planning/execution/255.1/unblock-source/NATIVE-RESULT.json",
+      "not_final_candidate_performance": true
+    }
   },
   "planning_status": "passed",
   "generated_state_preservation": {
@@ -290,5 +307,16 @@
     "Actual hosted PR/cache/runner/rules receipts remain unproved.",
     "Plans06 and07 retain separate concrete preparation and measurement approvals."
   ],
-  "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
+  "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
+  "active_execution": {
+    "task": "/root/execute_plan02",
+    "plan": "255.1-02",
+    "status": "native_parity_pending_or_running",
+    "implementation_commit": "7a4e2fc7f52e0cb0a834bcc033624dd32e560599",
+    "source_refresh_commit": "03863a195",
+    "sources": ".planning/execution/255.1/SOURCES.json",
+    "candidate_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+    "control_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+    "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
+  }
 }
