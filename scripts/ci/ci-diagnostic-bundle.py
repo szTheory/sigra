@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import pathlib
@@ -21,6 +22,8 @@ from ci_metrics_security import sanitize_failure_log, verified_failure_log, veri
 SCHEMA = "sigra.ci-diagnostic-bundle/v1"
 MAX_FILE_BYTES = 5 * 1024 * 1024
 MAX_BUNDLE_BYTES = 20 * 1024 * 1024
+MAX_TRACE_UNPACKED_BYTES = 20 * 1024 * 1024
+MAX_TRACE_MEMBERS = 512
 LOG_KINDS = {"log", "command_stdout", "command_stderr", "cleanup_stdout", "cleanup_stderr"}
 SECRET_SENTINEL = re.compile(
     rb"(?i)(SECRET[_ -]?SENTINEL|DO[_ -]?NOT[_ -]?UPLOAD|GH[pousr]_[A-Za-z0-9_]{20,}|"
@@ -140,6 +143,39 @@ def unsafe_content(payload: bytes) -> str | None:
     return None
 
 
+def inspect_trace_archive(payload: bytes) -> str | None:
+    """Inspect nested trace members before retaining a browser trace ZIP."""
+    try:
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            infos = archive.infolist()
+            names = [info.filename for info in infos]
+            if not infos or len(infos) > MAX_TRACE_MEMBERS or len(names) != len(set(names)):
+                raise ValueError("trace_archive_member_set_invalid")
+            total_unpacked = 0
+            for info in infos:
+                try:
+                    name = valid_relative_path(info.filename)
+                except ValueError:
+                    raise ValueError("trace_archive_member_path_invalid") from None
+                if info.is_dir():
+                    raise ValueError("trace_archive_directory_member_rejected")
+                mode = (info.external_attr >> 16) & 0o170000
+                if mode == stat.S_IFLNK:
+                    raise ValueError(f"trace_archive_symlink_rejected:{name}")
+                if auth_path(name):
+                    return "auth_state_path_detected"
+                total_unpacked += info.file_size
+                if total_unpacked > MAX_TRACE_UNPACKED_BYTES:
+                    raise ValueError("trace_archive_unpacked_size_limit_exceeded")
+                nested = archive.read(info)
+                unsafe = unsafe_content(nested)
+                if unsafe:
+                    return unsafe
+    except (OSError, zipfile.BadZipFile, KeyError) as error:
+        raise ValueError(f"trace_archive_invalid:{error}") from None
+    return None
+
+
 def stage_bundle(invocation_root: pathlib.Path, manifest_path: pathlib.Path, output: pathlib.Path) -> dict:
     root = pathlib.Path(invocation_root).resolve()
     if not root.is_dir():
@@ -167,7 +203,16 @@ def stage_bundle(invocation_root: pathlib.Path, manifest_path: pathlib.Path, out
                 withheld.append({"path": relative, "reason": "trace_provenance_missing"})
                 continue
         raw = source_bytes(root, relative, entry["sha256"])
-        unsafe = unsafe_content(raw)
+        unsafe = None
+        if kind == "trace":
+            try:
+                unsafe = inspect_trace_archive(raw)
+            except ValueError:
+                if not unsafe_content(raw):
+                    raise
+            unsafe = unsafe or unsafe_content(raw)
+        else:
+            unsafe = unsafe_content(raw)
         if unsafe:
             withheld.append({"path": relative, "reason": unsafe})
             continue
@@ -266,7 +311,11 @@ def verify_bundle(bundle: pathlib.Path, manifest_path: pathlib.Path) -> dict:
             verified = verified_zip_members(archive_path, expected_archive_hash,
                                              {"bundle-manifest.json": digest(archive.read("bundle-manifest.json")), **hashes})
             for name, payload in verified.items():
+                if name == "bundle-manifest.json":
+                    continue
                 unsafe = unsafe_content(payload)
+                if not unsafe and metadata["members"].get(name, {}).get("kind") == "trace":
+                    unsafe = inspect_trace_archive(payload)
                 if unsafe:
                     raise ValueError(f"unsafe_archive_content:{name}:{unsafe}")
             source_by_path = {entry["path"]: entry for entry in entries}

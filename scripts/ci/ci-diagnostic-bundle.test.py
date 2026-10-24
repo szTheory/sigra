@@ -203,7 +203,9 @@ class DiagnosticBundleTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp) / "invocation"
             root.mkdir()
-            manifest, _ = self.make_manifest(root, [("trace.zip", b"trace", "trace")],
+            trace = self.trace_zip({"trace.trace": b"{\\\"type\\\":\\\"before\\\",\\\"method\\\":\\\"goto\\\"}",
+                                    "resources/page.html": b"<html>synthetic account page</html>"})
+            manifest, _ = self.make_manifest(root, [("trace.zip", trace, "trace")],
                                              trace_provenance={"synthetic_account": True, "registered": True})
             output = pathlib.Path(temp) / "diagnostics.zip"
             staged = self.command("stage", root, manifest, output)
@@ -218,6 +220,46 @@ class DiagnosticBundleTest(unittest.TestCase):
             with zipfile.ZipFile(pathlib.Path(temp) / "no-trace.zip") as archive:
                 metadata = json.loads(archive.read("bundle-manifest.json"))
                 self.assertEqual("browser_context_never_opened", metadata["trace_unavailable_reason"])
+
+    def test_trace_archive_rejects_inner_traversal_symlinks_and_auth_paths(self):
+        unsafe_archives = [
+            self.trace_zip({"../escape.txt": b"outside"}),
+            self.trace_zip({".auth/storageState.json": b"{}"}),
+        ]
+        for payload in unsafe_archives:
+            with self.subTest(payload_hash=hashlib.sha256(payload).hexdigest()), tempfile.TemporaryDirectory() as temp:
+                root = pathlib.Path(temp) / "invocation"
+                root.mkdir()
+                manifest, _ = self.make_manifest(root, [("trace.zip", payload, "trace")],
+                                                 trace_provenance={"synthetic_account": True, "registered": True})
+                output = pathlib.Path(temp) / "diagnostics.zip"
+                staged = self.command("stage", root, manifest, output)
+                if b"../escape.txt" in payload:
+                    self.assertNotEqual(0, staged.returncode)
+                    self.assertIn("member_path_invalid", staged.stderr)
+                else:
+                    self.assertEqual(0, staged.returncode, staged.stderr)
+                    with zipfile.ZipFile(output) as archive:
+                        metadata = json.loads(archive.read("bundle-manifest.json"))
+                        self.assertNotIn("trace.zip", metadata["members"])
+                        self.assertIn("auth_state_path_detected", json.dumps(metadata["withheld"]))
+
+    def test_trace_archive_rejects_inner_symlink_members(self):
+        payload = io.BytesIO()
+        with zipfile.ZipFile(payload, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            member = zipfile.ZipInfo("resources/escape.html")
+            member.create_system = 3
+            member.external_attr = (0o120777 << 16)
+            archive.writestr(member, b"../../outside")
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            manifest, _ = self.make_manifest(root, [("trace.zip", payload.getvalue(), "trace")],
+                                             trace_provenance={"synthetic_account": True, "registered": True})
+            output = pathlib.Path(temp) / "diagnostics.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertNotEqual(0, staged.returncode)
+            self.assertIn("symlink_rejected", staged.stderr)
 
 
 if __name__ == "__main__":
