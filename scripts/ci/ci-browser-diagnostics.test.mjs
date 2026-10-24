@@ -245,7 +245,8 @@ async function nativeRun(outputFile) {
   assert.match(startupServerOutput, /eaddrinuse|address already in use/i, 'Phoenix did not report the intended occupied-port failure');
 
   const terminate = runOwnedCase(evidenceRoot, '04-runner-terminated', ['--diagnostic-case', 'terminate']);
-  rows.push({ case: 'runner_sigterm', expected_signal: 15, observed_exit: terminate.result.status, owner: terminate.owner, invocation_root: path.relative(outputRoot, terminate.output), trace_unavailable_reason: terminate.owner.native_diagnostic?.trace_unavailable_reason });
+  rows.push({ case: 'runner_sigterm', expected_wrapper_exit: 0, observed_wrapper_exit: terminate.result.status, expected_child_exit: 143, observed_child_exit: terminate.owner.native_diagnostic?.exit_code, expected_signal: 15, observed_signal: terminate.owner.native_diagnostic?.observed_signal, owner: terminate.owner, invocation_root: path.relative(outputRoot, terminate.output), trace_unavailable_reason: terminate.owner.native_diagnostic?.trace_unavailable_reason });
+  assert.equal(terminate.owner.native_diagnostic?.exit_code, 143, 'signal-compatible child exit code was not retained');
   assert.equal(terminate.owner.native_diagnostic?.observed_signal, 15, JSON.stringify(terminate.owner.native_diagnostic));
   assert.equal(terminate.owner.native_diagnostic?.trace_unavailable_reason, 'runner_terminated');
 
@@ -283,7 +284,7 @@ async function nativeRun(outputFile) {
 
   const sourceDiff = spawnSync('git', ['diff', '--binary', '--', 'scripts/ci/ci-browser-local.py', 'scripts/ci/ci-browser-diagnostics.test.mjs', 'scripts/ci/ci-diagnostic-bundle.py', 'scripts/ci/fixtures/playwright-diagnostics.spec.ts'], { cwd: root, encoding: 'buffer' });
   const head = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
-  const sourceIdentity = { source_sha: head, source_diff_sha256: digest(sourceDiff.stdout), dirty_status: spawnSync('git', ['status', '--short'], { cwd: root, encoding: 'utf8' }).stdout.trim() };
+  const sourceIdentity = { source_sha: head, source_diff_sha256: digest(sourceDiff.stdout), dirty_status: spawnSync('git', ['status', '--short', '--untracked-files=no', '--', 'scripts/ci/ci-browser-local.py', 'scripts/ci/ci-browser-diagnostics.test.mjs', 'scripts/ci/ci-diagnostic-bundle.py', 'scripts/ci/ci-diagnostic-bundle.test.py', 'scripts/ci/fixtures/playwright-diagnostics.spec.ts', 'test/example/priv/playwright/playwright.config.ts', 'test/example/priv/playwright/fixtures/adminTheme.ts', 'test/example/priv/playwright/lib/reporters/failure-jsonl.mjs'], { cwd: root, encoding: 'utf8' }).stdout.trim() };
   const runtime = { node: process.version, playwright: JSON.parse(fs.readFileSync(path.join(playwright, 'node_modules/@playwright/test/package.json'))).version, platform: process.platform, browser: 'Playwright Chromium, locked revision' };
 
   const plantedSecretTrace = path.join(evidenceRoot, 'planted-secret-trace.zip');
