@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phases 252 and 253 complete and verified; Phase 254 implementation complete; hosted comparison blocked)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phases 252, 253 and 255 verified; Phase 254 implementation complete; speed targets unproved; milestone audit gaps_found)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-execute-phase 254 — Conditional on proving an allowed real-PR path for the exact frozen baseline; continue the existing Plan254-08 checkpoint. Plans01–07 are implemented and locally checked. Current baseline PR331 merges a different tree/workflow, so no hosted prep/family or window started. Phase verification and CISPEED acceptance remain pending. See `.planning/execution/254-CONTINUATION.json`; eight summaries include one halted plan, not eight successes.
+**Next command:** $gsd-phase --insert 255 "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets" — Proposed performance closure scope; no phase inserted and no collection authorized by this audit. Phase254 comparison is terminal insufficient_data, with0 successful comparable pairs and both speed targets open. The milestone audit records4/9 fully cross-checked requirements,3 partial summary-metadata records and2 unsatisfied speed requirements. See `.planning/v1.50-MILESTONE-AUDIT.md`.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 

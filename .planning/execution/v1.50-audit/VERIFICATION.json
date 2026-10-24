@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-24T20:50:59.532Z",
+  "checks": [
+    "9 requirements cross-referenced:4 satisfied,3 partial,2 unsatisfied",
+    "FAIL gate remains gaps_found",
+    "17 integration links /7 flows,6 accepted",
+    "prior tracking bytes recoverable and read back at aaf04c4025e0d74addfcac62e84b7259ad5ef6c8",
+    "342 phase input hashes unchanged",
+    "63 regressions passed; zero failed",
+    "state, handoff, roadmap route aligned; no new phase or renewed collection",
+    "git diff --check passed; no product source changes"
+  ],
+  "milestone_passed": false
+}

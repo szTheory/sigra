@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -49,11 +49,11 @@
     }
   ],
   "next": {
-    "command": "$gsd-audit-milestone",
-    "label": "Audit the milestone",
-    "reason": "Phase255 is the last roadmap phase. Phase254 implementation is complete and its comparison is terminal insufficient_data; its two speed requirements and verification remain open. Audit the milestone before deciding how to handle that debt. No successor phase is created and no comparison allowance is reopened."
+    "command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+    "label": "Define performance closure scope",
+    "reason": "Audit found unproved CISPEED01/02, missing Phase254 verification and three summary metadata omissions. No phase exists after255; earlier254 has no runnable plans. Prior collection stays closed."
   },
-  "updated_at": "2026-10-24T20:38:45.370950+00:00",
+  "updated_at": "2026-10-24T20:50:30.524Z",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -156,9 +156,9 @@
   "phase255_completed_plans": 7,
   "phase255_implementation_status": "complete",
   "phase255_verification_status": "passed",
-  "workflow_step": "milestone_audit_ready",
-  "next_command": "$gsd-audit-milestone",
-  "resume_command": "$gsd-audit-milestone",
+  "workflow_step": "milestone_audit_gaps_found",
+  "next_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+  "resume_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
   "phase255_review_open": 0,
   "historical_verification_is_forward_blocker": false,
   "phase255_completion_preservation": {
@@ -171,5 +171,17 @@
       ".planning/REQUIREMENTS.md": "6d50998070f35889fbfc47db07dca5e6e7130d14266bb58b3ba9f5728b9a9f78"
     },
     "read_back_equal": true
+  },
+  "milestone_audit": {
+    "status": "gaps_found",
+    "path": ".planning/v1.50-MILESTONE-AUDIT.md",
+    "requirements_satisfied": 4,
+    "requirements_partial_metadata": 3,
+    "requirements_unsatisfied": 2,
+    "behavior_requirements_supported": 7,
+    "phases_verified": 3,
+    "phases_total": 4,
+    "next_roadmap_phase": null,
+    "prior_state_commit": "aaf04c4025e0d74addfcac62e84b7259ad5ef6c8"
   }
 }

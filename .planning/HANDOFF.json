@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:38:45.370950+00:00",
-  "status": "phase_complete",
+  "updated_at": "2026-10-24T20:50:30.524Z",
+  "status": "milestone_audit_gaps_found",
   "current_milestone": "v1.50",
   "current_phase": 255,
   "current_plan": null,
@@ -17,16 +17,15 @@
   "remaining_plans": [],
   "implementation_status": "complete",
   "verification_status": "passed",
-  "next_command": "$gsd-audit-milestone",
-  "resume_command": "$gsd-audit-milestone",
-  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md",
+  "next_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+  "resume_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+  "resume_file": ".planning/v1.50-MILESTONE-AUDIT.md",
   "readiness": {
-    "command": "query roadmap.analyze; query init.execute-phase 254; query init.transition",
+    "record": ".planning/execution/v1.50-audit/FORWARD-ROUTE.json",
     "next_phase": null,
-    "phase254_incomplete_count": 0,
     "phase254_runnable_count": 0,
-    "route": "$gsd-audit-milestone",
-    "record": ".planning/execution/255-verification/FORWARD-ROUTE.json"
+    "recommended_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+    "new_phase_created": false
   },
   "hosted_canary": {
     "status": "complete_closed",
@@ -61,7 +60,8 @@
     "final_trace_overhead": ".planning/execution/255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json",
     "regression_gate": ".planning/execution/255-verification/REGRESSION-GATE.json",
     "final_raw_recovery": ".planning/execution/255-verification/RAW-STORAGE-FINAL.json",
-    "verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md"
+    "verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md",
+    "milestone_audit": ".planning/v1.50-MILESTONE-AUDIT.md"
   },
   "constraints": [
     "Keep Phase 254 comparison terminal insufficient_data; no new comparison runs or renewed historical budget.",
@@ -113,9 +113,12 @@
   },
   "next_roadmap_phase": null,
   "remaining_milestone_items": [
-    "Phase254 verification",
     "CISPEED-01",
-    "CISPEED-02"
+    "CISPEED-02",
+    "Phase254 verification report",
+    "CIMEAS-01/02 and CIDX-01 summary completion metadata",
+    "Phase253 validation stale sign-off",
+    "Phase254 coverage audit"
   ],
   "completion_tool_preservation": {
     "commit": "8ba5a87607be94d582d3e5daf3e47cbf7fa4dc21",
@@ -132,5 +135,15 @@
     "commit": "d09e5ce2d",
     "path": ".planning/state.json",
     "restored_custom_fields": true
+  },
+  "milestone_audit": {
+    "status": "gaps_found",
+    "report": ".planning/v1.50-MILESTONE-AUDIT.md",
+    "cross_check": ".planning/execution/v1.50-audit/CROSS-CHECK.json",
+    "integration": ".planning/execution/v1.50-audit/INTEGRATION.json",
+    "checks": ".planning/execution/v1.50-audit/CHECKS.json",
+    "route": ".planning/execution/v1.50-audit/FORWARD-ROUTE.json",
+    "prior_tracking_commit": "aaf04c4025e0d74addfcac62e84b7259ad5ef6c8",
+    "prior_tracking_read_back": true
   }
 }

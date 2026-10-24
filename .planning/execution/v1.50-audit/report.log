@@ -1,0 +1,11 @@
+test_acceptance_sample_inflation_is_rejected (__main__.ComparisonReportTest.test_acceptance_sample_inflation_is_rejected) ... ok
+test_both_guides_link_the_same_report_and_real_offline_commands (__main__.ComparisonReportTest.test_both_guides_link_the_same_report_and_real_offline_commands) ... ok
+test_false_speed_pass_and_source_substitution_are_rejected (__main__.ComparisonReportTest.test_false_speed_pass_and_source_substitution_are_rejected) ... ok
+test_guides_document_prerequisites_seeded_commands_and_artifact_retention (__main__.ComparisonReportTest.test_guides_document_prerequisites_seeded_commands_and_artifact_retention) ... ok
+test_report_separates_development_diagnostics_and_missing_capture_files (__main__.ComparisonReportTest.test_report_separates_development_diagnostics_and_missing_capture_files) ... ok
+test_saved_sources_costs_and_zero_pair_result_are_literal (__main__.ComparisonReportTest.test_saved_sources_costs_and_zero_pair_result_are_literal) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+OK
