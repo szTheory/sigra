@@ -309,9 +309,22 @@ def assert_source_identity(freeze: dict, root: pathlib.Path) -> None:
     sha = expected["source_sha"]
     if subprocess.run(["git", "merge-base", "--is-ancestor", sha, "HEAD"], cwd=root, check=False).returncode:
         raise CanaryError("production_source_commit_not_ancestor")
+    maintenance = freeze.get("controller_maintenance")
     for path, digest in expected["files"].items():
         committed = subprocess.run(["git", "show", f"{sha}:{path}"], cwd=root, check=False, capture_output=True)
-        if committed.returncode or sha256_bytes(committed.stdout) != digest or file_digest(root, path) != digest:
+        committed_digest = sha256_bytes(committed.stdout)
+        if committed.returncode or committed_digest != digest:
+            raise CanaryError(f"production_source_file_changed:{path}")
+        if path == CONTROLLER and maintenance:
+            commit = maintenance.get("commit", "")
+            if (maintenance.get("base_controller_sha256") != digest
+                    or file_digest(root, path) != maintenance.get("controller_sha256")
+                    or not re.fullmatch(r"[0-9a-f]{40}", commit)
+                    or subprocess.run(["git", "merge-base", "--is-ancestor", commit, "HEAD"],
+                                      cwd=root, check=False).returncode):
+                raise CanaryError("controller_maintenance_identity_invalid")
+            continue
+        if file_digest(root, path) != digest:
             raise CanaryError(f"production_source_file_changed:{path}")
 
 
@@ -386,6 +399,25 @@ def verify_run_identity(expected: dict, run: dict) -> dict:
     if int(run["run_attempt"]) < 1 or int(run["id"]) <= 0:
         raise CanaryError("run_attempt_or_id_invalid")
     return {key: run[key] for key in sorted(required)}
+
+
+def verify_artifact_run_identity(artifact: dict, run: dict, expected_name: str) -> dict:
+    """Bind a listed artifact to its exact run and attempt, tolerating GitHub's omitted attempt field."""
+    if not isinstance(artifact, dict) or not isinstance(run, dict):
+        raise CanaryError("artifact_run_identity_incomplete")
+    workflow_run = artifact.get("workflow_run") or {}
+    if str(workflow_run.get("id")) != str(run.get("id")):
+        raise CanaryError("artifact_run_id_mismatch")
+    if artifact.get("name") != expected_name:
+        raise CanaryError("artifact_name_identity_mismatch")
+    attempt = workflow_run.get("run_attempt")
+    if attempt is not None and str(attempt) != str(run.get("run_attempt")):
+        raise CanaryError("artifact_run_attempt_mismatch")
+    if not run.get("id") or not run.get("run_attempt"):
+        raise CanaryError("artifact_run_identity_incomplete")
+    return {"run_id": run["id"], "run_attempt": run["run_attempt"],
+            "attempt_source": "artifact_api_and_run_endpoint" if attempt is not None
+            else "exact_artifact_name_and_run_endpoint"}
 
 
 def verify_bundle_bytes(payload: bytes, expected_identity: dict) -> dict:
@@ -694,9 +726,7 @@ def run_scenario(root: pathlib.Path, freeze_path: pathlib.Path, scenario: str) -
     matching = [item for item in artifacts.get("artifacts", []) if item.get("name") == artifact_name]
     if len(matching) != 1 or matching[0].get("expired"):
         raise CanaryError("expected_fixture_artifact_missing_or_expired")
-    artifact_run = matching[0].get("workflow_run") or {}
-    if str(artifact_run.get("id")) != str(run["id"]) or str(artifact_run.get("run_attempt")) != str(run["run_attempt"]):
-        raise CanaryError("artifact_run_identity_mismatch")
+    artifact_identity = verify_artifact_run_identity(matching[0], run, artifact_name)
     expected_identity = {"source_sha": freeze["source_identity"]["source_sha"], "run_id": run["id"],
         "run_attempt": run["run_attempt"], "job_id": "diagnostic-fixture", "seam": scenario,
         "invocation_id": probe_id, "artifact_name": artifact_name}
@@ -725,6 +755,7 @@ def run_scenario(root: pathlib.Path, freeze_path: pathlib.Path, scenario: str) -
         "fixture_commit": run["head_sha"], "job_id": "diagnostic-fixture", "invocation_id": probe_id,
         "seam": scenario, "actual_conclusion": terminal["conclusion"], "structured_run_summary": run_identity,
         "artifact_id": matching[0]["id"], "artifact_name": artifact_name,
+        "artifact_identity": artifact_identity,
         "retention_expires_at": matching[0].get("expires_at"),
         "artifacts": [{"path": str(artifact_path), "sha256": bundle["archive_sha256"],
                        "github_archive_path": retrieved["outer_path"], "github_archive_sha256": retrieved["outer_sha256"],
@@ -735,6 +766,68 @@ def run_scenario(root: pathlib.Path, freeze_path: pathlib.Path, scenario: str) -
     results["budget_usage"] = load_freeze(freeze_path)["usage"]
     atomic_json(result_path, results)
     return scenario_result
+
+
+def retrieve_existing_success(root: pathlib.Path, freeze_path: pathlib.Path, run_json: pathlib.Path,
+                              artifacts_json: pathlib.Path, probe_id: str) -> dict:
+    """Recover one completed success artifact from saved API responses; never dispatch a new run."""
+    freeze = load_freeze(freeze_path)
+    assert_source_identity(freeze, root)
+    try:
+        run = json.loads(run_json.read_text(encoding="utf-8"))
+        listing = json.loads(artifacts_json.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise CanaryError(f"saved_identity_response_unreadable:{error}") from None
+    run_identity = verify_run_identity(freeze, run)
+    if (run.get("status") != "completed" or run.get("conclusion") != "success"
+            or probe_id not in str(run.get("display_title", ""))):
+        raise CanaryError("saved_run_not_exact_success")
+    run_id, attempt = run["id"], run["run_attempt"]
+    expected_name = (f"sigra-ci-{freeze['source_identity']['source_sha']}-{run_id}-{attempt}"
+                     f"-diagnostic-fixture-success-{probe_id}")
+    matches = [item for item in listing.get("artifacts", []) if item.get("name") == expected_name]
+    if len(matches) != 1 or matches[0].get("expired"):
+        raise CanaryError("expected_fixture_artifact_missing_or_expired")
+    artifact = matches[0]
+    artifact_identity = verify_artifact_run_identity(artifact, run, expected_name)
+    expected_identity = {"source_sha": freeze["source_identity"]["source_sha"], "run_id": run_id,
+        "run_attempt": attempt, "job_id": "diagnostic-fixture", "seam": "success",
+        "invocation_id": probe_id, "artifact_name": expected_name}
+    artifact_path = freeze_path.parent / "artifacts" / f"success-{run_id}-{attempt}.zip"
+    retrieved = retrieve_bundle(freeze_path, root, int(artifact["id"]), artifact_path, expected_identity)
+    bundle = verify_bundle_bytes(retrieved["payload"], expected_identity)
+    with zipfile.ZipFile(__import__("io").BytesIO(retrieved["payload"])) as archive:
+        diagnostic = json.loads(archive.read("scenario.json"))
+    expected_record = {"scenario": "success", "probe_id": probe_id,
+        "source_sha": freeze["source_identity"]["source_sha"], "fixture_commit": run["head_sha"],
+        "run_id": run_id, "run_attempt": attempt, "job_id": "diagnostic-fixture"}
+    for key, value in expected_record.items():
+        if str(diagnostic.get(key)) != str(value):
+            raise CanaryError(f"fixture_record_identity_mismatch:{key}")
+    if diagnostic.get("capture_state") != "complete" or diagnostic.get("expected_missing"):
+        raise CanaryError("fixture_final_capture_contract_invalid")
+
+    result_path = freeze_path.parent / "RESULT.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    previous = result.setdefault("scenarios", {}).get("success", {})
+    result["scenarios"]["success"] = {
+        **previous, "status": "success_artifact_retrieved", "retrieval_status": "verified",
+        "actual_conclusion": "success", "run_id": run_id, "run_attempt": attempt,
+        "source_sha": freeze["source_identity"]["source_sha"], "fixture_commit": run["head_sha"],
+        "job_id": "diagnostic-fixture", "seam": "success", "invocation_id": probe_id,
+        "probe_id": probe_id, "artifact_id": artifact["id"], "artifact_name": expected_name,
+        "retention_expires_at": artifact.get("expires_at"), "artifact_identity": artifact_identity,
+        "run_identity": run_identity,
+        "identity_recovery": {"reason": "GitHub artifact workflow_run omitted run_attempt",
+            "run_response": str(run_json), "artifact_list_response": str(artifacts_json)},
+        "artifacts": [{"path": str(artifact_path), "sha256": bundle["archive_sha256"],
+            "github_archive_path": retrieved["outer_path"], "github_archive_sha256": retrieved["outer_sha256"],
+            "members": bundle["member_hashes"]}],
+        "missing_files": [], "partial_capture": None,
+    }
+    result["budget_usage"] = load_freeze(freeze_path)["usage"]
+    atomic_json(result_path, result)
+    return result["scenarios"]["success"]
 
 
 def main() -> int:
@@ -753,6 +846,12 @@ def main() -> int:
     verify = sub.add_parser("verify")
     verify.add_argument("--freeze", type=pathlib.Path, required=True)
     verify.add_argument("--output", type=pathlib.Path, required=True)
+    retrieve = sub.add_parser("retrieve-existing-success")
+    retrieve.add_argument("--freeze", type=pathlib.Path, required=True)
+    retrieve.add_argument("--run-json", type=pathlib.Path, required=True)
+    retrieve.add_argument("--artifacts-json", type=pathlib.Path, required=True)
+    retrieve.add_argument("--probe-id", required=True)
+    retrieve.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
     rate = sub.add_parser("rate")
     rate.add_argument("--freeze", type=pathlib.Path, required=True)
     charge = sub.add_parser("charge")
@@ -784,6 +883,9 @@ def main() -> int:
             result = verify_terminal_results(freeze_data, result_data)
             result_data["verification"] = result
             atomic_json(args.output, result_data)
+        elif args.command == "retrieve-existing-success":
+            result = retrieve_existing_success(args.root, args.freeze, args.run_json,
+                                               args.artifacts_json, args.probe_id)
         elif args.command == "rate":
             result = github_json(args.freeze, pathlib.Path.cwd(), "/rate_limit")
         elif args.command == "charge":
