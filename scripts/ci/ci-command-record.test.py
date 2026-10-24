@@ -62,6 +62,18 @@ class CommandRecordTest(unittest.TestCase):
             self.assertEqual(signal.SIGTERM, record["primary_signal"])
             self.assertIsNone(record["primary_exit_code"])
 
+    def test_child_sigkill_is_recorded_and_reemitted_to_caller(self):
+        if not hasattr(signal, "SIGKILL"):
+            self.skipTest("SIGKILL is unavailable on this platform")
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            source = "import os, signal; os.kill(os.getpid(), signal.SIGKILL)"
+            result = self.invoke(root, "sigkill-1", [sys.executable, "-c", source])
+            record = json.loads((root / "sigkill-1" / "record.json").read_text())
+            self.assertEqual(-signal.SIGKILL, result.returncode)
+            self.assertEqual(signal.SIGKILL, record["primary_signal"])
+            self.assertIsNone(record["primary_exit_code"])
+
     def test_missing_startup_command_has_concrete_record_and_no_seed(self):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp)

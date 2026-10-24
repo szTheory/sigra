@@ -214,7 +214,11 @@ def main() -> int:
 
     if primary_outcome[1] is not None:
         sig = primary_outcome[1]
-        signal.signal(sig, signal.SIG_DFL)
+        # SIGKILL and SIGSTOP cannot be caught or restored.  In particular,
+        # signal.signal(SIGKILL, ...) raises before the recorder can preserve
+        # the child's native outcome for its caller.
+        if sig not in {getattr(signal, "SIGKILL", None), getattr(signal, "SIGSTOP", None)}:
+            signal.signal(sig, signal.SIG_DFL)
         os.kill(os.getpid(), sig)
         return 128 + sig
     if primary_outcome[0] not in (None, 0):
