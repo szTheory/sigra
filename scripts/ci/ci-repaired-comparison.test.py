@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -76,6 +77,63 @@ class LocalTracerTests(unittest.TestCase):
             report.unlink()
             with self.assertRaises(ValueError):
                 module.validate_local_report(report, '0' * 64, identity, 0)
+
+    def test_real_cli_materializes_source_runs_receiver_and_evaluates_fixture(self):
+        # Native prerequisites are hermetic executables. The CLI, Git checkout,
+        # receiver, command recorder, policy resolver and evaluator are real.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / 'repo'
+            root.mkdir()
+            for name in ('ci-repaired-comparison.py', 'ci-mix-receivers.py',
+                         'ci-command-record.py', 'ci-browser-command.mjs',
+                         'ci-run-metrics.sh', 'ci_metrics_security.py'):
+                target = root / 'scripts/ci' / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / 'scripts/ci' / name, target)
+            for name in ('.github/workflows/ci.yml', 'mix.exs', 'mix.lock', '.tool-versions',
+                         'test/example/priv/static/assets/js/app.js',
+                         'test/example/priv/playwright/playwright.config.ts'):
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, target)
+            (root / '.gitignore').write_text('deps/\n_build/\n')
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            subprocess.run(['git', 'add', '.'], cwd=root, check=True)
+            subprocess.run(['git', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                            '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture source'], cwd=root, check=True)
+            for name in ('deps', '_build'):
+                (root / name).mkdir()
+            binaries = Path(tmp) / 'bin'
+            binaries.mkdir()
+            mix = binaries / 'mix'
+            mix.write_text('#!' + sys.executable + "\n" +
+                "import json,os,pathlib,sys\n" +
+                "if sys.argv[1:]==['archive']: print('phx_new-1.8.8')\n" +
+                "elif sys.argv[1:]==['--version']: print('Mix 1.19.5')\n" +
+                "elif sys.argv[1:]==['test','test/sigra/config_test.exs']:\n" +
+                " p=pathlib.Path(os.environ['SIGRA_EXUNIT_TIMING_JSON'])\n" +
+                " p.write_text(json.dumps({'complete':True,'seed':17,'failed_count':0," +
+                "'failed_test_ids':[],'tests':[{'test_id':'fixture config child','result':'passed'}]}))\n" +
+                "else: sys.exit(31)\n")
+            for name, text in (('elixir', 'Erlang/OTP 28 [fixture]\nElixir 1.19.5 (fixture)'), ('psql', '1')):
+                (binaries / name).write_text('#!' + sys.executable + '\nprint(' + repr(text) + ')\n')
+            for binary in binaries.iterdir():
+                binary.chmod(0o755)
+            output = Path(tmp) / 'receipt.json'
+            env = {**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH']}
+            child = subprocess.run([sys.executable, '-B', str(root / 'scripts/ci/ci-repaired-comparison.py'),
+                                    'local-tracer', '--source', 'HEAD', '--output', str(output)],
+                                   cwd=root, env=env, capture_output=True, text=True, timeout=60)
+            receipt = json.loads(output.read_text())
+            self.assertEqual(child.returncode, 0, str(receipt))
+            self.assertEqual(receipt['status'], 'passed')
+            self.assertEqual(receipt['observation']['seed'], 17)
+            self.assertEqual(receipt['observation']['test_ids'], ['fixture config child'])
+            self.assertEqual(receipt['evaluation']['status'], 'insufficient_data')
+            self.assertEqual(receipt['acceptance_samples'], 0)
+            self.assertEqual(receipt['remote_requests'], 0)
+            self.assertEqual(receipt['remote_mutations'], 0)
+            self.assertEqual(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root), b'')
 
     def test_existing_receipt_is_never_overwritten(self):
         with tempfile.TemporaryDirectory() as tmp:
