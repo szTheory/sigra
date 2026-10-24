@@ -1247,7 +1247,7 @@ def _run_browser_policy(workflow_bytes, producers, identity):
         root = Path(tmp) / "root"
         (root / "scripts/ci").mkdir(parents=True)
         (root / ".github/workflows").mkdir(parents=True)
-        for name in ("ci-browser-records.mjs", "ci-playwright-report.mjs"):
+        for name in ("ci-browser-records.mjs", "ci-playwright-report.mjs", "ci-browser-command.mjs"):
             shutil.copyfile(Path(__file__).with_name(name), root / "scripts/ci" / name)
         (root / ".github/workflows/ci.yml").write_bytes(workflow_bytes)
         aggregate = Path(tmp) / "aggregate"
