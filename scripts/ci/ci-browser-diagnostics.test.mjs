@@ -107,11 +107,12 @@ function assertReadableTrace(file) {
   const listing = spawnSync('unzip', ['-Z1', file], { encoding: 'utf8' });
   assert.equal(listing.status, 0, listing.stderr);
   const members = listing.stdout.trim().split('\n');
-  assert.ok(members.some((name) => /trace\.(trace|network)$/.test(name)), `trace archive lacks trace records: ${members.join(', ')}`);
-  const text = spawnSync('unzip', ['-p', file, 'trace.trace'], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
+  const traceMember = members.find((name) => name === 'trace.trace') ?? members.find((name) => /\.trace$/.test(name));
+  assert.ok(traceMember, `trace archive lacks trace records: ${members.join(', ')}`);
+  const text = spawnSync('unzip', ['-p', file, traceMember], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
   assert.equal(text.status, 0, text.stderr);
   assert.match(text.stdout, /context|page|action|frame/i);
-  return { members, sha256: digest(fs.readFileSync(file)) };
+  return { members, trace_member: traceMember, sha256: digest(fs.readFileSync(file)) };
 }
 
 function toolRecorderCase(directory, name, argv, env = {}) {
@@ -135,7 +136,7 @@ async function nativeRun(outputFile) {
   assert.notEqual(firstFailure.owner.native_diagnostic?.exit_code, 0, 'the assertion failure must be real and reported by Playwright');
   const firstTraces = traceFiles(firstFailure.output);
   assert.ok(firstTraces.length >= 2, `expected Playwright and adminTheme traces, found ${firstTraces.length}`);
-  const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], members: assertReadableTrace(file).members }));
+  const firstTraceFacts = firstTraces.map((file) => ({ ...traceFacts([file])[0], ...assertReadableTrace(file) }));
 
   const followingPass = runOwnedCase(evidenceRoot, '02-pass-after-failure', ['--diagnostic-case', 'pass']);
   rows.push({ case: 'pass_after_failure', expected_exit: 0, observed_exit: followingPass.result.status, owner: followingPass.owner, invocation_root: path.relative(outputRoot, followingPass.output) });
