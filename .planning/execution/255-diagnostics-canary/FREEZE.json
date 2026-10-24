@@ -396,9 +396,19 @@
         "request": true,
         "scenario": null,
         "test_retry": false
+      },
+      {
+        "at": "2026-10-24T18:58:37+00:00",
+        "infrastructure_retry": false,
+        "invocation": false,
+        "operation": "artifact-list-recovery:run=40122912945",
+        "push": false,
+        "request": true,
+        "scenario": null,
+        "test_retry": false
       }
     ],
-    "controller_requests": 13,
+    "controller_requests": 14,
     "elapsed_started_at": 1792867909.20091,
     "infrastructure_retries": 0,
     "invocations": 1,
