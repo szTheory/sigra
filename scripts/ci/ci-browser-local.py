@@ -41,6 +41,23 @@ class BrowserLocalError(RuntimeError):
         self.code = code
 
 
+class RunnerTerminated(Exception):
+    def __init__(self, signum: int):
+        super().__init__(f"runner received signal {signum}")
+        self.signum = signum
+
+
+RUNNER_TERMINATION_SIGNAL: int | None = None
+
+
+def _handle_sigterm(signum, _frame) -> None:
+    global RUNNER_TERMINATION_SIGNAL
+    if RUNNER_TERMINATION_SIGNAL is not None:
+        return
+    RUNNER_TERMINATION_SIGNAL = signum
+    raise RunnerTerminated(signum)
+
+
 def port_available(port: int, host: str = "127.0.0.1") -> bool:
     """Return whether an IPv4 loopback port can be bound, without touching its owner."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
@@ -201,14 +218,41 @@ def run_recorded(argv: list[str], cwd: Path, root: Path, invocation: str,
                  env: dict[str, str]) -> int:
     command = [sys.executable, str(RECORDER), "--cwd", str(cwd), "--output-root", str(root),
                "--invocation", invocation, "--", *argv]
-    result = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, text=True, check=False)
+    result = subprocess.Popen(command, cwd=ROOT, env=env, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, text=True, start_new_session=(os.name == "posix"))
+    try:
+        _, stderr = result.communicate()
+    except RunnerTerminated:
+        # The recorder and its command share this invocation-owned process
+        # group. Stop exactly that group before unwinding to owned-resource
+        # cleanup so no Playwright/recorder child remains blocked.
+        if result.poll() is None:
+            try:
+                if os.name == "posix":
+                    os.killpg(result.pid, signal.SIGTERM)
+                else:
+                    result.terminate()
+            except ProcessLookupError:
+                pass
+            try:
+                result.wait(timeout=8)
+            except subprocess.TimeoutExpired:
+                if os.name == "posix":
+                    try:
+                        os.killpg(result.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                else:
+                    result.kill()
+                result.wait(timeout=8)
+        raise
     invocation_root = root / invocation
     password = env.get("PGPASSWORD", "")
     for name in ("stdout.bin", "stderr.bin", "cleanup.stdout.bin", "cleanup.stderr.bin"):
         _redact(invocation_root / name, password)
     _redact(invocation_root / "record.json", password)
-    if result.returncode and result.stderr:
-        print(result.stderr.rstrip(), file=sys.stderr)
+    if result.returncode and stderr:
+        print(stderr.rstrip(), file=sys.stderr)
     if result.returncode < 0:
         return 128 + -result.returncode
     return result.returncode
@@ -458,7 +502,9 @@ def _run_local(args: argparse.Namespace) -> int:
     startup_failure_listener = None
     primary_code = 0
     cleanup_errors: list[str] = []
+    previous_sigterm_handler = signal.getsignal(signal.SIGTERM)
     try:
+        signal.signal(signal.SIGTERM, _handle_sigterm)
         prepare_owned_example(source_env, output_root, database, token, args.port, owner)
         app_env = example_environment(example_env, database, args.port, owned_mix_build_path)
         app_env.update({"PHX_SERVER": "true", "SIGRA_EXAMPLE_URL": f"http://127.0.0.1:{args.port}"})
@@ -568,6 +614,11 @@ def _run_local(args: argparse.Namespace) -> int:
         primary_code = 130
         owner["test_result"] = "interrupted"
         owner["primary_exit_code"] = primary_code
+    except RunnerTerminated as terminated:
+        primary_code = 128 + terminated.signum
+        owner["test_result"] = "terminated"
+        owner["primary_exit_code"] = primary_code
+        owner["primary_signal"] = terminated.signum
     except BrowserLocalError as error:
         primary_code = error.code or 1
         owner["test_result"] = "failed"
@@ -615,6 +666,7 @@ def _run_local(args: argparse.Namespace) -> int:
                 print(f"Selected: {identity['project']} {identity['file']} :: {title_path} [{identity['expected_status']}]")
         for error in cleanup_errors:
             print(f"Cleanup issue: {error}", file=sys.stderr)
+        signal.signal(signal.SIGTERM, previous_sigterm_handler)
     return primary_code
 
 

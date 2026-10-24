@@ -11,6 +11,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import time
 import uuid
 from importlib.util import module_from_spec, spec_from_file_location
 from unittest.mock import patch
@@ -183,6 +184,134 @@ def _port_has_listener(port):
         return probe.connect_ex(("127.0.0.1", port)) == 0
 
 
+def _process_rows():
+    result = subprocess.run(["ps", "-axo", "pid=,pgid=,command="], capture_output=True, text=True, check=True)
+    rows = []
+    for line in result.stdout.splitlines():
+        fields = line.strip().split(maxsplit=2)
+        if len(fields) == 3:
+            rows.append((int(fields[0]), int(fields[1]), fields[2]))
+    return rows
+
+
+def _wait_for_playwright_group(timeout=180):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        for pid, pgid, command in _process_rows():
+            if "playwright/cli.js" in command and " test " in command:
+                return pid, pgid
+        time.sleep(0.05)
+    return None
+
+
+def _process_group_members(pgid):
+    return [pid for pid, group, _ in _process_rows() if group == pgid]
+
+
+def _native_sigterm_test(env, admin_database, before_names, before_database):
+    """Send SIGTERM to the real outer runner while its browser command is active."""
+    temporary_root = Path(tempfile.mkdtemp(prefix="sigra255-browser-sigterm-"))
+    output_root = temporary_root / "owned-output"
+    unrelated_listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    unrelated_listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
+    unrelated_listener.bind(("127.0.0.1", 0))
+    unrelated_listener.listen()
+    unrelated_port = unrelated_listener.getsockname()[1]
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.bind(("127.0.0.1", 0))
+        owned_port = probe.getsockname()[1]
+    command = [sys.executable, str(Path(__file__).with_name("ci-browser-local.py")),
+        "--seam", "non_admin_smoke", "--event", "pull_request", "--port", str(owned_port),
+        "--diagnostic-case", "fail", "--keep-output", "--output-root", str(output_root)]
+    runner = subprocess.Popen(command, cwd=ROOT, env=env, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, text=True)
+    owner_path = output_root / local.OWNER_FILE
+    owner = {}
+    active_process = None
+    runner_output = ("", "")
+    passed = False
+    try:
+        deadline = time.monotonic() + 180
+        while time.monotonic() < deadline:
+            if owner_path.is_file():
+                owner = json.loads(owner_path.read_text())
+                if owner.get("server_status") == "ready":
+                    active_process = _wait_for_playwright_group(timeout=20)
+                    break
+            if runner.poll() is not None:
+                runner_output = runner.communicate(timeout=5)
+                raise AssertionError(f"runner exited before active browser command: {runner.returncode} {runner_output[1]}")
+            time.sleep(0.05)
+        if not owner.get("server_status") == "ready" or active_process is None:
+            raise AssertionError("real outer runner did not reach an active Playwright command")
+
+        active_pid, active_pgid = active_process
+        server_pid = int(owner["owned_pid"])
+        database = owner["owned_database"]
+        marker = owner["ownership_token"]
+        runner.send_signal(signal.SIGTERM)
+        runner_output = runner.communicate(timeout=20)
+        owner = json.loads(owner_path.read_text())
+
+        if runner.returncode != 128 + signal.SIGTERM:
+            raise AssertionError(f"outer runner did not preserve SIGTERM as 143: {runner.returncode}")
+        if owner.get("primary_signal") != signal.SIGTERM or owner.get("primary_exit_code") != 143:
+            raise AssertionError(f"runner owner record omitted SIGTERM outcome: {owner}")
+        if owner.get("cleanup_errors"):
+            raise AssertionError(f"owned cleanup reported errors after SIGTERM: {owner['cleanup_errors']}")
+        if owner.get("database_created") or owner.get("owned_pid") is not None:
+            raise AssertionError("outer SIGTERM left owned database or server recorded as active")
+
+        names_after = _psql_value(env, "SELECT datname FROM pg_database WHERE datname LIKE 'sigra_repro_%' ORDER BY datname;").splitlines()
+        database_after = _psql_value(env, f"SELECT oid || '|' || datname || '|' || datallowconn || '|' || datconnlimit FROM pg_database WHERE datname = '{admin_database}';")
+        if database in names_after or not set(before_names) <= set(names_after):
+            raise AssertionError("outer SIGTERM did not remove only its owned database")
+        if database_after != before_database:
+            raise AssertionError("unrelated PostgreSQL database changed during SIGTERM cleanup")
+        if _port_has_listener(owned_port):
+            raise AssertionError("outer SIGTERM left its Phoenix server listening")
+        if _process_group_members(server_pid) or _process_group_members(active_pgid):
+            raise AssertionError("outer SIGTERM left an owned server or active command process")
+        if unrelated_listener.fileno() < 0 or _port_has_listener(unrelated_port) is False:
+            raise AssertionError("outer SIGTERM changed the unrelated listener")
+
+        result = {"status": "passed", "command": command, "outer_exit_code": runner.returncode,
+                "primary_signal": signal.SIGTERM, "primary_exit_code": 143,
+                "owned_database_removed": True, "owned_server_group_removed": True,
+                "active_command_pid": active_pid, "active_command_group_removed": True,
+                "unrelated_database_unchanged": True, "unrelated_listener_still_listening": True}
+        passed = True
+        return result
+    finally:
+        if runner.poll() is None:
+            runner.send_signal(signal.SIGTERM)
+            try:
+                runner.communicate(timeout=20)
+            except subprocess.TimeoutExpired:
+                runner.kill()
+                runner.communicate(timeout=5)
+        if owner_path.is_file():
+            try:
+                owner = json.loads(owner_path.read_text())
+                pid = owner.get("owned_pid")
+                if isinstance(pid, int):
+                    os.killpg(pid, signal.SIGKILL)
+                database = owner.get("owned_database")
+                token = owner.get("ownership_token")
+                if owner.get("database_created") and database and token:
+                    admin_env = dict(env)
+                    admin_env["PGDATABASE"] = admin_database
+                    if local._database_comment(database, admin_env) == f"sigra-repro:{token}":
+                        local.drop_marked_database(database, token, admin_env)
+            except (OSError, local.BrowserLocalError):
+                pass
+        unrelated_listener.close()
+        if passed:
+            shutil.rmtree(temporary_root, ignore_errors=True)
+        else:
+            print(f"Preserved failed outer SIGTERM probe: {temporary_root}", file=sys.stderr)
+
+
 def _native_test():
     env = dict(os.environ)
     env.setdefault("PGHOST", "localhost")
@@ -198,6 +327,7 @@ def _native_test():
     if not before_database:
         raise AssertionError(f"configured PostgreSQL admin database does not exist: {admin_database}")
     runtime = local.check_runtime_prerequisites(env)
+    sigterm_evidence = _native_sigterm_test(env, admin_database, before_names, before_database)
     source = local._source_identity()
     evidence = {
         "schema_version": "sigra.browser-local-native/v1",
@@ -207,6 +337,7 @@ def _native_test():
         "safe_postgres_settings": local.safe_pg_configuration(env),
         "unrelated_database": {"name": admin_database, "fingerprint_before": before_database},
         "unrelated_database_names_before": before_names,
+        "outer_sigterm_cleanup": sigterm_evidence,
     }
 
     temporary_root = Path(tempfile.mkdtemp(prefix="sigra255-browser-native-"))
@@ -295,6 +426,32 @@ def _native_test():
     print(f"Native evidence: {NATIVE_EVIDENCE.relative_to(ROOT)}")
     print(f"Native identity: {selected_lines}")
     print("Owned PostgreSQL database and Phoenix server cleaned; unrelated database fingerprint unchanged.")
+
+
+def _native_sigterm_only():
+    env = dict(os.environ)
+    env.setdefault("PGHOST", "localhost")
+    env.setdefault("PGPORT", "5432")
+    env.setdefault("PGUSER", getpass.getuser())
+    admin_database = env.get("PGDATABASE") or env["PGUSER"]
+    env["PGDATABASE"] = admin_database
+    names_query = "SELECT datname FROM pg_database WHERE datname LIKE 'sigra_repro_%' ORDER BY datname;"
+    fingerprint_query = ("SELECT oid || '|' || datname || '|' || datallowconn || '|' || datconnlimit "
+                         f"FROM pg_database WHERE datname = '{admin_database}';")
+    before_names = _psql_value(env, names_query).splitlines()
+    before_database = _psql_value(env, fingerprint_query)
+    if not before_database:
+        raise AssertionError(f"configured PostgreSQL admin database does not exist: {admin_database}")
+    runtime = local.check_runtime_prerequisites(env)
+    result = _native_sigterm_test(env, admin_database, before_names, before_database)
+    print(json.dumps({"status": "passed", "source_identity": local._source_identity(),
+                      "runtime": runtime, "outer_sigterm_cleanup": result}, sort_keys=True))
+
+
+if __name__ == "__main__" and "--native-sigterm" in sys.argv:
+    sys.argv.remove("--native-sigterm")
+    unittest.main(exit=False)
+    _native_sigterm_only()
 
 
 if __name__ == "__main__" and "--native" in sys.argv:
