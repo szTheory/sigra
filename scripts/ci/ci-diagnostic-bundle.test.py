@@ -35,7 +35,7 @@ class DiagnosticBundleTest(unittest.TestCase):
         manifest = {"schema_version": "sigra.ci-diagnostic-invocation/v1", "invocation_id": "inv-77",
                     "source_sha": "a" * 40, "run_id": "700", "run_attempt": 2,
                     "job_id": "900", "seam": "example-playwright-admin", "files": rows,
-                    "trace_unavailable_reason": None, **extra}
+                    "missing_files": [], "trace_unavailable_reason": None, **extra}
         path = root / "invocation.json"
         path.write_text(json.dumps(manifest))
         return path, manifest
@@ -158,6 +158,45 @@ class DiagnosticBundleTest(unittest.TestCase):
             self.assertEqual("[REDACTED]", request["headers"][0]["value"])
             self.assertEqual("[REDACTED]", network_event["snapshot"]["response"]["headers"][0]["value"])
 
+    def test_trace_archive_redacts_url_userinfo_and_camel_case_token_fields(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            secrets = ("userinfo-password-do-not-retain", "access-field-do-not-retain",
+                       "refresh-field-do-not-retain", "query-token-do-not-retain",
+                       "form-token-do-not-retain")
+            trace = self.trace_zip({
+                "trace.network": (json.dumps({"type": "resource-snapshot", "snapshot": {
+                    "request": {
+                        "url": "https://alice:userinfo-password-do-not-retain@example.test/path?accessToken=query-token-do-not-retain&safe=kept",
+                        "accessToken": "access-field-do-not-retain",
+                        "refreshToken": "refresh-field-do-not-retain",
+                        "postData": {"mimeType": "application/x-www-form-urlencoded",
+                                     "text": "refreshToken=form-token-do-not-retain&safe=kept"},
+                    },
+                }}).encode() + b"\n"),
+            })
+            manifest, _ = self.make_manifest(root, [("trace.zip", trace, "trace")],
+                                             trace_provenance={"synthetic_account": True, "registered": True})
+            output = pathlib.Path(temp) / "diagnostics.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertEqual(0, staged.returncode, staged.stderr)
+            checked = self.command("verify", root, manifest, output)
+            self.assertEqual(0, checked.returncode, checked.stderr)
+            with zipfile.ZipFile(output) as archive:
+                metadata = json.loads(archive.read("bundle-manifest.json"))
+                self.assertIn("trace.zip", metadata["members"])
+                self.assertGreaterEqual(len(metadata["members"]["trace.zip"]["redactions"]), len(secrets))
+                safe_trace = archive.read("trace.zip")
+            self.assertTrue(all(secret.encode() not in safe_trace for secret in secrets))
+            with zipfile.ZipFile(io.BytesIO(safe_trace)) as archive:
+                event = json.loads(archive.read("trace.network"))
+            request = event["snapshot"]["request"]
+            self.assertEqual("https://example.test/path?accessToken=%5BREDACTED%5D&safe=kept", request["url"])
+            self.assertEqual("[REDACTED]", request["accessToken"])
+            self.assertEqual("[REDACTED]", request["refreshToken"])
+            self.assertIn("safe=kept", request["postData"]["text"])
+
     def test_escaping_symlink_duplicate_member_and_identity_mismatch_are_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp) / "invocation"
@@ -202,6 +241,36 @@ class DiagnosticBundleTest(unittest.TestCase):
             absolute = self.command("stage", root, manifest, output)
             self.assertNotEqual(0, absolute.returncode)
             self.assertIn("path", (absolute.stderr + absolute.stdout).lower())
+
+    def test_bundle_serializes_and_verifies_missing_file_metadata(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            manifest, _ = self.make_manifest(root, [("command.stderr", b"failed\n", "command_stderr")],
+                                             missing_files=["requested-report.json", "trace.zip"])
+            output = pathlib.Path(temp) / "diagnostics.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertEqual(0, staged.returncode, staged.stderr)
+            with zipfile.ZipFile(output) as archive:
+                metadata = json.loads(archive.read("bundle-manifest.json"))
+                self.assertEqual(["requested-report.json", "trace.zip"], metadata["missing_files"])
+            checked = self.command("verify", root, manifest, output)
+            self.assertEqual(0, checked.returncode, checked.stderr)
+
+            # A retained archive cannot silently drop absence evidence promised
+            # by its invocation manifest.
+            rewritten = pathlib.Path(temp) / "omitted-missing-files.zip"
+            with zipfile.ZipFile(output) as source:
+                members = {name: source.read(name) for name in source.namelist()}
+            tampered = json.loads(members["bundle-manifest.json"])
+            del tampered["missing_files"]
+            members["bundle-manifest.json"] = (json.dumps(tampered, sort_keys=True, indent=2) + "\n").encode()
+            with zipfile.ZipFile(rewritten, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                for name, payload in members.items():
+                    archive.writestr(name, payload)
+            rejected = self.command("verify", root, manifest, rewritten)
+            self.assertNotEqual(0, rejected.returncode)
+            self.assertIn("missing_files", (rejected.stderr + rejected.stdout).lower())
 
     def test_bundle_identity_must_match_its_invocation_manifest(self):
         with tempfile.TemporaryDirectory() as temp:

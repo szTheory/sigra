@@ -30,7 +30,7 @@ SECRET_SENTINEL = re.compile(
     rb"(?i)(SECRET[_ -]?SENTINEL|DO[_ -]?NOT[_ -]?UPLOAD|GH[pousr]_[A-Za-z0-9_]{20,}|"
     rb"github_pat_[A-Za-z0-9_]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)"
 )
-SENSITIVE_FIELD = re.compile(r"(?i)(?:^|[_-])(authorization|cookie|password|secret|token|session|csrf|api[_-]?key)(?:$|[_-])")
+SENSITIVE_COMPONENTS = {"authorization", "cookie", "password", "secret", "token", "session", "csrf"}
 
 
 def digest(payload: bytes) -> str:
@@ -106,6 +106,23 @@ def list_manifest_files(manifest: dict) -> list[dict]:
     return result
 
 
+def list_missing_files(manifest: dict, entries: list[dict]) -> list[str]:
+    """Read missing-file evidence; old invocation manifests without it mean no known omissions."""
+    raw = manifest.get("missing_files", [])
+    if not isinstance(raw, list):
+        raise ValueError("manifest_missing_files_invalid")
+    seen = set()
+    present = {entry["path"] for entry in entries}
+    result = []
+    for value in raw:
+        path = valid_relative_path(value)
+        if path in seen or path in present:
+            raise ValueError(f"manifest_missing_files_invalid:{path}")
+        seen.add(path)
+        result.append(path)
+    return result
+
+
 def auth_path(path: str) -> bool:
     parts = (part.lower() for part in pathlib.PurePosixPath(path).parts)
     return any(part in {".auth", "storagestate.json", "storage-state.json"} for part in parts)
@@ -146,11 +163,25 @@ def unsafe_content(payload: bytes) -> str | None:
 
 
 def sensitive_name(value: object) -> bool:
-    return isinstance(value, str) and bool(SENSITIVE_FIELD.search(value.strip(" _-")))
+    if not isinstance(value, str):
+        return False
+    # Split camel-case keys before normalizing separators so accessToken,
+    # refresh-token, and access_token share the same sensitive components.
+    normalized = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", value.strip()).lower()
+    components = [part for part in re.split(r"[^a-z0-9]+", normalized) if part]
+    if any(part in SENSITIVE_COMPONENTS for part in components):
+        return True
+    return any(left == "api" and right == "key" for left, right in zip(components, components[1:]))
 
 
 def redact_url(value: str, field_path: str, redactions: list[dict]) -> str:
     parts = urlsplit(value)
+    netloc = parts.netloc
+    if "@" in netloc:
+        # URL userinfo is credential material even when it is not represented
+        # as a query parameter. Keep the host and port, and record the removal.
+        netloc = netloc.rsplit("@", 1)[1]
+        redactions.append({"field": f"{field_path}.userinfo", "action": "credentials_removed"})
     pairs = parse_qsl(parts.query, keep_blank_values=True)
     changed = False
     cleaned = []
@@ -160,7 +191,7 @@ def redact_url(value: str, field_path: str, redactions: list[dict]) -> str:
             changed = True
             redactions.append({"field": f"{field_path}?{key}", "action": "value_redacted"})
         cleaned.append((key, item))
-    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(cleaned, doseq=True) if changed else parts.query, parts.fragment))
+    return urlunsplit((parts.scheme, netloc, parts.path, urlencode(cleaned, doseq=True) if changed else parts.query, parts.fragment))
 
 
 def redact_post_data(value: str, field_path: str, redactions: list[dict]) -> str:
@@ -281,6 +312,7 @@ def stage_bundle(invocation_root: pathlib.Path, manifest_path: pathlib.Path, out
     manifest = load_manifest(pathlib.Path(manifest_path), root)
     identity = identity_from_manifest(manifest)
     entries = list_manifest_files(manifest)
+    missing_files = list_missing_files(manifest, entries)
     output = pathlib.Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists() or output.is_symlink():
@@ -341,6 +373,7 @@ def stage_bundle(invocation_root: pathlib.Path, manifest_path: pathlib.Path, out
         "schema_version": SCHEMA,
         **identity,
         "members": members,
+        "missing_files": missing_files,
         "withheld": withheld,
         "trace_unavailable_reason": manifest.get("trace_unavailable_reason"),
         "trace_content_note": "Traces can contain authentication requests and DOM content; .auth exclusion alone does not prove trace safety.",
@@ -372,6 +405,7 @@ def verify_bundle(bundle: pathlib.Path, manifest_path: pathlib.Path) -> dict:
     manifest = load_manifest(pathlib.Path(manifest_path))
     identity = identity_from_manifest(manifest)
     entries = list_manifest_files(manifest)
+    expected_missing_files = list_missing_files(manifest, entries)
     try:
         with zipfile.ZipFile(archive_path) as archive:
             infos = archive.infolist()
@@ -390,6 +424,10 @@ def verify_bundle(bundle: pathlib.Path, manifest_path: pathlib.Path) -> dict:
                 raise ValueError("bundle_manifest_invalid")
             if any(metadata.get(key) != value for key, value in identity.items()):
                 raise ValueError("bundle_identity_mismatch")
+            archived_missing_files = metadata.get("missing_files", [])
+            if (not isinstance(archived_missing_files, list)
+                    or archived_missing_files != expected_missing_files):
+                raise ValueError("bundle_missing_files_mismatch")
             hashes = {name: item.get("sha256") for name, item in (metadata.get("members") or {}).items()}
             expected_names = {"bundle-manifest.json", *hashes.keys()}
             if set(names) != expected_names:
