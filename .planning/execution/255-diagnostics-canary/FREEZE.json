@@ -420,7 +420,14 @@
         "invocation": false,
         "operation": "run-identity-recovery:run=40122912945",
         "push": false,
+        "raw_response_bytes": 11800,
+        "raw_response_path": ".planning/execution/255-diagnostics-canary/API-RUN-40122912945.body.json",
+        "raw_response_sha256": "21f8450ca154d1b335d7314ad3f6debd0ed3d65442323f0862a46f5172dc9b8d",
         "request": true,
+        "response_date": "Sat, 24 Oct 2026 18:59:46 GMT",
+        "response_observed_at": "2026-10-24T18:59:46.626466+00:00",
+        "response_remaining_header": 4993,
+        "response_status": 200,
         "scenario": null,
         "test_retry": false
       }
