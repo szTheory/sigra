@@ -47,7 +47,7 @@ def preserve(role, attempt):
         tree = git('write-tree').decode().strip()
         commit = git('commit-tree', tree, '-p', parent,
             input=f'preserve(254): {role} preparation attempt {attempt}\n'.encode()).decode().strip()
-        ref = f'refs/evidence/phase254-rebaseline-preparation-{role}-attempt-{attempt}'
+        ref = f'refs/evidence/phase254-environment-preparation-{role}-attempt-{attempt}'
         git('update-ref', ref, commit, '0' * 40)
         for name, digest in files.items():
             if hashlib.sha256(git('show', f'{ref}:{name}')).hexdigest() != digest:

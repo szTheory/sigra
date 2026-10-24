@@ -7,10 +7,10 @@ status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_blocked_baseline_os_dependencies_and_images
-stopped_at: Candidate passed; baseline WebKit system package installation timed out
-last_updated: "2026-10-23T23:38:51.564739+00:00"
-last_activity: 2026-10-23 - Four preparation outcomes preserved; candidate passed; zero measured samples
+workflow_step: phase254_environment_recovery_preparation
+stopped_at: Verified environment repair running in PR348 and PR349
+last_updated: "2026-10-24T00:05:37.507831+00:00"
+last_activity: 2026-10-24 - Package repair verified on Linux; two fixed-source CI preparations running
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
   total_phases: 4
@@ -28,12 +28,12 @@ phase254_halted_plans: [254-08]
 phase254_wave_count: 5
 phase254_task_count: 19
 phase254_implementation_status: complete
-phase254_comparison_status: blocked_baseline_os_dependencies_and_images
+phase254_comparison_status: preparing_verified_environment_repair
 phase254_verification_status: pending
 verification_status: pending
 next_command: "$gsd-execute-phase 254"
 resume_command: "$gsd-execute-phase 254"
-next_command_conditional: true
+next_command_conditional: false
 historical_verification_is_forward_blocker: false
 resume_file: .planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
@@ -41,12 +41,12 @@ phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 
 # Current position
 
-Candidate CI and 108-case coverage passed; baseline system-package downloads hit two 30-minute limits, and per-job runner images differ. No measured comparison exists.
+Scoped package and runner identity fix passed local Linux and hosted diagnostic checks. Fixed-source PR348/baseline and PR349/candidate preparation are running; four previous outcomes remain preserved.
 
-The approved baseline amendment and separate two-run allowance were executed. Candidate run 40035537413 passed with all 105 product cases and 3 setup cases preserved. Baseline run 40035528418 concluded cancelled: two WebKit jobs were still downloading Ubuntu packages at their 30-minute limits; Phoenix and browser tests did not start. The cause of slow downloads remains unknown. Different per-job runner images also prevent a fair comparison.
+Current user recovery authority: `.planning/execution/254-environment-recovery/PREPARATION/AUTHORIZATION.json`. Continue `$gsd-execute-phase 254` in the same Plan 254-08. The isolated hosted probe passed; no APT rate cap was found, all four package downloads agreed, and native image/environment values agreed. The earlier image-cause claim is corrected in `.planning/execution/254-environment-recovery/IMAGE-CORRECTION.json`. A disposable amd64 Ubuntu container installed the complete locked Chromium/WebKit system packages after a 210 MB download in about 42 seconds, without retry. This is development verification, not a speedup acceptance sample.
 
-Current allowance is closed: 2 invocations, 0 retries, 202 HTTP requests within 60 minutes. Prior allowance remains 2 failures/186 requests. Total preparation invocations: 4. No measured sample or 48-hour window has started; all 40 measured invocations remain unspent. Implementation remains complete, whole-phase verification pending, CISPEED-01/02 open. Phase 253 is complete and verified; Phase 255 remains pending.
+Two new initial preparation invocations are running under a separate finite recovery recipe: PR348/run40043060412 baseline; PR349/run40043074317 candidate. Same package transport and early image proof on both sources; browser trees unchanged. Limits: two invocations, zero retries, 60 minutes/600 HTTP requests. Earlier four preparation outcomes and both closed budgets remain spent. Total preparation invocations started: six, plus one isolated diagnostic. No measured sample or 48-hour comparison window has started; all 40 measured invocations remain unspent.
 
-Next command: `$gsd-execute-phase 254`, conditional on resolving WebKit OS package installation and matching per-job images before another baseline invocation. Additional invocation authority is required; no retry or new numbered repair plan is authorized by the spent allowances.
+Implementation is complete; comparison and whole-phase verification remain pending. CISPEED-01/02 are open. Phase 253 is complete and verified; Phase 255 remains pending. Source, proposal and native proof contracts are in `.planning/execution/254-environment-recovery/PREPARATION`. Before another action, reconcile `WATCH.jsonl` and the active watcher; do not duplicate polling or start replacements.
 
-Result: `.planning/execution/254-rebaseline-preparation/RESULT.json`. Recovery: `.planning/execution/254-rebaseline-preparation/FINAL-RECOVERY.json`. Previous shared-state bytes: `.planning/execution/254-rebaseline-preparation/STATE-BEFORE-CLOSEOUT.json` at `refs/evidence/phase254-before-amended-prep-closeout` (`fef59a0af7a888c1efeb229d793d9808ef00131c`). Original baseline archives, original halt records, failed attempts and old budgets remain unchanged. No notification was scheduled.
+Prior shared-state bytes: `.planning/execution/254-environment-recovery/PRIOR-STATE.json` at `refs/evidence/phase254-before-environment-recovery-state` (`a2674e7ed3f21ff29dc3721da8a44bf840163b1b`). Original baseline archives, original halt records and previous preparations remain unchanged. No future notification was scheduled.

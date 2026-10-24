@@ -18,7 +18,7 @@
       "name": "Speed Up the Measured Slow Jobs",
       "status": "in_progress",
       "implementation_status": "complete",
-      "comparison_status": "blocked_baseline_os_dependencies_and_images",
+      "comparison_status": "preparing_verified_environment_repair",
       "verification_status": "pending"
     },
     {
@@ -29,12 +29,12 @@
   ],
   "next": {
     "command": "$gsd-execute-phase 254",
-    "label": "Resolve baseline WebKit system dependencies in Plan 254-08",
-    "reason": "Candidate CI and 108-case coverage passed; baseline system-package downloads hit two 30-minute limits, and per-job runner images differ. No measured comparison exists.",
-    "conditional": true,
-    "condition": "Resolve WebKit OS package installation and matching per-job runner images before another baseline invocation; additional CI invocation authority is required because both preparation allowances are spent."
+    "label": "Finish verified environment preparation and fixed comparison",
+    "reason": "Scoped package and runner identity fix passed local Linux and hosted diagnostic checks. Fixed-source PR348/baseline and PR349/candidate preparation are running; four previous outcomes remain preserved.",
+    "conditional": false,
+    "condition": "Current user authorized the scoped recovery and bounded verification; finish the same Plan254-08."
   },
-  "updated_at": "2026-10-23T23:38:51.564739+00:00",
+  "updated_at": "2026-10-24T00:05:37.507831+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -42,33 +42,36 @@
     ],
     "total_plans": 8,
     "implementation_status": "complete",
-    "comparison_status": "blocked_baseline_os_dependencies_and_images",
+    "comparison_status": "preparing_verified_environment_repair",
     "verification_status": "pending",
     "resume_plan": "254-08",
     "resume_task": "254-08-01",
     "continuation": ".planning/execution/254-CONTINUATION.json",
     "state_preservation": "fef59a0af7a888c1efeb229d793d9808ef00131c",
-    "preparation_runs": 4,
+    "preparation_runs": 6,
     "measured_samples": 0,
     "window_started": false,
-    "preparation_result": ".planning/execution/254-rebaseline-preparation/RESULT.json",
+    "preparation_result": ".planning/execution/254-environment-recovery/PREPARATION/RESULT.json",
     "rebaseline_proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
-    "active_authorization": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
+    "active_authorization": ".planning/execution/254-environment-recovery/PREPARATION/AUTHORIZATION.json",
     "rebaseline_preparation": ".planning/execution/254-rebaseline-preparation",
     "rebaseline_preparation_runs": 2,
     "final_recovery": ".planning/execution/254-rebaseline-preparation/FINAL-RECOVERY.json",
     "candidate_ci_status": "passed",
     "candidate_native_cases": 108,
-    "extra_preparation_runs_authorized": false
+    "extra_preparation_runs_authorized": false,
+    "prior_preparation_runs": 4,
+    "environment_recovery_preparation_runs": 2,
+    "environment_recovery": ".planning/execution/254-environment-recovery"
   },
   "phase254_unblock_decision": {
-    "status": "approved_preparation_executed_blocked_by_environment",
-    "authorization": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
+    "status": "recovery_authorized_and_running",
+    "authorization": ".planning/execution/254-environment-recovery/PREPARATION/AUTHORIZATION.json",
     "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
     "notification_created": false,
-    "preparation_runs": 4,
+    "preparation_runs": 6,
     "measured_samples": 0,
-    "next_decision": "No new proposal: first diagnose package installation and image compatibility",
+    "next_decision": "Finish the current two runs; no blind retry or additional numbered plan",
     "rebaseline_preparation_runs": 2,
     "result": ".planning/execution/254-rebaseline-preparation/RESULT.json"
   }
