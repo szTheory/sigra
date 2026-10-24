@@ -1,22 +1,43 @@
 {
-  "schema_version": "sigra.phase255.distribution-attempts/v1",
+  "notes": "The remote ref is immutable and create-only. The remaining retrieval attempt is reserved for the corrected clean-checkout helper path; do not push again.",
   "package_sha256": "6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23",
-  "remote_ref": "refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d",
   "push": {
-    "status": "created_once",
     "commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
     "helper_source": "e41aabd0c399b95d22262da2ebd45ae69250f290",
-    "transport_retries": 0,
-    "remote_readback": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb"
+    "remote_readback": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
+    "status": "created_once",
+    "transport_retries": 0
   },
+  "remote_ref": "refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d",
   "retrievals": [
     {
       "attempt": 1,
-      "status": "failed",
       "checkout_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
-      "diagnostic": "Fetched the exact package from the real remote; offline replay could not find scripts/ci/ci-comparison-replay.py because the package intentionally contains the pinned analysis tools and data, not this distribution helper."
+      "diagnostic": "Fetched the exact package from the real remote; offline replay could not find scripts/ci/ci-comparison-replay.py because the package intentionally contains the pinned analysis tools and data, not this distribution helper.",
+      "status": "failed"
+    },
+    {
+      "attempt": 2,
+      "checkout_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
+      "offline_replay": {
+        "baseline_runner_seconds": 2046.0,
+        "candidate_runner_seconds": 1589.0,
+        "checkout": "independent fresh repository fetched from configured remote",
+        "comparable_successful_pairs": 0,
+        "fetched_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
+        "input_hashes_unchanged": true,
+        "median_seconds": null,
+        "member_count": 191,
+        "network_command_attempts": 0,
+        "p95_seconds": null,
+        "package_sha256": "6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23",
+        "package_size": 59461735,
+        "performance_verdict": "insufficient_data",
+        "status": "passed"
+      },
+      "status": "passed"
     }
   ],
-  "workflow_dispatches": 0,
-  "notes": "The remote ref is immutable and create-only. The remaining retrieval attempt is reserved for the corrected clean-checkout helper path; do not push again."
+  "schema_version": "sigra.phase255.distribution-attempts/v1",
+  "workflow_dispatches": 0
 }
