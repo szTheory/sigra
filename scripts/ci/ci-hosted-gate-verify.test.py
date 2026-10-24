@@ -3382,5 +3382,65 @@ class ComparisonFamilyOriginTests(unittest.TestCase):
             self.assertIn("artifact API origin", wrong_artifact_repo.stderr)
 
 
+class RepairedWorkReportVerifierTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_verifier("hosted_gate_verify_repaired_work")
+
+    def fixture(self):
+        import json
+        import hashlib
+        sources = {"control": "f" * 40, "candidate": "9" * 40}
+        evidence = {"schema_version": "sigra.repaired-work/v1", "status": "local_parity_passed",
+                    "acceptance_samples": 0, "sources": sources, "reports": []}
+        api = {"producer": "github_artifact_api_snapshot", "synthetic_fixture": True, "artifacts": []}
+        artifact_id = 100
+        for role, source_sha in sources.items():
+            run_id = "7001" if role == "control" else "7002"
+            for receiver in ("ordinary", "scaffold", "dep_off"):
+                path = f"{role}/library/{receiver}.json"
+                report = {"seed": 42 + artifact_id, "complete": True, "tests": [
+                    {"test_id": f"Sigra.{receiver}.{role}", "status": "passed"}], "skipped": [], "excluded": []}
+                digest = hashlib.sha256(json.dumps(report, sort_keys=True).encode()).hexdigest()
+                evidence["reports"].append({"kind": "library", "source_role": role, "source_sha": source_sha,
+                    "owner": receiver, "path": path, "sha256": digest, "report": report})
+                api["artifacts"].append({"id": artifact_id, "name": f"sigra-ci-{source_sha}-{run_id}-1-library_tests_shard-library_ci-library-{run_id}-1",
+                    "source_sha": source_sha, "run_id": run_id, "run_attempt": 1, "repository_id": 1207487684,
+                    "artifact_digest": "sha256:" + "a" * 64, "downloaded_artifact_digest": "sha256:" + "a" * 64,
+                    "files": [{"path": path, "sha256": digest}]})
+                artifact_id += 1
+            for owner in ("non_admin_smoke", "admin_behavior", "admin_checkpoints", "design_gallery", "demo_showcase"):
+                path = f"{role}/browser/{owner}.json"
+                report = {"complete": True, "tests": [{"identity": ["chromium", f"tests/{owner}.spec.ts",
+                    [f"tests/{owner}.spec.ts"], f"spec-{owner}", "real case"], "owner": owner,
+                    "classification": "product", "expected_status": "passed", "result": "passed"}],
+                    "skipped": [], "excluded": []}
+                digest = hashlib.sha256(json.dumps(report, sort_keys=True).encode()).hexdigest()
+                evidence["reports"].append({"kind": "browser", "source_role": role, "source_sha": source_sha,
+                    "owner": owner, "path": path, "sha256": digest, "report": report})
+                api["artifacts"].append({"id": artifact_id, "name": f"browser-execution-{owner}-{run_id}-1",
+                    "source_sha": source_sha, "run_id": run_id, "run_attempt": 1, "repository_id": 1207487684,
+                    "artifact_digest": "sha256:" + "b" * 64, "downloaded_artifact_digest": "sha256:" + "b" * 64,
+                    "files": [{"path": path, "sha256": digest}]})
+                artifact_id += 1
+        return evidence, api
+
+    def run_cli(self, evidence, api):
+        import json
+        with tempfile.TemporaryDirectory(prefix="repaired-work-verifier-") as temp:
+            evidence_path, api_path = Path(temp) / "evidence.json", Path(temp) / "api.json"
+            evidence_path.write_text(json.dumps(evidence))
+            api_path.write_text(json.dumps(api))
+            return subprocess.run([sys.executable, str(VERIFY), "--mode", "repaired-work", "--evidence", str(evidence_path),
+                                   "--artifact-api", str(api_path)], capture_output=True, text=True, check=False)
+
+    def test_opt_in_mode_accepts_complete_source_bound_fixture_but_marks_it_synthetic(self):
+        evidence, api = self.fixture()
+        result = self.run_cli(evidence, api)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertEqual("passed", json.loads(result.stdout)["status"])
+        self.assertTrue(json.loads(result.stdout)["synthetic"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
