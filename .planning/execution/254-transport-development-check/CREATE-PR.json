@@ -1,0 +1,7 @@
+{
+  "title": "[DO NOT MERGE] Phase254 transport repair development verification",
+  "head": "evidence/phase254-transport-development-20261024",
+  "base": "main",
+  "draft": true,
+  "body": "Verify the scoped Phoenix connection-handoff backport after a deterministic browser reproduction. Retired WebSocket events and heartbeat timers must not disconnect LongPoll; LiveView joins must resume, and callbacks that connect/disconnect must be respected. Includes seven Node regressions against the shipped Socket and the tested comparison-reporting fixes.\n\nLocal validation: WebKit and Chromium forced fallback passed in about four seconds, normal WebKit5/5, selected141 tests passed, actionlint passed. No dependency, timeout, selector, or required-check relaxation.\n\nThis is one development CI verification, outside the closed Phase254 measurement. The original baseline attempt2 failure and candidate success remain retained, the experiment remains insufficient_data, and no sample/window/budget is replaced. Do not merge or update the frozen evidence PRs348/349."
+}

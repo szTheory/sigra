@@ -1,0 +1,7 @@
+{
+  "scope": "isolated local archive only",
+  "file": "/tmp/sigra254-baseline-registration-bk90_9ri/test/example/priv/static/assets/js/app.js",
+  "before_sha256": "77fe65190f721b8e87c34154a850ee5c145a34a8ddfa119b0b63ccbaaaa572e2",
+  "after_sha256": "b0e179ae290c85fdce966b5b4dba47467fba13c0204b5b324f80d294e5fb2acc",
+  "change": "callbacks bound to their original physical connection; stale events ignored"
+}

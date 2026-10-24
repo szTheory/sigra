@@ -1,0 +1,9 @@
+{
+  "server_pid": 72466,
+  "server_cwd": "/private/tmp/sigra254-baseline-registration-bk90_9ri/test/example",
+  "app_port": 4317,
+  "container_id": "3f67400e87ac186e81e0aa09e04da1236c66b851ecd47ab8c87f75337ab06d00",
+  "container_name": "sigra254-registration-diagnostic",
+  "database_host_port": 64317,
+  "scope": "only these temporary resources belong to this diagnosis"
+}

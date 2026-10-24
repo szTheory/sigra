@@ -1,0 +1,71 @@
+{
+  "scope": "controlled local transport fault; not evidence of original failure cause",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "darwin",
+  "results": [
+    {
+      "mode": "drop_primary_replies",
+      "passed": false,
+      "error": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n",
+      "state": {
+        "readyState": "complete",
+        "connected": 0,
+        "socketConnected": false,
+        "transport": "g"
+      },
+      "events": [
+        {
+          "ms": 172,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 436,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 440,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 3178,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 9959,
+          "type": "console",
+          "message": "phx-GOFVOD4Iuv_jbQIN join: encountered 0 consecutive reloads -  undefined"
+        },
+        {
+          "ms": 9959,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 10170,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 10172,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 12882,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        }
+      ]
+    }
+  ]
+}

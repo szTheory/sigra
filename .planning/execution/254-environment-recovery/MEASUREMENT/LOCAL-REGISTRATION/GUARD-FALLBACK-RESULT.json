@@ -1,0 +1,134 @@
+{
+  "scope": "controlled local transport fault; not evidence of original failure cause",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "darwin",
+  "results": [
+    {
+      "mode": "drop_primary_replies",
+      "passed": false,
+      "error": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n",
+      "state": {
+        "readyState": "complete",
+        "connected": 0,
+        "socketConnected": false,
+        "transport": "g",
+        "xhrEvents": [
+          {
+            "type": "readystatechange",
+            "readyState": 1,
+            "status": 0,
+            "at": 3123
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 2,
+            "status": 200,
+            "at": 3325
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 3,
+            "status": 200,
+            "at": 3325
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 4,
+            "status": 200,
+            "at": 3325
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 1,
+            "status": 0,
+            "at": 3326
+          },
+          {
+            "type": "load",
+            "readyState": 4,
+            "status": 200,
+            "at": 3326
+          },
+          {
+            "type": "loadend",
+            "readyState": 4,
+            "status": 200,
+            "at": 3326
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 4,
+            "status": 0,
+            "at": 10340
+          },
+          {
+            "type": "abort",
+            "readyState": 4,
+            "status": 0,
+            "at": 10340
+          },
+          {
+            "type": "loadend",
+            "readyState": 4,
+            "status": 0,
+            "at": 10340
+          }
+        ],
+        "xhr": [
+          {
+            "readyState": 4,
+            "status": 200,
+            "responseLength": 261
+          },
+          {
+            "readyState": 0,
+            "status": 0,
+            "responseLength": 0
+          }
+        ]
+      },
+      "events": [
+        {
+          "ms": 190,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 510,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 515,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 3314,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3515,
+          "type": "response",
+          "status": 200,
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3515,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 10526,
+          "type": "console",
+          "message": "phx-GOFVahOUXZKvkRAD error: unable to join -  {reason: timeout}"
+        }
+      ]
+    }
+  ]
+}

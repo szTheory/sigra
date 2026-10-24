@@ -1,0 +1,9 @@
+{
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "source_directory": "/tmp/sigra254-baseline-registration-bk90_9ri",
+  "app_port": 4317,
+  "database_port": 64317,
+  "database": "sigra254_registration_diag",
+  "started_at": "2026-10-24T02:05:00.734082+00:00",
+  "scope": "local development registration navigation only; no acceptance or measured rerun"
+}

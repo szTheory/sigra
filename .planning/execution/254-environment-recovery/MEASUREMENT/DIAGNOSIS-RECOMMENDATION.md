@@ -59,3 +59,11 @@ If the collector owner repairs failed-family materialization, the smallest safe 
 ## Next useful work
 
 Diagnose and, where appropriate, fix the checkpoint failure with a targeted reproduction and meaningful local tests. A collector/report fix is ordinary maintenance. Changing frozen baseline application, test or workflow bytes is a source amendment and cannot be presented as an unchanged continuation of this cohort. Keep CISPEED-01/02 unaccepted and report this fixed experiment as `insufficient_data`, with the candidate's actual green run and all observed costs preserved separately. Do not add another numbered repair plan or silently renew an acceptance allowance.
+
+## Completed local repair
+
+The reporting repairs are committed at `d5b7300c8`. The evaluator now handles a null family input and separately derives all observed registration costs from hash-verified raw files, including failed and unpaired runs. `EVALUATION-COSTS.json` supersedes the earlier crashing/zero-subtotal outputs and still reports `insufficient_data` with2046 baseline and1589 candidate runner-seconds. No family was invented.
+
+The browser failure has a causal local reproduction: retiring the primary WebSocket delivered a stale close event against its LongPoll replacement, triggered LiveView reload and aborted XHR. Guarding physical connection callbacks, clearing old heartbeat state and restarting channel joins fixes the reproduced path. The production backport (`e2ab83edb`) also respects reconnect/disconnect inside channel-error callbacks. The exact served production bundle passed forced fallback in WebKit/Chromium and five normal mobile contexts; seven deterministic Node regressions exercise the shipped class. See `LOCAL-REGISTRATION/PRODUCTION-VERIFICATION.json`.
+
+[Phoenix PR6867](https://github.com/phoenixframework/phoenix/pull/6867) independently documents these lifecycle races. The retained hosted run lacks a trace showing what originally delayed its primary response; local reproduction proves the downstream failure path and fix, not that missing initiating event. Neither frozen measurement branch was amended. A separate single development CI verification is recorded under `.planning/execution/254-transport-development-check`; it cannot become a measurement sample.

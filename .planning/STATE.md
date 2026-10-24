@@ -7,10 +7,10 @@ status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_measured_browser_failure_diagnosis
-stopped_at: Measured pair01 retained; local browser failure diagnosis active
-last_updated: "2026-10-24T02:02:58.039959+00:00"
-last_activity: 2026-10-24 - Preparation passed; first measured baseline failed mobile registration readiness; local diagnosis active
+workflow_step: phase254_transport_development_CI
+stopped_at: Repaired transport development CI running; measurement terminal insufficient_data
+last_updated: "2026-10-24T02:27:05.567819+00:00"
+last_activity: 2026-10-24 - Causal transport repair passed local tests; one development CI check running
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
   total_phases: 4
@@ -41,10 +41,12 @@ phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 
 # Current position
 
-Final preparation passed on both sources. The first measured baseline failed mobile registration LiveView readiness; candidate passed. Both originals are retained. This fixed comparison is insufficient_data; diagnose and repair locally without replacing samples or starting a new window.
+The reproduced Phoenix connection handoff is repaired and passed141 local tests plus both browser fallback checks. One separate development CI check is running in PR353/run40054033393. The frozen measured comparison remains insufficient_data with2 invocations spent and38 unused.
 
-Continue `$gsd-execute-phase 254` for the scoped local repair and honest result record. Ten initial preparation runs remain retained; final attempt1 in PR348/349 passed full CI, all108 cases, all-warm caches and matching native image proofs. Measured attempt2: baseline40046955449 failed admin-checkpoints-mobile while waiting for initial registration LiveView; candidate40047078287 passed. Root driver stopped and preserved both results; no watcher remains active.
+Continue `$gsd-execute-phase 254` by reconciling watcher session68109 and `.planning/execution/254-transport-development-check/WATCH.jsonl`. It owns run40054033393/attempt1 at60-second intervals and will preserve its raw capture. No other watcher, PR, retry, or acceptance run is authorized by this continuation. PR353 is development verification of exact source8b3c3d8c, parentebb1d3ef; neither frozen PR348/349 nor main was changed.
 
-Two of40 invocations spent,38 unspent; zero valid successful pairs. Frozen window remains2026-10-24T01:04:13Z through2026-10-26T01:04:13Z. At most19 successful pairs remain possible, so this experiment cannot satisfy the20-pair requirement. No automatic resume/replacement/window extension or acceptance-budget renewal. Implementation complete; comparison insufficient_data; whole-phase verification pending; CISPEED-01/02 open.
+The shipped browser bundle now ignores retired connection events, clears old heartbeat state, resets LiveView joins during fallback, and respects callbacks that connect/disconnect. Seven deterministic tests exercise the real shipped Socket. Forced fallback passed in WebKit and Chromium in about4seconds; normal mobile navigation passed5/5. Selected141 tests and actionlint passed. No dependency, timeout, selector, or required-check relaxation. Local temporary resources are stopped; `.planning/execution/254-environment-recovery/MEASUREMENT/LOCAL-REGISTRATION/PRODUCTION-VERIFICATION.json` and CLEANUP.json record proof.
 
-Evidence: `.planning/execution/254-environment-recovery/MEASUREMENT/PROGRESS.json`, requests/pair-01/CAPTURE-before.json andCAPTURE-after.json; diagnostic/admin-checkpoints.log. The exact prior shared state, final preparation, and original measured bytes are recoverable from `refs/evidence/phase254-first-measured-stop-before-diagnosis` (`7e8bf07eb5d5c00ce55a6714a344d9fab8bf010d`), with verified hashes in `.planning/execution/254-environment-recovery/MEASUREMENT/STATE-PRIOR.json`. Earlier halted attempts remain unchanged.
+Original comparison: `.planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json` reports literal insufficient_data. Baseline run40046955449 attempt2 failed mobile registration readiness; candidate run40047078287 attempt2 passed. Both raw outcomes and all known costs are retained:2046 and1589 runner-seconds. Two of40 invocations spent,38 unspent; zero successful comparable pairs; no replacement or window extension. This fixed experiment can no longer produce20 successful pairs. Implementation repaired; whole-phase performance verification remains unachieved; CISPEED-01/02 open.
+
+Prior exact state and completed diagnostics are recoverable at `refs/evidence/phase254-transport-fix-before-ci-state` (`ba6d00964becbe8bc680d9164b3fda8a3ac769be`), with verified bytes in `.planning/execution/254-transport-development-check/STATE-PRIOR.json`. Earlier stopped attempts remain unchanged.
