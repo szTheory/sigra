@@ -1,0 +1,1532 @@
+{
+  "schema_version": "sigra.phase255.replay-preflight/v1",
+  "status": "ready",
+  "checked_at_utc": "2026-10-24T16:10:53.396127+00:00",
+  "source_identity": {
+    "commit": "86a98d9ad7cb348ba6d620952f90ab2fa941bc59",
+    "branch": "phase-244-playwright-measurement",
+    "status": " M .planning/STATE.md\n M .planning/state.json\n?? scripts/ci/__pycache__/\n"
+  },
+  "runtime_requirements": {
+    "python3": {
+      "path": "/opt/homebrew/bin/python3",
+      "version": "Python 3.14.4"
+    },
+    "bash": {
+      "path": "/opt/homebrew/bin/bash",
+      "version": "GNU bash, version 5.2.37(1)-release (aarch64-apple-darwin24.2.0)"
+    },
+    "node": {
+      "path": "/Users/jon/.asdf/shims/node",
+      "version": "v26.10.0"
+    },
+    "jq": {
+      "path": "/usr/bin/jq",
+      "version": "jq-1.7.1-apple"
+    },
+    "git": {
+      "path": "/opt/homebrew/bin/git",
+      "version": "git version 2.41.0"
+    }
+  },
+  "receipt_counts": {
+    "before": 69,
+    "after": 109
+  },
+  "resolved_inputs": [
+    {
+      "commit": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+      "resolved": true
+    },
+    {
+      "commit": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+      "resolved": true
+    },
+    {
+      "commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "resolved": true
+    },
+    {
+      "commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "resolved": true
+    },
+    {
+      "commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "resolved": true
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci-run-metrics.sh",
+      "blob": "c7cfed349eec5ee2da65dee57ca49f47407ff241",
+      "sha256": "2a4e54049575a3ab2ed14865e1051bcac19beda0e083061dfd71ba68f92876d8",
+      "observed_sha256": "2a4e54049575a3ab2ed14865e1051bcac19beda0e083061dfd71ba68f92876d8",
+      "resolved": true
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci_metrics_security.py",
+      "blob": "42b411e063a14dff561d528b2e52ae292f88cf1c",
+      "sha256": "b46841213929ceb229d360019a92ad21ca661f761e6066989c7e51551fb2661f",
+      "observed_sha256": "b46841213929ceb229d360019a92ad21ca661f761e6066989c7e51551fb2661f",
+      "resolved": true
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci-browser-records.mjs",
+      "blob": "083c4f481c31db3825c9875120c4f521f0be0b92",
+      "sha256": "55e28a75e7847a3c0aff158bf82959e45c20ae54901784710390dfb9a807ada1",
+      "observed_sha256": "55e28a75e7847a3c0aff158bf82959e45c20ae54901784710390dfb9a807ada1",
+      "resolved": true
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": "scripts/ci/ci-hosted-gate-verify.py",
+      "blob": "df93adaf25ba770f44af07245edff9d5b4d05fd3",
+      "sha256": "a40844dcf94ec0cab97cb25626fd9742262ddcb61b561eb2ced2954d113f42dc",
+      "observed_sha256": "a40844dcf94ec0cab97cb25626fd9742262ddcb61b561eb2ced2954d113f42dc",
+      "resolved": true
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+      "blob": "cf888d8bef130164533627ff14575ed5ba9a98b3",
+      "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "observed_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "resolved": true
+    },
+    {
+      "source_commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+      "blob": "9aac262bc294e4ea94344c2fb6735e67633cf655",
+      "sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+      "observed_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+      "resolved": true
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/request-ledger.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "e82e3f219d6830223b0ec637db8eae877a5b3974",
+      "size": 3701,
+      "sha256": "5feee48b42877812a682d3fcf05ec669dfa54b895abaaae3694a1974109a80c8",
+      "expected_sha256": "5feee48b42877812a682d3fcf05ec669dfa54b895abaaae3694a1974109a80c8"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/selection-ledger.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "6bf7e38c03a279f6d91ba1df1a77a01429b0521f",
+      "size": 115,
+      "sha256": "7d9dc2f4173520c1507508cffcb8dfc026d26855408431f391511c36da8dec94",
+      "expected_sha256": "7d9dc2f4173520c1507508cffcb8dfc026d26855408431f391511c36da8dec94"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/manifest.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "b3f8b75ac516ef27ff2b30642fa3248f5a2eaaab",
+      "size": 309321,
+      "sha256": "5e90e996b769beb5ee54ffed5298e61b81fd9216a55263ee5ea0ce67d6d37ddc",
+      "expected_sha256": "5e90e996b769beb5ee54ffed5298e61b81fd9216a55263ee5ea0ce67d6d37ddc"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/ci_metrics_security.py",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "42b411e063a14dff561d528b2e52ae292f88cf1c",
+      "size": 106343,
+      "sha256": "b46841213929ceb229d360019a92ad21ca661f761e6066989c7e51551fb2661f",
+      "expected_sha256": "b46841213929ceb229d360019a92ad21ca661f761e6066989c7e51551fb2661f"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/sigra-dep-off.sh",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "34e5e8438538bb12ef2879a00ec2446afd2fc002",
+      "size": 2113,
+      "sha256": "9399e85d500c9da5bfa962849fa2b66f262106b172f32fdab4036e570776fa41",
+      "expected_sha256": "9399e85d500c9da5bfa962849fa2b66f262106b172f32fdab4036e570776fa41"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/mix.exs",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "f7a94abf488d738f549b71a7aa8f193236bcccd3",
+      "size": 18395,
+      "sha256": "1b4ed541705aaf7902eac8736245ea1e5640061132ed71f6b8ae2800f63a4a70",
+      "expected_sha256": "1b4ed541705aaf7902eac8736245ea1e5640061132ed71f6b8ae2800f63a4a70"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/ci-playwright-report.mjs",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "size": 11482,
+      "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+      "expected_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/ci-playwright-report.test.mjs",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "c34c5954c456c6eaaece1525ef80409a7f2dc3cd",
+      "size": 11408,
+      "sha256": "6ef30793de2e492daba4bd9928ccf5116ddaa0864f79cc1372863a19d98fc616",
+      "expected_sha256": "6ef30793de2e492daba4bd9928ccf5116ddaa0864f79cc1372863a19d98fc616"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/exunit_timing_contract.py",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "e00d91084ba96697a502c0dc8e9e9cbe67bec266",
+      "size": 4639,
+      "sha256": "be71c4e597575edd6938550decc59b14e9070f1140dfc4ad24fb8869460b8f76",
+      "expected_sha256": "be71c4e597575edd6938550decc59b14e9070f1140dfc4ad24fb8869460b8f76"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/ci-run-metrics.sh",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "b800a1f580b9ec3ca7e201b7c5d4c84029ed8f17",
+      "size": 226343,
+      "sha256": "479ea27c7f4ff63b544e1687b2427568e766a16929a4f6630f028eb926478b3d",
+      "expected_sha256": "479ea27c7f4ff63b544e1687b2427568e766a16929a4f6630f028eb926478b3d"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/test_helper.exs",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "e0fbcc15e693d3effd93ef3644f4e3a658e9247b",
+      "size": 1900,
+      "sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+      "expected_sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/ci_timing_formatter.ex",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "c64c3063d50f456a6a6c227bec9fe7c4b4cefa48",
+      "size": 6236,
+      "sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+      "expected_sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/playwright.config.ts",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "size": 12037,
+      "sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+      "expected_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/ci.yml",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "ac675ce4a35a893735cfad7214f6788c4370661b",
+      "size": 136188,
+      "sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+      "expected_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/source/playwright-package-lock.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "3ca9f9da70a5bfaebb3abdfc835e6ac310ce2cd2",
+      "size": 25082,
+      "sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+      "expected_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/effective-rules.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "ec4399bbd98a40cf0e641be231785de7c36582a0",
+      "size": 1180,
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "expected_sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/rate-limit.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "78c6cb614a06026aec037794f86f5324cd06e5a9",
+      "size": 1235,
+      "sha256": "dcc55dd15dbcc150a3a7e6c23b0daa74e9b8af8153796e89423f675a3755151e",
+      "expected_sha256": "dcc55dd15dbcc150a3a7e6c23b0daa74e9b8af8153796e89423f675a3755151e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/branch-protection.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "818bc793f92bb2a17470eda8f669edfde1c0fe7f",
+      "size": 55,
+      "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
+      "expected_sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/rulesets.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "8c200a2318fc7d733ef4b1acc884de39761fb3f3",
+      "size": 847,
+      "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+      "expected_sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/populations/manual.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "0e87d70fbd40d726ff8165036ef0eddf573731eb",
+      "size": 233,
+      "sha256": "de49b04f947234b2eb3b7ee9530d520b97b15d64317de43feb5c92938f0cfd0d",
+      "expected_sha256": "de49b04f947234b2eb3b7ee9530d520b97b15d64317de43feb5c92938f0cfd0d"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/populations/release_push.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "3f5da65fc65a3475dab5048d70ee064b25507c85",
+      "size": 225,
+      "sha256": "1c6bc042f81e6b78a9fb5f9f7383c44dd2443f719139b71bda3f7132634be336",
+      "expected_sha256": "1c6bc042f81e6b78a9fb5f9f7383c44dd2443f719139b71bda3f7132634be336"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/populations/schedule.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "202512a171981f8854a67de081fae5ff5598837b",
+      "size": 226,
+      "sha256": "60e7c18c7686845e22b079526ba088ee2bdb618e5afa5d51af277bff4c55da0a",
+      "expected_sha256": "60e7c18c7686845e22b079526ba088ee2bdb618e5afa5d51af277bff4c55da0a"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/populations/push_main.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "4bd33ef97a05a8c6afc70bd249b7412049545647",
+      "size": 223,
+      "sha256": "1ac017ebeff1d9e6bd5f433fefa2539f20aacd48b1b05c2d14a744a37c025d61",
+      "expected_sha256": "1ac017ebeff1d9e6bd5f433fefa2539f20aacd48b1b05c2d14a744a37c025d61"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/populations/pull_request.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "3d056203362d6d0ad27deb5b69c11fa7aa3a97e9",
+      "size": 301093,
+      "sha256": "5750cf1bebd2a148d18c552a9a2b30e570ab3388e4b34646c5452ac448f93446",
+      "expected_sha256": "5750cf1bebd2a148d18c552a9a2b30e570ab3388e4b34646c5452ac448f93446"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifact-evidence.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "9c96069ffdc7ecb66b00c9b49e521bfaa394875e",
+      "size": 19035,
+      "sha256": "72120d5d6c65675811dd898f68a99dfbb477ed24ed2b100084436f5093234200",
+      "expected_sha256": "72120d5d6c65675811dd898f68a99dfbb477ed24ed2b100084436f5093234200"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/timing-artifact.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "3da1706c57e7417dfcdb00c7e56ced780031f50f",
+      "size": 2657,
+      "sha256": "6ecd75f8ad2f060cef4f509fdfae5e5d04a3aa9fae2794668b9a85493498b3bd",
+      "expected_sha256": "6ecd75f8ad2f060cef4f509fdfae5e5d04a3aa9fae2794668b9a85493498b3bd"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/changed-paths-page-1.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "432f9c8b4d85beb99a6cf30a7f0e20971e201f0f",
+      "size": 279185,
+      "sha256": "e172cdd51972230c4d86894257a8afabd8113ba42d090a54a493a0af56dae97a",
+      "expected_sha256": "e172cdd51972230c4d86894257a8afabd8113ba42d090a54a493a0af56dae97a"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/jobs-attempt-2.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "d8290786559345774bdd86b1ee1aec78a3dcb7e2",
+      "size": 78121,
+      "sha256": "2d76793600947813715b3ef01a766ebb9bd1b1a51b290d607e83613c7f79e86f",
+      "expected_sha256": "2d76793600947813715b3ef01a766ebb9bd1b1a51b290d607e83613c7f79e86f"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "220eae20f9f8a8ce6a6de572fda31f568b206467",
+      "size": 8443,
+      "sha256": "3006dbc32dfc4fd234a41ecab2d82d73a0b7a4485272b413e327c93c638168e1",
+      "expected_sha256": "3006dbc32dfc4fd234a41ecab2d82d73a0b7a4485272b413e327c93c638168e1"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/check-runs.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "68a8a34bfd4cf7507046a7ad0c91da014e45e6f8",
+      "size": 95204,
+      "sha256": "c5371f1199260cdecc3997f8f3f99c159a8057b6a83b44f794d6872b4aff373c",
+      "expected_sha256": "c5371f1199260cdecc3997f8f3f99c159a8057b6a83b44f794d6872b4aff373c"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/manifest.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "dc33156e0b0a09bbad8bdef820d804e2fd23b2a8",
+      "size": 3221,
+      "sha256": "e844e755167093453a444682d153b44fd6f07ac0e36815f621eb81d4a4f49660",
+      "expected_sha256": "e844e755167093453a444682d153b44fd6f07ac0e36815f621eb81d4a4f49660"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/failed-job.log",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "0cea7641019cf37d8ee98f2c675e4ab05b32ffdf",
+      "size": 16384,
+      "sha256": "18d0454c948cc4752c306c0985ea325ba2f4c1657e9154e568f7d3f4562bdbf8",
+      "expected_sha256": "18d0454c948cc4752c306c0985ea325ba2f4c1657e9154e568f7d3f4562bdbf8"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/run.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "71f88d85195394d080685a1d8267dd81abc6f964",
+      "size": 12316,
+      "sha256": "6f380b9824767145e88a8c8c28887bc1b1cbc93d6f66e3cc606bfb6f6b6adea8",
+      "expected_sha256": "6f380b9824767145e88a8c8c28887bc1b1cbc93d6f66e3cc606bfb6f6b6adea8"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541772983.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "12c95a19b2d47f5eeb624e6bb27c9f1deccb8f56",
+      "size": 2657,
+      "sha256": "88b88298d0397b593f2190f2723b02e72f26906e5f5252142b0a682af8021556",
+      "expected_sha256": "88b88298d0397b593f2190f2723b02e72f26906e5f5252142b0a682af8021556"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542691032.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "3da1706c57e7417dfcdb00c7e56ced780031f50f",
+      "size": 2657,
+      "sha256": "6ecd75f8ad2f060cef4f509fdfae5e5d04a3aa9fae2794668b9a85493498b3bd",
+      "expected_sha256": "6ecd75f8ad2f060cef4f509fdfae5e5d04a3aa9fae2794668b9a85493498b3bd"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542355791.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "6a17f98762e4ebb4133b70868f555bee5b21aa14",
+      "size": 676706,
+      "sha256": "621959c1a5bbc866bbfa210b99fc5037e8f52dc1fdd8a73639f44159b94c116e",
+      "expected_sha256": "621959c1a5bbc866bbfa210b99fc5037e8f52dc1fdd8a73639f44159b94c116e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541334363.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "2346523fd62b4916f8d3dcb9fd8f460a3de13119",
+      "size": 95275,
+      "sha256": "cf05d1d6337824a67f04688a8eec873492a3dc9e792bc3a7cfd522e95ac39de3",
+      "expected_sha256": "cf05d1d6337824a67f04688a8eec873492a3dc9e792bc3a7cfd522e95ac39de3"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541339281.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "158af64d956bece3582434cd58d3f7a5baadd3cc",
+      "size": 2936,
+      "sha256": "e95a5b076623ab41f829f66a4ae8e6e3e46aed03a34c8049c6539dc0e3c78a8e",
+      "expected_sha256": "e95a5b076623ab41f829f66a4ae8e6e3e46aed03a34c8049c6539dc0e3c78a8e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541829253.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "fb2a577e9a9086ff52e866e9ed6f1550bf06e8c3",
+      "size": 1857,
+      "sha256": "a4c6b650adc442e648539ed35d55a6789c01c330a0fd87e41e2a212942665fbf",
+      "expected_sha256": "a4c6b650adc442e648539ed35d55a6789c01c330a0fd87e41e2a212942665fbf"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542325902.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "91e2a5bde91b53935ee2b0b79a9fef25c2a60651",
+      "size": 1943,
+      "sha256": "a949eceacf62ba9c1ca94d87d86e7788ff1e2a3dbaa86e9c039dc1452f7ab79e",
+      "expected_sha256": "a949eceacf62ba9c1ca94d87d86e7788ff1e2a3dbaa86e9c039dc1452f7ab79e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542745219.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "f0bf785ad5a765fab7e057778628cd9750b199b9",
+      "size": 1885,
+      "sha256": "607d734a13dc191eb1561d0053415787e7459d5fe3ae10d62d16c373d67c323b",
+      "expected_sha256": "607d734a13dc191eb1561d0053415787e7459d5fe3ae10d62d16c373d67c323b"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542366977.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "ae72d4f1b1477c0c4af73fab508ea340b070bb48",
+      "size": 2931,
+      "sha256": "adbf1526bba346090cd4e16542d9805f9daac9d7d4b6f6d82c888332ee0e811b",
+      "expected_sha256": "adbf1526bba346090cd4e16542d9805f9daac9d7d4b6f6d82c888332ee0e811b"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542023210.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "599a9a9c6c8bda017d5cfc441a46343f040f947d",
+      "size": 1891,
+      "sha256": "8f145a1187e1c8b629f72d13f63898d7316242f4031c23bc067688fc2bd70ccb",
+      "expected_sha256": "8f145a1187e1c8b629f72d13f63898d7316242f4031c23bc067688fc2bd70ccb"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542292061.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "e8ee253bc1463e4ff371d161c2ab5dfc97a99bf1",
+      "size": 714076,
+      "sha256": "24c96e0de4a260b196a1976d056142095553d2ff6ba5b677d8a1a896915a0633",
+      "expected_sha256": "24c96e0de4a260b196a1976d056142095553d2ff6ba5b677d8a1a896915a0633"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542212503.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "970974967f2afc0eb67f3905edb5acd440a14352",
+      "size": 2958,
+      "sha256": "7c70e8286af3bebcc5eb0903a0d67398eebb25c6b4e0b9f159dcb7b4d1d933bd",
+      "expected_sha256": "7c70e8286af3bebcc5eb0903a0d67398eebb25c6b4e0b9f159dcb7b4d1d933bd"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542397127.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "88f08d4a00048ed20558ac5cd1ba82ea823ec5af",
+      "size": 765476,
+      "sha256": "b69abbc3695ed8674533551b1b7450517766f0bfcdea39800377b30371ef2dcd",
+      "expected_sha256": "b69abbc3695ed8674533551b1b7450517766f0bfcdea39800377b30371ef2dcd"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542376859.zip",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "f4db5501c17f86cae62607b7c98ab7aef7b2fc5b",
+      "size": 761315,
+      "sha256": "0d64d6dfbce6e1b53a41917f9e20fbee09df5ee48950335719076e2a3214dceb",
+      "expected_sha256": "0d64d6dfbce6e1b53a41917f9e20fbee09df5ee48950335719076e2a3214dceb"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/timing/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "ca3d98d86955461baac28f56bfb8a1313570ab29",
+      "size": 7046,
+      "sha256": "259638da6e21620929d6c23be214774858e6978c273c780b5591107118d605ac",
+      "expected_sha256": "259638da6e21620929d6c23be214774858e6978c273c780b5591107118d605ac"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/commit.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "c87032bf31a114508cd328a8a5bd183aeefdff47",
+      "size": 283973,
+      "sha256": "2cad393816695d1cba44478a315b6120940e31ff273c0dc184d96db45236b278",
+      "expected_sha256": "2cad393816695d1cba44478a315b6120940e31ff273c0dc184d96db45236b278"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/workflow-content.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "3e1874f7880354fd7b612e38b578344399008fcf",
+      "size": 188647,
+      "sha256": "045d6442238899f9c0b0d5c9e83b65331bc748c554ea3a3ebed82e73aeffc24f",
+      "expected_sha256": "045d6442238899f9c0b0d5c9e83b65331bc748c554ea3a3ebed82e73aeffc24f"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/ci.yml",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "ac675ce4a35a893735cfad7214f6788c4370661b",
+      "size": 136188,
+      "sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+      "expected_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/producer-source/f46178ab2ca49d33b36ba5c6da01c96e6077148e/tree.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "7326ff8b6a705b7e23faec81a6c65f56f269c813",
+      "size": 955834,
+      "sha256": "22a3c719242be777e3c092de8596f3154a199850d892b953aac39d45d0ac7bba",
+      "expected_sha256": "22a3c719242be777e3c092de8596f3154a199850d892b953aac39d45d0ac7bba"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542023210/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "6fe19b87f079b074df842629e78b231f030b7a96",
+      "size": 4700,
+      "sha256": "7743878d05ebc5f137af51bc86e4938a9ead0546e87642a30c2ada3acca7697c",
+      "expected_sha256": "7743878d05ebc5f137af51bc86e4938a9ead0546e87642a30c2ada3acca7697c"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542355791/demo-showcase.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "2720e24758b10f45f4784b1979a6cf582c2d1f1d",
+      "size": 1897694,
+      "sha256": "ce404d08196a0409b3bc4c2beb293ebbbc5c267d23db77d0a490773625eb9978",
+      "expected_sha256": "ce404d08196a0409b3bc4c2beb293ebbbc5c267d23db77d0a490773625eb9978"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541334363/ci-exunit-timing-threadline-guard.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "2b05049effdae4def58468d20e1f6ecacd50e77a",
+      "size": 23561,
+      "sha256": "017dfceb5f344b35123326d1d3192d7771bebbfe6cac2d875675085766c88126",
+      "expected_sha256": "017dfceb5f344b35123326d1d3192d7771bebbfe6cac2d875675085766c88126"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541334363/ci-exunit-timing-main.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "82b81745c46419fd05d5d63e002bde7a81a28929",
+      "size": 875769,
+      "sha256": "c513dc4adf0a0c199eb3a3cf3a883f2ceaad5ff7304cd1e0e792c6b328d75b69",
+      "expected_sha256": "c513dc4adf0a0c199eb3a3cf3a883f2ceaad5ff7304cd1e0e792c6b328d75b69"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542397127/admin-behavior.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "71d8fba077c156460aefaa9766dae2b1a3bef934",
+      "size": 1954603,
+      "sha256": "985336913dabfca8019c9b6ebf902d981707d8559d0cdd6de62248d358228af3",
+      "expected_sha256": "985336913dabfca8019c9b6ebf902d981707d8559d0cdd6de62248d358228af3"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541829253/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "c2dd8ffa4ccc1d552f14654f7be0cdbe452714c2",
+      "size": 4580,
+      "sha256": "496025693611898b22a04c56e9c9ca265d1cc00a7113e32579f177db40dfa782",
+      "expected_sha256": "496025693611898b22a04c56e9c9ca265d1cc00a7113e32579f177db40dfa782"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541772983/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "cfd25dd0210a68c62f8495fc54ebbfafd27f8694",
+      "size": 7044,
+      "sha256": "97025c724ea6634751b83d3ed1b42f32d259ce23d90be901aa76401142d3a876",
+      "expected_sha256": "97025c724ea6634751b83d3ed1b42f32d259ce23d90be901aa76401142d3a876"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542745219/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "eb4b9cf331b92e20269aeceef8c70376e8e5694e",
+      "size": 4687,
+      "sha256": "a655acb6bc899e15e7f08a8b83d072e25451307862423b9cbfec7b958a3f9f54",
+      "expected_sha256": "a655acb6bc899e15e7f08a8b83d072e25451307862423b9cbfec7b958a3f9f54"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542325902/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "3c2e7acc057bd0c46bec3c4f33f50e42d79c2ab0",
+      "size": 4848,
+      "sha256": "86caaeff31d66f2ed25e74703784a21f2a30e92a1c39ae33f2ad292a7b22885e",
+      "expected_sha256": "86caaeff31d66f2ed25e74703784a21f2a30e92a1c39ae33f2ad292a7b22885e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542376859/design-gallery-pr-behavior.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "a9f8d6000db6079fcd30a49063c118b09daf006b",
+      "size": 1944041,
+      "sha256": "b8c7cc3e33dbf1853ad37da014edfc3bbe338553f064fbf72b983633133aa14e",
+      "expected_sha256": "b8c7cc3e33dbf1853ad37da014edfc3bbe338553f064fbf72b983633133aa14e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542691032/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "ca3d98d86955461baac28f56bfb8a1313570ab29",
+      "size": 7046,
+      "sha256": "259638da6e21620929d6c23be214774858e6978c273c780b5591107118d605ac",
+      "expected_sha256": "259638da6e21620929d6c23be214774858e6978c273c780b5591107118d605ac"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542366977/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "19e49178e8df460939b2e45505a7280540464237",
+      "size": 8022,
+      "sha256": "093e296c70552407599465ebe7ae22cad00e77a9476d1d5a1871028a0d856024",
+      "expected_sha256": "093e296c70552407599465ebe7ae22cad00e77a9476d1d5a1871028a0d856024"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542212503/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "a48225ec7263e93bb190d401414b34d2c0aac255",
+      "size": 8130,
+      "sha256": "f6a545201242f39da878bf24643c6a2e37b3c725c0852a5f2fd4802ad15d33d4",
+      "expected_sha256": "f6a545201242f39da878bf24643c6a2e37b3c725c0852a5f2fd4802ad15d33d4"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12542292061/non-admin-smoke.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "ea4c3f00bfddbabd5dd178e40d7a10cdda23cce8",
+      "size": 1912120,
+      "sha256": "30e38b86df473ea38999ac32d491981b4ef50259ab0d62a55f2491e1112cb4b9",
+      "expected_sha256": "30e38b86df473ea38999ac32d491981b4ef50259ab0d62a55f2491e1112cb4b9"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-before/raw/families/40046955449-attempt-2/artifacts/12541339281/ci-measurement-metadata.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "8ddfa5029c670f1006798bec8bf887cf4737281a",
+      "size": 8029,
+      "sha256": "c18bb093443a207afc07f2763d37a42c42c60a3e0f818a2b5eb1b4822e0c25f7",
+      "expected_sha256": "c18bb093443a207afc07f2763d37a42c42c60a3e0f818a2b5eb1b4822e0c25f7"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/REGISTRATIONS.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "b0e710f09782ff09aa4e20ad008a78642a48d72b",
+      "size": 34572,
+      "sha256": "c35db8aaf5db6cfc3c6a200e3d0d98f7ea26015d413adad912751eefc774ddfd",
+      "expected_sha256": "c35db8aaf5db6cfc3c6a200e3d0d98f7ea26015d413adad912751eefc774ddfd"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/REQUEST-BUDGET.json",
+      "source_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "source_blob": "b3e1af3862a35d9f97d8bf29cb736dc1018233b8",
+      "size": 42857,
+      "sha256": "c47f40987f9ce6d5d4bfe284426c080ea88fe02b12e7a5b4b28c947721dde7a1",
+      "expected_sha256": "c47f40987f9ce6d5d4bfe284426c080ea88fe02b12e7a5b4b28c947721dde7a1"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/request-ledger.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "9c0a216c43d4f85136bd4e45fa2fe8feacbd1a2b",
+      "size": 4282,
+      "sha256": "b055b983e9ea8d2870f439943677e85c925e6fcc79e2e6a535a1b81549d97f4d",
+      "expected_sha256": "b055b983e9ea8d2870f439943677e85c925e6fcc79e2e6a535a1b81549d97f4d"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/selection-ledger.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "6bf7e38c03a279f6d91ba1df1a77a01429b0521f",
+      "size": 115,
+      "sha256": "7d9dc2f4173520c1507508cffcb8dfc026d26855408431f391511c36da8dec94",
+      "expected_sha256": "7d9dc2f4173520c1507508cffcb8dfc026d26855408431f391511c36da8dec94"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/comparison-origin-verification.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "a0e36ab502d1ea83dfbc2dc52a109cc7931b0847",
+      "size": 932,
+      "sha256": "f8dbad1c70e1e595f158f5f237849dd9e0365265ef7328045894dc96abf5f3d9",
+      "expected_sha256": "f8dbad1c70e1e595f158f5f237849dd9e0365265ef7328045894dc96abf5f3d9"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/manifest.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "4f496f0f2e9b2bc958d9785eaf11b31402335eb9",
+      "size": 771628,
+      "sha256": "569f95ecb0ca5a0b459af7d50ea3cca5818e7c667a2775f6455463dd166ef67f",
+      "expected_sha256": "569f95ecb0ca5a0b459af7d50ea3cca5818e7c667a2775f6455463dd166ef67f"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/ci_metrics_security.py",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "42b411e063a14dff561d528b2e52ae292f88cf1c",
+      "size": 106343,
+      "sha256": "b46841213929ceb229d360019a92ad21ca661f761e6066989c7e51551fb2661f",
+      "expected_sha256": "b46841213929ceb229d360019a92ad21ca661f761e6066989c7e51551fb2661f"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/sigra-dep-off.sh",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "34e5e8438538bb12ef2879a00ec2446afd2fc002",
+      "size": 2113,
+      "sha256": "9399e85d500c9da5bfa962849fa2b66f262106b172f32fdab4036e570776fa41",
+      "expected_sha256": "9399e85d500c9da5bfa962849fa2b66f262106b172f32fdab4036e570776fa41"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/mix.exs",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "11a94e8e594701be1c5ceb8c37236dbedaf5f0c4",
+      "size": 18395,
+      "sha256": "4666a0dac1477899bfecd295b7b8060d99e1ca8c260f6c0e14fcf1d0b4409998",
+      "expected_sha256": "4666a0dac1477899bfecd295b7b8060d99e1ca8c260f6c0e14fcf1d0b4409998"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/ci-playwright-report.mjs",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "size": 11482,
+      "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+      "expected_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/ci-playwright-report.test.mjs",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "2b1519169c5552058b32ba67f4fed2ef20fe7d3c",
+      "size": 11575,
+      "sha256": "b219777067888c8db5f974e972faeea2b4004a61ff7f5353eaa38b673cd80fba",
+      "expected_sha256": "b219777067888c8db5f974e972faeea2b4004a61ff7f5353eaa38b673cd80fba"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/exunit_timing_contract.py",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e00d91084ba96697a502c0dc8e9e9cbe67bec266",
+      "size": 4639,
+      "sha256": "be71c4e597575edd6938550decc59b14e9070f1140dfc4ad24fb8869460b8f76",
+      "expected_sha256": "be71c4e597575edd6938550decc59b14e9070f1140dfc4ad24fb8869460b8f76"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/ci-run-metrics.sh",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "b800a1f580b9ec3ca7e201b7c5d4c84029ed8f17",
+      "size": 226343,
+      "sha256": "479ea27c7f4ff63b544e1687b2427568e766a16929a4f6630f028eb926478b3d",
+      "expected_sha256": "479ea27c7f4ff63b544e1687b2427568e766a16929a4f6630f028eb926478b3d"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/test_helper.exs",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e0fbcc15e693d3effd93ef3644f4e3a658e9247b",
+      "size": 1900,
+      "sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+      "expected_sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/ci_timing_formatter.ex",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "c64c3063d50f456a6a6c227bec9fe7c4b4cefa48",
+      "size": 6236,
+      "sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+      "expected_sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/playwright.config.ts",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "5170da647aab93a911ae7de05d3f5d9dad5d609d",
+      "size": 12671,
+      "sha256": "e20b8cc4e2e4496aadaca8545054f3d30c7143a4488bbab1ccb49a3107a5ed56",
+      "expected_sha256": "e20b8cc4e2e4496aadaca8545054f3d30c7143a4488bbab1ccb49a3107a5ed56"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/ci.yml",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "ea7201d616e09616993480c834a1b8e908c7596a",
+      "size": 142705,
+      "sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+      "expected_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/source/playwright-package-lock.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "size": 24481,
+      "sha256": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5",
+      "expected_sha256": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/effective-rules.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "ec4399bbd98a40cf0e641be231785de7c36582a0",
+      "size": 1180,
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "expected_sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/rate-limit.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e53adf4936a9cedfe58480490e22de3fd8cd45e1",
+      "size": 1235,
+      "sha256": "5fce45bd17c8249ed93a0363c7cbc837b7bb7dbe0cea9b19c3e1905a6c47d010",
+      "expected_sha256": "5fce45bd17c8249ed93a0363c7cbc837b7bb7dbe0cea9b19c3e1905a6c47d010"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/branch-protection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "818bc793f92bb2a17470eda8f669edfde1c0fe7f",
+      "size": 55,
+      "sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
+      "expected_sha256": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/rulesets.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "8c200a2318fc7d733ef4b1acc884de39761fb3f3",
+      "size": 847,
+      "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+      "expected_sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/populations/manual.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "0e87d70fbd40d726ff8165036ef0eddf573731eb",
+      "size": 233,
+      "sha256": "de49b04f947234b2eb3b7ee9530d520b97b15d64317de43feb5c92938f0cfd0d",
+      "expected_sha256": "de49b04f947234b2eb3b7ee9530d520b97b15d64317de43feb5c92938f0cfd0d"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/populations/release_push.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "3f5da65fc65a3475dab5048d70ee064b25507c85",
+      "size": 225,
+      "sha256": "1c6bc042f81e6b78a9fb5f9f7383c44dd2443f719139b71bda3f7132634be336",
+      "expected_sha256": "1c6bc042f81e6b78a9fb5f9f7383c44dd2443f719139b71bda3f7132634be336"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/populations/schedule.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "202512a171981f8854a67de081fae5ff5598837b",
+      "size": 226,
+      "sha256": "60e7c18c7686845e22b079526ba088ee2bdb618e5afa5d51af277bff4c55da0a",
+      "expected_sha256": "60e7c18c7686845e22b079526ba088ee2bdb618e5afa5d51af277bff4c55da0a"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/populations/push_main.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "4bd33ef97a05a8c6afc70bd249b7412049545647",
+      "size": 223,
+      "sha256": "1ac017ebeff1d9e6bd5f433fefa2539f20aacd48b1b05c2d14a744a37c025d61",
+      "expected_sha256": "1ac017ebeff1d9e6bd5f433fefa2539f20aacd48b1b05c2d14a744a37c025d61"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/populations/pull_request.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "ae118523091286d38e16f5aab04fe827a34a081a",
+      "size": 751469,
+      "sha256": "eba8944ffb87a764e2bf2720266ccd267cdfbe8ffced2a0097b96f21a2f2f485",
+      "expected_sha256": "eba8944ffb87a764e2bf2720266ccd267cdfbe8ffced2a0097b96f21a2f2f485"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifact-evidence.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "85849dd82d790f7718369aacb6426d917c42b993",
+      "size": 38812,
+      "sha256": "48469582ffde84953417dc64b1017e1a6540f29e920a7a73b3b52cf8bbc68f38",
+      "expected_sha256": "48469582ffde84953417dc64b1017e1a6540f29e920a7a73b3b52cf8bbc68f38"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/changed-paths-page-1.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e6a09ec86fbd65efa2ef3d52d32e9cea4e6266ff",
+      "size": 721345,
+      "sha256": "3fda1daccd2835602e270be92bdac093f211145ccbab92ccf05fa6deca773b63",
+      "expected_sha256": "3fda1daccd2835602e270be92bdac093f211145ccbab92ccf05fa6deca773b63"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/jobs-attempt-2.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "f69df0c0361ff431aa26bacca691b398a276980f",
+      "size": 80033,
+      "sha256": "4f0d3057d9d51d1f975e7b585b19b302e876122342fa5e99aa80b8e2ac0060ed",
+      "expected_sha256": "4f0d3057d9d51d1f975e7b585b19b302e876122342fa5e99aa80b8e2ac0060ed"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "2d62a79af9d938957f10f215b3fd6a42c68f544c",
+      "size": 11067,
+      "sha256": "ee7fc86a57628c01bbfdf4852e8d0a0d780c28be39782e40dc49d5143ff8af50",
+      "expected_sha256": "ee7fc86a57628c01bbfdf4852e8d0a0d780c28be39782e40dc49d5143ff8af50"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/check-runs.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "1a406ec9ce854b574aef40ce4b4158452c757960",
+      "size": 95177,
+      "sha256": "42061512282b26d724dcf7bcc496cd9a4dd43111d2efd2c289cae9d1030aa3d6",
+      "expected_sha256": "42061512282b26d724dcf7bcc496cd9a4dd43111d2efd2c289cae9d1030aa3d6"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/manifest.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "1dbd294efbe3e84e44c29e4092283deb357e1625",
+      "size": 4672,
+      "sha256": "3554d737e24e3e1daeb935700175e5bce261bf10ed702ce72ebfc97dd07f33d7",
+      "expected_sha256": "3554d737e24e3e1daeb935700175e5bce261bf10ed702ce72ebfc97dd07f33d7"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/run.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "c3d47523f399a514b4f547e4f01b1abe10d7bcd5",
+      "size": 12312,
+      "sha256": "fad6216b886187912dab037117346621b7ead2c3611e67ec7905ce13e603ccf2",
+      "expected_sha256": "fad6216b886187912dab037117346621b7ead2c3611e67ec7905ce13e603ccf2"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541109759.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "a868836b13e27e732c5dcc9e2e66380f69037abf",
+      "size": 1864,
+      "sha256": "ccbbcbadc3f66d3a3574fb61e4096574ebd049257c9f759c845f479f4fb3772f",
+      "expected_sha256": "ccbbcbadc3f66d3a3574fb61e4096574ebd049257c9f759c845f479f4fb3772f"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542361454.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "2d7eb03e05bad63903287f0b41a503f1b617a783",
+      "size": 2654,
+      "sha256": "2ba4b4e181bbeff587f80f0611a39fad3607ea2526780ea9fc3d3d5e8f401b53",
+      "expected_sha256": "2ba4b4e181bbeff587f80f0611a39fad3607ea2526780ea9fc3d3d5e8f401b53"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542570504.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "5659b5cd8a8f362b6b9f7a7717ecceba35f63ee5",
+      "size": 1855,
+      "sha256": "d35918efd58c5d9119616876d573890f3660553ad361bf4891fcb2e5657f17b8",
+      "expected_sha256": "d35918efd58c5d9119616876d573890f3660553ad361bf4891fcb2e5657f17b8"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542441322.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "be36b116549ac34a7bf9b8e7778687873083ad5f",
+      "size": 1859,
+      "sha256": "16a3ab80499609f5db4b7d8298b0afba5ace04807a9b49e419f7384532656517",
+      "expected_sha256": "16a3ab80499609f5db4b7d8298b0afba5ace04807a9b49e419f7384532656517"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542311728.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "049d0bd5cdf1145526117bf4e1080b46a07c26a8",
+      "size": 349466,
+      "sha256": "153c72368f36b97e9c9bbc2946ac2a46d1f7b4e9bb43c08a92310e8a3fdc0e5f",
+      "expected_sha256": "153c72368f36b97e9c9bbc2946ac2a46d1f7b4e9bb43c08a92310e8a3fdc0e5f"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542241242.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "6ca2062453f16ba4d3a1079fe8a7efc1038f20de",
+      "size": 672471,
+      "sha256": "bc3ba76143adeef498114a496b035d4803adb3c18b7d778747f22e21b9809f0d",
+      "expected_sha256": "bc3ba76143adeef498114a496b035d4803adb3c18b7d778747f22e21b9809f0d"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542156432.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "b766906113f901be92ace58fde7f33d896309ada",
+      "size": 1974,
+      "sha256": "330639bc52794b40c1da9c404cdfd1500db7879fd2506504d3fe67a43a7ff6ba",
+      "expected_sha256": "330639bc52794b40c1da9c404cdfd1500db7879fd2506504d3fe67a43a7ff6ba"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542111769.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "2a01296a6dafebf5ce3b852472156ece4827698f",
+      "size": 2960,
+      "sha256": "2ba1de907a6186eaa04190755801012441902bf4295fb33c48f5026963e0d4a0",
+      "expected_sha256": "2ba1de907a6186eaa04190755801012441902bf4295fb33c48f5026963e0d4a0"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542840167.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "455becc0147ec44fc44a816061c3652189098ed9",
+      "size": 663215,
+      "sha256": "3bdce12d226f55cbc90521ea1597d50ba0e6036d1dab1d27e2b0663b3a2a6ad6",
+      "expected_sha256": "3bdce12d226f55cbc90521ea1597d50ba0e6036d1dab1d27e2b0663b3a2a6ad6"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541294459.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "6de98161cacaddf5b9b47a3952c1f04b6436e76e",
+      "size": 2655,
+      "sha256": "0ef1ed28b89831fe13b5ef3150dddb63b7a2490205f355550d016a4552a827cf",
+      "expected_sha256": "0ef1ed28b89831fe13b5ef3150dddb63b7a2490205f355550d016a4552a827cf"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542281126.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "6c8dc71279c556406489795bb293787733fad7b8",
+      "size": 616098,
+      "sha256": "b87e722251f88afa6bbbff7029d1ad729e382e1f590298a2bdffd8878452a4ee",
+      "expected_sha256": "b87e722251f88afa6bbbff7029d1ad729e382e1f590298a2bdffd8878452a4ee"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541454014.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "fedf56b60a9c1434f92046b666d8db549c515f44",
+      "size": 351494,
+      "sha256": "3843df751e86d8210c0f65f172b963cc7361cd4d617af7a759b8189355136533",
+      "expected_sha256": "3843df751e86d8210c0f65f172b963cc7361cd4d617af7a759b8189355136533"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542346534.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "329cd8f6db7ebd7d4067608908d6c651179f7990",
+      "size": 577633,
+      "sha256": "d1ad00450a694862b7dcee4888d35b4e4d7476927408ff276c6d3675d8d9d252",
+      "expected_sha256": "d1ad00450a694862b7dcee4888d35b4e4d7476927408ff276c6d3675d8d9d252"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542865071.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "6cbbc552a6cb21857d1162090826dd74cbc20cab",
+      "size": 352843,
+      "sha256": "87d4177d9a24a2f8669955f38abdd48c0db737065cce0349535ef2ee79d63674",
+      "expected_sha256": "87d4177d9a24a2f8669955f38abdd48c0db737065cce0349535ef2ee79d63674"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541932486.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "966d34576977920e98064f7e729be38f2684a66f",
+      "size": 350389,
+      "sha256": "2977e7460a4b004fba1a92aeba5386a0dbe346e8b463dd9322df7ea1a15d0f1e",
+      "expected_sha256": "2977e7460a4b004fba1a92aeba5386a0dbe346e8b463dd9322df7ea1a15d0f1e"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541842892.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "257e627fc466e912e95cb659485138020029166d",
+      "size": 17092879,
+      "sha256": "1803217dead85d22bd6755e297bee9b7dc7a248f3ce1c278eb7fcc8ad7b8cec6",
+      "expected_sha256": "1803217dead85d22bd6755e297bee9b7dc7a248f3ce1c278eb7fcc8ad7b8cec6"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541214635.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "47b853ca2ea016d0192ab1e7625aebbb25930df6",
+      "size": 2931,
+      "sha256": "d18f6b4bcad64dc6f536b89ca9cf28d5f2c968a2cb698047437bc03010df3a2c",
+      "expected_sha256": "d18f6b4bcad64dc6f536b89ca9cf28d5f2c968a2cb698047437bc03010df3a2c"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541982126.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "06e3f59471aa8622f88bfc1e196fb0cfa2ed3794",
+      "size": 96029,
+      "sha256": "1233606342b7f6e6de5baf676f481d55722cd55fcfaa5d9375ea333bc833f232",
+      "expected_sha256": "1233606342b7f6e6de5baf676f481d55722cd55fcfaa5d9375ea333bc833f232"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542136752.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "5f24f7f3d2d691405f86b767e7c8d66b818ba6b7",
+      "size": 357172,
+      "sha256": "6f3821476ca8418c4e536b175f0fac821fe4bd9a5f0441087032220b292b31bc",
+      "expected_sha256": "6f3821476ca8418c4e536b175f0fac821fe4bd9a5f0441087032220b292b31bc"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541914231.zip",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e37ce7296f0923f5b8fb7562561b5a8ed2a35604",
+      "size": 2931,
+      "sha256": "b5077f743dd07bf58f3f11f1e40017eae7a980f2494aac6fa70cc458b5567e89",
+      "expected_sha256": "b5077f743dd07bf58f3f11f1e40017eae7a980f2494aac6fa70cc458b5567e89"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/commit.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "420a3ee163449c953e92deccc19393de7e965cc6",
+      "size": 1297728,
+      "sha256": "e98516b098fe1b496cf8f4ac0a2f97905f96b970c9ae4d6f25a4e76e2c06e9fc",
+      "expected_sha256": "e98516b098fe1b496cf8f4ac0a2f97905f96b970c9ae4d6f25a4e76e2c06e9fc"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/workflow-content.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "bbaf5e20b70d500148a628bb4b71959c143fcd38",
+      "size": 197629,
+      "sha256": "b7681de451b372d7821a69db47b7a04b817834f830757cff8bb343afa6463769",
+      "expected_sha256": "b7681de451b372d7821a69db47b7a04b817834f830757cff8bb343afa6463769"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/ci.yml",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "ea7201d616e09616993480c834a1b8e908c7596a",
+      "size": 142705,
+      "sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+      "expected_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/producer-source/cd931364639de70d888f04132ce3c980ae491b3d/tree.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "daffd182931c0def29a03aff08e6c828b1f81b07",
+      "size": 2197759,
+      "sha256": "cf32daa1925ae9cd976d52e18760d3129492323014a670bbad664b7e95a0d4ae",
+      "expected_sha256": "cf32daa1925ae9cd976d52e18760d3129492323014a670bbad664b7e95a0d4ae"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541454014/non-admin-smoke.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "33cc116ed415b381494757277343a68b04f412c1",
+      "size": 21885,
+      "sha256": "2c290924ffb14fdd0eae77eba3dd2a1c1571d70bc9b0aecb2323a0368baa3e47",
+      "expected_sha256": "2c290924ffb14fdd0eae77eba3dd2a1c1571d70bc9b0aecb2323a0368baa3e47"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541454014/non-admin-smoke.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "7fba3891e12a0635376db99b7a3dae59f4239d6b",
+      "size": 1906548,
+      "sha256": "0d2da4a2121b4f03fc618659a2bf1ede35448a738bc26bbd7c5124670ed5e203",
+      "expected_sha256": "0d2da4a2121b4f03fc618659a2bf1ede35448a738bc26bbd7c5124670ed5e203"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541454014/execution-record.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "9947e4a37bd99836b4ad6fc9b322941704c56ed0",
+      "size": 1010,
+      "sha256": "6fbd0591dcbb1d4725e5a40f7dd7132a4f482ebaf5e4ebbb61e8853140686ade",
+      "expected_sha256": "6fbd0591dcbb1d4725e5a40f7dd7132a4f482ebaf5e4ebbb61e8853140686ade"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541214635/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "5a4e87c2980940c0a4a21c7ff0f1f02908e7c58f",
+      "size": 8023,
+      "sha256": "788faa2da67464006fef0f3ad4bf2cd8f9425896334bd9f6118a206b5a7e44b1",
+      "expected_sha256": "788faa2da67464006fef0f3ad4bf2cd8f9425896334bd9f6118a206b5a7e44b1"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542136752/admin-behavior.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "1b2926131e3246b80639af702083d4e666bb15ed",
+      "size": 1949036,
+      "sha256": "b38ca3fe5a46e3628527a7c3b6b85a57e1f2a015d0cc95f97d1f2a166ce7a401",
+      "expected_sha256": "b38ca3fe5a46e3628527a7c3b6b85a57e1f2a015d0cc95f97d1f2a166ce7a401"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542136752/admin-behavior.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "33a4010c9cab5bf5efeba38fffd484505025b5d4",
+      "size": 49103,
+      "sha256": "6789d5bf7248591ef0c585a18bb9295822b16a8256af0a52a2f513077ca64da2",
+      "expected_sha256": "6789d5bf7248591ef0c585a18bb9295822b16a8256af0a52a2f513077ca64da2"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542136752/execution-record.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "dba4fbd2259b9f81a22e53f6b0fce48b98dd4224",
+      "size": 1006,
+      "sha256": "8116560b527c2181f709aa64268793862882b6dfe9536a8ee767f3a253ee6f68",
+      "expected_sha256": "8116560b527c2181f709aa64268793862882b6dfe9536a8ee767f3a253ee6f68"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542441322/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "a745fdc37dc1c1e571a286d053aff59488969609",
+      "size": 4577,
+      "sha256": "ca80b326e81db59b85e8317a8690fcda5503e1948aa12088a9dc6664feabd438",
+      "expected_sha256": "ca80b326e81db59b85e8317a8690fcda5503e1948aa12088a9dc6664feabd438"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542241242/admin-behavior.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "1b2926131e3246b80639af702083d4e666bb15ed",
+      "size": 1949036,
+      "sha256": "b38ca3fe5a46e3628527a7c3b6b85a57e1f2a015d0cc95f97d1f2a166ce7a401",
+      "expected_sha256": "b38ca3fe5a46e3628527a7c3b6b85a57e1f2a015d0cc95f97d1f2a166ce7a401"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541294459/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "eca540617a28eab59cb7bb200c88171f45e1c7cb",
+      "size": 7046,
+      "sha256": "51ea5d8664e5bb46d74a93f3ed05f3f2027b6ccb30016c1b654eef6463b9d6a5",
+      "expected_sha256": "51ea5d8664e5bb46d74a93f3ed05f3f2027b6ccb30016c1b654eef6463b9d6a5"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542111769/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e613bebe52589bf09140aa923b7bc7187613d797",
+      "size": 8138,
+      "sha256": "932e69153d5f0fa92c6c361547ccf30eff69b113683a33cabb08ee0dcc60ce5b",
+      "expected_sha256": "932e69153d5f0fa92c6c361547ccf30eff69b113683a33cabb08ee0dcc60ce5b"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541932486/admin-checkpoints.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "319159dd2948bfb5f6991ce9c00f40779ed3fbfa",
+      "size": 1904192,
+      "sha256": "71bf35cbbcae03e54fdc62ab72b0ccd88c735ac94e76fdff02d549ae912db640",
+      "expected_sha256": "71bf35cbbcae03e54fdc62ab72b0ccd88c735ac94e76fdff02d549ae912db640"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541932486/admin-checkpoints.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "d113feff64d7d45a90b66356e3147f8dee935bdb",
+      "size": 12417,
+      "sha256": "c858a903a3768956224a47f09f1d4491f7b9ffbfbc3952c5c3b09648df90c32c",
+      "expected_sha256": "c858a903a3768956224a47f09f1d4491f7b9ffbfbc3952c5c3b09648df90c32c"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541932486/execution-record.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "5f749ed33d9e43b7cdf924748a80198dc4876291",
+      "size": 1018,
+      "sha256": "29954b18a746decc747a3d1f886ddec6342a16f7ed5a015bba41b0a2e36d4e8b",
+      "expected_sha256": "29954b18a746decc747a3d1f886ddec6342a16f7ed5a015bba41b0a2e36d4e8b"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542570504/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "fdf822019632988fa95229eea6325036c3773038",
+      "size": 4580,
+      "sha256": "b8f6a70eee0d4a6e8156045b550e5ba0e80c72faa6506e2b556bf680638ac860",
+      "expected_sha256": "b8f6a70eee0d4a6e8156045b550e5ba0e80c72faa6506e2b556bf680638ac860"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541982126/ci-exunit-timing-threadline-guard.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "f47d1d90a108351927fc356427b85b8c6a862084",
+      "size": 23556,
+      "sha256": "b745f45b949f23f0d5fe85c8a075ee41916301af5a2e45edb1771d02112e7ae6",
+      "expected_sha256": "b745f45b949f23f0d5fe85c8a075ee41916301af5a2e45edb1771d02112e7ae6"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541982126/ci-exunit-timing-main.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "aa5bad9bbe83fcbb927ca9458a8025c289f9aa0b",
+      "size": 879754,
+      "sha256": "c211ea50e5dedfc2941f07d9abb62774c4667292c265883968056577688a4589",
+      "expected_sha256": "c211ea50e5dedfc2941f07d9abb62774c4667292c265883968056577688a4589"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542840167/design-gallery-pr-behavior.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "ea66adede0a5b73818df3171182a6f3674c6360e",
+      "size": 1938446,
+      "sha256": "49800051bdec1b22ba3c5c6d9e5d3852235b1b6789a14b1cf7761f7b9957ed45",
+      "expected_sha256": "49800051bdec1b22ba3c5c6d9e5d3852235b1b6789a14b1cf7761f7b9957ed45"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542865071/design-gallery-pr-behavior.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "ea66adede0a5b73818df3171182a6f3674c6360e",
+      "size": 1938446,
+      "sha256": "49800051bdec1b22ba3c5c6d9e5d3852235b1b6789a14b1cf7761f7b9957ed45",
+      "expected_sha256": "49800051bdec1b22ba3c5c6d9e5d3852235b1b6789a14b1cf7761f7b9957ed45"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542865071/execution-record.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e375075e4ebe64b724065f81e4b4f902e5bd33c9",
+      "size": 1030,
+      "sha256": "335569583831963a0cfefc8d25a7f4a7591377c53c87af47828dc098da6cde41",
+      "expected_sha256": "335569583831963a0cfefc8d25a7f4a7591377c53c87af47828dc098da6cde41"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542865071/design-gallery-pr-behavior.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "663c17a665c4c22a15734c1dab1f77b21eec9de1",
+      "size": 40035,
+      "sha256": "08e8377c6cedccb8af6291e58bcca19bb57d9ad00edab61f8a7dfd70abda8aff",
+      "expected_sha256": "08e8377c6cedccb8af6291e58bcca19bb57d9ad00edab61f8a7dfd70abda8aff"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542361454/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "0bf98a3bb2819d82e2ae97ab88cfccfc666dbf89",
+      "size": 7043,
+      "sha256": "3ce2ac8130ef785d3a5067647e9dcdd33a50372edf2ce2661d917fcd9131d47a",
+      "expected_sha256": "3ce2ac8130ef785d3a5067647e9dcdd33a50372edf2ce2661d917fcd9131d47a"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542281126/non-admin-smoke.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "7fba3891e12a0635376db99b7a3dae59f4239d6b",
+      "size": 1906548,
+      "sha256": "0d2da4a2121b4f03fc618659a2bf1ede35448a738bc26bbd7c5124670ed5e203",
+      "expected_sha256": "0d2da4a2121b4f03fc618659a2bf1ede35448a738bc26bbd7c5124670ed5e203"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541109759/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "f9a9a108375cb1e018608686d0a65cc0aa58aaea",
+      "size": 4590,
+      "sha256": "27b852b5497b0aaf40ac29d45a55afa0a6b80498980ac29da0118068b3ab41c4",
+      "expected_sha256": "27b852b5497b0aaf40ac29d45a55afa0a6b80498980ac29da0118068b3ab41c4"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541842892/admin-checkpoints.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "319159dd2948bfb5f6991ce9c00f40779ed3fbfa",
+      "size": 1904192,
+      "sha256": "71bf35cbbcae03e54fdc62ab72b0ccd88c735ac94e76fdff02d549ae912db640",
+      "expected_sha256": "71bf35cbbcae03e54fdc62ab72b0ccd88c735ac94e76fdff02d549ae912db640"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542346534/demo-showcase.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "18c4559860cd928e8ed43be9ad216da7b41c6d95",
+      "size": 1892126,
+      "sha256": "654214b82c566c9281d71f2e01a70d03d03c4cb7688708bb0f102a58a3f51711",
+      "expected_sha256": "654214b82c566c9281d71f2e01a70d03d03c4cb7688708bb0f102a58a3f51711"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542156432/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "940dd30cf966326bc9ca535e4dbc9ed745c70773",
+      "size": 4958,
+      "sha256": "6ca69fa3c094e6824374a2ed50cb382ff9f9fdd4d9b2f4a3b85640bc0a35c8c5",
+      "expected_sha256": "6ca69fa3c094e6824374a2ed50cb382ff9f9fdd4d9b2f4a3b85640bc0a35c8c5"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542311728/demo-showcase.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "88595018ecaede16be67c9ba321af9a0acc11d7e",
+      "size": 13075,
+      "sha256": "40dcda6d8712d5a152d248991c70071980bd2ae535f248164e39150478fc43bf",
+      "expected_sha256": "40dcda6d8712d5a152d248991c70071980bd2ae535f248164e39150478fc43bf"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542311728/execution-record.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "7c37ba5570efbc3552cd7622a86a572e9c0990e8",
+      "size": 1002,
+      "sha256": "fe3aafbb70b436f69608e4bc58677adb3c9303d46f736ba600a3321424a7b912",
+      "expected_sha256": "fe3aafbb70b436f69608e4bc58677adb3c9303d46f736ba600a3321424a7b912"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542311728/demo-showcase.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "18c4559860cd928e8ed43be9ad216da7b41c6d95",
+      "size": 1892126,
+      "sha256": "654214b82c566c9281d71f2e01a70d03d03c4cb7688708bb0f102a58a3f51711",
+      "expected_sha256": "654214b82c566c9281d71f2e01a70d03d03c4cb7688708bb0f102a58a3f51711"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541914231/ci-measurement-metadata.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "2d674a887badeb738f2a5a5e619537b2e4296f52",
+      "size": 8018,
+      "sha256": "91ed7d9ea4bb55803f899fedb4cb78969b3fcef6b12e65d639593cd59f1ec2ea",
+      "expected_sha256": "91ed7d9ea4bb55803f899fedb4cb78969b3fcef6b12e65d639593cd59f1ec2ea"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/design_gallery/coverage-source.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "e490d1bb3154a93eda2f14f9160ad19f62762e5d",
+      "size": 26474,
+      "sha256": "1382d78193e906a60d522fef38c717febd14d4ab0070574c5c25a14976a56acb",
+      "expected_sha256": "1382d78193e906a60d522fef38c717febd14d4ab0070574c5c25a14976a56acb"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/design_gallery/report.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "ea66adede0a5b73818df3171182a6f3674c6360e",
+      "size": 1938446,
+      "sha256": "49800051bdec1b22ba3c5c6d9e5d3852235b1b6789a14b1cf7761f7b9957ed45",
+      "expected_sha256": "49800051bdec1b22ba3c5c6d9e5d3852235b1b6789a14b1cf7761f7b9957ed45"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/design_gallery/selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "4810d6f0261517c8007c7a2c17f3de767e2e1059",
+      "size": 42323,
+      "sha256": "ab1017c6de83eebdbc67921908249626ce93d2076e09aa1749e8cc777efad311",
+      "expected_sha256": "ab1017c6de83eebdbc67921908249626ce93d2076e09aa1749e8cc777efad311"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/admin_behavior/coverage-source.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "597533a82329fa656b12280f55d2abd1a1bea3cd",
+      "size": 30523,
+      "sha256": "6023d21883284c6232cc100ac38a324f3c85c8bcb04d0cd41fec7d2ee3b24dff",
+      "expected_sha256": "6023d21883284c6232cc100ac38a324f3c85c8bcb04d0cd41fec7d2ee3b24dff"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/admin_behavior/report.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "1b2926131e3246b80639af702083d4e666bb15ed",
+      "size": 1949036,
+      "sha256": "b38ca3fe5a46e3628527a7c3b6b85a57e1f2a015d0cc95f97d1f2a166ce7a401",
+      "expected_sha256": "b38ca3fe5a46e3628527a7c3b6b85a57e1f2a015d0cc95f97d1f2a166ce7a401"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/admin_behavior/selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "86ebe1cc7b8820260bed8a79927d019ae3e7367c",
+      "size": 51408,
+      "sha256": "c64b98d39739de9c2a4f00256c6360c3cf0d1ee12fc170f8e241d05826294a01",
+      "expected_sha256": "c64b98d39739de9c2a4f00256c6360c3cf0d1ee12fc170f8e241d05826294a01"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/demo_showcase/coverage-source.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "6bc8a08cb9eb1c080ddc28e303781885f4324e0b",
+      "size": 3449,
+      "sha256": "06924cf499c809f1135114f95797ba2918df229b988ef88b34e01ea3f1a429bd",
+      "expected_sha256": "06924cf499c809f1135114f95797ba2918df229b988ef88b34e01ea3f1a429bd"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/demo_showcase/report.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "18c4559860cd928e8ed43be9ad216da7b41c6d95",
+      "size": 1892126,
+      "sha256": "654214b82c566c9281d71f2e01a70d03d03c4cb7688708bb0f102a58a3f51711",
+      "expected_sha256": "654214b82c566c9281d71f2e01a70d03d03c4cb7688708bb0f102a58a3f51711"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/demo_showcase/selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "7956062df22a4882d2e59711be937220cec59b9a",
+      "size": 15342,
+      "sha256": "0da96af46e60a5cc76d367332c36ee5db1bf835c7264ebba23fb787ac0358619",
+      "expected_sha256": "0da96af46e60a5cc76d367332c36ee5db1bf835c7264ebba23fb787ac0358619"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/admin_checkpoints/coverage-source.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "f75bd36b9319435883a4670449105d77582c3db6",
+      "size": 3158,
+      "sha256": "2dd47b2a6b96a033b607d32fa17333c505383866ea6e3eb05750ccd05e443dc6",
+      "expected_sha256": "2dd47b2a6b96a033b607d32fa17333c505383866ea6e3eb05750ccd05e443dc6"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/admin_checkpoints/report.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "319159dd2948bfb5f6991ce9c00f40779ed3fbfa",
+      "size": 1904192,
+      "sha256": "71bf35cbbcae03e54fdc62ab72b0ccd88c735ac94e76fdff02d549ae912db640",
+      "expected_sha256": "71bf35cbbcae03e54fdc62ab72b0ccd88c735ac94e76fdff02d549ae912db640"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/admin_checkpoints/selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "d5fbe9703c4715e487a6cc1995b892819ddf24fe",
+      "size": 14828,
+      "sha256": "5f812964366721787086c675cb442360b84c10c4ab9d9601af573bb3ca6da660",
+      "expected_sha256": "5f812964366721787086c675cb442360b84c10c4ab9d9601af573bb3ca6da660"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/non_admin_smoke/coverage-source.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "fe4d959569a9181a8f7f20ad840525cf36f36c5c",
+      "size": 10968,
+      "sha256": "308167a9c23e928a864c965e12d49614d2335b0ec236baaec28c495f5fdf0dfe",
+      "expected_sha256": "308167a9c23e928a864c965e12d49614d2335b0ec236baaec28c495f5fdf0dfe"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/non_admin_smoke/report.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "7fba3891e12a0635376db99b7a3dae59f4239d6b",
+      "size": 1906548,
+      "sha256": "0d2da4a2121b4f03fc618659a2bf1ede35448a738bc26bbd7c5124670ed5e203",
+      "expected_sha256": "0d2da4a2121b4f03fc618659a2bf1ede35448a738bc26bbd7c5124670ed5e203"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/derived-native/non_admin_smoke/selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "15cec9b8d1aaa5270c4efd8f559639b2f94cfe8c",
+      "size": 24224,
+      "sha256": "90fa90b49aa6d81549efc4f20f7bd6c328767e808e3d1986362081d049709734",
+      "expected_sha256": "90fa90b49aa6d81549efc4f20f7bd6c328767e808e3d1986362081d049709734"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542346534/playwright-report/demo-showcase.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "88595018ecaede16be67c9ba321af9a0acc11d7e",
+      "size": 13075,
+      "sha256": "40dcda6d8712d5a152d248991c70071980bd2ae535f248164e39150478fc43bf",
+      "expected_sha256": "40dcda6d8712d5a152d248991c70071980bd2ae535f248164e39150478fc43bf"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12541842892/playwright-report/admin-checkpoints.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "d113feff64d7d45a90b66356e3147f8dee935bdb",
+      "size": 12417,
+      "sha256": "c858a903a3768956224a47f09f1d4491f7b9ffbfbc3952c5c3b09648df90c32c",
+      "expected_sha256": "c858a903a3768956224a47f09f1d4491f7b9ffbfbc3952c5c3b09648df90c32c"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542281126/playwright-report/non-admin-smoke.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "33cc116ed415b381494757277343a68b04f412c1",
+      "size": 21885,
+      "sha256": "2c290924ffb14fdd0eae77eba3dd2a1c1571d70bc9b0aecb2323a0368baa3e47",
+      "expected_sha256": "2c290924ffb14fdd0eae77eba3dd2a1c1571d70bc9b0aecb2323a0368baa3e47"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542840167/playwright-report/design-gallery-pr-behavior.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "663c17a665c4c22a15734c1dab1f77b21eec9de1",
+      "size": 40035,
+      "sha256": "08e8377c6cedccb8af6291e58bcca19bb57d9ad00edab61f8a7dfd70abda8aff",
+      "expected_sha256": "08e8377c6cedccb8af6291e58bcca19bb57d9ad00edab61f8a7dfd70abda8aff"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/raw/families/40047078287-attempt-2/artifacts/12542241242/playwright-report/admin-behavior.selection.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "33a4010c9cab5bf5efeba38fffd484505025b5d4",
+      "size": 49103,
+      "sha256": "6789d5bf7248591ef0c585a18bb9295822b16a8256af0a52a2f513077ca64da2",
+      "expected_sha256": "6789d5bf7248591ef0c585a18bb9295822b16a8256af0a52a2f513077ca64da2"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/REGISTRATIONS.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "b0e710f09782ff09aa4e20ad008a78642a48d72b",
+      "size": 34572,
+      "sha256": "c35db8aaf5db6cfc3c6a200e3d0d98f7ea26015d413adad912751eefc774ddfd",
+      "expected_sha256": "c35db8aaf5db6cfc3c6a200e3d0d98f7ea26015d413adad912751eefc774ddfd"
+    },
+    {
+      "path": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/REQUEST-BUDGET.json",
+      "source_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "source_blob": "b3e1af3862a35d9f97d8bf29cb736dc1018233b8",
+      "size": 42857,
+      "sha256": "c47f40987f9ce6d5d4bfe284426c080ea88fe02b12e7a5b4b28c947721dde7a1",
+      "expected_sha256": "c47f40987f9ce6d5d4bfe284426c080ea88fe02b12e7a5b4b28c947721dde7a1"
+    }
+  ],
+  "missing": [],
+  "synthetic_producer_commits": "absent locally; receipt-verified captured producer payloads retained"
+}

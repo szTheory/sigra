@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+  "exitCode": 1,
+  "output": "test_saved_result_is_calculated_without_changing_inputs (__main__.ReplayTest.test_saved_result_is_calculated_without_changing_inputs) ... FAIL\n\n======================================================================\nFAIL: test_saved_result_is_calculated_without_changing_inputs (__main__.ReplayTest.test_saved_result_is_calculated_without_changing_inputs)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-comparison-replay.test.py\", line 23, in test_saved_result_is_calculated_without_changing_inputs\n    self.assertEqual(run.returncode, 0, 'saved comparison must calculate: ' + run.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 2 != 0 : saved comparison must calculate: /opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jon/projects/sigra/scripts/ci/ci-comparison-replay.py': [Errno 2] No such file or directory\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.111s\n\nFAILED (failures=1)\n",
+  "targetTest": "__main__.ReplayTest.test_saved_result_is_calculated_without_changing_inputs",
+  "targetFile": "scripts/ci/ci-comparison-replay.test.py",
+  "expected": "saved comparison calculates with exit 0",
+  "actual": "replay command unavailable; exit 2",
+  "semanticAssessment": "The target test executed and failed its exit-code assertion because the requested replay CLI has not been implemented. No imports, fixtures or discovery failed."
+}
