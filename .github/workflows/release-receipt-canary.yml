@@ -1,16 +1,20 @@
 name: Release Receipt Canary
-run-name: release-receipt-canary-${{ inputs.scenario }}-${{ inputs.probe_id }}
+run-name: phase255-diagnostics-${{ inputs.scenario }}-${{ inputs.probe_id }}
 
 on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: Non-publishing terminal receipt scenario
+        description: Non-publishing retained diagnostics scenario
         type: choice
         required: true
-        options: [failure, cancellation]
+        options: [success, failure, cancellation]
       probe_id:
-        description: Unique lowercase hexadecimal/hyphen correlation ID
+        description: Unique canary invocation identifier
+        type: string
+        required: true
+      tested_source_sha:
+        description: Production diagnostics source under test
         type: string
         required: true
 
@@ -19,53 +23,59 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-receipt-canary-${{ inputs.probe_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+  group: phase255-diagnostics-${{ inputs.probe_id }}-${{ github.run_id }}-${{ github.run_attempt }}
   cancel-in-progress: false
 
 jobs:
-  controlled-probe:
-    name: Controlled ${{ inputs.scenario }} probe
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    permissions:
-      actions: read
-      contents: none
-    steps:
-      - name: Controlled failure before release operations
-        if: ${{ inputs.scenario == 'failure' }}
-        run: |
-          echo 'Controlled release receipt canary failure.' >&2
-          exit 1
-
-      - name: Bounded cancellation wait
-        if: ${{ inputs.scenario == 'cancellation' }}
-        timeout-minutes: 10
-        run: sleep 600
-
-  record-failure:
-    name: Record controlled failure receipt
-    needs: controlled-probe
-    if: ${{ always() && inputs.scenario == 'failure' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+  diagnostic-fixture:
+    name: Phase 255 diagnostic fixture (${{ inputs.scenario }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
     permissions:
       actions: read
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: main
+          ref: ${{ github.sha }}
 
-      - name: Validate source identity and build sanitized failure receipt
+      - name: Create invocation-owned synthetic diagnostic
         env:
-          GH_TOKEN: ${{ github.token }}
+          SCENARIO: ${{ inputs.scenario }}
           PROBE_ID: ${{ inputs.probe_id }}
-        run: bash scripts/ci/release-canary.sh --write-failure-receipt --scenario '${{ inputs.scenario }}' --output canary-receipt.json
+          TESTED_SOURCE_SHA: ${{ inputs.tested_source_sha }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          JOB_ID: diagnostic-fixture
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/phase255-diagnostics"
+          python3 -B -c 'import datetime,json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"phase255-diagnostics/scenario.json"; p.write_text(json.dumps({"scenario":os.environ["SCENARIO"],"probe_id":os.environ["PROBE_ID"],"source_sha":os.environ["TESTED_SOURCE_SHA"],"fixture_commit":os.environ["GITHUB_SHA"],"run_id":os.environ["RUN_ID"],"run_attempt":os.environ["RUN_ATTEMPT"],"job_id":os.environ["JOB_ID"],"captured_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"capture_state":"partial" if os.environ["SCENARIO"]=="cancellation" else "complete","expected_missing":["final-output.log","final-trace.zip"] if os.environ["SCENARIO"]=="cancellation" else []},sort_keys=True,indent=2)+chr(10))'
+          python3 -B scripts/ci/ci-diagnostics-canary.py manifest \
+            --invocation-root "$RUNNER_TEMP/phase255-diagnostics" \
+            --output "$RUNNER_TEMP/phase255-diagnostics/manifest.json" \
+            --invocation-id "$PROBE_ID" --source-sha "$TESTED_SOURCE_SHA" \
+            --run-id "$RUN_ID" --run-attempt "$RUN_ATTEMPT" \
+            --job-id "$JOB_ID" --seam "$SCENARIO" \
+            --file scenario.json=report
 
-      - name: Upload unique canary failure receipt
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - name: Upload source-bound diagnostics
+        if: always()
+        uses: ./.github/actions/ci-diagnostic-upload
         with:
-          name: release-canary-failure-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.probe_id }}
-          path: canary-receipt.json
-          if-no-files-found: error
-          retention-days: 30
+          invocation-root: ${{ runner.temp }}/phase255-diagnostics
+          manifest: ${{ runner.temp }}/phase255-diagnostics/manifest.json
+          bundle-output: ${{ runner.temp }}/phase255-diagnostics.zip
+          artifact-name: sigra-ci-${{ inputs.tested_source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}-diagnostic-fixture-${{ inputs.scenario }}-${{ inputs.probe_id }}
+
+      - name: Deliberate fixture assertion failure
+        if: inputs.scenario == 'failure'
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+        run: python3 -B -c 'import os; assert os.environ["SCENARIO"] != "failure", "intentional Phase 255 fixture assertion"'
+        shell: bash
+
+      - name: Hold cancellation fixture after verified partial upload
+        if: inputs.scenario == 'cancellation'
+        timeout-minutes: 5
+        run: sleep 300
