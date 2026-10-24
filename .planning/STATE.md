@@ -3,11 +3,11 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: "255.1"
-current_phase_name: "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets"
+current_phase_name: Prove CI performance targets
 status: ready_to_execute
 stopped_at: Phase 255.1 planning passed; local implementation next; hosted approvals pending
-last_updated: "2026-10-24T22:34:46.494680+00:00"
-state_head: 2e465d6e18030b37d4576a0b41b76d73043fc5e0
+last_updated: "2026-10-24T22:38:12.897Z"
+state_head: e456c97fbec37a22a0e7e95f0b1678f6a086d767
 progress:
   total_phases: 5
   completed_phases: 3
@@ -16,7 +16,7 @@ progress:
   percent: 60
 milestone_status: active
 workflow_step: planned_ready_to_execute
-last_activity: "2026-10-24 - Phase 255.1 planning passed; seven plans ready; no hosted work authorized"
+last_activity: 2026-10-24 - Phase 255.1 planning passed; seven plans ready; no hosted work authorized
 requirements_approved: true
 roadmap_approved: true
 phase252_verification_status: passed
@@ -53,18 +53,18 @@ phase255_wave_count: 6
 phase255_plan_check: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json
 phase255_completed_plans: 7
 milestone_audit_status: gaps_found
-current_plan: null
 phase255_1_plan_count: 7
 phase255_1_task_count: 16
 phase255_1_wave_count: 7
 phase255_1_plan_check: .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json
 phase255_1_preparation_authorized: false
+current_plan: null
 ---
 
 # Current position
 
 **Current Phase:** 255.1
-**Current Phase Name:** Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets
+**Current Phase Name:** Prove CI performance targets
 **Next recommended run:** $gsd-execute-phase 255.1
 
 Phase 255.1 planning passed: seven plans, sixteen tasks and seven waves. All 16 decisions and both requirement IDs are covered; independent checker found zero blockers or warnings. Implementation has not started and phase verification is pending. Begin local development with $gsd-execute-phase 255.1. Hosted preparation and collection each require a separate concrete approval. Plan evidence: `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json`.
