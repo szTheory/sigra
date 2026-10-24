@@ -1,0 +1,10 @@
+{
+  "command": "python3 -B scripts/ci/ci-browser-local.test.py -k test_rejects_an_already_bound_port_without_releasing_it",
+  "exitCode": 1,
+  "output": "F\n======================================================================\nFAIL: test_rejects_an_already_bound_port_without_releasing_it (__main__.BrowserLocalSafetyTests.test_rejects_an_already_bound_port_without_releasing_it)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-browser-local.test.py\", line 20, in test_rejects_an_already_bound_port_without_releasing_it\n    self.assertFalse(port_available(port))\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: True is not false\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_rejects_an_already_bound_port_without_releasing_it",
+  "targetFile": "scripts/ci/ci-browser-local.test.py",
+  "expected": "The safety probe reports an already-bound port as unavailable and leaves its listener intact.",
+  "actual": "The unimplemented port probe reports the occupied port as available.",
+  "semanticAssessment": "The named unittest bound a real local socket and failed on the planned assertion because port_available currently returns true unconditionally. The test completed without discovery or fixture errors and confirmed the listener was still queryable."
+}
