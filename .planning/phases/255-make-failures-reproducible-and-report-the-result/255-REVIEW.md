@@ -1,11 +1,11 @@
 ---
 phase: 255-make-failures-reproducible-and-report-the-result
-reviewed: 2026-10-24T20:10:30Z
+reviewed: 2026-10-24T20:19:04Z
 depth: standard
-re_reviewed: 2026-10-24T20:10:30Z
-re_review_source_commit: 871d3c33b5eb7283dcf1529cba71441719fdd8c2
+re_reviewed: 2026-10-24T20:19:04Z
+re_review_source_commit: 9b6a71386a5bac589fa62dda2b5d720fee896f3e
 original_review_commit: 6bebfda76
-files_reviewed: 43
+files_reviewed: 48
 files_reviewed_list:
   - .github/actions/ci-diagnostic-upload/action.yml
   - .github/actions/example-playwright-boot/action.yml
@@ -47,7 +47,12 @@ files_reviewed_list:
   - test/example/priv/playwright/playwright.config.ts
   - test/sigra/planning/ci_timing_formatter_test.exs
   - test/sigra/planning/phase_198_contributor_dx_contract_test.exs
+  - test/sigra/planning/phase_230_design_gallery_split_test.exs
+  - test/sigra/planning/phase_232_playwright_economics_test.exs
   - test/sigra/planning/phase_233_library_economics_contract_test.exs
+  - test/sigra/planning/phase_234_playwright_inventory_contract_test.exs
+  - test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs
+  - test/sigra/planning/phase_235_terminal_ratification_contract_test.exs
   - test/support/ci_timing_formatter.ex
   - test/test_helper.exs
 findings:
@@ -60,14 +65,16 @@ status: clean
 
 # Phase 255: Code Review Report
 
-**Reviewed:** 2026-10-24T20:10:30Z  
-**Depth:** standard  
-**Files Reviewed:** 43  
+**Reviewed:** 2026-10-24T20:19:04Z
+**Depth:** standard
+**Files Reviewed:** 48
 **Status:** clean
 
 ## Summary
 
-This is a focused re-review of the five findings in the original report at commit `6bebfda76`. Fixes through `871d3c33b` resolve all five. The fragment fix applies the same sensitive-key rules to URL fragments, retains safe fragment parameters, and records redactions. The finished archive regression and all 15 bundle tests passed with bytecode writing disabled. The prior four focused suites and native SIGTERM evidence remain recorded below and in `.planning/execution/255-review-fix/RESULT.json`. No hosted or native run was repeated.
+This review retains the five findings from the original report at commit `6bebfda76`; fixes through `871d3c33b` resolve all five. The fragment fix applies the same sensitive-key rules to URL fragments, retains safe fragment parameters, and records redactions. The finished archive regression and all 15 bundle tests passed with bytecode writing disabled. The prior four focused suites and native SIGTERM evidence remain recorded below and in `.planning/execution/255-review-fix/RESULT.json`.
+
+The final scope includes 48 source files, including five Phase230/232/234/235 contract tests from `9b6a71386`. I inspected those changes and `.planning/execution/255-verification/PHASE255-LIVE-TOPOLOGY-REPAIR.json`: the tests exercise `ci-browser-command.mjs` policy selections through the workflow helper seam while preserving the exact Phase235 historical commit and `CONTRIBUTING.md` digest pins. The committed focused native run reports 57 tests and zero failures, with a passing format check. I did not repeat native, full-suite, hosted, or acceptance runs.
 
 ## Re-review Disposition
 
@@ -81,6 +88,6 @@ The original CR-01 through CR-04 and WR-01 descriptions and fixes remain recorde
 
 ---
 
-_Re-reviewed: 2026-10-24T20:10:30Z_  
-_Reviewer: the agent (gsd-code-reviewer)_  
+_Re-reviewed: 2026-10-24T20:19:04Z_
+_Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
