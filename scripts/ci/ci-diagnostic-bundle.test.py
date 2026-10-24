@@ -272,6 +272,36 @@ class DiagnosticBundleTest(unittest.TestCase):
             self.assertNotEqual(0, rejected.returncode)
             self.assertIn("missing_files", (rejected.stderr + rejected.stdout).lower())
 
+            altered = pathlib.Path(temp) / "altered-missing-files.zip"
+            tampered["missing_files"] = ["different-report.json"]
+            members["bundle-manifest.json"] = (json.dumps(tampered, sort_keys=True, indent=2) + "\n").encode()
+            with zipfile.ZipFile(altered, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                for name, payload in members.items():
+                    archive.writestr(name, payload)
+            changed = self.command("verify", root, manifest, altered)
+            self.assertNotEqual(0, changed.returncode)
+            self.assertIn("missing_files", (changed.stderr + changed.stdout).lower())
+
+    def test_legacy_v1_bundle_without_empty_missing_files_remains_verifiable(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp) / "invocation"
+            root.mkdir()
+            manifest, _ = self.make_manifest(root, [("command.stderr", b"failed\n", "command_stderr")])
+            output = pathlib.Path(temp) / "legacy.zip"
+            staged = self.command("stage", root, manifest, output)
+            self.assertEqual(0, staged.returncode, staged.stderr)
+            with zipfile.ZipFile(output) as source:
+                members = {name: source.read(name) for name in source.namelist()}
+            metadata = json.loads(members["bundle-manifest.json"])
+            self.assertEqual([], metadata["missing_files"])
+            del metadata["missing_files"]
+            members["bundle-manifest.json"] = (json.dumps(metadata, sort_keys=True, indent=2) + "\n").encode()
+            with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                for name, payload in members.items():
+                    archive.writestr(name, payload)
+            checked = self.command("verify", root, manifest, output)
+            self.assertEqual(0, checked.returncode, checked.stderr)
+
     def test_bundle_identity_must_match_its_invocation_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp) / "invocation"
