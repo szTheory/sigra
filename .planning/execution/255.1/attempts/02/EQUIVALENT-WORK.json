@@ -247,7 +247,7 @@
     "design_gallery": {},
     "non_admin_smoke": {}
   },
-  "completed_at": "2026-10-24T23:56:27Z",
+  "completed_at": "2026-10-24T23:57:01Z",
   "hosted_delivery_gaps": [
     "New library receiver reports and their changed terminal-outcome manifest payload have no hosted artifact API producer/run/attempt proof.",
     "This local comparison does not prove artifact upload, retention, retrieval, or workflow terminal delivery.",
@@ -328,7 +328,7 @@
       }
     }
   },
-  "local_status": "running",
+  "local_status": "blocked",
   "native_commands": [
     {
       "command": [
@@ -483,11 +483,15 @@
       "tree_sha": "a3cfe360e3d0c56ef0203d08b07c2589ffa64288"
     }
   },
-  "status": "running",
+  "status": "blocked",
   "toolchain": {
     "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
     "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
     "node": "v20.19.5",
     "python": "3.14.4"
-  }
+  },
+  "validation_errors": [
+    "control_mix_ci_failed:format_check_formatted",
+    "native_run_interrupted_after_library_failure_before_all_browser_owners"
+  ]
 }
