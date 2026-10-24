@@ -22,6 +22,21 @@ NATIVE_EVIDENCE = ROOT / ".planning/phases/255-make-failures-reproducible-and-re
 
 
 class BrowserLocalSafetyTests(unittest.TestCase):
+    def test_missing_postgres_role_uses_os_user_for_local_preparation(self):
+        observed_roles = []
+        environment = {"PGDATABASE": ""}
+        with tempfile.TemporaryDirectory() as raw, \
+                patch.object(local, "require_createdb", side_effect=lambda env: observed_roles.append(env.get("PGUSER"))), \
+                patch.object(local, "database_exists", return_value=False), \
+                patch.object(local, "create_marked_database"), \
+                patch.object(local, "run_recorded", return_value=0):
+            try:
+                local.prepare_owned_example(environment, Path(raw), "sigra_repro_1_abcd", "a" * 32, 4123, {})
+            except KeyError:
+                pass
+
+        self.assertEqual(observed_roles, [getpass.getuser()])
+
     def test_rejects_an_already_bound_port_without_releasing_it(self):
         listener = socket.socket()
         listener.bind(("127.0.0.1", 0))
