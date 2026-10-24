@@ -31,6 +31,12 @@ function describeError(error) {
   return { message: truncateUtf8(raw.replace(ANSI, ''), MAX_ERROR_MESSAGE_BYTES), location };
 }
 
+function unavailableReason(errors) {
+  return errors.some(({ message }) => /browserType\.launch:|browser\.newContext:|No tests found|No tests found for/i.test(message))
+    ? 'context_not_created'
+    : null;
+}
+
 export default class FailureJsonlReporter {
   constructor(options = {}) {
     this.outputFile = options.outputFile;
@@ -53,6 +59,7 @@ export default class FailureJsonlReporter {
   }
 
   onTestEnd(test, result) {
+    const errors = (result.errors ?? (result.error ? [result.error] : [])).map(describeError);
     const line = {
       schema: FAILURE_JSONL_SCHEMA,
       invocation_id: this.invocationId,
@@ -66,7 +73,8 @@ export default class FailureJsonlReporter {
       ok: typeof test.ok === 'function' ? test.ok() : result.status === (test.expectedStatus ?? 'passed'),
       duration_ms: result.duration,
       retry: result.retry,
-      errors: (result.errors ?? (result.error ? [result.error] : [])).map(describeError),
+      errors,
+      trace_unavailable_reason: unavailableReason(errors),
     };
     this.append(line);
   }
@@ -78,6 +86,7 @@ export default class FailureJsonlReporter {
       invocation_id: this.invocationId,
       native_identity: this.nativeIdentity,
       error: describeError(error),
+      trace_unavailable_reason: 'context_not_created',
     });
   }
 }

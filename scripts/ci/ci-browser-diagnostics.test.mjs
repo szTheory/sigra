@@ -183,7 +183,8 @@ async function nativeRun(outputFile) {
   assert.ok(fs.statSync(path.join(browserLaunch.output, 'stderr.bin')).size > 0);
   const launchReport = path.join(diagnosticOutput, 'browser-launch-negative-native/failure-events.jsonl');
   assert.ok(fs.existsSync(launchReport), 'browser launch error did not produce reporter output');
-  assert.ok(fs.readFileSync(launchReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse).some((event) => event.type === 'error'), 'browser launch reporter has no onError record');
+  const launchEvents = fs.readFileSync(launchReport, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
+  assert.ok(launchEvents.some((event) => event.trace_unavailable_reason === 'context_not_created'), 'browser launch report lacks its missing-context reason');
   rows.push({ case: 'pretest_discovery_error', observed_exit: discovery.result.status, observed_signal: discovery.record.primary_signal, invocation_root: path.relative(outputRoot, discovery.output), trace_unavailable_reason: 'context_not_created' });
   rows.push({ case: 'browser_launch_before_context', observed_exit: browserLaunch.result.status, observed_signal: browserLaunch.record.primary_signal, invocation_root: path.relative(outputRoot, browserLaunch.output), trace_unavailable_reason: 'context_not_created' });
 
