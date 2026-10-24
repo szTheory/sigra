@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-24T22:34:46.494680+00:00",
+  "checked_at": "2026-10-24T22:55:01.224159+00:00",
   "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
   "phase": "255.1",
   "phase_found": true,
@@ -10,10 +10,29 @@
   "plan_count": 7,
   "wave_count": 7,
   "task_count": 16,
-  "incomplete_count": 7,
-  "prerequisite_blockers_reported": [],
+  "incomplete_count": 6,
+  "prerequisite_blockers_reported": {
+    "255.1-02-PLAN.md": [
+      "255.1-01"
+    ],
+    "255.1-03-PLAN.md": [
+      "255.1-01"
+    ],
+    "255.1-04-PLAN.md": [
+      "255.1-01"
+    ],
+    "255.1-05-PLAN.md": [
+      "255.1-01"
+    ],
+    "255.1-06-PLAN.md": [
+      "255.1-01"
+    ],
+    "255.1-07-PLAN.md": [
+      "255.1-01"
+    ]
+  },
   "next_command": "$gsd-execute-phase 255.1",
-  "implementation_status": "not_started",
+  "implementation_status": "partial",
   "verification_status": "pending",
   "planning_status": "passed",
   "collection_authorized": false,
@@ -23,5 +42,17 @@
   "original_comparison_status": "insufficient_data",
   "historical_verification_is_forward_blocker": false,
   "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
-  "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
+  "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
+  "status": "source_feasibility_blocked",
+  "next_command_conditional": true,
+  "precondition": "Reconcile the source histories, repeat exact-source/treatment/merge checks and reconcile the existing halted Plan01 record; retain this stopped attempt.",
+  "readiness_record": ".planning/execution/255.1/EXECUTION-READINESS.json",
+  "halted_plans": [
+    "255.1-01"
+  ],
+  "runnable_plans": [],
+  "blockers": [
+    "Both proposed sources have 41 merge conflicts against saved main."
+  ],
+  "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
 }

@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:34:46.494680+00:00",
-  "status": "planned_ready_to_execute",
+  "updated_at": "2026-10-24T22:55:01.224159+00:00",
+  "status": "source_feasibility_blocked",
   "current_milestone": "v1.50",
   "current_phase": "255.1",
-  "current_plan": null,
+  "current_plan": "255.1-01",
   "completed_plans": [],
   "remaining_plans": [
     "255.1-01-PLAN.md",
@@ -15,37 +15,35 @@
     "255.1-06-PLAN.md",
     "255.1-07-PLAN.md"
   ],
-  "implementation_status": "not_started",
+  "implementation_status": "partial",
   "verification_status": "pending",
   "next_command": "$gsd-execute-phase 255.1",
   "resume_command": "$gsd-execute-phase 255.1",
   "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md",
   "readiness": {
-    "schema_version": 1,
-    "checked_at": "2026-10-24T22:34:46.494680+00:00",
+    "checked_at": "2026-10-24T22:55:01.224159+00:00",
     "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
-    "phase": "255.1",
-    "phase_found": true,
-    "has_context": true,
-    "has_research": true,
-    "has_plans": true,
-    "plan_count": 7,
-    "wave_count": 7,
-    "task_count": 16,
-    "incomplete_count": 7,
-    "prerequisite_blockers_reported": [],
+    "record": ".planning/execution/255.1/EXECUTION-READINESS.json",
+    "plan_index": ".planning/execution/255.1/PLAN-READINESS.json",
+    "runnable_plans": [],
+    "halted_plans": [
+      "255.1-01"
+    ],
+    "blocked_plans": [
+      "255.1-02",
+      "255.1-03",
+      "255.1-04",
+      "255.1-05",
+      "255.1-06",
+      "255.1-07"
+    ],
     "next_command": "$gsd-execute-phase 255.1",
-    "implementation_status": "not_started",
+    "next_command_conditional": true,
+    "implementation_status": "partial",
     "verification_status": "pending",
-    "planning_status": "passed",
-    "collection_authorized": false,
     "preparation_authorized": false,
-    "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
-    "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
-    "original_comparison_status": "insufficient_data",
-    "historical_verification_is_forward_blocker": false,
-    "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
-    "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
+    "collection_authorized": false,
+    "historical_verification_is_forward_blocker": false
   },
   "hosted_canary": {
     "status": "complete_closed",
@@ -84,7 +82,18 @@
     "milestone_audit": ".planning/v1.50-MILESTONE-AUDIT.md",
     "phase255_1_context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
     "phase255_1_decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
-    "phase255_1_plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json"
+    "phase255_1_plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
+    "phase255_1": {
+      "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
+      "native_tracer": ".planning/execution/255.1/LOCAL-TRACER.json",
+      "sources": ".planning/execution/255.1/SOURCES.json",
+      "feasibility": ".planning/execution/255.1/FEASIBILITY.json",
+      "local_checks": ".planning/execution/255.1/LOCAL-VERIFICATION.json",
+      "implementation_commit": "c623a7eed3956a3ef1a5daea1e3ecafd48b7d0eb",
+      "summary_commit": "c6828cca89251e9acba3805b6c054f7a6662047c",
+      "control_ref": "refs/evidence/phase255-1/source-control-92275024483f",
+      "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json"
+    }
   },
   "constraints": [
     "Keep Phase 254 comparison terminal insufficient_data; no new comparison runs or renewed historical budget.",
@@ -193,7 +202,7 @@
   "phase255_1": {
     "discussion_status": "complete",
     "planning_status": "passed",
-    "implementation_status": "not_started",
+    "implementation_status": "partial",
     "verification_status": "pending",
     "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
     "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
@@ -206,12 +215,11 @@
       "read_back_equal": true
     },
     "remaining_blockers": [
-      "Source/cache/runner and equivalent actual workload feasibility remain to be proven during execution.",
-      "Hosted preparation and collection require separate concrete approvals.",
-      "CISPEED-01/02 remain open; original Phase254 verification remains separately pending."
+      "Both proposed sources have 41 merge conflicts against saved origin/main; see .planning/execution/255.1/FEASIBILITY.json.",
+      "Current hosted source/rule identity, eligible exact warm caches and complete equivalent work remain unproved; no hosted work is authorized."
     ],
     "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
-    "status": "planned",
+    "status": "source_feasibility_blocked",
     "directory": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
     "insertion": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
     "state_restoration": {
@@ -226,31 +234,29 @@
     "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
     "preparation_authorized": false,
     "readiness": {
-      "schema_version": 1,
-      "checked_at": "2026-10-24T22:34:46.494680+00:00",
+      "checked_at": "2026-10-24T22:55:01.224159+00:00",
       "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255.1",
-      "phase": "255.1",
-      "phase_found": true,
-      "has_context": true,
-      "has_research": true,
-      "has_plans": true,
-      "plan_count": 7,
-      "wave_count": 7,
-      "task_count": 16,
-      "incomplete_count": 7,
-      "prerequisite_blockers_reported": [],
+      "record": ".planning/execution/255.1/EXECUTION-READINESS.json",
+      "plan_index": ".planning/execution/255.1/PLAN-READINESS.json",
+      "runnable_plans": [],
+      "halted_plans": [
+        "255.1-01"
+      ],
+      "blocked_plans": [
+        "255.1-02",
+        "255.1-03",
+        "255.1-04",
+        "255.1-05",
+        "255.1-06",
+        "255.1-07"
+      ],
       "next_command": "$gsd-execute-phase 255.1",
-      "implementation_status": "not_started",
+      "next_command_conditional": true,
+      "implementation_status": "partial",
       "verification_status": "pending",
-      "planning_status": "passed",
-      "collection_authorized": false,
       "preparation_authorized": false,
-      "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
-      "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
-      "original_comparison_status": "insufficient_data",
-      "historical_verification_is_forward_blocker": false,
-      "plan_check": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json",
-      "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
+      "collection_authorized": false,
+      "historical_verification_is_forward_blocker": false
     },
     "generated_state_preservation": {
       "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
@@ -268,7 +274,21 @@
           "read_back_equal": true
         }
       }
-    }
+    },
+    "halted_plans": [
+      "255.1-01"
+    ],
+    "blocked_plans": [
+      "255.1-02",
+      "255.1-03",
+      "255.1-04",
+      "255.1-05",
+      "255.1-06",
+      "255.1-07"
+    ],
+    "source_feasibility": ".planning/execution/255.1/FEASIBILITY.json",
+    "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
+    "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
   },
   "planning_status": "passed",
   "generated_state_preservation": {
@@ -287,5 +307,16 @@
         "read_back_equal": true
       }
     }
-  }
+  },
+  "halted_plans": [
+    "255.1-01-PLAN.md"
+  ],
+  "next_command_conditional": true,
+  "next_command_precondition": "Reconcile the source histories, repeat exact-source/treatment/merge checks and reconcile the existing halted Plan01 record; retain this stopped attempt.",
+  "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
+  "blockers": [
+    "41 local main merge conflicts in each proposed source; see FEASIBILITY.json",
+    "Eligible exact warm caches, current branch rules, PR identity and complete work parity remain unproved."
+  ],
+  "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json"
 }

@@ -1,0 +1,32 @@
+{
+  "phase": "255.1",
+  "status": "blocked",
+  "implementation_status": "partial",
+  "verification_status": "pending",
+  "route": {
+    "command": "$gsd-execute-phase 255.1",
+    "label": "Resume after common source reconciliation",
+    "reason": "Plan01 is halted on 41 local main merge conflicts per side; no dependent plan is runnable.",
+    "conditional": true,
+    "precondition": "Reconcile the source histories, repeat exact-source/treatment/merge checks and reconcile the existing halted Plan01 record; retain this stopped attempt.",
+    "readiness": ".planning/execution/255.1/EXECUTION-READINESS.json"
+  },
+  "evidence": {
+    "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
+    "native_tracer": ".planning/execution/255.1/LOCAL-TRACER.json",
+    "sources": ".planning/execution/255.1/SOURCES.json",
+    "feasibility": ".planning/execution/255.1/FEASIBILITY.json",
+    "local_checks": ".planning/execution/255.1/LOCAL-VERIFICATION.json",
+    "implementation_commit": "c623a7eed3956a3ef1a5daea1e3ecafd48b7d0eb",
+    "summary_commit": "c6828cca89251e9acba3805b6c054f7a6662047c",
+    "control_ref": "refs/evidence/phase255-1/source-control-92275024483f",
+    "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json"
+  },
+  "requirements": {
+    "CISPEED-01": "open",
+    "CISPEED-02": "open"
+  },
+  "hosted_preparation_invocations": 0,
+  "measurement_families": 0,
+  "acceptance_samples": 0
+}

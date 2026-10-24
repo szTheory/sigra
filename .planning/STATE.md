@@ -3,11 +3,11 @@ gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: "255.1"
-current_phase_name: Prove CI performance targets
-status: ready_to_execute
-stopped_at: Phase 255.1 planning passed; local implementation next; hosted approvals pending
-last_updated: "2026-10-24T22:38:12.897Z"
-state_head: e456c97fbec37a22a0e7e95f0b1678f6a086d767
+current_phase_name: "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets"
+status: blocked
+stopped_at: Phase 255.1 Plan01 halted: both proposed PR sources have 41 merge conflicts against saved main
+last_updated: "2026-10-24T22:55:01.224159+00:00"
+state_head: c6828cca89251e9acba3805b6c054f7a6662047c
 progress:
   total_phases: 5
   completed_phases: 3
@@ -15,8 +15,8 @@ progress:
   completed_plans: 131
   percent: 60
 milestone_status: active
-workflow_step: planned_ready_to_execute
-last_activity: 2026-10-24 - Phase 255.1 planning passed; seven plans ready; no hosted work authorized
+workflow_step: source_feasibility_blocked
+last_activity: "2026-10-24 - Native local tracer passed; proposed PR sources blocked; no hosted work started"
 requirements_approved: true
 roadmap_approved: true
 phase252_verification_status: passed
@@ -34,13 +34,13 @@ phase254_verification_status: pending
 verification_status: pending
 next_command: $gsd-execute-phase 255.1
 resume_command: $gsd-execute-phase 255.1
-next_command_conditional: false
+next_command_conditional: true
 historical_verification_is_forward_blocker: false
 resume_file: .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 phase255_1_discussion_status: complete
 phase255_1_planning_status: passed
-phase255_1_implementation_status: not_started
+phase255_1_implementation_status: partial
 phase255_1_verification_status: pending
 phase255_1_collection_authorized: false
 phase255_discussion_status: complete
@@ -53,48 +53,43 @@ phase255_wave_count: 6
 phase255_plan_check: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json
 phase255_completed_plans: 7
 milestone_audit_status: gaps_found
+current_plan: "255.1-01"
 phase255_1_plan_count: 7
 phase255_1_task_count: 16
 phase255_1_wave_count: 7
 phase255_1_plan_check: .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json
 phase255_1_preparation_authorized: false
-current_plan: null
+
+phase255_1_completed_plans: 0
+phase255_1_halted_plans: ["255.1-01"]
+phase255_1_blocker_record: .planning/execution/255.1/FEASIBILITY.json
+phase255_1_state_preservation: .planning/execution/255.1/STATE-PRESERVATION.json
 ---
 
 # Current position
 
-**Current Phase:** 255.1
-**Current Phase Name:** Prove CI performance targets
-**Next recommended run:** $gsd-execute-phase 255.1
+**Current Phase:** 255.1 — Prove CI performance targets
+**Status:** Execution halted in Plan01; local implementation is partial; phase verification is pending.
+**Conditional resume:** $gsd-execute-phase 255.1 after the existing source halt is resolved.
 
-Phase 255.1 planning passed: seven plans, sixteen tasks and seven waves. All 16 decisions and both requirement IDs are covered; independent checker found zero blockers or warnings. Implementation has not started and phase verification is pending. Begin local development with $gsd-execute-phase 255.1. Hosted preparation and collection each require a separate concrete approval. Plan evidence: `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-PLAN-CHECK.json`.
+The genuine local tracer passed 52 configuration tests with seed 93710, native exit 0 and 11.371 seconds elapsed. Ten new Python tests, 14 workflow checks and the existing comparison regression passed. This adds zero acceptance samples and proves no CI speed improvement.
 
-Phase 255 is implemented and verified: all seven plans are complete, 29/29 plan truths and all four roadmap success criteria passed. CIDX-01, CIDX-02 and CIMEAS-03 are complete. Independent code review is clean across 48 files; all five original findings are fixed. Security has zero open threats, and the automated test coverage audit is complete.
+Both provisional sources conflict with saved origin/main 09df342a82e03c3d5d40173c912b70e827f7eadc in 41 paths each, including the CI workflow and generated confirmation code. The main ref was not refreshed. Resolve the common-source histories without silently choosing product or release behavior, then repeat source/treatment/merge checks and reconcile Plan01's halted disposition. Do not create a numbered successor plan for ordinary local maintenance.
 
-Final native Mix passed in 381.237 seconds: 2,695 ordinary checks, 22 scaffold checks and 65 dependency-off checks, all with recorded seeds and zero failures. The final browser diagnostics passed seven cases and verified three sanitized retained traces. Thirteen fast command groups and three prior-phase groups passed. The earlier failed Mix gate remains recorded separately from its scoped test repairs. See `.planning/execution/255-verification/` and `255-VERIFICATION.md`.
+Plans02–07 remain unexecuted and are blocked by Plan01. The fresh init.execute-phase and phase-plan-index results report no runnable plans. Preparation and collection remain separately unauthorized. Exact cache entries, current branch rules, hosted merge/source identities, complete equal-work reports and actual warm restores remain unproved. CISPEED-01/02 stay open.
 
-Milestone audit remains gaps_found. Execution readiness for Phase 255.1 reports seven incomplete plans and no prerequisite blocker. CISPEED-01/02 remain open; Phase254 remains terminal insufficient_data and its pending verification is separate from the forward route. Generated planning-state bytes were preserved and read back at `refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef` / `48e21b1d70ef5803d63c1e002e21862c6d6a0af9` before custom state refresh. Earlier discussion preservation remains recorded in PRESERVATION.json.
+Evidence: `.planning/execution/255.1/LOCAL-TRACER.json`, `SOURCES.json`, `FEASIBILITY.json`, `LOCAL-VERIFICATION.json`, `EXECUTION-READINESS.json`, `PLAN-READINESS.json`; summary: `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md`. Control objects are retained at refs/evidence/phase255-1/source-control-92275024483f. These are provisional sources pending Plan02 and Plan05, not final measurement identities.
 
-The comparison report is `.planning/execution/255-replay/REPORT.md`. Original observations remain terminal `insufficient_data`: baseline failed, candidate passed, observed runner-seconds 2,046/1,589, median/p95 null. No speed improvement is established. The final six-run local tracing sample averaged 473.375 ms off / 541.071 ms on; it is noisy and inconclusive, with zero acceptance samples added.
+Generated phase-start state was committed and read back at a5167a9bf00d82c1d43226d788559c1b11fba545; exact identities and original custom-state recovery are recorded in `.planning/execution/255.1/STATE-PRESERVATION.json`. Earlier discussion/planning preservation remains referenced by this phase's PRESERVATION.json.
 
-Hosted diagnostics and replay distribution are closed. Actual hosted success/failure/cancellation are retained; cancellation's final-output.log and final-trace.zip remain missing. Later local repairs do not replace the original hosted producer identity. Independent remote retrieval replayed all 191 package members offline with unchanged input hashes. Do not dispatch, fetch, push, restart collection, replace samples, extend the window or reuse either closed allowance to repeat this proof.
+# Prior work
 
-Raw auth-bearing files remain outside Git in protected `.gsd/` storage. Recovery maps: `.planning/execution/255-local/RAW-STORAGE.json` and `.planning/execution/255-verification/RAW-STORAGE-FINAL.json`. Shared sanitized bundles remain tracked. The pre-existing untracked `scripts/ci/__pycache__/` remains visible; earlier regeneration is disclosed in plan summaries.
+Phase255 implementation and verification remain complete; see 255-VERIFICATION.md and .planning/execution/255-verification/. Phase254's original comparison remains terminal insufficient_data with zero successful comparable pairs; its pending historical verification does not become a new forward blocker. The v1.50 milestone audit remains gaps_found. Old allowances and the pinned Phase255 replay are unchanged.
 
-The separate Phase 254 connection repair passed development CI in PR 353 on source `8b3c3d8c75152438bb3259c1226b1044da717b3c`, run 40054033393 attempt 1, with 108 browser cases and zero acceptance samples. Prior state and raw captures remain recoverable at `refs/evidence/phase254-transport-development-final-recovery` / `cf2107cd871960355c0cc06f2b45ceaa24a40c61`.
+Raw auth-bearing prior captures stay outside Git in protected .gsd storage, with recovery maps in .planning/execution/255-local/RAW-STORAGE.json and .planning/execution/255-verification/RAW-STORAGE-FINAL.json. The pre-existing untracked scripts/ci/__pycache__/ remains.
 
-## Project reference
+# Session
 
-See `.planning/PROJECT.md` (updated 2026-10-24). Current focus: resolve the v1.50 audit gaps; Phase254 speed requirements remain open.
-
-## Session
-
-**Last session:** 2026-10-24T22:34:46.494680+00:00
-**Stopped at:** Phase 255.1 planning passed; execute local work next
+**Last session:** 2026-10-24T22:55:01.224159+00:00
+**Stopped at:** Plan01 source feasibility blocked; zero hosted operations.
 **Resume file:** .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md
-
-## Accumulated Context
-
-### Roadmap Evolution
-
-- Phase 255.1 inserted after Phase 255: Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets (URGENT)

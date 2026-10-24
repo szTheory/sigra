@@ -1,0 +1,25 @@
+{
+  "ref": "refs/evidence/phase255-1/execution-state-draft-570f3d9f232d",
+  "commit": "570f3d9f232d490bc4b4bd7a4138d25a2d119834",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "afb47061e3bae40fdd50da0ff9c73bd046c493fbace2576932d066f6fd4b33e1",
+      "status": " M .planning/HANDOFF.json",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "2f7eea583b7991a8e1134eed86245d99541d5be20aff951c2148cda42eb592bb",
+      "status": " M .planning/state.json",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
+      "sha256": "113e8353313c373437ba61ad2b7bbdafabf46d09674d905a0cf53b21fedaf573",
+      "status": " M .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
+      "read_back_equal": true
+    }
+  ],
+  "reason": "Preserve newly dirty state revisions before correcting stale nested planning-time status/route fields."
+}
