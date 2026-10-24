@@ -2,7 +2,7 @@
 
 ## Milestones
 
-- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255 (Phases 252, 253 and 255 verified; Phase 254 implementation complete; speed targets unproved; milestone audit gaps_found)
+- 🚧 **v1.50 CI-SPEED-AND-RELIABILITY** — Phases 252–255.1 (Phases 252, 253 and 255 verified; Phase 254 implementation complete; speed targets unproved; milestone audit gaps_found)
 - ⚠️ **v1.49 RELEASE-1.6.0** — Phases 246–251 (closed 2026-10-12 with one known failed readiness check; 8/9 requirements proved) · full record in [milestones/v1.49-ROADMAP.md](milestones/v1.49-ROADMAP.md)
 - ⚠️ **v1.48 CLEAN-BASELINE** — Phases 236–245; 21/27 requirements satisfied, four partial, two unsatisfied; seven stale verification reports and Phase 245 gaps_found. [Full roadmap](milestones/v1.48-ROADMAP.md) · [requirements](milestones/v1.48-REQUIREMENTS.md) · [audit](milestones/v1.48-MILESTONE-AUDIT.md)
 - ⚠️ **v1.47 CI-EFFICIENCY** — Phases 230-235 (shipped 2026-09-15 · `override_closeout`, 21/24 requirements, TEST-01/TEST-02 unsatisfied, 46 artifacts acknowledged) · full detail in milestones/v1.47-ROADMAP.md
@@ -32,7 +32,7 @@ The work follows four delivery boundaries: measure current CI, remove the select
 
 ## Next
 
-**Next command:** $gsd-phase --insert 255 "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets" — Proposed performance closure scope; no phase inserted and no collection authorized by this audit. Phase254 comparison is terminal insufficient_data, with0 successful comparable pairs and both speed targets open. The milestone audit records4/9 fully cross-checked requirements,3 partial summary-metadata records and2 unsatisfied speed requirements. See `.planning/v1.50-MILESTONE-AUDIT.md`.
+**Next command:** $gsd-plan-phase 255.1 — Discussion complete; the user approved a newly declared repaired-control comparison for CISPEED-01/02. Context is ready; no plans yet. Freeze feasible execution and finite limits before any separately authorized hosted collection. Phase 254's original comparison stays terminal insufficient_data; both requirements remain open.
 
 The user does not need to produce old release records. v1.49 READY-01 remains unfinished in its archive and does not block these phases. The missing 1.6 upgrade guide stays a separate documentation task. No product feature, public API/authentication change, package release, broad dependency upgrade, or paid runner change is included.
 
@@ -42,6 +42,7 @@ The user does not need to produce old release records. v1.49 READY-01 remains un
 - [x] **Phase 253: Fix Flaky CI and Preserve Required Checks** — Selected flaky CI failures are reproducible and fixed, while real failures still prevent the required checks from passing. (completed 2026-10-23)
 - [ ] **Phase 254: Speed Up the Measured Slow Jobs** — Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.
 - [x] **Phase 255: Make Failures Reproducible and Report the Result** — Contributors can reproduce updated CI checks locally and maintainers can independently replay the final speed and reliability comparison. (completed 2026-10-24)
+- [ ] **Phase 255.1: Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets (INSERTED)** — Close the two unproved performance requirements after Phase 255.
 
 ## Phase Details
 
@@ -396,3 +397,17 @@ Plans:
 Phases 246–251 are archived under `milestones/v1.49-phases/`. Phase 251 implementation is summarized; its verification remains `gaps_found` at 9/10. The strict v1.49 audit remains 8/9. See [the closeout decision](milestones/v1.49-CLOSEOUT-DECISION.json) and [known gaps](milestones/v1.49-CLOSEOUT.md).
 
 **Historical Phase253 recovery:** Plan183 and the later reset/final-review routes below this point in older revisions are preserved history. Phase253 subsequently passed verification and is complete. See `253-183-EXECUTION-RECORD.json`, `253-RECOVERY-RESET.md`, `253-LEARNINGS.md` and `.planning/execution/253-final-review/README.md`; those earlier routes are not current commands.
+
+### Phase 255.1: Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets (INSERTED)
+
+**Goal:** Demonstrate at least 20% lower ordinary median elapsed time for the required PR CI result against a newly declared repaired control, with no increase in empirical nearest-rank p95 wait or actual runner time per comparable PR. Common correctness/environment repairs are symmetric; freeze valid matched observations and method before new collection.
+**Requirements**: CISPEED-01, CISPEED-02 (user-approved repaired-control amendment on 2026-10-24; Phase 254 origin; both remain open)
+**Depends on:** Phase 255
+**Scope:** Plan a feasible common-source repaired control/candidate and finite preparation/measurement scope using `255.1-CONTEXT.md`. The user approved the new reference for context/planning, not hosted collection. Preserve closed Phase 254 observations, contracts, thresholds, halted outcomes and budgets. A new pass applies to the amended requirements, never retroactively to the old experiment.
+**Context:** `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md`
+**Discussion:** Complete; implementation not started; phase verification pending.
+**Audit:** `.planning/v1.50-MILESTONE-AUDIT.md`
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run $gsd-plan-phase 255.1 to break down)

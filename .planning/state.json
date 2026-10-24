@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.50 — CI-SPEED-AND-RELIABILITY",
+  "milestone": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
   "phases": [
     {
       "number": "252",
@@ -46,14 +46,32 @@
         "threat_id_duplicates": []
       },
       "completed_plans": 7
+    },
+    {
+      "number": "255.1",
+      "name": "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets",
+      "status": "pending",
+      "implementation_status": "not_started",
+      "verification_status": "pending",
+      "requirements": [
+        "CISPEED-01",
+        "CISPEED-02"
+      ],
+      "depends_on": "255",
+      "discussion_status": "complete",
+      "planning_status": "pending",
+      "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+      "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+      "claim_amendment_approved": true,
+      "collection_authorized": false
     }
   ],
   "next": {
-    "command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
-    "label": "Define performance closure scope",
-    "reason": "Audit found unproved CISPEED01/02, missing Phase254 verification and three summary metadata omissions. No phase exists after255; earlier254 has no runnable plans. Prior collection stays closed."
+    "command": "$gsd-plan-phase 255.1",
+    "label": "Plan Phase 255.1",
+    "reason": "Confirmed repaired-control amendment and context; no prerequisite blocker. Original comparison stays closed; no hosted collection authorized."
   },
-  "updated_at": "2026-10-24T20:50:30.524Z",
+  "updated_at": "2026-10-24T22:05:29.442563+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -130,7 +148,7 @@
     "result": ".planning/execution/254-transport-development-check/RESULT.json",
     "next_command": "$gsd-discuss-phase 255"
   },
-  "current_phase": 255,
+  "current_phase": "255.1",
   "phase255": {
     "discussion_status": "complete",
     "planning_status": "passed",
@@ -156,9 +174,9 @@
   "phase255_completed_plans": 7,
   "phase255_implementation_status": "complete",
   "phase255_verification_status": "passed",
-  "workflow_step": "milestone_audit_gaps_found",
-  "next_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
-  "resume_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+  "workflow_step": "context_gathered_ready_for_planning",
+  "next_command": "$gsd-plan-phase 255.1",
+  "resume_command": "$gsd-plan-phase 255.1",
   "phase255_review_open": 0,
   "historical_verification_is_forward_blocker": false,
   "phase255_completion_preservation": {
@@ -183,5 +201,30 @@
     "phases_total": 4,
     "next_roadmap_phase": null,
     "prior_state_commit": "aaf04c4025e0d74addfcac62e84b7259ad5ef6c8"
+  },
+  "phase255_1": {
+    "status": "pending",
+    "implementation_status": "not_started",
+    "verification_status": "pending",
+    "directory": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets",
+    "insertion": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+    "state_restoration": {
+      "original_commit": "2e465d6e18030b37d4576a0b41b76d73043fc5e0",
+      "prior_path": ".planning/state.json",
+      "generated_state_preserved_ref": "refs/evidence/phase255-1-insertion/before-custom-state-restore"
+    },
+    "discussion_status": "complete",
+    "planning_status": "pending",
+    "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+    "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+    "claim_amendment_approved": true,
+    "collection_authorized": false,
+    "preservation": {
+      "ref": "refs/evidence/phase255-1-discussion/capture-56db18eda3a6",
+      "commit": "56db18eda3a6033e820605ac1934c2bda52fa313",
+      "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/PRESERVATION.json",
+      "read_back_equal": true
+    },
+    "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json"
   }
 }

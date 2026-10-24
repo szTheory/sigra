@@ -15,8 +15,10 @@
 
 ### Speed
 
-- [ ] **CISPEED-01:** Contributors receive the required PR CI result at least 20% faster by median elapsed time than the newly captured baseline, using a comparison method fixed before optimization.
-- [ ] **CISPEED-02:** The same comparison shows no increase in total runner time per comparable PR or in the 95th-percentile wait for the required PR CI result.
+- [ ] **CISPEED-01:** Contributors receive the required PR CI result at least 20% faster by ordinary median elapsed time than a newly declared repaired control. Necessary correctness and environment repairs are common to control and candidate; only declared speed optimizations differ. Freeze the comparison method and exact conditions before new collection.
+- [ ] **CISPEED-02:** The same repaired-control comparison shows no increase in total actual runner time per comparable PR or in empirical nearest-rank 95th-percentile wait for the required PR CI result. Include family retry delay and all actual attempt costs.
+
+**Amendment approved 2026-10-24:** The user selected option 1 in Phase 255.1 discussion, permitting the repaired-control reference and a method fixed before new collection, after the existing optimization work. This does not establish improvement against the unchanged historical Phase 252 baseline or retroactively pass Phase 254's terminal `insufficient_data` experiment. Both requirements remain open. Approval covers context/planning only; preparation and collection need a separately bounded execution scope. Original wording and approval are retained in `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json`; prior file bytes are recoverable through `.planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/PRESERVATION.json`.
 
 ### Reliability
 
@@ -30,7 +32,7 @@
 
 ## How the baseline phase makes this concrete
 
-Before changing CI behavior, record the affected job/test list, comparison scenarios, run counts, timeout/rate-limit budget, cache conditions, percentile method, and numeric baseline. Include all observed conclusions in the report; do not make failed or cancelled work disappear from the inventory. Compare successful equivalent workloads for the speed target and report other outcomes separately.
+The original Phase 252 method was fixed before changing CI behavior and remains historical. For the amended Phase 255.1 experiment, before new collection record the affected job/test list, exact common/control/candidate revisions, comparison scenarios, run counts, timeout/rate-limit budget, cache conditions and percentile method; capture the repaired control numerically within that fixed experiment. Include all observed conclusions in the report; do not make failed or cancelled work disappear from the inventory. Compare successful equivalent workloads for the speed target and report other outcomes separately.
 
 The 20% target is the approved milestone target, not a claimed current result. The 95th percentile means the wait near the slowest 5% of runs. The measurement plan must state what its sample can and cannot establish. Do not collect runs indefinitely to get a favorable number. If the target cannot be demonstrated within the fixed measurement plan, record the failure and its cause.
 
@@ -67,8 +69,8 @@ The user confirmed all nine requirements and approved the four-phase roadmap. Ea
 | CIMEAS-01 | Phase 252 | Complete |
 | CIMEAS-02 | Phase 252 | Complete |
 | CIMEAS-03 | Phase 255 | Complete |
-| CISPEED-01 | Phase 254 | Pending |
-| CISPEED-02 | Phase 254 | Pending |
+| CISPEED-01 | Phase 255.1 (Phase 254 origin) | Pending |
+| CISPEED-02 | Phase 255.1 (Phase 254 origin) | Pending |
 | CIREL-01 | Phase 253 | Complete |
 | CIREL-02 | Phase 253 | Complete |
 | CIDX-01 | Phase 255 | Complete |

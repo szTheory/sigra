@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "inserted_at": "2026-10-24T20:54:59.613Z",
+  "phase": "255.1",
+  "after_phase": "255",
+  "name": "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets",
+  "status": "pending",
+  "implementation_status": "not_started",
+  "verification_status": "pending",
+  "requirements": [
+    "CISPEED-01",
+    "CISPEED-02"
+  ],
+  "request": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+  "source_head": "2e465d6e18030b37d4576a0b41b76d73043fc5e0",
+  "initial_status": "?? scripts/ci/__pycache__/",
+  "preservations": [
+    {
+      "ref": "refs/evidence/phase255-1-insertion/after-state-patch",
+      "tree": "d32e4c8c8a294bc50ca21541f68a2450daf07cfe",
+      "read_back_equal": true,
+      "label": "after-state-patch",
+      "source_head": "2e465d6e18030b37d4576a0b41b76d73043fc5e0",
+      "files": [
+        {
+          "path": ".planning/ROADMAP.md",
+          "status": " M .planning/ROADMAP.md",
+          "member": "ROADMAP.md",
+          "oid": "78c500da9d91bdb00b5295f104ca6455fb64b544",
+          "sha256": "f1a68612874d119f8666870a8b730d44accba69787b2464fd0570148cbd0f458"
+        },
+        {
+          "path": ".planning/STATE.md",
+          "status": " M .planning/STATE.md",
+          "member": "STATE.md",
+          "oid": "f5dfb88c2cabd5b9c3c283cbd89be95390007d27",
+          "sha256": "05af7e7be14b46b8d100d1e360b723ea4d7a141823f750a4782abaff835f2f33"
+        },
+        {
+          "path": ".planning/state.json",
+          "status": " M .planning/state.json",
+          "member": "state.json",
+          "oid": "f7e544742fda646419dbdb534bf6dc483a535be1",
+          "sha256": "d00ceb8abb13fb8c43f27ca9c7aa52231e793322eb57e1646116f57b6e24a5cb"
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "",
+          "member": "HANDOFF.json",
+          "oid": "63f84ec999c3cffbb4d503b3c13e15c9ee7a7ac2",
+          "sha256": "371d627fa4d56cbb5221a7015ee13ae8dddee4782dcc93306aeaa086c2a8eb79"
+        }
+      ]
+    },
+    {
+      "ref": "refs/evidence/phase255-1-insertion/after-evolution",
+      "tree": "db17dd60f957d9a6fc190887ea7d4f6cbfe62ec3",
+      "read_back_equal": true,
+      "label": "after-evolution",
+      "source_head": "2e465d6e18030b37d4576a0b41b76d73043fc5e0",
+      "files": [
+        {
+          "path": ".planning/ROADMAP.md",
+          "status": " M .planning/ROADMAP.md",
+          "member": "ROADMAP.md",
+          "oid": "78c500da9d91bdb00b5295f104ca6455fb64b544",
+          "sha256": "f1a68612874d119f8666870a8b730d44accba69787b2464fd0570148cbd0f458"
+        },
+        {
+          "path": ".planning/STATE.md",
+          "status": " M .planning/STATE.md",
+          "member": "STATE.md",
+          "oid": "95a0d80ac0c9729d7d803ec82922f40230fa5285",
+          "sha256": "1e4d8ebd56507c9048c771564a7de617cd8fdc42438d53836965f2b79b5c3408"
+        },
+        {
+          "path": ".planning/state.json",
+          "status": " M .planning/state.json",
+          "member": "state.json",
+          "oid": "f7e544742fda646419dbdb534bf6dc483a535be1",
+          "sha256": "d00ceb8abb13fb8c43f27ca9c7aa52231e793322eb57e1646116f57b6e24a5cb"
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "",
+          "member": "HANDOFF.json",
+          "oid": "63f84ec999c3cffbb4d503b3c13e15c9ee7a7ac2",
+          "sha256": "371d627fa4d56cbb5221a7015ee13ae8dddee4782dcc93306aeaa086c2a8eb79"
+        }
+      ]
+    },
+    {
+      "ref": "refs/evidence/phase255-1-insertion/before-custom-state-restore",
+      "tree": "1df73aff3dd8857f39554b00c9d4dbe92157c677",
+      "read_back_equal": true,
+      "label": "before-custom-state-restore",
+      "source_head": "2e465d6e18030b37d4576a0b41b76d73043fc5e0",
+      "files": [
+        {
+          "path": ".planning/ROADMAP.md",
+          "status": " M .planning/ROADMAP.md",
+          "member": "ROADMAP.md",
+          "oid": "4175b5e0212387c05c44fe3db51a7a0b4aa5f181",
+          "sha256": "f4a16084763d6831bc1cb87e02adea3d086b4287f9d4e753bf9945edf22b5e62"
+        },
+        {
+          "path": ".planning/STATE.md",
+          "status": " M .planning/STATE.md",
+          "member": "STATE.md",
+          "oid": "e73aafea7a07994f19bf7cd890623bd918bd6926",
+          "sha256": "7cde4df17f5958781014b9c93d20a9d8bc4bbc4b27541928ca7a33a02646141a"
+        },
+        {
+          "path": ".planning/state.json",
+          "status": " M .planning/state.json",
+          "member": "state.json",
+          "oid": "170ff218d59d0fbe4ab8bf4b8a1f1165c53d5694",
+          "sha256": "c955a85fbf928dc76b3a570df9102cbb079fe7c1d70c05c4febf11b6db22321b"
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": " M .planning/HANDOFF.json",
+          "member": "HANDOFF.json",
+          "oid": "f814e1b19da740b4ad99506e6c9be0e2ddc3fdf1",
+          "sha256": "87211851bacb5654acbef5c9d53951c6c3aecbe27375297a9691fb7b053cedc0"
+        },
+        {
+          "path": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+          "status": "?? .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/INSERTION.json",
+          "member": "INSERTION.json",
+          "oid": "6d0d57756bf51c27cc6542ae7215f118660a0ccc",
+          "sha256": "76429265c7a9797e6a96f78013ce371908d76861a4fb317da781b10b043e32dc"
+        }
+      ]
+    }
+  ],
+  "next_command": "$gsd-discuss-phase 255.1",
+  "readiness": {
+    "command": "query init.plan-phase 255.1",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "prerequisite_blockers": []
+  },
+  "collection_authorized": false,
+  "old_comparison_status": "insufficient_data",
+  "old_successful_comparable_pairs": 0,
+  "old_allowances_reusable": false,
+  "changes_committed": false,
+  "custom_state_restored_from": "2e465d6e18030b37d4576a0b41b76d73043fc5e0"
+}

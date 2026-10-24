@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-24T22:06:09.002308+00:00",
+  "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255.1",
+  "phase": "255.1",
+  "phase_found": true,
+  "has_context": true,
+  "has_research": false,
+  "has_plans": false,
+  "plan_count": 0,
+  "prerequisite_blockers_reported": [],
+  "next_command": "$gsd-plan-phase 255.1",
+  "implementation_status": "not_started",
+  "verification_status": "pending",
+  "collection_authorized": false,
+  "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
+  "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
+  "original_comparison_status": "insufficient_data",
+  "historical_verification_is_forward_blocker": false
+}
