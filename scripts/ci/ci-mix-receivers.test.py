@@ -20,7 +20,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 class MixReceiverReportTest(unittest.TestCase):
     def test_plan_native_cli_accepts_a_report_file_output(self):
         result = subprocess.run(
-            [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.py"), "--native", "--help"],
+            [sys.executable, str(ROOT / "scripts/ci/ci-mix-receivers.test.py"), "--native", "--help"],
             cwd=ROOT, capture_output=True, text=True, check=False, timeout=10,
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
@@ -131,4 +131,6 @@ class MixReceiverReportTest(unittest.TestCase):
         self.assertIn("SIGRA_CI_REQUIRED=1: required test PostgreSQL query failed", result.stdout + result.stderr)
 
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["--native"]:
+        raise SystemExit(RECEIVERS.main())
     unittest.main(verbosity=2)
