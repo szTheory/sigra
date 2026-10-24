@@ -1,0 +1,278 @@
+TAP version 13
+# Subtest: schema 2 accepts route-only metadata drift and records all three exact route identities
+ok 1 - schema 2 accepts route-only metadata drift and records all three exact route identities
+  ---
+  duration_ms: 4646.728542
+  ...
+# Subtest: schema 2 captures and verifies a large committed markdown source
+ok 2 - schema 2 captures and verifies a large committed markdown source
+  ---
+  duration_ms: 4464.556875
+  ...
+# Subtest: schema 1 keeps its strict state route identity rule
+ok 3 - schema 1 keeps its strict state route identity rule
+  ---
+  duration_ms: 2917.05825
+  ...
+# Subtest: schema 2 blocks a missing immutable source path
+ok 4 - schema 2 blocks a missing immutable source path
+  ---
+  duration_ms: 2258.299541
+  ...
+# Subtest: schema 2 blocks Phase 244 status contradiction in head
+ok 5 - schema 2 blocks Phase 244 status contradiction in head
+  ---
+  duration_ms: 2304.873791
+  ...
+# Subtest: schema 2 blocks Phase 244 status contradiction in index
+ok 6 - schema 2 blocks Phase 244 status contradiction in index
+  ---
+  duration_ms: 2069.466375
+  ...
+# Subtest: schema 2 blocks Phase 244 status contradiction in worktree
+ok 7 - schema 2 blocks Phase 244 status contradiction in worktree
+  ---
+  duration_ms: 2020.507667
+  ...
+# Subtest: schema 2 blocks an unparseable current route with a named predicate
+ok 8 - schema 2 blocks an unparseable current route with a named predicate
+  ---
+  duration_ms: 1991.991875
+  ...
+# Subtest: schema 2 blocks a missing route observation instead of accepting the remaining complete copies
+ok 9 - schema 2 blocks a missing route observation instead of accepting the remaining complete copies
+  ---
+  duration_ms: 2083.500666
+  ...
+# Subtest: schema 2 re-evaluates changed verification facts from committed bytes
+ok 10 - schema 2 re-evaluates changed verification facts from committed bytes
+  ---
+  duration_ms: 2025.581333
+  ...
+# Subtest: schema 2 re-evaluates changed CI evidence facts from committed bytes
+ok 11 - schema 2 re-evaluates changed CI evidence facts from committed bytes
+  ---
+  duration_ms: 2267.782041
+  ...
+# Subtest: schema 2 re-evaluates changed summary facts from committed bytes
+ok 12 - schema 2 re-evaluates changed summary facts from committed bytes
+  ---
+  duration_ms: 2147.383541
+  ...
+# Subtest: schema 2 re-evaluates changed dependency facts from committed bytes
+ok 13 - schema 2 re-evaluates changed dependency facts from committed bytes
+  ---
+  duration_ms: 2161.298416
+  ...
+# Subtest: schema 2 verifies each recorded source commit identity
+ok 14 - schema 2 verifies each recorded source commit identity
+  ---
+  duration_ms: 3995.855
+  ...
+# Subtest: schema 2 verifies each recorded source path identity
+ok 15 - schema 2 verifies each recorded source path identity
+  ---
+  duration_ms: 3469.640417
+  ...
+# Subtest: schema 2 verifies each recorded source blob identity
+ok 16 - schema 2 verifies each recorded source blob identity
+  ---
+  duration_ms: 3678.681791
+  ...
+# Subtest: schema 2 verifies each recorded source SHA-256 identity
+ok 17 - schema 2 verifies each recorded source SHA-256 identity
+  ---
+  duration_ms: 4145.193916
+  ...
+# Subtest: schema 2 rejects duplicate source records
+ok 18 - schema 2 rejects duplicate source records
+  ---
+  duration_ms: 3614.381417
+  ...
+# Subtest: schema 2 rejects an invalid receipt schema
+ok 19 - schema 2 rejects an invalid receipt schema
+  ---
+  duration_ms: 3583.226833
+  ...
+# Subtest: schema 2 blocks a changed immutable worktree blob after capture
+ok 20 - schema 2 blocks a changed immutable worktree blob after capture
+  ---
+  duration_ms: 3550.065375
+  ...
+# Subtest: schema 2 cannot be downgraded by changing only the worktree receipt schema
+ok 21 - schema 2 cannot be downgraded by changing only the worktree receipt schema
+  ---
+  duration_ms: 3687.359167
+  ...
+# Subtest: schema-2 operator read-only
+ok 22 - schema-2 operator read-only
+  ---
+  duration_ms: 9702.733541
+  ...
+# {"direct_exit":0,"public_exit":0,"refs_unchanged":true}
+# Subtest: schema-2 operator rejects one-byte worktree mismatch
+ok 23 - schema-2 operator rejects one-byte worktree mismatch
+  ---
+  duration_ms: 9830.49325
+  ...
+# Subtest: public readiness negative matrix: missing receipt
+ok 24 - public readiness negative matrix: missing receipt
+  ---
+  duration_ms: 6086.274
+  ...
+# Subtest: public readiness negative matrix: uncommitted receipt
+ok 25 - public readiness negative matrix: uncommitted receipt
+  ---
+  duration_ms: 7469.729417
+  ...
+# Subtest: public readiness negative matrix: outside-repository receipt
+ok 26 - public readiness negative matrix: outside-repository receipt
+  ---
+  duration_ms: 6149.079375
+  ...
+# Subtest: public readiness negative matrix: null receipt
+ok 27 - public readiness negative matrix: null receipt
+  ---
+  duration_ms: 6223.502625
+  ...
+# Subtest: public readiness negative matrix: invalid schema
+ok 28 - public readiness negative matrix: invalid schema
+  ---
+  duration_ms: 8398.084834
+  ...
+# Subtest: public readiness negative matrix: zero source records
+ok 29 - public readiness negative matrix: zero source records
+  ---
+  duration_ms: 6759.240834
+  ...
+# Subtest: public readiness negative matrix: invalid source commit
+ok 30 - public readiness negative matrix: invalid source commit
+  ---
+  duration_ms: 6035.335833
+  ...
+# Subtest: public readiness negative matrix: invalid source blob
+ok 31 - public readiness negative matrix: invalid source blob
+  ---
+  duration_ms: 9271.127083
+  ...
+# Subtest: public readiness negative matrix: invalid source hash
+ok 32 - public readiness negative matrix: invalid source hash
+  ---
+  duration_ms: 9324.946333
+  ...
+# Subtest: public readiness negative matrix: dirty immutable source
+ok 33 - public readiness negative matrix: dirty immutable source
+  ---
+  duration_ms: 7561.388208
+  ...
+# Subtest: public readiness negative matrix: contradictory HEAD route
+ok 34 - public readiness negative matrix: contradictory HEAD route
+  ---
+  duration_ms: 7957.826583
+  ...
+# Subtest: public readiness negative matrix: contradictory index route
+ok 35 - public readiness negative matrix: contradictory index route
+  ---
+  duration_ms: 6594.154625
+  ...
+# Subtest: public readiness negative matrix: contradictory worktree route
+ok 36 - public readiness negative matrix: contradictory worktree route
+  ---
+  duration_ms: 6146.610833
+  ...
+# Subtest: schema-2 operator preserves readiness evidence aliases
+ok 37 - schema-2 operator preserves readiness evidence aliases
+  ---
+  duration_ms: 5888.589333
+  ...
+# Subtest: schema-2 tracking apply removes one admitted fixture ref under the shared coordinator
+ok 38 - schema-2 tracking apply removes one admitted fixture ref under the shared coordinator
+  ---
+  duration_ms: 23918.462292
+  ...
+# Subtest: tracking apply serializes a concurrent local tracking-ref update and blocks on the following PR gate
+ok 39 - tracking apply serializes a concurrent local tracking-ref update and blocks on the following PR gate
+  ---
+  duration_ms: 19203.4745
+  ...
+# Subtest: tracking apply blocks a protected PR head without changing fixture refs
+ok 40 - tracking apply blocks a protected PR head without changing fixture refs
+  ---
+  duration_ms: 10324.6965
+  ...
+# Subtest: tracking apply blocks a protected PR base without changing fixture refs
+ok 41 - tracking apply blocks a protected PR base without changing fixture refs
+  ---
+  duration_ms: 10235.886083
+  ...
+# Subtest: tracking apply treats complete PR row order as an unordered identity set
+ok 42 - tracking apply treats complete PR row order as an unordered identity set
+  ---
+  duration_ms: 19952.496375
+  ...
+# Subtest: runtime-probed local apply retains or deletes only its eligible fixture ref and preserves snapshot objects
+ok 43 - runtime-probed local apply retains or deletes only its eligible fixture ref and preserves snapshot objects
+  ---
+  duration_ms: 27313.400833
+  ...
+# D-01 readiness confirmed: Phase 244 complete; PR \#213 deferred/closed; PR \#283 disposition recorded.\\ncaptured local refs: 50 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.XoLwBRXYbL/repo/.planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv\\n{\\n  "status": "ready",\\n  "source_commit": "3f98fd1cd7fe2701e56215760c0e1df19b05f596",\\n  "output": ".planning/phases/245-branch-prune-local-and-remote/245-READINESS.json",\\n  "blocked_reasons": []\\n}\\nPASS: committed snapshot c9e9c691998fd29f56d1c48eab401ce59cd3aaec contains 50 refs; all direct and peeled objects and D-01 readiness are valid.\\nPASS: all direct and peeled objects from committed snapshot c9e9c691998fd29f56d1c48eab401ce59cd3aaec remain readable (50 refs).\\nPASS: report-only, supported-runtime local deletion, competing-attach rejection, and snapshot object proof.
+# Subtest: remote leases preserve concurrent origin refs and PR identity checks reject incomplete results
+ok 44 - remote leases preserve concurrent origin refs and PR identity checks reject incomplete results
+  ---
+  duration_ms: 216588.875125
+  ...
+# captured complete open PR state for szTheory/sigra\\nSUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\\nPASS: shared branch/worktree coordinator installed and verified for registered worktrees.\\ncaptured origin refs: 3 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.wj7A7VF20t/origin.tsv\\ncaptured local refs: 59 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.wj7A7VF20t/origin-work/.planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv\\ncaptured origin refs: 8 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.wj7A7VF20t/origin-work/.planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-REFS.tsv\\ncaptured complete open PR state for szTheory/sigra\\n{\\n  "status": "ready",\\n  "source_commit": "f3fc3d13bb3f7e39205f5650f8146efddd1d6904",\\n  "output": ".planning/phases/245-branch-prune-local-and-remote/245-READINESS.json",\\n  "blocked_reasons": []\\n}\\nPASS: non-mutating origin access preflight passed for publish refs/heads/safety/local-main-before-release-cleanup-20260831.\\nSUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\\nprune-stale-branches: FAIL: safety_publish_lease_rejected: refs/heads/safety/local-main-before-release-cleanup-20260831 expected=absent observed=f3fc3d13bb3f7e39205f5650f8146efddd1d6904\\tcommit: remote: error: cannot lock ref 'refs/heads/safety/local-main-before-release-cleanup-20260831': reference already exists        \\nTo github.com:szTheory/sigra.git\\n ! [remote rejected]   safety/local-main-before-release-cleanup-20260831 -> safety/local-main-before-release-cleanup-20260831 (failed to update ref)\\nerror: failed to push some refs to 'github.com:szTheory/sigra.git'\\nSUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\\npublished absent safety ref: refs/heads/safety/local-main-before-release-cleanup-20260831 (local-only safety anchor)\\nPASS: safety publication pass processed 1 committed exact ref rows.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: 2 committed exact allowlist rows bind to local/origin inventories and avoid baseline PR names.\\nPASS: non-mutating origin access preflight passed for delete refs/heads/stale/delete.\\nSUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nprune-stale-branches: FAIL: remote_delete_lease_rejected: refs/heads/stale/delete expected=f3fc3d13bb3f7e39205f5650f8146efddd1d6904/commit observed=25548672b15ef5f682e31c8766a058974fe50234\\tcommit: remote: error: cannot lock ref 'refs/heads/stale/delete': is at 25548672b15ef5f682e31c8766a058974fe50234 but expected f3fc3d13bb3f7e39205f5650f8146efddd1d6904        \\nTo github.com:szTheory/sigra.git\\n ! [remote rejected]   stale/delete (failed to update ref)\\nerror: failed to push some refs to 'github.com:szTheory/sigra.git'\\nSUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\ndeleted origin ref refs/heads/stale/delete (fixture stale origin branch)\\nPASS: origin deletion pass processed 1 committed exact ref rows.\\nSUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\\ndeleted tracking ref refs/remotes/origin/stale/delete with no-deref expected-old-OID guard\\nPASS: exact tracking-ref pass processed 1 committed rows.\\nPASS: complete local ref names, types, direct IDs, peeled IDs, symrefs, and allowlisted deletions match the committed keep set.\\nPASS: complete origin ref names, types, direct IDs, peeled IDs, and symrefs match the committed keep set.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: all 1 baseline PRs remain open with their recorded head/base identities and live origin bases.\\nPASS: all direct and peeled local and origin snapshot objects remain readable (local=59 origin=8).\\nPASS: live PR capture completeness guards and independent origin annotated-tag inventory.
+# Subtest: top-level prune runner invokes local and remote suites once without nesting
+ok 45 - top-level prune runner invokes local and remote suites once without nesting
+  ---
+  duration_ms: 0.968458
+  ...
+# Subtest: rejects self-asserted readiness before an apply mode can delete refs
+ok 46 - rejects self-asserted readiness before an apply mode can delete refs
+  ---
+  duration_ms: 2363.702708
+  ...
+# Subtest: captures and verifies a source-pinned Phase 244 readiness receipt
+ok 47 - captures and verifies a source-pinned Phase 244 readiness receipt
+  ---
+  duration_ms: 7903.391208
+  ...
+# Subtest: D-05 local apply stays fail-closed after a branch moves and keeps snapshotted objects readable
+ok 48 - D-05 local apply stays fail-closed after a branch moves and keeps snapshotted objects readable
+  ---
+  duration_ms: 17793.833334
+  ...
+# Subtest: all apply modes fail closed for missing Phase 244 readiness inputs
+ok 49 - all apply modes fail closed for missing Phase 244 readiness inputs
+  ---
+  duration_ms: 26250.551375
+  ...
+# Subtest: all apply modes fail closed for dirty Phase 244 readiness inputs
+ok 50 - all apply modes fail closed for dirty Phase 244 readiness inputs
+  ---
+  duration_ms: 24889.539708
+  ...
+# Subtest: all apply modes fail closed for stale Phase 244 readiness inputs
+ok 51 - all apply modes fail closed for stale Phase 244 readiness inputs
+  ---
+  duration_ms: 27772.072166
+  ...
+# Subtest: all apply modes fail closed for contradictory Phase 244 readiness inputs
+ok 52 - all apply modes fail closed for contradictory Phase 244 readiness inputs
+  ---
+  duration_ms: 29886.481542
+  ...
+# Subtest: all apply modes fail closed for incomplete Phase 244 readiness inputs
+ok 53 - all apply modes fail closed for incomplete Phase 244 readiness inputs
+  ---
+  duration_ms: 31064.3195
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 678082.821125

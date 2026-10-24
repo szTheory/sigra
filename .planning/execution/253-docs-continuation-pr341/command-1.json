@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-B",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/runtime/ci-hosted-transport.py",
+    "--allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/allocation.json",
+    "--ledger",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/ledger.json",
+    "--request",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/rate-request.json",
+    "--output",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/rate-receipt.json",
+    "--body-output",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/rate-body.json"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

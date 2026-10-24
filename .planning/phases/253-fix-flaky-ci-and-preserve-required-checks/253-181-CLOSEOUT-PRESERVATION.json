@@ -1,0 +1,79 @@
+{
+  "partial_closeout": {
+    "commit": "5be127ce7d704313374e29d5ebaf4523d36133b6",
+    "ref": "refs/gsd/phase253-execution181-partial-closeout",
+    "paths": [
+      {
+        "path": ".planning/state.json",
+        "sha256": "face332a13cb80218848d6ddf5cc3641bf73d547dc9007addd053e9894ab1d38",
+        "bytes": 87071
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "sha256": "edef5598a2f84cbb0549577809e289349de5456ebb63cf0c1f5b8544b23ff4e5",
+        "bytes": 155452
+      },
+      {
+        "path": ".planning/STATE.md",
+        "sha256": "c9cbc5e7f7262102fd7abd211d553cc34064ecb1e0f646cae08153eba4fa27c8",
+        "bytes": 23627
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-RECORD.json",
+        "sha256": "49cb151963afd2656db38eca68f7e3ed0d5326b129d2fbdd29719b989d52e4ba",
+        "bytes": 9561
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-REPAIR-REVIEW.json",
+        "sha256": "359abfc4cb9567f84606211626e9e79fa85eb4c3b88d4fd24bdf39983bb08f48",
+        "bytes": 8182
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SUMMARY.md",
+        "sha256": "f1e0c31e4cafe080fe03cf9f0caeaa405fe692847ed4574381b9d82fd8c879ef",
+        "bytes": 4463
+      }
+    ]
+  },
+  "before_final_format": {
+    "ref": "refs/gsd/phase253-execution181-pre-format",
+    "commit": "35b0da0f568638eca048e74d449db0419b0464d9",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "sha256": "fb04e1f030e04302c32604847c59dd9a1d793ef38e93487a1506e5693f87867c",
+        "bytes": 23981
+      },
+      {
+        "path": ".planning/state.json",
+        "sha256": "face332a13cb80218848d6ddf5cc3641bf73d547dc9007addd053e9894ab1d38",
+        "bytes": 87071
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "sha256": "edef5598a2f84cbb0549577809e289349de5456ebb63cf0c1f5b8544b23ff4e5",
+        "bytes": 155452
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-RECORD.json",
+        "sha256": "49cb151963afd2656db38eca68f7e3ed0d5326b129d2fbdd29719b989d52e4ba",
+        "bytes": 9561
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-REPAIR-REVIEW.json",
+        "sha256": "359abfc4cb9567f84606211626e9e79fa85eb4c3b88d4fd24bdf39983bb08f48",
+        "bytes": 8182
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SUMMARY.md",
+        "sha256": "f1e0c31e4cafe080fe03cf9f0caeaa405fe692847ed4574381b9d82fd8c879ef",
+        "bytes": 4463
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-ROUTING.json",
+        "sha256": "d5b2c4f67877fa1facd3762f8e312ff5c730bbaf31015b325bfe6b9f01e06ccc",
+        "bytes": 25007
+      }
+    ]
+  }
+}

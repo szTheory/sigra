@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-11T11:59:26Z",
+  "repository": "szTheory/sigra",
+  "run_id": 38137539834,
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/38137539834",
+  "workflow_id": 380517406,
+  "workflow_path": ".github/workflows/release-receipt-canary-controller.yml",
+  "display_title": "release-receipt-canary-controller-38137539834-1",
+  "event": "workflow_dispatch",
+  "ref": "refs/heads/main",
+  "head_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+  "attempt": 1,
+  "status": "in_progress",
+  "conclusion": null,
+  "packet_sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628",
+  "preflight_sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+  "maximum_duration_minutes": 35,
+  "dispatch_attempted": true,
+  "retry_authorized": false,
+  "no_publish": true,
+  "watch_interval_seconds": 60
+}

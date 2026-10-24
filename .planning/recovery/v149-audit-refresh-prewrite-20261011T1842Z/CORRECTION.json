@@ -1,0 +1,9 @@
+{
+  "record_type": "preservation_manifest_timestamp_correction",
+  "preservation_commit": "2bcbc8a20",
+  "manifest_path": ".planning/recovery/v149-audit-refresh-prewrite-20261011T1842Z/manifest.json",
+  "manifest_sha256": "41b4a041d7e04ba4b1ac3e06a2cbf71844087c739221e7758a28d905a15cf2a1",
+  "correction": "The manifest captured_at value 2026-10-11T18:42:00Z was an erroneous future placeholder. The preservation copy was created before state.record-session wrote STATE.md last_updated 2026-10-11T18:39:49.283Z. Exact capture minute is unknown; recovery relies on per-file SHA-256, byte counts, and committed copy, not the timestamp.",
+  "source_files_are_unchanged": true,
+  "recovery_reference": "commit 2bcbc8a20"
+}

@@ -1,0 +1,18 @@
+{
+  "purpose": "Exact Plan 01 and Phase 251 validation bytes before final mismatch-feasibility assertion edit",
+  "captured_at": "2026-10-11T19:53:03.793719+00:00",
+  "files": [
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "sha256": "79bb65ec8f2b2fcd1f077790a690d83c4cc717170d613d15d5cdc9500906b873",
+      "bytes": 41624,
+      "recovery_path": ".planning/recovery/phase251-nyquist-terminal-prewrite-20261011T195400Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "sha256": "da0a6c1825d55f4a4b6dff6fec2f9ccabd53b66ec6c0626af9af766c53eeb151",
+      "bytes": 13746,
+      "recovery_path": ".planning/recovery/phase251-nyquist-terminal-prewrite-20261011T195400Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+    }
+  ]
+}

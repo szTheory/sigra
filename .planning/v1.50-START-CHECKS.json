@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-12T15:05:22.526952+00:00",
+  "status": "milestone_start_and_requirements_checkpoint_checks_passed",
+  "milestone": "v1.50",
+  "scope_confirmed": true,
+  "requirements_proposed": [
+    "CIMEAS-01",
+    "CIMEAS-02",
+    "CIMEAS-03",
+    "CISPEED-01",
+    "CISPEED-02",
+    "CIREL-01",
+    "CIREL-02",
+    "CIDX-01",
+    "CIDX-02"
+  ],
+  "requirements_approved": false,
+  "roadmap_approved": false,
+  "implementation_started": false,
+  "phase_verification_status": "not_started",
+  "canonical_requirements_created": false,
+  "active_phase_count": 0,
+  "phase252_exists": false,
+  "next_command": "$gsd-new-milestone",
+  "next_action": "Confirm requirements, then create/approve roadmap.",
+  "live_routes_agree": true,
+  "historical_ready01": "unsatisfied; not a forward blocker",
+  "original_v149_audit_and_requirements_unchanged": true,
+  "persistent_config_unchanged": true,
+  "prior_readbacks": [
+    {
+      "path": ".planning/PROJECT.md",
+      "ref": "d57869d114471921162d453a9db5c75935edea93",
+      "sha256": "0d2600dd3fba5c9fe4914cbbf5fe5bac6a07d59e129a0548bd5ef206243acf3e",
+      "exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "ref": "d57869d114471921162d453a9db5c75935edea93",
+      "sha256": "07d190c7d306a9d59afa3384e8bfc06d8d7c7dcad13b8b9c2f2c2efd8b3f4497",
+      "exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "ref": "d57869d114471921162d453a9db5c75935edea93",
+      "sha256": "846fc1a8aa7a1065660493c87d564aaa47521920f645132a24866d4fb5b2668e",
+      "exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "ref": "d57869d114471921162d453a9db5c75935edea93",
+      "sha256": "1c785559392642880199d78fc1f59d9406c3938fdf9e466fe0cf38b5ef3e9bf5",
+      "exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "ref": "d57869d114471921162d453a9db5c75935edea93",
+      "sha256": "3fe8fca0d105e88ad56861ed446a8a580a0727005ea58a3b08a1f6ef9d7baed3",
+      "exact": true
+    },
+    {
+      "path": ".planning/config.json",
+      "ref": "d57869d114471921162d453a9db5c75935edea93",
+      "sha256": "c4edd866d9ca58f698740210c77b7064b29e955b0c165a3f0461cdc9788aa386",
+      "exact": true
+    },
+    {
+      "path": ".planning/MILESTONES.md",
+      "ref": "d57869d114471921162d453a9db5c75935edea93",
+      "sha256": "5a52ac77b02cb3b0a5ec9d6d984f069cc165ca68bf16f4152fc7e1ea31fd52ce",
+      "exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+      "sha256": "276aeaef18a3ba7d68df4fc9ab66486f58fd4853ceabf437d64355c4e387bb6c",
+      "exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+      "sha256": "9cf2796006d67562aa495b0af23c80170f6294005bcf4ce00913380e9dcd54dd",
+      "exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+      "sha256": "1c785559392642880199d78fc1f59d9406c3938fdf9e466fe0cf38b5ef3e9bf5",
+      "exact": true
+    },
+    {
+      "path": ".planning/v1.50-START.json",
+      "ref": "a9e29eb00f6e63b0effea1025b22d1e114d24346",
+      "sha256": "699428f67a9478b091061bee857e83f72597adcf372f22d0b47370165102fe4a",
+      "exact": true
+    }
+  ],
+  "application_code_changed": false,
+  "ci_dispatched": false,
+  "application_tests_run": false,
+  "diff_check_exit_code": 0,
+  "checker_correction": {
+    "first_check": "failed: checkbox matcher expected the colon outside bold formatting, but the proposal placed it inside.",
+    "intermediate_commit": "33a658508",
+    "commit_ran_before_checker_success": true,
+    "corrected_check": "Recognize the actual requirement-label formatting; all nine unique requirements and state/preservation checks pass.",
+    "verification_or_requirements_promoted_to_passed": false
+  }
+}

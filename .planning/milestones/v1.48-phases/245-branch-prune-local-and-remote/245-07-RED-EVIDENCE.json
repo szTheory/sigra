@@ -1,0 +1,9 @@
+{
+  "command": "node --test --test-name-pattern='derives the exact 11 base mismatch keys' scripts/maintainers/prune-stale-branches-pr-audit.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: derives the exact 11 base mismatch keys from the immutable historical baseline\nnot ok 1 - derives the exact 11 base mismatch keys from the immutable historical baseline\n  ---\n  error: |\n    Expected values to be strictly equal:\n    0 !== 11\n  code: 'ERR_ASSERTION'\n  expected: 11\n  actual: 0\n  operator: 'strictEqual'\n  ...\n1..1\n# tests 1\n# pass 0\n# fail 1",
+  "targetFile": "scripts/maintainers/prune-stale-branches-pr-audit.test.mjs",
+  "targetTest": "derives the exact 11 base mismatch keys from the immutable historical baseline",
+  "expected": "The immutable baseline and evidence derive exactly 11 unique main-base mismatch keys for PRs 219 and 266–275.",
+  "actual": "The derivation stub returned zero keys; the assertion failed with 0 !== 11."
+}

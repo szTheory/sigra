@@ -1,0 +1,695 @@
+{
+  "schema_version": "sigra.browser-coverage-map/v1",
+  "rows": [
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "SEED-6: invitation signup rejects tampered email with locked-address error"
+      ],
+      "before_native_id": "f2bcd157030f6f91f659-60437f9bb68f1e1e6d6a",
+      "candidate_native_id": "f2bcd157030f6f91f659-60437f9bb68f1e1e6d6a",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-60437f9bb68f1e1e6d6a",
+        "SEED-6: invitation signup rejects tampered email with locked-address error"
+      ],
+      "after": [
+        "chromium",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-60437f9bb68f1e1e6d6a",
+        "SEED-6: invitation signup rejects tampered email with locked-address error"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+      ],
+      "before_native_id": "f2bcd157030f6f91f659-6365b1d09508b3aa305e",
+      "candidate_native_id": "f2bcd157030f6f91f659-6365b1d09508b3aa305e",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-6365b1d09508b3aa305e",
+        "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+      ],
+      "after": [
+        "chromium",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-6365b1d09508b3aa305e",
+        "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "mobile",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "SEED-6: invitation signup rejects tampered email with locked-address error"
+      ],
+      "before_native_id": "f2bcd157030f6f91f659-fd996995d225a159e009",
+      "candidate_native_id": "f2bcd157030f6f91f659-fd996995d225a159e009",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "mobile",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-fd996995d225a159e009",
+        "SEED-6: invitation signup rejects tampered email with locked-address error"
+      ],
+      "after": [
+        "mobile",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-fd996995d225a159e009",
+        "SEED-6: invitation signup rejects tampered email with locked-address error"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "mobile",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+      ],
+      "before_native_id": "f2bcd157030f6f91f659-b64bef47e1918d114dba",
+      "candidate_native_id": "f2bcd157030f6f91f659-b64bef47e1918d114dba",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "mobile",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-b64bef47e1918d114dba",
+        "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+      ],
+      "after": [
+        "mobile",
+        "ga-uat-shift-left.spec.ts",
+        [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)"
+        ],
+        "f2bcd157030f6f91f659-b64bef47e1918d114dba",
+        "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "golden-path.spec.ts",
+        [
+          "golden-path.spec.ts"
+        ],
+        "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      ],
+      "before_native_id": "d6dd496e245cb9874cb8-52c3db116eda0a288a0f",
+      "candidate_native_id": "d6dd496e245cb9874cb8-52c3db116eda0a288a0f",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "golden-path.spec.ts",
+        [
+          "golden-path.spec.ts"
+        ],
+        "d6dd496e245cb9874cb8-52c3db116eda0a288a0f",
+        "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      ],
+      "after": [
+        "chromium",
+        "golden-path.spec.ts",
+        [
+          "golden-path.spec.ts"
+        ],
+        "d6dd496e245cb9874cb8-52c3db116eda0a288a0f",
+        "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "mobile",
+        "golden-path.spec.ts",
+        [
+          "golden-path.spec.ts"
+        ],
+        "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      ],
+      "before_native_id": "d6dd496e245cb9874cb8-8bea12a12a6752dbbcfe",
+      "candidate_native_id": "d6dd496e245cb9874cb8-8bea12a12a6752dbbcfe",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "mobile",
+        "golden-path.spec.ts",
+        [
+          "golden-path.spec.ts"
+        ],
+        "d6dd496e245cb9874cb8-8bea12a12a6752dbbcfe",
+        "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      ],
+      "after": [
+        "mobile",
+        "golden-path.spec.ts",
+        [
+          "golden-path.spec.ts"
+        ],
+        "d6dd496e245cb9874cb8-8bea12a12a6752dbbcfe",
+        "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch"
+      ],
+      "before_native_id": "e73cfbd0adf242785189-ed723503d33da298936f",
+      "candidate_native_id": "e73cfbd0adf242785189-ed723503d33da298936f",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-ed723503d33da298936f",
+        "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch"
+      ],
+      "after": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-ed723503d33da298936f",
+        "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "organization invitations: new user accepts through the mailbox signup path"
+      ],
+      "before_native_id": "e73cfbd0adf242785189-6b33e2c786ab25b9ac22",
+      "candidate_native_id": "e73cfbd0adf242785189-6b33e2c786ab25b9ac22",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-6b33e2c786ab25b9ac22",
+        "organization invitations: new user accepts through the mailbox signup path"
+      ],
+      "after": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-6b33e2c786ab25b9ac22",
+        "organization invitations: new user accepts through the mailbox signup path"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "organization invitations: signed-in matching user accepts through the mailbox link"
+      ],
+      "before_native_id": "e73cfbd0adf242785189-41a684d7d28369cab2d7",
+      "candidate_native_id": "e73cfbd0adf242785189-41a684d7d28369cab2d7",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-41a684d7d28369cab2d7",
+        "organization invitations: signed-in matching user accepts through the mailbox link"
+      ],
+      "after": [
+        "chromium",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-41a684d7d28369cab2d7",
+        "organization invitations: signed-in matching user accepts through the mailbox link"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch"
+      ],
+      "before_native_id": "e73cfbd0adf242785189-745aec0a619d2982ac0f",
+      "candidate_native_id": "e73cfbd0adf242785189-745aec0a619d2982ac0f",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-745aec0a619d2982ac0f",
+        "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch"
+      ],
+      "after": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-745aec0a619d2982ac0f",
+        "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "organization invitations: new user accepts through the mailbox signup path"
+      ],
+      "before_native_id": "e73cfbd0adf242785189-0fc39f37615c7294300c",
+      "candidate_native_id": "e73cfbd0adf242785189-0fc39f37615c7294300c",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-0fc39f37615c7294300c",
+        "organization invitations: new user accepts through the mailbox signup path"
+      ],
+      "after": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-0fc39f37615c7294300c",
+        "organization invitations: new user accepts through the mailbox signup path"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "organization invitations: signed-in matching user accepts through the mailbox link"
+      ],
+      "before_native_id": "e73cfbd0adf242785189-ec29658e03fdf7d92d95",
+      "candidate_native_id": "e73cfbd0adf242785189-ec29658e03fdf7d92d95",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-ec29658e03fdf7d92d95",
+        "organization invitations: signed-in matching user accepts through the mailbox link"
+      ],
+      "after": [
+        "mobile",
+        "organizations.spec.ts",
+        [
+          "organizations.spec.ts"
+        ],
+        "e73cfbd0adf242785189-ec29658e03fdf7d92d95",
+        "organization invitations: signed-in matching user accepts through the mailbox link"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "passkey-login.spec.ts",
+        [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke"
+        ],
+        "keeps identifier, password, and magic-link fallback visible on the real login page"
+      ],
+      "before_native_id": "da0286b6e7fb3c32d2e7-37f8e7b5ef41b2de3a38",
+      "candidate_native_id": "da0286b6e7fb3c32d2e7-37f8e7b5ef41b2de3a38",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "passkey-login.spec.ts",
+        [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke"
+        ],
+        "da0286b6e7fb3c32d2e7-37f8e7b5ef41b2de3a38",
+        "keeps identifier, password, and magic-link fallback visible on the real login page"
+      ],
+      "after": [
+        "chromium",
+        "passkey-login.spec.ts",
+        [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke"
+        ],
+        "da0286b6e7fb3c32d2e7-37f8e7b5ef41b2de3a38",
+        "keeps identifier, password, and magic-link fallback visible on the real login page"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "passkey-login.spec.ts",
+        [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke"
+        ],
+        "clicking passkey login requests real options path without leaking browser errors"
+      ],
+      "before_native_id": "da0286b6e7fb3c32d2e7-d2ff097ca3211e1f4766",
+      "candidate_native_id": "da0286b6e7fb3c32d2e7-d2ff097ca3211e1f4766",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "passkey-login.spec.ts",
+        [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke"
+        ],
+        "da0286b6e7fb3c32d2e7-d2ff097ca3211e1f4766",
+        "clicking passkey login requests real options path without leaking browser errors"
+      ],
+      "after": [
+        "chromium",
+        "passkey-login.spec.ts",
+        [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke"
+        ],
+        "da0286b6e7fb3c32d2e7-d2ff097ca3211e1f4766",
+        "clicking passkey login requests real options path without leaking browser errors"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "passkey-options.spec.ts",
+        [
+          "passkey-options.spec.ts"
+        ],
+        "enrollment requests real passkey options from the served MFA settings page"
+      ],
+      "before_native_id": "8d3aabca64552d7e3f48-fc0b21f69b19221d2738",
+      "candidate_native_id": "8d3aabca64552d7e3f48-fc0b21f69b19221d2738",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "passkey-options.spec.ts",
+        [
+          "passkey-options.spec.ts"
+        ],
+        "8d3aabca64552d7e3f48-fc0b21f69b19221d2738",
+        "enrollment requests real passkey options from the served MFA settings page"
+      ],
+      "after": [
+        "chromium",
+        "passkey-options.spec.ts",
+        [
+          "passkey-options.spec.ts"
+        ],
+        "8d3aabca64552d7e3f48-fc0b21f69b19221d2738",
+        "enrollment requests real passkey options from the served MFA settings page"
+      ],
+      "kind": "product"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "semantic_identity": [
+        "chromium",
+        "passkeys-hooks.spec.ts",
+        [
+          "passkeys-hooks.spec.ts"
+        ],
+        "generated passkey hooks complete real browser registration and authentication with a virtual authenticator"
+      ],
+      "before_native_id": "ba06a96a340fa970f999-bc3e6670038c5caf57bc",
+      "candidate_native_id": "ba06a96a340fa970f999-bc3e6670038c5caf57bc",
+      "expected_status": [
+        "passed",
+        "passed"
+      ],
+      "actual_result": [
+        "passed",
+        "passed"
+      ],
+      "mapping_status": "matched_native_reports",
+      "before": [
+        "chromium",
+        "passkeys-hooks.spec.ts",
+        [
+          "passkeys-hooks.spec.ts"
+        ],
+        "ba06a96a340fa970f999-bc3e6670038c5caf57bc",
+        "generated passkey hooks complete real browser registration and authentication with a virtual authenticator"
+      ],
+      "after": [
+        "chromium",
+        "passkeys-hooks.spec.ts",
+        [
+          "passkeys-hooks.spec.ts"
+        ],
+        "ba06a96a340fa970f999-bc3e6670038c5caf57bc",
+        "generated passkey hooks complete real browser registration and authentication with a virtual authenticator"
+      ],
+      "kind": "product"
+    }
+  ]
+}

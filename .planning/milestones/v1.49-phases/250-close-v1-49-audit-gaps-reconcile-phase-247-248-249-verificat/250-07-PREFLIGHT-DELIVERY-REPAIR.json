@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "kind": "preflight_delivery_repair_evidence",
+  "status": "repair_merged_waiting_for_new_packet_and_authority",
+  "repository": "szTheory/sigra",
+  "blocker_reference": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-EXECUTION-BLOCKER.json",
+  "repair": {
+    "reason": "The controller checked out main, where the committed preflight exceeded the 900-second freshness window; refreshing it would have advanced main past the SHA in the prior packet.",
+    "workflow_inputs": ["preflight_json", "preflight_sha256"],
+    "input_limit_bytes": 32768,
+    "input_validation": [
+      "exact lowercase SHA-256 digest",
+      "one valid JSON object with the ready preflight schema",
+      "no credential-shaped keys",
+      "no stale or future timestamp",
+      "exact szTheory/sigra repository and main branch",
+      "expected workflow IDs and paths",
+      "current-main ancestry and exact source/helper blob checks"
+    ],
+    "runner_path": "RUNNER_TEMP/release-canary-preflight.json",
+    "shared_validator_preserved": true,
+    "source_code_execution_from_input": false
+  },
+  "delivery": {
+    "pull_request": 319,
+    "url": "https://github.com/szTheory/sigra/pull/319",
+    "reviewed_head": "2965fc27a5e65954fe54b39f0be45ffcb856e9da",
+    "ci_run_id": 38082645367,
+    "ci_conclusion": "success",
+    "ci_includes_gate": true,
+    "main_before": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "main_after": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "merge_method": "squash",
+    "main_blobs": {
+      ".github/workflows/release-receipt-canary-controller.yml": "56f8f86fa1f2343a40106a743f99f9bbdcb2c2b1",
+      "scripts/ci/release-canary.sh": "6a96988de51febbe06ccba9d83c6b32e66605c98",
+      "scripts/ci/release-canary.test.sh": "fa08d151735b1842a2ee744cf8e2740197826e56",
+      "test/sigra/planning/phase_250_canary_contract_test.exs": "2a5fb3092113bfec22f74c0c75010346bf1ed159"
+    }
+  },
+  "verification": {
+    "execution_branch": {
+      "canary_tests": "58 passed, 0 failed",
+      "receipt_tests": "15 passed, 0 failed",
+      "observer_tests": "22 passed, 0 failed",
+      "standalone_contract_exunit": "8 tests, 0 failures"
+    },
+    "main_based_pr_branch": {
+      "canary_tests": "56 passed, 0 failed",
+      "receipt_tests": "16 passed, 0 failed",
+      "observer_tests": "22 passed, 0 failed",
+      "standalone_contract_exunit": "8 tests, 0 failures"
+    },
+    "actionlint": "passed",
+    "canary_self_test": "passed",
+    "contract_formatter": "passed",
+    "hosted_dispatch": false
+  },
+  "future_preparation": {
+    "must_recapture_preflight_on_current_main": true,
+    "must_bind_new_packet_to_exact_main_and_preflight_digest": true,
+    "must_obtain_new_explicit_authority": true,
+    "authorized_source_before_repair": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "authorized_source_reusable": false,
+    "workflow_input_digest_rule": "SHA-256 of the exact UTF-8 preflight_json input bytes, without a trailing newline"
+  },
+  "phase_state": {
+    "plan_250_07_complete": false,
+    "dispatch_attempted": false,
+    "canary_child_dispatch_attempted": false,
+    "cancellation_attempted": false,
+    "hosted_proof_updated": false,
+    "auto_02": "unsatisfied"
+  }
+}

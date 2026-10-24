@@ -1,0 +1,43 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.49 — RELEASE-1.6.0",
+  "phases": [
+    {
+      "number": "246",
+      "name": "Generated Confirmation Recovery",
+      "status": "complete"
+    },
+    {
+      "number": "247",
+      "name": "Release Candidate and Repository Readiness",
+      "status": "complete"
+    },
+    {
+      "number": "248",
+      "name": "Exact-Source Release Gate",
+      "status": "complete"
+    },
+    {
+      "number": "249",
+      "name": "Publish and Prove Sigra 1.6.0",
+      "status": "complete"
+    },
+    {
+      "number": "250",
+      "name": "Close v1.49 audit gaps",
+      "status": "complete"
+    },
+    {
+      "number": "251",
+      "name": "Close READY-01 and READY-02 release readiness gaps",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:execute-phase 251",
+    "label": "Execute Phase 251 after plan checker",
+    "reason": "Both Phase 251 plans pass structure/frontmatter and decision coverage 6/6; command-path checks have zero blockers/warnings (not applicable), and failure directions are ok. Task 1 asserts identity-labelled candidate/published-tag records for all required paths, distinct candidate commit versus published tag ref/commit, and 14 named package/adopter results. Task 2 requires 20 mismatch fixtures; readable/trusted mismatches keep READY-01 source-feasible but unsatisfied and leave READY-02 independently captureable, while only unreadable/untrusted sources block feasibility. Task 3 requires the exact two-file node --test command before live capture. Candidate guide exists at its exact commit; published-tag guide is absent and remains a READY-01 finding. Independent plan checker pending; execute Phase 251 after it passes."
+  },
+  "updated_at": "2026-10-11T19:53:17Z"
+}

@@ -1,0 +1,136 @@
+{
+  "kind": "development_diagnostic",
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "started_at": "2026-10-22T20:39:46.074Z",
+  "output": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-v0WEqG",
+  "steps": [
+    {
+      "name": "initdb",
+      "args": [
+        "-D",
+        "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-v0WEqG/pg",
+        "-U",
+        "postgres",
+        "-A",
+        "trust",
+        "--no-locale",
+        "--encoding=UTF8"
+      ],
+      "pid": 88947,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "timed_out": false,
+      "aborted": false,
+      "duration_ms": 366,
+      "wall_duration_ms": 366,
+      "suspended": false,
+      "max_tick_gap_ms": 3,
+      "group_signals": [],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 0
+    },
+    {
+      "name": "setup",
+      "args": [
+        "ecto.setup"
+      ],
+      "pid": 89009,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "timed_out": false,
+      "aborted": false,
+      "duration_ms": 18842,
+      "wall_duration_ms": 18841,
+      "suspended": false,
+      "max_tick_gap_ms": 2,
+      "group_signals": [],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 1
+    },
+    {
+      "name": "browser",
+      "args": [
+        "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/node_modules/playwright/cli.js",
+        "test",
+        "tests/admin-eval.spec.ts",
+        "--config=.phase253-full-prefix.config.ts",
+        "--workers=1",
+        "--retries=0",
+        "--max-failures=1",
+        "--trace=retain-on-failure",
+        "--reporter=json",
+        "--output=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-v0WEqG/test-results"
+      ],
+      "pid": 89435,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "timed_out": false,
+      "aborted": false,
+      "duration_ms": 532472,
+      "wall_duration_ms": 532463,
+      "suspended": false,
+      "max_tick_gap_ms": 4,
+      "group_signals": [],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 0
+    },
+    {
+      "name": "app",
+      "pid": 89389,
+      "exit_code": null,
+      "signal": "SIGKILL",
+      "error": null,
+      "timed_out": false,
+      "aborted": true,
+      "duration_ms": 533753,
+      "wall_duration_ms": 533744,
+      "suspended": false,
+      "max_tick_gap_ms": 4,
+      "group_signals": [
+        "SIGTERM",
+        "SIGKILL"
+      ],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 0
+    },
+    {
+      "name": "postgres",
+      "pid": 88975,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "timed_out": false,
+      "aborted": true,
+      "duration_ms": 552897,
+      "wall_duration_ms": 552889,
+      "suspended": false,
+      "max_tick_gap_ms": 3,
+      "group_signals": [
+        "SIGTERM"
+      ],
+      "descendants_reaped": true,
+      "redacted_secret_fields": 0,
+      "redacted_credential_blocks": 0
+    }
+  ],
+  "browser_invocations": 1,
+  "github_requests": 0,
+  "old_slots_reopened": 0,
+  "acceptance": false,
+  "limitations": [
+    "macOS arm64, original CI was Ubuntu Linux x64",
+    "fresh owned database from original source seeds; original database snapshot is unavailable",
+    "a passing diagnostic does not close CIREL-01 or count as an acceptance repeat"
+  ],
+  "deadline": "2026-10-22T20:59:46.074Z",
+  "continuation_of_original_approval": false,
+  "outcome": "completed_without_reproducing_failure",
+  "duration_ms": 553256
+}

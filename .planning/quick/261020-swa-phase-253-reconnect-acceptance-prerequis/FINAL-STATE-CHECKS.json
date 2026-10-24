@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 1",
+  "ready_plans": [
+    "253-179"
+  ],
+  "local_tests": 32,
+  "phase_verification_status": "not_started",
+  "acceptance_attempts": 0,
+  "github_requests": 0,
+  "historical183_status": "halted",
+  "state_routes_aligned": true,
+  "roadmap_unchanged": true,
+  "prior_dirty_state": {
+    "ref": "refs/gsd/phase253-quick-261020-swa-work",
+    "commit": "fd1ab55985c59679ab6462facf6f4c6669ae6245",
+    "status_base64": "IE0gLnBsYW5uaW5nL0hBTkRPRkYuanNvbgAgTSAucGxhbm5pbmcvU1RBVEUubWQAIE0gLnBsYW5uaW5nL3BoYXNlcy8yNTMtZml4LWZsYWt5LWNpLWFuZC1wcmVzZXJ2ZS1yZXF1aXJlZC1jaGVja3MvMjUzLVJFQ09WRVJZLVJFU0VULm1kACBNIC5wbGFubmluZy9zdGF0ZS5qc29uAD8/IC5wbGFubmluZy9xdWljay8yNjEwMjAtc3dhLXBoYXNlLTI1My1yZWNvbm5lY3QtYWNjZXB0YW5jZS1wcmVyZXF1aXMvMjYxMDIwLXN3YS1QTEFOLm1kAD8/IC5wbGFubmluZy9xdWljay8yNjEwMjAtc3dhLXBoYXNlLTI1My1yZWNvbm5lY3QtYWNjZXB0YW5jZS1wcmVyZXF1aXMvMjYxMDIwLXN3YS1TVU1NQVJZLm1kAD8/IC5wbGFubmluZy9xdWljay8yNjEwMjAtc3dhLXBoYXNlLTI1My1yZWNvbm5lY3QtYWNjZXB0YW5jZS1wcmVyZXF1aXMvUk9VVElORy1QUkVTRVJWQVRJT04uanNvbgA=",
+    "files": {
+      ".planning/HANDOFF.json": "172470c759776e3f729722590f2905aafea605d03cab2e93aebb767f5cbc8b6e",
+      ".planning/STATE.md": "acfeda99b3f4e28b2ab09944dbfa5e092c13c5b6cd1d6758e3cf6c223e8cbd24",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md": "69ebcf53ccb1264577cabd398afd20470d67a9a7e1a60f3a7ffbdb5118d1bb1a",
+      ".planning/state.json": "fec039bd94f0952675d22e38dc4f14be1a66bc2ede6afa8cce366fefadb3f718",
+      ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/261020-swa-PLAN.md": "71c8fa406b6a1165e3da3f9f3991de712d3bb56330e93dad18a4b9f74359312b",
+      ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/261020-swa-SUMMARY.md": "fc2fcec8b550e1682875b7d0149060c64254108661bf22e7cf0da3f1467223c9",
+      ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/ROUTING-PRESERVATION.json": "ed4e96a144c8ee71c326bd19723593c4d26ce6e3003bac3c8ed50e7c142729fc"
+    }
+  },
+  "preservation_refs": []
+}

@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-23T15:18:18.156638+00:00",
+  "checks": [
+    {
+      "name": "canonical_verification",
+      "result": {
+        "status": "passed",
+        "next_action": "Verification passed \u2014 continue.",
+        "next_command": "",
+        "route": ""
+      }
+    },
+    {
+      "name": "phase253_execution_index",
+      "active_summary_records": 110,
+      "incomplete": 0,
+      "historical_halts": 29,
+      "successful_implementation_count": 81
+    },
+    {
+      "name": "phase254_readiness",
+      "status": "Pending",
+      "context": false,
+      "research": false,
+      "plans": 0,
+      "next_command": "$gsd-discuss-phase 254"
+    },
+    {
+      "name": "historical_roadmap_checkboxes_unchanged",
+      "result": "passed"
+    },
+    {
+      "name": "shared_state_routes_and_prior_bytes",
+      "result": "passed"
+    },
+    {
+      "name": "both_requirements_marked_complete",
+      "result": "passed"
+    }
+  ],
+  "new_browser_invocations": 0,
+  "new_ci_launches": 0,
+  "new_github_requests": 0
+}

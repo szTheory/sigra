@@ -1,0 +1,27 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon (operator), via AskUserQuestion collected by the execute-phase orchestrator at the 253-122 Task 1 checkpoint; recorded by the 253-122 executor",
+  "decision_text": "Approve (Recommended)",
+  "note": "",
+  "section": "canary",
+  "section_sha256": "3ef4162bbff963b0613635729104476fd3d83c081de9c8b9ad8bf6bc531504fe",
+  "freeze_sha256": "69eb3df785be88446ca44f6da9bc3ed572a8a7dea173f3fcfd224ab4d5515bd7",
+  "authorizes": [
+    "publish_git_objects (max 24 publication-category requests; candidate d16617f77223ff136a0c9e04bc3cd067bc6370cf, fixture 06bb7dfb7dad0221d49292b9342ad871685a673b)",
+    "create_ref refs/heads/gsd/253-replan-r10-candidate -> d16617f77223ff136a0c9e04bc3cd067bc6370cf (create-only)",
+    "create_ref refs/heads/gsd/253-replan-r10-fixture -> 06bb7dfb7dad0221d49292b9342ad871685a673b (create-only)",
+    "workflow_dispatch x6 on gsd/253-replan-r10-fixture, workflow 259268962, in order: full-pass, docs-only, actual-failure, missing-seam, unexpected-skip, cancelled",
+    "cancel_run x1 (the identified cancelled-scenario run)",
+    "one separate verifier workflow_dispatch on gsd/253-replan-r10-fixture, workflow 259268962",
+    "caps: 117 requests, 45 jobs, 60 minutes, no reruns"
+  ],
+  "excludes": [
+    "docs_and_prs section (docs object publication, draft PR creates): requires a separate 253-123 approval",
+    "any rerun (the infrastructure retry is expired)",
+    "any read for reuse, move, recreation or deletion of the r8 refs gsd/253-replan-r8-candidate and gsd/253-replan-r8-fixture",
+    "any read for reuse, move, recreation or deletion of the r9 refs gsd/253-replan-r9-candidate and gsd/253-replan-r9-fixture",
+    "any push, merge, ref deletion, force update, rule or protection change, tag, release or main mutation"
+  ],
+  "recorded_at": "2026-10-16T20:18:18Z"
+}

@@ -1,0 +1,19 @@
+{
+  "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "known_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "parent_freshness": "not_checked_offline",
+  "commits": [
+    "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+    "4524f17e1b791dd4d2c2ae597c053a8e37e8095e",
+    "a4c2b64119fa89ada8a6dbbe1f729a24fb6bfc21"
+  ],
+  "pack_sha256": "c9b91f9b43a0d24bc237e02bc81316ed6aee0bedf5fb464bc51e388d4d548d95",
+  "objects": 275,
+  "refs": [
+    "gsd/253-replan-proof-5e13621e5-candidate",
+    "gsd/253-replan-proof-5e13621e5-docs-base",
+    "gsd/253-replan-proof-5e13621e5-docs-head"
+  ],
+  "refs_published": false,
+  "fixture_generated_by_existing_publisher_but_not_packed_or_scheduled": true
+}

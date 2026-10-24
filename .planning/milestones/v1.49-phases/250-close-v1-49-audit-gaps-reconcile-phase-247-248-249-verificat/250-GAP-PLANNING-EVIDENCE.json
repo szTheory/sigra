@@ -1,0 +1,1766 @@
+{
+  "schema": "sigra.phase-gap-planning/v1",
+  "phase": "250",
+  "mode": "gap_closure",
+  "captured_at": "2026-10-10T18:59:23Z",
+  "planning_status": "passed",
+  "implementation_status": "original_01_05_complete;_06_12_not_executed",
+  "phase_verification_status": "gaps_found",
+  "phase_verification_score": "8/14",
+  "milestone_requirements_satisfied": "5/9",
+  "capture_boundary": {
+    "captured_at": "2026-10-10T18:27:19.639533+00:00",
+    "head": "792218bd6b21281f44d4207e45a4e55958cc847b",
+    "branch": "phase-244-playwright-measurement",
+    "status_porcelain": [],
+    "dirty_planning_paths": [],
+    "preservation_required": false,
+    "tracked_paths": [
+      {
+        "path": ".planning/STATE.md",
+        "sha256": "ea7b7283e7a53f6d4b67bcdce27085aa4ea27ddaeeded07611cae9cbc5b83138"
+      },
+      {
+        "path": ".planning/state.json",
+        "sha256": "ecaf3d64a42e6be1dc3bf68832740ec9813dfed0e1f8e6d1af15c25abaae33a6"
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "sha256": "0b02a4e28e212513f2f581831f101cf764b451a3c6d095530c26327e2a3a36e9"
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "sha256": "6ba01a7466b9c1742983fd1d09184bf6606a669d58de1c8ebd82f15b6eecb85f"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+        "sha256": "2336783e30eb5c05a135dda775ce0b225bf9adbce8b4b3b2e7bfbd426b9b9377"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-PLAN.md",
+        "sha256": "ebd6908c86fb059f74368f7a64a9bc19694269286690566ea79245899742b500"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+        "sha256": "70094dc9914fa490a9696cc4db17e1839772329adc6c2e48036e9e1276ce5b0b"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md",
+        "sha256": "9a8a0d03a5f505992ef2f55d3f174026f5782516fcc9783add0740a29812ff4b"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-PLAN.md",
+        "sha256": "2117313bc7a4380167ebfac80cbf8c91945ccd3e7aff7788f1e83247b8f2d05d"
+      }
+    ]
+  },
+  "write_ahead_preservation": {
+    "schema": "sigra.planning.write-ahead-preservation/v1",
+    "captured_at": "20261010T184304Z",
+    "source_head": "792218bd6b21281f44d4207e45a4e55958cc847b",
+    "source_branch": "phase-244-playwright-measurement",
+    "preservation_ref": "refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z",
+    "reason": "Preserve initial Phase250 gap planning draft before checker-driven revision",
+    "entries": [
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VALIDATION.md",
+        "status": " M",
+        "sha256": "fe49596b68841b235e44cc1c10bf6b78e6a6c0985ed65f2c21b0d3b1cc34937f",
+        "bytes": 21163,
+        "blob": "3942b9eb7a8a096cc09ca035439f11f9a028e705"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-PLAN.md",
+        "status": "??",
+        "sha256": "f6005f1260e5c0f0e68638a9ee3f634217e697333789bf7fdcbe1700872f6bd2",
+        "bytes": 10271,
+        "blob": "d1a6f1c4b2ac068d1abb47c773ab7cf9f84feebf"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+        "status": "??",
+        "sha256": "8d0c9b20b107aaf3e2f3c5be8830443ee7669c89e4365be1231d17a21ba76291",
+        "bytes": 13243,
+        "blob": "1e1822655c26ac44487cd895adc7a67b17b1c9af"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-PLAN.md",
+        "status": "??",
+        "sha256": "919792ba787dcf5d0fc97f21009bdc7fc2f188959cefaa483225908c18693660",
+        "bytes": 9819,
+        "blob": "0f684fc1f80c7e6324d08318031a248734f24699"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-09-PLAN.md",
+        "status": "??",
+        "sha256": "e816df51814bc68f721a5058d782fb1569fd85d2cd5da26a62d0c9fdd3c32918",
+        "bytes": 12562,
+        "blob": "2de4521351162ee77bdfc1399d59563c2b339b32"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-PLAN.md",
+        "status": "??",
+        "sha256": "22d79eb221035d6e5e585e134d22800f0856a02ecde26d42d12a3a5364ff25a2",
+        "bytes": 13886,
+        "blob": "adac9e97b8b7979884e5d6da952a0b041d7268c3"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-11-PLAN.md",
+        "status": "??",
+        "sha256": "280850c8795215913b3ffba8e6de67a0c8cbab8755b757fe410c28c1afd082f5",
+        "bytes": 11481,
+        "blob": "b88507451da18347c07c2b06828d32ef1558a62e"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-12-PLAN.md",
+        "status": "??",
+        "sha256": "83d77dd3bb699ce4e17ed4a0fe87fd8cf480a5c2bb15c9b6836ca21211d7e676",
+        "bytes": 12691,
+        "blob": "ba5e3e0c78773a75e65ea0a57b907e5c5c8187d6"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLAN-COVERAGE.md",
+        "status": "??",
+        "sha256": "feba55aa48a40769a4226db873d39f263286f623e08298f97d99f205a6747531",
+        "bytes": 8210,
+        "blob": "a435a6fbbf369990ded15cf23da9de9a98340f9c"
+      }
+    ],
+    "preservation_commit": "15c1afd319f7d59012cd9173195e0833b8135c77",
+    "tree": "728041fee83e2d54f1f2a196604072fdffbba29d",
+    "manifest_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-PRESERVATION-MANIFEST.json",
+    "readback_verified": true,
+    "source_status_and_hashes_rechecked": true
+  },
+  "completed_artifacts_unchanged": [
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+      "sha256": "2336783e30eb5c05a135dda775ce0b225bf9adbce8b4b3b2e7bfbd426b9b9377"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-PLAN.md",
+      "sha256": "ebd6908c86fb059f74368f7a64a9bc19694269286690566ea79245899742b500"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+      "sha256": "70094dc9914fa490a9696cc4db17e1839772329adc6c2e48036e9e1276ce5b0b"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md",
+      "sha256": "9a8a0d03a5f505992ef2f55d3f174026f5782516fcc9783add0740a29812ff4b"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-PLAN.md",
+      "sha256": "2117313bc7a4380167ebfac80cbf8c91945ccd3e7aff7788f1e83247b8f2d05d"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-SUMMARY.md",
+      "sha256": "8e5c76c9084a2688215a0503e80a7ea6c0d8dea5e1e96efe257d1f06d0c3e20e"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-SUMMARY.md",
+      "sha256": "eb62b86090c746c7d058791784352098c15ef57ce3fe3ac3a1e910eab69fa455"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-SUMMARY.md",
+      "sha256": "72b29cc7f9ff167a1102c4f1550b10d9b951c1620bd3d488b34cbbad8930b61a"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-SUMMARY.md",
+      "sha256": "9f8b83cf3c5c82e4ca8c2445882f7c75a3d4a8c547c1ec2070fa5ccb84032702"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-SUMMARY.md",
+      "sha256": "022719a2e1ebd3ce41bf6342c5b3db15d59ea466362fbbe63315e73a06632fe7"
+    }
+  ],
+  "plans": [
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-PLAN.md",
+      "sha256": "f6005f1260e5c0f0e68638a9ee3f634217e697333789bf7fdcbe1700872f6bd2",
+      "wave": 2,
+      "tasks": 2
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+      "sha256": "b515584abe1ebb0c876c7eb649ea13529d7c73d83cd88cfc5c396d55ef70f0a3",
+      "wave": 3,
+      "tasks": 3
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-PLAN.md",
+      "sha256": "fe7a75c85b8cd4316024916790588fbfef7f6db8188bc8b0c41ead60ed306315",
+      "wave": 3,
+      "tasks": 2
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-09-PLAN.md",
+      "sha256": "da74a5f97273e281a33da6e9b92a65371667ccff7cbc2b6d7e14c39b91945516",
+      "wave": 4,
+      "tasks": 3
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-PLAN.md",
+      "sha256": "f740522ecce0c2ab17c9c292d5062cba69a967474b90ce2426fec4073fd5457a",
+      "wave": 4,
+      "tasks": 3
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-11-PLAN.md",
+      "sha256": "bc0f4ba5cb54fbec27550f4afd3532a84db74a5b267506d606d206df2557788f",
+      "wave": 5,
+      "tasks": 3
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-12-PLAN.md",
+      "sha256": "4908311c04a670e555bc090985cb3aaa3d655493a00a104047b2fc08e4f0d238",
+      "wave": 6,
+      "tasks": 3
+    }
+  ],
+  "new_plan_count": 7,
+  "new_task_count": 19,
+  "wave_count": 5,
+  "checker_rounds": [
+    {
+      "iteration": 1,
+      "agent": "/root/phase250_gap_checker",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "status": "issues_found",
+      "blockers": 1,
+      "warnings": 1,
+      "issues": [
+        {
+          "dimension": "goal_achievement",
+          "resolution": "Grounded immutable candidate evidence recovery and strict passing owner/audit gates; unavailable evidence interrupts execution."
+        },
+        {
+          "dimension": "verification_derivation",
+          "plan": "250-10",
+          "task": 2,
+          "resolution": "Focused mobile, full real-service harness, and exact-main whole-workflow gates."
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "agent": "/root/phase250_gap_checker2",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "status": "passed",
+      "blockers": 0,
+      "warnings": 0,
+      "info": 0
+    }
+  ],
+  "plan_validations": [
+    {
+      "plan": "250-06-PLAN.md",
+      "check": "frontmatter",
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": "250-06-PLAN.md",
+      "check": "structure",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Repair one failure dispatch through exact receipt construction",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Prove safe cancellation and roll out the scoped canary repair",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "gap_closure",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": "250-07-PLAN.md",
+      "check": "frontmatter",
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": "250-07-PLAN.md",
+      "check": "structure",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Prepare a fresh read-only canary preflight and exact action packet",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Authorize one new bounded hosted canary or retain AUTO-02 blocked",
+            "type": "checkpoint:decision",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "gap_closure",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": "250-08-PLAN.md",
+      "check": "frontmatter",
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": "250-08-PLAN.md",
+      "check": "structure",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Build an immutable tuple and gap packet for READY-01/02",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Decide whether one exact historical candidate tuple is approved",
+            "type": "checkpoint:decision",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "gap_closure",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": "250-09-PLAN.md",
+      "check": "frontmatter",
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": "250-09-PLAN.md",
+      "check": "structure",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Join the approved tuple to exact candidate, CI and dry-run evidence",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Complete fresh dispositions and validate the approved readiness ledger",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Publish the independent passing Phase 247 owner report",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "gap_closure",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": "250-10-PLAN.md",
+      "check": "frontmatter",
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": "250-10-PLAN.md",
+      "check": "structure",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Capture fresh public-source and failed-main diagnostics",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Repair mobile admin-eval registration and prove overall main CI",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Reconcile full PR/worktree population and refresh Phase 249 owner verdict",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "gap_closure",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": "250-11-PLAN.md",
+      "check": "frontmatter",
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": "250-11-PLAN.md",
+      "check": "structure",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Reconcile historical READY summary frontmatter",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Align AUTO summary markers and all original-owner requirement rows",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Restore the declared Mix TAP wrapper without altering the lock",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "gap_closure",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "plan": "250-12-PLAN.md",
+      "check": "frontmatter",
+      "result": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    {
+      "plan": "250-12-PLAN.md",
+      "check": "structure",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Reconcile earlier REL implementation summaries",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Reconcile terminal REL summaries and validation gates",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 3: Write and verify the strict 9/9 milestone audit last",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "gap_closure",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    }
+  ],
+  "verify_path_probe": {
+    "status": "ok",
+    "commands": [
+      {
+        "command": "bash scripts/ci/release-canary.sh --self-test && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-01-PLAN.md",
+        "task": "Task 1: Wire one complete dual-outcome canary tracer"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && mix test test/sigra/planning/phase_250_canary_contract_test.exs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-01-PLAN.md",
+        "task": "Task 2: Lock down canary identity and cancellation boundaries with fixtures"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-01-PLAN.md",
+        "task": "Task 3: Capture the exact hosted proof and fail closed on unavailable Actions evidence"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-02-PLAN.md",
+        "task": "Task 1: Reconcile authorization and one immutable candidate tuple"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-02-PLAN.md",
+        "task": "Task 2: Write the canonical Phase 247 verifier from the captured join"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs && bash scripts/ci/release-environment-preflight.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-03-PLAN.md",
+        "task": "Task 1: Re-query Phase 248's exact environment, source and receipt identities"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-03-PLAN.md",
+        "task": "Task 2: Refresh the canonical Phase 248 report without hiding historical gaps"
+      },
+      {
+        "command": "bash scripts/ci/release-public-proof.test.sh && node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-04-PLAN.md",
+        "task": "Task 1: Independently join public, historical terminal and post-canary main evidence"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md && node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-04-PLAN.md",
+        "task": "Task 2: Refresh Phase 249 verification and retain the accepted-loss record"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-05-PLAN.md",
+        "task": "Task 1: Reconcile original owner summaries and requirement rows"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-05-PLAN.md",
+        "task": "Task 2: Add a narrow cross-owner freshness and contradiction gate"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md && test -z \"$(git status --porcelain=v1 --untracked-files=all)\"",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-05-PLAN.md",
+        "task": "Task 3: Run the strict milestone audit as the final acceptance gate"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-06-PLAN.md",
+        "task": "Task 1: Repair one failure dispatch through exact receipt construction"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-06-PLAN.md",
+        "task": "Task 2: Prove safe cancellation and roll out the scoped canary repair"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-canary.sh --self-test && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 1: Prepare a fresh read-only canary preflight and exact action packet"
+      },
+      {
+        "command": "jq -e '.repository == \"szTheory/sigra\" and .dispatch_attempted == false and .credential_values_recorded == false' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 2: Authorize one new bounded hosted canary or retain AUTO-02 blocked"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248"
+      },
+      {
+        "command": "jq -e '.requirements[\"AUTO-01\"].status == \"satisfied\" and .requirements[\"AUTO-02\"].status == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && jq -e '(.eligible_tuples | length) > 0 and ([.eligible_tuples[] | select(.route_status == \"proved\" and .exact_candidate_browser_source == \"retrievable\" and (.evidence_ids | length) > 0 and (.missing | length) == 0)] | length) > 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-08-PLAN.md",
+        "task": "Task 1: Build an immutable tuple and gap packet for READY-01/02"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && jq -e '. as $packet | .decision.status == \"approved\" and .decision.packet_sha256 != null and (.eligible_tuples | any(.[]; .tuple == $packet.decision.tuple and .route_status == \"proved\" and .exact_candidate_browser_source == \"retrievable\"))' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-08-PLAN.md",
+        "task": "Task 2: Decide whether one exact historical candidate tuple is approved"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && jq -e '.candidate_sha == .ci_head_sha and .candidate_sha == .browser_head_sha and .candidate_sha == .dry_run_candidate_sha and .browser_result == \"passed\" and .dry_run_verdict == \"passed\"' .planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-APPROVAL.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 1: Join the approved tuple to exact candidate, CI and dry-run evidence"
+      },
+      {
+        "command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 2: Complete fresh dispositions and validate the approved readiness ledger"
+      },
+      {
+        "command": "node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage final .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 2: Complete fresh dispositions and validate the approved readiness ledger"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 3: Publish the independent passing Phase 247 owner report"
+      },
+      {
+        "command": "jq -e '.status == \"passed\" and .requirement_verdicts[\"READY-01\"] == \"satisfied\" and .requirement_verdicts[\"READY-02\"] == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 3: Publish the independent passing Phase 247 owner report"
+      },
+      {
+        "command": "bash scripts/ci/release-public-proof.test.sh && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs && jq -e '.public_source.http_status == 200 and .public_source.verdict == \"passed\" and .public_source.package_source_sha == \"9e80cb78d6374b1ed4074d5fef6b613fee879dca\"' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 1: Capture fresh public-source and failed-main diagnostics"
+      },
+      {
+        "command": "npm --prefix test/example/priv/playwright run test -- tests/admin-eval.spec.ts --project=admin-eval-mobile --grep 'board-mg-(3|6|7|9|11)'",
+        "status": "ok",
+        "severity": "none",
+        "reason": null,
+        "form": "prefix",
+        "rawTarget": "test/example/priv/playwright",
+        "target": "/Users/jon/projects/sigra/test/example/priv/playwright",
+        "manifest": "package.json",
+        "script": "test",
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 2: Repair mobile admin-eval registration and prove overall main CI"
+      },
+      {
+        "command": "SIGRA_EXAMPLE_URL=http://localhost:4011 bash scripts/ci/admin-eval-harness.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 2: Repair mobile admin-eval registration and prove overall main CI"
+      },
+      {
+        "command": "bash scripts/ci/phase-250-main-ci-gate.sh --record .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 2: Repair mobile admin-eval registration and prove overall main CI"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs | jq -e '.requirements[\"REL-01\"].status == \"satisfied\" and .requirements[\"REL-02\"].status == \"satisfied\" and (.blockers | length) == 0'",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 3: Reconcile full PR/worktree population and refresh Phase 249 owner verdict"
+      },
+      {
+        "command": "jq -e '.status == \"passed\" and .requirement_verdicts[\"READY-01\"] == \"satisfied\" and .requirement_verdicts[\"READY-02\"] == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-11-PLAN.md",
+        "task": "Task 1: Reconcile historical READY summary frontmatter"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && jq -e '.requirements[\"AUTO-01\"].status == \"satisfied\" and .requirements[\"AUTO-02\"].status == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs | jq -e '.requirements[\"REL-01\"].status == \"satisfied\" and .requirements[\"REL-02\"].status == \"satisfied\" and (.blockers | length) == 0' && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-11-PLAN.md",
+        "task": "Task 2: Align AUTO summary markers and all original-owner requirement rows"
+      },
+      {
+        "command": "node --test scripts/ci/phase-250-contract.tap.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-11-PLAN.md",
+        "task": "Task 3: Restore the declared Mix TAP wrapper without altering the lock"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 1: Reconcile earlier REL implementation summaries"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources | jq -e '.status == \"passed\" and .score.requirements == \"9/9\" and (.blockers | length) == 0 and (.orphaned | length) == 0 and .contradiction_count == 0'",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 2: Reconcile terminal REL summaries and validation gates"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md | jq -e '.valid == true and .status == \"passed\" and .score.requirements == \"9/9\" and .blockerCount == 0 and (.errors | length) == 0'",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 3: Write and verify the strict 9/9 milestone audit last"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources | jq -e '.status == \"passed\" and .score.requirements == \"9/9\" and (.blockers | length) == 0 and (.orphaned | length) == 0 and .contradiction_count == 0'",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 3: Write and verify the strict 9/9 milestone audit last"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 38
+    },
+    "readError": null
+  },
+  "failure_signal_probe": {
+    "status": "ok",
+    "commands": [
+      {
+        "command": "bash scripts/ci/release-canary.sh --self-test && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml",
+        "statement": "Local contracts or workflow syntax fail, or the wired source/controller/observer cannot produce a source-bound dual-outcome path for hosted execution.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-01-PLAN.md",
+        "task": "Task 1: Wire one complete dual-outcome canary tracer"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && mix test test/sigra/planning/phase_250_canary_contract_test.exs",
+        "statement": "A malformed or misbound receipt is accepted, an unauthorized run can be cancelled, production and canary namespaces overlap, or workflow tests require live credentials.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-01-PLAN.md",
+        "task": "Task 2: Lock down canary identity and cancellation boundaries with fixtures"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+        "statement": "Either exact hosted artifact cannot be retrieved or revalidated; the proof is blocked, partial, stale, or populated from local fixtures.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-01-PLAN.md",
+        "task": "Task 3: Capture the exact hosted proof and fail closed on unavailable Actions evidence"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+        "statement": "A pending or mismatched tuple passes, a parent receipt is accepted for the child, duplicate/empty/ordering rules drift, or an unavailable immutable object is silently ignored.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-02-PLAN.md",
+        "task": "Task 1: Reconcile authorization and one immutable candidate tuple"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+        "statement": "The report claims a pass when reconciliation is blocked, omits exact identities or capture time, or assigns READY requirements to Phase 250.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-02-PLAN.md",
+        "task": "Task 2: Write the canonical Phase 247 verifier from the captured join"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs && bash scripts/ci/release-environment-preflight.test.sh",
+        "statement": "Secret values are read or persisted, wrong environment/source identity passes, or hosted success/local fixtures substitute for a missing terminal artifact.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-03-PLAN.md",
+        "task": "Task 1: Re-query Phase 248's exact environment, source and receipt identities"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh",
+        "statement": "Report status disagrees with current snapshot, omits exact canary source/observer artifact identities, loses historical gap classification, or reads a credential value.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-03-PLAN.md",
+        "task": "Task 2: Refresh the canonical Phase 248 report without hiding historical gaps"
+      },
+      {
+        "command": "bash scripts/ci/release-public-proof.test.sh && node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs",
+        "statement": "The evidence ref is missing/blocked, package and main SHAs are conflated, post-canary main lacks exact-head CI, the receipt blob changes, an inventory item is dirty/undispositioned, or loss is described as recovered.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-04-PLAN.md",
+        "task": "Task 1: Independently join public, historical terminal and post-canary main evidence"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md && node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+        "statement": "The report hides a current dirty inventory, cites a stale ref or CI as current, conflates 9e80cb... with 08300af... or newer main, or misstates accepted historical loss.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-04-PLAN.md",
+        "task": "Task 2: Refresh Phase 249 verification and retain the accepted-loss record"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
+        "statement": "Any report is blocked or stale, a requirement owner changes, a summary claims Phase 250 implementation, or accepted loss is recast as recovery.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-05-PLAN.md",
+        "task": "Task 1: Reconcile original owner summaries and requirement rows"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+        "statement": "A stale/orphaned/contradictory row passes or a missing exact source identity is treated as satisfied.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-05-PLAN.md",
+        "task": "Task 2: Add a narrow cross-owner freshness and contradiction gate"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md && test -z \"$(git status --porcelain=v1 --untracked-files=all)\"",
+        "statement": "The strict audit remains gaps_found, scores below 9/9, has orphaned/contradictory rows, cites stale owner inputs, or the final worktree is dirty.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-05-PLAN.md",
+        "task": "Task 3: Run the strict milestone audit as the final acceptance gate"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh",
+        "statement": "Nonzero exit, a mocked real dispatch shape cannot reach exact receipt retrieval, or ambiguous/wrong source identity is accepted.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-06-PLAN.md",
+        "task": "Task 1: Repair one failure dispatch through exact receipt construction"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml",
+        "statement": "Any fixture/lint failure, zero exercised negative cases, or the planned source/helper blobs are not the protected-main blobs before hosted use.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-06-PLAN.md",
+        "task": "Task 2: Prove safe cancellation and roll out the scoped canary repair"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-canary.sh --self-test && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml",
+        "statement": "Any local gate fails, preflight lacks ready source/permission identities, or the packet omits the exact bounded action and blocked prior attempts.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 1: Prepare a fresh read-only canary preflight and exact action packet"
+      },
+      {
+        "command": "jq -e '.repository == \"szTheory/sigra\" and .dispatch_attempted == false and .credential_values_recorded == false' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+        "statement": "The packet/preflight is invalid or the authorization does not name this exact bounded action.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 2: Authorize one new bounded hosted canary or retain AUTO-02 blocked"
+      },
+      {
+        "command": "bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+        "statement": "The proof lacks either retrieved artifact or any producer, observer, verdict, timestamp, namespace, run ID or digest differs from authoritative Actions metadata.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+        "statement": "The owner report is stale, or AUTO-02 remains unsatisfied despite a claimed hosted pass.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248"
+      },
+      {
+        "command": "jq -e '.requirements[\"AUTO-01\"].status == \"satisfied\" and .requirements[\"AUTO-02\"].status == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+        "statement": "Either original-owner AUTO verdict is unsatisfied or any hosted source/artifact blocker remains.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-07-PLAN.md",
+        "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && jq -e '(.eligible_tuples | length) > 0 and ([.eligible_tuples[] | select(.route_status == \"proved\" and .exact_candidate_browser_source == \"retrievable\" and (.evidence_ids | length) > 0 and (.missing | length) == 0)] | length) > 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+        "statement": "A source/tuple/equivalence/race negative fixture passes, an exact run or browser artifact is unavailable, or the packet has no tuple with a proved complete route.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-08-PLAN.md",
+        "task": "Task 1: Build an immutable tuple and gap packet for READY-01/02"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && jq -e '. as $packet | .decision.status == \"approved\" and .decision.packet_sha256 != null and (.eligible_tuples | any(.[]; .tuple == $packet.decision.tuple and .route_status == \"proved\" and .exact_candidate_browser_source == \"retrievable\"))' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+        "statement": "Approval names no exact eligible tuple, lacks a packet digest, or asserts missing historical evidence exists.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-08-PLAN.md",
+        "task": "Task 2: Decide whether one exact historical candidate tuple is approved"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && jq -e '.candidate_sha == .ci_head_sha and .candidate_sha == .browser_head_sha and .candidate_sha == .dry_run_candidate_sha and .browser_result == \"passed\" and .dry_run_verdict == \"passed\"' .planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-APPROVAL.json",
+        "statement": "Any wrong tuple, dry-run, Playwright or capture-race fixture passes, an authentic approved source cannot be read, or approval's exact-source joins do not all pass.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 1: Join the approved tuple to exact candidate, CI and dry-run evidence"
+      },
+      {
+        "command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+        "statement": "A missing/duplicate disposition, failed empty-list query or absent preservation identity is accepted.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 2: Complete fresh dispositions and validate the approved readiness ledger"
+      },
+      {
+        "command": "node .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs --stage final .planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+        "statement": "The approved exact tuple, browser/CI/dry-run source, complete dispositions or clean checkout fails the owner validator.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 2: Complete fresh dispositions and validate the approved readiness ledger"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+        "statement": "The canonical report digest, exact identities or READY verdicts differ from the reconciliation.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 3: Publish the independent passing Phase 247 owner report"
+      },
+      {
+        "command": "jq -e '.status == \"passed\" and .requirement_verdicts[\"READY-01\"] == \"satisfied\" and .requirement_verdicts[\"READY-02\"] == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+        "statement": "Either READY owner verdict is unsatisfied or any of the original source, CI, browser, dry-run or disposition blockers remains.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-09-PLAN.md",
+        "task": "Task 3: Publish the independent passing Phase 247 owner report"
+      },
+      {
+        "command": "bash scripts/ci/release-public-proof.test.sh && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs && jq -e '.public_source.http_status == 200 and .public_source.verdict == \"passed\" and .public_source.package_source_sha == \"9e80cb78d6374b1ed4074d5fef6b613fee879dca\"' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+        "statement": "Local source validator fails, fresh source URL is not successful, or the diagnostic equates package and final-main SHAs.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 1: Capture fresh public-source and failed-main diagnostics"
+      },
+      {
+        "command": "npm --prefix test/example/priv/playwright run test -- tests/admin-eval.spec.ts --project=admin-eval-mobile --grep 'board-mg-(3|6|7|9|11)'",
+        "statement": "Any target mobile registration/render case times out, uses a sleep or bypasses actual successful-registration assertion.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 2: Repair mobile admin-eval registration and prove overall main CI"
+      },
+      {
+        "command": "SIGRA_EXAMPLE_URL=http://localhost:4011 bash scripts/ci/admin-eval-harness.sh",
+        "statement": "The real example service is not LiveView-ready, any desktop/mobile/dark cell fails, or a derivative guard fails.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 2: Repair mobile admin-eval registration and prove overall main CI"
+      },
+      {
+        "command": "bash scripts/ci/phase-250-main-ci-gate.sh --record .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+        "statement": "The exact protected-main workflow, attempt, overall conclusion, admin eval, ci-gate, or another required job is missing or not successful.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 2: Repair mobile admin-eval registration and prove overall main CI"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs | jq -e '.requirements[\"REL-01\"].status == \"satisfied\" and .requirements[\"REL-02\"].status == \"satisfied\" and (.blockers | length) == 0'",
+        "statement": "Fresh public source returns non-success, overall main CI is not success, PR/worktree populations lack exact dispositions, the report differs from snapshot, or either REL requirement is unsatisfied.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-10-PLAN.md",
+        "task": "Task 3: Reconcile full PR/worktree population and refresh Phase 249 owner verdict"
+      },
+      {
+        "command": "jq -e '.status == \"passed\" and .requirement_verdicts[\"READY-01\"] == \"satisfied\" and .requirement_verdicts[\"READY-02\"] == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+        "statement": "READY owner is not passed, any READY summary contradicts its owner verdict, or a new orphan/duplicate requirement owner appears.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-11-PLAN.md",
+        "task": "Task 1: Reconcile historical READY summary frontmatter"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && jq -e '.requirements[\"AUTO-01\"].status == \"satisfied\" and .requirements[\"AUTO-02\"].status == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs | jq -e '.requirements[\"REL-01\"].status == \"satisfied\" and .requirements[\"REL-02\"].status == \"satisfied\" and (.blockers | length) == 0' && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+        "statement": "Any owner requirement is unsatisfied, a checked row lacks owner proof, or ownership/orphan counts change.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-11-PLAN.md",
+        "task": "Task 2: Align AUTO summary markers and all original-owner requirement rows"
+      },
+      {
+        "command": "node --test scripts/ci/phase-250-contract.tap.test.mjs",
+        "statement": "The TAP child cannot run the declared Mix contracts, the lock bytes change, or an unrun test is reported as passed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-11-PLAN.md",
+        "task": "Task 3: Restore the declared Mix TAP wrapper without altering the lock"
+      },
+      {
+        "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+        "statement": "A fixture accepts a REL summary completion unsupported by its canonical owner or deletes historical implementation evidence.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 1: Reconcile earlier REL implementation summaries"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources | jq -e '.status == \"passed\" and .score.requirements == \"9/9\" and (.blockers | length) == 0 and (.orphaned | length) == 0 and .contradiction_count == 0'",
+        "statement": "Any owner verdict, REL summary, requirement row, validation outcome, orphan or contradiction prevents the source-derived 9/9 result.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 2: Reconcile terminal REL summaries and validation gates"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md | jq -e '.valid == true and .status == \"passed\" and .score.requirements == \"9/9\" and .blockerCount == 0 and (.errors | length) == 0'",
+        "statement": "The stored audit differs from the source-derived result, has an altered digest, is not passed, is below 9/9, or has any blocker.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 3: Write and verify the strict 9/9 milestone audit last"
+      },
+      {
+        "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources | jq -e '.status == \"passed\" and .score.requirements == \"9/9\" and (.blockers | length) == 0 and (.orphaned | length) == 0 and .contradiction_count == 0'",
+        "statement": "Any owner requirement, summary, requirement row, hosted artifact, CI/public proof, orphan or contradiction prevents the strict passing result.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "250-12-PLAN.md",
+        "task": "Task 3: Write and verify the strict 9/9 milestone audit last"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 38
+    },
+    "readError": null
+  },
+  "decision_coverage": {
+    "passed": true,
+    "skipped": false,
+    "total": 10,
+    "covered": 10,
+    "uncovered": [],
+    "message": "All trackable CONTEXT.md decisions are covered by plans."
+  },
+  "post_planning_gap_analysis": {
+    "block": false,
+    "passed": true,
+    "enabled": true,
+    "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | AUTO-01 | \u2713 Covered |\n| REQUIREMENTS.md | AUTO-02 | \u2713 Covered |\n| REQUIREMENTS.md | READY-01 | \u2713 Covered |\n| REQUIREMENTS.md | READY-02 | \u2713 Covered |\n| REQUIREMENTS.md | REL-01 | \u2713 Covered |\n| REQUIREMENTS.md | REL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n\n\u2713 All 16 items covered by plans\n",
+    "summary": "\u2713 All 16 items covered by plans",
+    "counts": {
+      "total": 16,
+      "covered": 16,
+      "uncovered": 0
+    },
+    "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | AUTO-01 | \u2713 Covered |\n| REQUIREMENTS.md | AUTO-02 | \u2713 Covered |\n| REQUIREMENTS.md | READY-01 | \u2713 Covered |\n| REQUIREMENTS.md | READY-02 | \u2713 Covered |\n| REQUIREMENTS.md | REL-01 | \u2713 Covered |\n| REQUIREMENTS.md | REL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n\n\u2713 All 16 items covered by plans\n"
+  },
+  "execute_readiness": {
+    "executor_model": "gpt-6-luna",
+    "verifier_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "commit_docs": true,
+    "sub_repos": [],
+    "parallelization": true,
+    "context_window": 200000,
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "verifier_enabled": true,
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat",
+    "phase_number": "250",
+    "padded_phase": "250",
+    "phase_name": "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts",
+    "phase_slug": "close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat",
+    "phase_req_ids": "READY-01, READY-02, AUTO-01, AUTO-02, REL-01, REL-02 (verification closure; original traceability assignments remain unchanged)",
+    "plans": [
+      "250-01-PLAN.md",
+      "250-02-PLAN.md",
+      "250-03-PLAN.md",
+      "250-04-PLAN.md",
+      "250-05-PLAN.md",
+      "250-06-PLAN.md",
+      "250-07-PLAN.md",
+      "250-08-PLAN.md",
+      "250-09-PLAN.md",
+      "250-10-PLAN.md",
+      "250-11-PLAN.md",
+      "250-12-PLAN.md"
+    ],
+    "summaries": [
+      "250-01-SUMMARY.md",
+      "250-02-SUMMARY.md",
+      "250-03-SUMMARY.md",
+      "250-04-SUMMARY.md",
+      "250-05-SUMMARY.md"
+    ],
+    "incomplete_plans": [
+      "250-06-PLAN.md",
+      "250-07-PLAN.md",
+      "250-08-PLAN.md",
+      "250-09-PLAN.md",
+      "250-10-PLAN.md",
+      "250-11-PLAN.md",
+      "250-12-PLAN.md"
+    ],
+    "plan_count": 12,
+    "incomplete_count": 7,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "halted_plans": [],
+    "blocked_by": {},
+    "runnable_plans": [
+      "250-06-PLAN.md",
+      "250-07-PLAN.md",
+      "250-08-PLAN.md",
+      "250-09-PLAN.md",
+      "250-10-PLAN.md",
+      "250-11-PLAN.md",
+      "250-12-PLAN.md"
+    ],
+    "runnable_count": 7,
+    "branch_name": null,
+    "milestone_version": "v1.49",
+    "milestone_name": "RELEASE-1.6.0",
+    "milestone_slug": "release-1-6-0",
+    "state_exists": true,
+    "roadmap_exists": true,
+    "config_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "section_manifest": {
+      "workflow": "execute-phase",
+      "included": [
+        "regression-gate"
+      ],
+      "excluded": [
+        "partial-wave",
+        "gap-closure-artifacts"
+      ],
+      "read": [
+        "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+      ]
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "workflow_helpers": {
+    "state_planned_phase": "Ran against isolated projection before one source replacement; canonical helper left prior blocked status/next_command unchanged and derived total_plans=0, so source metadata was reconciled explicitly.",
+    "roadmap_annotate_dependencies": "Returned phase not found for existing #### Phase 250 header in isolated projection; wave annotations rendered directly without changing phase goal/header."
+  },
+  "next_command": "$gsd-execute-phase 250 --gaps-only",
+  "authorization": {
+    "new_canary_dispatch_cancel_authorized": false,
+    "candidate_tuple_approved_by_planning": false,
+    "execution_checkpoints": [
+      "250-07: new bounded hosted canary after repaired source and committed preflight",
+      "250-08: exact eligible candidate/base/main tuple after recovered authentic evidence"
+    ]
+  },
+  "remaining_evidence_risks": [
+    "Exact-candidate original browser artifact/job recovery",
+    "Hosted failure/cancellation artifact delivery and retrieval",
+    "Current public source freshness, full current-main CI and complete dispositions",
+    "Mix TAP wrapper dependency availability under existing lock",
+    "Strict owner traceability and audit9/9"
+  ]
+}

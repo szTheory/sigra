@@ -1,0 +1,23 @@
+{
+  "schema_version": "sigra.phase253.recovery-sdk-state-preservation/v1",
+  "ref": "32d3646159f279014b84c7bdb02e5e118f6c2e3b",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "bytes": 11345,
+      "sha256": "ae9e31f8d44d54de54f6d500f87c878f498ae0d1c40e7b9a748319f9ebef7c77",
+      "recoverable_ref": "32d3646159f279014b84c7bdb02e5e118f6c2e3b",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "bytes": 752,
+      "sha256": "c93b13feed60c9f18ece4f5d2e46c8a14d2b539d1876eeff3d687537ad44397e",
+      "recoverable_ref": "32d3646159f279014b84c7bdb02e5e118f6c2e3b",
+      "readback_exact": true
+    }
+  ],
+  "verified_before_refresh": true
+}

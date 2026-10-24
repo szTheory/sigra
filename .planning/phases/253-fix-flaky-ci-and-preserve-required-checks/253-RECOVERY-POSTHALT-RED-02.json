@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "stage": "RED",
+  "scope": "actual shell startup in isolated clone; mocked HTTP only",
+  "command": "bash scripts/ci/ci-gate-canary.test.sh",
+  "exit_code": 1,
+  "output": "ci-gate-canary: local fixture contract passed\nci-gate-canary: fresh preflight retained (requests=3/120; no ref mutation or dispatch)\nci-gate-canary: remote fixture ref verified (requests=9/120; no workflow dispatch)\na full branch-rules page was accepted without accounting for later pages\n",
+  "failure": "a 100-rule first page was accepted without proof of later pages",
+  "pending_assertion": "rate_limit receipt URL must equal the actual global API endpoint",
+  "github_api_requests_added": 0,
+  "browser_launches_added": 0
+}

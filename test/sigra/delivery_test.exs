@@ -1,7 +1,5 @@
 defmodule Sigra.DeliveryTest do
-  # These tests temporarily register a dummy process under the global Oban name.
-  # Keep this module synchronous so that :auto-mode checks cannot race with that registration.
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   import Mox
 

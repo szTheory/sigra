@@ -1,0 +1,72 @@
+{
+  "purpose": "Exact Phase 251 planning bytes at start of Nyquist checker revision",
+  "captured_at": "2026-10-11T19:46:05Z",
+  "git_status": [
+    " M .planning/HANDOFF.json",
+    " M .planning/ROADMAP.md",
+    " M .planning/STATE.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+    " M .planning/state.json"
+  ],
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_status": " M ",
+      "sha256": "c5656782d1bb92387b844e5f4ef38c1d8e39d522c1fa7c54f26533460064b658",
+      "bytes": 75570,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "git_status": " M ",
+      "sha256": "b097998e9025cca3a752ff31d90570b7581b729acad3378069e4e9ce2ca24fcb",
+      "bytes": 20703,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/ROADMAP.md"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "git_status": " M ",
+      "sha256": "01d8a20ce8d3159c69d4abf6003953283ad947226dab0a5728c3979d0b724169",
+      "bytes": 7722,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/state.json",
+      "git_status": " M ",
+      "sha256": "3a8cbe7f35e7c9c4e13b6b902eef11e82c46b64761233e313fc169c18dfc6d06",
+      "bytes": 2075,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/state.json"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "git_status": " M ",
+      "sha256": "d34077168c6ff0a765bd2c0245a4951ce3e29de4fb1defd154e42da688f128b8",
+      "bytes": 37296,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md",
+      "git_status": " M ",
+      "sha256": "ba381922373cbb1acf5c8058d881cd84dc3e5ae20df7e31cda19f974fb8411a1",
+      "bytes": 15340,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md",
+      "git_status": " M ",
+      "sha256": "4ed15fa389ba4ec800903eff5643d3bb9ecb07744615532cc75ed34c9cbcdee6",
+      "bytes": 15825,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "git_status": " M ",
+      "sha256": "9d4a65d140b18d15aa0ac45f281ed254299b3ef720ecec62630e5a812caf1a26",
+      "bytes": 8767,
+      "recovery_path": ".planning/recovery/phase251-nyquist-revision-prewrite-20261011T1946Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+    }
+  ]
+}

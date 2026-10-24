@@ -1,0 +1,49 @@
+{
+  "schema": "sigra.gsd.plan-check/v1",
+  "phase": "253-fix-flaky-ci-and-preserve-required-checks",
+  "plan": "253-183",
+  "status": "issues_found",
+  "plans_checked": 1,
+  "plan_sha256": "b0d08fc6ce5a952538a2afdc8b287d79234b61c64aa43dc53f0701eae8ac926b",
+  "plan_metrics": {
+    "tasks": 3,
+    "files_modified": 5,
+    "automated_bodies": 13
+  },
+  "issues": [
+    {
+      "plan": "253-183",
+      "dimension": "task_completeness",
+      "severity": "blocker",
+      "required_property": "Each finite run slot must enforce its declared command and prerequisite before launching, so correction, recovery, validator, and review runs cannot execute out of order or exceed the authorized run budget.",
+      "description": "The plan adds executable commands and outcome rules for all conditional recovery slots, but capture183.py does not enforce those conditions. It checks prior result files only for t2-red; it does not require a failed eligible t1-green before t1-correction, a passing correction before t1-final, the corresponding t2/t3 prerequisites, or a passing selected full suite before t3-validators/t3-review. For counted slots other than the two RED cases, it validates test count and generic success but not the slot-specific argv, so a substituted command with the same count can occupy the slot. Exclusive per-slot directories prevent replay of the same name, while later review validation is post hoc and cannot prevent an unauthorized run or source mutation.",
+      "task": null,
+      "fix_hint": "Have the capture utility validate an allowlisted argv per slot and consume/check the preceding captured result and source identity before spawning; refuse duplicate, premature, unused, or ineligible slots."
+    }
+  ],
+  "resolved_prior_findings": [
+    {
+      "required_property": "Each finite corrective test run has an executable command, separately captured result, and defined success condition.",
+      "status": "resolved",
+      "evidence": "The revised plan provides explicit t1-correction/t1-final, t2-correction/t2-final, and t3-recovery/t3-full-final automated bodies with per-slot capture and pass/fail criteria."
+    },
+    {
+      "required_property": "A task's automated verification recognizes the explicitly required expected RED as successful evidence only for the exact intended failure.",
+      "status": "resolved",
+      "evidence": "capture183.py retains native exit 1 and raw buffers, returns wrapper exit 0 only after matching the exact RED native count, selected method/failure headers/assertions, and source snapshot; the supplied failure-direction probe reports status ok."
+    }
+  ],
+  "probe_results": {
+    "verify_paths": {
+      "status": "not_applicable",
+      "readError": null,
+      "note": "Consumed supplied /tmp/sigra253-plan183-verify-paths02.json verdicts for 253-183; no command-path finding derived."
+    },
+    "failing_directions": {
+      "status": "ok",
+      "readError": null,
+      "note": "Consumed supplied /tmp/sigra253-plan183-failure-directions02.json verdicts for 253-183."
+    }
+  },
+  "review_boundary": "Planning review only. No implementation, tests, acceptance, or whole-phase verification performed. CIREL-01 remains partial_not_reproduced, CIREL-02 unaccepted, phase verification not_started; historical25 and179/180 once-only acceptance remain unchanged."
+}

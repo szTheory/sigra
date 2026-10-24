@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-27",
+  "captured_at": "2026-10-01T20:33:20.425Z",
+  "verdict": "ready",
+  "status": "ready",
+  "active_head": {
+    "branch": "phase-244-playwright-measurement",
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "oid": "a63674bd12250693276c304c4538c9187ac04019"
+  },
+  "readiness": {
+    "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/prune-stale-branches.sh verify-readiness --repo . --readiness-commit e61432a0248824d14d942c7d4ae2fd428a81ae99 --readiness .planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+    "exit_code": 0,
+    "result": "PASS: committed D-01 readiness is valid at e61432a0248824d14d942c7d4ae2fd428a81ae99",
+    "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+    "blob": "05621c5c0c313848deefe0fd8493648724289a1f",
+    "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193"
+  },
+  "source_pins": {
+    "plan18_current_contract": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+      "blob": "f915228a4da2ad8555d5c2032248ce9618c04445"
+    },
+    "plan19_result": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+      "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+      "blob": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+      "admitted_local_deleted_count": 1,
+      "counted_once": true,
+      "replay": "prohibited"
+    },
+    "plan25_result": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-RESULT.json",
+      "commit": "a1cd058d63eb713ce50568a953b316cdfc3ef7bd",
+      "blob": "1cd5c8e5503308657d92c3798797b3e556b6f401",
+      "outcome": "blocked",
+      "ref_operations": 0,
+      "replay": "prohibited"
+    },
+    "plan26_result": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-RESULT.json",
+      "commit": "e027cb1513c6c98a6e456f275e8eff08e58e161f",
+      "blob": "d805616a2c06d6408ecd63513cb4b27d18b6330e",
+      "status": "ready",
+      "production_prune_operations": 0
+    },
+    "plan26_handoff": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-HANDOFF.json",
+      "commit": "e027cb1513c6c98a6e456f275e8eff08e58e161f",
+      "blob": "fb733673450afb66daa0bacca455dc67fd21c29f",
+      "readiness_commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+      "plan19_commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+      "plan25_commit": "a1cd058d63eb713ce50568a953b316cdfc3ef7bd"
+    }
+  },
+  "github_rate_limit": {
+    "command": "gh api rate_limit",
+    "exit_code": 0,
+    "core_remaining_before_pagination": 5000,
+    "reset_epoch": 1790890593,
+    "pagination_stopped_for_rate_limit": false,
+    "http_403_or_429": false
+  },
+  "commands": [
+    {
+      "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/repo-mutation-coordinator.sh verify --repo .",
+      "exit_code": 0,
+      "stdout": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155); PASS: shared branch/worktree coordinator hook and worktree paths verified."
+    },
+    {
+      "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/repo-mutation-coordinator.sh status --repo .",
+      "exit_code": 0,
+      "stdout": "coordinator=verified; common_dir=/Users/jon/projects/sigra/.git; lock=free; transaction_leases=0"
+    },
+    {
+      "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/prune-stale-branches.sh capture-local --repo . --output <private-temp>/local.tsv",
+      "exit_code": 0,
+      "result": "captured local refs: 128 rows"
+    },
+    {
+      "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/prune-stale-branches.sh capture-origin --repo . --output <private-temp>/origin.tsv",
+      "exit_code": 0,
+      "result": "captured origin refs: 357 rows"
+    },
+    {
+      "command": "node scripts/maintainers/prune-stale-branches-current.mjs capture --repo . --output .planning/phases/245-branch-prune-local-and-remote/245-27-D06-CURRENT-CAPTURE-TEMP.json",
+      "exit_code": 0,
+      "result": "captured current PR/ref contract: 13 PRs, 128 local refs, 357 origin refs",
+      "temporary_capture_sha256": "7bcfc3f002a056a7da1705f2edf0b17a4ae3ffd519e09c1bb04f88f2312f5eb4"
+    },
+    {
+      "command": "gh pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "exit_code": 0,
+      "result": "13 open PR rows"
+    },
+    {
+      "command": "gh api --paginate 'repos/szTheory/sigra/pulls?state=open&per_page=100'",
+      "exit_code": 0,
+      "result": "13 REST rows; final page contained 13 rows"
+    },
+    {
+      "command": "/usr/bin/git cat-file -e <oid>^{<type>} for every unique direct/peeled Plan 18 and execution-time local/origin/PR head/base identity",
+      "exit_code": 0,
+      "result": "362 unique typed objects checked; 0 missing"
+    }
+  ],
+  "source_digests": {
+    "local_ref_rows_canonical_sha256": "17b7250416ea41ebac7f6e90ff219d3fcb0ed7916f91801d91e7f69fd57ab3e3",
+    "origin_ref_rows_canonical_sha256": "25e6c0693c607c468a0a985455547840c16deb0f96c9b08c7a94ecee03778312",
+    "github_open_pr_identity_rows_canonical_sha256": "f7543e04fb05fa163b62c6e6c3e7e12f4953d1ea022665f5b36b4ee8e9efb98e",
+    "complete_current_inventory_canonical_sha256": "1f4b90f733b4040f71e7a3432bd51ee782498776d2b99efd5d60ad88557d207c"
+  },
+  "counts": {
+    "local_refs": 128,
+    "origin_refs": 357,
+    "origin_branch_heads": 50,
+    "github_open_prs": 13,
+    "github_cli_open_prs": 13,
+    "github_rest_open_prs": 13,
+    "github_rest_pages": 1,
+    "plan18_local_ref_rows": 129,
+    "plan18_origin_ref_rows": 357,
+    "unique_typed_objects_checked": 362,
+    "missing_objects": 0,
+    "plan19_prior_local_deletions": 1,
+    "plan25_ref_operations": 0
+  },
+  "checks": {
+    "public_plan23_readiness": true,
+    "plan26_handoff_and_all_pins": true,
+    "plan19_single_deletion_counted_once": true,
+    "plan25_zero_operations": true,
+    "local_origin_capture_complete": true,
+    "github_cli_api_names_oids_and_head_repository_agree": true,
+    "github_base_repository_identities_captured": true,
+    "source_recapture_unchanged": true,
+    "plan18_and_current_objects_readable": true,
+    "supported_git_binary_and_version": true,
+    "common_directory_coordinator_verified": true,
+    "linked_worktree_mutator_registry_verified": true,
+    "origin_default_and_safety_identities_captured": true,
+    "production_refs_unchanged_during_census": true
+  },
+  "pinned_git": {
+    "path": "/usr/bin/git",
+    "version": "git version 2.50.1 (Apple Git-155)",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "coordinator": {
+    "common_directory": "/Users/jon/projects/sigra/.git",
+    "hooks_path": "/Users/jon/projects/sigra/.git/sigra-branch-worktree-coordinator/hooks",
+    "verification": "passed",
+    "lock": "free",
+    "transaction_leases": 0,
+    "registered_worktrees": [
+      {
+        "path": "/Users/jon/projects/sigra",
+        "head": "a63674bd12250693276c304c4538c9187ac04019",
+        "branch": "refs/heads/phase-244-playwright-measurement"
+      }
+    ]
+  },
+  "default_and_safety_identities": {
+    "origin_default_symref": {
+      "ref": "refs/remotes/origin/HEAD",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit",
+      "symref": "refs/heads/main"
+    },
+    "origin_default_branch": {
+      "ref": "refs/heads/main",
+      "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "type": "commit"
+    },
+    "safety_refs": [
+      {
+        "ref": "refs/heads/ci/phase-235-16-source-complete",
+        "local_oid": "dd56ceb3220aca6c92899563e1079dc58fcd8cf8",
+        "origin_oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+        "type": "commit"
+      },
+      {
+        "ref": "refs/heads/safety/local-main-before-release-cleanup-20260831",
+        "local_oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "origin_oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "type": "commit"
+      },
+      {
+        "ref": "refs/tags/archive/local-main-pre-235-recovery",
+        "local_oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+        "origin_oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972",
+        "type": "commit"
+      }
+    ]
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved",
+    "unavailable_historical_baseline": "unknown",
+    "independent_full_window_cleanup_trust_registry": "unknown"
+  },
+  "plan16_status": "blocked_by_plan14",
+  "repo_04_status": "open",
+  "production_ref_operations": 0,
+  "production_ref_operation_counts": {
+    "local_ref_deletions": 0,
+    "tracking_ref_deletions": 0,
+    "origin_ref_deletions": 0,
+    "safety_publications": 0,
+    "pull_request_mutations": 0,
+    "stash_operations": 0
+  },
+  "failed_predicates": []
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "sigra.phase252.review-repair/v1",
+  "review_findings": ["CR-01", "WR-01"],
+  "status": "implemented_pending_independent_recheck",
+  "implementation_commit": "6edd186ec",
+  "followup_implementation_commit": "9894630d7",
+  "files": {
+    "scripts/ci/ci-run-metrics.sh": "c2236c9a6ae20159652071d69a3ec84514e237f86d29f5a3691d2358d66b49f1",
+    "scripts/ci/ci-run-metrics.test.sh": "fd9d41e5dba93a105100ee08301290c561a7ef0da1a48e211fdda2745a5df130"
+  },
+  "repairs": {
+    "CR-01": {
+      "behavior": "Preflight, family collection, and window collection share the same approved-five required-context derivation. Empty effective-rule results use saved classic branch-protection contexts. Collection records expected and actual contexts, source, changed flag, provenance, and diagnostics. Offline replay re-derives the set from hash-checked API bytes and withholds required-wait and instrumented-full-PR claims when the set differs or is empty.",
+      "fixture": "Window collector uses branch-protection fallback for all five contexts. Offline replay rewrites effective-rule bytes and matching source hash while preserving the approved manifest identity; the reader returns unknown required wait and incomplete instrumented sample."
+    },
+    "WR-01": {
+      "behavior": "Artifact metadata starts at pending_download. The result becomes accepted only after download, archive SHA-256 match, and safe extraction. Failed downloads are recorded as unknown with their literal reason; the request ledger retains the stop reason. Metadata that is expired or fails identity/digest checks keeps its specific diagnostic and is never mislabeled as a download failure.",
+      "fixture": "Public window collector receives a deterministic HTTP 503 from the file host and records unknown/download_unavailable, with an incomplete request ledger and no verified artifact claim."
+    }
+  },
+  "verification": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 bash scripts/ci/ci-run-metrics.test.sh",
+      "exit_code": 0,
+      "result": "PASS: collector suite 46 passed, 0 failed; comparison-contract suite passed. Includes required-context mismatch/fallback, artifact download failure, security, replay, report, and ExUnit consumer contracts."
+    },
+    {
+      "command": "bash -n scripts/ci/ci-run-metrics.sh scripts/ci/ci-run-metrics.test.sh && git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics.sh --replay --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --format json (run twice)",
+      "exit_code": 0,
+      "result": "PASS: both output SHA-256 values are 0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a"
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "exit_code": 0,
+      "result": "PASS: ready, no diagnostics"
+    }
+  ],
+  "evidence_preservation": {
+    "prior_repair_record_commit": "621581afc",
+    "prior_repair_record_sha256": "eb627e3be681a1910c5706acd5b4b9bd3e4252b3ede74ef84b46f21e5fb23a18",
+    "prior_repair_record_readback_sha256": "eb627e3be681a1910c5706acd5b4b9bd3e4252b3ede74ef84b46f21e5fb23a18",
+    "prior_updated_summary_commit": "7630a0ef5",
+    "prior_updated_summary_sha256": "58a1b55c90fb3e9130a7e1ff521c2d5bfe14f30137fd658b5ca5a67d779a3669",
+    "prior_updated_summary_readback_sha256": "58a1b55c90fb3e9130a7e1ff521c2d5bfe14f30137fd658b5ca5a67d779a3669",
+    "prior_summary_commit": "6edd186ec",
+    "prior_summary_sha256": "24ce1943ab1d0becdca779b24bfdf0c6adf0cf75c95be123278d97720019cf2a",
+    "git_show_readback_sha256": "24ce1943ab1d0becdca779b24bfdf0c6adf0cf75c95be123278d97720019cf2a",
+    "archive_sha256_unchanged": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+    "baseline_json_sha256_unchanged": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843",
+    "baseline_report_sha256_unchanged": "7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237",
+    "comparison_contract_sha256_unchanged": "8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c",
+    "derived_evidence_refreshed": false
+  },
+  "hosted_work": "No hosted CI or comparison family was started; neither finding required a producer change.",
+  "phase_status": "Requirements remain pending independent review and phase verification."
+}

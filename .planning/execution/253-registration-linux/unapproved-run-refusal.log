@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/execution/253-registration-linux/diagnostic.py", line 163, in <module>
+    execute(setup_only=sys.argv[1] == '--setup-only')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jon/projects/sigra/.planning/execution/253-registration-linux/diagnostic.py", line 93, in execute
+    assert (HERE / 'approval.json').exists(), 'STOP: this new diagnostic needs its own approval; old approvals remain spent'
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+AssertionError: STOP: this new diagnostic needs its own approval; old approvals remain spent

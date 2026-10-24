@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-03T15:01:56.034Z",
+  "purpose": "read-only D-06 planning feasibility and live DAG routing; never production recovery authorization",
+  "planning_route": {
+    "verdict": "ready",
+    "reason": "existing plans can be repaired without rewriting blocked receipts"
+  },
+  "production_execution": {
+    "verdict": "blocked",
+    "reason": "five current-origin commits are unreadable locally; Plan 37 requires separate fresh exact approval, fetch and execution-time source refresh"
+  },
+  "independent_sources": {
+    "local_git_checkout": true,
+    "github": {
+      "rate_limit_exit": 0,
+      "core_remaining": 5000,
+      "core_reset": 1791043306,
+      "api_allowed": true,
+      "cli_open_pr_exit": 0,
+      "cli_open_pr_count": 14,
+      "rest_page_1_exit": 0,
+      "rest_page_1_count": 14,
+      "rest_page_2_exit": 0,
+      "rest_page_2_count": 0,
+      "pr_number_sets_agree": true,
+      "commit_tree_reads": {
+        "5c414c4cec975fcf2755664f6ee294a4760fbe93": {
+          "exit": 0,
+          "actual": {
+            "sha": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+            "tree": "17301f2f8afb6c49bc1305426e7dcf080bf40f53"
+          },
+          "expected_tree": "17301f2f8afb6c49bc1305426e7dcf080bf40f53",
+          "matches": true
+        },
+        "8ec669774d33eee30d7b92149808adf835bbd963": {
+          "exit": 0,
+          "actual": {
+            "sha": "8ec669774d33eee30d7b92149808adf835bbd963",
+            "tree": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6"
+          },
+          "expected_tree": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6",
+          "matches": true
+        },
+        "c1df96499fed86602a7c6f27d18d9394582809f1": {
+          "exit": 0,
+          "actual": {
+            "sha": "c1df96499fed86602a7c6f27d18d9394582809f1",
+            "tree": "17301f2f8afb6c49bc1305426e7dcf080bf40f53"
+          },
+          "expected_tree": "17301f2f8afb6c49bc1305426e7dcf080bf40f53",
+          "matches": true
+        },
+        "d4e206693aa765c0078a89e24963590257d1daf1": {
+          "exit": 0,
+          "actual": {
+            "sha": "d4e206693aa765c0078a89e24963590257d1daf1",
+            "tree": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6"
+          },
+          "expected_tree": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6",
+          "matches": true
+        },
+        "d2358eebe1cb4411d73552ec2359e54d8a4c98b4": {
+          "exit": 0,
+          "actual": {
+            "sha": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+            "tree": "7c4617d9b71f6ebcf0206a06545d11d184196d22"
+          },
+          "expected_tree": "7c4617d9b71f6ebcf0206a06545d11d184196d22",
+          "matches": true
+        }
+      }
+    },
+    "origin": {
+      "exit": 0,
+      "row_count": 363,
+      "sha256": "58a06c4d91f8be15b9e6256a6f8ba7667784983d7cffe3e3514e7d2ce31ec65e",
+      "default_head": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "gh_pages": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4"
+    }
+  },
+  "pinned_inputs": [
+    {
+      "path": ".planning/METHODOLOGY.md",
+      "exists": true,
+      "sha256": "f8ace1801e6b3124fab2949a90c23e401a5f8d0bbc2bda0567be04ec02d33ea7",
+      "git_blob_oid": "86d23fb4247ca57d86bcc8e2fc94cf9675f75add",
+      "last_path_commit": "2fcf60a0f571743872c3b230f53243c0430a8e2b"
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "exists": true,
+      "sha256": "1bc2be8489a82f20e33b5b395361eef4717d961ef57835b89fbf673bbf8d652f",
+      "git_blob_oid": "aae82a2e578fe9facf3338bcb004e9ba643517f7",
+      "last_path_commit": "7ae7868a6e0616befb5f43fae90cd9db572fe643"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "exists": true,
+      "sha256": "42e3aa6378a885edb0e466f151e18a3d15ae327648f54a3c3eecc9520cf3bd4d",
+      "git_blob_oid": "aef6d4c99c45bedf84aea1db228b343ebf46bc1d",
+      "last_path_commit": "0e2c14c39c81730bfe19610976701c8ec52d6c38"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "exists": true,
+      "sha256": "df52751ee54d125eb338ed3030363e9e4d98c987f87e0867fa8b15b5a2206236",
+      "git_blob_oid": "b7acf2433bc7f4bcf9e5418d5be7031cd9d3f3dc",
+      "last_path_commit": "be2644ddbbd0936cbf93101ed24eef8fee98b38e"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "exists": true,
+      "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1",
+      "git_blob_oid": "f915228a4da2ad8555d5c2032248ce9618c04445",
+      "last_path_commit": "319bc487e8b438ff135d84f5d42018f3f35940e7"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "exists": true,
+      "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193",
+      "git_blob_oid": "05621c5c0c313848deefe0fd8493648724289a1f",
+      "last_path_commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-30-RESULT.json",
+      "exists": true,
+      "sha256": "8153826bd0d656360bb1a6d1f683b21c348b54378242014b6d89ddd817fd3a84",
+      "git_blob_oid": "5e885a0160b6882bd0bc962b46d10a24032b3798",
+      "last_path_commit": "74e0937af546849fd29d61535244196ef8c80469"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-D06-READINESS.json",
+      "exists": true,
+      "sha256": "fae2ed2991d072968d51ebf9f97d79078b50912624c15ed133d36c5437a604c6",
+      "git_blob_oid": "426fbcdf478d3d72515b94c2128c572768a68878",
+      "last_path_commit": "b090a8fbdf37b6417de109211b8c385cbbf9bcee"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-EXEC-PREFLIGHT.json",
+      "exists": true,
+      "sha256": "5fc848c5a21c0dfe160079e237d587f9f383f8c5a5c8ffd31001f99372efe829",
+      "git_blob_oid": "79190075a94270435eb771d9b7a821ea43e84165",
+      "last_path_commit": "e1e37ea2c25a100711c757fa347ee054cfe900bd"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-OBJECT-RECOVERY.json",
+      "exists": true,
+      "sha256": "5ca6d9c52468a5e8a546500d4f63f3a6af76ebdd0155e34b8c26bf89091ceef2",
+      "git_blob_oid": "e46f74c77910bf05c87896eeadf7a5e30f4827dd",
+      "last_path_commit": "b090a8fbdf37b6417de109211b8c385cbbf9bcee"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-SUMMARY.md",
+      "exists": true,
+      "sha256": "ff8c9b8dbc764d0d4676edf8ef6d55a03143e221f88849ca356da50c75fd71bd",
+      "git_blob_oid": "347dacf3d3371f178f836c932f1a296c0eb49bbb",
+      "last_path_commit": "b090a8fbdf37b6417de109211b8c385cbbf9bcee"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-36-EXEC-PREFLIGHT.json",
+      "exists": true,
+      "sha256": "6ce1a12a606e77a22361ff6485eba6c7f096b20ac4d9c78f2b53d9ece1d6e396",
+      "git_blob_oid": "96528af9b866162811081b055e595a470e3c8a25",
+      "last_path_commit": "0adb3ce85325ee42fe713a23df7fcb6c63faddcb"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-36-RESULT.json",
+      "exists": true,
+      "sha256": "f18de4958d2dfbce489f36da582e588bb24a32cabeefa04c81b305c2a86f4028",
+      "git_blob_oid": "74c51948f3c607291f46e7c3b2974d911577fb0c",
+      "last_path_commit": "0adb3ce85325ee42fe713a23df7fcb6c63faddcb"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-36-SUMMARY.md",
+      "exists": true,
+      "sha256": "d09277ef167b842010b88b1d1407889aaf5489234d19f399f19d60955e2f3b68",
+      "git_blob_oid": "a4692d4cec0847cd1b027b879c2eee6c080e881d",
+      "last_path_commit": "0adb3ce85325ee42fe713a23df7fcb6c63faddcb"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-37-PLAN.md",
+      "exists": true,
+      "sha256": "89f1b55d1d7c8470c572a69bf81ad7ce2c355fb40563b77f648e642a289b45c0",
+      "git_blob_oid": "2c2affe4bc3197deaeed89a1f4128ab31be1c87d",
+      "last_path_commit": "0e2c14c39c81730bfe19610976701c8ec52d6c38"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-38-PLAN.md",
+      "exists": true,
+      "sha256": "04298bbc69fd7511bed11dfd24c58705ad65224cc90412d4087e9e659fac575d",
+      "git_blob_oid": "3a16e97ee89587f8c2545a28c949d2f71aabc3ca",
+      "last_path_commit": "0e2c14c39c81730bfe19610976701c8ec52d6c38"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-CONTEXT.md",
+      "exists": true,
+      "sha256": "4ba1146bf0f3650b86d85bfb5b62e6ae049c6864712b3449e13a0867451f1ba5",
+      "git_blob_oid": "8d16b653fcc269f338c83db2fe000e2877c1e9b3",
+      "last_path_commit": "0ad7107f7a6eea38c6eb2fb3b8ac0fb504ef7a56"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-PATTERNS.md",
+      "exists": true,
+      "sha256": "ce65f1e42515de6b119e0d5bbca964381a413c969ab82cd47d9596793142d979",
+      "git_blob_oid": "f79538de4290659914349ad1f7a07ebe4be0cadc",
+      "last_path_commit": "c639926c93d0f7e1009041ff5daa4016eeb7c371"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-RESEARCH.md",
+      "exists": true,
+      "sha256": "b7172759b2baa6eff8c5ef5d395e17744f4d100f4c73eec71302e62cc8d0584b",
+      "git_blob_oid": "8eab2495d9dd118dc9ccf227efc940c456aee447",
+      "last_path_commit": "c639926c93d0f7e1009041ff5daa4016eeb7c371"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-VALIDATION.md",
+      "exists": true,
+      "sha256": "8ff2c82e0abeca41ddbe5734fea7a9eba032f3d962bf3a5a26e0f2450aa3b6da",
+      "git_blob_oid": "674fc9942e39299ff9c7beabc0ec4ecaaa9c8e64",
+      "last_path_commit": null
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-VERIFICATION.md",
+      "exists": true,
+      "sha256": "7989e672f80ddef768f170dfebdda8889351a6e079cdaaac6ff37fec8ebd1edf",
+      "git_blob_oid": "e3deb235682ff4386cbe579e3733193b3ddd46fe",
+      "last_path_commit": null
+    },
+    {
+      "path": "AGENTS.md",
+      "exists": true,
+      "sha256": "137737597ba35f188a26d0d1bf657cf1da12c91b328fc141748c281c2d00deb8",
+      "git_blob_oid": "1e4a52c0618bf05c0a1ac142e0c3d1d584fa810b",
+      "last_path_commit": "d131df18b806b1fc70a48ecc0231a090be8636bd"
+    },
+    {
+      "path": "scripts/maintainers/prune-stale-branches-admission.mjs",
+      "exists": true,
+      "sha256": "6ffe2c6e87bc23706378cb1255196a503f6859d8f45a7a27c7461bdeac0742dc",
+      "git_blob_oid": "9fe84f45490bdc1cfb1f6f4c88e75994c3556818",
+      "last_path_commit": "5bae068a44e24d0859241547e93b4684d41c2978"
+    },
+    {
+      "path": "scripts/maintainers/prune-stale-branches-current.mjs",
+      "exists": true,
+      "sha256": "58b77076742911efbefeb9337f90c35a662d3c1cb58fef066257f76a37baf85b",
+      "git_blob_oid": "597cfe7f36d2057bc58652b3589220fb5f0e9f1c",
+      "last_path_commit": "ab93e482af85ad259de189130f7d4a78167ecd3b"
+    },
+    {
+      "path": "scripts/maintainers/prune-stale-branches.sh",
+      "exists": true,
+      "sha256": "265ce4c380c037d2643f32b1e461434572311e19f3adfe9955c0cdb2dc708258",
+      "git_blob_oid": "8468981653ce8290c9886d600c49d44823d293fb",
+      "last_path_commit": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30"
+    },
+    {
+      "path": "scripts/maintainers/repo-mutation-coordinator.sh",
+      "exists": true,
+      "sha256": "8d75f2d73a5076dad45ca09b741ad55682691019e627e601ebae53d2e072cbf3",
+      "git_blob_oid": "462ad5920b7bf24fea07d975ec80c363142d7e7f",
+      "last_path_commit": "99ddf2294a3be459ed53c02d424a719c2ac9a608"
+    }
+  ],
+  "baselines": {
+    "plan18": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "unique_direct_and_peeled_oid_count": 357,
+      "typed_batch_exit": 0,
+      "unreadable": []
+    },
+    "plan30_blocked_commit": {
+      "oid": "74e0937af546849fd29d61535244196ef8c80469",
+      "cat_file_exit": 0,
+      "type": "commit"
+    }
+  },
+  "five_exact_candidates": [
+    {
+      "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+      "expected_tree": "17301f2f8afb6c49bc1305426e7dcf080bf40f53",
+      "local_commit_readable": false,
+      "origin_advertised": true
+    },
+    {
+      "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+      "expected_tree": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6",
+      "local_commit_readable": false,
+      "origin_advertised": true
+    },
+    {
+      "oid": "c1df96499fed86602a7c6f27d18d9394582809f1",
+      "expected_tree": "17301f2f8afb6c49bc1305426e7dcf080bf40f53",
+      "local_commit_readable": false,
+      "origin_advertised": true
+    },
+    {
+      "oid": "d4e206693aa765c0078a89e24963590257d1daf1",
+      "expected_tree": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6",
+      "local_commit_readable": false,
+      "origin_advertised": true
+    },
+    {
+      "oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+      "expected_tree": "7c4617d9b71f6ebcf0206a06545d11d184196d22",
+      "local_commit_readable": false,
+      "origin_advertised": true
+    }
+  ],
+  "historical_sources": {
+    "pr_11_rows": "unknown",
+    "cleanup_30_rows": "unknown",
+    "full_window_independent_history": "unavailable_under_D-07",
+    "replacement_baseline_approval": "D-07_current_state_only"
+  },
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "fetch_attempts": 0,
+  "notes": [
+    "Ready to repair plan routing does not mean ready to recover objects or prune branches.",
+    "Live GitHub/origin checks are planning-time only; Plan 37 and Plan 38 must refresh at execution."
+  ]
+}

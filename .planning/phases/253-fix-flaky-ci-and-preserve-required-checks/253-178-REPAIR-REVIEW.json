@@ -1,0 +1,145 @@
+{
+  "schema": "sigra.phase253.successor-repair-review/v1",
+  "status": "halted",
+  "repair_plan": "253-178",
+  "acceptance_plan": "253-179",
+  "bridge_plan": "253-180",
+  "reviewed_candidate_commit": "d0a2433f1aae2894819dda270de2a60974c928e5",
+  "source_files": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "b54b870deb4f3b188c2f11af5b6b5771e73fa914d0cb8a908816d3db38fd87e2",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c9ecd64e042ed9d8735bf78607361ef092854868031e38a847009224ecb59713",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-PLAN.md": "f260cf0df47ab986c228bb8cf0b1cbfc5fdcb594b2adc3a3bb88cb4f733351b5",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "3cbc45611348a107d6cd29d8b6b134290461ff9f1aa1b6234142ac50cec12a58",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "5a67471b4666b1f2b176b9a83b07181e0100223003352523ed46b4da04f6af49",
+    "scripts/ci/ci-git-publication.test.py": "38730e9d9ccd2c3510186a90b0c1e3178a99988c45ff3a11d100d3e14bafb47c",
+    "scripts/ci/ci-git-publication.py": "7bf205869e74ce2101e0df91e8615af81f75393e3eadd2b5fd01dd126681d5b6",
+    "scripts/ci/ci-gate-canary-dryrun.py": "b6e6be484112926539e8b53aab685dd61d4b72105c063044576c449f94b27ae6"
+  },
+  "source_commits": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "d0a2433f1aae2894819dda270de2a60974c928e5",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "d0a2433f1aae2894819dda270de2a60974c928e5",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-PLAN.md": "e22874ea687fadd72347ca539470287d1abc9475",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "e22874ea687fadd72347ca539470287d1abc9475",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "e22874ea687fadd72347ca539470287d1abc9475",
+    "scripts/ci/ci-git-publication.test.py": "548d54f083c89b2778a4e3911b19da5df7fd198b",
+    "scripts/ci/ci-git-publication.py": "a3df31cfac5bf8218ec75ba7ddfc5107e4364834",
+    "scripts/ci/ci-gate-canary-dryrun.py": "d5f83ba01bc33cc4a763dda995dc711cd5f3515f"
+  },
+  "commits": [
+    {"commit": "b90d8132e253176313a6b13b6bcd44792c5faaad", "subject": "test(253-178): reproduce stale executable bridge false pass", "result": "RED: one test failed because ContractError was not raised"},
+    {"commit": "ff50b2f2132487d15ec35463d17d4f666cf5a007", "subject": "fix(253-178): enforce exact bridge plan amendments", "result": "Task 1 mandatory tests 4/4 passed in 3.004s"},
+    {"commit": "d0a2433f1aae2894819dda270de2a60974c928e5", "subject": "chore(253-178): preserve halted lifecycle repair candidate", "result": "candidate preserved after final review found blockers; not accepted"}
+  ],
+  "original_halted_evidence": {
+    "preservation_ref": "refs/gsd/phase253-execution178-entry",
+    "entry_commit": "e22874ea687fadd72347ca539470287d1abc9475",
+    "entry_readback_record": "/tmp/sigra-phase253-execution178-entry.json",
+    "175_plan_sha256": "8cb8b78ed8283860c1daff28c689ef9c556311f6c46826b0dbc6820b3292ae65",
+    "175_plan_producing_commit": "6b8bccad1a51a3455ab27d88360064d7ac8d30c8",
+    "175_summary_sha256": "74059b7ca4e1730dde91d21b5bf260090332aef7be20cc8ab258c41437482098",
+    "175_review_sha256": "dc9a7ed14f881a2f8d7428d9e4121a89f7b49a9a9144a544f1e8bc545511b603",
+    "175_execution_record_sha256": "a6e068c80db579e093ac5c374fb57db471c207a01be46ac77a10ee1b388f8c00",
+    "175_review_status": "halted",
+    "175_high_finding": {
+      "id": "BRIDGE-EXECUTABLE-COUNTS-OWNERS",
+      "severity": "high",
+      "actual": "The prior complete-stage bridge accepted executable comparisons plan_pins.length!==174 and halted_plans.length!==22 and stale owners 149 -> 174 and 158 -> 174 after recovery keywords and matching hashes were supplied.",
+      "required": "Reject stale executable counts and owners; bind actual executable instructions and owner rows to the exact amended plans."
+    },
+    "176_summary_exists": false,
+    "177_summary_exists": false,
+    "176_receipt_exists": false,
+    "177_receipt_exists": false
+  },
+  "nested_173_review": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-RECOVERY-REVIEW.json",
+    "sha256": "30cb16fd6ee27ff440512767d113b61b859da059de61571ac87f9da649201e48",
+    "finding_count": 10
+  },
+  "unresolved_implementation_findings": [
+    {
+      "id": "178-REVIEW-01",
+      "severity": "high",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "location": "expected_plan_amendment, around line 885 in candidate d0a2433",
+      "finding": "The amended 168 plan is checked for the receipt consumer in only its first automated body. The second automated body has no verify-receipt --consumer 168 preamble, although plan 180 requires the check immediately before both consumers.",
+      "durable_probe": {
+        "path": "/tmp/sigra-253-178-review-168-probe.json",
+        "sha256": "edc0ec77c0538e36e6b6bf52a5dfd4dbed56eb44a2136eedbe3ca94dc5b2c0dd",
+        "result": {"automated_bodies": 2, "consumer_occurrences": [1, 0], "required_each_body": true, "actual_satisfies_requirement": false}
+      }
+    },
+    {
+      "id": "178-REVIEW-02",
+      "severity": "high",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "location": "validate_sdk_copy_report, around line 1157 in candidate d0a2433",
+      "finding": "The report validator checks the hashes of four SDK stdout strings but does not parse the output, verify query arguments or validate SDK identity and source digest. A self-consistent fabricated report with not-JSON stdout, bogus arguments, empty SDK identity and a fake input digest is accepted.",
+      "durable_probe": {
+        "path": "/tmp/sigra-253-178-review-sdk-probe.json",
+        "sha256": "1c3ed377477be5a8968eea37921b3e5352bf375a9c6445626f081295ec3d184e",
+        "result": {"fabricated_report_accepted": true, "invalid_stdout": "not JSON", "bogus_arguments": ["bogus"], "report_path": "/tmp/sigra-253-178-fabricated-sdk-report.json", "report_sha256": "4c5736cb6e4e07845c4c38d198c1dbb4fef024afe178b003c885c6d6f683ee2e"},
+        "fabricated_report_path": "/tmp/sigra-253-178-fabricated-sdk-report.json",
+        "fabricated_report_sha256": "4c5736cb6e4e07845c4c38d198c1dbb4fef024afe178b003c885c6d6f683ee2e"
+      }
+    },
+    {
+      "id": "178-REVIEW-03",
+      "severity": "high",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "location": "run_sdk_copy, around line 1069 in candidate d0a2433",
+      "finding": "The SDK simulation checks only that there are zero incomplete plans, 24 halted rows and no blocked summaries. It does not require the SDK index to contain exactly the expected 180 unique plan IDs. A missing completed row can therefore leave the same reported incomplete and halted counts while the required exact universe was never proven.",
+      "evidence": "Read-only source review; no separate runtime probe was performed."
+    },
+    {
+      "id": "178-TEST-01",
+      "severity": "blocking",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "location": "test_nested_173_review_requires_original_location_schema_and_findings, line 545 in candidate d0a2433",
+      "finding": "The required full finite suite exits 1: its historical-review fixture copies files into a temporary directory without initializing/copying Git, but check_historical_inputs now runs git show for frozen 175 producing commits. The fixture raises ContractError instead of completing the nested 173 assertions.",
+      "evidence": "Full suite ran 16 tests: 15 passed, one error, exit 1. This deterministic failure is retained and not waived."
+    }
+  ],
+  "test_results": {
+    "full_suite": {
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "exit": 1,
+      "tests_run": 16,
+      "passed": 15,
+      "errors": 1,
+      "duration_seconds": 167.106,
+      "failed_test": "test_nested_173_review_requires_original_location_schema_and_findings",
+      "error": "git show 25f9707641eb4f39838286d49867071c69281191:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-PLAN.md failed (128): fatal: not a git repository (or any of the parent directories): .git",
+      "complete_log_path": "/tmp/sigra-253-178-task2-full-suite.log",
+      "complete_log_sha256": "6b7bec430ae10a1e7c113a9ed2118af96f05cc3f47c6010241cf5a06a6de64a6"
+    },
+    "installed_sdk_copy_contract_test": {
+      "result": "passed",
+      "scope": "temporary planning copy only; not acceptance",
+      "report_path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-phase253-178-sdk-copy-report.json",
+      "report_sha256": "053b11981745c7015f229370ea1d03f83ce1307857cc9a734a8fe6e501289382"
+    },
+    "consumer_sdk_copy_contract_test": {
+      "result": "passed",
+      "scope": "temporary planning copy only; actual report retained and re-opened by consumer",
+      "report_path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-phase253-178-consumer-sdk-copy-report.json",
+      "report_sha256": "14c30f7910ac3fc4bf88c4f0c7bc9e1dd765cb1b31a3b4dbaf747a279e0a0a3a"
+    },
+    "acceptance_attempts": 0,
+    "github_requests": 0,
+    "native_browser_launches": 0
+  },
+  "scope": {
+    "product_changes": ["scripts/ci/ci-git-publication.test.py"],
+    "product_changes_during_178": [],
+    "tooling_changes": [
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py"
+    ]
+  },
+  "requirements": {"CIREL-01": "partial_not_reproduced", "CIREL-02": "unaccepted"},
+  "phase_verification_status": "not_started",
+  "next_plan_may_run": false,
+  "next_route": "$gsd-plan-phase 253 --gaps-only",
+  "notes": "No source repair was attempted after the deterministic review findings. Plan 175 remains halted and byte-identical; plans 176 and 177 remain unexecuted. Nothing in this record is actual179 acceptance or hosted evidence."
+}

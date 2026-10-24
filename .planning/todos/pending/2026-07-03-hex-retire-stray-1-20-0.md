@@ -2,7 +2,7 @@
 created: 2026-07-03T00:00:00.000Z
 status: pending
 resolves_phase: 242
-title: Retire stray Hex 1.20.0 so 1.1.0 is the resolved latest_stable
+title: "FUT-05: retire stray Hex 1.20.0 so the GA is the resolved latest_stable"
 area: release
 files:
 
@@ -20,6 +20,8 @@ audit_acknowledged:
   milestone: v1.47
   at: 2026-09-15
 ---
+
+## FUT-05 — reclaim latest_stable_version from stray 1.20.0
 
 ## What
 
@@ -43,8 +45,8 @@ deferred it at the v1.43 close ("don't have time right now"), and again at the
 Phase 221 close (2026-07-10): "nobody is really using this yet." Orthogonal to
 the gate — retire does NOT change the upgrade-smoke `sort -V` (the
 `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin greens the gate), so PUB-01 is
-unaffected by leaving this open. Target GA is now **1.3.0** (v1.2.0 + v1.3.0 were
-published in Phase 221).
+unaffected by leaving this open. The target GA was **1.3.0** when this record was last updated. The repository is now at
+**1.5.0**; use that as the target after verifying the package/version state at execution time.
 
 ## How (runbook — updated Phase 221, Hex 2.5.0)
 
@@ -62,14 +64,19 @@ Remaining path (untried by operator choice at 221 close):
 1. Mint an API **write** key on the web dashboard: https://hex.pm/dashboard/keys
    (Hex 2.5 has no CLI key-gen). Grant it API / write permission.
 2. Retire using that key via env override:
-   `HEX_API_KEY=<key> mix hex.retire sigra 1.20.0 invalid --message "Published in error during dev cycle; not a real release — use 1.3.0+"`
+   `HEX_API_KEY=<key> mix hex.retire sigra 1.20.0 invalid --message "Published in error during dev cycle; not a real release — use 1.5.0+"`
 3. Verify: `curl -s https://hex.pm/api/packages/sigra | jq '.latest_stable_version, .retirements'`
-   → `latest_stable_version` should drop to `1.3.0`; `1.20.0` in `retirements`.
+   → `latest_stable_version` should drop to `1.5.0`; `1.20.0` in `retirements`.
 
 Reversible with `mix hex.retire sigra 1.20.0 --unretire` if ever needed.
 
 ## Done when
 
-Hex reports `1.3.0` (not `1.20.0`) as `latest_stable_version` and `~> 1.0`
+Hex reports `1.5.0` (not `1.20.0`) as `latest_stable_version` and `~> 1.0`
 resolves to the real GA. See also the full runbook in
 `milestones/v1.43-phases/214-debt-robustness-clear/214-05-SUMMARY.md`.
+
+
+## Phase 243 status review (2026-09-25)
+
+The [Hex versions page](https://hex.pm/packages/sigra/versions) still lists `1.20.0` above the valid release series, including `1.5.0`. The repo package version is `1.5.0` (`mix.exs`). The registry diagnosis remains open; the success condition and retire message now target `1.5.0`. No Hex mutation was attempted during todo triage.

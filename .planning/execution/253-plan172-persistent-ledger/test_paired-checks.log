@@ -1,0 +1,21 @@
+test_actual_shell_family_startup_rejects_old_approval (__main__.Paired.test_actual_shell_family_startup_rejects_old_approval) ... ok
+test_actual_transport_startup_reaches_missing_approval_without_network (__main__.Paired.test_actual_transport_startup_reaches_missing_approval_without_network) ... ok
+test_consumer_requires_identical_exact_new_freeze (__main__.Paired.test_consumer_requires_identical_exact_new_freeze) ... ok
+test_dispatch_rerun_and_error_always_stop (__main__.Paired.test_dispatch_rerun_and_error_always_stop) ... ok
+test_draft_creation_is_exact_and_once_per_family (__main__.Paired.test_draft_creation_is_exact_and_once_per_family) ... ok
+test_existing_ledgers_or_partial_outputs_reject_before_start (__main__.Paired.test_existing_ledgers_or_partial_outputs_reject_before_start) ... ok
+test_independent_consumer_rejects_missing_real_collection (__main__.Paired.test_independent_consumer_rejects_missing_real_collection) ... ok
+test_independent_consumer_rejects_old_actual_pair (__main__.Paired.test_independent_consumer_rejects_old_actual_pair) ... ok
+test_main_change_and_rate_limit_stop_before_write (__main__.Paired.test_main_change_and_rate_limit_stop_before_write) ... ok
+test_new_approval_exact_scope_hash_expiry (__main__.Paired.test_new_approval_exact_scope_hash_expiry) ... ok
+test_operator_cannot_start_without_new_approval (__main__.Paired.test_operator_cannot_start_without_new_approval) ... ok
+test_paired_action_freeze_has_only_two_prs_and_docs_objects (__main__.Paired.test_paired_action_freeze_has_only_two_prs_and_docs_objects) ... ok
+test_publication_consumer_checks_complete_exact_live_response_bytes (__main__.Paired.test_publication_consumer_checks_complete_exact_live_response_bytes) ... ok
+test_publication_exact_request_and_no_fixture (__main__.Paired.test_publication_exact_request_and_no_fixture) ... ok
+test_publication_requests_fit_real_transport (__main__.Paired.test_publication_requests_fit_real_transport) ... ok
+test_self_check_uses_real_shell_with_network_disabled (__main__.Paired.test_self_check_uses_real_shell_with_network_disabled) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.496s
+
+OK

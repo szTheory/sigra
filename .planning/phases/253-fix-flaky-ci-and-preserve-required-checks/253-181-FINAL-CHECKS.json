@@ -1,0 +1,11 @@
+{
+  "unchanged_old_phase_paths": 948,
+  "verification": "git diff of prior tracked phase paths empty; every prior path exists; exact helper and failure/input hashes match",
+  "plans": 181,
+  "summaries": 100,
+  "only_ready": "253-181",
+  "aligned_route": "$gsd-execute-phase 253 --gaps-only",
+  "new_plan_source_hashes": "exact",
+  "full_state_history_retained": true,
+  "whole_phase_verification": "not_started"
+}

@@ -1,0 +1,11 @@
+{
+  "command": "mix test test/sigra/install/generator_wiring_test.exs --trace --name-pattern anonymous-safety (ExUnit-to-TAP report adapter)",
+  "exitCode": 2,
+  "output": "TAP version 13\n1..1\nnot ok 1 - test confirmation LiveView anonymous safety code and resend events require a signed-in scope and provide a login link\n",
+  "targetTest": "test confirmation LiveView anonymous safety code and resend events require a signed-in scope and provide a login link",
+  "targetFile": "test/sigra/install/generator_wiring_test.exs",
+  "expected": "generated confirmation LiveView guards anonymous code and resend events",
+  "actual": "target test failed because generated template lacks the scope guard",
+  "rawOutputFile": "/private/tmp/sigra-246-01-red-target.log",
+  "semanticAssessment": "Target executed and failed on the planned missing scope-guard assertion; setup and the test module loaded successfully."
+}

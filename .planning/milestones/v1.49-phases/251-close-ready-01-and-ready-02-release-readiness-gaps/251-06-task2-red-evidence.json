@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap --test-name-pattern='refreshed Phase 251 source artifact binds every named package check to trusted source refs' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: the refreshed Phase 251 source artifact binds every named package check to trusted source refs\nnot ok 1 - the refreshed Phase 251 source artifact binds every named package check to trusted source refs\n  ---\n  duration_ms: 1.722042\n  type: 'test'\n  location: '/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs:609:1'\n  failureType: 'testCodeFailure'\n  error: 'package_version source_refs are missing'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: true\n  actual: false\n  operator: '=='\n  stack: |\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs:616:12)\n    async Test.run (node:internal/test_runner/test:1409:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:269:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 40.305667\n",
+  "targetTest": "the refreshed Phase 251 source artifact binds every named package check to trusted source refs",
+  "targetFile": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+  "expected": "all fourteen named package checks include the exact Plan04 source refs and assertions",
+  "actual": "the first check, package_version, has no source_refs",
+  "semanticAssessment": "The target test executed and failed on the planned source-reference assertion. The existing feasibility artifact contains check summaries but does not bind checks to source records."
+}

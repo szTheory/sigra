@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "245-24",
+  "purpose": "Satisfy the exact-current-origin-object prerequisite for gap replanning after the recorded D-06 halt.",
+  "captured_at": "2026-10-01T12:08:31.702Z",
+  "status": "passed",
+  "source": {
+    "remote_ref": "refs/heads/gh-pages",
+    "expected_oid": "4641cff13f410c29976c76713a100457d9dbc888",
+    "expected_tracking_oid_before": "dd671004a276c24fafa8ece80e341706085a999e"
+  },
+  "runtime": {
+    "path": "/usr/bin/git",
+    "version": "git version 2.50.1 (Apple Git-155)",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "fixture_proof": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-22-FETCH-PROOF.json",
+    "sha256": "b1a444a9094f9f42c159ad317cc987fb6a60f08ae56f969437759126e0ddc489",
+    "status": "passed"
+  },
+  "fetch": {
+    "command": "/usr/bin/git -c gc.auto=0 -c maintenance.auto=false fetch --refmap= --no-tags --no-write-fetch-head origin refs/heads/gh-pages",
+    "attempted": true,
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "before": {
+    "remote": {
+      "command": "/usr/bin/git ls-remote --exit-code --refs origin refs/heads/gh-pages",
+      "exit_code": 0,
+      "rows": [
+        {
+          "oid": "4641cff13f410c29976c76713a100457d9dbc888",
+          "ref": "refs/heads/gh-pages"
+        }
+      ],
+      "stderr": ""
+    },
+    "refs": {
+      "exit_code": 0,
+      "sha256": "7b1a05168a050271b9963d60e7fc313dcd39775bf1b791187f3e593376b1d908"
+    },
+    "symbolic_head": {
+      "exit_code": 0,
+      "value": "refs/heads/phase-244-playwright-measurement",
+      "stderr": ""
+    },
+    "fetch_head": {
+      "exit_code": 0,
+      "exists": true,
+      "sha256": "7bf50170805a9ed0c139076fec3465db0cf9f995369314718092a2f64d62a5c1"
+    },
+    "tracking": {
+      "exit_code": 0,
+      "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+      "stderr": ""
+    },
+    "working_tree_and_index": {
+      "exit_code": 0,
+      "sha256": "fa60098fe2fdae082fdb875c7c5746819de4c0cbf439f69671e921599f7864f1"
+    },
+    "target_object": {
+      "readable": false,
+      "exit_code": 1
+    }
+  },
+  "after": {
+    "remote": {
+      "command": "/usr/bin/git ls-remote --exit-code --refs origin refs/heads/gh-pages",
+      "exit_code": 0,
+      "rows": [
+        {
+          "oid": "4641cff13f410c29976c76713a100457d9dbc888",
+          "ref": "refs/heads/gh-pages"
+        }
+      ],
+      "stderr": ""
+    },
+    "refs": {
+      "exit_code": 0,
+      "sha256": "7b1a05168a050271b9963d60e7fc313dcd39775bf1b791187f3e593376b1d908"
+    },
+    "symbolic_head": {
+      "exit_code": 0,
+      "value": "refs/heads/phase-244-playwright-measurement",
+      "stderr": ""
+    },
+    "fetch_head": {
+      "exit_code": 0,
+      "exists": true,
+      "sha256": "7bf50170805a9ed0c139076fec3465db0cf9f995369314718092a2f64d62a5c1"
+    },
+    "tracking": {
+      "exit_code": 0,
+      "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+      "stderr": ""
+    },
+    "working_tree_and_index": {
+      "exit_code": 0,
+      "sha256": "fa60098fe2fdae082fdb875c7c5746819de4c0cbf439f69671e921599f7864f1"
+    },
+    "target_object": {
+      "readable": true,
+      "exit_code": 0
+    },
+    "target_object_type": "commit"
+  },
+  "assertions": {
+    "exact_origin_oid_stable": true,
+    "object_became_readable": true,
+    "full_ref_inventory_unchanged": true,
+    "symbolic_head_unchanged": true,
+    "fetch_head_unchanged": true,
+    "origin_tracking_ref_unchanged": true,
+    "working_tree_and_index_unchanged": true,
+    "no_origin_or_pr_write": true
+  },
+  "failed_predicates": [],
+  "historical_blocked_result": ".planning/phases/245-branch-prune-local-and-remote/245-24-RESULT.json"
+}

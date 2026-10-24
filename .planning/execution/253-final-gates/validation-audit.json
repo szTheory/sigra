@@ -1,0 +1,175 @@
+{
+  "schema": "sigra.phase253.validation-audit/v1",
+  "captured_at": "2026-10-23",
+  "baseline": {
+    "head": "7e6c1b778ffa3456205990284d2da429f8fdd97b",
+    "validation_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VALIDATION.md",
+    "recoverable_at_head": true,
+    "validation_git_blob": "0d0c74a466ce67c28ad2d62ba4e08476e8ee15f7",
+    "validation_sha256": "4c73a831c760ee93078427f9e11fbf878715ad2ef169c3193fd6e5ba078297d0",
+    "hash_correction": "Auditor initially labeled Git blob identity as SHA-256; parent computed SHA-256 directly from the retained commit bytes."
+  },
+  "discovery": {
+    "plans_and_summaries_scanned": true,
+    "superseded_unused_recipes_excluded_as_coverage": true,
+    "halted_attempts_preserved_and_not_replayed": true,
+    "requirements": [
+      "CIREL-01",
+      "CIREL-02"
+    ]
+  },
+  "safe_scope": {
+    "browser_invocations": 0,
+    "app_starts": 0,
+    "database_starts": 0,
+    "ci_launches": 0,
+    "github_requests": 0,
+    "acceptance_budgets_reset": false,
+    "historical_suites_replayed": false
+  },
+  "checks": [
+    {
+      "name": "targeted",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-registration-postfix/review.py"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": 0.07132783299311996
+    },
+    {
+      "name": "integration",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-registration-integration/review.py"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": 0.07202520800638013
+    },
+    {
+      "name": "hosted-canary",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-172-pr341-maintenance/offline-verifier/ci-hosted-gate-verify.py",
+        "--mode",
+        "canary",
+        "--scenario",
+        "matrix",
+        "--evidence",
+        ".planning/execution/253-proof-bundle-a6838a8f9/canary-evidence.json"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": 0.2647687080025207
+    },
+    {
+      "name": "normal-and-docs",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-pr344-closeout/verify.py"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": 0.3561725000035949
+    },
+    {
+      "name": "source-comparison",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-plan172-persistent-ledger/check.py"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": 0.48642370899324305
+    },
+    {
+      "name": "unit-contracts",
+      "command": [
+        "node",
+        "--test",
+        "scripts/ci/ci-registration-control-audit.test.mjs",
+        "scripts/ci/ci-browser-records.test.mjs",
+        "scripts/ci/ci-playwright-report.test.mjs",
+        "scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": 2.1250332499912474
+    },
+    {
+      "name": "configuration-101",
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+        "-e",
+        "ExUnit.start(seed: 101); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": null
+    },
+    {
+      "name": "configuration-202",
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+        "-e",
+        "ExUnit.start(seed: 202); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": null
+    },
+    {
+      "name": "configuration-303",
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+        "-e",
+        "ExUnit.start(seed: 303); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+      ],
+      "exit_code": 0,
+      "recorded_seconds": null
+    },
+    {
+      "name": "replayed_offline_review_checks",
+      "command": [
+        "python3 -B .planning/execution/253-registration-postfix/review.py",
+        "&&",
+        "python3 -B .planning/execution/253-registration-integration/review.py",
+        "&&",
+        "python3 -B .planning/execution/253-172-pr341-maintenance/offline-verifier/ci-hosted-gate-verify.py --mode canary --scenario matrix --evidence .planning/execution/253-proof-bundle-a6838a8f9/canary-evidence.json",
+        "&&",
+        "python3 -B .planning/execution/253-pr344-closeout/verify.py",
+        "&&",
+        "python3 -B .planning/execution/253-plan172-persistent-ledger/check.py",
+        "&&",
+        "node --test scripts/ci/ci-registration-control-audit.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs"
+      ],
+      "exit_code": 0,
+      "result": "all 48 node tests passed; offline review commands exited 0"
+    },
+    {
+      "name": "configuration-randomized-orders",
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir -e ExUnit.start(seed: 101); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")",
+        "same with seed 202",
+        "same with seed 303"
+      ],
+      "exit_code": 0,
+      "result": "3 tests passed for each seed"
+    }
+  ],
+  "findings": [
+    {
+      "requirement": "CIREL-01",
+      "status": "partial",
+      "automated_coverage": "Offline verifier suites cover fixed behavior, controlled counterexample, regression and positive/negative controls. Existing current review evidence records 9 fresh targeted runs and 108 integration passes.",
+      "remaining_gap": "Canonical requirement acceptance remains pending; exact historical hosted timing is inferred. A controlled counterexample using pinned real components reproduces the matching exception, with configuration regression/negative control,9 targeted passes,108 integration passes and22 native controls. The final verifier must assess the requirement without treating a missing historical scheduler trace as a new requirement."
+    },
+    {
+      "requirement": "CIREL-02",
+      "status": "covered_pending_phase_verification",
+      "automated_coverage": "48 deterministic offline contracts, canary verifier matrix, and normal/docs PR closeout/source comparison rechecks pass. Current review records prior actual hosted canary and PR evidence.",
+      "remaining_gap": "No new hosted runs authorized or needed for this audit; whole phase canonical gates/report remain pending."
+    }
+  ],
+  "overall": "No new automated test coverage gap identified. Canonical phase verification independently decides requirement acceptance.",
+  "validation_file_sha256_after_audit": "7a61aff150c68495f6955dde2d43dad091fa2ca198c680108fd2b9031b7c62c3"
+}

@@ -1,0 +1,15 @@
+{
+  "status": "collection_only_not_authorized_for_native_execution",
+  "count": 161,
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "matches_exact_original_global_prefix": true,
+  "omitted_global_predecessors": 0,
+  "new_browser_launches": 0,
+  "new_github_requests": 0,
+  "acceptance": false,
+  "native_operator_prepared": true,
+  "config_sha256": "1f5d0e7cf25bfb2e482d2d368d5af016b2a1b80aacf13ac3b1b4c9c791cc9b5a",
+  "collection_sha256": "b5d6717df7100c81096ababde2aa10c205fa4b2ae46296804cc6c1f3fa47fd57",
+  "next_action": "New explicit approval required: one browser invocation,161 original ordered cases,1200 seconds including cleanup,zero retries,first-failure stop,no GitHub/CI,all old attempts unchanged",
+  "proposal_sha256": "7b37613b8fefd3cc048f5efa4636d45f9b1698378832e5a1233baeb0e6e4be15"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "phase": 249,
+  "plan": "06",
+  "task": 2,
+  "stage": "red",
+  "recorded_at": "2026-10-09T14:50:56.837Z",
+  "command": "node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+  "exit_code": 1,
+  "test_file_sha256": "15cc2f505367a0aa28083b327505c1d39dc77d27853492d7dad96e7033b1895d",
+  "summary": {
+    "tests": 40,
+    "suites": 0,
+    "passed": 39,
+    "failed": 1
+  },
+  "expected_failure": "Final acceptance does not yet require its durable post-merge proof input.",
+  "output_sha256": "4333d1be910d6397c5d476556e6bbbb5df4203e3cab6ff62876283a7655c88cc"
+}

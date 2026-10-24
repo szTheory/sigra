@@ -1,0 +1,218 @@
+{
+  "schema": "sigra.phase253.reloader-fix-offline-result/v1",
+  "recorded_at": "2026-10-22T23:48:41.982195+00:00",
+  "status": "candidate_fix_implemented_offline_checks_passed_runtime_validation_pending",
+  "product_commit": "a876647338095b6d280608cb75bcf886ab1da953",
+  "product_files": {
+    "test/example/config/dev.exs": "8c96253d4b4c2b84f7b8d90949dc592563fb39d00f9b7ea51a4d0bc3144bbba8",
+    "test/sigra/planning/phase_253_ci_static_runtime_test.exs": "611b32baaea8f44f0a5ea2170c6c9b3efe1348fef4415b775f46b448653ad537"
+  },
+  "controlled_component_counterexample": {
+    "original_error_matched": true,
+    "development_with_intervening_reload": "undefined Ecto.Queryable.to_query/1",
+    "actual_CI_config_without_intervening_reload": "passed",
+    "OTP_algorithm_modified": false,
+    "module_name_changed_for_debugger": true,
+    "VM_error_dispatch_replaced": false,
+    "limitation": "direct entry into renamed OTP error handler; original historical interleaving is consistent but untraced"
+  },
+  "configuration_tests": {
+    "tests": 3,
+    "failures": 0,
+    "baseline_assertion_failures": 2,
+    "log": "config-final.log"
+  },
+  "compile": {
+    "command": "CI=true MIX_ENV=dev HEX_OFFLINE=1 mix compile --warnings-as-errors --no-deps-check --no-archives-check",
+    "exit_code": 0,
+    "log": "compile-ci.log"
+  },
+  "compiled_endpoint": {
+    "status": "compiled_ci_endpoint_has_no_reloader",
+    "beam_sha256": "d17e4aa03da59f517a4006876b77b09943528ce965b227271a036239e0bf5a81",
+    "reloader_calls": [],
+    "live_reload_socket": false,
+    "liveview_socket_retained": true,
+    "app_started": false,
+    "browser_invocations": 0,
+    "ci_launches": 0
+  },
+  "experiments": [
+    {
+      "path": "reloader-ci-fix/host-result.json",
+      "exit_code": 0,
+      "kind": "offline_controlled_interleaving_with_actual_config",
+      "duration_seconds": 1.001218500023242,
+      "cleanup_complete": true
+    },
+    {
+      "path": "reloader-consolidated/host-result.json",
+      "exit_code": 1,
+      "kind": "offline_unit_experiment",
+      "duration_seconds": 0.5682231660175603,
+      "cleanup_complete": null
+    },
+    {
+      "path": "reloader-controlled/host-result.json",
+      "exit_code": 1,
+      "kind": "offline_controlled_interleaving",
+      "duration_seconds": 0.6584369589982089,
+      "cleanup_complete": null
+    },
+    {
+      "path": "reloader-function-schedule/host-result.json",
+      "exit_code": 0,
+      "kind": "offline_controlled_interleaving",
+      "duration_seconds": 0.6138821660133544,
+      "cleanup_complete": true
+    },
+    {
+      "path": "reloader-implementation-change/host-result.json",
+      "exit_code": 0,
+      "kind": "offline_unit_experiment",
+      "duration_seconds": 4.832652124983724,
+      "cleanup_complete": null
+    },
+    {
+      "path": "reloader-interleaving/host-result.json",
+      "exit_code": 1,
+      "kind": "offline_controlled_interleaving",
+      "duration_seconds": 0.670312083006138,
+      "cleanup_complete": null
+    },
+    {
+      "path": "reloader-linux/host-result.json",
+      "exit_code": 0,
+      "kind": "offline_unit_experiment",
+      "duration_seconds": 1.6941162919974886,
+      "cleanup_complete": true
+    },
+    {
+      "path": "reloader-schedule-diagnostic/host-result.json",
+      "exit_code": -9,
+      "kind": "offline_controlled_interleaving",
+      "duration_seconds": 15.160329083999386,
+      "cleanup_complete": true
+    },
+    {
+      "path": "reloader-scheduled/host-result.json",
+      "exit_code": -9,
+      "kind": "offline_controlled_interleaving",
+      "duration_seconds": 30.696894874999998,
+      "cleanup_complete": null
+    },
+    {
+      "path": "reloader-traced/host-result.json",
+      "exit_code": 0,
+      "kind": "offline_unit_experiment",
+      "duration_seconds": 1.3714422089979053,
+      "cleanup_complete": null
+    }
+  ],
+  "prior_shared_state": {
+    ".planning/STATE.md": {
+      "commit": "a876647338095b6d280608cb75bcf886ab1da953",
+      "sha256": "e086cd9b39463157881c40709b122f1e387d6ae73aa3f7493c2534c16c41c8d0",
+      "readback_verified": true
+    },
+    ".planning/state.json": {
+      "commit": "a876647338095b6d280608cb75bcf886ab1da953",
+      "sha256": "4621affa739ab6757b00678bdce56bd5e4b3b0fc77292eafe228490016540a5c",
+      "readback_verified": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "a876647338095b6d280608cb75bcf886ab1da953",
+      "sha256": "666c85371f5a045a2114f95baec52269f6d06c9dc5458e7062d527767e88fc54",
+      "readback_verified": true
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "commit": "a876647338095b6d280608cb75bcf886ab1da953",
+      "sha256": "19cd30609c699110ce53d3b2e1407a0b92663c3faa899c5d8a146bfeadb5ff42",
+      "readback_verified": true
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+      "commit": "a876647338095b6d280608cb75bcf886ab1da953",
+      "sha256": "25890e6a15416db16a811088f36d9199fd83e56fc477a2b6e7e6223a34f7e93c",
+      "readback_verified": true
+    }
+  },
+  "initial_session_history_commit": "adcb1de77",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "github_requests": 0,
+  "network_requests": 0,
+  "unit_container_runs": 1,
+  "unit_container_network": "none",
+  "old_slots_reopened": 0,
+  "CIREL_01": "incomplete_post_fix_browser_and_CI_validation_missing",
+  "CIREL_02": "complete_gate_workflow_inputs_unchanged",
+  "phase_complete": false,
+  "required_gate_implementation_files_unchanged": true,
+  "next_command": "$gsd-debug continue phase253-registration-timeout",
+  "next_action": "Prepare a source-pinned post-fix validation bundle offline. Do not execute browsers or CI or reuse closed approvals. A fresh validation scope requires an explicit new decision after the bundle is reviewable.",
+  "sha256": {
+    "evidence.json": "7963256d8f38e974efd6b8e04a255b1e5281a77109c6e28fda2bfc5aa1945450",
+    "purge_probe.exs": "dcd7caa9ec9ed023e7a07e80b1946cda10954e58f102b1781d08079ccd81dabd",
+    "compile-ci.log": "3835b795ad37dbb04b463e38c3efa51d1f29e2b873499e5b683d7444e4892309",
+    "loaded-purge-probe.log": "82e86cdca66995602c2f6b937be5687bcc27df62d05826f8459491d9119b3031",
+    "inspect_compiled_endpoint.exs": "486a6ec0466ee032d34234fef880b4ed49f5dfe38df0f6776bf7dc02524ab720",
+    "reloader_probe.exs": "3b818ed9af0d2d20c2a318cc854081a3385954762cc0a18ba015600c39cee720",
+    "loaded_purge_probe.exs": "3c3d2a4d3042522f63251afb629b34faf55828b1fe35186cee476e81ef0f7f72",
+    "config-final.log": "1dc975fc6d534a1ab778b61352a071a1381ae5e6e875b6abdf9aa433e7064de6",
+    "config-fixture-error.exs": "91a8a9ad0c6e1fd1205b1f1c514a893d69f4e8294df3cdad3da86437aaecc27a",
+    "state-record.json": "c55e9fb51a155af1d9aa4b7fa259679ccbe928da156bf64a330b448fb7491c4a",
+    "interleaving_probe.exs": "0a678ebb3454f9504b2fbbb422f97eadc31809c1d31a1a6e4bf17527ec845aec",
+    "config-fixture-error.log": "fdfa2af3a4cebac145945f21275bf1d6b423ab44058a61f015251de9179f624e",
+    "config-red.log": "b3d0f0d34f750c0f5c5512bf97937e3960302bc24796fe5b1e55824276eb4d69",
+    "purge-probe.log": "9f105eb086f8d70b8d47ac06dffef8fd7d6ae5afeec9768173d8ea23c2ede433",
+    "config-green.log": "a6235b2bdff80cfcb8c75d5e180916e0cc0b3bdc84599a1f62f459873b95d6f7",
+    "compiled-endpoint.log": "c133297e3eb8aa3a7985219596d706199b2381a43e7a13d879b00192d57d6e82",
+    "compiled-endpoint.json": "c8cb726d5c102f8290e7e527caee9f9d3ef5b1d65a55b691b03e2fd0ab0dd1de",
+    "analyze.py": "75ef34cad36eb09a5f1072214403153af9a3b2bfd20c68eb2c2d7313832d282c",
+    "reloader-interleaving/host-result.json": "2d333f1ad40633ef7c0d87ab8196e0e9f40a0efa97452039902fb2f49f5800f2",
+    "reloader-interleaving/executed-interleaving_probe.exs": "c99da8ebeb1e62e5a87f03cf20dca1ea32653b5b39bce69cf94d3cfb59bcabd7",
+    "reloader-interleaving/run.log": "3e578d220f884e2bc2f6153c4de209f915d0f398ff449331236206a1dbb43dab",
+    "reloader-interleaving/executed-reloader_probe.exs": "f0691dfb1ded1b0e68893406e5880429442c5fb73231811161749f83981b70f5",
+    "reloader-ci-fix/host-result.json": "1d1fcc1c7a5d582841d901c6868dc7c17597161c696009d3a04103723b179c23",
+    "reloader-ci-fix/temp-ownership.json": "0c594d6a530285560d3881bee87d0b00948acf022620a7df6e6c01f19b6641d3",
+    "reloader-ci-fix/result.json": "24f4aae5f40eea882e6a5bca9d2c657c9bcb74cd039c745c7d3070c761014f97",
+    "reloader-ci-fix/run.log": "e2051877c54d2e845b8edcd29cd087d139f0701a7d1ea52e794c332d209e93d8",
+    "reloader-scheduled/host-result.json": "d1d761f056629ae20f5f19d7fc2cd0532f15cf977b6c38347a859212227769b2",
+    "reloader-scheduled/executed-interleaving_probe.exs": "dab951edbb6c87cb5bb6b21946c8e4677714bea9ae35cafa145e7d046d06a6ef",
+    "reloader-scheduled/run.log": "9c0a7591840558f36e1867addaae52ca3a60e26f0a92b3e4f214d9dc93bb0a0d",
+    "reloader-scheduled/executed-reloader_probe.exs": "f0691dfb1ded1b0e68893406e5880429442c5fb73231811161749f83981b70f5",
+    "reloader-scheduled/owned-temp-cleanup.json": "a13393238a34b36a7678c048c015875e6cdd88c2ab5e92e80b5df6bc15559f05",
+    "reloader-schedule-diagnostic/host-result.json": "9a2b080e6f5951aebd917cf71461417f2214e1519691b8076fd3c99678f4cd74",
+    "reloader-schedule-diagnostic/executed-interleaving_probe.exs": "d68a547e848e7573e72c2b8395add9791cf1110e9802b91574e781a025cff76f",
+    "reloader-schedule-diagnostic/temp-ownership.json": "acf473969b92984c1acb3d0c9372a8111dfbd43a4c04965f1c61b84299daaa20",
+    "reloader-schedule-diagnostic/run.log": "b122eade5cc71b66f1e271c74b8a240736846c8ee9a2763397168db578f3aebf",
+    "reloader-schedule-diagnostic/executed-reloader_probe.exs": "3b818ed9af0d2d20c2a318cc854081a3385954762cc0a18ba015600c39cee720",
+    "reloader-function-schedule/host-result.json": "d97b278aae47f39786106b4331460e2842f50b0c93d9303e1e526857efd5325c",
+    "reloader-function-schedule/executed-interleaving_probe.exs": "1796456761126809accc55697b20620771ac154c6ca0c859c510170563b140c7",
+    "reloader-function-schedule/temp-ownership.json": "a0c4870758749ca93a06680499bac5e1dce304a6451ab4bdcaaa0e11bbdc3ad2",
+    "reloader-function-schedule/result.json": "f4dea494945873392f04a8a70aed35cb853a2deab82e9ecd6ff6fa4f5a763428",
+    "reloader-function-schedule/run.log": "f6614aa5ba067cb4429f5403f2ee8102b59712aed47d1f4f734335c8584eaf08",
+    "reloader-function-schedule/executed-reloader_probe.exs": "3b818ed9af0d2d20c2a318cc854081a3385954762cc0a18ba015600c39cee720",
+    "reloader-implementation-change/host-result.json": "eb6af4652cd4908b51115f134d1bb35d2877ea3672b904c260b95d1e7acc3520",
+    "reloader-implementation-change/result.json": "7ec51f253f8da88721ba9d4717b242babbb62615e6ca24585fdbf37466b625d8",
+    "reloader-implementation-change/run.log": "e97c1b61e9b501bcee4a28d009cfa4bc85826882af7c72d742ac6504e00ed284",
+    "reloader-implementation-change/executed.exs": "e8b691265b65d33dc2ae61fdc4087e84ebe58b79bb29846a47b923bb2d6f4495",
+    "reloader-traced/host-result.json": "b870abf066413ab71fbfa6ba3a8e1ad4d010c5a4d7367b3c8c47b475421b4e1e",
+    "reloader-traced/result.json": "b0926af5d1597975c17347be91c04527d72aa518d719ac0356dc9cfb774b7bbf",
+    "reloader-traced/run.log": "3d3d11cfc44163e400fa7fa509f18bdac02e7f7afcd21879624fd17e04d957c0",
+    "reloader-traced/executed.exs": "cdc08a878d651cd3b793b46e83c0bfe9171567fd2368e478ec312a9a481439c4",
+    "reloader-consolidated/host-result.json": "f6c59f10cbb3ad7fcbd69d2181c7f673b83034b6b7e73e7b835aecc26f97769d",
+    "reloader-consolidated/run.log": "45b566388e12d4ef885639bbc1560778e222a403a5bedced29bda9f72590a2aa",
+    "reloader-consolidated/executed.exs": "fd9c75f112cecbcd7dd81cce5532f1ae47d3af2d3742a850472fe650d969f43d",
+    "reloader-controlled/host-result.json": "5ad02b8cd2bf4276063fd5e1ceafd4c800d4f390f1c3750b563433470ff0eb76",
+    "reloader-controlled/executed-interleaving_probe.exs": "8134eca4b5191b12affdabe9c529b83983bb696dceb422ea206b3c9e85b1e68b",
+    "reloader-controlled/run.log": "f175c856f091690bbabc466b1a6ebabb1dcf740b5f8f02dd4d70aec95fb4e2c6",
+    "reloader-controlled/executed-reloader_probe.exs": "f0691dfb1ded1b0e68893406e5880429442c5fb73231811161749f83981b70f5",
+    "reloader-linux/host-result.json": "9a62c4666c1682980015489fcf2934804ba4e0be4515373f6c02df24e55103e3",
+    "reloader-linux/result.json": "28aa94066445f9e21f8071d2b58eca905b4cba1ad1a55ed4b4dd1693c2f9c71c",
+    "reloader-linux/run.log": "771fc6b883d8e7301a7026e1f078ed7ae542957032083ab1abf045473637b677",
+    "reloader-linux/cleanup.log": "0d15ef47165acb19335faab26d4b60b6f34e4bc4fd860a5aab328a9b2f71a357",
+    "reloader-linux/executed.exs": "7d7318c1a865ba5a4b4e1843e89aefc23d393e9df97080ea65ed748c7147a073"
+  },
+  "hash_scope": "retained scripts,logs,JSON and unit outputs;current prose and shared handoff are maintained separately"
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:25:23Z",
+  "source_ref": "HEAD",
+  "source_head": "9ccec6c5b89f6417d1c2320603c9efd3be8983a6",
+  "source_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+  "source_sha256": "067372f8fa8fbf25098a1b276db01750763a7f0b95a22e70c6af253a1efcc074",
+  "history_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY-HALTED-HISTORICAL-20261011.md",
+  "history_sha256": "067372f8fa8fbf25098a1b276db01750763a7f0b95a22e70c6af253a1efcc074",
+  "source_status_at_turn_capture": "clean"
+}

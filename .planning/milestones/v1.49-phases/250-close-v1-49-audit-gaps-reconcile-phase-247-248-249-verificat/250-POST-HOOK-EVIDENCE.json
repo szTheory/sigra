@@ -1,0 +1,82 @@
+{
+  "phase": 250,
+  "captured_at": "2026-10-10",
+  "baseline_head": "e1b582f1111d4f2c48166cc7f34b501dec56fb42",
+  "regression_evidence": "250-REGRESSION-EVIDENCE.json",
+  "hooks": {
+    "nyquist_validation": {
+      "active": true,
+      "report": "250-VALIDATION.md",
+      "nyquist_compliant": false,
+      "wave_0_complete": false,
+      "local_canary_fixtures": "34 passed",
+      "local_receipt_fixtures": "15 passed",
+      "local_observer_fixtures": "22 passed",
+      "fresh_verifier_suites": "43/43",
+      "unresolved_external_evidence": [
+        "250-01-03: hosted failure artifact missing; cancellation was not dispatched; authorized retry consumed",
+        "250-05-01: READY-01/02, AUTO-02 and REL-02 remain unsatisfied",
+        "250-04-02: Phase 249 report recheck was blocked because the validated source URL returned HTTP 503",
+        "250 contract TAP wrapper: mix test could not run because the locked Phoenix dependency is out of date; underlying ExUnit contract files passed standalone 7/7",
+        "250-05-03: strict audit correctly reports gaps_found at 5/9"
+      ],
+      "fresh_regression_summary": {"phase250_verifier_tests":"43/43 passed","prior_247_249_tests":"88/88 passed","release_shell_suites":"passed","standalone_exunit":"7/7 passed","report_integrity":{"247":"valid","248":"valid, owner gaps retained","249":"blocked by validated source URL HTTP 503 after one retry"},"traceability_source_audit":"gaps_found 5/9; 31 blockers"},
+      "plan_tasks": {
+        "250-01-01": "pass",
+        "250-01-02": "pass",
+        "250-01-03": "blocked",
+        "250-02-01": "pass",
+        "250-02-02": "pass",
+        "250-03-01": "pass",
+        "250-03-02": "pass",
+        "250-04-01": "pass",
+        "250-04-02": "blocked",
+        "250-05-01": "blocked",
+        "250-05-02": "pass",
+        "250-05-03": "blocked"
+      }
+    },
+    "security": {
+      "active": true,
+      "report": "250-SECURITY.md",
+      "asvs_level": 1,
+      "authored_threats": 16,
+      "accepted_low_risk": "T-250-SC",
+      "status": "verified",
+      "threats_open": 0,
+      "initially_open": ["T-250-06", "T-250-09", "T-250-14"],
+      "fixed_by": ["da7d33053", "e806ccf07", "13d11e69a", "27ddb4ea1", "866dfd735", "d9c74aac0", "698f5d6cc"],
+      "recheck": "250-REVIEW-RECHECK-3.md: 0 findings; focused readiness 14/14, Phase 248 verifier 10/10, traceability 10/10"
+    },
+    "ui_review": {
+      "active": true,
+      "report": "250-UI-REVIEW.md",
+      "status": "not_applicable",
+      "safety_gate": {"frontend": false, "hasUiFiles": false, "hasUiSpec": false, "block": false},
+      "visual_scores": null
+    },
+    "code_review": {
+      "active": true,
+      "depth": "standard",
+      "report": "250-REVIEW.md",
+      "disposition": "250-REVIEW-DISPOSITION.md",
+      "files_reviewed": 18,
+      "findings": {"blocker": 0, "warning": 0, "info": 0, "total": 0},
+      "all_findings_open": false,
+      "disposition_counts": {"fixed": 9, "open": 0},
+      "recheck_report": "250-REVIEW-RECHECK-3.md",
+      "evaluation_scope_initial_files": 10,
+      "broader_review_files": 18,
+      "tests_run_by_reviewer": false
+    }
+  },
+  "owner_requirement_verdicts": {
+    "AUTO-01": "satisfied",
+    "AUTO-02": "unsatisfied",
+    "READY-01": "unsatisfied",
+    "READY-02": "unsatisfied",
+    "REL-01": "satisfied",
+    "REL-02": "unsatisfied"
+  },
+  "scope_note": "No phase completion, release publish, canary dispatch/cancel, source mutation, or requirements update is authorized by this hook record."
+}

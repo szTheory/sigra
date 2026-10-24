@@ -1,0 +1,73 @@
+{
+  "schema_version": "sigra.browser-coverage-source/v1",
+  "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+  "configuration_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+  "lock_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+  "event": "pull_request",
+  "seam": "admin_checkpoints",
+  "owner": "admin_checkpoints",
+  "project_inventory": [
+    "admin-checkpoints-chromium",
+    "admin-checkpoints-dark",
+    "admin-checkpoints-mobile"
+  ],
+  "selected_inventory": [
+    {
+      "id": "[\"admin-checkpoints-chromium\",\"admin-checkpoints.spec.ts\",[\"admin-checkpoints.spec.ts\",\"Phase 31 admin checkpoint inventory (D-28)\"],\"ede6f8f4da51d292f32c-5546087160013a556871\",\"captures curated admin review pages across desktop/mobile/dark\"]",
+      "project": "admin-checkpoints-chromium",
+      "spec": "admin-checkpoints.spec.ts",
+      "title_path": [
+        "admin-checkpoints.spec.ts",
+        "Phase 31 admin checkpoint inventory (D-28)"
+      ],
+      "native_spec_id": "ede6f8f4da51d292f32c-5546087160013a556871",
+      "title": "captures curated admin review pages across desktop/mobile/dark",
+      "owner": "admin_checkpoints",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"admin-checkpoints-dark\",\"admin-checkpoints.spec.ts\",[\"admin-checkpoints.spec.ts\",\"Phase 31 admin checkpoint inventory (D-28)\"],\"ede6f8f4da51d292f32c-636b56bb025a102da9b8\",\"captures curated admin review pages across desktop/mobile/dark\"]",
+      "project": "admin-checkpoints-dark",
+      "spec": "admin-checkpoints.spec.ts",
+      "title_path": [
+        "admin-checkpoints.spec.ts",
+        "Phase 31 admin checkpoint inventory (D-28)"
+      ],
+      "native_spec_id": "ede6f8f4da51d292f32c-636b56bb025a102da9b8",
+      "title": "captures curated admin review pages across desktop/mobile/dark",
+      "owner": "admin_checkpoints",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"admin-checkpoints-mobile\",\"admin-checkpoints.spec.ts\",[\"admin-checkpoints.spec.ts\",\"Phase 31 admin checkpoint inventory (D-28)\"],\"ede6f8f4da51d292f32c-991156e19ad5ba8a8814\",\"captures curated admin review pages across desktop/mobile/dark\"]",
+      "project": "admin-checkpoints-mobile",
+      "spec": "admin-checkpoints.spec.ts",
+      "title_path": [
+        "admin-checkpoints.spec.ts",
+        "Phase 31 admin checkpoint inventory (D-28)"
+      ],
+      "native_spec_id": "ede6f8f4da51d292f32c-991156e19ad5ba8a8814",
+      "title": "captures curated admin review pages across desktop/mobile/dark",
+      "owner": "admin_checkpoints",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    }
+  ],
+  "excluded_inventory": [],
+  "skip_policies": [],
+  "reports": [
+    {
+      "path": "admin-checkpoints.json",
+      "selection_path": "admin-checkpoints.selection.json",
+      "sha256": "77b16b60c57a3dd9b18fedef20f4f103f6367e84e014af05ba5ad9f16511fbea",
+      "selection_sha256": "ed20fe66ad5000f66d14618219210d44348718b52e0c702472dd5636acba36be",
+      "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+    }
+  ]
+}

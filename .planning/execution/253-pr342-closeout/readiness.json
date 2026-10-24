@@ -1,0 +1,802 @@
+{
+  "executor_model": "gpt-6-luna",
+  "verifier_model": "gpt-6-luna",
+  "tdd_mode": false,
+  "commit_docs": true,
+  "sub_repos": [],
+  "parallelization": true,
+  "context_window": 200000,
+  "branching_strategy": "none",
+  "phase_branch_template": "gsd/phase-{phase}-{slug}",
+  "milestone_branch_template": "gsd/{milestone}-{slug}",
+  "verifier_enabled": true,
+  "phase_found": true,
+  "phase_dir": "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+  "phase_number": "253",
+  "padded_phase": "253",
+  "phase_name": "Fix Flaky CI and Preserve Required Checks",
+  "phase_slug": "fix-flaky-ci-and-preserve-required-checks",
+  "phase_req_ids": "CIREL-01, CIREL-02",
+  "plans": [
+    "253-01-PLAN.md",
+    "253-02-PLAN.md",
+    "253-03-PLAN.md",
+    "253-04-PLAN.md",
+    "253-05-PLAN.md",
+    "253-06-PLAN.md",
+    "253-07-PLAN.md",
+    "253-08-PLAN.md",
+    "253-09-PLAN.md",
+    "253-10-PLAN.md",
+    "253-100-PLAN.md",
+    "253-101-PLAN.md",
+    "253-102-PLAN.md",
+    "253-103-PLAN.md",
+    "253-104-PLAN.md",
+    "253-105-PLAN.md",
+    "253-106-PLAN.md",
+    "253-107-PLAN.md",
+    "253-108-PLAN.md",
+    "253-109-PLAN.md",
+    "253-11-PLAN.md",
+    "253-110-PLAN.md",
+    "253-111-PLAN.md",
+    "253-112-PLAN.md",
+    "253-113-PLAN.md",
+    "253-114-PLAN.md",
+    "253-115-PLAN.md",
+    "253-116-PLAN.md",
+    "253-117-PLAN.md",
+    "253-118-PLAN.md",
+    "253-119-PLAN.md",
+    "253-12-PLAN.md",
+    "253-120-PLAN.md",
+    "253-121-PLAN.md",
+    "253-122-PLAN.md",
+    "253-123-PLAN.md",
+    "253-124-PLAN.md",
+    "253-125-PLAN.md",
+    "253-126-PLAN.md",
+    "253-127-PLAN.md",
+    "253-128-PLAN.md",
+    "253-129-PLAN.md",
+    "253-13-PLAN.md",
+    "253-130-PLAN.md",
+    "253-131-PLAN.md",
+    "253-132-PLAN.md",
+    "253-133-PLAN.md",
+    "253-134-PLAN.md",
+    "253-135-PLAN.md",
+    "253-136-PLAN.md",
+    "253-137-PLAN.md",
+    "253-138-PLAN.md",
+    "253-139-PLAN.md",
+    "253-14-PLAN.md",
+    "253-140-PLAN.md",
+    "253-141-PLAN.md",
+    "253-142-PLAN.md",
+    "253-143-PLAN.md",
+    "253-144-PLAN.md",
+    "253-145-PLAN.md",
+    "253-146-PLAN.md",
+    "253-147-PLAN.md",
+    "253-148-PLAN.md",
+    "253-149-PLAN.md",
+    "253-15-PLAN.md",
+    "253-150-PLAN.md",
+    "253-151-PLAN.md",
+    "253-152-PLAN.md",
+    "253-153-PLAN.md",
+    "253-154-PLAN.md",
+    "253-155-PLAN.md",
+    "253-156-PLAN.md",
+    "253-157-PLAN.md",
+    "253-158-PLAN.md",
+    "253-159-PLAN.md",
+    "253-16-PLAN.md",
+    "253-160-PLAN.md",
+    "253-161-PLAN.md",
+    "253-162-PLAN.md",
+    "253-163-PLAN.md",
+    "253-164-PLAN.md",
+    "253-165-PLAN.md",
+    "253-166-PLAN.md",
+    "253-167-PLAN.md",
+    "253-168-PLAN.md",
+    "253-169-PLAN.md",
+    "253-17-PLAN.md",
+    "253-170-PLAN.md",
+    "253-171-PLAN.md",
+    "253-172-PLAN.md",
+    "253-173-PLAN.md",
+    "253-174-PLAN.md",
+    "253-175-PLAN.md",
+    "253-176-PLAN.md",
+    "253-177-PLAN.md",
+    "253-178-PLAN.md",
+    "253-179-PLAN.md",
+    "253-18-PLAN.md",
+    "253-180-PLAN.md",
+    "253-181-PLAN.md",
+    "253-182-PLAN.md",
+    "253-183-PLAN.md",
+    "253-19-PLAN.md",
+    "253-20-PLAN.md",
+    "253-21-PLAN.md",
+    "253-22-PLAN.md",
+    "253-23-PLAN.md",
+    "253-24-PLAN.md",
+    "253-25-PLAN.md",
+    "253-26-PLAN.md",
+    "253-27-PLAN.md",
+    "253-28-PLAN.md",
+    "253-29-PLAN.md",
+    "253-30-PLAN.md",
+    "253-31-PLAN.md",
+    "253-32-PLAN.md",
+    "253-33-PLAN.md",
+    "253-34-PLAN.md",
+    "253-35-PLAN.md",
+    "253-36-PLAN.md",
+    "253-37-PLAN.md",
+    "253-38-PLAN.md",
+    "253-39-PLAN.md",
+    "253-40-PLAN.md",
+    "253-41-PLAN.md",
+    "253-42-PLAN.md",
+    "253-43-PLAN.md",
+    "253-44-PLAN.md",
+    "253-45-PLAN.md",
+    "253-46-PLAN.md",
+    "253-47-PLAN.md",
+    "253-48-PLAN.md",
+    "253-49-PLAN.md",
+    "253-50-PLAN.md",
+    "253-51-PLAN.md",
+    "253-52-PLAN.md",
+    "253-53-PLAN.md",
+    "253-54-PLAN.md",
+    "253-55-PLAN.md",
+    "253-56-PLAN.md",
+    "253-57-PLAN.md",
+    "253-58-PLAN.md",
+    "253-59-PLAN.md",
+    "253-60-PLAN.md",
+    "253-61-PLAN.md",
+    "253-62-PLAN.md",
+    "253-63-PLAN.md",
+    "253-64-PLAN.md",
+    "253-65-PLAN.md",
+    "253-66-PLAN.md",
+    "253-67-PLAN.md",
+    "253-68-PLAN.md",
+    "253-69-PLAN.md",
+    "253-70-PLAN.md",
+    "253-71-PLAN.md",
+    "253-72-PLAN.md",
+    "253-73-PLAN.md",
+    "253-74-PLAN.md",
+    "253-75-PLAN.md",
+    "253-76-PLAN.md",
+    "253-77-PLAN.md",
+    "253-78-PLAN.md",
+    "253-79-PLAN.md",
+    "253-80-PLAN.md",
+    "253-81-PLAN.md",
+    "253-82-PLAN.md",
+    "253-83-PLAN.md",
+    "253-84-PLAN.md",
+    "253-85-PLAN.md",
+    "253-86-PLAN.md",
+    "253-87-PLAN.md",
+    "253-88-PLAN.md",
+    "253-89-PLAN.md",
+    "253-90-PLAN.md",
+    "253-91-PLAN.md",
+    "253-92-PLAN.md",
+    "253-93-PLAN.md",
+    "253-94-PLAN.md",
+    "253-95-PLAN.md",
+    "253-96-PLAN.md",
+    "253-97-PLAN.md",
+    "253-98-PLAN.md",
+    "253-99-PLAN.md"
+  ],
+  "summaries": [
+    "253-01-SUMMARY.md",
+    "253-02-SUMMARY.md",
+    "253-03-SUMMARY.md",
+    "253-04-SUMMARY.md",
+    "253-05-SUMMARY.md",
+    "253-06-SUMMARY.md",
+    "253-07-SUMMARY.md",
+    "253-09-SUMMARY.md",
+    "253-100-SUMMARY.md",
+    "253-101-SUMMARY.md",
+    "253-102-SUMMARY.md",
+    "253-103-SUMMARY.md",
+    "253-104-SUMMARY.md",
+    "253-107-SUMMARY.md",
+    "253-108-SUMMARY.md",
+    "253-109-SUMMARY.md",
+    "253-11-SUMMARY.md",
+    "253-110-SUMMARY.md",
+    "253-111-SUMMARY.md",
+    "253-112-SUMMARY.md",
+    "253-113-SUMMARY.md",
+    "253-116-SUMMARY.md",
+    "253-117-SUMMARY.md",
+    "253-118-SUMMARY.md",
+    "253-119-SUMMARY.md",
+    "253-12-SUMMARY.md",
+    "253-120-SUMMARY.md",
+    "253-121-SUMMARY.md",
+    "253-122-SUMMARY.md",
+    "253-125-SUMMARY.md",
+    "253-126-SUMMARY.md",
+    "253-127-SUMMARY.md",
+    "253-128-SUMMARY.md",
+    "253-129-SUMMARY.md",
+    "253-130-SUMMARY.md",
+    "253-131-SUMMARY.md",
+    "253-132-SUMMARY.md",
+    "253-133-SUMMARY.md",
+    "253-134-SUMMARY.md",
+    "253-136-SUMMARY.md",
+    "253-137-SUMMARY.md",
+    "253-138-SUMMARY.md",
+    "253-139-SUMMARY.md",
+    "253-140-SUMMARY.md",
+    "253-141-SUMMARY.md",
+    "253-142-SUMMARY.md",
+    "253-143-SUMMARY.md",
+    "253-146-SUMMARY.md",
+    "253-15-SUMMARY.md",
+    "253-155-SUMMARY.md",
+    "253-16-SUMMARY.md",
+    "253-164-SUMMARY.md",
+    "253-165-SUMMARY.md",
+    "253-166-SUMMARY.md",
+    "253-167-SUMMARY.md",
+    "253-168-SUMMARY.md",
+    "253-169-SUMMARY.md",
+    "253-170-SUMMARY.md",
+    "253-171-SUMMARY.md",
+    "253-173-SUMMARY.md",
+    "253-174-SUMMARY.md",
+    "253-175-SUMMARY.md",
+    "253-178-SUMMARY.md",
+    "253-179-SUMMARY.md",
+    "253-18-SUMMARY.md",
+    "253-180-SUMMARY.md",
+    "253-181-SUMMARY.md",
+    "253-182-SUMMARY.md",
+    "253-183-SUMMARY.md",
+    "253-19-SUMMARY.md",
+    "253-20-SUMMARY.md",
+    "253-26-SUMMARY.md",
+    "253-27-SUMMARY.md",
+    "253-36-SUMMARY.md",
+    "253-37-SUMMARY.md",
+    "253-38-SUMMARY.md",
+    "253-39-SUMMARY.md",
+    "253-40-SUMMARY.md",
+    "253-42-SUMMARY.md",
+    "253-43-SUMMARY.md",
+    "253-48-SUMMARY.md",
+    "253-49-SUMMARY.md",
+    "253-50-SUMMARY.md",
+    "253-51-SUMMARY.md",
+    "253-57-SUMMARY.md",
+    "253-58-SUMMARY.md",
+    "253-59-SUMMARY.md",
+    "253-60-SUMMARY.md",
+    "253-61-SUMMARY.md",
+    "253-62-SUMMARY.md",
+    "253-63-SUMMARY.md",
+    "253-69-SUMMARY.md",
+    "253-70-SUMMARY.md",
+    "253-71-SUMMARY.md",
+    "253-72-SUMMARY.md",
+    "253-73-SUMMARY.md",
+    "253-79-SUMMARY.md",
+    "253-80-SUMMARY.md",
+    "253-81-SUMMARY.md",
+    "253-82-SUMMARY.md",
+    "253-83-SUMMARY.md",
+    "253-84-SUMMARY.md",
+    "253-89-SUMMARY.md",
+    "253-90-SUMMARY.md",
+    "253-91-SUMMARY.md",
+    "253-92-SUMMARY.md",
+    "253-95-SUMMARY.md",
+    "253-96-SUMMARY.md",
+    "253-97-SUMMARY.md"
+  ],
+  "incomplete_plans": [
+    "253-08-PLAN.md",
+    "253-10-PLAN.md",
+    "253-105-PLAN.md",
+    "253-106-PLAN.md",
+    "253-114-PLAN.md",
+    "253-115-PLAN.md",
+    "253-123-PLAN.md",
+    "253-124-PLAN.md",
+    "253-13-PLAN.md",
+    "253-135-PLAN.md",
+    "253-14-PLAN.md",
+    "253-144-PLAN.md",
+    "253-145-PLAN.md",
+    "253-147-PLAN.md",
+    "253-148-PLAN.md",
+    "253-149-PLAN.md",
+    "253-150-PLAN.md",
+    "253-151-PLAN.md",
+    "253-152-PLAN.md",
+    "253-153-PLAN.md",
+    "253-154-PLAN.md",
+    "253-156-PLAN.md",
+    "253-157-PLAN.md",
+    "253-158-PLAN.md",
+    "253-159-PLAN.md",
+    "253-160-PLAN.md",
+    "253-161-PLAN.md",
+    "253-162-PLAN.md",
+    "253-163-PLAN.md",
+    "253-17-PLAN.md",
+    "253-172-PLAN.md",
+    "253-176-PLAN.md",
+    "253-177-PLAN.md",
+    "253-21-PLAN.md",
+    "253-22-PLAN.md",
+    "253-23-PLAN.md",
+    "253-24-PLAN.md",
+    "253-25-PLAN.md",
+    "253-28-PLAN.md",
+    "253-29-PLAN.md",
+    "253-30-PLAN.md",
+    "253-31-PLAN.md",
+    "253-32-PLAN.md",
+    "253-33-PLAN.md",
+    "253-34-PLAN.md",
+    "253-35-PLAN.md",
+    "253-41-PLAN.md",
+    "253-44-PLAN.md",
+    "253-45-PLAN.md",
+    "253-46-PLAN.md",
+    "253-47-PLAN.md",
+    "253-52-PLAN.md",
+    "253-53-PLAN.md",
+    "253-54-PLAN.md",
+    "253-55-PLAN.md",
+    "253-56-PLAN.md",
+    "253-64-PLAN.md",
+    "253-65-PLAN.md",
+    "253-66-PLAN.md",
+    "253-67-PLAN.md",
+    "253-68-PLAN.md",
+    "253-74-PLAN.md",
+    "253-75-PLAN.md",
+    "253-76-PLAN.md",
+    "253-77-PLAN.md",
+    "253-78-PLAN.md",
+    "253-85-PLAN.md",
+    "253-86-PLAN.md",
+    "253-87-PLAN.md",
+    "253-88-PLAN.md",
+    "253-93-PLAN.md",
+    "253-94-PLAN.md",
+    "253-98-PLAN.md",
+    "253-99-PLAN.md"
+  ],
+  "plan_count": 183,
+  "incomplete_count": 74,
+  "threat_id_duplicates": [],
+  "threat_id_duplicate_count": 0,
+  "halted_plans": [
+    "253-02-PLAN.md",
+    "253-07-PLAN.md",
+    "253-09-PLAN.md",
+    "253-104-PLAN.md",
+    "253-113-PLAN.md",
+    "253-12-PLAN.md",
+    "253-122-PLAN.md",
+    "253-134-PLAN.md",
+    "253-143-PLAN.md",
+    "253-146-PLAN.md",
+    "253-155-PLAN.md",
+    "253-16-PLAN.md",
+    "253-167-PLAN.md",
+    "253-171-PLAN.md",
+    "253-173-PLAN.md",
+    "253-174-PLAN.md",
+    "253-175-PLAN.md",
+    "253-178-PLAN.md",
+    "253-181-PLAN.md",
+    "253-182-PLAN.md",
+    "253-183-PLAN.md",
+    "253-27-PLAN.md",
+    "253-40-PLAN.md",
+    "253-51-PLAN.md",
+    "253-63-PLAN.md",
+    "253-73-PLAN.md",
+    "253-84-PLAN.md",
+    "253-92-PLAN.md",
+    "253-97-PLAN.md"
+  ],
+  "blocked_by": {
+    "253-08-PLAN.md": [
+      "253-02",
+      "253-07"
+    ],
+    "253-10-PLAN.md": [
+      "253-09"
+    ],
+    "253-105-PLAN.md": [
+      "253-104",
+      "253-84",
+      "253-92"
+    ],
+    "253-106-PLAN.md": [
+      "253-104",
+      "253-84",
+      "253-92"
+    ],
+    "253-114-PLAN.md": [
+      "253-113",
+      "253-84",
+      "253-92"
+    ],
+    "253-115-PLAN.md": [
+      "253-113",
+      "253-84",
+      "253-92"
+    ],
+    "253-123-PLAN.md": [
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-124-PLAN.md": [
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-13-PLAN.md": [
+      "253-09",
+      "253-12"
+    ],
+    "253-135-PLAN.md": [
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-14-PLAN.md": [
+      "253-09",
+      "253-12"
+    ],
+    "253-144-PLAN.md": [
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-145-PLAN.md": [
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-147-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-148-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-149-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-150-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-151-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-152-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-153-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-154-PLAN.md": [
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-156-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-157-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-158-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-159-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-160-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-161-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-162-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-163-PLAN.md": [
+      "253-155",
+      "253-146",
+      "253-143",
+      "253-134",
+      "253-122",
+      "253-84",
+      "253-92"
+    ],
+    "253-17-PLAN.md": [
+      "253-16"
+    ],
+    "253-176-PLAN.md": [
+      "253-175"
+    ],
+    "253-177-PLAN.md": [
+      "253-175"
+    ],
+    "253-21-PLAN.md": [
+      "253-16"
+    ],
+    "253-22-PLAN.md": [
+      "253-16"
+    ],
+    "253-23-PLAN.md": [
+      "253-16"
+    ],
+    "253-24-PLAN.md": [
+      "253-16"
+    ],
+    "253-25-PLAN.md": [
+      "253-16"
+    ],
+    "253-28-PLAN.md": [
+      "253-27"
+    ],
+    "253-29-PLAN.md": [
+      "253-27"
+    ],
+    "253-30-PLAN.md": [
+      "253-27"
+    ],
+    "253-31-PLAN.md": [
+      "253-27"
+    ],
+    "253-32-PLAN.md": [
+      "253-27"
+    ],
+    "253-33-PLAN.md": [
+      "253-27"
+    ],
+    "253-34-PLAN.md": [
+      "253-27"
+    ],
+    "253-35-PLAN.md": [
+      "253-27"
+    ],
+    "253-41-PLAN.md": [
+      "253-40"
+    ],
+    "253-44-PLAN.md": [
+      "253-40"
+    ],
+    "253-45-PLAN.md": [
+      "253-40"
+    ],
+    "253-46-PLAN.md": [
+      "253-40"
+    ],
+    "253-47-PLAN.md": [
+      "253-40"
+    ],
+    "253-52-PLAN.md": [
+      "253-51"
+    ],
+    "253-53-PLAN.md": [
+      "253-51"
+    ],
+    "253-54-PLAN.md": [
+      "253-51"
+    ],
+    "253-55-PLAN.md": [
+      "253-51"
+    ],
+    "253-56-PLAN.md": [
+      "253-51"
+    ],
+    "253-64-PLAN.md": [
+      "253-63"
+    ],
+    "253-65-PLAN.md": [
+      "253-63"
+    ],
+    "253-66-PLAN.md": [
+      "253-63"
+    ],
+    "253-67-PLAN.md": [
+      "253-63"
+    ],
+    "253-68-PLAN.md": [
+      "253-63"
+    ],
+    "253-74-PLAN.md": [
+      "253-73"
+    ],
+    "253-75-PLAN.md": [
+      "253-73"
+    ],
+    "253-76-PLAN.md": [
+      "253-73"
+    ],
+    "253-77-PLAN.md": [
+      "253-73"
+    ],
+    "253-78-PLAN.md": [
+      "253-73"
+    ],
+    "253-85-PLAN.md": [
+      "253-84"
+    ],
+    "253-86-PLAN.md": [
+      "253-84"
+    ],
+    "253-87-PLAN.md": [
+      "253-84"
+    ],
+    "253-88-PLAN.md": [
+      "253-84"
+    ],
+    "253-93-PLAN.md": [
+      "253-92",
+      "253-84"
+    ],
+    "253-94-PLAN.md": [
+      "253-92",
+      "253-84"
+    ],
+    "253-98-PLAN.md": [
+      "253-97",
+      "253-84",
+      "253-92"
+    ],
+    "253-99-PLAN.md": [
+      "253-97",
+      "253-84",
+      "253-92"
+    ]
+  },
+  "runnable_plans": [
+    "253-172-PLAN.md"
+  ],
+  "runnable_count": 1,
+  "branch_name": null,
+  "milestone_version": "v1.50",
+  "milestone_name": "CI-SPEED-AND-RELIABILITY",
+  "milestone_slug": "ci-speed-and-reliability",
+  "state_exists": true,
+  "roadmap_exists": true,
+  "config_exists": true,
+  "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+  "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+  "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+  "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+  "section_manifest": {
+    "workflow": "execute-phase",
+    "included": [
+      "regression-gate"
+    ],
+    "excluded": [
+      "partial-wave",
+      "gap-closure-artifacts"
+    ],
+    "read": [
+      "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+    ]
+  },
+  "project_root": "/Users/jon/projects/sigra",
+  "agents_installed": true,
+  "missing_agents": [],
+  "agents_dir": "/Users/jon/.codex/agents",
+  "agent_runtime": "codex",
+  "project_title": "Sigra"
+}

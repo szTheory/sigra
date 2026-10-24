@@ -1,0 +1,90 @@
+Refreshing run status every 60 seconds. Press Ctrl+C to quit.
+
+* gsd/253-replan-proof-5e13621e5-candidate CI szTheory/sigra#343 · 39815188159
+Triggered via pull_request about 3 minutes ago
+
+JOBS
+* Release ref guard (ID 119951776307)
+* Fast checks (milestone/installer/contracts/snapshot/ledger guards) (ID 119951776556)
+* Detect docs-only change (ID 119951776741)
+- Install matrix (flag combinations) in 0s (ID 119951778322)
+- Passkeys opt-out smoke in 0s (ID 119951778495)
+- Passkeys manual fallback smoke in 0s (ID 119951778715)
+- Nightly probe (forced-failure self-test) in 0s (ID 119951778876)
+* Install golden + idempotency contract (subprocess harness) (ID 119951811382)
+* Library tests shard (ID 119951811516)
+* Generated admin Playwright smoke (ID 119951811630)
+- Upgrade smoke (published source series -> local candidate) in 0s (ID 119951813857)
+- Recapture admin-design baselines (in-CI) in 0s (ID 119951813921)
+- Recapture admin-checkpoint baselines (in-CI) in 0s (ID 119951814314)
+- Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate) in 0s (ID 119951814472)
+* Example Playwright shard (non_admin_smoke) (ID 119951868222)
+* Example Playwright shard (design_gallery) (ID 119951868234)
+* Example Playwright shard (admin_behavior) (ID 119951868275)
+* Example Playwright shard (demo_showcase) (ID 119951868318)
+* Example unit smoke (ExUnit + ConnTest) (ID 119951868329)
+* Example HTTP smoke (boot + curl critical routes) (ID 119951868365)
+* Example Playwright shard (admin_checkpoints) (ID 119951868377)
+* Library tests (dep-off — Threadline absent) (ID 119951868450)
+* Install smoke (fresh phx.new + sigra.install) (ID 119951868648)
+* Library tests (ID 119952595078)
+Refreshing run status every 60 seconds. Press Ctrl+C to quit.
+
+* gsd/253-replan-proof-5e13621e5-candidate CI szTheory/sigra#343 · 39815188159
+Triggered via pull_request about 4 minutes ago
+
+JOBS
+* Release ref guard (ID 119951776307)
+* Fast checks (milestone/installer/contracts/snapshot/ledger guards) (ID 119951776556)
+* Detect docs-only change (ID 119951776741)
+- Install matrix (flag combinations) in 0s (ID 119951778322)
+- Passkeys opt-out smoke in 0s (ID 119951778495)
+- Passkeys manual fallback smoke in 0s (ID 119951778715)
+- Nightly probe (forced-failure self-test) in 0s (ID 119951778876)
+* Install golden + idempotency contract (subprocess harness) (ID 119951811382)
+* Library tests shard (ID 119951811516)
+* Generated admin Playwright smoke (ID 119951811630)
+- Upgrade smoke (published source series -> local candidate) in 0s (ID 119951813857)
+- Recapture admin-design baselines (in-CI) in 0s (ID 119951813921)
+- Recapture admin-checkpoint baselines (in-CI) in 0s (ID 119951814314)
+- Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate) in 0s (ID 119951814472)
+* Example Playwright shard (non_admin_smoke) (ID 119951868222)
+* Example Playwright shard (design_gallery) (ID 119951868234)
+* Example Playwright shard (admin_behavior) (ID 119951868275)
+* Example Playwright shard (demo_showcase) (ID 119951868318)
+* Example unit smoke (ExUnit + ConnTest) (ID 119951868329)
+* Example HTTP smoke (boot + curl critical routes) (ID 119951868365)
+* Example Playwright shard (admin_checkpoints) (ID 119951868377)
+* Library tests (dep-off — Threadline absent) (ID 119951868450)
+* Install smoke (fresh phx.new + sigra.install) (ID 119951868648)
+* Library tests (ID 119952595078)
+Refreshing run status every 60 seconds. Press Ctrl+C to quit.
+
+* gsd/253-replan-proof-5e13621e5-candidate CI szTheory/sigra#343 · 39815188159
+Triggered via pull_request about 5 minutes ago
+
+JOBS
+* Release ref guard (ID 119951776307)
+* Fast checks (milestone/installer/contracts/snapshot/ledger guards) (ID 119951776556)
+* Detect docs-only change (ID 119951776741)
+- Install matrix (flag combinations) in 0s (ID 119951778322)
+- Passkeys opt-out smoke in 0s (ID 119951778495)
+- Passkeys manual fallback smoke in 0s (ID 119951778715)
+- Nightly probe (forced-failure self-test) in 0s (ID 119951778876)
+* Install golden + idempotency contract (subprocess harness) (ID 119951811382)
+* Library tests shard (ID 119951811516)
+* Generated admin Playwright smoke (ID 119951811630)
+- Upgrade smoke (published source series -> local candidate) in 0s (ID 119951813857)
+- Recapture admin-design baselines (in-CI) in 0s (ID 119951813921)
+- Recapture admin-checkpoint baselines (in-CI) in 0s (ID 119951814314)
+- Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate) in 0s (ID 119951814472)
+* Example Playwright shard (non_admin_smoke) (ID 119951868222)
+* Example Playwright shard (design_gallery) (ID 119951868234)
+* Example Playwright shard (admin_behavior) (ID 119951868275)
+* Example Playwright shard (demo_showcase) (ID 119951868318)
+* Example unit smoke (ExUnit + ConnTest) (ID 119951868329)
+* Example HTTP smoke (boot + curl critical routes) (ID 119951868365)
+* Example Playwright shard (admin_checkpoints) (ID 119951868377)
+* Library tests (dep-off — Threadline absent) (ID 119951868450)
+* Install smoke (fresh phx.new + sigra.install) (ID 119951868648)
+* Library tests (ID 119952595078)

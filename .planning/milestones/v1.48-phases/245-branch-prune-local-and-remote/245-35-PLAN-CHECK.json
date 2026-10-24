@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "scope": [
+    "245-35-PLAN.md",
+    "245-36-PLAN.md"
+  ],
+  "verdict": "passed",
+  "issues": [],
+  "input_sha256": {
+    "245-35-PLANNING-PREFLIGHT.json": "f68ce504c407be5b0408d21a53283e24cd297c332297e013c4dbfed92042988b",
+    "245-35-PLAN.md": "c109816a8990572487752a09f3c22ba5ad2bba43e98f8bc863d0bdbb44304bfb",
+    "245-36-PLAN.md": "ff6010203a93f4a60bb4d2b66373d56f14f7d55c03b1f04b14a0bfd2067e4944"
+  },
+  "evidence": {
+    "structure": "Planner-supplied frontmatter.validate and verify.plan-structure passed both plans; each has three tasks with complete required fields.",
+    "source_reasoning": "Read phase requirement REPO-04, D-01 through D-07, planning preflight, blocked Plan 30 summary, Plan 18 contract shape, source-only fetch helper, current-contract capture and verification helper, prune operator, research responsibility map and pattern map. Plan 35 has a fresh source and approval gate for exactly four OIDs; Plan 36 has a new committed current-source contract, exact-row approval, guarded mutation and independent post-state. Historical unknowns remain unresolved and REPO-04 remains open until passed execution.",
+    "supplied_path_probe": "Four new-plan verify commands were not_applicable to the path probe; no path issue was reported. This does not validate shell semantics.",
+    "supplied_failing_direction_probe": "All four new-plan runnable automated commands returned ok, severity none.",
+    "estimate_check": "Plan 35: 16000/100000 tokens; Plan 36: 28000/100000 tokens; neither over budget. Both estimates have low confidence and zero calibration samples.",
+    "tests_run": [],
+    "production_mutations_run": false
+  },
+  "orchestrator_validation": {
+    "frontmatter_schema": "plan-gap-closure",
+    "frontmatter_valid": [
+      35,
+      36
+    ],
+    "structure": {
+      "valid": [
+        35,
+        36
+      ],
+      "tasks_per_plan": 3,
+      "errors": 0,
+      "warnings": 0
+    },
+    "decision_coverage": {
+      "covered": 7,
+      "total": 7
+    },
+    "post_planning_coverage": {
+      "covered": 8,
+      "total": 8,
+      "block": false
+    },
+    "init_execute_incomplete_plans": [
+      "245-35-PLAN.md",
+      "245-36-PLAN.md"
+    ],
+    "effective_waves": {
+      "245-35": 3,
+      "245-36": 4
+    },
+    "phase_complete": false,
+    "repo_04_complete": false
+  }
+}

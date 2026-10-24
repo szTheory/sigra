@@ -1,0 +1,15 @@
+{
+  "schema": "sigra.phase253.actual-requirements/v1",
+  "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
+  "attempt": ".planning/execution/253-proof-bundle-4734916ee/attempt-result.json",
+  "attempt_sha256": "148210e1df2a33bf36a2a4a54d3e27880fff9f9916610748a492d70792a4047c",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "canary": "all six hosted cases and independent verifier passed",
+  "normal": "actual CI failed; independent verifier rejects missing fresh preflight",
+  "docs_only": "not created",
+  "original_selected_failure_reproduced": false,
+  "phase_verification_status": "not_started"
+}

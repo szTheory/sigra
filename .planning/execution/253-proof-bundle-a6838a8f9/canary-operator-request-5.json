@@ -1,0 +1,8 @@
+{
+  "method": "GET",
+  "route_id": "get_ref",
+  "category": "preflight",
+  "params": {
+    "branch": "gsd/253-replan-proof-a6838a8f9-docs-head"
+  }
+}

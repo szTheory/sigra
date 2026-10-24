@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "18",
+  "captured_at_utc": "2026-09-29T23:53:41Z",
+  "repository": {
+    "name_with_owner": "szTheory/sigra",
+    "url": "https://github.com/szTheory/sigra",
+    "checkout_root": "/Users/jon/projects/sigra",
+    "checkout_head": "0dd5d17954a5e824b86fde1038cd34b177867269",
+    "path_git_version": "git version 2.41.0"
+  },
+  "local_current_sources": {
+    "coherent_commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+    "required_source_count": 9,
+    "committed_source_count": 9,
+    "sources": [
+      {
+        "path": ".planning/state.json",
+        "head_blob_oid": "2306ec0bf980ed63bb35769b80b13947dc67ef27",
+        "index_blob_oid": "2306ec0bf980ed63bb35769b80b13947dc67ef27",
+        "worktree_blob_oid": "2306ec0bf980ed63bb35769b80b13947dc67ef27",
+        "worktree_sha256": "bade6c96d763cd00c1ed530bb0234758bd0ea0fd90a6f53560941c52d6097e75",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+        "head_blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+        "index_blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+        "worktree_blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+        "worktree_sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+        "head_blob_oid": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+        "index_blob_oid": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+        "worktree_blob_oid": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+        "worktree_sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+        "head_blob_oid": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+        "index_blob_oid": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+        "worktree_blob_oid": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+        "worktree_sha256": "66118bac89fa687dbee6242ac87263fae53d792861003cbfb9f3799d92c422e9",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+        "head_blob_oid": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+        "index_blob_oid": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+        "worktree_blob_oid": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+        "worktree_sha256": "f3f0212dc094ef1acd2def2a00475f82301fcafc6236b5f1a78d9688418fe501",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+        "head_blob_oid": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+        "index_blob_oid": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+        "worktree_blob_oid": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+        "worktree_sha256": "8df140b0007b11d75c273f3c315415b036e44c365bc4cc7bffc265e00439c91c",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+        "head_blob_oid": "319f20c2321171831a7903137ad47754e270ec43",
+        "index_blob_oid": "319f20c2321171831a7903137ad47754e270ec43",
+        "worktree_blob_oid": "319f20c2321171831a7903137ad47754e270ec43",
+        "worktree_sha256": "6217ddc0ff5383baf26e460b42fc3065ae5a319c42e8b453226a14a6b92224f0",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+        "head_blob_oid": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+        "index_blob_oid": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+        "worktree_blob_oid": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+        "worktree_sha256": "547eee0ed365f29bad368ae523ea459c2607e4d85b8c655b7edf4d37b8d00471",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      },
+      {
+        "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+        "head_blob_oid": "190144f09bf2f6adfdab40280e8887da00655f18",
+        "index_blob_oid": "190144f09bf2f6adfdab40280e8887da00655f18",
+        "worktree_blob_oid": "190144f09bf2f6adfdab40280e8887da00655f18",
+        "worktree_sha256": "b16879dc931ebd1d8c15640ecc4401baae2fd19eb348cd730c3c731acf33b70d",
+        "cat_file_exit": 0,
+        "index_matches_head": true,
+        "worktree_matches_head": true
+      }
+    ],
+    "reconciliation_commit": "bcea5ea2d8fc95cbc2d071f08d2a22dc80873b21",
+    "reconciliation_commit_probe_exit": 0,
+    "reconciliation_test_blob_oid": "3d9a918de61fbc3fb8b5104b23a6b0aa9e71b063",
+    "upstream_gzb_test_blob_oid": "3d9a918de61fbc3fb8b5104b23a6b0aa9e71b063",
+    "reconciliation_changed_paths": [
+      "D\t.github/workflows/hex-remediate-phantom.yml",
+      "D\tscripts/ci/prohibitions/p22-hex-remediation.test.mjs",
+      "D\ttest/fixtures/prohibitions/p22-hex-remediation-broadened.yml",
+      "D\ttest/fixtures/prohibitions/p22-hex-remediation-unsafe-secret.yml",
+      "M\ttest/sigra/planning/phase_232_playwright_economics_test.exs"
+    ],
+    "source_effect_reconciliation_verified": true
+  },
+  "github": {
+    "rate_limit": {
+      "command": "gh api rate_limit --jq '.resources.core | {remaining, reset}'",
+      "exit_code": 0,
+      "result": {
+        "remaining": 5000,
+        "reset": 1790729445
+      }
+    },
+    "auth": {
+      "command": "gh auth status",
+      "exit_code": 0,
+      "authenticated": true
+    },
+    "repository": {
+      "command": "gh repo view szTheory/sigra --json nameWithOwner,url",
+      "exit_code": 0,
+      "result": {
+        "nameWithOwner": "szTheory/sigra",
+        "url": "https://github.com/szTheory/sigra"
+      }
+    },
+    "open_pr_cli": {
+      "command": "gh pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid",
+      "exit_code": 0,
+      "count": 13,
+      "unique_numbers": true
+    },
+    "open_pr_paginated_api": {
+      "command_template": "gh api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=N",
+      "page_1_exit": 0,
+      "page_1_count": 13,
+      "page_2_exit": 0,
+      "page_2_count": 0,
+      "explicit_final_page_observed": true,
+      "cli_inventory_matches_api": true,
+      "comparison_normalization": "REST state values are lowercase and gh pr list values uppercase; state casing normalized, all 13 PR numbers/names/head and base OIDs matched."
+    },
+    "exact_origin_refs": {
+      "command": "git ls-remote --symref origin",
+      "exit_code": 0,
+      "row_count": 359,
+      "sha256": "a5bad7666a486ca9dd6120243b3eacab1eb42350045a0ae0785d68d59cbd7a99",
+      "default_branch": "main"
+    },
+    "final_main_run": {
+      "id": 36266022766,
+      "head_branch": "main",
+      "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "command_exit": 0
+    },
+    "final_main_jobs": {
+      "command": "gh api /repos/szTheory/sigra/actions/runs/36266022766/jobs?per_page=100&page=1",
+      "exit_code": 0,
+      "total_count": 30,
+      "required_jobs": {
+        "Generated admin Playwright smoke": {
+          "status": "completed",
+          "conclusion": "success"
+        },
+        "Example Playwright shard (demo_showcase)": {
+          "status": "completed",
+          "conclusion": "success"
+        },
+        "Example Playwright shard (admin_behavior)": {
+          "status": "completed",
+          "conclusion": "success"
+        },
+        "Example Playwright shard (design_gallery)": {
+          "status": "completed",
+          "conclusion": "success"
+        },
+        "Example Playwright shard (non_admin_smoke)": {
+          "status": "completed",
+          "conclusion": "success"
+        },
+        "Example Playwright shard (admin_checkpoints)": {
+          "status": "completed",
+          "conclusion": "success"
+        },
+        "Example Playwright smoke (full lifecycle)": {
+          "status": "completed",
+          "conclusion": "success"
+        },
+        "ci-gate": {
+          "status": "completed",
+          "conclusion": "success"
+        }
+      }
+    },
+    "pr_283": {
+      "baseRefName": "main",
+      "baseRefOid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "headRefName": "phase-244/measurement",
+      "headRefOid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+      "number": 283,
+      "state": "OPEN",
+      "url": "https://github.com/szTheory/sigra/pull/283"
+    },
+    "upstream_source_ancestry": {
+      "gzb": {
+        "source_commit": "9e193a389ab78a7c686c28feb76307a9302fd6bf",
+        "compare_status": "ahead",
+        "ahead_by": 51,
+        "behind_by": 0,
+        "compare_exit": 0
+      },
+      "dzu": {
+        "source_commit": "ed68e2b91813c89a83b27720370eaa2ff3519088",
+        "compare_status": "ahead",
+        "ahead_by": 49,
+        "behind_by": 0,
+        "compare_exit": 0
+      }
+    }
+  },
+  "checks": {
+    "all_nine_sources_committed_and_clean": true,
+    "source_commit_is_current_ancestor": true,
+    "gzb_local_blob_matches_upstream": true,
+    "open_pr_cli_matches_paginated_api": true,
+    "origin_transport_complete": true,
+    "final_main_run_success": true,
+    "required_final_main_jobs_success": true,
+    "gzb_upstream_commit_is_pr283_ancestor": true,
+    "dzu_upstream_commit_is_pr283_ancestor": true,
+    "dzu_follows_gzb_on_pr283": true
+  },
+  "d01_source_verified": true,
+  "historical_records": {
+    "historical_pr_mismatch_audit_remains_unresolved": true,
+    "cleanup_history_audit_remains_unresolved": true,
+    "production_ref_mutation_performed": false,
+    "plan_19_started": false
+  },
+  "status": "ready",
+  "reason_codes": [],
+  "readiness_capture": {
+    "command": "node scripts/maintainers/prune-stale-branches-readiness.mjs capture --repo . --output .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
+    "exit_code": 0,
+    "status": "ready",
+    "source_commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+    "source_count": 9,
+    "predicate_count": 36,
+    "blocked_reasons": [],
+    "verification": {
+      "command": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo . --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit d7243c193c40a30709edbe306d79038d2286e70e",
+      "artifact_commit": "d7243c193c40a30709edbe306d79038d2286e70e",
+      "exit_code": 0,
+      "status": "ready",
+      "valid": true,
+      "reasons": []
+    }
+  },
+  "helper_commands": {
+    "capture": "node scripts/maintainers/prune-stale-branches-readiness.mjs capture --repo . --output .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
+    "capture_exit": 0,
+    "capture_status": "ready",
+    "verify": "node scripts/maintainers/prune-stale-branches-readiness.mjs verify --repo . --artifact .planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json --artifact-commit d7243c193c40a30709edbe306d79038d2286e70e",
+    "verify_exit": 0,
+    "verify_status": "ready",
+    "artifact_commit": "d7243c193c40a30709edbe306d79038d2286e70e"
+  }
+}

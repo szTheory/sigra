@@ -1,0 +1,10 @@
+{
+  "schema": "sigra.phase253.existing-pr-snapshot/v1",
+  "mode": "live",
+  "requests": 7,
+  "run_id": 39815188159,
+  "run_status": "completed",
+  "conclusion": "success",
+  "hosted_accepted": false,
+  "phase_verified": false
+}

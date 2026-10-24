@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "record_type": "phase_acceptance_amendment",
+  "phase": 250,
+  "recorded_on": "2026-10-11",
+  "approval": {
+    "source": "user decision in the active conversation",
+    "basis": "The user replied \"what do u rec? let's do that\" to the recommendation to carry READY-01 and READY-02 as unresolved historical gaps and amend Phase 250 acceptance to allow an explicit exception closeout.",
+    "approved_scope": "Phase 250 acceptance and audit bookkeeping only",
+    "cryptographic_transcript_digest": null
+  },
+  "original_phase_goal": "Reconcile missing and stale v1.49 phase verifications, prove hosted failure/cancellation receipt delivery with a safe non-publishing canary, and close the milestone audit with a consistent 9/9 requirements record.",
+  "revised_phase_acceptance": {
+    "verified_requirement_count": 7,
+    "total_requirement_count": 9,
+    "accepted_exception_ids": ["READY-01", "READY-02"],
+    "owner_verdicts_remain_unsatisfied": true,
+    "requirement_checkboxes_remain_unchecked": true,
+    "unaccepted_blocker_count": 0,
+    "milestone_pass_claim": false,
+    "milestone_archived": false,
+    "phase_only": true
+  },
+  "exceptions": [
+    {
+      "id": "READY-01",
+      "owner_phase": 247,
+      "owner_verdict": "unsatisfied",
+      "acceptance": "accepted_exception",
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+      "source_sha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+      "reconciliation": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+      "reconciliation_sha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4",
+      "tuple_packet": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+      "tuple_packet_sha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660"
+    },
+    {
+      "id": "READY-02",
+      "owner_phase": 247,
+      "owner_verdict": "unsatisfied",
+      "acceptance": "accepted_exception",
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+      "source_sha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+      "reconciliation": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+      "reconciliation_sha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4",
+      "tuple_packet": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+      "tuple_packet_sha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660"
+    }
+  ],
+  "pre_amendment_commit": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+  "supersedes": ["250-08", "250-09", "250-11", "250-12"],
+  "accepted_reconciliation_blocker_ids": [
+    "authorization_pending",
+    "candidate_diff_digest_missing",
+    "dry_run_tuple_mismatch",
+    "exact_head_ci_source_missing",
+    "fresh_inherited_dispositions_missing",
+    "fresh_pr_dispositions_incomplete",
+    "live_candidate_tuple_changed",
+    "readiness_tuple_mismatch"
+  ],
+  "original_plan_blobs": {
+    "250-08-PLAN.md": "2929195fd22e12c575d5031e0e9ecd850c0f2025",
+    "250-09-PLAN.md": "aee18ede4a21f38ab3ea37e6863417a0ad6cb5e3",
+    "250-11-PLAN.md": "5b9b8ec6c7ff552abd9bc5e4ff384d860b3d4ee6",
+    "250-12-PLAN.md": "f30552677ba47d4226911643f9fff148d7854d8d",
+    "250-08-SUMMARY.md": "3ee8af24ba07a62571dcaa5326a6e113cc02c8e2"
+  },
+  "authority_limits": [
+    "Does not change or pass either Phase 247 owner verdict.",
+    "Does not authorize a new canary dispatch, publish, release, PR merge, or workflow run.",
+    "Does not declare the v1.49 milestone passed or authorize archiving it.",
+    "Does not waive unrelated deterministic validation failures."
+  ]
+}

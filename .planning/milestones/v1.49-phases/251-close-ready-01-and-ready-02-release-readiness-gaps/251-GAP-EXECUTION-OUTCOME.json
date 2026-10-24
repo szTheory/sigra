@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "invocation": "$gsd-execute-phase 251 --gaps-only",
+  "status": "implementation_complete_verification_gaps_found",
+  "captured_at": "2026-10-12T01:32:06.846922+00:00",
+  "branch": "phase-244-playwright-measurement",
+  "capture_boundary": {
+    "head": "d587634200e34e150a5793b2707f759d6332e01d",
+    "worktree_clean": true
+  },
+  "selected_plans": [
+    "251-03",
+    "251-04",
+    "251-05",
+    "251-06",
+    "251-07"
+  ],
+  "selected_tasks_complete": 12,
+  "selected_tasks_total": 12,
+  "waves": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "phase_plans_complete": 7,
+  "phase_plans_total": 7,
+  "plans": [
+    {
+      "id": "251-03",
+      "summary": {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-SUMMARY.md",
+        "sha256": "963cb8ca20c4b63556725221541f67dd86925ccfa66a65bc3c5e109380f1fa9e",
+        "bytes": 6568
+      }
+    },
+    {
+      "id": "251-04",
+      "summary": {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-SUMMARY.md",
+        "sha256": "0810b4287adf627b63982d100f282d7c3a152f13bb127e80cc074287cdf0c38c",
+        "bytes": 6705
+      }
+    },
+    {
+      "id": "251-05",
+      "summary": {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-SUMMARY.md",
+        "sha256": "443484654fb4560a6e458a1dde5bcfa70a089eaceda65c4cecd3b50584b30472",
+        "bytes": 9460
+      }
+    },
+    {
+      "id": "251-06",
+      "summary": {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-SUMMARY.md",
+        "sha256": "a803cc7031e16d13a051d0e1ce12e0bb235913b99bf3aae8cf9bbfa4cc29ec31",
+        "bytes": 7205
+      }
+    },
+    {
+      "id": "251-07",
+      "summary": {
+        "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-SUMMARY.md",
+        "sha256": "8f3e82a5e088eadb8c8dc48f9788169087310710d0efd8046d327b835ff54dc6",
+        "bytes": 10419
+      }
+    }
+  ],
+  "verification": {
+    "status": "gaps_found",
+    "score": "9/10",
+    "report": {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md",
+      "sha256": "ff2830f3366511fdbdbb773225dcef3251af6bef8b5323f3c1dbc95f473296f5",
+      "bytes": 20751
+    },
+    "covered_file_count": 66,
+    "covered_digest": "v3:sha256:0d9e4b443bf929d1ed74b2cf6b5089c4e03e7acedfa6b283614e846e734fc618",
+    "owner_route": {
+      "status": "gaps_found",
+      "next_action": "Gaps found. Plan the fixes, then re-run execute-phase before shipping.",
+      "next_command": "$gsd-plan-phase 251 --gaps",
+      "route": "plan-phase"
+    }
+  },
+  "owner_requirements": {
+    "READY-01": "authorization_pending_unsatisfied",
+    "READY-02": "satisfied",
+    "owner_phase": 247,
+    "packet": {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+      "sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+      "bytes": 4451491
+    },
+    "owner_reports_direct_readbacks": [
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+        "sha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c",
+        "bytes": 2058,
+        "committed_ref": "200e28ba75ff46f093959c80b9e0d90ad75e8448",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+        "sha256": "7274e9017ba6e46d5f919d4acc478698b344f21caf1203975f7574c7acde06ad",
+        "bytes": 23079,
+        "committed_ref": "200e28ba75ff46f093959c80b9e0d90ad75e8448",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
+        "sha256": "1245ce7bfc639c102cb50ac4dfc96a12ca5773393aa664fdcdef51e2db74dd74",
+        "bytes": 36502,
+        "committed_ref": "200e28ba75ff46f093959c80b9e0d90ad75e8448",
+        "readback_verified": true
+      }
+    ]
+  },
+  "readiness_population": {
+    "open_prs": 15,
+    "inherited_items": 2421,
+    "commits": 746,
+    "paths": 1670,
+    "dirty_paths": 5
+  },
+  "validation": {
+    "checks_passed": 12,
+    "checks_total": 12,
+    "nyquist_compliant": true,
+    "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+  },
+  "regression": {
+    "node_tests_passed": 213,
+    "elixir_tests_passed": 250,
+    "source_result": {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-RESULT.json",
+      "sha256": "b3ca03307df835a830d86d168f0f5d596c34c88b3e1ecab22e9aeeba7539c651",
+      "bytes": 4429
+    }
+  },
+  "review": {
+    "current_findings": 0,
+    "fixed_findings": [
+      "CR-01",
+      "CR-02",
+      "CR-03",
+      "CR-04",
+      "CR-05",
+      "CR-06",
+      "CR-07",
+      "CR-08"
+    ],
+    "ledger": {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW-DISPOSITION.md",
+      "sha256": "4b122cff8c36b274f37be2a45f346d6d73070c6c68fd27e2c8ef6193c726b085",
+      "bytes": 4138
+    },
+    "report": {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW.md",
+      "sha256": "1d51025305c949e61a3bb7aaa7dd3f7637adf60dc1c903afffbc2e20be542157",
+      "bytes": 2390
+    }
+  },
+  "security": {
+    "threats_closed": 22,
+    "threats_total": 22,
+    "open": 0,
+    "accepted_risks": 0,
+    "proof": {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-CLOSEOUT-CHECKS.json",
+      "sha256": "e1ac09b1a818f117158bd15cce948b75a825ce3e2ec3523390b99c70f89a6a3a",
+      "bytes": 7603
+    }
+  },
+  "milestone": {
+    "status": "gaps_found_incomplete_unarchived",
+    "requirements": "8/9",
+    "audit": {
+      "path": ".planning/v1.49-MILESTONE-AUDIT.md",
+      "sha256": "e074f01d1974753cb0705f7163730b427d397c0c5806f67d177e44de0ca3722c",
+      "bytes": 27826
+    },
+    "phase250_exceptions": "Historical closeout only; no READY acceptance substitution"
+  },
+  "blockers": [
+    "READY-01 historical owner report is locally readable but not independently trusted from authoritative 422/404 source lookup.",
+    "READY-01 complete contemporaneous review history has no exact-candidate approval.",
+    "READY-01 saved readiness and authenticated dry-run evidence identify a different candidate.",
+    "READY-01 immutable published v1.6.0 source lacks the upgrade guide and README guide link."
+  ],
+  "next_command": "$gsd-plan-phase 251 --gaps",
+  "route_readiness": {
+    "phase_found": true,
+    "phase_number": "251",
+    "phase_status": "Executed",
+    "plan_count": 7,
+    "has_context": true,
+    "context_scope": "complete",
+    "has_research": true,
+    "auto_advance": false
+  },
+  "last_roadmap_phase": "251",
+  "next_roadmap_phase": null,
+  "prior_tracking_bytes": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "commit": "200e28ba75ff46f093959c80b9e0d90ad75e8448",
+      "sha256": "bfb8dd2e864c087c9f8f175f845e7f5e8b31c60ba9d636e52c3326ccf2bf40c4",
+      "bytes": 10532,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "commit": "200e28ba75ff46f093959c80b9e0d90ad75e8448",
+      "sha256": "219a9ee3cf6a1255e002467927fcadc85d0fbfa1dd301f75eff5fe52b468947b",
+      "bytes": 965,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "commit": "200e28ba75ff46f093959c80b9e0d90ad75e8448",
+      "sha256": "d3adc4f54a82bd9fc0d8af6d7c3726f485667486ee98db9a3dbc5ccb5e4dab1f",
+      "bytes": 92507,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "commit": "200e28ba75ff46f093959c80b9e0d90ad75e8448",
+      "sha256": "8708f3a30f61c5d1498a1cf6a3694a06be086f2b8f5fa579b281811ec7a4bb5d",
+      "bytes": 21447,
+      "readback_verified": true
+    }
+  ],
+  "fingerprint_limitation": {
+    "reason": "GSD v3 canonical covered_files excludes all *-VERIFICATION.md paths, including original owner reports.",
+    "mitigation": "Current owner report bytes were directly hash-checked against committed refs; current --check-251/--check-sources/--check-audit enforce owner/packet/traceability joins. This limitation is recorded rather than claimed as digest coverage."
+  },
+  "external_mutations": {
+    "workflows_dispatched": false,
+    "merged": false,
+    "published": false,
+    "released": false,
+    "candidate_changed": false
+  },
+  "legacy_broad_mix_failures": "Eight unchanged failures in Phase233/235/58/198 are historical diagnostics; broad suite was not rerun or marked passed."
+}

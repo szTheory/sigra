@@ -1,0 +1,9 @@
+[info] Running ExampleWeb.Endpoint with Bandit 1.10.4 at 127.0.0.1:39453 (http)
+[info] Access ExampleWeb.Endpoint at http://localhost:39453
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 52ms
+[notice] SIGTERM received - shutting down
+

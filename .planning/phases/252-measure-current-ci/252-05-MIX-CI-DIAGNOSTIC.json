@@ -1,0 +1,18 @@
+{
+  "command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci",
+  "exit_code": 2,
+  "result": "failed",
+  "failing_test_count": 6,
+  "passing_dep_off_group": "65 tests, 0 failures",
+  "failing_tests": [
+    "Sigra.Audit.Forwarders.ThreadlineTest: auto-detach landmine",
+    "Sigra.Audit.Forwarders.ThreadlineTest: metadata.forwarder is atom :threadline",
+    "Sigra.Audit.Forwarders.ThreadlineTest: catch :throw",
+    "Sigra.Audit.Forwarders.ThreadlineTest: happy path and correlation-id idempotency",
+    "Sigra.Audit.Forwarders.ThreadlineTest: catch :exit",
+    "Sigra.Audit.Forwarders.ThreadlineTest: forwarder failure does not roll back audit row"
+  ],
+  "observed_error": "UndefinedFunctionError: Sigra.Audit.Forwarders.Threadline.attach/1 is unavailable while the main mix ci suite runs.",
+  "scope_assessment": "These tests and the optional dependency guard are outside Plan 252-05's CI timing and replay files. The workflow contract failures initially exposed by the changed command spelling were fixed; the three existing workflow-contract files passed together (28 tests, 0 failures).",
+  "hosted_ci": "not run here; producing PR and hosted browser proof are owned by Plan 252-06"
+}
