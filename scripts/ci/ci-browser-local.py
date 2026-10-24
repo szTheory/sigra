@@ -510,6 +510,7 @@ def _run_local(args: argparse.Namespace) -> int:
                 diagnostic_env.pop("SIGRA_CI_DIAGNOSTICS_ROOT", None)
                 diagnostic_env.pop("SIGRA_CI_TRACE_REGISTRY", None)
                 diagnostic_env["SIGRA_CI_NATIVE_OUTPUT_ROOT"] = str(diagnostic_root)
+                diagnostic_env["SIGRA_PLAYWRIGHT_JSON"] = str(diagnostic_root / "native-report.json")
             else:
                 diagnostic_env.update({
                     "SIGRA_CI_DIAGNOSTICS": "1",

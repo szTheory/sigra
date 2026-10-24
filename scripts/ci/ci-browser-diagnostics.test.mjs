@@ -163,6 +163,8 @@ async function nativeRun(outputFile) {
   assert.equal(startup.owner.server_startup_failure?.observed, true);
   assert.equal(startup.owner.server_startup_failure?.trace_unavailable_reason, 'context_not_created');
   assert.ok(fs.statSync(path.join(startup.output, 'server.stderr.bin')).size > 0, 'startup failure has no independent server stderr');
+  const startupServerOutput = `${fs.readFileSync(path.join(startup.output, 'server.stdout.bin'), 'utf8')}\n${fs.readFileSync(path.join(startup.output, 'server.stderr.bin'), 'utf8')}`;
+  assert.match(startupServerOutput, /eaddrinuse|address already in use/i, 'Phoenix did not report the intended occupied-port failure');
 
   const terminate = runOwnedCase(evidenceRoot, '04-runner-terminated', ['--diagnostic-case', 'terminate']);
   rows.push({ case: 'runner_sigterm', expected_signal: 15, observed_exit: terminate.result.status, owner: terminate.owner, invocation_root: path.relative(outputRoot, terminate.output), trace_unavailable_reason: terminate.owner.native_diagnostic?.trace_unavailable_reason });
@@ -281,12 +283,12 @@ async function measureOverhead(outputFile, pairs) {
   const focused = ['--grep', 'discards a default-context pass'];
   for (let pair = 1; pair <= pairs; pair += 1) {
     for (const enabled of [false, true]) {
-      const start = performance.now();
       const args = ['--diagnostic-case', 'pass', ...(enabled ? [] : ['--diagnostics-off']), ...focused];
       const row = runOwnedCase(evidenceRoot, `pair-${pair}-${enabled ? 'on' : 'off'}`, args);
-      const elapsed = Math.round(performance.now() - start);
       assert.equal(row.result.status, 0, row.result.stderr);
-      (enabled ? on : off).push(elapsed);
+      const report = JSON.parse(fs.readFileSync(path.join(row.owner.native_diagnostic.output_root, 'native-report.json'), 'utf8'));
+      assert.ok(Number.isFinite(report.stats.duration), 'Playwright native report lacks execution duration');
+      (enabled ? on : off).push(Math.round(report.stats.duration));
     }
   }
   const source = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
