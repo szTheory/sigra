@@ -65,7 +65,7 @@
   "plan_checks": [
     {
       "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md",
-      "sha256": "d0c07bdd85b2312c6d24981b3677d75b8a1b93e63517daca60a3d0fee84d05d7",
+      "sha256": "ae9915a8677d2f2674b016b38aca56b2acad570965f0c8ba434c69cae7357cce",
       "structure": {
         "valid": true,
         "errors": [],
@@ -101,11 +101,12 @@
           "estimate",
           "must_haves"
         ]
-      }
+      },
+      "independent_checker_sha256": "d0c07bdd85b2312c6d24981b3677d75b8a1b93e63517daca60a3d0fee84d05d7"
     },
     {
       "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-02-PLAN.md",
-      "sha256": "c68e686c973b12eab15aad55a163d4d8c0c18c24539e71be365de9f1995eb953",
+      "sha256": "f9cefe21b6c57fde1bfc648e56b74ac7c84e85cf497e098fca6baff58e0a9574",
       "structure": {
         "valid": true,
         "errors": [],
@@ -141,11 +142,12 @@
           "estimate",
           "must_haves"
         ]
-      }
+      },
+      "independent_checker_sha256": "c68e686c973b12eab15aad55a163d4d8c0c18c24539e71be365de9f1995eb953"
     },
     {
       "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-03-PLAN.md",
-      "sha256": "657e5ff93e7df803b0e948f1bdf61d7ef70dae3d2d84eb4c6c6d99dc2c2d035b",
+      "sha256": "c832921f0c4f8408237c8a557b836b9a04ff2ea0e6a1d3ef36e64bc2c890afdb",
       "structure": {
         "valid": true,
         "errors": [],
@@ -181,11 +183,12 @@
           "estimate",
           "must_haves"
         ]
-      }
+      },
+      "independent_checker_sha256": "657e5ff93e7df803b0e948f1bdf61d7ef70dae3d2d84eb4c6c6d99dc2c2d035b"
     },
     {
       "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-PLAN.md",
-      "sha256": "36ff914e82382a51f9855bfd495cc3dbbe1f77ba8170410af7dc1f856b98a2d3",
+      "sha256": "566d790665a2a83caffd46ef0cfe181109777085b1d4c9a98b403b6d0959c680",
       "structure": {
         "valid": true,
         "errors": [],
@@ -221,11 +224,12 @@
           "estimate",
           "must_haves"
         ]
-      }
+      },
+      "independent_checker_sha256": "36ff914e82382a51f9855bfd495cc3dbbe1f77ba8170410af7dc1f856b98a2d3"
     },
     {
       "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-05-PLAN.md",
-      "sha256": "bc6ae83099fea6b42f93fbd7703d8bd3a43d44d542f1ca3204add1b94ee34578",
+      "sha256": "0b8bb2fbde9018fcf84155cdedee6a71657655ae439524819ad8ea5e042cae29",
       "structure": {
         "valid": true,
         "errors": [],
@@ -261,11 +265,12 @@
           "estimate",
           "must_haves"
         ]
-      }
+      },
+      "independent_checker_sha256": "bc6ae83099fea6b42f93fbd7703d8bd3a43d44d542f1ca3204add1b94ee34578"
     },
     {
       "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-06-PLAN.md",
-      "sha256": "c6cce4ef30ffd7966ed85d17f9d1dc3fd449c8d54382a2822e32a37c9041819b",
+      "sha256": "b45d3c69e85fd40d19a288cdaa6e91089aab77b4892efa8bf506b67b8d4eb29e",
       "structure": {
         "valid": true,
         "errors": [],
@@ -301,11 +306,12 @@
           "estimate",
           "must_haves"
         ]
-      }
+      },
+      "independent_checker_sha256": "c6cce4ef30ffd7966ed85d17f9d1dc3fd449c8d54382a2822e32a37c9041819b"
     },
     {
       "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-07-PLAN.md",
-      "sha256": "28f6a80ff7ea1a794b7b5ad6d42e36215daf6253b62a63359d0ffc3f2ba99f4b",
+      "sha256": "1f987e5a790682965682e70dca0449e8d20ea4245f6b90865a5ea1c12210154e",
       "structure": {
         "valid": true,
         "errors": [],
@@ -341,7 +347,8 @@
           "estimate",
           "must_haves"
         ]
-      }
+      },
+      "independent_checker_sha256": "28f6a80ff7ea1a794b7b5ad6d42e36215daf6253b62a63359d0ffc3f2ba99f4b"
     }
   ],
   "requirements": {
@@ -948,5 +955,7 @@
     "recovered_from_commit": "712391d8f40b30bd5d97db4b235c32dd41536d0e",
     "recovered_path": ".planning/state.json",
     "result": "Recovered full original JSON before applying Phase255 planning/route fields; historical phase254 objects compared byte-semantically."
-  }
+  },
+  "post_check_normalization": "Removed trailing whitespace and extra blank EOF lines only. Original independently checked hashes retained as independent_checker_sha256; structural checks rerun on normalized plans.",
+  "normalized_at": "2026-10-24T16:08:45.145853+00:00"
 }

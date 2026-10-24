@@ -1,7 +1,7 @@
 # Phase 255: Make Failures Reproducible and Report the Result - Pattern Map
 
-**Mapped:** 2026-10-24  
-**Files analyzed:** 10 anticipated file groups (exact helper names remain planner discretion)  
+**Mapped:** 2026-10-24
+**Files analyzed:** 10 anticipated file groups (exact helper names remain planner discretion)
 **Analogs found:** 10 / 10, with exact role matches for the main CI seams
 
 ## File Classification
@@ -248,7 +248,6 @@ None. Exact names for new local recorder, report and distribution artifacts are 
 
 ## Metadata
 
-**Analog search scope:** tracked `mix.exs`, `scripts/ci/`, `test/example/priv/playwright/`, `.github/actions/`, `.github/workflows/`, `CONTRIBUTING.md`, and Phase 254 measurement execution/evidence.  
-**Files scanned:** 12 primary analogs/tests/config files; every named existing analog was verified with `git ls-files`.  
+**Analog search scope:** tracked `mix.exs`, `scripts/ci/`, `test/example/priv/playwright/`, `.github/actions/`, `.github/workflows/`, `CONTRIBUTING.md`, and Phase 254 measurement execution/evidence.
+**Files scanned:** 12 primary analogs/tests/config files; every named existing analog was verified with `git ls-files`.
 **Pattern extraction date:** 2026-10-24
-
