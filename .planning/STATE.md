@@ -2,16 +2,16 @@
 gsd_state_version: "1.0"
 milestone: v1.50
 milestone_name: CI-SPEED-AND-RELIABILITY
-status: ready_to_execute
-stopped_at: Phase 255 planned and checked; ready to execute
-last_updated: "2026-10-24T16:07:24.464820+00:00"
+status: in_progress
+stopped_at: Phase 255 Plan 01 complete; executing Plan 02
+last_updated: "2026-10-24T16:17:36.711380+00:00"
 state_head: a0bc58dbfc62283c66bb97b408528ca0a9ae14a4
 progress:
   total_phases: 4
   completed_phases: 2
   percent: 50
 milestone_status: active
-workflow_step: phase255_planned_ready_to_execute
+workflow_step: phase255_executing
 last_activity: 2026-10-24 - Phase 255 planning checked: 7 plans, 14 tasks, 6 waves
 requirements_approved: true
 roadmap_approved: true
@@ -32,26 +32,27 @@ next_command: "$gsd-execute-phase 255"
 resume_command: "$gsd-execute-phase 255"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md
+resume_file: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-02-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 phase255_discussion_status: complete
 phase255_planning_status: passed
-phase255_implementation_status: not_started
+phase255_implementation_status: in_progress
 phase255_verification_status: not_started
 current_phase_name: Make Failures Reproducible and Report the Result
 current_phase: 255
-current_plan: null
+current_plan: 2
 phase255_plan_count: 7
 phase255_task_count: 14
 phase255_wave_count: 6
 phase255_plan_check: .planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json
+phase255_completed_plans: 1
 ---
 
 # Current position
 
-Phase 255 planning is complete: seven plans, fourteen tasks across six waves. Research, independent plan checking, all three requirement assignments and all seventeen decision assignments passed. The checked planning files and readiness are recorded in `.planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json`. Implementation, hosted diagnostics and phase verification have not started.
+Phase 255 is executing: Plan 01 of seven is committed and verified locally. Six replay tests, 23 existing security tests and the comparison regression suite passed. The original 178 receipt entries match; a package of 191 verified inputs reproduces the exact saved insufficient-data evaluator result. See `255-01-SUMMARY.md` and `.planning/execution/255-replay/`.
 
-Next command: `$gsd-execute-phase 255`. `init.execute-phase 255` reports seven incomplete/runnable plans, no summaries, no prerequisite blocker and no duplicate threat IDs. Start with Plan 01's saved-input preflight/replay. Three unclassified edge assumptions stay explicit until actual process/browser/hosted/replay tests establish the behavior. The accessible replay package is a planned deliverable, not an existing distributed archive. The hosted canary has its own frozen ceiling; no historical allowance is renewed.
+Continue Plan 02 with `$gsd-execute-phase 255`. Plans 02–07 and phase verification remain pending. Package availability to another maintainer remains Plan 07 work. No hosted canary or new comparison collection has started. CIMEAS-03 remains open until distribution and phase verification pass.
 
 Phase 254 implementation remains complete; its fixed comparison is terminal `insufficient_data`, with zero successful comparable pairs. Baseline run 40046955449/attempt 2 failed; candidate run 40047078287/attempt 2 passed. Observed costs 2046/1589 runner-seconds are retained observations, not a demonstrated improvement. CISPEED-01/02 and Phase 254 verification remain open. Do not restart collection, replace samples, renew the window or reuse closed budgets.
 
