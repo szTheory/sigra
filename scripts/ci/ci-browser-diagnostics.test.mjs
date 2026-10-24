@@ -369,9 +369,15 @@ async function nativeRun(outputFile) {
 
 async function measureOverhead(outputFile, pairs) {
   assert.equal(pairs, 3, 'the development overhead probe must run exactly three paired comparisons');
-  const evidenceRoot = freshDirectory(path.dirname(path.resolve(outputFile)), 'browser-diagnostics-overhead');
-  const off = [];
-  const on = [];
+  const rawParent = path.join(root, '.gsd', 'temp');
+  fs.mkdirSync(rawParent, { recursive: true });
+  const evidenceRoot = fs.mkdtempSync(path.join(rawParent, 'phase255-browser-diagnostics-overhead-'));
+  const records = [];
+  const source = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  const sourceFiles = ['scripts/ci/ci-diagnostics-canary.py', 'scripts/ci/ci-browser-diagnostics.test.mjs',
+    'scripts/ci/ci-browser-local.py', 'scripts/ci/fixtures/playwright-diagnostics.config.ts',
+    'scripts/ci/fixtures/playwright-diagnostics.spec.ts'];
+  const sourceHashes = Object.fromEntries(sourceFiles.map((file) => [file, digest(fs.readFileSync(path.join(root, file)))]));
   const focused = ['--grep', 'discards a default-context pass'];
   for (let pair = 1; pair <= pairs; pair += 1) {
     for (const enabled of [false, true]) {
@@ -380,11 +386,18 @@ async function measureOverhead(outputFile, pairs) {
       assert.equal(row.result.status, 0, row.result.stderr);
       const report = JSON.parse(fs.readFileSync(path.join(row.owner.native_diagnostic.output_root, 'native-report.json'), 'utf8'));
       assert.ok(Number.isFinite(report.stats.duration), 'Playwright native report lacks execution duration');
-      (enabled ? on : off).push(Math.round(report.stats.duration));
+      records.push({ pair, tracing: enabled ? 'on' : 'off', duration_ms: report.stats.duration,
+        source_sha: source, source_hashes: sourceHashes,
+        raw_output_root: path.relative(root, row.owner.native_diagnostic.output_root).split(path.sep).join('/') });
     }
   }
-  const source = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).stdout.trim();
-  const report = { schema: 'sigra.browser-diagnostics-overhead/v1', source_sha: source, node: process.version, playwright: JSON.parse(fs.readFileSync(path.join(playwright, 'node_modules/@playwright/test/package.json'))).version, configuration: { workers: 1, retries: 0, selected_behavior: focused }, off_durations_ms: off, on_durations_ms: on, pairs };
+  const report = { schema: 'sigra.browser-diagnostics-overhead/v1', source_sha: source, source_hashes: sourceHashes,
+    raw_evidence_root: path.relative(root, evidenceRoot).split(path.sep).join('/'), node: process.version,
+    playwright: JSON.parse(fs.readFileSync(path.join(playwright, 'node_modules/@playwright/test/package.json'))).version,
+    configuration: { workers: 1, retries: 0, selected_behavior: focused },
+    off_durations_ms: records.filter((item) => item.tracing === 'off').map((item) => item.duration_ms),
+    on_durations_ms: records.filter((item) => item.tracing === 'on').map((item) => item.duration_ms),
+    records, pairs };
   fs.writeFileSync(path.resolve(outputFile), JSON.stringify(report, null, 2) + '\n');
   return report;
 }
