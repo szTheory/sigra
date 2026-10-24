@@ -7,10 +7,10 @@ status: in_progress
 current_phase: 254
 current_phase_name: Speed Up the Measured Slow Jobs
 current_plan: "08"
-workflow_step: phase254_transport_development_CI
-stopped_at: Repaired transport development CI running; measurement terminal insufficient_data
-last_updated: "2026-10-24T02:27:05.567819+00:00"
-last_activity: 2026-10-24 - Causal transport repair passed local tests; one development CI check running
+workflow_step: phase254_repair_verified_next_phase255_discussion
+stopped_at: Repair CI passed; fixed comparison insufficient_data; Phase255 discussion ready
+last_updated: "2026-10-24T02:34:53.875883+00:00"
+last_activity: 2026-10-24 - Repair verified in full CI; original comparison closed honestly; forward route checked
 state_head: f2cd83578701b4d212c7b4fc955d50179e867880
 progress:
   total_phases: 4
@@ -31,22 +31,22 @@ phase254_implementation_status: complete
 phase254_comparison_status: insufficient_data
 phase254_verification_status: pending
 verification_status: pending
-next_command: "$gsd-execute-phase 254"
-resume_command: "$gsd-execute-phase 254"
+next_command: "$gsd-discuss-phase 255"
+resume_command: "$gsd-discuss-phase 255"
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-resume_file: .planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md
+resume_file: .planning/execution/254-transport-development-check/REPAIR-SUMMARY.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 ---
 
 # Current position
 
-The reproduced Phoenix connection handoff is repaired and passed141 local tests plus both browser fallback checks. One separate development CI check is running in PR353/run40054033393. The frozen measured comparison remains insufficient_data with2 invocations spent and38 unused.
+The connection handoff repair passed full CI in PR353, including all five required checks, ci-gate, the new regression and108 browser cases. The original fixed comparison is terminal insufficient_data; Phase254 speed requirements remain open. Phase255 readiness allows discussion of reproducibility and reporting without another comparison.
 
-Continue `$gsd-execute-phase 254` by reconciling watcher session68109 and `.planning/execution/254-transport-development-check/WATCH.jsonl`. It owns run40054033393/attempt1 at60-second intervals and will preserve its raw capture. No other watcher, PR, retry, or acceptance run is authorized by this continuation. PR353 is development verification of exact source8b3c3d8c, parentebb1d3ef; neither frozen PR348/349 nor main was changed.
+Next command: `$gsd-discuss-phase 255`. `init.plan-phase 255` reports Pending with no context, research or plans and no prerequisite blocker. This moves reproducibility/reporting forward without declaring Phase254 complete or accepting its speed requirements. No old verification report or numbered repair plan changes this route.
 
-The shipped browser bundle now ignores retired connection events, clears old heartbeat state, resets LiveView joins during fallback, and respects callbacks that connect/disconnect. Seven deterministic tests exercise the real shipped Socket. Forced fallback passed in WebKit and Chromium in about4seconds; normal mobile navigation passed5/5. Selected141 tests and actionlint passed. No dependency, timeout, selector, or required-check relaxation. Local temporary resources are stopped; `.planning/execution/254-environment-recovery/MEASUREMENT/LOCAL-REGISTRATION/PRODUCTION-VERIFICATION.json` and CLEANUP.json record proof.
+The repair is committed at `e2ab83edb`; collector reporting fixes at `d5b7300c8`. Draft PR353/source8b3c3d8c passed full CI run40054033393/attempt1, including all five required contexts, ci-gate, the new handoff regression and108 executed browser cases. Local proof:141 selected tests, seven deterministic connection regressions, WebKit/Chromium forced fallback and five normal mobile navigations. No dependency, timeout, selector, retry or required-check relaxation. This was one separate development verification,65 API HTTP requests,zero retries; its budget is closed. All local temporary resources are stopped and no watcher remains active. See `.planning/execution/254-transport-development-check/RESULT.json` and VERIFICATION.json.
 
-Original comparison: `.planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json` reports literal insufficient_data. Baseline run40046955449 attempt2 failed mobile registration readiness; candidate run40047078287 attempt2 passed. Both raw outcomes and all known costs are retained:2046 and1589 runner-seconds. Two of40 invocations spent,38 unspent; zero successful comparable pairs; no replacement or window extension. This fixed experiment can no longer produce20 successful pairs. Implementation repaired; whole-phase performance verification remains unachieved; CISPEED-01/02 open.
+Original fixed comparison: `.planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json` remains insufficient_data. Baseline40046955449 attempt2 failed; candidate40047078287 attempt2 passed. Two of40 invocations spent,38 unspent,zero successful comparable pairs; actual costs2046 and1589 runner-seconds retained. The frozen sources/window/outcomes remain unchanged. The remaining schedule cannot yield20 successful pairs. Do not restart, replace samples, reopen the window or silently renew acceptance. Whole-phase verification and CISPEED-01/02 remain open.
 
-Prior exact state and completed diagnostics are recoverable at `refs/evidence/phase254-transport-fix-before-ci-state` (`ba6d00964becbe8bc680d9164b3fda8a3ac769be`), with verified bytes in `.planning/execution/254-transport-development-check/STATE-PRIOR.json`. Earlier stopped attempts remain unchanged.
+Final raw data, traces, closed ledgers and exact prior shared state are recoverable at `refs/evidence/phase254-transport-development-final-recovery` (`cf2107cd871960355c0cc06f2b45ceaa24a40c61`), with read-back hashes in `.planning/execution/254-transport-development-check/FINAL-RECOVERY.json`. Earlier stopped attempts and original summary remain unchanged.

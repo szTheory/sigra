@@ -28,13 +28,13 @@
     }
   ],
   "next": {
-    "command": "$gsd-execute-phase 254",
-    "label": "Finish the single development CI verification",
-    "reason": "The reproduced Phoenix connection handoff is repaired and passed141 local tests plus both browser fallback checks. One separate development CI check is running in PR353/run40054033393. The frozen measured comparison remains insufficient_data with2 invocations spent and38 unused.",
+    "command": "$gsd-discuss-phase 255",
+    "label": "Discuss Phase255 reproducibility and actual-result reporting",
+    "reason": "The connection handoff repair passed full CI in PR353, including all five required checks, ci-gate, the new regression and108 browser cases. The original fixed comparison is terminal insufficient_data; Phase254 speed requirements remain open. Phase255 readiness allows discussion of reproducibility and reporting without another comparison.",
     "conditional": false,
-    "condition": "Reconcile the existing single development CI run and watcher68109. No duplicate watcher, blind retry, acceptance sample replacement, or new measurement window."
+    "condition": "Proceed to next-phase discussion only. Do not restart the terminal comparison, replace samples, or create another numbered repair plan."
   },
-  "updated_at": "2026-10-24T02:27:05.567819+00:00",
+  "updated_at": "2026-10-24T02:34:53.875883+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -47,7 +47,7 @@
     "resume_plan": "254-08",
     "resume_task": "254-08-03",
     "continuation": ".planning/execution/254-CONTINUATION.json",
-    "state_preservation": "ba6d00964becbe8bc680d9164b3fda8a3ac769be",
+    "state_preservation": "cf2107cd871960355c0cc06f2b45ceaa24a40c61",
     "preparation_runs": 10,
     "measured_samples": 2,
     "window_started": true,
@@ -81,28 +81,34 @@
     "prior_state_before_measured_stop": ".planning/execution/254-environment-recovery/MEASUREMENT/STATE-PRIOR.json",
     "comparison_result": ".planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json",
     "development_verification": {
-      "status": "running",
+      "status": "passed",
       "source_sha": "8b3c3d8c75152438bb3259c1226b1044da717b3c",
       "root_implementation_commit": "e2ab83edb",
       "pull_request": 353,
       "run_id": 40054033393,
       "run_attempt": 1,
       "scope": ".planning/execution/254-transport-development-check",
-      "watcher_session": 68109,
+      "result": ".planning/execution/254-transport-development-check/RESULT.json",
+      "watcher_session": null,
       "invocations": 1,
       "retries": 0,
-      "acceptance_invocations": 0
-    }
+      "acceptance_invocations": 0,
+      "executed_browser_cases": 108,
+      "budget_closed": true
+    },
+    "verification_gap": "CISPEED-01/02 remain unproven; original cohort cannot produce20 successful pairs",
+    "next_route": ".planning/execution/254-transport-development-check/FORWARD-ROUTE.json"
   },
   "phase254_unblock_decision": {
-    "status": "transport_development_CI_running",
+    "status": "repair_CI_verified_measurement_closed",
     "authorization": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
     "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
     "notification_created": false,
     "preparation_runs": 10,
     "measured_samples": 2,
-    "next_decision": "Reconcile the existing single development CI run and watcher68109. No duplicate watcher, blind retry, acceptance sample replacement, or new measurement window.",
+    "next_decision": "Proceed to next-phase discussion only. Do not restart the terminal comparison, replace samples, or create another numbered repair plan.",
     "rebaseline_preparation_runs": 2,
-    "result": ".planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json"
+    "result": ".planning/execution/254-transport-development-check/RESULT.json",
+    "next_command": "$gsd-discuss-phase 255"
   }
 }

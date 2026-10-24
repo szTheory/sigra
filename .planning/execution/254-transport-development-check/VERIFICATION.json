@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "purpose": "one_full_CI_development_verification_not_warmup_or_acceptance",
+  "run_id": 40054033393,
+  "run_attempt": 1,
+  "conclusion": "success",
+  "source_sha": "8b3c3d8c75152438bb3259c1226b1044da717b3c",
+  "producer_sha": "bb5a93ecf875315d9ecd84d2715773de248dafd1",
+  "tree_sha": "e62a4e2b89beaba64ed1db2bf5131fe0d6bf6d8d",
+  "workflow_sha256": "1e3155a42576a694abdecf3a6b022ef7ca7e9dafbfb913bd81761149df805020",
+  "raw_hash_errors": [],
+  "origin_status": "origin_verified",
+  "required_contexts": {
+    "Library tests": "success",
+    "Example unit smoke (ExUnit + ConnTest)": "success",
+    "Install smoke (fresh phx.new + sigra.install)": "success",
+    "Example HTTP smoke (boot + curl critical routes)": "success",
+    "Example Playwright smoke (full lifecycle)": "success"
+  },
+  "ci_gate": "success",
+  "fast_checks": "success",
+  "phoenix_connection_regression": "success",
+  "capture_preservation": ".planning/execution/254-transport-development-check/PRESERVATION-after.json"
+}
