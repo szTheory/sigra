@@ -18,6 +18,13 @@ SAVED = ROOT / '.planning/execution/254-environment-recovery/MEASUREMENT'
 
 
 class ReplayTest(unittest.TestCase):
+    def test_distribution_commands_are_exposed(self):
+        run = subprocess.run([sys.executable, '-B', str(CLI), '--help'],
+                             cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertIn('distribute', run.stdout)
+        self.assertIn('verify-distribution', run.stdout)
+
     def test_saved_result_is_calculated_without_changing_inputs(self):
         originals = {p: hashlib.sha256(p.read_bytes()).hexdigest() for p in SAVED.rglob('*') if p.is_file()}
         with tempfile.TemporaryDirectory() as tmp:
