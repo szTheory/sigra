@@ -1,301 +1,82 @@
 {
   "schema_version": 1,
-  "timestamp": "2026-10-23T22:31:10.936343+00:00",
-  "updated_at": "2026-10-24T16:07:51.792165+00:00",
-  "status": "ready",
+  "updated_at": "2026-10-24T18:26:14.498063+00:00",
+  "status": "executing",
   "current_milestone": "v1.50",
-  "current_milestone_name": "CI-SPEED-AND-RELIABILITY",
   "current_phase": 255,
-  "current": "Phase 255 plans passed independent review and requirement/decision checks. Execute seven plans beginning with saved-input preflight. Implementation and phase verification are not started; the closed Phase 254 insufficient-data comparison and open speed requirements remain unchanged.",
+  "current_plan": "255-06",
+  "completed_plans": [
+    "255-01",
+    "255-02",
+    "255-03",
+    "255-04",
+    "255-05"
+  ],
+  "remaining_plans": [
+    "255-06",
+    "255-07"
+  ],
+  "implementation_status": "in_progress",
+  "verification_status": "not_started",
   "next_command": "$gsd-execute-phase 255",
-  "resume_command": "$gsd-plan-phase 255",
-  "next_command_conditional": false,
-  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
-  "next_action": "$gsd-plan-phase 255. Discussion complete; implementation and phase verification have not started.",
-  "route": {
-    "status": "ready",
-    "next_command": "$gsd-plan-phase 255",
-    "resume_command": "$gsd-plan-phase 255",
-    "conditional": false,
-    "reason": "Phase 255 discussion is complete with reviewed, researched defaults. Plan contributor reproduction, safe first-failure diagnostics and portable offline replay. Phase 254 comparison remains terminal insufficient_data; speed requirements and phase verification remain open.",
-    "current_phase": 255,
-    "next_phase": 255,
-    "checkpoint": "phase255_context_ready_for_planning",
-    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
-    "readiness": ".planning/execution/254-transport-development-check/FORWARD-ROUTE.json",
-    "phase254_not_marked_complete": true,
-    "historical_verification_is_forward_blocker": false,
-    "condition": "Planning only. Keep the original comparison terminal; no old acceptance budget is renewed.",
-    "readiness_check": {
-      "checked_at": "2026-10-24T03:09:28.169415+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
-      "phase_number": "255",
-      "phase_status": "Pending",
-      "has_context": true,
-      "has_research": false,
-      "has_plans": false,
-      "prerequisite_blocker_reported": false
+  "resume_command": "$gsd-execute-phase 255",
+  "resume_file": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-06-PLAN.md",
+  "readiness": {
+    "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
+    "incomplete_count": 2,
+    "ready_plan": "255-06",
+    "prerequisite_blocker": false
+  },
+  "hosted_canary": {
+    "started": false,
+    "freeze_exists": false,
+    "budget_spent": 0,
+    "limits_from_plan": {
+      "invocations": 4,
+      "controller_requests": 120,
+      "minutes": 60,
+      "pushes": 2,
+      "transient_infrastructure_retries": 1,
+      "test_retries": 0
     }
   },
-  "current_routing": {
-    "status": "ready",
-    "next_command": "$gsd-execute-phase 255",
-    "resume_command": "$gsd-execute-phase 255",
-    "conditional": false,
-    "reason": "Phase 255 plans passed independent review and requirement/decision checks. Execute seven plans beginning with saved-input preflight. Implementation and phase verification are not started; the closed Phase 254 insufficient-data comparison and open speed requirements remain unchanged.",
-    "current_phase": 255,
-    "next_phase": 255,
-    "checkpoint": "phase255_planned_ready_to_execute",
-    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md",
-    "readiness": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json",
-    "phase254_not_marked_complete": true,
-    "historical_verification_is_forward_blocker": false,
-    "condition": "Planning complete only; execution and phase verification remain unstarted. No old acceptance allowance is renewed.",
-    "readiness_check": {
-      "checked_at": "2026-10-24T16:07:24.464820+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
-      "phase_number": "255",
-      "plan_count": 7,
-      "incomplete_count": 7,
-      "runnable_count": 7,
-      "summaries": [],
-      "blocked_by": {},
-      "threat_id_duplicates": []
-    }
+  "evidence": {
+    "summaries_directory": ".planning/phases/255-make-failures-reproducible-and-report-the-result",
+    "replay": ".planning/execution/255-replay/",
+    "native_browser_diagnostics": ".planning/execution/255-local/BROWSER-DIAGNOSTICS.json",
+    "native_source": "59ed88c32",
+    "evidence_writer_source": "7bad04a20",
+    "raw_local_recovery": ".planning/execution/255-local/RAW-STORAGE.json",
+    "sanitized_bundle": ".planning/execution/255-local/browser-diagnostics-1792865705155/diagnostics.zip"
   },
-  "workflow": {
-    "phase253_implementation_status": "complete",
-    "phase253_verification_status": "passed",
-    "phase254_implementation_status": "complete",
-    "phase254_comparison_status": "insufficient_data",
-    "phase254_verification_status": "pending",
-    "phase254_completed_plans": 7,
-    "phase254_halted_plans": [
-      "254-08"
+  "constraints": [
+    "Keep Phase 254 comparison terminal insufficient_data; no new comparison runs or renewed historical budget.",
+    "Before any external work, test implementation locally and freeze exact code/fixture identities and all limits; charge before every request/mutation.",
+    "One watcher per run at 60-second intervals; core<=250 or 403/429 stops requests until reported reset.",
+    "Never commit raw auth-bearing traces or auth storage. Original raw bytes remain in protected local .gsd storage.",
+    "Use python -B and never py_compile; leave pre-existing scripts/ci/__pycache__/ visible.",
+    "Hold source unchanged during native checks; use captured-output tests to repair parsers before repeating expensive runs."
+  ],
+  "phase254": {
+    "implementation": "complete",
+    "comparison": "insufficient_data",
+    "successful_comparable_pairs": 0,
+    "runner_seconds": [
+      2046,
+      1589
     ],
-    "phase254_plan_count": 8,
-    "next_required_gate": "Phase 255 execution, beginning with saved-input preflight; Phase 254 speed requirements remain open",
-    "phase255_discussion_status": "complete",
-    "phase255_planning_status": "passed",
-    "phase255_implementation_status": "not_started",
-    "phase255_verification_status": "not_started",
-    "phase255_plan_count": 7,
-    "phase255_task_count": 14,
-    "phase255_wave_count": 6
-  },
-  "phase253_canonical_verification": {
-    "status": "passed",
-    "score": "6/6",
-    "report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md",
-    "phase_complete": true,
-    "verified_at": "2026-10-23T15:17:23.454208+00:00",
-    "requirements_completed": [
-      "CIREL-01",
-      "CIREL-02"
+    "verification": "pending",
+    "requirements_open": [
+      "CISPEED-01",
+      "CISPEED-02"
     ],
-    "gates_commit": "70729a937a74ca11fe9b84f733563e738209d452",
-    "gate_evidence": ".planning/execution/253-final-gates",
-    "known_limit": "Original hosted loader/reloader timing remains inferred; controlled pinned-component reproduction matches the observed exception."
+    "preservation_ref": "refs/evidence/phase254-transport-development-final-recovery",
+    "preservation_commit": "cf2107cd871960355c0cc06f2b45ceaa24a40c61"
   },
-  "phase253_history": {
-    "prior_commit": "70729a937a74ca11fe9b84f733563e738209d452",
-    "identity_record": ".planning/execution/253-final-gates/completion-prior-state.json",
-    "historical_plan_count": 183,
-    "completed_implementation_count": 81,
-    "halted_count": 29,
-    "retired_never_executed": 73,
-    "retirements": ".planning/execution/253-final-review/RETIREMENTS.json",
-    "original_failed_results_unchanged": true,
-    "old_allowances_remain_consumed": true
-  },
-  "phase254_evidence": {
-    "eligibility": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COLLECTION-ELIGIBILITY.json",
-    "hosted_readiness": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-READINESS.json",
-    "hosted_pr_path_proof": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
-    "halted_summary": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md",
-    "continuation": ".planning/execution/254-CONTINUATION.json",
-    "validator_maintenance": ".planning/execution/254-validator-maintenance.json",
-    "hosted_runs_started": true,
-    "preparation_runs": 10,
-    "comparison_families_started": 2,
-    "window_started": true,
-    "rerun_authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
-    "preparation_result": ".planning/execution/254-environment-recovery/PARITY-FIX/RESULT.json",
-    "rebaseline_proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
-    "final_recovery": ".planning/execution/254-transport-development-check/FINAL-RECOVERY.json",
-    "local_repairs_commit": "dd4e3b437",
-    "rebaseline_authorization": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
-    "rebaseline_preparation": ".planning/execution/254-rebaseline-preparation",
-    "rebaseline_preparation_runs": 2,
-    "candidate_ci_status": "success_measured_attempt2",
-    "candidate_run_id": 40047078287,
-    "baseline_run_id": 40046955449,
-    "candidate_native_cases": 108,
-    "prior_preparation_runs": 8,
-    "environment_recovery_preparation_runs": 2,
-    "environment_recovery": ".planning/execution/254-environment-recovery",
-    "active_authorization": ".planning/execution/254-transport-development-check/AUTHORIZATION.json",
-    "diagnostic_result": ".planning/execution/254-environment-recovery/DIAGNOSTIC-RESULT.json",
-    "native_authority_preparation_runs": 2,
-    "native_authority_verification": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY",
-    "parity_verification_runs": 2,
-    "parity_verification": ".planning/execution/254-environment-recovery/PARITY-FIX",
-    "baseline_ci_status": "failure_measured_attempt2",
-    "last_preceding_required_contexts": "All five verified on both05f1a4a/efff737 sources; those full workflows remain failed on p20 parity",
-    "comparison_status": "insufficient_data",
-    "family_count_started": 2,
-    "family_allowance_spent": 2,
-    "family_allowance_unspent": 38,
-    "window_start_utc": "2026-10-24T01:04:13Z",
-    "window_end_utc": "2026-10-26T01:04:13Z",
-    "measurement": ".planning/execution/254-environment-recovery/MEASUREMENT",
-    "measurement_progress": ".planning/execution/254-environment-recovery/MEASUREMENT/PROGRESS.json",
-    "measured_samples": 2,
-    "successful_equivalent_pairs": 0,
-    "automatic_resume": false,
-    "prior_state_before_measured_stop": ".planning/execution/254-environment-recovery/MEASUREMENT/STATE-PRIOR.json",
-    "comparison_result": ".planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json",
-    "development_verification": {
-      "status": "passed",
-      "source_sha": "8b3c3d8c75152438bb3259c1226b1044da717b3c",
-      "root_implementation_commit": "e2ab83edb",
-      "pull_request": 353,
-      "run_id": 40054033393,
-      "run_attempt": 1,
-      "scope": ".planning/execution/254-transport-development-check",
-      "result": ".planning/execution/254-transport-development-check/RESULT.json",
-      "watcher_session": null,
-      "invocations": 1,
-      "retries": 0,
-      "acceptance_invocations": 0,
-      "executed_browser_cases": 108,
-      "budget_closed": true
-    },
-    "repair_result": ".planning/execution/254-transport-development-check/RESULT.json"
-  },
-  "preservation": {
-    "ref": "refs/gsd/phase254/state-before-hosted-halt",
-    "commit": "f2cd83578701b4d212c7b4fc955d50179e867880",
-    "files": [
-      {
-        "path": ".planning/STATE.md",
-        "status": "clean",
-        "git_blob": "5c10129df9b1540c1d4b07d7aaacbc506b958522",
-        "sha256": "8aa85b0ab13249ae3ac64503cf86de2ee7292ccf0e017997d635695f7ac545db",
-        "readback_verified": true
-      },
-      {
-        "path": ".planning/state.json",
-        "status": "clean",
-        "git_blob": "aff9d4541aec6a48d0b71961bb163ce9c6b624c5",
-        "sha256": "e3a814935ec5791b0978bffc5dbb9d27de22e57eb440c57afce68f5022948002",
-        "readback_verified": true
-      },
-      {
-        "path": ".planning/HANDOFF.json",
-        "status": "clean",
-        "git_blob": "823a60d11c48fa823abd42b8821b64824a40fa29",
-        "sha256": "9164d9d988ecd652996cfe0e46dda6c32d12774994dbaf92eda280fbae297c60",
-        "readback_verified": true
-      },
-      {
-        "path": ".planning/ROADMAP.md",
-        "status": "clean",
-        "git_blob": "c894adcfff86dc904a593679705d5b0e42580536",
-        "sha256": "cd6686a1ceb052fce4df803a30678852a644de4886cc96692af4ed4ba5b4fedc",
-        "readback_verified": true
-      }
-    ]
-  },
-  "historical_verification_is_forward_blocker": false,
-  "human_actions_pending": [],
-  "async_jobs": [],
-  "known_unfinished_work": {
-    "READY-01": "Original approval, matching readiness/test records, and independently confirmed old report are missing; requirement remains unsatisfied.",
-    "upgrade_guidance": "Published 1.6.0 lacks the guide/link; separately tracked corrective documentation task.",
-    "phase252_revision_source": "Run 38144377407 returned pull_requests: []; its bundle proves one source SHA. Multi-revision timing remains unknown until each revision has retained source data."
-  },
-  "authorization": {
-    "scope": "User invoked $gsd-plan-phase 255 and selected research first. Research/plans/checks/state capture only; no Phase 255 execution or hosted acceptance started.",
-    "phase255_execution_authorized": false,
-    "new_comparison_authorized": false,
-    "prior_allowances": "unchanged; closed allowances are not reused"
-  },
-  "phase254_unblock_decision": {
-    "status": "repair_CI_verified_measurement_closed",
-    "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
-    "proposal": ".planning/execution/254-BASELINE-UNBLOCK-PROPOSAL.json",
-    "notification_created": false,
-    "result": ".planning/execution/254-transport-development-check/RESULT.json",
-    "next_command": "$gsd-discuss-phase 255"
-  },
-  "prior_state_before_preparation_closeout": ".planning/execution/254-rebaseline-preparation/STATE-BEFORE-CLOSEOUT.json",
-  "prior_state_before_environment_recovery": ".planning/execution/254-environment-recovery/PRIOR-STATE.json",
-  "prior_state_before_native_authority": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/STATE-PRIOR.json",
-  "prior_state_before_live_parity": ".planning/execution/254-environment-recovery/PARITY-FIX/STATE-PRIOR.json",
-  "prior_state_before_measured_stop": ".planning/execution/254-environment-recovery/MEASUREMENT/STATE-PRIOR.json",
-  "prior_state_before_development_CI": ".planning/execution/254-transport-development-check/STATE-PRIOR.json",
-  "prior_state_before_final_closeout": ".planning/execution/254-transport-development-check/FINAL-RECOVERY.json",
-  "phase255": {
-    "context": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-CONTEXT.md",
-    "discussion_log": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-DISCUSSION-LOG.md",
-    "discussion_commit": "48a0546bdafd611612aa42e3338df20cda481a62",
-    "readiness": {
-      "checked_at": "2026-10-24T16:07:24.464820+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
-      "phase_number": "255",
-      "plan_count": 7,
-      "incomplete_count": 7,
-      "runnable_count": 7,
-      "summaries": [],
-      "blocked_by": {},
-      "threat_id_duplicates": []
-    },
-    "implementation_started": false,
-    "hosted_acceptance_started": false,
-    "discussion_status": "complete",
-    "planning_status": "passed",
-    "implementation_status": "not_started",
-    "verification_status": "not_started",
-    "plan_count": 7,
-    "task_count": 14,
-    "wave_count": 6,
-    "plan_check": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json"
-  },
-  "prior_execution_authorization": {
-    "scope": "User invoked $gsd-execute-phase254. Implementation and conditional fixed comparison are authorized within the plans.",
-    "extra_preparation_runs_authorized": false,
-    "previous_phase253_allowances": "unchanged; not reused",
-    "baseline_method_changed": true,
-    "baseline_amendment_authority": ".planning/execution/254-REBASELINE-AUTHORIZATION.json",
-    "current_preparation_allowance_spent": true,
-    "current_recovery_authorization": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
-    "environment_recovery_allowance": "Current ordinary parity correction: two counted non-forcing source updates, zero retries,60minutes/600HTTPrequests; previous eight outcomes preserved"
-  },
-  "routing": {
-    "status": "ready",
-    "next_command": "$gsd-execute-phase 255",
-    "resume_command": "$gsd-execute-phase 255",
-    "conditional": false,
-    "reason": "Phase 255 plans passed independent review and requirement/decision checks. Execute seven plans beginning with saved-input preflight. Implementation and phase verification are not started; the closed Phase 254 insufficient-data comparison and open speed requirements remain unchanged.",
-    "current_phase": 255,
-    "next_phase": 255,
-    "checkpoint": "phase255_planned_ready_to_execute",
-    "continuation": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-01-PLAN.md",
-    "readiness": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-PLAN-CHECK.json",
-    "phase254_not_marked_complete": true,
-    "historical_verification_is_forward_blocker": false,
-    "condition": "Planning complete only; execution and phase verification remain unstarted. No old acceptance allowance is renewed.",
-    "readiness_check": {
-      "checked_at": "2026-10-24T16:07:24.464820+00:00",
-      "command": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.execute-phase 255",
-      "phase_number": "255",
-      "plan_count": 7,
-      "incomplete_count": 7,
-      "runnable_count": 7,
-      "summaries": [],
-      "blocked_by": {},
-      "threat_id_duplicates": []
-    }
+  "prior_handoff": {
+    "commit": "51ca37089d7379f5a8628b721b18be00b9d24f74",
+    "path": ".planning/HANDOFF.json",
+    "sha256": "3fbf88859db089546f17ac52ce8f24540599c81ccf72b0ec3e482c7030167532",
+    "initially_clean": true
   }
 }

@@ -1,0 +1,85 @@
+{
+  "schema_version": "sigra.phase255.local-raw-storage/v1",
+  "captured_at": "2026-10-24T18:24:14.782736+00:00",
+  "capture_boundary": "Phase 255 execution began with clean planning files; these native directories were created during this execution. No pre-existing planning revision was cleaned.",
+  "storage_policy": "Original auth-bearing traces/builds remain local, outside Git. Verified sanitized bundle remains tracked. No new ignore rule was introduced.",
+  "source_head": "51ca37089d7379f5a8628b721b18be00b9d24f74",
+  "status_before_raw_path": ".gsd/phase255-native-raw/STATUS-BEFORE.bin",
+  "status_before_sha256": "e98d0bcccabf0c9b388e3eca5a09468cd76745e26eb7c5416aadedb1c0df998e",
+  "roots": [
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics",
+      "entries": 2062,
+      "inventory_sha256": "f67dab71928692b09289d35e4e97f75d5cc23bf3aaa44198333b2e5d2a786cb6",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": []
+    },
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics-1792864445899",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics-1792864445899",
+      "entries": 2062,
+      "inventory_sha256": "6a5287b2b58e1d91211e8182f3885a3e45b6641a35512522c5125d2b2d9ae9fa",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-1792864445899-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": []
+    },
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics-1792864492045",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics-1792864492045",
+      "entries": 8173,
+      "inventory_sha256": "7813a8567defe68e0345ce0480920413bf8cbea677ab50b398111f56937b272d",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-1792864492045-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": []
+    },
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics-1792864672228",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics-1792864672228",
+      "entries": 8172,
+      "inventory_sha256": "7dce74841e63da5bd163b68cdb4b6b886ee6740596f15198f65f78a336e0c47e",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-1792864672228-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": []
+    },
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics-1792865142530",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics-1792865142530",
+      "entries": 8190,
+      "inventory_sha256": "41462cd82b3a2144bd386cf6113219640f4449bab3bbe0cb878f1691c53f8ac2",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-1792865142530-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": []
+    },
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics-1792865422353",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics-1792865422353",
+      "entries": 8190,
+      "inventory_sha256": "8468b471a471054c03fac3bbb61a71f521315278fb20b90c12eda7b1d4fad64c",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-1792865422353-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": []
+    },
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics-1792865705155",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics-1792865705155",
+      "entries": 8194,
+      "inventory_sha256": "7b412fb0a08e4002950481a400084a0f118b8ee8fa1ff88dea0774bbc8bed4f2",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-1792865705155-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": [
+        ".planning/execution/255-local/browser-diagnostics-1792865705155/diagnostics.zip"
+      ]
+    },
+    {
+      "original_root": ".planning/execution/255-local/browser-diagnostics-1792865900575",
+      "recovery_root": ".gsd/phase255-native-raw/browser-diagnostics-1792865900575",
+      "entries": 2477,
+      "inventory_sha256": "7315652de72d1901f5234ad7667f9866d8b146e628783dcfb5a818153729d737",
+      "inventory_path": ".gsd/phase255-native-raw/browser-diagnostics-1792865900575-INVENTORY.json",
+      "exact_readback_verified": true,
+      "tracked_files_restored": []
+    }
+  ]
+}
