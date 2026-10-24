@@ -75,12 +75,15 @@ export function buildPreparationCommands(actionSource) {
     return { current, combined, selected: current, isCombined: false };
   }
   const preparation = steps['Prepare example with combined Mix'];
-  const selected = preparation?.map((line) => line.trim()).filter((line) => /^mix do /.test(line));
   const recorded = preparation?.some((line) => line.includes('ci-command-record.py'));
   const expectedCount = recorded ? 2 : 1;
-  if (selected?.length !== expectedCount || selected.some((line) => !/^mix do deps\.get \+ compile --warnings-as-errors \+ ecto\.create \+ ecto\.migrate \+ run priv\/repo\/seeds\.exs$/.test(line))) throw new Error('action_step_missing:preparation');
+  const combined = 'mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs';
+  const sequential = "bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'";
+  const commandLines = preparation?.map((line) => line.trim()).filter((line) => /^(?:mix |bash -c 'mix )/.test(line));
+  if (commandLines?.length !== expectedCount || commandLines.some((line) => line !== combined && line !== sequential) ||
+      new Set(commandLines).size !== 1) throw new Error('action_step_missing:preparation');
   if (recorded && !preparation.some((line) => /--invocation .*?-prepare.*? -- \\$/.test(line.trim()))) throw new Error('preparation_recorder_boundary_missing');
-  return { current: expected, combined: selected[0], selected: [selected[0]], isCombined: true };
+  return { current: expected, combined, selected: [commandLines[0]], isCombined: true };
 }
 
 export function assertPreparationCacheContract(actionSource) {

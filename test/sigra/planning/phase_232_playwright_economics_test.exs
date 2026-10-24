@@ -91,15 +91,20 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
              "example-dev-port${{ inputs.app-port }}-otp",
            "cached compile output must be partitioned by the endpoint's compile-time port"
 
-    preparation =
-      Regex.scan(~r/^\s+(mix do .+)$/m, action, capture: :all_but_first)
-      |> List.flatten()
-
-    expected_preparation =
+    combined_preparation =
       "mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs"
 
-    assert preparation == [expected_preparation, expected_preparation],
-           "both recorder-enabled and direct paths must execute the same ordered Mix preparation"
+    sequential_preparation =
+      "bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'"
+
+    preparation =
+      Regex.scan(~r/^\s+(mix do .+|bash -c 'mix .+')$/m, action, capture: :all_but_first)
+      |> List.flatten()
+
+    assert preparation in [
+             [combined_preparation, combined_preparation],
+             [sequential_preparation, sequential_preparation]
+           ], "recorder-enabled and direct paths must retain the same exact ordered Mix treatment"
 
     assert action =~ "ci-command-record.py"
     assert action =~ "--invocation \"${DIAGNOSTICS_PREFIX}-prepare\""

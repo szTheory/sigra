@@ -344,9 +344,19 @@ def report_library(checkout: Path, role: str, scratch: Path, env: dict[str, str]
 
 def browser_profile(checkout: Path, role: str, owner: str, scratch: Path, env: dict[str, str]) -> dict:
     output = scratch / f"browser-{role}-{owner}.json"
-    command = ["node", str(checkout / "scripts/ci/ci-prep-profile.mjs"), "--root", str(checkout),
+    command = ["node", str(ROOT / "scripts/ci/ci-prep-profile.mjs"), "--root", str(checkout),
                "--output", str(output), "--scope", owner, "--mode", "workload", "--workload-map", WORKLOAD_MAP]
-    result = run(command, cwd=checkout, env=env, timeout=1800)
+    diagnostic_root = scratch / f"diagnostics-{role}-{owner}"
+    runner_temp = scratch / f"runner-temp-{role}-{owner}"
+    diagnostic_root.mkdir(mode=0o700, parents=True, exist_ok=False)
+    runner_temp.mkdir(mode=0o700, parents=True, exist_ok=False)
+    native_env = dict(env)
+    native_env.update({"GITHUB_WORKSPACE": str(checkout), "RUNNER_TEMP": str(runner_temp),
+                       "DIAGNOSTICS_ROOT": str(diagnostic_root), "DIAGNOSTICS_PREFIX": f"repaired-{role}-{owner}",
+                       "SIGRA_CI_DIAGNOSTICS": "1", "SIGRA_CI_DIAGNOSTICS_ROOT": str(diagnostic_root),
+                       "SIGRA_CI_TRACE_REGISTRY": str(diagnostic_root / "trace-registry.jsonl"),
+                       "SIGRA_CI_INVOCATION_ID": f"{owner}-{role}", "SIGRA_CI_NATIVE_IDENTITY": f"ci:{owner}"})
+    result = run(command, cwd=checkout, env=native_env, timeout=1800)
     profile = json.loads(output.read_text()) if output.is_file() else {}
     report_root = output.parent
     reports = []
@@ -402,6 +412,28 @@ def make_report_rows(local: dict) -> list[dict]:
                              "owner": owner, "path": data["report_path"], "sha256": data["report_sha256"],
                              "report": data.get("report")})
     return rows
+
+
+def compare_library_pair(left: dict | None, right: dict | None) -> dict:
+    if not all(isinstance(row, dict) and row.get("complete") is True and row.get("exit_code") == 0
+               and isinstance(row.get("tests"), list) and row["tests"] for row in (left, right)):
+        return {"status": "blocked", "reason": "missing_incomplete_or_failed_receiver"}
+    normalize = lambda row: sorted((item.get("test_id"), item.get("status")) for item in row["tests"])
+    same = (normalize(left) == normalize(right) and left.get("excluded") == right.get("excluded")
+            and left.get("skipped") == right.get("skipped"))
+    return {"status": "passed" if same else "failed"}
+
+
+def compare_browser_pair(left: dict | None, right: dict | None) -> dict:
+    if not all(isinstance(row, dict) and row.get("exit_code") == 0 and row.get("cleanup_status") == "passed"
+               and isinstance(row.get("identities"), list) and row["identities"] for row in (left, right)):
+        return {"status": "blocked", "reason": "missing_incomplete_or_failed_owner"}
+    normalize = lambda row: sorted((json.dumps(item.get("identity"), ensure_ascii=False, separators=(",", ":")),
+                                   item.get("owner"), item.get("classification"), item.get("expected_status"),
+                                   item.get("status")) for item in row["identities"])
+    same = (normalize(left) == normalize(right) and left.get("skipped") == right.get("skipped")
+            and left.get("excluded") == right.get("excluded"))
+    return {"status": "passed" if same else "failed"}
 
 
 def build_native(args: argparse.Namespace) -> tuple[dict, int]:
@@ -480,20 +512,15 @@ def build_native(args: argparse.Namespace) -> tuple[dict, int]:
                                                  "profile_sha256": result.get("profile_sha256"),
                                                  "failure": result.get("failure")})
         for receiver, pair in local["library"]["receivers"].items():
-            left, right = pair.get("control"), pair.get("candidate")
-            if not left or not right:
-                continue
-            pair["comparison"] = {"status": "passed" if sorted((x["test_id"], x["status"]) for x in left["tests"]) == sorted((x["test_id"], x["status"]) for x in right["tests"]) else "failed"}
+            pair["comparison"] = compare_library_pair(pair.get("control"), pair.get("candidate"))
         for owner, pair in local["browser_owners"].items():
             left, right = pair.get("control"), pair.get("candidate")
-            if not left or not right:
-                continue
-            left_ids = sorted((json.dumps(row["identity"], separators=(",", ":")), row["status"], row["expected_status"]) for row in left["identities"])
-            right_ids = sorted((json.dumps(row["identity"], separators=(",", ":")), row["status"], row["expected_status"]) for row in right["identities"])
-            pair["comparison"] = {"status": "passed" if left_ids == right_ids and left.get("skipped") == right.get("skipped") and left.get("excluded") == right.get("excluded") else "failed",
-                                   "before_rows": len(left["identities"]), "after_rows": len(right["identities"]),
-                                   "before_setup_rows": sum(1 for row in left["identities"] if str(row.get("project", "")).startswith("admin-design-setup-")),
-                                   "after_setup_rows": sum(1 for row in right["identities"] if str(row.get("project", "")).startswith("admin-design-setup-"))}
+            comparison = compare_browser_pair(left, right)
+            pair["comparison"] = {**comparison,
+                                   "before_rows": len(left.get("identities", [])) if isinstance(left, dict) else 0,
+                                   "after_rows": len(right.get("identities", [])) if isinstance(right, dict) else 0,
+                                   "before_setup_rows": sum(1 for row in left.get("identities", []) if str(row.get("project", "")).startswith("admin-design-setup-")) if isinstance(left, dict) else 0,
+                                   "after_setup_rows": sum(1 for row in right.get("identities", []) if str(row.get("project", "")).startswith("admin-design-setup-")) if isinstance(right, dict) else 0}
         local["reports"] = make_report_rows(local)
         ok, errors = validate_equivalent_work(local)
         local["validation_errors"] = errors
@@ -578,6 +605,14 @@ class RepairedWorkContractTest(unittest.TestCase):
         ok, errors = validate_equivalent_work(value)
         self.assertFalse(ok)
         self.assertIn(f"browser_identity_status_or_classification_mismatch:{OWNERS[0]}", errors)
+
+    def test_incomplete_or_failed_native_pairs_are_blocked_not_reported_as_matching(self):
+        self.assertEqual(compare_library_pair(None, None)["status"], "blocked")
+        self.assertEqual(compare_library_pair({"complete": True, "exit_code": 1, "tests": []},
+                                              {"complete": True, "exit_code": 1, "tests": []})["status"], "blocked")
+        self.assertEqual(compare_browser_pair(None, None)["status"], "blocked")
+        self.assertEqual(compare_browser_pair({"exit_code": 2, "cleanup_status": "failed", "identities": []},
+                                              {"exit_code": 2, "cleanup_status": "failed", "identities": []})["status"], "blocked")
 
 
 def main(argv: list[str]) -> int:

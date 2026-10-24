@@ -80,6 +80,23 @@ test('preparation comparison preserves cache partitions, dependencies, readiness
   assert.match(devConfig, /code_reloader: dev_code_reloading\?/);
 });
 
+test('preparation parser accepts only the frozen sequential control treatment', () => {
+  const combined = 'mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs';
+  const sequential = "bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'";
+  const controlAction = action.replaceAll(combined, sequential);
+  assert.doesNotThrow(() => assertPreparationCacheContract(controlAction));
+  const plan = buildPreparationCommands(controlAction);
+  assert.equal(plan.combined, combined);
+  assert.deepEqual(plan.selected, [sequential]);
+
+  for (const mutation of [
+    controlAction.replace('mix deps.get && mix compile', 'mix compile && mix deps.get'),
+    controlAction.replace('mix ecto.migrate && mix run', 'mix run && mix ecto.migrate'),
+    controlAction.replace(sequential, 'bash -c \'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix test\''),
+    controlAction.replace(sequential, 'echo skip preparation'),
+  ]) assert.throws(() => buildPreparationCommands(mutation));
+});
+
 test('preparation comparison rejects source mutations that drop cache or cold-path safety', () => {
   const mutations = [
     action.replaceAll('inputs.app-port', 'inputs.default-port'),
