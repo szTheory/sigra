@@ -55,6 +55,10 @@ export function createAdminThemeStoragePath(root: string, env = process.env, pid
 }
 
 export const adminThemeTest = base.extend<TestFixtures, WorkerFixtures>({
+  // This fixture starts traces itself for each manually-created context. Keep the
+  // Playwright-owned trace fixture off so browser.newContext does not start a
+  // second trace before startDiagnosticTrace runs.
+  trace: "off",
   adminThemeAuth: [async ({ browser }, use, workerInfo) => {
     const root = workerInfo.config.rootDir;
     const storagePath = createAdminThemeStoragePath(root);
@@ -130,7 +134,11 @@ export const adminThemeTest = base.extend<TestFixtures, WorkerFixtures>({
       } catch (error) {
         cleanupError ??= error;
       }
-      record(true);
+      const storageRemoved = !fs.existsSync(storagePath);
+      if (cleanupError && !setupFailed && diagnosticsEnabled) {
+        registerDiagnosticTrace(undefined, "admin-theme-setup", "cleanup_failed_after_trace_discard");
+      }
+      record(!cleanupError && storageRemoved);
       if (cleanupError && !setupFailed) throw cleanupError;
     }
   }, { scope: "worker" }],

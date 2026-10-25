@@ -25,6 +25,17 @@ test('admin theme fixture setup uses anonymous registration and deletes auth byt
   assert.doesNotMatch(source, /catch\s*\([^)]*\)\s*\{\s*\/\/\s*ignore/s);
 });
 
+test('admin theme fixture exclusively owns manual traces while preserving project diagnostics', () => {
+  const source = fs.readFileSync(fixturePath, 'utf8');
+  const probe = fs.readFileSync(new URL('./fixtures/playwright-admin-theme-diagnostics.spec.ts', import.meta.url), 'utf8');
+
+  assert.match(source, /base\.extend<TestFixtures, WorkerFixtures>\(\{\s*\/\/[\s\S]*?trace:\s*["']off["']/);
+  assert.match(probe, /testInfo\.project\.use\.trace\)\.toBe\(["']retain-on-failure["']\)/);
+  assert.doesNotMatch(probe, /adminThemeTest\.use\(\{\s*trace:/);
+  assert.match(source, /record\(!cleanupError && storageRemoved\)/);
+  assert.match(source, /cleanup_failed_after_trace_discard/);
+});
+
 test('browser runner drops only a database it created when a browser invocation fails', () => {
   const runnerPath = new URL('./ci-admin-theme-check.mjs', import.meta.url);
   const source = fs.readFileSync(runnerPath, 'utf8');

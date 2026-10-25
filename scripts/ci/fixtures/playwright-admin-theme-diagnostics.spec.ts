@@ -11,9 +11,7 @@ async function exerciseBrowserCase(page: Page) {
   expect(title.length).toBeGreaterThan(0);
 }
 
-// The fixture owns traces for its manually created contexts, so disable the test runner trace here.
-adminThemeTest.use({ trace: 'off' });
-
-adminThemeTest('retains an adminTheme manual-context first failure and discards its pass', async ({ page }) => {
+adminThemeTest('retains an adminTheme manual-context first failure and discards its pass', async ({ page }, testInfo) => {
+  expect(testInfo.project.use.trace).toBe('retain-on-failure');
   await exerciseBrowserCase(page);
 });
