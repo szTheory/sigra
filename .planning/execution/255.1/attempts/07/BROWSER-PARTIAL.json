@@ -1,0 +1,86 @@
+{
+  "status": "four_browser_pairs_passed_one_pending",
+  "local_only": true,
+  "acceptance_samples": 0,
+  "hosted_status": "blocked",
+  "pairs": {
+    "admin_behavior": {
+      "status": "passed"
+    },
+    "admin_checkpoints": {
+      "status": "passed"
+    },
+    "design_gallery": {
+      "status": "passed"
+    },
+    "demo_showcase": {
+      "status": "passed"
+    }
+  },
+  "rows": [
+    {
+      "role": "control",
+      "owner": "admin_behavior",
+      "cases": 43,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/control-admin_behavior-07/RESULT.json",
+      "sha256": "a97e2625ee6226db61a67da4eb616e45c9ef066aa196e1f8df74a2204c75f949"
+    },
+    {
+      "role": "candidate",
+      "owner": "admin_behavior",
+      "cases": 43,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/candidate-admin_behavior-07/RESULT.json",
+      "sha256": "0ebdea4e56dca8ad5e160f2ba21e7befbb5439cafdbacdbb441e217963aa5024"
+    },
+    {
+      "role": "control",
+      "owner": "admin_checkpoints",
+      "cases": 3,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/control-admin_checkpoints-07/RESULT.json",
+      "sha256": "da3117ad72d8d4b5e3e75b2bb13513a3d83b3bc72e9c1937ec50303afd432dee"
+    },
+    {
+      "role": "candidate",
+      "owner": "admin_checkpoints",
+      "cases": 3,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/candidate-admin_checkpoints-07/RESULT.json",
+      "sha256": "82fbf94e6bdfada47b663009adb8d58712053eced25d53f1b5aee46577a3190c"
+    },
+    {
+      "role": "control",
+      "owner": "design_gallery",
+      "cases": 42,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/control-design_gallery-07/RESULT.json",
+      "sha256": "23620d78579f4f5de4c164a6bfc202e67d6ebb336d9d0ae4539e5e6a18440b69"
+    },
+    {
+      "role": "candidate",
+      "owner": "design_gallery",
+      "cases": 42,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/candidate-design_gallery-07/RESULT.json",
+      "sha256": "46fa4327cc319d72c078366074f739ba3dc9c00ff8f49a7f27090a6ef7b4ad3d"
+    },
+    {
+      "role": "control",
+      "owner": "demo_showcase",
+      "cases": 4,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/control-demo_showcase-07/RESULT.json",
+      "sha256": "b51e054842ef9899e81ee5fef6c11c99214c1b44ada5c662198dda8886d67599"
+    },
+    {
+      "role": "candidate",
+      "owner": "demo_showcase",
+      "cases": 4,
+      "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/candidate-demo_showcase-07/RESULT.json",
+      "sha256": "893d8112d827ecd998f7bf8d4cf4d8bb00ad9cd32f70e8fa321763751f976d5d"
+    }
+  ],
+  "pending_pair": "non_admin_smoke",
+  "active_control_origin_retry": {
+    "session_id": 18482,
+    "path": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/control-non_admin_smoke-07-origin/RESULT.json"
+  },
+  "candidate_not_started": true,
+  "library_agent": "/root/execute_plan02",
+  "library_scratch": ".gsd/255.1-linux-library/attempt-pz94hsuz"
+}

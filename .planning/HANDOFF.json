@@ -206,7 +206,7 @@
       "read_back_equal": true
     },
     "remaining_blockers": [
-      "Final frozen control/candidate library and all five browser-owner comparisons are pending.",
+      "Full library reports on both frozen sources and the last candidate browser report are pending.",
       "Actual hosted PR, branch-rule, runner and exact-cache restore records remain unproved.",
       "Plans06/07 retain separate concrete hosted preparation and measurement approvals."
     ],
@@ -265,12 +265,13 @@
     "active_execution": {
       "task": "/root",
       "plan": "255.1-02",
-      "status": "final_exact_source_native_verification_running",
+      "status": "last_browser_suite_and_isolated_library_verification_running",
       "sources": ".planning/execution/255.1/SOURCES.json",
       "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
       "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
-      "progress_record": ".planning/execution/255.1/attempts/07/RUNNING.json",
-      "scope": "Final local library and browser identity/status comparisons only; no hosted authority or speed acceptance."
+      "progress_record": ".planning/execution/255.1/attempts/07/ISOLATION-CONTINUATION.json",
+      "library_agent": "/root/execute_plan02",
+      "scope": "Local verification only; no hosted authority or speed acceptance."
     },
     "source_native_verification": {
       "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
@@ -302,7 +303,7 @@
   "next_command_precondition": null,
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "blockers": [
-    "Final frozen control/candidate library and all five browser-owner comparisons are pending.",
+    "Full library reports on both frozen sources and the last candidate browser report are pending.",
     "Actual hosted PR, branch-rule, runner and exact-cache restore records remain unproved.",
     "Plans06/07 retain separate concrete hosted preparation and measurement approvals."
   ],
@@ -310,11 +311,12 @@
   "active_execution": {
     "task": "/root",
     "plan": "255.1-02",
-    "status": "final_exact_source_native_verification_running",
+    "status": "last_browser_suite_and_isolated_library_verification_running",
     "sources": ".planning/execution/255.1/SOURCES.json",
     "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
     "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
-    "progress_record": ".planning/execution/255.1/attempts/07/RUNNING.json",
-    "scope": "Final local library and browser identity/status comparisons only; no hosted authority or speed acceptance."
+    "progress_record": ".planning/execution/255.1/attempts/07/ISOLATION-CONTINUATION.json",
+    "library_agent": "/root/execute_plan02",
+    "scope": "Local verification only; no hosted authority or speed acceptance."
   }
 }

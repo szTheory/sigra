@@ -5,8 +5,8 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: "255.1"
 current_phase_name: "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets"
 status: in_progress
-stopped_at: Final exact-source native comparison running
-last_updated: "2026-10-25T00:58:36.741358+00:00"
+stopped_at: Last browser suite and isolated library verification running
+last_updated: "2026-10-25T01:34:50.774898+00:00"
 state_head: 03863a1953f0b65e0da76cb7a07fbf0d40c044a6
 progress:
   total_phases: 5
@@ -72,11 +72,11 @@ phase255_1_state_preservation: .planning/execution/255.1/STATE-PRESERVATION.json
 **Current plan:** 255.1-02 — persistent reports and equal useful work
 **Next/resume command:** $gsd-execute-phase 255.1
 
-Plan01 source recovery is complete. Plan02 report/evaluator changes and the candidate trace-ownership fix are implemented. Final local verification is running against candidate cfe5e8d3ee82358b625d2715d773afc5c494bcf9 and control 8d7355185ca95f2310b701d95c79646b2002916f; see `.planning/execution/255.1/attempts/07/RUNNING.json`. Both sources passed startup checks. The control library gate and candidate admin browser owner are active; no final comparison pass is claimed.
+Plan01 source recovery is complete. Plan02 implementation and the trace-ownership fix are committed; final verification is pending. Frozen candidate: cfe5e8d3ee82358b625d2715d773afc5c494bcf9; control: 8d7355185ca95f2310b701d95c79646b2002916f. Four browser-suite comparisons passed. All 108 selected control browser cases passed; the candidate has 92 completed cases and its last 16-case suite is active. See `.planning/execution/255.1/attempts/07/ISOLATION-CONTINUATION.json` for exact sessions, paths and environment.
 
-The previous source pair passed library comparisons, but its candidate admin browser owner had18 trace-start failures and25 passes. The control's behavior43/checkpoints3/gallery42 cases passed. Preserve those outcomes at `attempts/06/STOPPED.json`; they do not prove the corrected sources. Focused pass/failure probes verify trace ownership, retained failure ZIP, 0600 auth storage and deletion at `attempts/06/TRACE-OWNERSHIP-FIX.json`.
+The Mac library attempt passed ordinary tests but hit three pre-existing upgrade databases; none were deleted. A fresh Linux database namespace solves that collision. Five targeted tests are checking the completed local tool setup and per-project build paths before full library runs. No full Linux library pass is claimed. Earlier failures and the corrected passkey-origin input are preserved under `attempts/07/`; the source bytes remain frozen.
 
-Local Plans03–05 await their predecessors. Hosted preparation/measurement remains unauthorized until the concrete checkpoints in Plans06/07. Both CISPEED requirements remain open; zero acceptance samples. General lessons: `prompts/fan-out-prompt.txt`.
+Local Plans03–05 await Plan02. Hosted preparation and measurement require the concrete approvals in Plans06/07. Both CISPEED requirements remain open; zero acceptance samples. General lessons: `prompts/fan-out-prompt.txt`.
 
 # Prior work
 
