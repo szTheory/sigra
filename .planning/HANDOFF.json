@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T03:15:44.043184+00:00",
+  "updated_at": "2026-10-25T03:46:06.006915+00:00",
   "status": "executing_local",
   "current_milestone": "v1.50",
   "current_phase": "255.1",
-  "current_plan": "255.1-04",
+  "current_plan": "255.1-05",
   "completed_plans": [
     "255.1-01-PLAN.md",
     "255.1-02-PLAN.md",
-    "255.1-03-PLAN.md"
+    "255.1-03-PLAN.md",
+    "255.1-04-PLAN.md"
   ],
   "remaining_plans": [
-    "255.1-04-PLAN.md",
     "255.1-05-PLAN.md",
     "255.1-06-PLAN.md",
     "255.1-07-PLAN.md"
@@ -20,12 +20,12 @@
   "verification_status": "pending",
   "next_command": "$gsd-execute-phase 255.1",
   "resume_command": "$gsd-execute-phase 255.1",
-  "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-04-PLAN.md",
+  "resume_file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-05-PLAN.md",
   "readiness": {
     "record": ".planning/execution/255.1/unblock-source/EXECUTION-READINESS.json",
     "plan_index": ".planning/execution/255.1/unblock-source/PLAN-READINESS.json",
     "ready_plans": [
-      "255.1-04"
+      "255.1-05"
     ],
     "halted_plans": [],
     "next_command": "$gsd-execute-phase 255.1",
@@ -112,8 +112,8 @@
     "preservation_commit": "cf2107cd871960355c0cc06f2b45ceaa24a40c61"
   },
   "prior_handoff": {
-    "commit": "c389e39d6611c3e622d74f0d80ee4275a596a2ef",
-    "sha256": "da673034a3e6fb2e85bad3c68c3cccee440521c5447a2bdb99476ad864343ee8",
+    "commit": "6dc1cf20daf53b7067e59696c6cd78e99fc5acfa",
+    "sha256": "8f261b306907d6a8b877ff14db8e57b68344a5192e868f878b28aa811b62aa03",
     "read_back_equal": true,
     "path": ".planning/HANDOFF.json"
   },
@@ -310,9 +310,9 @@
   ],
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
-    "plan": "255.1-04",
+    "plan": "255.1-05",
     "status": "ready_local",
-    "continuation": ".planning/execution/255.1/PLAN03-CONTINUATION.json",
+    "continuation": ".planning/execution/255.1/PLAN04-CONTINUATION.json",
     "running_invocations": []
   }
 }
