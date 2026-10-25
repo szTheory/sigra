@@ -1,0 +1,11 @@
+{
+  "schema_version": "sigra.local-library-runtime/v1",
+  "postgres_image_id": "sha256:85c4c0fadf81bfe6e93068a06a6810355e5b9909ae5092788d8aa17ee9d8f10e",
+  "postgres_repo_digest": "postgres@sha256:df7bca0066e6f60cc3dd32faa70caddec20e2c22b58932f79498e5704b23854a",
+  "postgres_version": "15.18",
+  "otp_version": "28.5",
+  "task_owned_database_cleanup": "both removed",
+  "observer": "execute_plan02 terminal report",
+  "local_only": true,
+  "acceptance_samples": 0
+}

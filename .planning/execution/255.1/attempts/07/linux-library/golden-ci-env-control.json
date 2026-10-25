@@ -1,0 +1,36 @@
+{
+  "acceptance_samples": 0,
+  "command": "mix test test/sigra/install/golden_diff_test.exs:54",
+  "environment": {
+    "MIX_BUILD_PATH": "unset",
+    "PHX_CI": "true",
+    "tmpdir": "fresh executable host mount",
+    "tmpdir_empty_before_run": true
+  },
+  "private_report": {
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/control-golden/output/golden-exunit.json",
+    "sha256": "81c856d65f5eeb0fa9bc86816c7aed410bb5b01ea68f41c6f80709a13969f7d4"
+  },
+  "result": {
+    "excluded": 1,
+    "failed": 0,
+    "failed_test_ids": [],
+    "passed": 1,
+    "status": "passed",
+    "tests": 1
+  },
+  "runner": {
+    "pg_image": "postgres:15-alpine",
+    "phx_new_archive_manifest_sha256": "4ec8bccac1170767b7147b81a7eb4a607e1ea5d49a5487786f62eb10492c7ade",
+    "seccomp_profile_sha256": "d8039f0ff04eea8ede7481d12ca49c1485e1314415a9cfa067c3dfb288d0d2dd",
+    "tool_image_id": "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa"
+  },
+  "schema_version": "sigra.phase255.1.local-linux-library-canary/1",
+  "source": {
+    "archive_sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782",
+    "role": "control",
+    "sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+    "tree": "a1c0dd48a6c3d2acb037791298558e012c658142"
+  },
+  "status": "passed"
+}

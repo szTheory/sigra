@@ -1,0 +1,48 @@
+{
+  "schema_version": "sigra.local-parity-promotion/v1",
+  "prior": {
+    ".planning/execution/255.1/EQUIVALENT-WORK.json": {
+      "commit": "d971388dc1895c95c35fca701a872e4f15daac5e",
+      "sha256": "771bec9e3504993d08658f1f4157dd28d38e8d32a253b7e410332fdc6fdcf230",
+      "read_back_equal": true,
+      "initially_clean": true
+    },
+    ".planning/execution/255.1/FEASIBILITY.json": {
+      "commit": "d971388dc1895c95c35fca701a872e4f15daac5e",
+      "sha256": "4437271782f2489ea8cd1948ab020b701ed085cc72869f84f505170848020a5c",
+      "read_back_equal": true,
+      "initially_clean": true
+    },
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-SUMMARY.md": {
+      "commit": "d971388dc1895c95c35fca701a872e4f15daac5e",
+      "sha256": "90c50a0df3cedf6aa737af7271ef9330e714035c8e32443bfb9785a64b719184",
+      "read_back_equal": true,
+      "initially_clean": true
+    },
+    ".planning/STATE.md": {
+      "commit": "d971388dc1895c95c35fca701a872e4f15daac5e",
+      "sha256": "2735d9d5f3b478d754ef0687865b36178be8b5011d78474e8f06b0d0826582f1",
+      "read_back_equal": true,
+      "initially_clean": true
+    },
+    ".planning/state.json": {
+      "commit": "d971388dc1895c95c35fca701a872e4f15daac5e",
+      "sha256": "217b17f408f94fc4786b08bd9207cdd6a8c34bf05300ea7accade4da79278f8b",
+      "read_back_equal": true,
+      "initially_clean": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "d971388dc1895c95c35fca701a872e4f15daac5e",
+      "sha256": "2663eac7630c5e793637a99848e0f192bf44371e1968450ab359a9c0e4e0d34b",
+      "read_back_equal": true,
+      "initially_clean": true
+    }
+  },
+  "receipt": ".planning/execution/255.1/attempts/07/EQUIVALENT-WORK.json",
+  "source_sha": {
+    "control": "8d7355185ca95f2310b701d95c79646b2002916f",
+    "candidate": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9"
+  },
+  "hosted_status": "blocked",
+  "acceptance_samples": 0
+}

@@ -1,0 +1,48 @@
+{
+  "acceptance_samples": 0,
+  "command": "mix test --seed 166367 test/upgrade_test.exs:40 test/upgrade_test.exs:92 test/upgrade_test.exs:144 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:145 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:171",
+  "console_sha256": "6885ada3b8f202f18d9e57e685e9c11de7e282567b4f99afb1eff8a2c1ec6b48",
+  "environment": {
+    "mix_build_path": "unset",
+    "network_for_offline_verifier": "user+network namespace; no API request",
+    "tmpdir": "fresh invocation-owned writable host bind mount with executable mappings",
+    "tmpdir_empty_before_run": true,
+    "tmpfs_tmp_not_used_for_generated_apps": true
+  },
+  "private_exunit_report": {
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/canary/final-output/canary-exunit.json",
+    "sha256": "f52e3618602706b404fd93a1b185a91d9d7fa54276026532019af515f3aef98b"
+  },
+  "result": {
+    "excluded": 14,
+    "failed": 0,
+    "failed_test_ids": [],
+    "passed": 5,
+    "skipped": 0,
+    "status": "passed",
+    "tests": 5
+  },
+  "runner": {
+    "base_image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+    "elixir": "1.19.5 / OTP 28",
+    "gh": "2.103.2",
+    "node": "20.20.2",
+    "pg_image": "postgres:15-alpine",
+    "platform": "linux/amd64 emulated on arm64/v8",
+    "seccomp_profile_sha256": "d8039f0ff04eea8ede7481d12ca49c1485e1314415a9cfa067c3dfb288d0d2dd",
+    "tool_image_id": "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa"
+  },
+  "schema_version": "sigra.phase255.1.local-linux-library-canary/1",
+  "source": {
+    "archive_sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782",
+    "role": "control",
+    "sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+    "tree": "a1c0dd48a6c3d2acb037791298558e012c658142"
+  },
+  "status": "passed",
+  "tmpfs_noexec_diagnostic": {
+    "finding": "specified tmpfs mounted noexec; loading libm.so.6 failed there and passed from fresh host bind mount",
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/diagnostics/tmp-exec-check.log",
+    "sha256": "9603a8e799659fa17271906f44a55deec528269ce839ed809f6c734e94c83db0"
+  }
+}

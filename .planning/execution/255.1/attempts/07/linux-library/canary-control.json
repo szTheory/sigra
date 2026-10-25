@@ -1,0 +1,39 @@
+{
+  "acceptance_samples": 0,
+  "command": "mix test test/upgrade_test.exs:40 test/upgrade_test.exs:92 test/upgrade_test.exs:144 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:145 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:171",
+  "known_failures": [
+    "offline source verifier requires jq, unavailable in pinned container",
+    "generated upgrade app inherits non-CI MIX_BUILD_PATH=/build and Argon2 runtime fails; retry with actual workflow env (MIX_BUILD_PATH unset)"
+  ],
+  "private_exunit_report": {
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/canary/output/canary-exunit.json",
+    "sha256": "cb30843be5c7c06f0eb891ef252ef000c6e3cfb695a9b189b81dc6bdca141b11"
+  },
+  "result": {
+    "excluded": 14,
+    "failed": 3,
+    "failed_test_ids": [
+      "Sigra.Planning.Phase235Fast01SourceCompleteContractTest.test semantic fixture parsing stays isolated from the authenticated default path",
+      "Sigra.Planning.Phase235Fast01SourceCompleteContractTest.test authenticated strict pass is reconciled exactly into FAST-01 and its residual",
+      "Sigra.UpgradeIntegrationTest.test upgrade after default install (org-enabled path \u2014 ORG-UPGRADE-02) login after backfill-off upgrade redirects to /organizations with 302 and no 500s"
+    ],
+    "passed": 2,
+    "status": "blocked_by_test_environment",
+    "tests": 5
+  },
+  "runner": {
+    "elixir": "1.19.5 / OTP 28",
+    "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+    "node": "20.20.2",
+    "pg_image": "postgres:15-alpine",
+    "platform": "linux/amd64 emulated on arm64/v8",
+    "seccomp_sha256": "d8039f0ff04eea8ede7481d12ca49c1485e1314415a9cfa067c3dfb288d0d2dd"
+  },
+  "schema_version": "sigra.phase255.1.local-linux-library-canary/1",
+  "source": {
+    "archive_sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782",
+    "role": "control",
+    "sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+    "tree": "a1c0dd48a6c3d2acb037791298558e012c658142"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "acceptance_samples": 0,
+  "attempt": {
+    "command": "python3 -B scripts/ci/ci-mix-receivers.py --native --output /output/MIX-RECEIVERS.json",
+    "dep_off": "not_started",
+    "ordinary": {
+      "complete": true,
+      "excluded": 22,
+      "failed": 0,
+      "passed": 2678,
+      "seed": 713402,
+      "skipped": 12
+    },
+    "overall_report": "not_written_before_interrupt",
+    "scaffold": {
+      "actual": "docker host {0,0,0,0}",
+      "actual_bytes": 3327,
+      "completed_report": false,
+      "expected": "loopback {127,0,0,1}",
+      "expected_bytes": 3252,
+      "expected_path": "test/fixtures/install_golden/tree/config/dev.exs",
+      "first_mismatch_offset": 618,
+      "source_path": "test/sigra/install/golden_diff_test.exs:54",
+      "status": "failed_then_interrupted",
+      "test": "Sigra.Install.GoldenDiffTest.test generated tree matches committed fixture byte-for-byte (migration filenames normalized)"
+    },
+    "stopped_by": "executor Ctrl-C after first deterministic scaffold failure"
+  },
+  "private_artifacts": {
+    "ordinary": {
+      "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/full-control/output/native-run-1792892779927200584/legs/ordinary/exunit.json",
+      "sha256": "b413d6e45a3b98a293feb62d641d83404324d2ba67698fda0a6c1cce4f5b26cb"
+    },
+    "scaffold_output": {
+      "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/full-control/output/native-run-1792892779927200584/commands/scaffold/stdout.bin",
+      "sha256": "ae2b0e256ebc137d3f82d8cf0a7f5eae0d565b7a8dc102536c2d937fb946f822"
+    }
+  },
+  "schema_version": "sigra.phase255.1.local-linux-library-attempt/1",
+  "source": {
+    "archive_sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782",
+    "role": "control",
+    "sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+    "tree": "a1c0dd48a6c3d2acb037791298558e012c658142"
+  },
+  "status": "interrupted_after_first_failure"
+}

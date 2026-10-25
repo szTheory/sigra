@@ -59,16 +59,16 @@
       ],
       "depends_on": "255",
       "discussion_status": "complete",
-      "planning_status": "pending",
+      "planning_status": "passed",
       "context": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-CONTEXT.md",
       "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
       "claim_amendment_approved": true,
       "collection_authorized": false,
-      "completed_plans": 1,
+      "completed_plans": 2,
       "halted_plans": [],
       "blocked_plans": [],
-      "blocker_record": ".planning/execution/255.1/unblock-source/final-source/FEASIBILITY.json",
-      "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
+      "blocker_record": ".planning/execution/255.1/FEASIBILITY.json",
+      "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-SUMMARY.md",
       "preparation_authorized": false,
       "readiness": {
         "executor_model": "gpt-6-luna",
@@ -155,17 +155,18 @@
         "agents_dir": "/Users/jon/.codex/agents",
         "agent_runtime": "codex",
         "project_title": "Sigra"
-      }
+      },
+      "current_plan": "255.1-03"
     }
   ],
   "next": {
     "command": "$gsd-execute-phase 255.1",
-    "label": "Execute local Plan02",
-    "reason": "Plan01 source halt resolved; Plan02 is ready. Hosted proof remains a later gate.",
+    "label": "Execute local Plan03",
+    "reason": "Complete frozen-source local behavior parity passed; implement exact timing and cost calculations.",
     "conditional": false,
     "readiness": ".planning/execution/255.1/unblock-source/EXECUTION-READINESS.json"
   },
-  "updated_at": "2026-10-24T23:40:34.567689+00:00",
+  "updated_at": "2026-10-25T02:31:08.106390+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -474,15 +475,12 @@
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
-    "task": "/root",
-    "plan": "255.1-02",
-    "status": "last_browser_suite_and_isolated_library_verification_running",
-    "sources": ".planning/execution/255.1/SOURCES.json",
-    "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
-    "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
-    "progress_record": ".planning/execution/255.1/attempts/07/ISOLATION-CONTINUATION.json",
-    "library_agent": "/root/execute_plan02",
-    "scope": "Local verification only; no hosted authority or speed acceptance."
+    "plan": "255.1-03",
+    "status": "ready_local",
+    "prior_plan_result": ".planning/execution/255.1/attempts/07/EQUIVALENT-WORK.json",
+    "running_invocations": [],
+    "preparation_authorized": false,
+    "collection_authorized": false
   },
   "blockers": [
     "Full library reports on both frozen sources and the last candidate browser report are pending.",
