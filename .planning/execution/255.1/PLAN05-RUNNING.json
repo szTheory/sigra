@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "implementing_local",
+  "prior": {
+    ".planning/STATE.md": {
+      "commit": "ec7f393a9ccd61c1736f82a6df2b74187c8aa760",
+      "sha256": "ba31282dfceeac2fee411059f09d3dabc78128a76f2f3d4351e5d0ccc02bce3b",
+      "read_back_equal": true
+    },
+    ".planning/state.json": {
+      "commit": "ec7f393a9ccd61c1736f82a6df2b74187c8aa760",
+      "sha256": "5414f5c45f9541f8b63e40c64e89265841552c86728fd0ce4837f0d7242493be",
+      "read_back_equal": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "ec7f393a9ccd61c1736f82a6df2b74187c8aa760",
+      "sha256": "86eb8fd6376bd945583598b9df2d48247301d901226ae9e38207b60e73c74423",
+      "read_back_equal": true
+    }
+  },
+  "plan": "255.1-05",
+  "agents": {
+    "implementation": "/root/execute_plan05",
+    "new_guard_tests": "/root/plan05_guard_tests",
+    "future_native_owner": "/root/execute_plan02 (idle until new frozen sources)"
+  },
+  "implementation_status": "partial",
+  "phase_verification": "pending",
+  "next_command": "$gsd-execute-phase 255.1",
+  "source_freeze": "pending security/collector seams commit; old cfe5/8d are historical only",
+  "native_invocations": [],
+  "hosted_preparation_authorized": false,
+  "hosted_measurement_authorized": false,
+  "acceptance_samples": 0,
+  "known_cache_constraint": "No mechanism within two prep PRs/two reruns to create missing eligible shared source caches; require bounded read-only exact cache inventory before workflow launch. Actual inventory not yet authorized.",
+  "seams": ".gsd/phase2551-plan05-seams.md"
+}

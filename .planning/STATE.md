@@ -5,8 +5,8 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: "255.1"
 current_phase_name: "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets"
 status: in_progress
-stopped_at: Plan04 strict offline replay passed; continuing Plan05
-last_updated: "2026-10-25T03:46:06.006310+00:00"
+stopped_at: Plan05 local implementation and guard tests active; final source freeze pending
+last_updated: "2026-10-25T03:50:46.283323+00:00"
 state_head: 03863a1953f0b65e0da76cb7a07fbf0d40c044a6
 progress:
   total_phases: 5
@@ -74,7 +74,7 @@ phase255_1_state_preservation: .planning/execution/255.1/STATE-PRESERVATION.json
 
 Plans01–04 local implementation and verification are complete. The frozen sources pass the full library and five-owner browser comparison; all 16 retained reports were checked against their hashes. See `.planning/execution/255.1/attempts/07/EQUIVALENT-WORK.json` and `LOCAL-PROMOTION.json` for exact source identities and recovery references. No test invocation remains active.
 
-Plan03 actual collector→verifier→evaluator fixtures pass, including distinct PR/cache identities and rejection of invalid origins or unknown costs. Recovery and test references: `.planning/execution/255.1/PLAN03-CONTINUATION.json`. Strict repaired-control package replay and count/threshold/order/tamper tests passed; see `.planning/execution/255.1/PLAN04-CONTINUATION.json`. Continue authorized local Plan05. Eligible shared cache entries must be proved by bounded read-only readiness before starting workflows; prep-PR caches alone cannot warm fresh PRs. Hosted preparation and measurement require the concrete approvals in Plans06/07. Phase verification remains pending; CISPEED requirements remain open and acceptance samples remain zero. General lessons: `prompts/fan-out-prompt.txt`.
+Plan03 actual collector→verifier→evaluator fixtures pass, including distinct PR/cache identities and rejection of invalid origins or unknown costs. Recovery and test references: `.planning/execution/255.1/PLAN03-CONTINUATION.json`. Strict repaired-control package replay and count/threshold/order/tamper tests passed; see `.planning/execution/255.1/PLAN04-CONTINUATION.json`. Plan05 implementation and independent CLI guard-test agents are active; final source materialization and native verification have not started. Continue through `$gsd-execute-phase 255.1`; active ownership and recovery references are in `.planning/execution/255.1/PLAN05-RUNNING.json`. Eligible shared cache entries must be proved by bounded read-only readiness before starting workflows; prep-PR caches alone cannot warm fresh PRs. Hosted preparation and measurement require the concrete approvals in Plans06/07. Phase verification remains pending; CISPEED requirements remain open and acceptance samples remain zero. General lessons: `prompts/fan-out-prompt.txt`.
 
 # Prior work
 

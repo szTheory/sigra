@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T03:46:06.006915+00:00",
+  "updated_at": "2026-10-25T03:50:46.283323+00:00",
   "status": "executing_local",
   "current_milestone": "v1.50",
   "current_phase": "255.1",
@@ -311,8 +311,12 @@
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
     "plan": "255.1-05",
-    "status": "ready_local",
-    "continuation": ".planning/execution/255.1/PLAN04-CONTINUATION.json",
-    "running_invocations": []
+    "status": "implementing_local",
+    "continuation": ".planning/execution/255.1/PLAN05-RUNNING.json",
+    "running_native_invocations": [],
+    "agents": [
+      "/root/execute_plan05",
+      "/root/plan05_guard_tests"
+    ]
   }
 }
