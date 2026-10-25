@@ -4,6 +4,7 @@
 import hashlib
 import base64
 import json
+import os
 import pathlib
 import subprocess
 import tempfile
@@ -16,6 +17,7 @@ from ci_metrics_security import (
     bind_required_checks_by_attempt,
     comparison_request_budget_reserve,
     comparison_request_budget_record_response,
+    comparison_watcher_start,
     initialize_comparison_request_budget,
     comparison_registered_runs,
     validate_comparison_registration_ledger,
@@ -29,6 +31,7 @@ from ci_metrics_security import (
     validate_comparison_schedule,
     validate_producer_binding,
     validate_producer_commit,
+    validate_repaired_control_metadata,
     validate_general_job_identity,
     validate_workflow_source,
     verified_failure_log,
@@ -38,6 +41,33 @@ from ci_metrics_security import (
 
 
 class SecurityContractsTest(unittest.TestCase):
+    def test_repaired_measurement_rejects_mutating_method_at_cli_boundary(self):
+        root = pathlib.Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory() as temp:
+            contract_path = pathlib.Path(temp) / "repaired.json"
+            contract_path.write_text(json.dumps({"comparison_kind": "repaired_control_pr"}))
+            result = subprocess.run([
+                "bash", str(root / "scripts/ci/ci-run-metrics.sh"),
+                "--collect-comparison", "--comparison-role", "before",
+                "--contract", str(contract_path), "--request-method", "POST",
+            ], cwd=root, capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("repaired_control_measurement_get_only", result.stderr)
+
+    def test_repaired_owner_cache_and_image_evidence_fails_closed(self):
+        self.assertIn("repaired_metadata_owner_set_incomplete", validate_repaired_control_metadata([]))
+        rows = []
+        for owner in ("library", "admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"):
+            rows.append({"job_name": "Library tests shard" if owner == "library" else "Example Playwright shard",
+                         "matrix_seam": None if owner == "library" else owner,
+                         "runner_os": "Linux", "runner_arch": "X64",
+                         "runner_image": {"image_os": "ubuntu24", "image_version": "20261020.1.0"},
+                         "cache_outcome": {"deps": {"cache_hit": True, "exact_key": True,
+                             "matched_cache_key": "key", "scope": "refs/pull/1/merge", "ref": "refs/pull/1/merge", "conditions": ["Linux", "X64"]}}})
+        self.assertEqual([], validate_repaired_control_metadata(rows))
+        rows[0]["cache_outcome"]["deps"]["exact_key"] = False
+        self.assertIn("repaired_cache_not_exact_hit:library:deps", validate_repaired_control_metadata(rows))
+
     def test_unset_comparison_window_returns_cli_diagnostic_without_traceback(self):
         root = pathlib.Path(__file__).resolve().parents[2]
         with tempfile.TemporaryDirectory() as temp:
@@ -66,14 +96,15 @@ class SecurityContractsTest(unittest.TestCase):
             for role in (("before","after") if pair%2 else ("after","before")):
                 pair_id=f"pair-{pair:02d}"; slot={"pair_id":pair_id,"family_role":role}
                 schedule.append(slot); reservations.append({"reservation_id":f"r-{pair_id}-{role}",**slot})
-        contract={"status":"ready","pair_count":20,"primary_family_count":40,"comparison_schedule":schedule,
+        contract={"comparison_kind":"repaired_control_pr","required_contexts":["c1","c2","c3","c4","c5"],
+                  "status":"ready","pair_count":20,"primary_family_count":40,"comparison_schedule":schedule,
                   "family_reservations":reservations,"maximum_pair_start_gap_seconds":1800,
                   "preparation_compatibility":{"baseline_cache_stratum":"warm","candidate_cache_stratum":"warm","runner_image_policy":"same"},
                   "candidate_identity":{"application_sha":"b"*40,"workflow_revision":"b"*40,"workload_revision_sha256":"c"*64,"workflow_file_sha256":"d"*64},
                   "baseline_application_sha":"a"*40,"window":{"start_utc":"2026-10-12T00:00:00Z","end_utc":"2026-10-14T00:00:00Z"}}
         raw_run={"id":101,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,
                  "created_at":"2026-10-13T00:00:00Z","status":"queued","conclusion":None,
-                 "pull_requests":[{"number":1,"head":{"sha":"a"*40},"base":{"sha":"e"*40}}]}
+                 "pull_requests":[{"number":1,"head":{"sha":"a"*40},"base":{"sha":"e"*40},"merge_commit_sha":"merge-tree"}]}
         raw=json.dumps(raw_run,sort_keys=True,separators=(",",":")).encode(); reservation=reservations[0]
         ledger=register_comparison_run(contract,reservation["reservation_id"],raw_run,api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw)
         self.assertEqual([],validate_comparison_registration_ledger(contract,ledger))
@@ -119,6 +150,86 @@ class SecurityContractsTest(unittest.TestCase):
             initialize_comparison_request_budget(contract,path,now=1000)
             with self.assertRaisesRegex(ValueError,"time_limit_exhausted"):
                 comparison_request_budget_reserve(contract,path,"/late",owner="run-1",now=4600)
+
+    def test_watcher_is_single_owner_and_resume_keeps_the_same_ledger(self):
+        contract={"request_budget_ledger_id":"c"*64,"status":"ready"}
+        with tempfile.TemporaryDirectory() as temp:
+            path=pathlib.Path(temp)/"watcher.json"
+            initialize_comparison_request_budget(contract,path,now=1000)
+            comparison_watcher_start(contract,path,123,owner="watcher-1",now=1001)
+            resumed=comparison_watcher_start(contract,path,123,owner="watcher-1",now=1002)
+            self.assertTrue(resumed["resumed"])
+            comparison_request_budget_reserve(contract,path,"/actions/runs/123",owner="watcher:123",now=1002)
+            with self.assertRaisesRegex(ValueError,"watcher_already_claimed"):
+                comparison_watcher_start(contract,path,123,owner="watcher-2",now=1003)
+            reopened=initialize_comparison_request_budget(contract,path,now=9999)
+            self.assertEqual(1000,reopened["started_at_epoch"])
+            self.assertEqual(1,sum(row.get("kind")=="request" for row in reopened["records"]))
+
+    def test_real_cli_watcher_polls_active_registered_run_with_shared_budget(self):
+        root = pathlib.Path(__file__).resolve().parents[2]
+        required = ["Library tests", "Example unit smoke (ExUnit + ConnTest)",
+                    "Install smoke (fresh phx.new + sigra.install)",
+                    "Example HTTP smoke (boot + curl critical routes)",
+                    "Example Playwright smoke (full lifecycle)"]
+        schedule=[]; reservations=[]
+        for pair in range(1,21):
+            for role in (("before","after") if pair%2 else ("after","before")):
+                pair_id=f"pair-{pair:02d}"; schedule.append({"pair_id":pair_id,"family_role":role})
+                reservations.append({"reservation_id":f"r-{pair_id}-{role}","pair_id":pair_id,"family_role":role})
+        contract={"comparison_kind":"repaired_control_pr","required_contexts":required,"status":"ready",
+            "request_budget_ledger_id":"a"*64,
+            "pair_count":20,"primary_family_count":40,"comparison_schedule":schedule,"family_reservations":reservations,
+            "maximum_pair_start_gap_seconds":1800,"preparation_compatibility":{"baseline_cache_stratum":"warm",
+                "candidate_cache_stratum":"warm","runner_image_policy":"same"},
+            "baseline_application_sha":"a"*40,"baseline_workload_revision_sha256":"c"*64,
+            "candidate_identity":{"application_sha":"b"*40,"workflow_revision":"b"*40,
+                "workload_revision_sha256":"d"*64,"workflow_file_sha256":"e"*64},
+            "window":{"start_utc":"2026-10-24T00:00:00Z","end_utc":"2026-10-26T00:00:00Z"}}
+        with tempfile.TemporaryDirectory() as temp:
+            temp=pathlib.Path(temp); contract_path=temp/"contract.json"; contract_path.write_text(json.dumps(contract))
+            run={"id":101,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,
+                "created_at":"2026-10-24T01:00:00Z","status":"in_progress","conclusion":None,
+                "pull_requests":[{"number":331,"head":{"sha":"a"*40},"base":{"sha":"f"*40},"merge_commit_sha":"merge-tree"}]}
+            raw=json.dumps(run,sort_keys=True,separators=(",",":")).encode()
+            ledger=register_comparison_run(contract,reservations[0]["reservation_id"],run,
+                api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw)
+            registration_path=temp/"registrations.json"
+            registration_path.write_text(json.dumps(ledger))
+            budget_path=temp/"budget.json"
+            initialize_comparison_request_budget(contract,budget_path)
+            calls_path=temp/"calls.json"; calls_path.write_text("0")
+            fake_bin=temp/"bin"; fake_bin.mkdir(); gh=fake_bin/"gh"
+            gh.write_text("#!/usr/bin/env python3\nimport json,os,pathlib,sys\nendpoint=sys.argv[-1]\nif endpoint=='rate_limit': print(json.dumps({'resources':{'core':{'remaining':500}}})); raise SystemExit(0)\npath=pathlib.Path(os.environ['FAKE_GH_CALLS_PATH']); n=int(path.read_text())+1; path.write_text(str(n))\nrun=json.loads(os.environ['FAKE_GH_RUN_JSON']); run['status']='in_progress' if n==1 else 'completed'; run['conclusion']=None if n==1 else 'success'; print(json.dumps(run))\n")
+            gh.chmod(0o755)
+            output_dir=temp/"watch-output"
+            env={**os.environ,"PATH":str(fake_bin)+os.pathsep+os.environ.get("PATH",""),"FAKE_GH_CALLS_PATH":str(calls_path),
+                "FAKE_GH_RUN_JSON":json.dumps(run),"CI_METRICS_TEST_MODE":"1","CI_METRICS_TEST_WATCH_INTERVAL_SECONDS":"60",
+                "CI_METRICS_TEST_NO_SLEEP":"1"}
+            result=subprocess.run(["bash",str(root/"scripts/ci/ci-run-metrics.sh"),"--watch-comparison-runs",
+                "--comparison-role","before","--contract",str(contract_path),"--registrations",str(registration_path),
+                "--request-budget-ledger",str(budget_path),"--watch-output-dir",str(output_dir)],
+                cwd=root,env=env,capture_output=True,text=True,timeout=30)
+            self.assertEqual(0,result.returncode,result.stderr)
+            report=json.loads(result.stdout)
+            self.assertEqual(2,report["poll_count"])
+            self.assertEqual(60,report["interval_seconds"])
+            self.assertEqual(3,report["request_count"])
+            self.assertEqual(2,int(calls_path.read_text()))
+            budget=json.loads(budget_path.read_text())
+            self.assertEqual(3,sum(row.get("kind")=="request" for row in budget["records"]))
+            self.assertEqual(1,sum(row.get("kind")=="watcher" for row in budget["records"]))
+
+    def test_http_403_and_429_are_hard_stops_without_immediate_retry(self):
+        contract={"request_budget_ledger_id":"d"*64,"status":"ready"}
+        for status in (403,429):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as temp:
+                path=pathlib.Path(temp)/"rate.json"
+                initialize_comparison_request_budget(contract,path,now=1000)
+                comparison_request_budget_reserve(contract,path,"/limited",owner="run-1",now=1000)
+                comparison_request_budget_record_response(contract,path,reset_at=2000,stop_reason=f"http_{status}")
+                with self.assertRaisesRegex(ValueError,f"http_{status}"):
+                    comparison_request_budget_reserve(contract,path,"/retry",owner="run-1",now=1001)
 
     def test_attempt_job_costs_keep_failed_work_and_report_unknowns(self):
         derive=getattr(security,"derive_attempt_job_costs",None)
