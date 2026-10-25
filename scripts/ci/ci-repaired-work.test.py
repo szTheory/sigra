@@ -460,19 +460,19 @@ def report_library(checkout: Path, role: str, scratch: Path, env: dict[str, str]
     output_root.mkdir(parents=True, exist_ok=True)
     report_path = output_root / "MIX-RECEIVERS.json"
     # The workflow fetches dependencies before the sole `mix ci` owner. Each
-    # checkout gets its own build directory but uses the exact locked sources
-    # already materialized from the active repository's dependency cache.
+    # checkout gets its own default _build. Generated apps must also retain
+    # their own defaults, as in CI; one inherited MIX_BUILD_PATH would mix
+    # their manifests and native libraries with the library project's build.
     dependency_dir = checkout / "deps"
     if not dependency_dir.exists():
         dependency_dir.symlink_to(ROOT / "deps", target_is_directory=True)
-    build_dir = scratch / f"library-build-{role}"
     command = [sys.executable, str(checkout / "scripts/ci/ci-mix-receivers.py"), "--native",
                "--output", str(report_path)]
     native_env = dict(env)
     native_env.update({"MIX_ENV": "test", "PGHOST": env.get("PGHOST", "localhost"),
                        "PGPORT": env.get("PGPORT", "5432"), "PGUSER": env.get("PGUSER", "postgres"),
-                       "PGPASSWORD": env.get("PGPASSWORD", "postgres"), "PGDATABASE": "sigra_test",
-                       "MIX_BUILD_PATH": str(build_dir)})
+                       "PGPASSWORD": env.get("PGPASSWORD", "postgres"), "PGDATABASE": "sigra_test"})
+    native_env.pop("MIX_BUILD_PATH", None)
     dependency_fetch = run(["mix", "deps.get"], cwd=checkout, env=native_env, timeout=600)
     (scratch / f"library-{role}-deps-get.json").write_text(json.dumps(dependency_fetch, indent=2) + "\n")
     if dependency_fetch["exit_code"] != 0:
@@ -991,6 +991,46 @@ class RepairedWorkContractTest(unittest.TestCase):
             self.assertEqual(env["SIGRA_CI_TRACE_REGISTRY"], str(diagnostic_root / "trace-registry.jsonl"))
             self.assertEqual(env["MATRIX_SEAM"], "admin_behavior")
             self.assertEqual(env["GITHUB_EVENT_NAME"], "pull_request")
+
+    def test_library_and_generated_children_use_their_own_default_builds(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            checkout, scratch, tools = base / "source", base / "scratch", base / "tools"
+            for folder in (checkout, scratch, tools, checkout / "generated"):
+                folder.mkdir(parents=True, exist_ok=True)
+            mix = tools / "mix"
+            mix.write_text(
+                f"#!{sys.executable}\n"
+                "import json,os,pathlib,sys\n"
+                "assert sys.argv[1:]==['deps.get']\n"
+                "pathlib.Path('deps-env.json').write_text(json.dumps("
+                "{'build':os.environ.get('MIX_BUILD_PATH'),'cwd':os.getcwd()}))\n"
+            )
+            mix.chmod(0o755)
+            receiver = checkout / "scripts/ci/ci-mix-receivers.py"
+            receiver.parent.mkdir(parents=True)
+            receiver.write_text(
+                "import json,os,pathlib,subprocess,sys\n"
+                "pathlib.Path('library-env.json').write_text(json.dumps("
+                "{'build':os.environ.get('MIX_BUILD_PATH'),'cwd':os.getcwd()}))\n"
+                "subprocess.run([sys.executable,'-c',"
+                "'import json,os,pathlib; pathlib.Path(\"generated-env.json\").write_text("
+                "json.dumps({\"build\":os.environ.get(\"MIX_BUILD_PATH\"),\"cwd\":os.getcwd()}))'"
+                "],cwd='generated',check=True)\n"
+                "pathlib.Path(sys.argv[sys.argv.index('--output')+1]).write_text("
+                "json.dumps({'native_exit_code':0}))\n"
+            )
+            outcome = report_library(
+                checkout, "control", scratch,
+                {"PATH": str(tools) + os.pathsep + os.defpath,
+                 "MIX_BUILD_PATH": "/unrelated-global-build"},
+            )
+            self.assertEqual(outcome["exit_code"], 0)
+            for relative in ("deps-env.json", "library-env.json", "generated/generated-env.json"):
+                observed = json.loads((checkout / relative).read_text())
+                self.assertIsNone(observed["build"], relative)
+            generated = json.loads((checkout / "generated/generated-env.json").read_text())
+            self.assertEqual(Path(generated["cwd"]), (checkout / "generated").resolve())
 
 
 def main(argv: list[str]) -> int:
