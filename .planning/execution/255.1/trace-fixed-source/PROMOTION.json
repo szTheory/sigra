@@ -1,0 +1,46 @@
+{
+  "status": "local_ready",
+  "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+  "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+  "local_status": "ready",
+  "hosted_status": "blocked",
+  "acceptance_samples": 0,
+  "prior_revisions": [
+    {
+      "path": ".planning/execution/255.1/SOURCES.json",
+      "sha256": "da318d1592842cd724b24548d80c2b4d41701342bbe0b5aa22f6cb8fa92253b4",
+      "recovery_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/execution/255.1/FEASIBILITY.json",
+      "sha256": "14b1ec2396c14bd016c5d912a0b9cc984cd0a0917e04dc52ffe4aa5efca6d287",
+      "recovery_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/execution/255.1/EQUIVALENT-WORK.json",
+      "sha256": "771bec9e3504993d08658f1f4157dd28d38e8d32a253b7e410332fdc6fdcf230",
+      "recovery_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "86c309c16fa5f605b2009c4189b3be9865059402e6156908c94ff4054a8b90b5",
+      "recovery_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "63056a78017a3fe879dce4059523899268467941069d9578c94e1de8be4ab12e",
+      "recovery_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "746b05677bf86664b0f8855f4c2f0ecc68dd0b13d7621b8b585c4c08e0c0d441",
+      "recovery_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "read_back_equal": true
+    }
+  ]
+}

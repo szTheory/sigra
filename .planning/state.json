@@ -441,13 +441,15 @@
     "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
     "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json",
     "active_execution": {
-      "task": "/root/execute_plan02",
+      "task": "/root",
       "plan": "255.1-02",
-      "status": "fixing_candidate_trace_ownership_before_new_source_freeze",
-      "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
-      "stopped_browser_comparison": ".planning/execution/255.1/attempts/06/STOPPED.json",
+      "status": "final_source_native_library_and_linux_browser_verification_pending",
+      "implementation_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "source_refresh_record": ".planning/execution/255.1/trace-fixed-source/PROMOTION.json",
       "sources": ".planning/execution/255.1/SOURCES.json",
-      "scope": "Local development only; new source pair and native verification required after fixture fix; no hosted authority."
+      "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+      "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
     },
     "source_native_verification": {
       "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
@@ -472,12 +474,14 @@
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
-    "task": "/root/execute_plan02",
+    "task": "/root",
     "plan": "255.1-02",
-    "status": "fixing_candidate_trace_ownership_before_new_source_freeze",
-    "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
-    "stopped_browser_comparison": ".planning/execution/255.1/attempts/06/STOPPED.json",
+    "status": "final_source_native_library_and_linux_browser_verification_pending",
+    "implementation_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+    "source_refresh_record": ".planning/execution/255.1/trace-fixed-source/PROMOTION.json",
     "sources": ".planning/execution/255.1/SOURCES.json",
-    "scope": "Local development only; new source pair and native verification required after fixture fix; no hosted authority."
+    "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+    "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+    "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
   }
 }

@@ -1,16 +1,16 @@
 {
   "acceptance_samples": 0,
-  "artifact_directory": "plan02-preflight-source/sources-1792886327919246000",
+  "artifact_directory": "trace-fixed-source/sources-1792889685985936000",
   "base_ref_freshness": "local snapshot only; no remote request authorized",
   "base_ref_input": "09df342a82e03c3d5d40173c912b70e827f7eadc",
   "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
-  "candidate_capture_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+  "candidate_capture_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
   "common_patch": {
-    "path": "plan02-preflight-source/sources-1792886327919246000/common-repairs.patch",
-    "sha256": "90cbe933e2ba702be2bef933ea6e0fbf91049e6fcf41f9879799dcdbf1113deb"
+    "path": "trace-fixed-source/sources-1792889685985936000/common-repairs.patch",
+    "sha256": "40b682ab9e290f17246c13b4ba041caff8f08512c228e0fc428e65d0ceba6a09"
   },
-  "common_repaired_source": "ada01b374c92da790857d9b826cf633a799e654a",
-  "common_tree": "cee215875eaae458ea3c88c1cb51addb4a19440c",
+  "common_repaired_source": "8d7355185ca95f2310b701d95c79646b2002916f",
+  "common_tree": "a1c0dd48a6c3d2acb037791298558e012c658142",
   "constructor_sha256": "92f1b17856e8e2ea739b71383d4d7f8f4ef74805e4f0284043750e961788e935",
   "control_ref_readback_equal": true,
   "historical_source_unchanged": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
@@ -19,13 +19,13 @@
   "schema_version": "sigra.ci-repaired-sources/v1",
   "sources": {
     "candidate": {
-      "application_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "application_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
       "archive": {
         "excluded_top_level": [
           ".planning"
         ],
-        "path": "plan02-preflight-source/sources-1792886327919246000/candidate.tar.gz",
-        "sha256": "6192d086c9e35367ce6aeab4d8e395e3a5a6c6122b678e10ced367936a43ca03"
+        "path": "trace-fixed-source/sources-1792889685985936000/candidate.tar.gz",
+        "sha256": "18dcbf59d7f3ba4c09ba16abf82fa0479908810aa0ec1ae35d43f13b6cb7d499"
       },
       "file_sha256": {
         ".github/actions/example-playwright-boot/action.yml": "0492dd0291d521b1f4a5bc4a83fb2e9feaecb6c71f50da73e342b309fbc6b3b5",
@@ -44,36 +44,36 @@
       "hosted_merge_sha": null,
       "merge_preview": {
         "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
-        "computed_tree": "b54541670f25457684707f2fbb888bcdc7e9ba51",
+        "computed_tree": "a084992034c541a51df797e0a12eaa09edc7799a",
         "conflicting_paths": [],
         "exit_code": 0,
-        "expected_tree": "b54541670f25457684707f2fbb888bcdc7e9ba51",
-        "head_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+        "expected_tree": "a084992034c541a51df797e0a12eaa09edc7799a",
+        "head_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
         "reason": null,
         "status": "ready",
         "stderr": "",
-        "stdout": "b54541670f25457684707f2fbb888bcdc7e9ba51\n"
+        "stdout": "a084992034c541a51df797e0a12eaa09edc7799a\n"
       },
       "pr_number": null,
-      "producer_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
-      "proposed_merge_tree": "b54541670f25457684707f2fbb888bcdc7e9ba51",
+      "producer_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "proposed_merge_tree": "a084992034c541a51df797e0a12eaa09edc7799a",
       "proposed_pr_base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
-      "proposed_pr_head_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "proposed_pr_head_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
       "proposed_target_branch": "main",
-      "source_ref": "60058d465e171183aa6ea86f247cd6644337ebcb",
-      "source_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
-      "tree_sha": "b54541670f25457684707f2fbb888bcdc7e9ba51",
-      "workflow_revision": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "source_ref": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "source_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "tree_sha": "a084992034c541a51df797e0a12eaa09edc7799a",
+      "workflow_revision": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
       "workflow_sha256": "80a05405438bf2dd14709538ecbe468831d1a45b7c1d3730fadc15ebd49ef202"
     },
     "control": {
-      "application_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+      "application_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
       "archive": {
         "excluded_top_level": [
           ".planning"
         ],
-        "path": "plan02-preflight-source/sources-1792886327919246000/control.tar.gz",
-        "sha256": "0405585e6a3577a6054b3f93f085dab965f7dac3c484570accb220b6b97cf13e"
+        "path": "trace-fixed-source/sources-1792889685985936000/control.tar.gz",
+        "sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782"
       },
       "file_sha256": {
         ".github/actions/example-playwright-boot/action.yml": "63b4f1a00b82a0c394419e3a866a941cb814b98d76f12382cd50b494098f6af5",
@@ -92,26 +92,26 @@
       "hosted_merge_sha": null,
       "merge_preview": {
         "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
-        "computed_tree": "cee215875eaae458ea3c88c1cb51addb4a19440c",
+        "computed_tree": "a1c0dd48a6c3d2acb037791298558e012c658142",
         "conflicting_paths": [],
         "exit_code": 0,
-        "expected_tree": "cee215875eaae458ea3c88c1cb51addb4a19440c",
-        "head_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+        "expected_tree": "a1c0dd48a6c3d2acb037791298558e012c658142",
+        "head_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
         "reason": null,
         "status": "ready",
         "stderr": "",
-        "stdout": "cee215875eaae458ea3c88c1cb51addb4a19440c\n"
+        "stdout": "a1c0dd48a6c3d2acb037791298558e012c658142\n"
       },
       "pr_number": null,
-      "producer_sha": "ada01b374c92da790857d9b826cf633a799e654a",
-      "proposed_merge_tree": "cee215875eaae458ea3c88c1cb51addb4a19440c",
+      "producer_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+      "proposed_merge_tree": "a1c0dd48a6c3d2acb037791298558e012c658142",
       "proposed_pr_base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
-      "proposed_pr_head_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+      "proposed_pr_head_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
       "proposed_target_branch": "main",
-      "source_ref": "refs/evidence/phase255-1/source-control-60058d465e17",
-      "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
-      "tree_sha": "cee215875eaae458ea3c88c1cb51addb4a19440c",
-      "workflow_revision": "ada01b374c92da790857d9b826cf633a799e654a",
+      "source_ref": "refs/evidence/phase255-1/source-control-cfe5e8d3ee82",
+      "source_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+      "tree_sha": "a1c0dd48a6c3d2acb037791298558e012c658142",
+      "workflow_revision": "8d7355185ca95f2310b701d95c79646b2002916f",
       "workflow_sha256": "5b6d27a35c7f30cac8f34060de903ab5d82bd26af126c3845321f16ae87abbec"
     }
   },
@@ -139,9 +139,9 @@
     }
   },
   "treatment_patch": {
-    "path": "plan02-preflight-source/sources-1792886327919246000/treatment.patch",
+    "path": "trace-fixed-source/sources-1792889685985936000/treatment.patch",
     "sha256": "098f7e26df121c73eabdcc86b6e18e5b5c5332c9454a6b0e63b2b49e8a1a53dc"
   },
   "treatment_round_trip_tree_equal": true,
-  "source_refresh_reason": "Exact source formatting/environment preflight repair after preserved interrupted native comparison; no prior receipt substitution."
+  "source_refresh_reason": "Source fixture trace-ownership fix after actual candidate browser failures; all producer IDs refreshed, prior attempts preserved."
 }
