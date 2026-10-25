@@ -441,15 +441,13 @@
     "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
     "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json",
     "active_execution": {
-      "task": "/root",
+      "task": "/root/execute_plan02",
       "plan": "255.1-02",
-      "status": "native_linux_browser_matrix_running",
-      "sources": ".planning/execution/255.1/SOURCES.json",
-      "candidate_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
-      "control_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+      "status": "fixing_candidate_trace_ownership_before_new_source_freeze",
       "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
-      "progress_record": ".planning/execution/255.1/attempts/06/LOCAL-LINUX-PROGRESS.json",
-      "scope": "Local test identity/status parity only; no hosted authority or performance acceptance."
+      "stopped_browser_comparison": ".planning/execution/255.1/attempts/06/STOPPED.json",
+      "sources": ".planning/execution/255.1/SOURCES.json",
+      "scope": "Local development only; new source pair and native verification required after fixture fix; no hosted authority."
     },
     "source_native_verification": {
       "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
@@ -474,14 +472,12 @@
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
-    "task": "/root",
+    "task": "/root/execute_plan02",
     "plan": "255.1-02",
-    "status": "native_linux_browser_matrix_running",
-    "sources": ".planning/execution/255.1/SOURCES.json",
-    "candidate_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
-    "control_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+    "status": "fixing_candidate_trace_ownership_before_new_source_freeze",
     "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
-    "progress_record": ".planning/execution/255.1/attempts/06/LOCAL-LINUX-PROGRESS.json",
-    "scope": "Local test identity/status parity only; no hosted authority or performance acceptance."
+    "stopped_browser_comparison": ".planning/execution/255.1/attempts/06/STOPPED.json",
+    "sources": ".planning/execution/255.1/SOURCES.json",
+    "scope": "Local development only; new source pair and native verification required after fixture fix; no hosted authority."
   }
 }
