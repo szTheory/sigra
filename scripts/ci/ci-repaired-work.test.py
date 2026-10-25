@@ -107,6 +107,20 @@ def run(command: list[str], *, cwd: Path, env: dict[str, str], timeout: int = 18
             "status": "passed" if code == 0 else "failed"}
 
 
+def native_process_environment(source_env: dict[str, str], scratch: Path) -> dict[str, str]:
+    result = dict(source_env)
+    result["PATH"] = source_env.get("PATH", os.defpath)
+    if not result.get("HEX_HOME"):
+        hex_home = scratch / "hex-home"
+        hex_home.mkdir(mode=0o700, parents=True, exist_ok=True)
+        result["HEX_HOME"] = str(hex_home)
+    return result
+
+
+def unavailable_native_toolchain(runtime: dict[str, str | None]) -> list[str]:
+    return [name for name in ("node", "elixir", "mix") if not runtime.get(name)]
+
+
 def verify_report_digest(row: dict, root: Path) -> bool:
     try:
         path = root / row["path"]
@@ -621,10 +635,7 @@ def build_native(args: argparse.Namespace) -> tuple[dict, int]:
     scratch_root.mkdir(parents=True, exist_ok=True, mode=0o700)
     scratch = Path(tempfile.mkdtemp(prefix="native-", dir=scratch_root))
     os.chmod(scratch, 0o700)
-    process_env = os.environ.copy()
-    pinned_path = "/Users/jon/.asdf/installs/nodejs/20.19.5/bin:/Users/jon/.asdf/shims:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-    process_env["PATH"] = pinned_path
-    process_env.setdefault("HEX_HOME", "/private/tmp/sigra-2551-reconcile/hex-home")
+    process_env = native_process_environment(os.environ, scratch)
     runtime = {"python": sys.version.split()[0], "node": None, "elixir": None, "mix": None}
     for name, command in (("node", ["node", "--version"]), ("elixir", ["elixir", "--version"]), ("mix", ["mix", "--version"])):
         version = run(command, cwd=ROOT, env=process_env, timeout=30)
@@ -643,6 +654,10 @@ def build_native(args: argparse.Namespace) -> tuple[dict, int]:
     process_env.setdefault("PGPASSWORD", "postgres")
     role_checkouts = {}
     try:
+        unavailable = unavailable_native_toolchain(runtime)
+        if unavailable:
+            local["blocked_prerequisites"] = [f"native_toolchain_unavailable:{name}" for name in unavailable]
+            raise ValueError("native_toolchain_unavailable")
         for role in ("control", "candidate"):
             checkout, identity = materialize_checkout(role, sources[role], scratch, process_env)
             role_checkouts[role] = checkout
@@ -847,6 +862,26 @@ class RepairedWorkContractTest(unittest.TestCase):
                      for role in ("control", "candidate") for owner in OWNERS]
         self.assertEqual(len(roots), len(set(roots)))
         self.assertTrue(all(root.parent == Path(directory) for root in roots))
+
+    def test_native_environment_preserves_linux_or_macos_caller_toolchain(self):
+        paths = (
+            "/opt/hostedtoolcache/node/20.19.5/bin:/opt/elixir/bin:/usr/bin:/bin",
+            "/Users/example/.asdf/installs/nodejs/20.19.5/bin:/opt/homebrew/bin:/usr/bin:/bin",
+        )
+        for path in paths:
+            with self.subTest(path=path), tempfile.TemporaryDirectory() as directory:
+                scratch = Path(directory)
+                supplied_hex = str(scratch / "caller-hex")
+                environment = native_process_environment({"PATH": path, "HEX_HOME": supplied_hex}, scratch)
+                self.assertEqual(environment["PATH"], path)
+                self.assertEqual(environment["HEX_HOME"], supplied_hex)
+        with tempfile.TemporaryDirectory() as directory:
+            scratch = Path(directory)
+            defaulted = native_process_environment({"PATH": "/opt/bin:/usr/bin"}, scratch)
+            self.assertEqual(defaulted["HEX_HOME"], str(scratch / "hex-home"))
+            self.assertTrue((scratch / "hex-home").is_dir())
+        self.assertEqual(unavailable_native_toolchain({"node": None, "elixir": "1.19.5", "mix": None}),
+                         ["node", "mix"])
 
     def test_browser_extractor_checks_source_selection_identity_status_and_digests(self):
         with tempfile.TemporaryDirectory() as directory:
