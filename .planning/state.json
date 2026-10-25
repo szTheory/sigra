@@ -64,11 +64,11 @@
       "decision": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/DECISION.json",
       "claim_amendment_approved": true,
       "collection_authorized": false,
-      "completed_plans": 2,
+      "completed_plans": 3,
       "halted_plans": [],
       "blocked_plans": [],
       "blocker_record": ".planning/execution/255.1/FEASIBILITY.json",
-      "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-SUMMARY.md",
+      "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-03-SUMMARY.md",
       "preparation_authorized": false,
       "readiness": {
         "executor_model": "gpt-6-luna",
@@ -156,17 +156,17 @@
         "agent_runtime": "codex",
         "project_title": "Sigra"
       },
-      "current_plan": "255.1-03"
+      "current_plan": "255.1-04"
     }
   ],
   "next": {
     "command": "$gsd-execute-phase 255.1",
-    "label": "Execute local Plan03",
-    "reason": "Complete frozen-source local behavior parity passed; implement exact timing and cost calculations.",
+    "label": "Execute local Plan04",
+    "reason": "Plan03 actual collection/verification fixtures pass; implement offline replay.",
     "conditional": false,
     "readiness": ".planning/execution/255.1/unblock-source/EXECUTION-READINESS.json"
   },
-  "updated_at": "2026-10-25T02:31:08.106390+00:00",
+  "updated_at": "2026-10-25T03:15:44.042662+00:00",
   "phase254": {
     "completed_plans": 7,
     "halted_plans": [
@@ -475,12 +475,10 @@
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
-    "plan": "255.1-03",
+    "plan": "255.1-04",
     "status": "ready_local",
-    "prior_plan_result": ".planning/execution/255.1/attempts/07/EQUIVALENT-WORK.json",
-    "running_invocations": [],
-    "preparation_authorized": false,
-    "collection_authorized": false
+    "continuation": ".planning/execution/255.1/PLAN03-CONTINUATION.json",
+    "running_invocations": []
   },
   "blockers": [
     "Full library reports on both frozen sources and the last candidate browser report are pending.",

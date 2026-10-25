@@ -22,6 +22,12 @@ Exercise fixtures with the production options that activate them; a test-only ov
 
 Before expensive fan-out, run one small invocation through the actual toolchain, effective child environment, private checkout, cleanup, and final report validator. Inventory existing project runtimes before declaring one unavailable. Bind monitors to the current invocation. Compare unordered test identities as sets or maps with duplicate rejection, never by random report order. Missing reports, wrong sources, changed digests, and unsuccessful cleanup must fail closed.
 
+Prove one complete valid path before relying on rejection tests. A negative fixture that stops early cannot prove the successful path works. Exercise the real collector, independent verifier, and evaluator together with all prerequisites present. Use realistic service response shapes from official schemas; do not invent convenient fields or omit registrations to bypass verification. Then mutate the valid fixture one fact at a time.
+
+When comparing two variants, distinguish required equivalence from expected differences. Different source hashes, exact cache keys, PR numbers and eligible cache refs need independent origin checks; they need not be identical across variants. Compare the behavior, runtime and isolation policy that actually must match. Test a valid pair with those natural differences before testing drift.
+
+For resumable or concurrent automation, test the process boundary: interrupt and resume with existing output, start two processes with the same configuration, preserve prior receipts and spent budgets, and verify only one process can perform the work. A helper that records an owner does not by itself exclude a second live process.
+
 Implement fixes, run the original failure check and meaningful regressions, and retain compact results bound to the tested source. Repair ordinary development errors locally rather than creating numbered successor plans or renewing acceptance budgets.
 
 Report changed behavior, test evidence, remaining blockers, and the exact next action in plain English. Record general lessons that prevent demonstrated failures, and link detailed records instead of copying raw ledgers into every handoff.
