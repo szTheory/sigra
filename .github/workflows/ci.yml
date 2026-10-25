@@ -622,6 +622,10 @@ jobs:
       # phx_new archive is required by test/sigra/install/golden_diff_test.exs
       # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
       # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
       - name: Install phx_new archive
         run: >-
           python3 -B scripts/ci/ci-command-record.py

@@ -111,9 +111,9 @@ runs:
           python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-command-record.py" \
             --cwd "$GITHUB_WORKSPACE/test/example" --output-root "$DIAGNOSTICS_ROOT" \
             --invocation "${DIAGNOSTICS_PREFIX}-prepare" -- \
-            mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
+            bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'
         else
-          mix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs
+          bash -c 'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs'
         fi
 
     - name: Install Playwright dependencies

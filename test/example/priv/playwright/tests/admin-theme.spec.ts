@@ -1,6 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect, type Locator, type Page } from "@playwright/test";
-import { adminThemeTest } from "../fixtures/adminTheme";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
@@ -372,16 +371,17 @@ async function restoreBrandingDefaults(page: Page) {
   await expect(page.getByText("Source: Config defaults")).toBeVisible();
 }
 
-adminThemeTest.afterEach(async ({ page }, testInfo) => {
+test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.title.startsWith("auth branding")) {
     await restoreBrandingDefaults(page);
   }
 });
 
 test.describe("admin theme switch", () => {
-  adminThemeTest("renders stable topbar controls and overview notice before deferred app JS", async ({
+  test("renders stable topbar controls and overview notice before deferred app JS", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.addInitScript(() => {
       window.localStorage.setItem("sigra.admin.theme", "dark");
     });
@@ -414,9 +414,10 @@ test.describe("admin theme switch", () => {
     await expect(notice).not.toHaveAttribute("data-phx-id", /.+/);
   });
 
-  adminThemeTest("persists Light, Dark, and System without global DaisyUI theme state", async ({
+  test("persists Light, Dark, and System without global DaisyUI theme state", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin");
     await waitForLiveViewReady(page);
 
@@ -610,9 +611,10 @@ test.describe("admin theme switch", () => {
     await expect(page).toHaveURL(/\/admin\/users\?needs_review=true/);
   });
 
-  adminThemeTest("users summary metrics expose accessible help on desktop and mobile", async ({
+  test("users summary metrics expose accessible help on desktop and mobile", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/users");
     await waitForLiveViewReady(page);
 
@@ -735,9 +737,10 @@ test.describe("admin theme switch", () => {
     expect(overflow).toBeLessThanOrEqual(1);
   });
 
-  adminThemeTest("workspace navigation stays inside the LiveView session", async ({
+  test("workspace navigation stays inside the LiveView session", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/users");
     await waitForLiveViewReady(page);
 
@@ -772,9 +775,10 @@ test.describe("admin theme switch", () => {
     expect(documentRequests).toEqual([]);
   });
 
-  adminThemeTest("admin page loading rail follows route-level LiveView navigation", async ({
+  test("admin page loading rail follows route-level LiveView navigation", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin");
     await waitForLiveViewReady(page);
 
@@ -860,9 +864,10 @@ test.describe("admin theme switch", () => {
     await expect(root).not.toHaveAttribute("data-sg-admin-page-loading", /.+/);
   });
 
-  adminThemeTest("user detail uses breadcrumbs for filtered list context", async ({
+  test("user detail uses breadcrumbs for filtered list context", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/users?order_by=inserted_at&order_direction=desc");
     await waitForLiveViewReady(page);
 
@@ -900,9 +905,10 @@ test.describe("admin theme switch", () => {
     );
   });
 
-  adminThemeTest("overview keeps notices and task cards without duplicate info sections", async ({
+  test("overview keeps notices and task cards without duplicate info sections", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin");
     await waitForLiveViewReady(page);
 
@@ -941,9 +947,10 @@ test.describe("admin theme switch", () => {
     ).toHaveCount(0);
   });
 
-  adminThemeTest("keeps primary button hover contrast readable in dark mode", async ({
+  test("keeps primary button hover contrast readable in dark mode", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/users");
     await waitForLiveViewReady(page);
 
@@ -965,9 +972,10 @@ test.describe("admin theme switch", () => {
     ).toBeGreaterThanOrEqual(4.5);
   });
 
-  adminThemeTest("auth branding theme picker updates login and email previews", async ({
+  test("auth branding theme picker updates login and email previews", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=details");
     await waitForLiveViewReady(page);
 
@@ -1027,10 +1035,11 @@ test.describe("admin theme switch", () => {
     expect(darkStyles.emailTransition).toContain("background");
   });
 
-  adminThemeTest("auth branding details field help works on hover, keyboard, and touch", async ({
+  test("auth branding details field help works on hover, keyboard, and touch", async ({
     page,
   }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=details");
     await waitForLiveViewReady(page);
 
@@ -1081,9 +1090,10 @@ test.describe("admin theme switch", () => {
     await expect(replyToHelp).toBeHidden();
   });
 
-  adminThemeTest("auth branding color changes update local previews before save", async ({
+  test("auth branding color changes update local previews before save", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=light");
     await waitForLiveViewReady(page);
 
@@ -1120,9 +1130,10 @@ test.describe("admin theme switch", () => {
       .toBe("#111827");
   });
 
-  adminThemeTest("auth branding color input updates previews before a LiveView round trip", async ({
+  test("auth branding color input updates previews before a LiveView round trip", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=light");
     await waitForLiveViewReady(page);
 
@@ -1188,7 +1199,8 @@ test.describe("admin theme switch", () => {
     });
   });
 
-  adminThemeTest("auth branding save toast can be dismissed", async ({ page }) => {
+  test("auth branding save toast can be dismissed", async ({ page }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=details");
     await waitForLiveViewReady(page);
 
@@ -1205,9 +1217,10 @@ test.describe("admin theme switch", () => {
     await expect(flash).toBeHidden();
   });
 
-  adminThemeTest("auth branding restore defaults is explicit and confirmed", async ({
+  test("auth branding restore defaults is explicit and confirmed", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=details");
     await waitForLiveViewReady(page);
 
@@ -1274,9 +1287,10 @@ test.describe("admin theme switch", () => {
     await expect(page.getByText("Source: Config defaults")).toBeVisible();
   });
 
-  adminThemeTest("auth branding discard changes only clears the unsaved preview", async ({
+  test("auth branding discard changes only clears the unsaved preview", async ({
     page,
   }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=details");
     await waitForLiveViewReady(page);
 
@@ -1305,10 +1319,11 @@ test.describe("admin theme switch", () => {
     ).toBeVisible();
   });
 
-  adminThemeTest("auth branding color palettes keep swatches and hex values aligned", async ({
+  test("auth branding color palettes keep swatches and hex values aligned", async ({
     page,
   }) => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/auth-branding?panel=light");
     await waitForLiveViewReady(page);
 
@@ -1346,7 +1361,8 @@ test.describe("admin theme switch", () => {
     }
   });
 
-  adminThemeTest("keyboard navigation uses radiogroup semantics", async ({ page }) => {
+  test("keyboard navigation uses radiogroup semantics", async ({ page }) => {
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin");
     await waitForLiveViewReady(page);
 
@@ -1372,12 +1388,13 @@ test.describe("admin theme switch", () => {
     );
   });
 
-  adminThemeTest("tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)", async ({
+  test("tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)", async ({
     page,
   }) => {
     // This test covers color pairs that axe skips because the backgrounds are
     // alpha-composited color-mix() values resolved at render time. The four
     // tone notices and the brand-soft metric icon are the critical surfaces.
+    await logInAsPlatformAdmin(page);
     await page.goto("/admin/_design");
     await waitForLiveViewReady(page);
 

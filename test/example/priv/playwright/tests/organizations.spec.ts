@@ -461,6 +461,7 @@ test('organization invitations: new user accepts through the mailbox signup path
   const orgSlug = `invite-org-${suffix}`;
 
   await registerAndConfirmUser(page, ownerEmail, ownerPassword);
+  await logInIfNeeded(page, ownerEmail, ownerPassword);
   await assertAuthenticatedZeroOrganizationState(page);
   await createOrganizationFromZeroState(page, orgName, orgSlug);
   await sendInvitation(page, inviteeEmail);
@@ -512,6 +513,7 @@ test('organization invitations: signed-in matching user accepts through the mail
   const orgSlug = `match-org-${suffix}`;
 
   await registerAndConfirmUser(page, ownerEmail, ownerPassword);
+  await logInIfNeeded(page, ownerEmail, ownerPassword);
   await assertAuthenticatedZeroOrganizationState(page);
   await createOrganizationFromZeroState(page, orgName, orgSlug);
   await sendInvitation(page, inviteeEmail);
