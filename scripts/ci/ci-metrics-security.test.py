@@ -3,6 +3,7 @@
 
 import hashlib
 import base64
+import datetime as dt
 import json
 import os
 import pathlib
@@ -659,6 +660,78 @@ class SecurityContractsTest(unittest.TestCase):
         self.assertEqual(60, sum(x["job"]["seconds"] for x in counted))
         self.assertEqual(2, sum(not x["counted"] for x in history))
 
+
+class FiniteExperimentPolicyTests(unittest.TestCase):
+    def test_seeded_schedule_uses_sha256_ranked_balanced_blocks(self):
+        from ci_metrics_security import finite_comparison_schedule
+        rows = finite_comparison_schedule(seed=2551001, pair_count=20)
+        self.assertEqual(40, len(rows))
+        self.assertEqual(20, len({row["pair_id"] for row in rows}))
+        self.assertEqual(40, len({row["family_id"] for row in rows}))
+        ranks = sorted(range(1, 21), key=lambda n: hashlib.sha256(
+            f"2551001:pair-{n:02d}".encode("utf-8")).hexdigest())
+        control_first = {f"pair-{n:02d}" for n in ranks[:10]}
+        for pair in range(1, 21):
+            pair_id = f"pair-{pair:02d}"
+            pair_rows = [row for row in rows if row["pair_id"] == pair_id]
+            expected = ["control", "candidate"] if pair_id in control_first else ["candidate", "control"]
+            self.assertEqual(expected, [row["role"] for row in pair_rows])
+
+    def test_finite_contract_policy_rejects_unbounded_or_wrongly_ordered_slots(self):
+        from ci_metrics_security import FINITE_STAGE_LIMITS, finite_comparison_schedule, validate_finite_experiment_policy
+        schedule = finite_comparison_schedule(seed=2551001, pair_count=20)
+        contract = {"schema_version": "sigra.ci-repaired-experiment/v1",
+                    "experiment_id": "sigra-ci-repaired-255.1", "seed": 2551001,
+                    "pair_count": 20, "primary_family_count": 40,
+                    "window_hours": 48, "maximum_pair_start_gap_seconds": 3600,
+                    "maximum_second_side_after_terminal_seconds": 300,
+                    "maximum_infrastructure_retries_total": 1,
+                    "product_retry_count": 0, "replacement_family_count": 0,
+                    "window_renewals": 0, "preparation_retries": 0, "schedule": schedule,
+                    "stages": FINITE_STAGE_LIMITS}
+        self.assertEqual([], validate_finite_experiment_policy(contract))
+        for change, reason in (({"maximum_pair_start_gap_seconds": 3601}, "pair_start_gap"),
+                               ({"maximum_second_side_after_terminal_seconds": 301}, "second_side_terminal_gap"),
+                               ({"maximum_infrastructure_retries_total": 2}, "retry"),
+                               ({"product_retry_count": 1}, "product_retry"),
+                               ({"window_renewals": 1}, "window_renewal")):
+            invalid = {**contract, **change}
+            self.assertTrue(any(reason in item for item in validate_finite_experiment_policy(invalid)))
+
+    def test_new_schedule_policy_is_opt_in_and_legacy_1800_second_contract_is_unchanged(self):
+        from ci_metrics_security import (FINITE_STAGE_LIMITS, finite_comparison_schedule,
+                                         validate_comparison_plan, validate_comparison_schedule)
+        schedule = finite_comparison_schedule()
+        families = [{"family_id": row["family_id"], "pair_id": row["pair_id"],
+                     "role": row["role"], "source_sha": "a" * 40} for row in schedule]
+        contract = {"schema_version": "sigra.ci-repaired-experiment/v1",
+                    "experiment_id": "sigra-ci-repaired-255.1", "seed": 2551001,
+                    "pair_count": 20, "primary_family_count": 40, "window_hours": 48,
+                    "maximum_pair_start_gap_seconds": 3600,
+                    "maximum_second_side_after_terminal_seconds": 300,
+                    "maximum_infrastructure_retries_total": 1,
+                    "product_retry_count": 0, "replacement_family_count": 0,
+                    "window_renewals": 0, "preparation_retries": 0,
+                    "schedule": schedule, "families": families, "stages": FINITE_STAGE_LIMITS}
+        registrations = []
+        base = dt.datetime(2026, 10, 24, tzinfo=dt.timezone.utc)
+        for index, row in enumerate(schedule):
+            started = base + dt.timedelta(minutes=index)
+            registrations.append({"family_id": row["family_id"], "reservation_id": row["family_id"],
+                                  "pair_id": row["pair_id"], "family_role": row["role"],
+                                  "source_sha": "a" * 40,
+                                  "created_at": started.isoformat().replace("+00:00", "Z"),
+                                  "terminal_at": (started + dt.timedelta(minutes=1)).isoformat().replace("+00:00", "Z")})
+        self.assertEqual([], validate_comparison_plan(contract))
+        self.assertEqual([], validate_comparison_schedule(contract, registrations))
+        too_slow = [dict(row) for row in registrations]
+        too_slow[1]["created_at"] = (base + dt.timedelta(minutes=20)).isoformat().replace("+00:00", "Z")
+        self.assertIn("finite_second_side_terminal_gap_exceeded",
+                      validate_comparison_schedule(contract, too_slow))
+        legacy = {"status": "ready", "pair_count": 20, "primary_family_count": 40,
+                  "comparison_schedule": [{"pair_id": "pair-01", "family_role": "before"}],
+                  "family_reservations": [], "maximum_pair_start_gap_seconds": 1800}
+        self.assertNotIn("finite_contract_schema_invalid", validate_comparison_plan(legacy))
 
 if __name__ == "__main__":
     unittest.main()

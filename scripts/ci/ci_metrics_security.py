@@ -1455,8 +1455,80 @@ def comparison_contract_sha256(contract: dict) -> str:
     return hashlib.sha256(json.dumps(frozen, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+FINITE_STAGE_LIMITS = {
+    "local-development-freeze": {"requests": 0, "mutations": 0},
+    "prep-readiness": {"requests": 600, "request_total": 600, "mutations": 0,
+                       "minutes": 60, "invocations": 1},
+    "prep-full-workload": {"requests_per_invocation": 600, "request_total": 2400,
+                            "mutations": 9, "invocations": 4,
+                            "invocations_per_side": 2, "minutes": 120},
+    "lightweight-canary": {"requests_per_scenario": 600, "request_total": 1800,
+                            "mutations": 4, "invocations": 3, "minutes": 60,
+                            "conditional_on_demonstrated_delivery_gap": True},
+    "measurement": {"requests_per_family": 600, "request_total": 24000,
+                    "mutations": 82, "primary_families": 40, "pairs": 20,
+                    "window_hours": 48},
+    "terminal-retrieval-cleanup": {"requests": 600, "request_total": 600,
+                                   "mutations": 42, "minutes": 60,
+                                   "closes_max": 40, "prep_ref_deletes_max": 2,
+                                   "requires_explicit_approval_for_prep_ref_delete": True},
+}
+
+
+def finite_comparison_schedule(seed: int = 2551001, pair_count: int = 20) -> list[dict]:
+    """Return SHA256-ranked, balanced pair order for the new finite experiment."""
+    if type(seed) is not int or seed != 2551001 or type(pair_count) is not int or pair_count != 20:
+        raise ValueError("finite_schedule_seed_or_pair_count_invalid")
+    pair_ids = [f"pair-{number:02d}" for number in range(1, pair_count + 1)]
+    ranked = sorted(pair_ids, key=lambda pair_id: hashlib.sha256(
+        f"{seed}:{pair_id}".encode("utf-8")).hexdigest())
+    control_first = set(ranked[:pair_count // 2])
+    rows = []
+    for pair_id in pair_ids:
+        order = ("control", "candidate") if pair_id in control_first else ("candidate", "control")
+        for position, role in enumerate(order, 1):
+            rows.append({"pair_id": pair_id, "role": role, "family_role": role,
+                         "position": position,
+                         "family_id": f"{pair_id}-{role}"})
+    return rows
+
+
+def validate_finite_experiment_policy(contract: dict) -> list[str]:
+    """Validate the additive Phase255.1 finite contract without changing legacy policy."""
+    errors = []
+    if contract.get("schema_version") != "sigra.ci-repaired-experiment/v1":
+        return ["finite_contract_schema_invalid"]
+    if contract.get("experiment_id") != "sigra-ci-repaired-255.1":
+        errors.append("finite_contract_experiment_id_invalid")
+    if contract.get("seed") != 2551001 or contract.get("pair_count") != 20 or contract.get("primary_family_count") != 40:
+        errors.append("finite_contract_seed_or_family_count_invalid")
+    if contract.get("schedule") != finite_comparison_schedule():
+        errors.append("finite_contract_seeded_schedule_invalid")
+    if contract.get("window_hours") != 48:
+        errors.append("finite_contract_window_duration_invalid")
+    if contract.get("maximum_pair_start_gap_seconds") != 3600:
+        errors.append("finite_contract_pair_start_gap_invalid")
+    if contract.get("maximum_second_side_after_terminal_seconds") != 300:
+        errors.append("finite_contract_second_side_terminal_gap_invalid")
+    if contract.get("maximum_infrastructure_retries_total") != 1:
+        errors.append("finite_contract_infrastructure_retry_cap_invalid")
+    if contract.get("product_retry_count") != 0:
+        errors.append("finite_contract_product_retry_forbidden")
+    if contract.get("replacement_family_count") != 0:
+        errors.append("finite_contract_replacement_families_forbidden")
+    if contract.get("window_renewals") != 0:
+        errors.append("finite_contract_window_renewal_forbidden")
+    if contract.get("preparation_retries") != 0:
+        errors.append("finite_contract_preparation_retry_forbidden")
+    if contract.get("stages") != FINITE_STAGE_LIMITS:
+        errors.append("finite_contract_stage_limits_invalid")
+    return errors
+
+
 def validate_comparison_plan(contract: dict) -> list[str]:
     """Validate the immutable Phase 254 execution copy before runs are registered."""
+    if contract.get("schema_version") == "sigra.ci-repaired-experiment/v1":
+        return validate_finite_experiment_policy(contract)
     diagnostics = []
     if contract.get("comparison_kind") not in (None, "repaired_control_pr"):
         diagnostics.append("comparison_kind_invalid")
@@ -1530,6 +1602,44 @@ def validate_comparison_plan(contract: dict) -> list[str]:
 
 def validate_comparison_schedule(contract: dict, registrations: list[dict]) -> list[str]:
     """Check append order and pair proximity using authenticated registered starts."""
+    if contract.get("schema_version") == "sigra.ci-repaired-experiment/v1":
+        errors = validate_finite_experiment_policy(contract)
+        schedule = contract.get("schedule") or []
+        if len(registrations) > len(schedule):
+            return sorted(set(errors + ["finite_registration_late_or_extra"]))
+        families = {row.get("family_id"): row for row in contract.get("families", []) if isinstance(row, dict)}
+        pair_starts, pair_terminals = {}, {}
+        for index, row in enumerate(registrations):
+            expected = schedule[index] if index < len(schedule) else {}
+            family_id = row.get("family_id")
+            family = families.get(family_id, {})
+            if (family_id != expected.get("family_id") or row.get("reservation_id") != family_id
+                    or row.get("pair_id") != expected.get("pair_id")
+                    or row.get("family_role") != expected.get("role")
+                    or row.get("source_sha") != family.get("source_sha")):
+                errors.append("finite_registration_identity_or_order_invalid")
+            try:
+                started = _utc(row.get("created_at"))
+                pair_starts.setdefault(row.get("pair_id"), []).append(started)
+                terminal = row.get("terminal_at")
+                if terminal:
+                    pair_terminals.setdefault(row.get("pair_id"), {})[row.get("family_role")] = _utc(terminal)
+            except (TypeError, ValueError):
+                errors.append("finite_registration_time_invalid")
+        for pair_id, starts in pair_starts.items():
+            if len(starts) == 2 and (starts[1] <= starts[0]
+                    or (starts[1] - starts[0]).total_seconds() > 3600):
+                errors.append("finite_pair_start_gap_exceeded")
+            if len(starts) == 2:
+                rows = [row for row in registrations if row.get("pair_id") == pair_id]
+                earlier_role = rows[0].get("family_role")
+                later_role = rows[1].get("family_role")
+                terminal = pair_terminals.get(pair_id, {}).get(earlier_role)
+                if terminal is None or (starts[1] - terminal).total_seconds() > 300:
+                    errors.append("finite_second_side_terminal_gap_exceeded")
+                if earlier_role == later_role:
+                    errors.append("finite_pair_roles_not_distinct")
+        return sorted(set(errors))
     diagnostics = []
     schedule = contract.get("comparison_schedule") or []
     reservations = {row.get("reservation_id"): row for row in contract.get("family_reservations") or []}
