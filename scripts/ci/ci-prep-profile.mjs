@@ -24,7 +24,7 @@ export function parseArgs(argv) {
   const options = { mode: 'current', checkOnly: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--check-only') options.checkOnly = true;
-    else if (['--root', '--output', '--scope', '--mode', '--workload-map', '--baseline-native', '--reuse-native-directory', '--reuse-integration'].includes(argv[i]) && argv[i + 1]) options[argv[i].slice(2).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = argv[++i];
+    else if (['--root', '--output', '--scope', '--mode', '--workload-map', '--report-root', '--baseline-native', '--reuse-native-directory', '--reuse-integration'].includes(argv[i]) && argv[i + 1]) options[argv[i].slice(2).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = argv[++i];
     else throw new Error(`unknown_or_incomplete_argument:${argv[i]}`);
   }
   const validMode = ['current', 'compare-preparation', 'workload'].includes(options.mode);
@@ -492,7 +492,7 @@ async function profileScope(options) {
     await stop(app);
     if (dbCreated && fs.existsSync(path.join(temp, 'repo/test/example/mix.exs'))) {
       const example = path.join(temp, 'repo/test/example');
-      const env = { ...(actionInvocations?.preparation.env ?? process.env), GITHUB_WORKSPACE: checkout ?? path.join(temp, 'repo'), HEX_HOME: path.join(temp, 'hex'), MIX_ENV: 'dev', MIX_BUILD_PATH: path.join(temp, 'build'), PORT: String(scope.port), PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: `${scope.database}_${process.pid}` };
+      const env = { ...(actionInvocations?.preparation.env ?? process.env), GITHUB_WORKSPACE: checkout ?? path.join(temp, 'repo'), HEX_HOME: path.join(temp, 'hex'), MIX_ENV: 'dev', PORT: String(scope.port), PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: `${scope.database}_${process.pid}` };
       const cleanup = runMeasuredCommand({ label: 'database-cleanup', command: 'mix ecto.drop --quiet', cwd: example, env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, 'database-cleanup.log') });
       components.push(cleanup);
       if (cleanup.status !== 'measured') {

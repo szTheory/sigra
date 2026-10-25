@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { jobBlock, readRepoFile, stripYamlComments } from './prohibitions/_lib.mjs';
-import { assertPreparationCacheContract, buildPreparationCommands, buildPrivateCheckoutInvocations } from './ci-prep-profile.mjs';
+import { assertPreparationCacheContract, buildPreparationCommands, buildPrivateCheckoutInvocations, parseArgs } from './ci-prep-profile.mjs';
 
 const workflowPath = '.github/workflows/ci.yml';
 const mixPath = 'mix.exs';
@@ -127,6 +127,14 @@ test('private checkout owns every action workspace while runner and diagnostic p
       assert.equal(invocations[name].env[key], invocationEnv[key], name + ' must preserve ' + key);
     }
   }
+});
+
+test('profile workload accepts an invocation-owned native report root', () => {
+  const options = parseArgs([
+    '--root', '/source', '--output', '/scratch/profile.json', '--scope', 'admin_behavior',
+    '--mode', 'workload', '--workload-map', '/map.json', '--report-root', '/scratch/native-control-admin_behavior',
+  ]);
+  assert.equal(options.reportRoot, '/scratch/native-control-admin_behavior');
 });
 
 test('preparation comparison rejects source mutations that drop cache or cold-path safety', () => {

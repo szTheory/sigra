@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import os
@@ -36,6 +37,19 @@ def normalize_inventory(rows: list | None) -> list[str] | None:
     if not isinstance(rows, list):
         return None
     return sorted(json.dumps(item, ensure_ascii=False, sort_keys=True, separators=(",", ":")) for item in rows)
+
+
+def validate_pair_shape(pair: dict, errors: list[str], kind: str, owner: str) -> bool:
+    if not isinstance(pair, dict) or not {"control", "candidate"} <= set(pair):
+        errors.append(f"{kind}_source_pair_missing:{owner}")
+        return False
+    if set(pair) - {"control", "candidate", "comparison"}:
+        errors.append(f"{kind}_source_pair_invalid:{owner}")
+        return False
+    comparison = pair.get("comparison")
+    if comparison is not None and (not isinstance(comparison, dict) or comparison.get("status") != "passed"):
+        errors.append(f"{kind}_comparison_not_passed:{owner}")
+    return True
 
 
 def require(condition: bool, message: str) -> None:
@@ -122,10 +136,11 @@ def validate_equivalent_work(value: dict, *, report_root: Path | None = None) ->
         errors.append("library_receivers_incomplete")
     else:
         for receiver, pair in receivers.items():
-            if not isinstance(pair, dict) or set(pair) != {"control", "candidate"}:
-                errors.append(f"library_source_pair_missing:{receiver}")
+            if not validate_pair_shape(pair, errors, "library", receiver):
                 continue
             for role, row in pair.items():
+                if role not in {"control", "candidate"}:
+                    continue
                 if not isinstance(row, dict) or row.get("exit_code") != 0 or row.get("complete") is not True:
                     errors.append(f"library_receiver_failed:{receiver}:{role}")
                     continue
@@ -170,14 +185,17 @@ def validate_equivalent_work(value: dict, *, report_root: Path | None = None) ->
         errors.append("browser_owner_set_incomplete")
     else:
         for owner, pair in browser_owners.items():
-            if not isinstance(pair, dict) or set(pair) != {"control", "candidate"}:
-                errors.append(f"browser_source_pair_missing:{owner}")
+            if not validate_pair_shape(pair, errors, "browser", owner):
                 continue
             rows_by_role = {}
             for role, row in pair.items():
+                if role not in {"control", "candidate"}:
+                    continue
                 if not isinstance(row, dict) or row.get("exit_code") != 0 or row.get("cleanup_status") != "passed":
                     errors.append(f"browser_owner_failed:{owner}:{role}")
                     continue
+                if row.get("source_sha") != (sources.get(role) or {}).get("source_sha"):
+                    errors.append(f"browser_source_sha_mismatch:{owner}:{role}")
                 identities = row.get("identities")
                 if not isinstance(identities, list) or not identities:
                     errors.append(f"browser_identities_missing:{owner}:{role}")
@@ -261,6 +279,125 @@ def selected_rows(report: dict) -> list[dict]:
 
     visit(report.get("suites", []))
     return sorted(rows, key=lambda item: json.dumps(item["identity"], ensure_ascii=False, separators=(",", ":")))
+
+
+def validate_browser_profile_artifacts(profile: dict, report_root: Path, owner: str, *,
+                                       expected_source_sha: str, checkout_source_sha: str,
+                                       repo_root: Path = ROOT) -> tuple[list[dict], list[dict], list[str]]:
+    errors = []
+    if checkout_source_sha != expected_source_sha:
+        errors.append("browser_checkout_source_sha_mismatch")
+    if profile.get("source_sha") != expected_source_sha:
+        errors.append("browser_profile_source_sha_mismatch")
+    refs = profile.get("native_reports")
+    if not isinstance(refs, list) or not refs:
+        return [], [], errors + ["browser_native_reports_missing"]
+
+    root = report_root.resolve()
+    base = repo_root.resolve()
+    validated = {}
+    report_rows = []
+    for ref in refs:
+        if not isinstance(ref, dict):
+            errors.append("browser_native_report_ref_invalid")
+            continue
+        relative = ref.get("path")
+        expected_digest = ref.get("sha256")
+        if not isinstance(relative, str) or not relative or Path(relative).is_absolute() or ".." in Path(relative).parts:
+            errors.append("browser_native_report_path_invalid")
+            continue
+        if not isinstance(expected_digest, str) or len(expected_digest) != 64:
+            errors.append(f"browser_native_report_digest_missing:{relative}")
+            continue
+        candidate = root / relative
+        if candidate.is_symlink():
+            errors.append(f"browser_native_report_symlink:{relative}")
+            continue
+        path = candidate.resolve()
+        try:
+            path.relative_to(root)
+        except ValueError:
+            errors.append(f"browser_native_report_path_outside_root:{relative}")
+            continue
+        if path.is_symlink() or not path.is_file():
+            errors.append(f"browser_native_report_missing:{relative}")
+            continue
+        actual_digest = sha_file(path)
+        if actual_digest != expected_digest:
+            errors.append(f"browser_native_report_digest_mismatch:{relative}")
+            continue
+        if relative in validated:
+            errors.append(f"browser_native_report_duplicate_ref:{relative}")
+            continue
+        try:
+            stored_path = str(path.relative_to(base))
+        except ValueError:
+            errors.append(f"browser_native_report_outside_repository:{relative}")
+            continue
+        kind = "browser_selection" if path.name.endswith(".selection.json") else "browser_report"
+        validated[relative] = path
+        report_rows.append({"path": stored_path, "sha256": actual_digest, "kind": kind,
+                            "source_sha": profile.get("source_sha"), "owner": owner})
+
+    selections = {}
+    reports = {}
+    for relative, path in validated.items():
+        name = Path(relative).name
+        if name.endswith(".selection.json"):
+            reports_key = relative[:-len(".selection.json")] + ".json"
+            selections[reports_key] = path
+        elif name == ".last-run.json":
+            continue
+        else:
+            reports[relative] = path
+    if set(reports) != set(selections):
+        errors.append("browser_report_selection_pair_mismatch")
+
+    identities = []
+    for relative in sorted(set(reports) & set(selections)):
+        try:
+            result_rows = selected_rows(json.loads(reports[relative].read_text(encoding="utf-8")))
+            selection_rows = selected_rows(json.loads(selections[relative].read_text(encoding="utf-8")))
+        except (OSError, json.JSONDecodeError, KeyError, TypeError) as error:
+            errors.append(f"browser_native_report_parse_failed:{relative}:{type(error).__name__}")
+            continue
+        result_keys = [(json.dumps(row["identity"], ensure_ascii=False, separators=(",", ":")),
+                        row.get("expected_status")) for row in result_rows]
+        selection_keys = [(json.dumps(row["identity"], ensure_ascii=False, separators=(",", ":")),
+                           row.get("expected_status")) for row in selection_rows]
+        result_identities = [row[0] for row in result_keys]
+        selection_identities = [row[0] for row in selection_keys]
+        if (len(result_identities) != len(set(result_identities))
+                or len(selection_identities) != len(set(selection_identities))):
+            errors.append(f"browser_selection_or_result_duplicate_identity:{relative}")
+        if Counter(result_keys) != Counter(selection_keys):
+            errors.append(f"browser_selection_result_identity_or_expected_status_mismatch:{relative}")
+        if any(row.get("expected_status") not in {"passed", "skipped"} for row in result_rows + selection_rows):
+            errors.append(f"browser_expected_status_invalid:{relative}")
+        if any(row.get("status") not in {"passed", "skipped"} for row in result_rows):
+            errors.append(f"browser_result_status_invalid:{relative}")
+        if any((row.get("expected_status") == "skipped") != (row.get("status") == "skipped")
+               for row in result_rows):
+            errors.append(f"browser_unexpected_skip:{relative}")
+        identities.extend(result_rows)
+    return identities, report_rows, errors
+
+
+def browser_cleanup_succeeded(profile: dict) -> bool:
+    cleanup = profile.get("cleanup") or {}
+    if cleanup.get("server_stopped") is not True:
+        return False
+    components = [row for row in (profile.get("components") or []) if isinstance(row, dict)]
+    direct = next((row for row in components if row.get("name") == "database-cleanup"), {})
+    if direct.get("exit_code") == 0 and direct.get("status") == "measured":
+        return True
+    recovery = next((row for row in components if row.get("name") == "database-cleanup-recovery"), {})
+    return (direct.get("recovered_by") == "database-cleanup-recovery"
+            and recovery.get("exit_code") == 0 and recovery.get("status") == "measured")
+
+
+def native_profile_report_root(scratch: Path, role: str, owner: str) -> Path:
+    return scratch / f"native-{role}-{owner}"
 
 
 def materialize_checkout(role: str, source: dict, scratch: Path, parent_env: dict[str, str]) -> tuple[Path, dict]:
@@ -356,46 +493,38 @@ def report_library(checkout: Path, role: str, scratch: Path, env: dict[str, str]
     return outcome
 
 
-def browser_profile(checkout: Path, role: str, owner: str, scratch: Path, env: dict[str, str]) -> dict:
+def browser_profile(checkout: Path, role: str, owner: str, scratch: Path, env: dict[str, str],
+                    expected_source_sha: str) -> dict:
     output = scratch / f"browser-{role}-{owner}.json"
     command = ["node", str(ROOT / "scripts/ci/ci-prep-profile.mjs"), "--root", str(checkout),
-               "--output", str(output), "--scope", owner, "--mode", "workload", "--workload-map", WORKLOAD_MAP]
+               "--output", str(output), "--scope", owner, "--mode", "workload", "--workload-map", WORKLOAD_MAP,
+               "--report-root", str(native_profile_report_root(scratch, role, owner))]
     native_env, _ = browser_workflow_environment(env, checkout, role, owner, scratch)
     result = run(command, cwd=checkout, env=native_env, timeout=1800)
     profile = json.loads(output.read_text()) if output.is_file() else {}
-    report_root = output.parent
-    reports = []
-    identities = []
-    for ref in profile.get("native_reports", []):
-        relative = ref.get("path")
-        if not isinstance(relative, str):
-            continue
-        path = report_root / relative
-        if not path.is_file() or path.is_symlink():
-            continue
-        value = json.loads(path.read_text())
-        if path.name.endswith(".selection.json"):
-            continue
-        reports.append({"path": str(path.relative_to(ROOT)), "sha256": sha_file(path), "kind": "browser_report"})
-        selection = path.with_name(path.name[:-5] + ".selection.json")
-        if not selection.is_file():
-            continue
-        identities.extend(selected_rows(value))
+    checkout_source = subprocess.run(["git", "-C", str(checkout), "rev-parse", "HEAD"],
+                                     capture_output=True, text=True, check=False)
+    checkout_source_sha = checkout_source.stdout.strip() if checkout_source.returncode == 0 else None
+    identities, reports, evidence_errors = validate_browser_profile_artifacts(
+        profile, output.parent, owner, expected_source_sha=expected_source_sha,
+        checkout_source_sha=checkout_source_sha)
     # Assign classification from the actual Playwright project. Setup is selected
     # work too and must remain visible in parity comparisons.
     for row in identities:
         row["owner"] = owner
         row["classification"] = "setup" if str(row.get("project", "")).startswith("admin-design-setup-") else "product"
     expected = len(identities) == len({json.dumps(row["identity"], ensure_ascii=False, separators=(",", ":")) for row in identities})
-    cleanup_ok = bool(profile.get("cleanup", {}).get("server_stopped") and
-                       profile.get("cleanup", {}).get("database_drop_recorded"))
-    profile_ok = profile.get("status") == "profiled" and expected and bool(identities) and cleanup_ok and result["exit_code"] == 0
+    cleanup_ok = browser_cleanup_succeeded(profile)
+    profile_ok = (profile.get("status") == "profiled" and expected and bool(identities) and cleanup_ok
+                  and not evidence_errors and result["exit_code"] == 0)
     failing_components = [component for component in profile.get("components", [])
                           if component.get("exit_code") not in (None, 0)]
     failure_code = result["exit_code"] or next((component.get("exit_code") for component in failing_components), 1)
     return {"command": command, "command_exit_code": result["exit_code"], "exit_code": 0 if profile_ok else failure_code,
-            "cleanup_status": "passed" if profile.get("cleanup", {}).get("server_stopped") and profile.get("cleanup", {}).get("database_drop_recorded") else "failed",
-            "source_sha": profile.get("source_sha"), "owner": owner, "status": profile.get("status"),
+            "cleanup_status": "passed" if cleanup_ok else "failed",
+            "source_sha": profile.get("source_sha"), "checkout_source_sha": checkout_source_sha,
+            "expected_source_sha": expected_source_sha, "evidence_errors": evidence_errors,
+            "owner": owner, "status": profile.get("status"),
             "identities": identities, "reports": reports,
             "skipped": sorted(row["identity"] for row in identities if row["status"] == "skipped"),
             "excluded": profile.get("excluded_inventory", []), "profile_path": str(output.relative_to(scratch)),
@@ -453,6 +582,7 @@ def browser_workflow_environment(env: dict[str, str], checkout: Path, role: str,
                    "DIAGNOSTICS_ROOT": str(diagnostic_root), "DIAGNOSTICS_PREFIX": f"repaired-{role}-{owner}",
                    "SIGRA_CI_DIAGNOSTICS": "1", "SIGRA_CI_DIAGNOSTICS_ROOT": str(diagnostic_root),
                    "SIGRA_CI_TRACE_REGISTRY": str(diagnostic_root / "trace-registry.jsonl"),
+                   "MATRIX_SEAM": owner, "GITHUB_EVENT_NAME": "pull_request",
                    "SIGRA_CI_INVOCATION_ID": f"{owner}-{role}", "SIGRA_CI_NATIVE_IDENTITY": f"ci:{owner}"})
     return result, diagnostic_root
 
@@ -535,8 +665,8 @@ def build_native(args: argparse.Namespace) -> tuple[dict, int]:
                                                  "native_report_sha256": result.get("native_report_sha256"),
                                                  "stderr": result["stderr"][-2000:]})
             for owner in OWNERS:
-                result = browser_profile(checkout, role, owner, scratch, process_env)
-                result["source_sha"] = sources[role]["source_sha"]
+                result = browser_profile(checkout, role, owner, scratch, process_env,
+                                         expected_source_sha=sources[role]["source_sha"])
                 # One normalized row per actual owner invocation, with every
                 # native report identity retained. Keep the raw report refs too.
                 browser_report = {"complete": result["exit_code"] == 0,
@@ -603,11 +733,13 @@ class RepairedWorkContractTest(unittest.TestCase):
         return {"schema_version": REPORT_SCHEMA, "status": "passed", "local_status": "passed", "hosted_status": "blocked",
                 "hosted_origin_available": False, "acceptance_samples": 0, "sources": source,
                 "library": {"receivers": {name: {"control": json.loads(json.dumps(report)),
-                                                   "candidate": json.loads(json.dumps(report))}
+                                                   "candidate": json.loads(json.dumps(report)),
+                                                   "comparison": {"status": "passed"}}
                                                   for name in LIBRARY_RECEIVERS}},
                 "browser_owners": {owner: {
                     "control": dict(browser, owner=owner, identities=[dict(browser["identities"][0], owner=owner)]),
-                    "candidate": dict(browser_candidate, owner=owner, identities=[dict(browser_candidate["identities"][0], owner=owner)])}
+                    "candidate": dict(browser_candidate, owner=owner, identities=[dict(browser_candidate["identities"][0], owner=owner)]),
+                    "comparison": {"status": "passed"}}
                     for owner in OWNERS},
                 "reports": ([{"kind": "library", "source_role": role, "source_sha": source[role]["source_sha"],
                                "owner": owner, "path": "report.json", "sha256": "3" * 64, "report": report}
@@ -622,6 +754,19 @@ class RepairedWorkContractTest(unittest.TestCase):
     def test_accepts_matching_complete_local_work_but_keeps_hosted_blocked(self):
         ok, errors = validate_equivalent_work(self.fixture())
         self.assertTrue(ok, errors)
+
+    def test_full_native_report_shape_accepts_comparison_and_rejects_unknown_pair_role(self):
+        value = self.fixture()
+        self.assertTrue(all(pair["comparison"]["status"] == "passed"
+                            for pair in value["library"]["receivers"].values()))
+        self.assertTrue(all(pair["comparison"]["status"] == "passed"
+                            for pair in value["browser_owners"].values()))
+        ok, errors = validate_equivalent_work(value)
+        self.assertTrue(ok, errors)
+        value["library"]["receivers"]["ordinary"]["unexpected_role"] = {}
+        ok, errors = validate_equivalent_work(value)
+        self.assertFalse(ok)
+        self.assertIn("library_source_pair_invalid:ordinary", errors)
 
     def test_rejects_missing_library_receiver_seed_or_identity(self):
         value = self.fixture()
@@ -676,6 +821,98 @@ class RepairedWorkContractTest(unittest.TestCase):
         self.assertEqual(compare_browser_pair({"exit_code": 2, "cleanup_status": "failed", "identities": []},
                                               {"exit_code": 2, "cleanup_status": "failed", "identities": []})["status"], "blocked")
 
+    def test_browser_cleanup_requires_server_stop_and_successful_drop_or_recovery(self):
+        self.assertFalse(browser_cleanup_succeeded({
+            "cleanup": {"server_stopped": True, "database_drop_recorded": True},
+            "components": [{"name": "database-cleanup", "status": "failed", "exit_code": 1}],
+        }))
+        self.assertTrue(browser_cleanup_succeeded({
+            "cleanup": {"server_stopped": True},
+            "components": [{"name": "database-cleanup", "status": "measured", "exit_code": 0}],
+        }))
+        self.assertTrue(browser_cleanup_succeeded({
+            "cleanup": {"server_stopped": True},
+            "components": [{"name": "database-cleanup", "status": "failed", "exit_code": 1,
+                            "recovered_by": "database-cleanup-recovery"},
+                           {"name": "database-cleanup-recovery", "status": "measured", "exit_code": 0}],
+        }))
+        self.assertFalse(browser_cleanup_succeeded({
+            "cleanup": {"server_stopped": False},
+            "components": [{"name": "database-cleanup", "status": "measured", "exit_code": 0}],
+        }))
+
+    def test_each_source_owner_gets_an_isolated_native_report_root(self):
+        with tempfile.TemporaryDirectory() as directory:
+            roots = [native_profile_report_root(Path(directory), role, owner)
+                     for role in ("control", "candidate") for owner in OWNERS]
+        self.assertEqual(len(roots), len(set(roots)))
+        self.assertTrue(all(root.parent == Path(directory) for root in roots))
+
+    def test_browser_extractor_checks_source_selection_identity_status_and_digests(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            report_root = repo_root / "reports"
+            report_root.mkdir()
+            sha_bytes = lambda value: digest(value)
+            identity = {"projectId": "chromium", "projectName": "chromium", "file": "tests/a.spec.ts",
+                        "id": "spec-1", "title": "case", "expectedStatus": "passed",
+                        "status": "expected", "results": [{"status": "passed"}]}
+
+            def report_for(tests):
+                tests = tests if isinstance(tests, list) else [tests]
+                test = tests[0] if tests else identity
+                return {"suites": [{"title": "Suite", "specs": [{"file": test["file"], "id": test["id"],
+                        "title": test["title"], "tests": tests}]}]}
+
+            def extract(selection_test=None, result_test=None, selection_tests=None, result_tests=None, *, source_sha="a" * 40,
+                        checkout_sha="a" * 40, selection_ref=True, bad_digest=False):
+                selection_test = selection_test or dict(identity, status="expected", results=[])
+                result_test = result_test or dict(identity)
+                selection_tests = selection_tests if selection_tests is not None else [selection_test]
+                result_tests = result_tests if result_tests is not None else [result_test]
+                result_path = report_root / "admin_behavior.json"
+                selection_path = report_root / "admin_behavior.selection.json"
+                result_bytes = json.dumps(report_for(result_tests)).encode()
+                selection_bytes = json.dumps(report_for(selection_tests)).encode()
+                result_path.write_bytes(result_bytes)
+                selection_path.write_bytes(selection_bytes)
+                refs = [{"path": result_path.name, "sha256": sha_bytes(result_bytes)}]
+                if selection_ref:
+                    refs.append({"path": selection_path.name,
+                                 "sha256": ("0" * 64) if bad_digest else sha_bytes(selection_bytes)})
+                return validate_browser_profile_artifacts(
+                    {"source_sha": source_sha, "native_reports": refs}, report_root, "admin_behavior",
+                    expected_source_sha="a" * 40, checkout_source_sha=checkout_sha, repo_root=repo_root)
+
+            rows, refs, errors = extract()
+            self.assertEqual(len(rows), 1)
+            self.assertEqual({row["kind"] for row in refs}, {"browser_report", "browser_selection"})
+            self.assertEqual(errors, [])
+            self.assertIn("browser_profile_source_sha_mismatch", extract(source_sha="b" * 40)[2])
+            self.assertIn("browser_checkout_source_sha_mismatch", extract(checkout_sha="b" * 40)[2])
+            self.assertIn("browser_report_selection_pair_mismatch", extract(selection_ref=False)[2])
+            self.assertTrue(any("digest_mismatch" in error for error in extract(bad_digest=True)[2]))
+            wrong_expected = dict(identity, expectedStatus="skipped", status="expected", results=[])
+            self.assertIn("browser_selection_result_identity_or_expected_status_mismatch",
+                          extract(selection_test=wrong_expected)[2][0])
+            self.assertTrue(any("identity_or_expected_status_mismatch" in error
+                                for error in extract(result_tests=[])[2]))
+            extra = dict(identity, id="spec-extra", title="extra")
+            self.assertTrue(any("identity_or_expected_status_mismatch" in error
+                                for error in extract(result_tests=[dict(identity), extra])[2]))
+            duplicate = {"suites": [{"title": "Suite", "specs": [{"file": identity["file"], "id": identity["id"],
+                         "title": identity["title"], "tests": [dict(identity), dict(identity)]}]}]}
+            duplicate_path = report_root / "admin_behavior.json"
+            duplicate_bytes = json.dumps(duplicate).encode()
+            duplicate_path.write_bytes(duplicate_bytes)
+            refs = [{"path": duplicate_path.name, "sha256": sha_bytes(duplicate_bytes)},
+                    {"path": "admin_behavior.selection.json",
+                     "sha256": sha_bytes((report_root / "admin_behavior.selection.json").read_bytes())}]
+            _, _, duplicate_errors = validate_browser_profile_artifacts(
+                {"source_sha": "a" * 40, "native_reports": refs}, report_root, "admin_behavior",
+                expected_source_sha="a" * 40, checkout_source_sha="a" * 40, repo_root=repo_root)
+            self.assertTrue(any("duplicate_identity" in error for error in duplicate_errors))
+
     def test_library_comparison_ignores_seed_order_but_preserves_exclusion_and_skip_identity(self):
         left = {"complete": True, "exit_code": 0,
                 "tests": [{"test_id": "M.first", "status": "passed"},
@@ -717,6 +954,8 @@ class RepairedWorkContractTest(unittest.TestCase):
             self.assertEqual(env["DIAGNOSTICS_PREFIX"], "repaired-control-admin_behavior")
             self.assertEqual(env["SIGRA_CI_DIAGNOSTICS_ROOT"], str(diagnostic_root))
             self.assertEqual(env["SIGRA_CI_TRACE_REGISTRY"], str(diagnostic_root / "trace-registry.jsonl"))
+            self.assertEqual(env["MATRIX_SEAM"], "admin_behavior")
+            self.assertEqual(env["GITHUB_EVENT_NAME"], "pull_request")
 
 
 def main(argv: list[str]) -> int:
