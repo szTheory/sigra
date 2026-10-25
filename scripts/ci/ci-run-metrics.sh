@@ -97,6 +97,8 @@ COMPARISON_ATTEMPT_SCOPED=false
 REQUEST_BUDGET_LEDGER=""
 COMPARISON_RUNS_FILE=""
 COMPARISON_SOURCE_REF=""
+API_CONTRACT_SHA256=""
+WATCHER_LOCK_PIDS=()
 BOUNDED_REQUEST=""
 REQUEST_METHOD="GET"
 REQUEST_BODY=""
@@ -133,8 +135,46 @@ api_elapsed_seconds() {
 }
 
 api_cleanup() {
+  local pid
+  for pid in "${WATCHER_LOCK_PIDS[@]}"; do kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; done
+  WATCHER_LOCK_PIDS=()
   if [[ "$API_COMPLETED" != true ]]; then api_write_ledger incomplete; fi
   [[ -n "$API_TEMP_DIR" && -d "$API_TEMP_DIR" ]] && rm -rf "$API_TEMP_DIR"
+}
+
+watcher_release_locks() {
+  local pid
+  for pid in "${WATCHER_LOCK_PIDS[@]}"; do kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; done
+  WATCHER_LOCK_PIDS=()
+}
+
+watcher_acquire_process_lock() {
+  local run_id="$1" lock_path ready_path pid tries
+  lock_path="${REQUEST_BUDGET_LEDGER}.watcher-${run_id}.lock"
+  ready_path="$WATCH_OUTPUT_DIR/.lock-${run_id}-$$"
+  rm -f "$ready_path"
+  python3 - "$lock_path" "$ready_path" "$$" <<'PY' &
+import fcntl, os, pathlib, sys, time
+path, ready, parent = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), int(sys.argv[3])
+path.parent.mkdir(parents=True, exist_ok=True)
+with path.open('a+') as stream:
+    try:
+        fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        raise SystemExit(3)
+    ready.write_text('locked')
+    while os.getppid() == parent:
+        time.sleep(.1)
+PY
+  pid=$!
+  for tries in {1..100}; do
+    [[ -s "$ready_path" ]] && break
+    if ! kill -0 "$pid" 2>/dev/null; then wait "$pid" 2>/dev/null || true; API_COMPLETED=true; fail "comparison_watcher_already_active:${run_id}"; fi
+    sleep 0.01
+  done
+  [[ -s "$ready_path" ]] || { kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; API_COMPLETED=true; fail "comparison_watcher_lock_timeout:${run_id}"; }
+  rm -f "$ready_path"
+  WATCHER_LOCK_PIDS+=("$pid")
 }
 
 while [[ $# -gt 0 ]]; do
@@ -458,9 +498,9 @@ api_write_ledger() {
   [[ -n "$API_LEDGER" ]] || return 0
   mkdir -p "$(dirname "$API_LEDGER")"
   jq -n --arg status "${1:-incomplete}" --arg stop_reason "$API_STOP_REASON" \
-    --arg reset_at "$API_RESET_AT" --argjson request_count "$API_REQUESTS" \
+    --arg reset_at "$API_RESET_AT" --arg contract_sha256 "$API_CONTRACT_SHA256" --argjson request_count "$API_REQUESTS" \
     --argjson unknown_inputs "$API_UNKNOWN" --argjson requests "$API_REQUEST_LOG" \
-    '{status:$status,request_count:$request_count,stop_reason:(if $stop_reason=="" then null else $stop_reason end),reset_or_retry_at:(if $reset_at=="" then null else $reset_at end),unknown_inputs:$unknown_inputs,requests:$requests}' \
+    '{status:$status,request_count:$request_count,stop_reason:(if $stop_reason=="" then null else $stop_reason end),reset_or_retry_at:(if $reset_at=="" then null else $reset_at end),unknown_inputs:$unknown_inputs,requests:$requests} + (if $contract_sha256=="" then {} else {contract_sha256:$contract_sha256} end)' \
     >"${API_LEDGER}.tmp" && mv "${API_LEDGER}.tmp" "$API_LEDGER" && { sync "$API_LEDGER" 2>/dev/null || sync 2>/dev/null || true; }
 }
 
@@ -599,13 +639,16 @@ derive_required_contexts() {
   [[ -s "$protection" ]] && protection_json="$(cat "$protection")"
   jq -cn --argjson approved "$(approved_required_contexts)" --argjson rules "$rules_json" --argjson protection "$protection_json" '
     ($rules // []) as $ruleset_rules |
-    ([$ruleset_rules[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?.context] | unique) as $effective_contexts |
+    ([$ruleset_rules[]? | select(.type=="required_status_checks") | .parameters.required_status_checks[]?] | unique_by(.context)) as $effective_rows |
+    ([$effective_rows[].context] | unique) as $effective_contexts |
     ([$protection.contexts[]?] | unique) as $branch_contexts |
     (if ($effective_contexts|length)>0 then $effective_contexts else $branch_contexts end) as $actual |
     (if ($effective_contexts|length)>0 then "effective_rules" else "branch_protection" end) as $source |
-    (if $source=="effective_rules" then [$ruleset_rules[]? | select(.type=="required_status_checks") | . as $rule | $rule.parameters.required_status_checks[]?.context as $context | {context:$context,ruleset_id:$rule.ruleset_id,ruleset_source:$rule.ruleset_source,source:"effective_rules"}]
-      else [$branch_contexts[] | {context:.,ruleset_id:null,ruleset_source:null,source:"branch_protection"}] end) as $provenance |
-    {expected:$approved,actual:$actual,source:$source,provenance:$provenance,changed:(($actual|sort)!=($approved|sort)),diagnostics:(if ($actual|sort)==($approved|sort) then [] else [{reason:"required_rules_changed",expected:$approved,actual:$actual,source:$source}] end)}'
+    (if $source=="effective_rules" then [$effective_rows[] | {key:.context,value:(.integration_id // .app_id // null)}]
+      else [$branch_contexts[] as $context | {key:$context,value:([$protection.checks[]? | select(.context==$context) | .app_id][0] // null)}] end | from_entries) as $app_ids |
+    (if $source=="effective_rules" then [$ruleset_rules[]? | select(.type=="required_status_checks") | . as $rule | $rule.parameters.required_status_checks[]? as $check | {context:$check.context,app_id:($check.integration_id // $check.app_id // null),ruleset_id:$rule.ruleset_id,ruleset_source:$rule.ruleset_source,source:"effective_rules"}]
+      else [$branch_contexts[] as $context | {context:$context,app_id:([$protection.checks[]? | select(.context==$context) | .app_id][0] // null),ruleset_id:null,ruleset_source:null,source:"branch_protection"}] end) as $provenance |
+    {expected:$approved,actual:$actual,app_ids:$app_ids,source:$source,provenance:$provenance,changed:(($actual|sort)!=($approved|sort)),diagnostics:(if ($actual|sort)==($approved|sort) then [] else [{reason:"required_rules_changed",expected:$approved,actual:$actual,source:$source}] end)}'
 }
 
 collect_window() {
@@ -779,6 +822,11 @@ PY
   collect_attempt_details() {
     local selected failed priority all_rows row id event run attempts attempt needed family_dir jobs_file jobs_status attempts_json paths_status paths_json pr_number docs_flag docs_rule skip_seen workload details_json details_file enrichments='[]' reserve=108 max_attempt measurement_target sample_id attempt_first
     local selected_file="$tmp/all-selected-runs.json" failed_file="$tmp/failed-selected-runs.json" priority_file="$tmp/prioritized-runs.json" enrichments_file="$tmp/family-enrichments.json"
+    local pull_request_origin merge_commit_origin comparison_repo_file
+    if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr && -n "$COMPARISON_RUNS_FILE" ]]; then
+      comparison_repo_file="$stage/raw/comparison-repository.json"
+      api_get "/repos/${REPO}" "$comparison_repo_file" || { API_STOP_REASON="comparison_repository_identity_unavailable"; return; }
+    fi
     jq -cn --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" '[($pr[0].runs[]|{population:"pull_request",run:.}),($push[0].runs[]|{population:"push_main",run:.}),($night[0].runs[]|{population:"schedule",run:.})]' >"$selected_file"
     jq -c '[.[] | select(.run.conclusion=="failure") | select(.population=="pull_request" or .population=="push_main" or .population=="schedule")] | sort_by(.run.created_at) | reverse | .[0:12]' "$selected_file" >"$failed_file"
     measurement_target="$(jq -r '[.[] | select(.population=="pull_request" and .run.conclusion=="success")] | sort_by(.run.created_at) | reverse | .[0].run.id // empty' "$selected_file")"
@@ -799,6 +847,7 @@ PY
       run="$(jq -c '.run' <<<"$row")"
       attempts="$(jq -r '.run.run_attempt // 1' <<<"$row")"
       sample_id="$(jq -r '.run.comparison_sample_id // .run.id' <<<"$row")"
+      pull_request_origin='{}'; merge_commit_origin='{}'
       if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]]; then
         attempts="$(jq -r '.run.comparison_attempt // empty' <<<"$row")"
         [[ "$attempts" =~ ^[1-9][0-9]*$ ]] || { API_STOP_REASON="comparison_attempt_missing"; break; }
@@ -864,6 +913,27 @@ PY
       local paths_file="$tmp/family-${id}-paths.json"
       printf '[]\n' >"$paths_file"
       pr_number="$(jq -r '.pull_requests[0].number // empty' <<<"$run")"
+      if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr && "$event" == pull_request ]]; then
+        if [[ ! "$pr_number" =~ ^[1-9][0-9]*$ ]]; then api_stop comparison_pull_request_number_invalid "" "$id"; break; fi
+        local pr_api_file="$tmp/family-${id}-pull-request.json" merge_api_file="$tmp/family-${id}-merge-commit.json" merge_sha
+        if ! api_get "/repos/${REPO}/pulls/${pr_number}" "$pr_api_file"; then break; fi
+        merge_sha="$(jq -r '.merge_commit_sha // empty' "$pr_api_file")"
+        if [[ ! "$merge_sha" =~ ^[0-9a-f]{40}$ ]] || ! api_get "/repos/${REPO}/git/commits/${merge_sha}" "$merge_api_file"; then
+          api_stop comparison_merge_commit_unavailable "" "$id"; break
+        fi
+        if ! PYTHONPATH="$ROOT/scripts/ci" python3 - "$family_dir/run.json" "$pr_api_file" "$merge_api_file" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import validate_repaired_pr_origin
+run,pr,commit=[json.loads(pathlib.Path(path).read_text()) for path in sys.argv[1:]]
+errors=validate_repaired_pr_origin(run,pr,commit)
+if errors: raise SystemExit(','.join(errors))
+PY
+        then api_stop comparison_pull_request_or_merge_origin_invalid "" "$id"; break; fi
+        cp "$pr_api_file" "$family_dir/pull-request.json"
+        cp "$merge_api_file" "$family_dir/merge-commit.json"
+        pull_request_origin="$(jq -cn --arg path "raw/families/$sample_id/pull-request.json" --arg sha256 "$(sha256_file "$family_dir/pull-request.json")" --arg endpoint "/repos/${REPO}/pulls/${pr_number}" '{path:$path,sha256:$sha256,endpoint:$endpoint}')"
+        merge_commit_origin="$(jq -cn --arg path "raw/families/$sample_id/merge-commit.json" --arg sha256 "$(sha256_file "$family_dir/merge-commit.json")" --arg endpoint "/repos/${REPO}/git/commits/${merge_sha}" '{path:$path,sha256:$sha256,endpoint:$endpoint}')"
+      fi
       if [[ "$event" == pull_request && "$pr_number" =~ ^[1-9][0-9]*$ && "$jobs_status" == complete ]] && (( API_REQUESTS + 1 + reserve <= 600 )); then
         local changed_file="$tmp/family-${id}-changed-paths.json" page=1 total_paths=0
         while :; do
@@ -963,12 +1033,13 @@ PY
             target_dir="$target_artifacts/${target_artifact_id}"
             target_extract='{"status":"unknown","diagnostic":"artifact_not_downloaded"}'
             local artifact_attempt_ok=true
-            if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]] && ! PYTHONPATH="$ROOT/scripts/ci" python3 - "$artifact_row_target" "$family_dir/run.json" "$family_dir/jobs-attempt-${attempts}.json" "$attempts" <<'PY'
+            if [[ "$COMPARISON_ATTEMPT_SCOPED" == true || "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]] && ! PYTHONPATH="$ROOT/scripts/ci" python3 - "$artifact_row_target" "$family_dir/run.json" "$family_dir/jobs-attempt-${attempts}.json" "$attempts" "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" <<'PY'
 import json,pathlib,sys
 from ci_metrics_security import legacy_playwright_artifact_matches_attempt
-artifact=json.loads(sys.argv[1]); run=json.loads(pathlib.Path(sys.argv[2]).read_text()); attempt=int(sys.argv[4])
+artifact=json.loads(sys.argv[1]); run=json.loads(pathlib.Path(sys.argv[2]).read_text()); attempt=int(sys.argv[4]); repaired=sys.argv[5]=='repaired_control_pr'
 api_attempt=(artifact.get('workflow_run') or {}).get('run_attempt')
-if api_attempt is not None: valid=api_attempt==attempt
+if repaired: valid=type(api_attempt) is int and api_attempt==attempt
+elif api_attempt is not None: valid=api_attempt==attempt
 else: valid=(artifact.get('name') or '').endswith(f"-{run['id']}-{attempt}") or legacy_playwright_artifact_matches_attempt(artifact,run,json.loads(pathlib.Path(sys.argv[3]).read_text()).get('jobs') or [],attempt)
 raise SystemExit(0 if valid else 1)
 PY
@@ -1012,7 +1083,7 @@ PY
       fi
       details_file="$tmp/family-${id}-detail.json"
       jq -cn --argjson id "$id" --arg sample_id "$sample_id" --arg status "$jobs_status" --arg paths_status "$paths_status" --arg workload "$workload" --arg docs_only "$docs_flag" --argjson attempts "$attempts_json" --slurpfile paths "$paths_file" --argjson skip_seen "$skip_seen" --argjson diagnostic "$diagnostic" '{run_id:$id,sample_id:$sample_id,detail_status:$status,attempt_count:($attempts|length),attempt_jobs:$attempts,changed_path_pages:[],changed_paths_status:$paths_status,changed_paths:$paths[0],changes_docs_only:(if $docs_only=="unknown" then null else ($docs_only=="true") end),docs_path_classification:(if $paths_status=="complete" then "captured" else "unknown" end),observed_expected_skip:$skip_seen,workload:$workload,artifact_diagnostics:$diagnostic,diagnostics:(if $status=="complete" then [] else [$status] end)}' >"$details_file" || fail "family_detail_json_invalid:${id}"
-      jq -n --slurpfile detail "$details_file" --arg sample_id "$sample_id" --argjson attempt "$attempts" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$sample_id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --arg metadata_hash "$(if [[ -s "$family_dir/artifacts-metadata.json" ]]; then sha256_file "$family_dir/artifacts-metadata.json"; fi)" --argjson attempts "$attempts_json" --argjson producer_refs "$producer_refs" --argjson changed_path_pages "$changed_path_pages" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,sample_id:$sample_id,run_attempt:$attempt,source_run_sha256:$run_hash,attempt_jobs:$attempts,changed_path_pages:$changed_path_pages,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_metadata_sha256:(if $metadata_hash=="" then null else $metadata_hash end),artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),producer_commits:$producer_refs,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
+      jq -n --slurpfile detail "$details_file" --arg sample_id "$sample_id" --argjson attempt "$attempts" --arg run_hash "$(sha256_file "$family_dir/run.json")" --arg artifact_path "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then echo "raw/families/$sample_id/artifact-evidence.json"; fi)" --arg artifact_hash "$(if [[ -s "$family_dir/artifact-evidence.json" ]]; then sha256_file "$family_dir/artifact-evidence.json"; fi)" --arg check_hash "$(if [[ -s "$family_dir/check-runs.json" ]]; then sha256_file "$family_dir/check-runs.json"; fi)" --arg metadata_hash "$(if [[ -s "$family_dir/artifacts-metadata.json" ]]; then sha256_file "$family_dir/artifacts-metadata.json"; fi)" --argjson attempts "$attempts_json" --argjson producer_refs "$producer_refs" --argjson changed_path_pages "$changed_path_pages" --argjson pull_request "$pull_request_origin" --argjson merge_commit "$merge_commit_origin" '{schema_version:"sigra.ci-run-metrics/family-detail-v1",run_id:$detail[0].run_id,sample_id:$sample_id,run_attempt:$attempt,source_run_sha256:$run_hash,attempt_jobs:$attempts,changed_path_pages:$changed_path_pages,detail_status:$detail[0].detail_status,changed_paths_status:$detail[0].changed_paths_status,changes_docs_only:$detail[0].changes_docs_only,workload:$detail[0].workload,observed_expected_skip:$detail[0].observed_expected_skip,artifact_metadata_sha256:(if $metadata_hash=="" then null else $metadata_hash end),artifact_evidence:(if $artifact_path=="" then null else {path:$artifact_path,sha256:$artifact_hash} end),pull_request:(if $pull_request.path==null then null else $pull_request end),merge_commit:(if $merge_commit.path==null then null else $merge_commit end),check_runs_sha256:(if $check_hash=="" then null else $check_hash end),producer_commits:$producer_refs,artifact_diagnostics:$detail[0].artifact_diagnostics}' >"$family_dir/manifest.json"
       jq -cn --slurpfile prior "$enrichments_file" --slurpfile detail "$details_file" '$prior[0] + [$detail[0]]' >"$enrichments_file.tmp"
       mv "$enrichments_file.tmp" "$enrichments_file"
       api_write_ledger collecting
@@ -1048,6 +1119,10 @@ PY
   source_hashes="$(jq -cn --arg workflow "$(sha256_file "$stage/source/ci.yml")" --arg collector "$(sha256_file "$stage/source/ci-run-metrics.sh")" --arg security "$(sha256_file "$stage/source/ci_metrics_security.py")" --arg exunit_contract "$(sha256_file "$stage/source/exunit_timing_contract.py")" --arg playwright "$(sha256_file "$stage/source/ci-playwright-report.mjs")" --arg playwright_config "$(sha256_file "$stage/source/playwright.config.ts")" --arg playwright_lock "$(sha256_file "$stage/source/playwright-package-lock.json")" --arg exunit "$(sha256_file "$stage/source/ci_timing_formatter.ex")" --arg helper "$(sha256_file "$stage/source/test_helper.exs")" --arg report_test "$(sha256_file "$stage/source/ci-playwright-report.test.mjs")" --arg mix "$(sha256_file "$stage/source/mix.exs")" --arg dep_off "$(sha256_file "$stage/source/sigra-dep-off.sh")" '{"ci.yml":$workflow,"ci-run-metrics.sh":$collector,"ci_metrics_security.py":$security,"exunit_timing_contract.py":$exunit_contract,"ci-playwright-report.mjs":$playwright,"playwright.config.ts":$playwright_config,"playwright-package-lock.json":$playwright_lock,"ci_timing_formatter.ex":$exunit,"test_helper.exs":$helper,"ci-playwright-report.test.mjs":$report_test,"mix.exs":$mix,"sigra-dep-off.sh":$dep_off}')"
   required_info="$(derive_required_contexts "$stage/raw/effective-rules.json" "$stage/raw/branch-protection.json")"
   required_contexts="$(jq -c '.actual' <<<"$required_info")"
+  if [[ -n "$COMPARISON_RUNS_FILE" && "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+    contract_apps="$(jq -c '.required_check_apps' "$CONTRACT_FILE")"
+    [[ "$(jq -c '.app_ids' <<<"$required_info")" == "$contract_apps" ]] || API_STOP_REASON="repaired_required_check_apps_differ_from_frozen_rules"
+  fi
   required_provenance="$(jq -c '.provenance' <<<"$required_info")"
   active_rules="$(jq -c '[.[]? | select(.enforcement=="active") | {id,name,target,enforcement}] | sort_by(.id)' "$stage/raw/rulesets.json" 2>/dev/null || echo '[]')"
   api_write_ledger "$manifest_status"
@@ -1059,6 +1134,9 @@ PY
   manual_hash="$(sha256_file "$stage/raw/populations/manual.json")"
   release_hash="$(sha256_file "$stage/raw/populations/release_push.json")"
   jq -n --arg repo "$REPO" --arg workflow "$WORKFLOW" --arg cutoff "$CUTOFF" --arg captured "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg since "$since" --arg status "$manifest_status" --arg stop "$API_STOP_REASON" --arg sha "$tree_sha" --arg workflow_sha "$workflow_sha" --arg workflow_blob "$workflow_blob" --arg source_hashes "$source_hashes" --argjson required_contexts "$required_contexts" --argjson required_expected "$(jq -c '.expected' <<<"$required_info")" --argjson required_changed "$(jq -c '.changed' <<<"$required_info")" --argjson required_diagnostics "$(jq -c '.diagnostics' <<<"$required_info")" --arg required_source "$(jq -r '.source' <<<"$required_info")" --argjson required_provenance "$required_provenance" --argjson active_rules "$active_rules" --arg request_hash "$request_hash" --arg selection_hash "$selection_hash" --arg pr_hash "$pr_hash" --arg push_hash "$push_hash" --arg night_hash "$night_hash" --arg manual_hash "$manual_hash" --arg release_hash "$release_hash" --arg rate_hash "$(sha256_file "$stage/raw/rate-limit.json")" --arg rules_hash "$(sha256_file "$stage/raw/effective-rules.json")" --arg protection_hash "$(sha256_file "$stage/raw/branch-protection.json")" --arg rulesets_hash "$(sha256_file "$stage/raw/rulesets.json")" --argjson requests "$request_count" --slurpfile pr "$stage/raw/populations/pull_request.json" --slurpfile push "$stage/raw/populations/push_main.json" --slurpfile night "$stage/raw/populations/schedule.json" --slurpfile manual "$stage/raw/populations/manual.json" --slurpfile release "$stage/raw/populations/release_push.json" '{schema_version:"sigra.ci-run-metrics/snapshot-v1",repository:$repo,workflow:$workflow,cutoff_utc:$cutoff,captured_at_utc:$captured,window_start_utc:$since,status:$status,stop_reason:(if $stop=="" then null else $stop end),request_count:$requests,source_sha:$sha,workflow_sha256:$workflow_sha,workflow_blob_sha:$workflow_blob,required_contexts:$required_contexts,expected_required_contexts:$required_expected,required_context_source:$required_source,required_rules_changed:$required_changed,required_rules_diagnostics:$required_diagnostics,required_rule_provenance:$required_provenance,active_rulesets:$active_rules,source_file_sha256:($source_hashes|fromjson),source_sha256:{request_ledger:$request_hash,selection_ledger:$selection_hash,pull_request:$pr_hash,push_main:$push_hash,schedule:$night_hash,manual:$manual_hash,release_push:$release_hash,rate_limit:$rate_hash,effective_rules:$rules_hash,branch_protection:$protection_hash,rulesets:$rulesets_hash},populations:{pull_request:$pr[0],push_main:$push[0],schedule:$night[0],manual:{population:"manual",event:"workflow_dispatch",api_total_count:$manual[0].api_total_count,records:$manual[0].runs},release_push:{population:"release_push",event:"push",records:$release[0].runs}}}' >"$stage/manifest.json"
+  if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+    jq --argjson apps "$(jq -c '.app_ids' <<<"$required_info")" '.required_check_apps=$apps' "$stage/manifest.json" >"$stage/manifest.json.tmp" && mv "$stage/manifest.json.tmp" "$stage/manifest.json"
+  fi
   sync 2>/dev/null || true
   rm -rf "$tmp"
   API_TEMP_DIR=""
@@ -1072,10 +1150,8 @@ PY
 
 watch_comparison_runs() {
   [[ -s "$CONTRACT_FILE" && -s "$REGISTRATIONS_FILE" && -s "$REQUEST_BUDGET_LEDGER" && -n "$WATCH_OUTPUT_DIR" ]] || fail "watcher_inputs_missing"
-  if [[ -e "$WATCH_OUTPUT_DIR" ]]; then
-    [[ -d "$WATCH_OUTPUT_DIR" && -z "$(find "$WATCH_OUTPUT_DIR" -maxdepth 1 -name 'run-*-poll-*.json' -print -quit)" ]] || fail "watcher_output_already_exists"
-  else mkdir -p "$WATCH_OUTPUT_DIR"; fi
-  local owner run_id registration run_file poll_index interval status_json result_file
+  mkdir -p "$WATCH_OUTPUT_DIR"
+  local owner run_id registration run_file poll_index interval status_json result_file previous_file previous_status rate_preflight_done=false
   owner="repaired-control:${COMPARISON_ROLE}:$(sha256_file "$CONTRACT_FILE")"
   interval=60
   [[ "${CI_METRICS_TEST_MODE:-0}" != 1 ]] || interval="${CI_METRICS_TEST_WATCH_INTERVAL_SECONDS:-60}"
@@ -1084,6 +1160,7 @@ watch_comparison_runs() {
     [[ -n "$registration" ]] || continue
     run_id="$(jq -r '.run_id' <<<"$registration")"
     [[ "$run_id" =~ ^[1-9][0-9]*$ ]] || fail "watcher_run_id_invalid"
+    watcher_acquire_process_lock "$run_id"
     PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$run_id" "$owner" <<'PY' || fail "comparison_watcher_claim_failed"
 import json,pathlib,sys
 from ci_metrics_security import comparison_watcher_start
@@ -1091,6 +1168,26 @@ c=json.loads(pathlib.Path(sys.argv[1]).read_text())
 comparison_watcher_start(c,pathlib.Path(sys.argv[2]),sys.argv[3],owner=sys.argv[4])
 PY
     poll_index=0
+    previous_file="$(find "$WATCH_OUTPUT_DIR" -maxdepth 1 -type f -name "run-${run_id}-poll-*.json" -print | sort -t- -k4,4n | tail -1)"
+    if [[ -n "$previous_file" ]]; then
+      poll_index="${previous_file##*-poll-}"
+      poll_index="${poll_index%.json}"
+      [[ "$poll_index" =~ ^[1-9][0-9]*$ ]] || fail "comparison_watcher_resume_receipt_invalid:${run_id}"
+      PYTHONPATH="$ROOT/scripts/ci" python3 - "$previous_file" "$registration" <<'PY' || fail "comparison_watcher_resume_origin_invalid:${run_id}"
+import json,pathlib,sys
+from ci_metrics_security import validate_registered_run_observation
+run=json.loads(pathlib.Path(sys.argv[1]).read_text()); registration=json.loads(sys.argv[2])
+errors=validate_registered_run_observation(registration,run)
+if errors or run.get('status') not in ('queued','in_progress','completed'):
+    raise SystemExit(','.join(errors) or 'comparison_watcher_status_invalid')
+PY
+      previous_status="$(jq -r '.status' "$previous_file")"
+      if [[ "$previous_status" == completed ]]; then watcher_release_locks; continue; fi
+    fi
+    if [[ "$rate_preflight_done" != true ]]; then
+      api_get rate_limit "$WATCH_OUTPUT_DIR/rate-limit.json" || fail "comparison_watcher_rate_preflight_failed:${API_STOP_REASON}"
+      rate_preflight_done=true
+    fi
     while :; do
       poll_index=$((poll_index+1))
       result_file="$WATCH_OUTPUT_DIR/run-${run_id}-poll-${poll_index}.json"
@@ -1109,6 +1206,7 @@ PY
       (( poll_index < 60 )) || fail "comparison_watcher_poll_limit_exhausted:${run_id}"
       if [[ "${CI_METRICS_TEST_MODE:-0}" != 1 || "${CI_METRICS_TEST_NO_SLEEP:-0}" != 1 ]]; then sleep "$interval"; fi
     done
+    watcher_release_locks
   done < <(jq -c '.[]' "$COMPARISON_RUNS_FILE")
   jq -n --arg owner "$owner" --argjson interval "$interval" --argjson polls "$(find "$WATCH_OUTPUT_DIR" -maxdepth 1 -name 'run-*-poll-*.json' | wc -l | tr -d ' ')" --argjson requests "$API_REQUESTS" '{status:"complete",owner:$owner,interval_seconds:$interval,poll_count:$polls,request_count:$requests}'
 }
@@ -1116,7 +1214,7 @@ PY
 collect_comparison() {
   [[ -s "$CONTRACT_FILE" && -s "$REGISTRATIONS_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$SOURCE_BUNDLE" ]] || fail "--collect-comparison requires --contract, --registrations, --request-budget-ledger and --source-bundle"
   [[ "$COMPARISON_ROLE" == before || "$COMPARISON_ROLE" == after ]] || fail "--comparison-role must be before or after"
-  local tmp contract_window_end contract_hash registration_hash budget_hash watcher_requests watcher_poll_count
+  local tmp contract_window_end contract_hash registration_hash budget_hash watcher_requests watcher_poll_count repository_identity
   COMPARISON_ATTEMPT_SCOPED="$(jq -r '.sample_identity == "run_id+run_attempt"' "$CONTRACT_FILE")"
   tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-comparison-collect.XXXXXX")"
   COMPARISON_RUNS_FILE="$tmp/registered-runs.json"
@@ -1169,7 +1267,7 @@ from ci_metrics_security import initialize_comparison_request_budget
 contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
 initialize_comparison_request_budget(contract,pathlib.Path(sys.argv[2]))
 PY
-  if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]]; then
+  if [[ "$COMPARISON_ATTEMPT_SCOPED" == true || "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
     PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$COMPARISON_ROLE" "$ROOT" <<'PY' || { rm -rf "$tmp"; fail "comparison_native_inventory_preflight_failed"; }
 import json,pathlib,sys
 from ci_metrics_security import comparison_native_inventories
@@ -1182,38 +1280,55 @@ PY
   CUTOFF="$contract_window_end"
   API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:preflight"
   if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
-    API_LEDGER="$tmp/watcher-request-ledger.json"
-    API_TEMP_DIR="$tmp"
-    API_STARTED="$(date +%s)"; API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_CORE_REMAINING=""; API_UNKNOWN='[]'; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false
+    API_CONTRACT_SHA256="$(PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import comparison_contract_sha256
+print(comparison_contract_sha256(json.loads(pathlib.Path(sys.argv[1]).read_text())))
+PY
+)"
+    WATCH_OUTPUT_DIR="${REQUEST_BUDGET_LEDGER}.watcher-${COMPARISON_ROLE}-${API_CONTRACT_SHA256}"
+    mkdir -p "$WATCH_OUTPUT_DIR"
+    API_LEDGER="${WATCH_OUTPUT_DIR}.request-ledger.json"
+    API_TEMP_DIR="$WATCH_OUTPUT_DIR"
+    API_STARTED="$(jq -r '.started_at_epoch // empty' "$REQUEST_BUDGET_LEDGER")"; [[ "$API_STARTED" =~ ^[0-9]+$ ]] || API_STARTED="$(date +%s)"
+    API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_CORE_REMAINING=""; API_UNKNOWN='[]'; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false
+    if [[ -s "$API_LEDGER" ]]; then
+      jq -e --arg contract "$API_CONTRACT_SHA256" '.contract_sha256==$contract and (.requests|type)=="array"' "$API_LEDGER" >/dev/null || { rm -rf "$tmp"; fail "comparison_watcher_ledger_identity_invalid"; }
+      API_REQUESTS="$(jq -r '.request_count' "$API_LEDGER")"
+      API_REQUEST_LOG="$(jq -c '.requests' "$API_LEDGER")"
+      API_CORE_REMAINING="$(jq -r '.core_remaining // empty' "$API_LEDGER")"
+      API_RESET_AT="$(jq -r '.reset_or_retry_at // empty' "$API_LEDGER")"
+    fi
     API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:watcher"
-    api_get rate_limit "$tmp/watcher-rate-limit.json" || { rm -rf "$tmp"; fail "comparison_watcher_rate_preflight_failed:${API_STOP_REASON}"; }
-    WATCH_OUTPUT_DIR="$tmp/watcher"
+    trap 'watcher_release_locks' EXIT INT TERM HUP
     watch_comparison_runs >"$tmp/watcher-result.json"
     watcher_requests="$API_REQUESTS"
     watcher_poll_count="$(jq -r '.poll_count' "$tmp/watcher-result.json")"
-    cp "$tmp/watcher" "$tmp/watcher-receipts" 2>/dev/null || true
-    API_TEMP_DIR=""; API_LEDGER=""; API_BUDGET_OWNER=""
+    watcher_release_locks
+    trap - EXIT INT TERM HUP
+    API_TEMP_DIR=""; API_LEDGER=""; API_BUDGET_OWNER=""; API_CONTRACT_SHA256=""
   else
     watcher_requests=0; watcher_poll_count=0
   fi
   collect_window
   if [[ "$watcher_requests" -gt 0 ]]; then
     mkdir -p "$SOURCE_BUNDLE/raw/watcher"
-    cp "$tmp/watcher"/run-*-poll-*.json "$SOURCE_BUNDLE/raw/watcher/"
-    cp "$tmp/watcher-rate-limit.json" "$SOURCE_BUNDLE/raw/watcher-rate-limit.json"
-    jq --slurpfile watched "$tmp/watcher-request-ledger.json" '.requests += ($watched[0].requests // [])' "$SOURCE_BUNDLE/request-ledger.json" >"$tmp/request-ledger-combined.json"
+    cp -R "$WATCH_OUTPUT_DIR"/. "$SOURCE_BUNDLE/raw/watcher/"
+    cp "${WATCH_OUTPUT_DIR}.request-ledger.json" "$SOURCE_BUNDLE/raw/watcher-request-ledger.json"
+    cp "$WATCH_OUTPUT_DIR/rate-limit.json" "$SOURCE_BUNDLE/raw/watcher-rate-limit.json"
+    jq --slurpfile watched "${WATCH_OUTPUT_DIR}.request-ledger.json" '.requests += ($watched[0].requests // [])' "$SOURCE_BUNDLE/request-ledger.json" >"$tmp/request-ledger-combined.json"
     mv "$tmp/request-ledger-combined.json" "$SOURCE_BUNDLE/request-ledger.json"
     watcher_hashes="$(find "$SOURCE_BUNDLE/raw/watcher" -maxdepth 1 -type f -print0 | xargs -0 shasum -a 256 | awk '{print $2 ":" $1}' | jq -Rn '[inputs|split(":")|{path:.[0],sha256:.[1]}]')"
     jq --arg hash "$(sha256_file "$SOURCE_BUNDLE/request-ledger.json")" --argjson count "$watcher_requests" --argjson polls "$watcher_poll_count" --argjson receipts "$watcher_hashes" '.request_count += $count | .source_sha256.request_ledger=$hash | .watcher_receipts=$receipts | .watcher_poll_count=$polls' "$SOURCE_BUNDLE/manifest.json" >"$tmp/manifest-watcher.json"
     mv "$tmp/manifest-watcher.json" "$SOURCE_BUNDLE/manifest.json"
   fi
-  if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]]; then
+  if [[ "$COMPARISON_ATTEMPT_SCOPED" == true || "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
     PYTHONPATH="$ROOT/scripts/ci" python3 - "$SOURCE_BUNDLE" "$CONTRACT_FILE" "$COMPARISON_RUNS_FILE" "$COMPARISON_ROLE" "$ROOT" <<'PY' || fail "attempt_scoped_raw_family_materialization_failed"
 import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1]).resolve(); contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 registrations=json.loads(pathlib.Path(sys.argv[3]).read_text()); role=sys.argv[4]
 project_root=pathlib.Path(sys.argv[5]).resolve()
-from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding, comparison_runner_images, validate_repaired_control_metadata
+from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding, validate_repaired_pr_origin, comparison_runner_images, validate_repaired_control_metadata, repaired_cache_stratum
 inventories=comparison_native_inventories(contract,role,project_root)
 expected_sha=contract.get('baseline_application_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('application_sha')
 expected_producer_sha=(contract.get('baseline_identity') or {}).get('producer_source_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('producer_source_sha')
@@ -1224,13 +1339,20 @@ if not expected_sha or not expected_producer_sha or not workflow_sha or not work
     raise SystemExit('frozen_attempt_source_or_instrumentation_identity_missing')
 families=[]
 for registration in registrations:
-    sample_id=registration['sample_id']; run_id=str(registration['run_id']); attempt=int(registration['run_attempt'])
-    family=root/'raw'/'families'/sample_id; run=json.loads((family/'run.json').read_text())
+    run_id=str(registration['run_id']); run_path=root/'raw'/'families'/str(registration.get('sample_id') or run_id)/'run.json'
+    run=json.loads(run_path.read_text())
+    attempt=int(registration.get('run_attempt') or run.get('run_attempt') or 0)
+    if attempt < 1: raise SystemExit('raw_attempt_number_missing')
+    sample_id=str(registration.get('sample_id') or run_id)
+    family=root/'raw'/'families'/sample_id
     detail=json.loads((family/'manifest.json').read_text())
     if str(run.get('id'))!=run_id or run.get('run_attempt')!=attempt or run.get('head_sha')!=expected_sha or detail.get('detail_status')!='complete':
         raise SystemExit(f'raw_attempt_identity_or_detail_invalid:{sample_id}')
-    if not (run.get('run_started_at') or run.get('queued_at')) or (run.get('run_started_at') or run.get('queued_at'))!=registration.get('attempt_origin_at'):
-        raise SystemExit(f'raw_attempt_origin_missing_or_changed:{sample_id}')
+    if contract.get('sample_identity')=='run_id+run_attempt':
+        if not (run.get('run_started_at') or run.get('queued_at')) or (run.get('run_started_at') or run.get('queued_at'))!=registration.get('attempt_origin_at'):
+            raise SystemExit(f'raw_attempt_origin_missing_or_changed:{sample_id}')
+    elif run.get('created_at') != registration.get('created_at'):
+        raise SystemExit(f'raw_original_creation_time_changed:{sample_id}')
     attempt_ref=(detail.get('attempt_jobs') or {}).get(str(attempt))
     if not isinstance(attempt_ref,dict) or attempt_ref.get('path')!=f'raw/families/{sample_id}/jobs-attempt-{attempt}.json':
         raise SystemExit(f'raw_attempt_jobs_missing:{sample_id}')
@@ -1301,18 +1423,57 @@ for registration in registrations:
     (family/'manifest.json').write_text(json.dumps(detail,sort_keys=True,separators=(',',':')))
     repaired=contract.get('comparison_kind')=='repaired_control_pr'
     images=comparison_runner_images([m for m,_ in producer],require_proof=(repaired or contract.get('runner_image_proof_required') is True))
+    cache_stratum='not_warm'; cache_components={}; eligible_cache_scopes={}
     if repaired:
-        expected_ref=f"refs/pull/{run['pull_requests'][0]['number']}/merge" if len(run.get('pull_requests') or [])==1 else None
-        metadata_errors=validate_repaired_control_metadata([m for m,_ in producer],expected_ref=expected_ref)
+        if len(run.get('pull_requests') or [])!=1: raise SystemExit('repaired_control_pull_request_origin_missing')
+        pr_ref,merge_ref=detail.get('pull_request'),detail.get('merge_commit')
+        if not isinstance(pr_ref,dict) or not isinstance(merge_ref,dict): raise SystemExit('repaired_control_pull_request_receipt_missing')
+        pr_path=(root/pr_ref.get('path','')).resolve(); merge_path=(root/merge_ref.get('path','')).resolve()
+        if root not in pr_path.parents or root not in merge_path.parents or not pr_path.is_file() or not merge_path.is_file():
+            raise SystemExit('repaired_control_pull_request_receipt_path_invalid')
+        if hashlib.sha256(pr_path.read_bytes()).hexdigest()!=pr_ref.get('sha256') or hashlib.sha256(merge_path.read_bytes()).hexdigest()!=merge_ref.get('sha256'):
+            raise SystemExit('repaired_control_pull_request_receipt_hash_invalid')
+        pr=json.loads(pr_path.read_text()); merge=json.loads(merge_path.read_text())
+        registration=next((item for item in registrations if item.get('run_id')==int(run_id)
+            and (item.get('run_attempt') is None or item.get('run_attempt')==attempt)),None)
+        if registration is None: raise SystemExit('repaired_control_registration_for_raw_pr_missing')
+        if validate_repaired_pr_origin(run,pr,merge,registration): raise SystemExit('repaired_control_pr_merge_origin_mismatch')
+        expected_ref=f"refs/pull/{pr['number']}/merge"
+        eligibility=contract.get('cache_eligibility') or {}
+        repository_path=root/'raw'/'comparison-repository.json'
+        if not repository_path.is_file(): raise SystemExit('repaired_control_repository_default_branch_missing')
+        repository=json.loads(repository_path.read_text())
+        default_ref='refs/heads/'+str(repository.get('default_branch') or '')
+        if default_ref!=eligibility.get('default_branch_ref') or repository.get('id')!=1207487684:
+            raise SystemExit('repaired_control_repository_default_branch_identity_mismatch')
+        role_keys=(eligibility.get('expected_keys') or {}).get(role) or {}
+        owner_set={'library','admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}
+        if not isinstance(default_ref,str) or not default_ref.startswith('refs/heads/') or set(role_keys)!=owner_set:
+            raise SystemExit('repaired_control_cache_eligibility_contract_missing')
+        expected_by_owner={}
+        for owner,components in role_keys.items():
+            if not isinstance(components,dict) or not components or any(not isinstance(key,str) or not key for key in components.values()):
+                raise SystemExit(f'repaired_control_cache_expected_keys_invalid:{owner}')
+            expected_by_owner[owner]=components
+        base_ref=(pr.get('base') or {}).get('ref'); head_ref=(pr.get('head') or {}).get('ref')
+        eligible_cache_scopes={default_ref}
+        if isinstance(base_ref,str) and base_ref:
+            eligible_cache_scopes.add('refs/heads/'+base_ref)
+        if (isinstance(head_ref,str) and head_ref
+                and ((pr.get('head') or {}).get('repo') or {}).get('id')==1207487684):
+            eligible_cache_scopes.add('refs/heads/'+head_ref)
+        eligible_cache_scopes.add(expected_ref)
+        metadata_errors=validate_repaired_control_metadata([m for m,_ in producer],expected_ref=expected_ref,
+            eligible_scopes=eligible_cache_scopes,expected_keys=expected_by_owner)
         if metadata_errors: raise SystemExit('repaired_control_metadata_invalid:'+','.join(metadata_errors))
         if len(images)!=6: raise SystemExit('repaired_control_runner_image_owner_set_incomplete')
-    caches=[value for m,_ in metadata for value in (m.get('cache_outcome') or {}).values()]
-    warm=bool(caches) and all(value in ('hit',True) for value in caches)
+        cache_stratum,cache_components=repaired_cache_stratum([m for m,_ in producer])
     families.append({'reservation_id':registration['reservation_id'],'pair_id':registration['pair_id'],'family_role':role,'run_id':int(run_id),
         'run_attempt':attempt,'sample_id':sample_id,'created_at':run.get('created_at'),'attempt_origin_at':registration['attempt_origin_at'],
         'conclusion':run.get('conclusion'),'workload':detail.get('workload'),'workload_sha':workload_sha,
         'source_workload_revision_sha256':workload_sha,'coverage_map_sha256':contract['native_coverage_comparison']['mapping_sha256'],'workflow_sha256':workflow_sha,
-        'runner_class':images,'runner_image':images,'cache_stratum':'warm' if warm else 'not_warm',
+        'runner_class':images,'runner_image':images,'cache_stratum':cache_stratum,
+        'cache_components':cache_components,'eligible_cache_scopes':sorted(eligible_cache_scopes),
         'cache_key_scope':{owner:{key:{'matched_cache_key':value.get('matched_cache_key'),'scope':value.get('scope'),'ref':value.get('ref'),'exact_key':value.get('exact_key'),'cache_hit':value.get('cache_hit'),'conditions':value.get('conditions')} for key,value in (row.get('cache_outcome') or {}).items() if isinstance(value,dict)} for owner,row in ((m.get('matrix_seam') or 'library',m) for m,_ in producer)},
         'exunit_instrumentation':instrument['exunit'],'playwright_instrumentation':instrument['playwright'],'attempts':[]})
 manifest_path=root/'manifest.json'; manifest=json.loads(manifest_path.read_text())
@@ -1333,7 +1494,8 @@ PY
       <<<"$registration" >"$tmp/registration.json"
     if ! python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode comparison-family \
       --evidence "$SOURCE_BUNDLE" --registration "$tmp/registration.json" \
-      --required-contexts "$(jq -c '.required_contexts' "$CONTRACT_FILE")" >"$tmp/origin-one.json" 2>"$tmp/origin-one.err"; then
+      --required-contexts "$(jq -c '.required_contexts' "$CONTRACT_FILE")" \
+      --required-app-ids "$(jq -c '.required_check_apps' "$CONTRACT_FILE")" >"$tmp/origin-one.json" 2>"$tmp/origin-one.err"; then
       origin_status=insufficient_data
       origin_error="$(tr '\n' ' ' <"$tmp/origin-one.err" | cut -c1-500)"
       jq -cn --slurpfile prior "$origin_results" --argjson run_id "$(jq '.run_id' <<<"$registration")" --arg error "$origin_error" '$prior[0]+[{run_id:$run_id,status:"failed",error:$error}]' >"$origin_results.tmp" && mv "$origin_results.tmp" "$origin_results"
@@ -1348,9 +1510,18 @@ PY
 )"
   local registered_count
   registered_count="$(jq 'length' "$COMPARISON_RUNS_FILE")"
+  repository_identity='null'
+  if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+    local repo_file="$SOURCE_BUNDLE/raw/comparison-repository.json"
+    if [[ -s "$repo_file" ]] && jq -e '.id==1207487684 and (.default_branch|type)=="string" and .default_branch!=""' "$repo_file" >/dev/null; then
+      repository_identity="$(jq -cn --arg path "raw/comparison-repository.json" --arg sha256 "$(sha256_file "$repo_file")" --arg endpoint "/repos/${REPO}" --slurpfile repo "$repo_file" '{path:$path,sha256:$sha256,endpoint:$endpoint,repository_id:$repo[0].id,default_branch:$repo[0].default_branch}')"
+    else
+      origin_status=insufficient_data
+    fi
+  fi
   registration_hash="$(sha256_file "$REGISTRATIONS_FILE")"
   budget_hash="$(sha256_file "$REQUEST_BUDGET_LEDGER")"
-  jq --arg role "$COMPARISON_ROLE" --arg contract_sha256 "$contract_hash" --arg registrations_sha256 "$registration_hash" --arg request_budget_sha256 "$budget_hash" --argjson registered_runs "$(cat "$COMPARISON_RUNS_FILE")" --argjson origin_verification "$(cat "$origin_results")" --arg origin_status "$origin_status" '.comparison_collection={role:$role,contract_sha256:$contract_sha256,registrations_sha256:$registrations_sha256,request_budget_ledger_sha256:$request_budget_sha256,registered_runs:$registered_runs,origin_status:$origin_status,origin_verification:$origin_verification,parity_status:"pending_native_comparison"}' "$SOURCE_BUNDLE/manifest.json" >"$SOURCE_BUNDLE/manifest.json.tmp" && mv "$SOURCE_BUNDLE/manifest.json.tmp" "$SOURCE_BUNDLE/manifest.json"
+  jq --arg role "$COMPARISON_ROLE" --arg contract_sha256 "$contract_hash" --arg registrations_sha256 "$registration_hash" --arg request_budget_sha256 "$budget_hash" --argjson registered_runs "$(cat "$COMPARISON_RUNS_FILE")" --argjson origin_verification "$(cat "$origin_results")" --argjson repository_identity "$repository_identity" --arg origin_status "$origin_status" '.comparison_collection={role:$role,contract_sha256:$contract_sha256,registrations_sha256:$registrations_sha256,request_budget_ledger_sha256:$request_budget_sha256,registered_runs:$registered_runs,repository_identity:$repository_identity,origin_status:$origin_status,origin_verification:$origin_verification,parity_status:"pending_native_comparison"}' "$SOURCE_BUNDLE/manifest.json" >"$SOURCE_BUNDLE/manifest.json.tmp" && mv "$SOURCE_BUNDLE/manifest.json.tmp" "$SOURCE_BUNDLE/manifest.json"
   sync "$SOURCE_BUNDLE/manifest.json" 2>/dev/null || sync 2>/dev/null || true
   rm -rf "$tmp"
   printf '{"status":"collected","role":"%s","registered_families":%s,"origin_status":"%s","parity_status":"pending_native_comparison","request_budget_ledger_sha256":"%s"}\n' "$COMPARISON_ROLE" "$registered_count" "$origin_status" "$budget_hash"
@@ -1597,15 +1768,29 @@ PY
   run_endpoint="/repos/${REPO}/actions/runs/${RUN_ID}"
   [[ -z "$registered_attempt" ]] || run_endpoint+="/attempts/${registered_attempt}"
   api_get "$run_endpoint" "$run_file" || fail "comparison run identity unavailable"
-  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" "$RESERVATION_ID" "$run_file" "$output_tmp" <<'PY'
+  local pr_file merge_file pr_number merge_sha
+  pr_file="$tmp/pull-request.json"; merge_file="$tmp/merge-commit.json"
+  if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+    pr_number="$(jq -r '.pull_requests[0].number // empty' "$run_file")"
+    [[ "$pr_number" =~ ^[1-9][0-9]*$ ]] || fail "comparison_pull_request_minimal_identity_invalid"
+    api_get "/repos/${REPO}/pulls/${pr_number}" "$pr_file" || fail "comparison_pull_request_api_identity_unavailable"
+    merge_sha="$(jq -r '.merge_commit_sha // empty' "$pr_file")"
+    [[ "$merge_sha" =~ ^[0-9a-f]{40}$ ]] || fail "comparison_pull_request_merge_sha_invalid"
+    api_get "/repos/${REPO}/git/commits/${merge_sha}" "$merge_file" || fail "comparison_pull_request_merge_commit_unavailable"
+  else
+    printf '{}\n' >"$pr_file"; printf '{}\n' >"$merge_file"
+  fi
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" "$RESERVATION_ID" "$run_file" "$output_tmp" "$pr_file" "$merge_file" <<'PY'
 import hashlib,json,os,pathlib,sys
 from ci_metrics_security import register_comparison_run
-contract_path,ledger_path,run_path,out_path=map(pathlib.Path,(sys.argv[1],sys.argv[2],sys.argv[4],sys.argv[5]))
+contract_path,ledger_path,run_path,out_path,pr_path,merge_path=map(pathlib.Path,(sys.argv[1],sys.argv[2],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7]))
 reservation_id=sys.argv[3]
 contract=json.loads(contract_path.read_text()); run=json.loads(run_path.read_text())
 ledger=json.loads(ledger_path.read_text()) if ledger_path.exists() else None
 raw=run_path.read_bytes()
-created=register_comparison_run(contract,reservation_id,run,ledger,hashlib.sha256(raw).hexdigest(),raw)
+pr_raw=pr_path.read_bytes(); merge_raw=merge_path.read_bytes()
+created=register_comparison_run(contract,reservation_id,run,ledger,hashlib.sha256(raw).hexdigest(),raw,
+    json.loads(pr_raw),json.loads(merge_raw),pr_raw,merge_raw)
 fd=os.open(out_path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
 with os.fdopen(fd,'w') as stream:
     json.dump(created,stream,sort_keys=True,separators=(',',':')); stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
@@ -2441,10 +2626,27 @@ rows=comparison_registered_runs(contract,ledger,sys.argv[3])
 pathlib.Path(sys.argv[4]).write_text(json.dumps(rows,sort_keys=True,separators=(',',':')))
 PY
   mkdir -p "$WATCH_OUTPUT_DIR"
-  API_LEDGER="${WATCH_OUTPUT_DIR}.request-ledger.json"; API_STARTED="$(date +%s)"; API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_CORE_REMAINING=""; API_UNKNOWN='[]'; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false; API_TEMP_DIR="$WATCH_OUTPUT_DIR"; API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:watcher"
-  api_get rate_limit "$WATCH_OUTPUT_DIR/rate-limit.json" || { rm -rf "$local_watch_tmp"; fail "comparison_watcher_rate_preflight_failed:${API_STOP_REASON}"; }
+  API_LEDGER="${WATCH_OUTPUT_DIR}.request-ledger.json"
+  API_CONTRACT_SHA256="$(PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" <<'PY'
+import json,pathlib,sys
+from ci_metrics_security import comparison_contract_sha256
+print(comparison_contract_sha256(json.loads(pathlib.Path(sys.argv[1]).read_text())))
+PY
+)"
+  API_STARTED="$(jq -r '.started_at_epoch // empty' "$REQUEST_BUDGET_LEDGER")"; [[ "$API_STARTED" =~ ^[0-9]+$ ]] || API_STARTED="$(date +%s)"
+  API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_CORE_REMAINING=""; API_UNKNOWN='[]'; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false; API_TEMP_DIR="$WATCH_OUTPUT_DIR"; API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:watcher"
+  if [[ -s "$API_LEDGER" ]]; then
+    jq -e --arg contract "$API_CONTRACT_SHA256" '.contract_sha256==$contract and (.requests|type)=="array"' "$API_LEDGER" >/dev/null || { rm -rf "$local_watch_tmp"; fail "comparison_watcher_ledger_identity_invalid"; }
+    API_REQUESTS="$(jq -r '.request_count' "$API_LEDGER")"
+    API_REQUEST_LOG="$(jq -c '.requests' "$API_LEDGER")"
+    API_CORE_REMAINING="$(jq -r '.core_remaining // empty' "$API_LEDGER")"
+    API_RESET_AT="$(jq -r '.reset_or_retry_at // empty' "$API_LEDGER")"
+  fi
+  trap 'watcher_release_locks' EXIT INT TERM HUP
   watch_comparison_runs
   api_write_ledger complete; API_COMPLETED=true
+  watcher_release_locks
+  trap - EXIT INT TERM HUP
   rm -rf "$local_watch_tmp"
   exit 0
 fi
@@ -2623,7 +2825,8 @@ if registrations:
             result=subprocess.run([sys.executable,str(project_root/'scripts/ci/ci-hosted-gate-verify.py'),
                 '--mode','comparison-family','--evidence',str(bundle_paths[label]),
                 '--registration-json',json.dumps(registration,separators=(',',':')),
-                '--required-contexts',json.dumps(contract.get('required_contexts') or [])],capture_output=True,text=True)
+                '--required-contexts',json.dumps(contract.get('required_contexts') or []),
+                '--required-app-ids',json.dumps(contract.get('required_check_apps') or {})],capture_output=True,text=True)
             if result.returncode:
                 issue(label+'_independent_origin_verification_failed',{'run_id':row.get('run_id'),'error':result.stderr.strip()[:500]})
             else: origin_results.append(json.loads(result.stdout))
@@ -2700,8 +2903,15 @@ def observe_cost(label, row):
             raw={'status':'unknown','runner_seconds':None,'runner_known_subtotal_seconds':0,
                  'diagnostics':['cost_observation_identity_invalid']}
         else:
+            records=(registrations or {}).get('records') or []
+            origin_registration=next((item for item in records if item.get('reservation_id')==row.get('reservation_id')),None)
+            if origin_registration is None:
+                origin_registration=next((item for item in records if str(item.get('run_id'))==str(run_id)
+                    and (not attempt_scoped or item.get('run_attempt')==attempt)),None)
             raw=derive_comparison_family_costs(bundle_paths[label],run_id,
-                contract.get('required_contexts') or [],run_attempt=attempt)
+                contract.get('required_contexts') or [],run_attempt=attempt,
+                repaired=contract.get('comparison_kind')=='repaired_control_pr',registration=origin_registration,
+                expected_app_ids=contract.get('required_check_apps') if contract.get('comparison_kind')=='repaired_control_pr' else None)
     else:
         raw={**row,'status':'complete'}
     observed={**row,**raw,'family_role':label,'run_id':run_id,'run_attempt':attempt,
@@ -2736,7 +2946,7 @@ for label, data in [('before',before),('after',after)]:
                 issue(label+'_family_runner_cost_unknown',{'run_id':row.get('run_id'),'known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),'unknown_jobs':raw.get('runner_unknown_jobs'),'diagnostics':raw.get('runner_diagnostics')})
             if raw.get('required_result_wait_seconds') is None:
                 issue(label+'_family_required_wait_unknown',{'run_id':row.get('run_id'),'missing_contexts':raw.get('missing_required_contexts'),'diagnostics':raw.get('wait_diagnostics')})
-        if contract.get('sample_identity')=='run_id+run_attempt':
+        if contract.get('sample_identity')=='run_id+run_attempt' or contract.get('comparison_kind')=='repaired_control_pr':
             expected_source_workload=contract.get('baseline_workload_revision_sha256') if label=='before' else candidate.get('workload_revision_sha256')
             if row.get('source_workload_revision_sha256')!=expected_source_workload or row.get('workload_sha')!=expected_source_workload:
                 issue(label+'_family_source_workload_identity_mismatch',row.get('sample_id'))
@@ -2759,24 +2969,42 @@ for pair_id in sorted(set(before_rows)&set(after_rows)):
     b,a=before_rows[pair_id],after_rows[pair_id]
     # Source revisions differ by design; actual useful-work equivalence is also
     # independently proven above by the complete native coverage comparison.
-    identity_field='coverage_map_sha256' if contract.get('sample_identity')=='run_id+run_attempt' else 'workload_sha'
+    identity_field='coverage_map_sha256' if contract.get('sample_identity')=='run_id+run_attempt' or contract.get('comparison_kind')=='repaired_control_pr' else 'workload_sha'
     fields=['workload',identity_field,'runner_class','runner_image','cache_stratum','exunit_instrumentation','playwright_instrumentation']
     if contract.get('comparison_kind')=='repaired_control_pr':
-        fields.append('cache_key_scope')
+        fields.append('cache_components')
+        eligibility=contract.get('cache_eligibility') or {}
+        role_keys=eligibility.get('expected_keys') or {}
+        default_ref=eligibility.get('default_branch_ref')
+        if not isinstance(default_ref,str) or not default_ref.startswith('refs/heads/'):
+            issue('repaired_cache_default_branch_identity_missing',pair_id)
         for side,row in [('before',b),('after',a)]:
             cache=row.get('cache_key_scope')
-            if not isinstance(cache,dict) or set(cache)!={'library','admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}:
+            owners={'library','admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}
+            expected_by_owner=role_keys.get(side) or {}
+            if not isinstance(cache,dict) or set(cache)!=owners or set(expected_by_owner)!=owners:
                 issue(side+'_repaired_cache_owner_evidence_incomplete',pair_id)
-            elif any(not isinstance(value,dict) or value.get('cache_hit') is not True or value.get('exact_key') is not True
-                     or not all(isinstance(value.get(field),str) and value.get(field) for field in ('matched_cache_key','scope','ref'))
-                     or not isinstance(value.get('conditions'),list) or not value.get('conditions')
-                     for owner in cache.values() for value in owner.values()):
-                issue(side+'_repaired_cache_identity_invalid',pair_id)
             else:
                 expected_ref=f"refs/pull/{row.get('pull_request_number')}/merge"
-                if not row.get('pull_request_merge_sha') or any(value.get('scope')!=expected_ref or value.get('ref')!=expected_ref
-                    for owner in cache.values() for value in owner.values()):
-                    issue(side+'_repaired_cache_ref_scope_mismatch',pair_id)
+                eligible=set(row.get('eligible_cache_scopes') or [])
+                eligible.add(default_ref)
+                eligible.add(expected_ref)
+                components={}
+                for owner in sorted(owners):
+                    values=cache.get(owner)
+                    expected_components=expected_by_owner.get(owner)
+                    if not isinstance(values,dict) or set(values)!=set(expected_components or {}):
+                        issue(side+'_repaired_cache_component_set_invalid',{'pair_id':pair_id,'owner':owner})
+                        continue
+                    components[owner]=sorted(values)
+                    for component,value in values.items():
+                        if (not isinstance(value,dict) or value.get('cache_hit') is not True or value.get('exact_key') is not True
+                                or value.get('fallback_used') is True or value.get('restore_kind')=='fallback'
+                                or value.get('matched_cache_key')!=expected_components.get(component)
+                                or value.get('ref')!=expected_ref or value.get('scope') not in eligible
+                                or not isinstance(value.get('conditions'),list) or not value.get('conditions')):
+                            issue(side+'_repaired_cache_identity_or_eligibility_invalid',{'pair_id':pair_id,'owner':owner,'component':component})
+                row['cache_components']=components
     mismatch=[field for field in fields if b.get(field)!=a.get(field)]
     if 'runner_image' in mismatch: issue('runner_image_drift',{'pair_id':pair_id,'before':b.get('runner_image'),'after':a.get('runner_image')})
     if mismatch: issue('pair_not_equivalent',{'pair_id':pair_id,'fields':mismatch}); continue
@@ -2784,8 +3012,13 @@ for pair_id in sorted(set(before_rows)&set(after_rows)):
     if b.get('conclusion')!='success' or a.get('conclusion')!='success': continue
     if not isinstance(b.get('required_result_wait_seconds'),(int,float)) or not isinstance(a.get('required_result_wait_seconds'),(int,float)): continue
     if not isinstance(b.get('runner_seconds'),(int,float)) or not isinstance(a.get('runner_seconds'),(int,float)): continue
-wait_before=[b['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
-wait_after=[a['required_result_wait_seconds'] for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success']
+comparable_pairs=[(b,a) for _,b,a in paired if b.get('conclusion')=='success' and a.get('conclusion')=='success'
+    and isinstance(b.get('required_result_wait_seconds'),(int,float))
+    and isinstance(a.get('required_result_wait_seconds'),(int,float))
+    and isinstance(b.get('runner_seconds'),(int,float))
+    and isinstance(a.get('runner_seconds'),(int,float))]
+wait_before=[b['required_result_wait_seconds'] for b,a in comparable_pairs]
+wait_after=[a['required_result_wait_seconds'] for b,a in comparable_pairs]
 def observed_total(label):
     rows=[row for side,row in cost_observations.values() if side==label]
     known=sum(row.get('runner_known_subtotal_seconds',row.get('runner_seconds') or 0) for row in rows)

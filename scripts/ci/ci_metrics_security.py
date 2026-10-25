@@ -617,7 +617,9 @@ def comparison_runner_images(metadata: list[dict], *, require_proof: bool = Fals
     return result
 
 
-def validate_repaired_control_metadata(metadata: list[dict], *, expected_ref: str | None = None) -> list[str]:
+def validate_repaired_control_metadata(metadata: list[dict], *, expected_ref: str | None = None,
+                                       eligible_scopes: set[str] | None = None,
+                                       expected_keys: dict | None = None) -> list[str]:
     """Require exact warm-cache and native runner identity for each of six owners."""
     diagnostics = []
     owners = {"library", "admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"}
@@ -638,16 +640,100 @@ def validate_repaired_control_metadata(metadata: list[dict], *, expected_ref: st
         for component, result in cache.items():
             if not isinstance(result, dict) or result.get("cache_hit") is not True or result.get("exact_key") is not True:
                 diagnostics.append("repaired_cache_not_exact_hit:" + owner + ":" + str(component))
+                continue
             if (not all(isinstance(result.get(field), str) and result.get(field)
                         for field in ("matched_cache_key", "scope", "ref"))
                     or not isinstance(result.get("conditions"), list) or not result.get("conditions")):
                 diagnostics.append("repaired_cache_identity_incomplete:" + owner + ":" + str(component))
-            elif expected_ref is not None and (result.get("scope") != expected_ref or result.get("ref") != expected_ref):
-                diagnostics.append("repaired_cache_ref_scope_mismatch:" + owner + ":" + str(component))
+            else:
+                if expected_ref is not None and result.get("ref") != expected_ref:
+                    diagnostics.append("repaired_cache_consumer_ref_mismatch:" + owner + ":" + str(component))
+                if eligible_scopes is not None and result.get("scope") not in eligible_scopes:
+                    diagnostics.append("repaired_cache_scope_ineligible:" + owner + ":" + str(component))
+                elif eligible_scopes is None and expected_ref is not None and result.get("scope") != expected_ref:
+                    diagnostics.append("repaired_cache_ref_scope_mismatch:" + owner + ":" + str(component))
+                expected = (expected_keys or {}).get(owner, {}).get(component)
+                if expected is not None and result.get("matched_cache_key") != expected:
+                    diagnostics.append("repaired_cache_key_mismatch:" + owner + ":" + str(component))
+                if result.get("fallback_used") is True or result.get("restore_kind") == "fallback":
+                    diagnostics.append("repaired_cache_fallback_used:" + owner + ":" + str(component))
         image = row.get("runner_image") or {}
         if not all(isinstance(value, str) and value for value in (row.get("runner_os"), row.get("runner_arch"), image.get("image_os"), image.get("image_version"))):
             diagnostics.append("repaired_native_runner_identity_missing:" + owner)
     return sorted(set(diagnostics))
+
+
+def validate_repaired_pr_origin(run: dict, pull_request: dict, merge_commit: dict,
+                                registration: dict | None = None) -> list[str]:
+    """Bind GitHub's minimal workflow PR identity to retained full PR and merge-commit API objects."""
+    diagnostics = []
+    workflow_prs = run.get("pull_requests") or []
+    if len(workflow_prs) != 1:
+        return ["repaired_pull_request_minimal_identity_invalid"]
+    minimal = workflow_prs[0]
+    number = pull_request.get("number")
+    head = pull_request.get("head") or {}
+    base = pull_request.get("base") or {}
+    minimal_head = minimal.get("head") or {}
+    minimal_base = minimal.get("base") or {}
+    head_repo_id = (head.get("repo") or {}).get("id")
+    base_repo_id = (base.get("repo") or {}).get("id")
+    run_repo_id = (run.get("repository") or {}).get("id")
+    if (type(number) is not int or minimal.get("number") != number
+            or minimal_head.get("sha") != head.get("sha")
+            or minimal_base.get("sha") != base.get("sha")
+            or not isinstance(head.get("ref"), str) or not head.get("ref")
+            or not isinstance(base.get("ref"), str) or not base.get("ref")
+            or minimal_head.get("ref") != head.get("ref")
+            or minimal_base.get("ref") != base.get("ref")
+            or type(head_repo_id) is not int or head_repo_id <= 0
+            or minimal_head.get("repo", {}).get("id") != head_repo_id
+            or base_repo_id != 1207487684 or run_repo_id != base_repo_id
+            or minimal_base.get("repo", {}).get("id") != base_repo_id):
+        diagnostics.append("repaired_pull_request_api_origin_mismatch")
+    merge_sha = pull_request.get("merge_commit_sha")
+    merge_tree = (merge_commit.get("commit") or {}).get("tree") or merge_commit.get("tree") or {}
+    parents = merge_commit.get("parents") or (merge_commit.get("commit") or {}).get("parents") or []
+    expected_parents = {head.get("sha"), base.get("sha")}
+    actual_parents = {parent.get("sha") for parent in parents if isinstance(parent, dict)}
+    if (not isinstance(merge_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", merge_sha)
+            or merge_commit.get("sha") != merge_sha
+            or not isinstance(merge_tree.get("sha"), str) or not re.fullmatch(r"[0-9a-f]{40}", merge_tree.get("sha", ""))
+            or len(parents) != 2 or actual_parents != expected_parents):
+        diagnostics.append("repaired_merge_commit_origin_invalid")
+    if registration is not None:
+        if (number != registration.get("pull_request_number")
+                or head.get("sha") != registration.get("pull_request_head_sha")
+                or base.get("sha") != registration.get("pull_request_base_sha")
+                or merge_sha != registration.get("pull_request_merge_sha")
+                or merge_tree.get("sha") != registration.get("pull_request_merge_tree_sha")):
+            diagnostics.append("repaired_registered_pull_request_or_merge_changed")
+    return sorted(set(diagnostics))
+
+
+def repaired_cache_stratum(metadata: list[dict]) -> tuple[str, dict]:
+    """Classify six-owner cache metadata without treating structured hit rows as misses."""
+    owners = {"library", "admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"}
+    by_owner = {}
+    for row in metadata if isinstance(metadata, list) else []:
+        owner = row.get("matrix_seam") or ("library" if row.get("job_name") == "Library tests shard" else None)
+        if owner in by_owner:
+            return "not_warm", {}
+        by_owner[owner] = row
+    if set(by_owner) != owners:
+        return "not_warm", {}
+    components = {}
+    for owner in sorted(owners):
+        outcomes = by_owner[owner].get("cache_outcome")
+        if not isinstance(outcomes, dict) or not outcomes:
+            return "not_warm", {}
+        for result in outcomes.values():
+            if (not isinstance(result, dict) or result.get("cache_hit") is not True
+                    or result.get("exact_key") is not True or result.get("fallback_used") is True
+                    or result.get("restore_kind") == "fallback"):
+                return "not_warm", {}
+        components[owner] = sorted(outcomes)
+    return "warm", components
 
 
 def validate_profiled_receipt_sources(contract: dict, receipt: dict, root: pathlib.Path) -> None:
@@ -723,7 +809,8 @@ def validate_general_job_identity(
     return sorted(set(diagnostics))
 
 
-def bind_required_checks_by_attempt(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str], repository: str = "szTheory/sigra") -> tuple[list[str], dict, float | None]:
+def bind_required_checks_by_attempt(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str], repository: str = "szTheory/sigra",
+                                    expected_app_ids: dict | None = None) -> tuple[list[str], dict, float | None]:
     """Validate every required check against the exact attempt job set before exposing endpoints or cost."""
     diagnostics = []
     repository_id = ((run.get("repository") or {}).get("id")
@@ -781,6 +868,14 @@ def bind_required_checks_by_attempt(run: dict, jobs_by_attempt: dict, checks: li
                 or (check.get("check_suite") or {}).get("id") is None):
             diagnostics.append(f"required_check_origin_invalid:{name}")
             continue
+        if expected_app_ids is not None:
+            if (type((check.get("app") or {}).get("id")) is not int
+                    or (check.get("app") or {}).get("id") != expected_app_ids.get(name)
+                    or type((check.get("check_suite") or {}).get("id")) is not int
+                    or type(run.get("check_suite_id")) is not int
+                    or (check.get("check_suite") or {}).get("id") != run.get("check_suite_id")):
+                diagnostics.append(f"required_check_app_or_suite_binding_invalid:{name}")
+                continue
         attempt = job["_verified_attempt"]
         key = (attempt, name)
         if key in seen_checks:
@@ -1139,7 +1234,7 @@ def deduplicate_physical_jobs(attempts: dict) -> tuple[list[dict], list[dict]]:
     return counted, rows
 
 
-def derive_attempt_job_costs(attempt_jobs: dict) -> dict:
+def derive_attempt_job_costs(attempt_jobs: dict, *, strict_skipped_duration: bool = False) -> dict:
     """Sum runner time from raw jobs, retaining every attempt and surfacing unknowns."""
     known = 0.0
     unknown = []
@@ -1172,9 +1267,13 @@ def derive_attempt_job_costs(attempt_jobs: dict) -> dict:
                 continue
             try:
                 unexecuted = (not job.get("started_at") and not job.get("completed_at")) or (
-                    job.get("status") == "completed" and not job.get("steps")
+                    not strict_skipped_duration and job.get("status") == "completed" and not job.get("steps")
                     and job.get("runner_id") in (None, 0) and not job.get("runner_name"))
                 if job.get("conclusion") == "skipped" and unexecuted:
+                    if strict_skipped_duration and (job.get("started_at") or job.get("completed_at")
+                            or job.get("status") != "completed" or job.get("steps")
+                            or job.get("runner_id") not in (None, 0) or job.get("runner_name")):
+                        raise ValueError("skipped_job_execution_evidence_inconsistent")
                     seconds = 0.0
                 else:
                     start, end = _utc(job["started_at"]), _utc(job["completed_at"])
@@ -1196,13 +1295,14 @@ def derive_attempt_job_costs(attempt_jobs: dict) -> dict:
     }
 
 
-def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str], *, attempt: int | None = None) -> dict:
+def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[dict], required: list[str], *,
+                               attempt: int | None = None, expected_app_ids: dict | None = None) -> dict:
     """Bind required checks to native jobs and derive the last successful completion."""
     if attempt is None:
-        errors, by_attempt, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, checks, required)
+        errors, by_attempt, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, checks, required, expected_app_ids=expected_app_ids)
         origin_field = "created_at"
     else:
-        errors, by_attempt, _ = bind_required_checks_by_attempt(run, {str(attempt): jobs_by_attempt.get(str(attempt), [])}, checks, required)
+        errors, by_attempt, _ = bind_required_checks_by_attempt(run, {str(attempt): jobs_by_attempt.get(str(attempt), [])}, checks, required, expected_app_ids=expected_app_ids)
         origin_field = "run_started_at" if run.get("run_started_at") else "queued_at"
     if errors:
         return {"seconds": None, "missing_contexts": list(required), "diagnostics": errors}
@@ -1244,7 +1344,9 @@ def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[d
             "diagnostics": diagnostics, "required_result_completed_at": endpoint, "bound_required_jobs": bound_jobs}
 
 
-def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, required_contexts: list[str], *, run_attempt: int | None = None) -> dict:
+def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, required_contexts: list[str], *,
+                                   run_attempt: int | None = None, repaired: bool = False,
+                                   registration: dict | None = None, expected_app_ids: dict | None = None) -> dict:
     """Replay cost and wait only from authenticated family files already collected."""
     root = pathlib.Path(bundle).resolve()
     sample_id = str(run_id) if run_attempt is None else f"{run_id}-attempt-{run_attempt}"
@@ -1260,6 +1362,48 @@ def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, require
         if (str(run.get("id")) != str(run_id) or detail.get("detail_status") != "complete"
                 or (run_attempt is not None and run.get("run_attempt") != run_attempt)):
             raise ValueError("comparison_family_detail_incomplete")
+        pull_request_identity = {}
+        repository_identity = {}
+        if repaired:
+            if not isinstance(registration, dict):
+                raise ValueError("comparison_family_registration_missing")
+            pr_ref, merge_ref = detail.get("pull_request"), detail.get("merge_commit")
+            if not isinstance(pr_ref, dict) or not isinstance(merge_ref, dict):
+                raise ValueError("comparison_family_pr_merge_receipt_missing")
+            pr_path=(root/pr_ref.get("path", "")).resolve(); merge_path=(root/merge_ref.get("path", "")).resolve()
+            if (not pr_path.is_relative_to(root) or not merge_path.is_relative_to(root)
+                    or not _matches(pr_path,pr_ref.get("sha256")) or not _matches(merge_path,merge_ref.get("sha256"))):
+                raise ValueError("comparison_family_pr_merge_receipt_hash_invalid")
+            pr=json.loads(pr_path.read_bytes()); merge=json.loads(merge_path.read_bytes())
+            if (pr_ref.get("endpoint")!=f"/repos/szTheory/sigra/pulls/{registration.get('pull_request_number')}"
+                    or merge_ref.get("endpoint")!=f"/repos/szTheory/sigra/git/commits/{registration.get('pull_request_merge_sha')}"):
+                raise ValueError("comparison_family_pr_merge_endpoint_invalid")
+            if (hashlib.sha256(pr_path.read_bytes()).hexdigest()!=registration.get("pull_request_response_sha256")
+                    or hashlib.sha256(merge_path.read_bytes()).hexdigest()!=registration.get("merge_commit_response_sha256")
+                    or validate_repaired_pr_origin(run,pr,merge,registration)):
+                raise ValueError("comparison_family_pr_merge_registration_mismatch")
+            collection=(json.loads((root/"manifest.json").read_text()).get("comparison_collection") or {})
+            repo_ref=collection.get("repository_identity") or {}
+            repo_path=(root/repo_ref.get("path", "")).resolve()
+            if (repo_ref.get("endpoint")!="/repos/szTheory/sigra" or not repo_path.is_relative_to(root)
+                    or not _matches(repo_path,repo_ref.get("sha256"))):
+                raise ValueError("comparison_repository_default_branch_proof_missing")
+            repository=json.loads(repo_path.read_bytes())
+            default_branch=repository.get("default_branch")
+            if repository.get("id")!=1207487684 or not isinstance(default_branch,str) or not default_branch:
+                raise ValueError("comparison_repository_default_branch_invalid")
+            number=pr.get("number"); merge_sha=pr.get("merge_commit_sha")
+            merge_tree=((merge.get("commit") or {}).get("tree") or merge.get("tree") or {}).get("sha")
+            base_ref=(pr.get("base") or {}).get("ref"); head_ref=(pr.get("head") or {}).get("ref")
+            eligible={f"refs/heads/{default_branch}",f"refs/pull/{number}/merge"}
+            if isinstance(base_ref,str) and base_ref: eligible.add(f"refs/heads/{base_ref}")
+            if (isinstance(head_ref,str) and head_ref
+                    and ((pr.get("head") or {}).get("repo") or {}).get("id")==1207487684):
+                eligible.add(f"refs/heads/{head_ref}")
+            pull_request_identity={"pull_request_number":number,"pull_request_merge_sha":merge_sha,
+                "pull_request_merge_tree_sha":merge_tree,"pull_request_base_ref":base_ref,
+                "pull_request_head_ref":head_ref,"default_branch_ref":f"refs/heads/{default_branch}",
+                "eligible_cache_scopes":sorted(eligible)}
         jobs_by_attempt = {}
         for attempt, ref in sorted((detail.get("attempt_jobs") or {}).items(), key=lambda item: int(item[0])):
             expected_rel = f"raw/families/{sample_id}/jobs-attempt-{attempt}.json"
@@ -1281,16 +1425,16 @@ def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, require
         checks = json.loads(checks_path.read_text()).get("check_runs")
         if not isinstance(checks, list):
             raise ValueError("comparison_check_runs_invalid")
-        cost = derive_attempt_job_costs(jobs_by_attempt)
-        wait = derive_required_result_wait(run, jobs_by_attempt, checks, required_contexts, attempt=run_attempt)
+        cost = derive_attempt_job_costs(jobs_by_attempt, strict_skipped_duration=repaired)
+        wait = derive_required_result_wait(run, jobs_by_attempt, checks, required_contexts, attempt=run_attempt,
+                                           expected_app_ids=expected_app_ids if repaired else None)
         unique_jobs, physical_history = deduplicate_physical_jobs(jobs_by_attempt)
         if any(row.get("conflict") for row in physical_history):
             cost["total_seconds"] = None
             cost["diagnostics"] = sorted(set(cost["diagnostics"] + ["physical_job_identity_conflict"]))
         return {"status": "complete", "run_id": run_id, "conclusion": run.get("conclusion"),
                 "created_at": run.get("created_at"), "run_attempt": run.get("run_attempt"),
-                "pull_request_number": ((run.get("pull_requests") or [{}])[0].get("number") if len(run.get("pull_requests") or []) == 1 else None),
-                "pull_request_merge_sha": ((run.get("pull_requests") or [{}])[0].get("merge_commit_sha") if len(run.get("pull_requests") or []) == 1 else None),
+                **pull_request_identity,
                 "attempt_origin_at": (run.get("run_started_at") or run.get("queued_at")) if run_attempt is not None else run.get("created_at"), "head_sha": run.get("head_sha"),
                 "runner_seconds": cost["total_seconds"], "runner_known_subtotal_seconds": cost["known_subtotal_seconds"],
                 "runner_unknown_jobs": cost["unknown_jobs"], "runner_diagnostics": cost["diagnostics"],
@@ -1320,6 +1464,21 @@ def validate_comparison_plan(contract: dict) -> list[str]:
         required = contract.get("required_contexts")
         if not isinstance(required, list) or len(required) != 5 or len(set(required)) != 5:
             diagnostics.append("repaired_required_contexts_invalid")
+        app_ids=contract.get("required_check_apps")
+        if (not isinstance(app_ids,dict) or set(app_ids)!=set(required or [])
+                or any(type(value) is not int or value<=0 for value in app_ids.values())):
+            diagnostics.append("repaired_required_check_app_ids_invalid")
+        cache=contract.get("cache_eligibility") or {}
+        owners={"library","admin_behavior","admin_checkpoints","design_gallery","non_admin_smoke","demo_showcase"}
+        expected_keys=cache.get("expected_keys") or {}
+        if not isinstance(cache.get("default_branch_ref"),str) or not cache["default_branch_ref"].startswith("refs/heads/"):
+            diagnostics.append("repaired_cache_default_branch_not_frozen")
+        if set(expected_keys)!={"before","after"} or any(
+                not isinstance(expected_keys.get(role),dict) or set(expected_keys[role])!=owners
+                or any(not isinstance(expected_keys[role].get(owner),dict) or not expected_keys[role][owner]
+                       or any(not isinstance(key,str) or not key or len(key)>512 for key in expected_keys[role][owner].values())
+                       for owner in owners) for role in ("before","after")):
+            diagnostics.append("repaired_source_specific_cache_keys_not_frozen")
     sample_identity = contract.get("sample_identity")
     if sample_identity not in (None, "run_id+run_attempt"):
         diagnostics.append("comparison_sample_identity_invalid")
@@ -1441,7 +1600,13 @@ def validate_comparison_registration_ledger(contract: dict, ledger: dict) -> lis
                      and len(api_run.get("pull_requests") or []) == 1
                      and api_run["pull_requests"][0].get("head", {}).get("sha") == expected_sha)
             if contract.get("comparison_kind") == "repaired_control_pr":
-                valid = valid and api_run["pull_requests"][0].get("merge_commit_sha") == row.get("pull_request_merge_sha")
+                pr_raw = base64.b64decode(row.get("pull_request_response_b64", ""), validate=True)
+                merge_raw = base64.b64decode(row.get("merge_commit_response_b64", ""), validate=True)
+                if (hashlib.sha256(pr_raw).hexdigest() != row.get("pull_request_response_sha256")
+                        or hashlib.sha256(merge_raw).hexdigest() != row.get("merge_commit_response_sha256")):
+                    raise ValueError("comparison_registration_pr_proof_digest_mismatch")
+                pr_doc, merge_doc = json.loads(pr_raw), json.loads(merge_raw)
+                valid = valid and not validate_repaired_pr_origin(api_run, pr_doc, merge_doc, row)
         except (ValueError, TypeError, KeyError):
             valid = False
         if (row.get("sequence") != index or row.get("previous_sha256") != previous or row.get("record_sha256") != digest
@@ -1468,7 +1633,11 @@ def comparison_registered_runs(contract: dict, ledger: dict, role: str) -> list[
              "event": row.get("event"), "workflow_path": row.get("workflow_path"),
              "head_sha": row["head_sha"], "pull_request_head_sha": row["pull_request_head_sha"],
              "pull_request_base_sha": row["pull_request_base_sha"],
-             **({"pull_request_merge_sha": row.get("pull_request_merge_sha")} if contract.get("comparison_kind") == "repaired_control_pr" else {}),
+             **({"pull_request_merge_sha": row.get("pull_request_merge_sha"),
+                 "pull_request_merge_tree_sha": row.get("pull_request_merge_tree_sha"),
+                 "pull_request_response_sha256": row.get("pull_request_response_sha256"),
+                 "merge_commit_response_sha256": row.get("merge_commit_response_sha256")}
+                if contract.get("comparison_kind") == "repaired_control_pr" else {}),
              "pull_request_number": row["pull_request_number"]} for row in rows]
 
 
@@ -1489,12 +1658,14 @@ def validate_registered_run_observation(registration: dict, api_run: dict) -> li
     expected = expected and pr.get("number") == registration.get("pull_request_number")
     expected = expected and pr.get("head", {}).get("sha") == registration.get("pull_request_head_sha")
     expected = expected and pr.get("base", {}).get("sha") == registration.get("pull_request_base_sha")
-    if registration.get("comparison_kind") == "repaired_control_pr":
-        expected = expected and pr.get("merge_commit_sha") == registration.get("pull_request_merge_sha")
     return [] if expected else ["comparison_run_registered_identity_mismatch"]
 
 
-def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, ledger: dict | None = None, api_run_sha256: str | None = None, api_run_response_bytes: bytes | None = None) -> dict:
+def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, ledger: dict | None = None,
+                            api_run_sha256: str | None = None, api_run_response_bytes: bytes | None = None,
+                            pull_request_response: dict | None = None, merge_commit_response: dict | None = None,
+                            pull_request_response_bytes: bytes | None = None,
+                            merge_commit_response_bytes: bytes | None = None) -> dict:
     """Create an append-only identity record without reading the API outcome fields."""
     reservations = [x for x in contract.get("family_reservations", []) if x.get("reservation_id") == reservation_id]
     if len(reservations) != 1:
@@ -1522,14 +1693,25 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
             or reservation.get("pair_id") is None):
         raise ValueError("comparison_run_identity_does_not_match_reservation")
     pr = pull_requests[0]
-    if contract.get("comparison_kind") == "repaired_control_pr" and not isinstance(pr.get("merge_commit_sha"), str):
-        raise ValueError("comparison_pull_request_merge_identity_missing")
     if pr.get("head", {}).get("sha") != expected_sha:
         raise ValueError("comparison_run_pull_request_head_mismatch")
     if (reservation.get("pull_request_number") is not None and pr.get("number") != reservation.get("pull_request_number")):
         raise ValueError("comparison_run_pull_request_number_mismatch")
     if (reservation.get("pull_request_base_sha") is not None and pr.get("base", {}).get("sha") != reservation.get("pull_request_base_sha")):
         raise ValueError("comparison_run_pull_request_base_mismatch")
+    pr_raw = merge_raw = None
+    if contract.get("comparison_kind") == "repaired_control_pr":
+        if not isinstance(pull_request_response, dict) or not isinstance(merge_commit_response, dict):
+            raise ValueError("comparison_pull_request_and_merge_commit_proofs_required")
+        if validate_repaired_pr_origin(api_run, pull_request_response, merge_commit_response):
+            raise ValueError("comparison_pull_request_or_merge_commit_origin_invalid")
+        pr_raw = pull_request_response_bytes if pull_request_response_bytes is not None else json.dumps(pull_request_response, sort_keys=True, separators=(",", ":")).encode()
+        merge_raw = merge_commit_response_bytes if merge_commit_response_bytes is not None else json.dumps(merge_commit_response, sort_keys=True, separators=(",", ":")).encode()
+        try:
+            if json.loads(pr_raw) != pull_request_response or json.loads(merge_raw) != merge_commit_response:
+                raise ValueError("comparison_pull_request_proof_bytes_invalid")
+        except (UnicodeError, json.JSONDecodeError, TypeError) as error:
+            raise ValueError("comparison_pull_request_proof_bytes_invalid") from error
     previous_rows = (ledger or {}).get("records", [])
     if contract.get("comparison_schedule"):
         plan_errors = validate_comparison_plan(contract)
@@ -1565,7 +1747,12 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
         "pull_request_number": pr.get("number"),
         "pull_request_head_sha": pr.get("head", {}).get("sha"),
         "pull_request_base_sha": pr.get("base", {}).get("sha"),
-        **({"pull_request_merge_sha": pr.get("merge_commit_sha")} if contract.get("comparison_kind") == "repaired_control_pr" else {}),
+        **({"pull_request_merge_sha": pull_request_response.get("merge_commit_sha"),
+            "pull_request_merge_tree_sha": ((merge_commit_response.get("commit") or {}).get("tree") or merge_commit_response.get("tree") or {}).get("sha"),
+            "pull_request_response_sha256": hashlib.sha256(pr_raw).hexdigest(),
+            "pull_request_response_b64": base64.b64encode(pr_raw).decode("ascii"),
+            "merge_commit_response_sha256": hashlib.sha256(merge_raw).hexdigest(),
+            "merge_commit_response_b64": base64.b64encode(merge_raw).decode("ascii")} if contract.get("comparison_kind") == "repaired_control_pr" else {}),
         "api_run_sha256": api_run_sha256,
         "api_run_response_b64": base64.b64encode(raw_api).decode("ascii"),
     }

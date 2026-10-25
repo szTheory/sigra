@@ -1833,7 +1833,7 @@ def verify_canary_matrix(evidence):
 
 
 @fail_closed
-def verify_comparison_family_origin(family_directory, registration, required_contexts):
+def verify_comparison_family_origin(family_directory, registration, required_contexts, required_app_ids=None):
     """Independently bind a Phase254 raw family to its early registered PR origin."""
     root = Path(family_directory).resolve()
     require(root.is_dir() and not root.is_symlink(), "comparison snapshot directory is missing or symlinked")
@@ -1880,6 +1880,58 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             "collected run origin differs from early registration")
     repaired_control = registration.get("comparison_kind") == "repaired_control_pr"
     if repaired_control:
+        require(isinstance(required_app_ids,dict) and set(required_app_ids)==set(required_contexts)
+                and all(type(value) is int and value>0 for value in required_app_ids.values()),
+                "repaired comparison requires frozen numeric required-check application IDs")
+        snapshot_manifest, _ = read("manifest.json")
+        require(snapshot_manifest.get("required_check_apps")==required_app_ids,
+                "required-check application IDs differ from the frozen branch-rule snapshot")
+        snapshot_contexts=snapshot_manifest.get("required_contexts")
+        require(isinstance(snapshot_contexts,list) and len(snapshot_contexts)==len(required_contexts)
+                and set(snapshot_contexts)==set(required_contexts),
+                "required-check contexts differ from the frozen branch-rule snapshot")
+        hashes=snapshot_manifest.get("source_sha256") or {}
+        require(all(isinstance(hashes.get(key),str) and re.fullmatch(r"[0-9a-f]{64}",hashes[key])
+                    for key in ("effective_rules","branch_protection")),
+                "frozen branch-rule response digests are missing")
+        rules, _ = read("raw/effective-rules.json", hashes.get("effective_rules"))
+        protection, _ = read("raw/branch-protection.json", hashes.get("branch_protection"))
+        effective_rows=[check for rule in (rules if isinstance(rules,list) else [])
+                        if rule.get("type")=="required_status_checks"
+                        for check in ((rule.get("parameters") or {}).get("required_status_checks") or [])]
+        if effective_rows:
+            require({row.get("context") for row in effective_rows}==set(required_contexts)
+                    and len(effective_rows)==len(required_contexts),
+                    "retained effective required-check rules do not name exactly the frozen contexts")
+            derived_apps={row.get("context"):row.get("integration_id",row.get("app_id")) for row in effective_rows}
+        else:
+            contexts=(protection or {}).get("contexts") or []
+            checks=(protection or {}).get("checks") or []
+            require(set(contexts)==set(required_contexts) and len(contexts)==len(required_contexts),
+                    "retained branch-protection checks do not name exactly the frozen contexts")
+            derived_apps={context:next((row.get("app_id") for row in checks if row.get("context")==context),None)
+                          for context in contexts}
+        require(derived_apps==required_app_ids,
+                "numeric required-check application IDs differ from retained effective branch rules")
+        from ci_metrics_security import validate_repaired_pr_origin
+        pr_ref, merge_ref = manifest.get("pull_request"), manifest.get("merge_commit")
+        require(isinstance(pr_ref, dict) and isinstance(merge_ref, dict),
+                "repaired family must retain independent pull request and merge commit API responses")
+        expected_pr_endpoint=f"/repos/{REPOSITORY}/pulls/{registration.get('pull_request_number')}"
+        pr_doc, pr_raw = read(pr_ref.get("path"), pr_ref.get("sha256"))
+        merge_doc, merge_raw = read(merge_ref.get("path"), merge_ref.get("sha256"))
+        require(pr_ref.get("endpoint")==expected_pr_endpoint
+                and merge_ref.get("endpoint")==f"/repos/{REPOSITORY}/git/commits/{registration.get('pull_request_merge_sha')}",
+                "repaired pull request or merge commit endpoint differs from registered identity")
+        require(sha256(pr_raw)==registration.get("pull_request_response_sha256")
+                and sha256(merge_raw)==registration.get("merge_commit_response_sha256"),
+                "retained pull request or merge commit differs from early registration")
+        require(not validate_repaired_pr_origin(run, pr_doc, merge_doc, registration),
+                "independent pull request/merge commit origin differs from registration")
+        require(pr_doc.get("merge_commit_sha")==registration.get("pull_request_merge_sha")
+                and ((merge_doc.get("commit") or {}).get("tree") or merge_doc.get("tree") or {}).get("sha")
+                    ==registration.get("pull_request_merge_tree_sha"),
+                "registered pull request merge tree differs from retained GitHub commit")
         require(isinstance(run.get("created_at"), str) and bool(run.get("created_at"))
                 and run.get("created_at") == registration.get("created_at"),
                 "original run creation time differs from early registration")
@@ -1897,9 +1949,6 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             and (pr.get("head") or {}).get("sha") == registration.get("pull_request_head_sha")
             and (pr.get("base") or {}).get("sha") == registration.get("pull_request_base_sha"),
             "pull request head/base origin differs from early registration")
-    if repaired_control and registration.get("pull_request_merge_sha") is not None:
-        require(pr.get("merge_commit_sha") == registration.get("pull_request_merge_sha"),
-                "pull request merge tree differs from early registration")
     require(pr.get("head", {}).get("repo", {}).get("id") == run.get("repository", {}).get("id")
             and pr.get("base", {}).get("repo", {}).get("id") == run.get("repository", {}).get("id"),
             "pull request repositories differ from measured run repository")
@@ -1930,16 +1979,18 @@ def verify_comparison_family_origin(family_directory, registration, required_con
     require(isinstance(check_rows, list), "raw check-run response is malformed")
     if repaired_control:
         from ci_metrics_security import bind_required_checks_by_attempt
-        errors, endpoints, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, check_rows, required_contexts)
+        errors, endpoints, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, check_rows, required_contexts,
+                                                                 expected_app_ids=required_app_ids)
         require(not errors, "required check to job binding failed: " + ",".join(errors))
         bound = {}
         for name in required_contexts:
-            candidates = [(int(attempt), row[name]) for attempt, rows in endpoints.items() if name in rows]
+            candidates = [(int(attempt), rows[name]) for attempt, rows in endpoints.items() if name in rows]
             require(bool(candidates), f"required check is missing: {name}")
             latest_attempt, latest_check = max(candidates, key=lambda item: item[0])
             require(latest_check.get("status") == "completed" and latest_check.get("conclusion") == "success",
                     f"latest applicable required check did not succeed: {name}")
             bound[name] = latest_check
+        latest = str(run.get("run_attempt") or max(map(int, jobs_by_attempt)))
     else:
         latest = str(run.get("run_attempt") or max(map(int, jobs_by_attempt)))
     latest_jobs = jobs_by_attempt.get(latest) if not repaired_control else None
@@ -2008,7 +2059,7 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             require(current_name in artifact_names or (len(legacy) == 1 and
                     legacy_playwright_artifact_matches_attempt(legacy[0], run, latest_jobs, int(attempt))),
                     "the exact five native artifacts for the registered run attempt are required")
-    merge_sha=run.get("merge_commit_sha")
+    merge_sha=registration.get("pull_request_merge_sha") if repaired_control else run.get("merge_commit_sha")
     require(merge_sha is None or (isinstance(merge_sha,str) and SHA40.fullmatch(merge_sha)),
             "workflow run merge SHA is malformed")
     return {"status": "origin_verified", "run_id": run_id, "run_attempt": latest,
@@ -2391,6 +2442,7 @@ def main():
     parser.add_argument("--registration-json", help="inline single early comparison registration JSON for --mode comparison-family")
     parser.add_argument("--artifact-api", help="independent Artifact API producer snapshot for --mode repaired-work")
     parser.add_argument("--required-contexts", help="JSON array of the five exact required context names")
+    parser.add_argument("--required-app-ids", help="JSON object mapping each exact required context to its frozen numeric app ID")
     strictness = parser.add_mutually_exclusive_group()
     strictness.add_argument("--require-accepted", action="store_true")
     strictness.add_argument("--require-dispositioned", action="store_true")
@@ -2422,7 +2474,8 @@ def main():
                 "comparison-family mode requires exactly one registration input and --required-contexts")
         registration = read_json_file(args.registration) if args.registration else json.loads(args.registration_json)
         contexts = json.loads(args.required_contexts)
-        return verify_comparison_family_origin(args.evidence, registration, contexts)
+        app_ids=json.loads(args.required_app_ids) if args.required_app_ids else None
+        return verify_comparison_family_origin(args.evidence, registration, contexts, app_ids)
     evidence = read_replan_evidence(args.evidence)
     result = replan_result(args, evidence)
     if hermetic_canary(evidence):

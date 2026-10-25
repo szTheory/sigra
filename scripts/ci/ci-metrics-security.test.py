@@ -8,6 +8,7 @@ import os
 import pathlib
 import subprocess
 import tempfile
+import time
 import unittest
 import zipfile
 import ci_metrics_security as security
@@ -24,6 +25,7 @@ from ci_metrics_security import (
     deduplicate_physical_jobs,
     safe_markdown_url,
     register_comparison_run,
+    repaired_cache_stratum,
     sanitize_failure_log,
     validate_check_bindings,
     validate_comparison_reservations,
@@ -68,6 +70,25 @@ class SecurityContractsTest(unittest.TestCase):
         rows[0]["cache_outcome"]["deps"]["exact_key"] = False
         self.assertIn("repaired_cache_not_exact_hit:library:deps", validate_repaired_control_metadata(rows))
 
+    def test_repaired_cache_structured_hits_are_warm_and_base_scope_is_eligible(self):
+        rows = []
+        expected = {}
+        for owner in ("library", "admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"):
+            rows.append({"job_name": "Library tests shard" if owner == "library" else "Example Playwright shard",
+                "matrix_seam": None if owner == "library" else owner,
+                "runner_os": "Linux", "runner_arch": "X64",
+                "runner_image": {"image_os": "ubuntu24", "image_version": "20261020.1.0"},
+                "cache_outcome": {"deps": {"cache_hit": True, "exact_key": True,
+                    "matched_cache_key": f"source-key-{owner}", "scope": "refs/heads/main",
+                    "ref": "refs/pull/11/merge", "conditions": ["Linux", "X64"]}}})
+            expected[owner] = {"deps": f"source-key-{owner}"}
+        self.assertEqual("warm", repaired_cache_stratum(rows)[0])
+        self.assertEqual([], validate_repaired_control_metadata(rows, expected_ref="refs/pull/11/merge",
+            eligible_scopes={"refs/heads/main", "refs/pull/11/merge"}, expected_keys=expected))
+        rows[0]["cache_outcome"]["deps"]["scope"] = "refs/pull/22/merge"
+        self.assertIn("repaired_cache_scope_ineligible:library:deps", validate_repaired_control_metadata(rows,
+            expected_ref="refs/pull/11/merge", eligible_scopes={"refs/heads/main", "refs/pull/11/merge"}, expected_keys=expected))
+
     def test_unset_comparison_window_returns_cli_diagnostic_without_traceback(self):
         root = pathlib.Path(__file__).resolve().parents[2]
         with tempfile.TemporaryDirectory() as temp:
@@ -97,16 +118,28 @@ class SecurityContractsTest(unittest.TestCase):
                 pair_id=f"pair-{pair:02d}"; slot={"pair_id":pair_id,"family_role":role}
                 schedule.append(slot); reservations.append({"reservation_id":f"r-{pair_id}-{role}",**slot})
         contract={"comparison_kind":"repaired_control_pr","required_contexts":["c1","c2","c3","c4","c5"],
+                  "required_check_apps":{name:15368 for name in ("c1","c2","c3","c4","c5")},
                   "status":"ready","pair_count":20,"primary_family_count":40,"comparison_schedule":schedule,
                   "family_reservations":reservations,"maximum_pair_start_gap_seconds":1800,
+                  "cache_eligibility":{"default_branch_ref":"refs/heads/main","expected_keys":{
+                      side:{owner:{"deps":f"key-{side}-{owner}"} for owner in
+                          ("library","admin_behavior","admin_checkpoints","design_gallery","non_admin_smoke","demo_showcase")}
+                      for side in ("before","after")}},
                   "preparation_compatibility":{"baseline_cache_stratum":"warm","candidate_cache_stratum":"warm","runner_image_policy":"same"},
                   "candidate_identity":{"application_sha":"b"*40,"workflow_revision":"b"*40,"workload_revision_sha256":"c"*64,"workflow_file_sha256":"d"*64},
                   "baseline_application_sha":"a"*40,"window":{"start_utc":"2026-10-12T00:00:00Z","end_utc":"2026-10-14T00:00:00Z"}}
         raw_run={"id":101,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,
                  "created_at":"2026-10-13T00:00:00Z","status":"queued","conclusion":None,
-                 "pull_requests":[{"number":1,"head":{"sha":"a"*40},"base":{"sha":"e"*40},"merge_commit_sha":"merge-tree"}]}
+                 "repository":{"id":1207487684},"pull_requests":[{"number":1,
+                    "head":{"sha":"a"*40,"ref":"candidate","repo":{"id":1207487684}},
+                    "base":{"sha":"e"*40,"ref":"main","repo":{"id":1207487684}}}]}
         raw=json.dumps(raw_run,sort_keys=True,separators=(",",":")).encode(); reservation=reservations[0]
-        ledger=register_comparison_run(contract,reservation["reservation_id"],raw_run,api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw)
+        merge_sha,tree_sha="c"*40,"d"*40
+        pr_doc={"number":1,"head":{"sha":"a"*40,"ref":"candidate","repo":{"id":1207487684}},
+            "base":{"sha":"e"*40,"ref":"main","repo":{"id":1207487684}},"merge_commit_sha":merge_sha}
+        merge_doc={"sha":merge_sha,"commit":{"tree":{"sha":tree_sha}},"parents":[{"sha":"a"*40},{"sha":"e"*40}]}
+        ledger=register_comparison_run(contract,reservation["reservation_id"],raw_run,api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw,
+            pull_request_response=pr_doc,merge_commit_response=merge_doc)
         self.assertEqual([],validate_comparison_registration_ledger(contract,ledger))
         self.assertEqual([101],[row["run_id"] for row in comparison_registered_runs(contract,ledger,"before")])
         with self.assertRaisesRegex(ValueError,"role_has_no_registered_runs"):
@@ -178,6 +211,11 @@ class SecurityContractsTest(unittest.TestCase):
                 pair_id=f"pair-{pair:02d}"; schedule.append({"pair_id":pair_id,"family_role":role})
                 reservations.append({"reservation_id":f"r-{pair_id}-{role}","pair_id":pair_id,"family_role":role})
         contract={"comparison_kind":"repaired_control_pr","required_contexts":required,"status":"ready",
+            "required_check_apps":{name:15368 for name in required},
+            "cache_eligibility":{"default_branch_ref":"refs/heads/main","expected_keys":{
+                side:{owner:{"deps":f"key-{side}-{owner}"} for owner in
+                    ("library","admin_behavior","admin_checkpoints","design_gallery","non_admin_smoke","demo_showcase")}
+                for side in ("before","after")}},
             "request_budget_ledger_id":"a"*64,
             "pair_count":20,"primary_family_count":40,"comparison_schedule":schedule,"family_reservations":reservations,
             "maximum_pair_start_gap_seconds":1800,"preparation_compatibility":{"baseline_cache_stratum":"warm",
@@ -190,26 +228,51 @@ class SecurityContractsTest(unittest.TestCase):
             temp=pathlib.Path(temp); contract_path=temp/"contract.json"; contract_path.write_text(json.dumps(contract))
             run={"id":101,"event":"pull_request","path":".github/workflows/ci.yml","head_sha":"a"*40,
                 "created_at":"2026-10-24T01:00:00Z","status":"in_progress","conclusion":None,
-                "pull_requests":[{"number":331,"head":{"sha":"a"*40},"base":{"sha":"f"*40},"merge_commit_sha":"merge-tree"}]}
+                "repository":{"id":1207487684},"pull_requests":[{"number":331,
+                    "head":{"sha":"a"*40,"ref":"candidate","repo":{"id":1207487684}},
+                    "base":{"sha":"f"*40,"ref":"main","repo":{"id":1207487684}}}]}
             raw=json.dumps(run,sort_keys=True,separators=(",",":")).encode()
+            merge_sha,tree_sha="c"*40,"d"*40
+            pr_doc={"number":331,"head":{"sha":"a"*40,"ref":"candidate","repo":{"id":1207487684}},
+                "base":{"sha":"f"*40,"ref":"main","repo":{"id":1207487684}},"merge_commit_sha":merge_sha}
+            merge_doc={"sha":merge_sha,"commit":{"tree":{"sha":tree_sha}},"parents":[{"sha":"a"*40},{"sha":"f"*40}]}
             ledger=register_comparison_run(contract,reservations[0]["reservation_id"],run,
-                api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw)
+                api_run_sha256=hashlib.sha256(raw).hexdigest(),api_run_response_bytes=raw,
+                pull_request_response=pr_doc,merge_commit_response=merge_doc)
             registration_path=temp/"registrations.json"
             registration_path.write_text(json.dumps(ledger))
             budget_path=temp/"budget.json"
             initialize_comparison_request_budget(contract,budget_path)
             calls_path=temp/"calls.json"; calls_path.write_text("0")
             fake_bin=temp/"bin"; fake_bin.mkdir(); gh=fake_bin/"gh"
-            gh.write_text("#!/usr/bin/env python3\nimport json,os,pathlib,sys\nendpoint=sys.argv[-1]\nif endpoint=='rate_limit': print(json.dumps({'resources':{'core':{'remaining':500}}})); raise SystemExit(0)\npath=pathlib.Path(os.environ['FAKE_GH_CALLS_PATH']); n=int(path.read_text())+1; path.write_text(str(n))\nrun=json.loads(os.environ['FAKE_GH_RUN_JSON']); run['status']='in_progress' if n==1 else 'completed'; run['conclusion']=None if n==1 else 'success'; print(json.dumps(run))\n")
+            gh.write_text("#!/usr/bin/env python3\nimport json,os,pathlib,sys\nendpoint=sys.argv[-1]\nif endpoint=='rate_limit': print(json.dumps({'resources':{'core':{'remaining':500}}})); raise SystemExit(0)\nready=pathlib.Path(os.environ.get('FAKE_GH_READY_PATH','/nonexistent'))\nif os.environ.get('FAKE_GH_BLOCK_FIRST')=='1' and not ready.exists():\n ready.write_text('ready')\n with open(os.environ['FAKE_GH_RELEASE_FIFO'],'rb') as gate: gate.read(1)\npath=pathlib.Path(os.environ['FAKE_GH_CALLS_PATH']); n=int(path.read_text())+1; path.write_text(str(n))\nrun=json.loads(os.environ['FAKE_GH_RUN_JSON']); run['status']='in_progress' if n==1 else 'completed'; run['conclusion']=None if n==1 else 'success'; print(json.dumps(run))\n")
             gh.chmod(0o755)
             output_dir=temp/"watch-output"
+            release_fifo=temp/"watcher-release.fifo"; os.mkfifo(release_fifo)
             env={**os.environ,"PATH":str(fake_bin)+os.pathsep+os.environ.get("PATH",""),"FAKE_GH_CALLS_PATH":str(calls_path),
                 "FAKE_GH_RUN_JSON":json.dumps(run),"CI_METRICS_TEST_MODE":"1","CI_METRICS_TEST_WATCH_INTERVAL_SECONDS":"60",
-                "CI_METRICS_TEST_NO_SLEEP":"1"}
-            result=subprocess.run(["bash",str(root/"scripts/ci/ci-run-metrics.sh"),"--watch-comparison-runs",
+                "CI_METRICS_TEST_NO_SLEEP":"1","FAKE_GH_BLOCK_FIRST":"1",
+                "FAKE_GH_READY_PATH":str(temp/"transport-ready"),"FAKE_GH_RELEASE_FIFO":str(release_fifo)}
+            process=subprocess.Popen(["bash",str(root/"scripts/ci/ci-run-metrics.sh"),"--watch-comparison-runs",
                 "--comparison-role","before","--contract",str(contract_path),"--registrations",str(registration_path),
                 "--request-budget-ledger",str(budget_path),"--watch-output-dir",str(output_dir)],
+                cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+            ready=temp/"transport-ready"; deadline=time.monotonic()+10
+            while not ready.exists() and process.poll() is None and time.monotonic()<deadline: pass
+            self.assertTrue(ready.exists(),"first watcher did not reach the held transport request")
+            locked_budget_hash=hashlib.sha256(budget_path.read_bytes()).hexdigest()
+            competing=subprocess.run(["bash",str(root/"scripts/ci/ci-run-metrics.sh"),"--watch-comparison-runs",
+                "--comparison-role","before","--contract",str(contract_path),"--registrations",str(registration_path),
+                "--request-budget-ledger",str(budget_path),"--watch-output-dir",str(temp/"competing-output")],
                 cwd=root,env=env,capture_output=True,text=True,timeout=30)
+            self.assertNotEqual(0,competing.returncode)
+            self.assertIn("comparison_watcher_already_active:101",competing.stderr)
+            self.assertEqual(locked_budget_hash,hashlib.sha256(budget_path.read_bytes()).hexdigest(),
+                "competing owner must stop before charging or changing the shared budget")
+            with open(release_fifo,"wb") as gate: gate.write(b"1")
+            stdout,stderr=process.communicate(timeout=30)
+            class Result: pass
+            result=Result(); result.returncode=process.returncode; result.stdout=stdout; result.stderr=stderr
             self.assertEqual(0,result.returncode,result.stderr)
             report=json.loads(result.stdout)
             self.assertEqual(2,report["poll_count"])
@@ -219,6 +282,28 @@ class SecurityContractsTest(unittest.TestCase):
             budget=json.loads(budget_path.read_text())
             self.assertEqual(3,sum(row.get("kind")=="request" for row in budget["records"]))
             self.assertEqual(1,sum(row.get("kind")=="watcher" for row in budget["records"]))
+            resumed=subprocess.run(["bash",str(root/"scripts/ci/ci-run-metrics.sh"),"--watch-comparison-runs",
+                "--comparison-role","before","--contract",str(contract_path),"--registrations",str(registration_path),
+                "--request-budget-ledger",str(budget_path),"--watch-output-dir",str(output_dir)],
+                cwd=root,env=env,capture_output=True,text=True,timeout=30)
+            self.assertEqual(0,resumed.returncode,resumed.stderr)
+            self.assertEqual(2,json.loads(resumed.stdout)["poll_count"])
+            self.assertEqual(2,int(calls_path.read_text()),"terminal run should be resumed without another poll")
+            budget_hash=hashlib.sha256(budget_path.read_bytes()).hexdigest()
+            poll_hashes={path.name:hashlib.sha256(path.read_bytes()).hexdigest()
+                for path in output_dir.glob("run-*-poll-*.json")}
+            self.assertEqual(2,len(poll_hashes))
+            self.assertEqual(3,sum(row.get("kind")=="request" for row in json.loads(budget_path.read_text())["records"]))
+            final_resume=subprocess.run(["bash",str(root/"scripts/ci/ci-run-metrics.sh"),"--watch-comparison-runs",
+                "--comparison-role","before","--contract",str(contract_path),"--registrations",str(registration_path),
+                "--request-budget-ledger",str(budget_path),"--watch-output-dir",str(output_dir)],
+                cwd=root,env={**env,"FAKE_GH_BLOCK_FIRST":"0"},capture_output=True,text=True,timeout=30)
+            self.assertEqual(0,final_resume.returncode,final_resume.stderr)
+            self.assertEqual(2,int(calls_path.read_text()),"terminal resume must perform no GET")
+            self.assertEqual(budget_hash,hashlib.sha256(budget_path.read_bytes()).hexdigest(),
+                "terminal resume must preserve the spent shared budget")
+            self.assertEqual(poll_hashes,{path.name:hashlib.sha256(path.read_bytes()).hexdigest()
+                for path in output_dir.glob("run-*-poll-*.json")},"terminal resume must preserve raw poll receipts")
 
     def test_http_403_and_429_are_hard_stops_without_immediate_retry(self):
         contract={"request_budget_ledger_id":"d"*64,"status":"ready"}
