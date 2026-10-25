@@ -32,6 +32,12 @@ def sha_file(path: Path) -> str:
     return digest(path.read_bytes())
 
 
+def normalize_inventory(rows: list | None) -> list[str] | None:
+    if not isinstance(rows, list):
+        return None
+    return sorted(json.dumps(item, ensure_ascii=False, sort_keys=True, separators=(",", ":")) for item in rows)
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
@@ -130,9 +136,16 @@ def validate_equivalent_work(value: dict, *, report_root: Path | None = None) ->
                     errors.append(f"library_identity_invalid:{receiver}:{role}")
                 if any(test.get("status") not in {"passed", "skipped"} for test in row.get("tests", []) if isinstance(test, dict)):
                     errors.append(f"library_unexpected_status:{receiver}:{role}")
-                if any(not isinstance(item, dict) or not item.get("test_id") or not item.get("reason")
-                       for key in ("skipped", "excluded") for item in row.get(key, [])):
-                    errors.append(f"library_skip_or_exclusion_invalid:{receiver}:{role}")
+                for key in ("skipped", "excluded"):
+                    inventory = row.get(key)
+                    if (not isinstance(inventory, list)
+                            or any(not isinstance(item, dict) or not item.get("test_id") or not item.get("reason")
+                                   for item in inventory)):
+                        errors.append(f"library_skip_or_exclusion_invalid:{receiver}:{role}")
+                        continue
+                    inventory_ids = [item["test_id"] for item in inventory]
+                    if len(inventory_ids) != len(set(inventory_ids)):
+                        errors.append(f"library_skip_or_exclusion_duplicate:{receiver}:{role}")
                 skipped_ids = {item.get("test_id") for item in row.get("skipped", []) if isinstance(item, dict)}
                 expected_skips = {item.get("test_id") for item in row.get("tests", [])
                                   if isinstance(item, dict) and item.get("status") == "skipped"}
@@ -149,7 +162,8 @@ def validate_equivalent_work(value: dict, *, report_root: Path | None = None) ->
                 right_rows = sorted((item.get("test_id"), item.get("status")) for item in right.get("tests", []) if isinstance(item, dict))
                 if left_rows != right_rows:
                     errors.append(f"library_identity_or_status_mismatch:{receiver}")
-                if left.get("excluded") != right.get("excluded") or left.get("skipped") != right.get("skipped"):
+                if (normalize_inventory(left.get("excluded")) != normalize_inventory(right.get("excluded"))
+                        or normalize_inventory(left.get("skipped")) != normalize_inventory(right.get("skipped"))):
                     errors.append(f"library_skip_or_exclusion_mismatch:{receiver}")
     browser_owners = value.get("browser_owners")
     if not isinstance(browser_owners, dict) or set(browser_owners) != set(OWNERS):
@@ -410,8 +424,9 @@ def compare_library_pair(left: dict | None, right: dict | None) -> dict:
                and isinstance(row.get("tests"), list) and row["tests"] for row in (left, right)):
         return {"status": "blocked", "reason": "missing_incomplete_or_failed_receiver"}
     normalize = lambda row: sorted((item.get("test_id"), item.get("status")) for item in row["tests"])
-    same = (normalize(left) == normalize(right) and left.get("excluded") == right.get("excluded")
-            and left.get("skipped") == right.get("skipped"))
+    same = (normalize(left) == normalize(right)
+            and normalize_inventory(left.get("excluded")) == normalize_inventory(right.get("excluded"))
+            and normalize_inventory(left.get("skipped")) == normalize_inventory(right.get("skipped")))
     return {"status": "passed" if same else "failed"}
 
 
@@ -615,6 +630,20 @@ class RepairedWorkContractTest(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("library_report_incomplete:ordinary:control", errors)
 
+    def test_library_validator_ignores_row_order_and_rejects_duplicate_exclusion_identity(self):
+        value = self.fixture()
+        for pair in value["library"]["receivers"].values():
+            candidate = pair["candidate"]
+            for key in ("tests", "excluded", "skipped"):
+                candidate[key].reverse()
+        ok, errors = validate_equivalent_work(value)
+        self.assertTrue(ok, errors)
+        value["library"]["receivers"]["ordinary"]["control"]["excluded"].append(
+            dict(value["library"]["receivers"]["ordinary"]["control"]["excluded"][0]))
+        ok, errors = validate_equivalent_work(value)
+        self.assertFalse(ok)
+        self.assertIn("library_skip_or_exclusion_duplicate:ordinary:control", errors)
+
     def test_rejects_library_status_mismatch_and_unexpected_skip(self):
         value = self.fixture()
         value["library"]["receivers"]["ordinary"]["candidate"]["tests"][0]["status"] = "skipped"
@@ -646,6 +675,34 @@ class RepairedWorkContractTest(unittest.TestCase):
         self.assertEqual(compare_browser_pair(None, None)["status"], "blocked")
         self.assertEqual(compare_browser_pair({"exit_code": 2, "cleanup_status": "failed", "identities": []},
                                               {"exit_code": 2, "cleanup_status": "failed", "identities": []})["status"], "blocked")
+
+    def test_library_comparison_ignores_seed_order_but_preserves_exclusion_and_skip_identity(self):
+        left = {"complete": True, "exit_code": 0,
+                "tests": [{"test_id": "M.first", "status": "passed"},
+                          {"test_id": "M.skip", "status": "skipped"}],
+                "excluded": [{"test_id": "M.excluded-a", "reason": "excluded"},
+                             {"test_id": "M.excluded-b", "reason": "excluded"}],
+                "skipped": [{"test_id": "M.skip", "reason": "expected skip"}]}
+        right = {"complete": True, "exit_code": 0,
+                 "tests": list(reversed(left["tests"])),
+                 "excluded": list(reversed(left["excluded"])),
+                 "skipped": list(reversed(left["skipped"]))}
+        self.assertEqual(compare_library_pair(left, right)["status"], "passed")
+        right["excluded"] = [dict(item) for item in right["excluded"]]
+        right["excluded"][0]["test_id"] = "M.different-excluded"
+        self.assertEqual(compare_library_pair(left, right)["status"], "failed")
+        right = {**left, "tests": list(left["tests"]), "excluded": list(left["excluded"]),
+                 "skipped": list(left["skipped"])}
+        right["tests"].pop()
+        self.assertEqual(compare_library_pair(left, right)["status"], "failed")
+        right = {**left, "tests": list(left["tests"]), "excluded": list(left["excluded"]),
+                 "skipped": list(left["skipped"])}
+        right["tests"].append(dict(right["tests"][0]))
+        self.assertEqual(compare_library_pair(left, right)["status"], "failed")
+        right = {**left, "tests": [dict(item) for item in left["tests"]],
+                 "excluded": list(left["excluded"]), "skipped": list(left["skipped"])}
+        right["tests"][0]["status"] = "failed"
+        self.assertEqual(compare_library_pair(left, right)["status"], "failed")
 
     def test_browser_workflow_environment_matches_recorded_action_inputs(self):
         with tempfile.TemporaryDirectory() as directory:
