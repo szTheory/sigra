@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { jobBlock, readRepoFile, stripYamlComments } from './prohibitions/_lib.mjs';
-import { assertPreparationCacheContract, buildPreparationCommands } from './ci-prep-profile.mjs';
+import { assertPreparationCacheContract, buildPreparationCommands, buildPrivateCheckoutInvocations } from './ci-prep-profile.mjs';
 
 const workflowPath = '.github/workflows/ci.yml';
 const mixPath = 'mix.exs';
@@ -95,6 +95,38 @@ test('preparation parser accepts only the frozen sequential control treatment', 
     controlAction.replace(sequential, 'bash -c \'mix deps.get && mix compile --warnings-as-errors && mix ecto.create && mix ecto.migrate && mix test\''),
     controlAction.replace(sequential, 'echo skip preparation'),
   ]) assert.throws(() => buildPreparationCommands(mutation));
+});
+
+test('private checkout owns every action workspace while runner and diagnostic paths stay invocation-owned', () => {
+  const checkout = '/private/tmp/profile/repo';
+  const example = '/private/tmp/profile/repo/test/example';
+  const playwright = '/private/tmp/profile/repo/test/example/priv/playwright';
+  const invocationEnv = {
+    GITHUB_WORKSPACE: '/workspace/source-checkout',
+    RUNNER_TEMP: '/runner/temp/invocation-42',
+    DIAGNOSTICS_ROOT: '/runner/temp/invocation-42/ci-diagnostics',
+    DIAGNOSTICS_PREFIX: 'repaired-control-admin_behavior',
+    SIGRA_CI_DIAGNOSTICS_ROOT: '/runner/temp/invocation-42/ci-diagnostics',
+    SIGRA_CI_TRACE_REGISTRY: '/runner/temp/invocation-42/ci-diagnostics/trace-registry.jsonl',
+  };
+  const invocations = buildPrivateCheckoutInvocations(invocationEnv, { checkout, example, playwright });
+  const expectedCwds = {
+    preparation: example,
+    npmInstall: playwright,
+    browserInstall: playwright,
+    boot: example,
+    owner: playwright,
+  };
+  const fiveMixTasks = buildPreparationCommands(action).current;
+  assert.equal(fiveMixTasks.length, 5);
+  for (const [name, cwd] of Object.entries(expectedCwds)) {
+    assert.equal(invocations[name].cwd, cwd);
+    assert.equal(invocations[name].env, invocations.preparation.env);
+    assert.equal(invocations[name].env.GITHUB_WORKSPACE, checkout, name + ' must resolve action workspace from the private clone');
+    for (const key of ['RUNNER_TEMP', 'DIAGNOSTICS_ROOT', 'DIAGNOSTICS_PREFIX', 'SIGRA_CI_DIAGNOSTICS_ROOT', 'SIGRA_CI_TRACE_REGISTRY']) {
+      assert.equal(invocations[name].env[key], invocationEnv[key], name + ' must preserve ' + key);
+    }
+  }
 });
 
 test('preparation comparison rejects source mutations that drop cache or cold-path safety', () => {

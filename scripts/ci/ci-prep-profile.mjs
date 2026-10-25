@@ -151,6 +151,17 @@ export function parseWorkflowBrowserOwners(source) {
 
 export function browserOwnerBaseURL(port) { return `http://localhost:${port}`; }
 
+export function buildPrivateCheckoutInvocations(sourceEnv, { checkout, example, playwright }) {
+  const env = { ...sourceEnv, GITHUB_WORKSPACE: checkout };
+  return {
+    preparation: { cwd: example, env },
+    npmInstall: { cwd: playwright, env },
+    browserInstall: { cwd: playwright, env },
+    boot: { cwd: example, env },
+    owner: { cwd: playwright, env },
+  };
+}
+
 function runMeasuredInvocation({ label, command, program, args, cwd, env, timeoutMs, logPath, clock = () => Number(process.hrtime.bigint()) / 1e6 }) {
   const start = clock();
   const result = spawnSync(program, args, { cwd, env, encoding: 'utf8', timeout: Math.max(1, timeoutMs), killSignal: 'SIGKILL', maxBuffer: 16 * 1024 * 1024 });
@@ -364,9 +375,11 @@ async function profileScope(options) {
   context.started_at = new Date().toISOString(); context.started_epoch = Date.now();
   let app = null;
   let dbCreated = false;
+  let checkout = null;
+  let actionInvocations = null;
   const scope = SCOPES[options.scope];
   try {
-    const checkout = path.join(temp, 'repo');
+    checkout = path.join(temp, 'repo');
     const clone = runMeasuredProcess({ label: 'disposable-checkout', program: 'git', args: ['clone', '--quiet', '--shared', '--no-checkout', root, checkout], cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, 'disposable-checkout.log') });
     components.push(clone); if (clone.status !== 'measured') throw new Error(`disposable_checkout_failed:${clone.exit_code}`);
     const checkoutSource = runMeasuredProcess({ label: 'checkout-source', program: 'git', args: ['-C', checkout, 'checkout', '--quiet', '--detach', sourceSha], cwd: root, env: process.env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, 'checkout-source.log') });
@@ -375,8 +388,10 @@ async function profileScope(options) {
     const playwright = path.join(example, 'priv/playwright');
     const hexHome = path.join(temp, 'hex'); const npmCache = path.join(temp, 'npm-cache'); const browserCache = path.join(temp, 'playwright-cache'); const build = path.join(example, '_build', 'phase254-prep-profile');
     for (const dir of [hexHome, npmCache, browserCache, build]) fs.mkdirSync(dir, { recursive: true });
-    const env = { ...process.env, HEX_HOME: hexHome, npm_config_cache: npmCache, PLAYWRIGHT_BROWSERS_PATH: browserCache, MIX_ENV: 'dev', MIX_BUILD_PATH: build, PORT: String(scope.port), PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: `${scope.database}_${process.pid}`, SERVER_LOG: path.join(logDir, 'server.log'), BASE_URL: `http://127.0.0.1:${scope.port}`, WARMUP_PATHS: options.scope === 'admin_behavior' ? '/admin/users' : '/users/log_in', BROWSERS: browsers, CACHE_HIT: 'false', CI: 'true' };
+    const baseEnv = { ...process.env, HEX_HOME: hexHome, npm_config_cache: npmCache, PLAYWRIGHT_BROWSERS_PATH: browserCache, MIX_ENV: 'dev', MIX_BUILD_PATH: build, PORT: String(scope.port), PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: `${scope.database}_${process.pid}`, SERVER_LOG: path.join(logDir, 'server.log'), BASE_URL: `http://127.0.0.1:${scope.port}`, WARMUP_PATHS: options.scope === 'admin_behavior' ? '/admin/users' : '/users/log_in', BROWSERS: browsers, CACHE_HIT: 'false', CI: 'true' };
+    const env = baseEnv;
     env.PGDATABASE = `${scope.database}_${process.pid}`;
+    actionInvocations = buildPrivateCheckoutInvocations(env, { checkout, example, playwright });
     metadata.database = env.PGDATABASE; metadata.port = scope.port;
     context.toolchain = { node: commandVersion('node', ['--version'], root, process.env), elixir: commandVersion('elixir', ['--version'], root, process.env), erlang: commandVersion('erl', ['-noshell', '-eval', 'io:format("~s", [erlang:system_info(otp_release)]), halt().'], root, process.env), playwright: JSON.parse(fs.readFileSync(path.join(root, 'test/example/priv/playwright/package-lock.json'), 'utf8')).packages['node_modules/playwright']?.version ?? JSON.parse(fs.readFileSync(path.join(root, 'test/example/priv/playwright/package-lock.json'), 'utf8')).packages['node_modules/@playwright/test']?.version ?? null };
     const nodeMajor = Number((context.toolchain.node ?? '').replace(/^v/, '').split('.')[0]);
@@ -402,28 +417,28 @@ async function profileScope(options) {
 
     if (preparation.isCombined) {
       dbCreated = true;
-      run('combined-preparation', preparation.selected[0], example, env);
+      run('combined-preparation', preparation.selected[0], actionInvocations.preparation.cwd, actionInvocations.preparation.env);
     } else {
-      const fetchCompileEnv = { ...env, PGDATABASE: env.PGDATABASE };
+      const fetchCompileEnv = { ...actionInvocations.preparation.env, PGDATABASE: env.PGDATABASE };
       const fetchCompileCommands = steps['Fetch and compile example'].filter((line) => !/^set -/.test(line));
       if (fetchCompileCommands.length !== 2) throw new Error(`unexpected_fetch_compile_commands:${fetchCompileCommands.length}`);
-      run('dependency-fetch', fetchCompileCommands[0], example, fetchCompileEnv);
-      run('example-compilation', fetchCompileCommands[1], example, fetchCompileEnv);
+      run('dependency-fetch', fetchCompileCommands[0], actionInvocations.preparation.cwd, fetchCompileEnv);
+      run('example-compilation', fetchCompileCommands[1], actionInvocations.preparation.cwd, fetchCompileEnv);
       const dbSetup = steps['Create, migrate, and seed example database'].join('\n');
       for (const line of dbSetup.split('\n')) {
         if (/^set -/.test(line)) continue;
         if (/^mix ecto\.create/.test(line)) dbCreated = true;
-        run(`database-${line.replace(/[^a-z0-9]+/gi, '-')}`, line, example, env);
+        run(`database-${line.replace(/[^a-z0-9]+/gi, '-')}`, line, actionInvocations.preparation.cwd, actionInvocations.preparation.env);
       }
     }
-    run('npm-ci', steps['Install Playwright dependencies'].join('\n'), playwright, env);
+    run('npm-ci', steps['Install Playwright dependencies'].join('\n'), actionInvocations.npmInstall.cwd, actionInvocations.npmInstall.env);
     const browserCommand = steps['Install Playwright browsers'].join('\n');
-    run('playwright-browser-install', browserCommand, playwright, env);
+    run('playwright-browser-install', browserCommand, actionInvocations.browserInstall.cwd, actionInvocations.browserInstall.env);
 
     const bootLine = steps['Boot example app'].find((line) => line.includes('mix phx.server'));
     if (!bootLine) throw new Error('boot_command_missing');
     const serverFd = fs.openSync(env.SERVER_LOG, 'w');
-    try { app = spawn('bash', ['-lc', bootLine.replace(/ > .* 2>&1 &$/, '')], { cwd: example, env, detached: true, stdio: ['ignore', serverFd, serverFd] }); }
+    try { app = spawn('bash', ['-lc', bootLine.replace(/ > .* 2>&1 &$/, '')], { cwd: actionInvocations.boot.cwd, env: actionInvocations.boot.env, detached: true, stdio: ['ignore', serverFd, serverFd] }); }
     finally { fs.closeSync(serverFd); }
     app.on('error', (error) => { context.server_error = error.message; });
     const readyStart = Number(process.hrtime.bigint()) / 1e6;
@@ -450,7 +465,7 @@ async function profileScope(options) {
       const reportRoot = path.resolve(options.reportRoot, scope.browserPath);
       context.owner_invocation = invocation.name;
       try {
-        run('native-owner-invocation', invocation.command, playwright, { ...env, SIGRA_EXAMPLE_URL: browserOwnerBaseURL(scope.port) });
+        run('native-owner-invocation', invocation.command, actionInvocations.owner.cwd, { ...actionInvocations.owner.env, SIGRA_EXAMPLE_URL: browserOwnerBaseURL(scope.port) });
       } finally {
         fs.mkdirSync(reportRoot, { recursive: true });
         const reportDir = path.join(playwright, 'playwright-report');
@@ -477,7 +492,7 @@ async function profileScope(options) {
     await stop(app);
     if (dbCreated && fs.existsSync(path.join(temp, 'repo/test/example/mix.exs'))) {
       const example = path.join(temp, 'repo/test/example');
-      const env = { ...process.env, HEX_HOME: path.join(temp, 'hex'), MIX_ENV: 'dev', MIX_BUILD_PATH: path.join(temp, 'build'), PORT: String(scope.port), PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: `${scope.database}_${process.pid}` };
+      const env = { ...(actionInvocations?.preparation.env ?? process.env), GITHUB_WORKSPACE: checkout ?? path.join(temp, 'repo'), HEX_HOME: path.join(temp, 'hex'), MIX_ENV: 'dev', MIX_BUILD_PATH: path.join(temp, 'build'), PORT: String(scope.port), PGHOST: process.env.PGHOST ?? '127.0.0.1', PGPORT: process.env.PGPORT ?? '5432', PGUSER: process.env.PGUSER ?? 'postgres', PGPASSWORD: process.env.PGPASSWORD ?? 'postgres', PGDATABASE: `${scope.database}_${process.pid}` };
       const cleanup = runMeasuredCommand({ label: 'database-cleanup', command: 'mix ecto.drop --quiet', cwd: example, env, timeoutMs: Math.max(1, deadline - Date.now()), logPath: path.join(logDir, 'database-cleanup.log') });
       components.push(cleanup);
       if (cleanup.status !== 'measured') {
