@@ -265,6 +265,8 @@ def validate_equivalent_work(value: dict, *, report_root: Path | None = None) ->
                 errors.append(f"report_source_or_digest_invalid:{report.get('owner')}")
             if not isinstance(report.get("path"), str) or not isinstance(report.get("report"), dict):
                 errors.append(f"report_payload_missing:{report.get('owner')}")
+            if report_root is not None and not verify_report_digest(report, report_root):
+                errors.append(f"report_manifest_digest_invalid:{report.get('owner')}")
         if actual != expected:
             errors.append("report_manifest_owner_set_invalid")
     return not errors, errors
@@ -717,7 +719,7 @@ def build_native(args: argparse.Namespace) -> tuple[dict, int]:
                                    "before_setup_rows": sum(1 for row in left.get("identities", []) if str(row.get("project", "")).startswith("admin-design-setup-")) if isinstance(left, dict) else 0,
                                    "after_setup_rows": sum(1 for row in right.get("identities", []) if str(row.get("project", "")).startswith("admin-design-setup-")) if isinstance(right, dict) else 0}
         local["reports"] = make_report_rows(local)
-        ok, errors = validate_equivalent_work(local)
+        ok, errors = validate_equivalent_work(local, report_root=ROOT)
         local["validation_errors"] = errors
         local["local_status"] = "passed" if ok else "blocked"
         local["status"] = "passed" if ok else "blocked"
@@ -784,6 +786,34 @@ class RepairedWorkContractTest(unittest.TestCase):
         ok, errors = validate_equivalent_work(value)
         self.assertFalse(ok)
         self.assertIn("library_source_pair_invalid:ordinary", errors)
+
+    def test_retained_file_and_manifest_digests_are_rechecked(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report_root = Path(directory)
+            value = self.fixture()
+            for report in value["reports"]:
+                name = f"{report['kind']}-{report['source_role']}-{report['owner']}.json"
+                path = report_root / name
+                path.write_text(json.dumps(report["report"]))
+                report.update(path=name, sha256=sha_file(path))
+                if report["kind"] == "library":
+                    row = value["library"]["receivers"][report["owner"]][report["source_role"]]
+                    row.update(path=name, sha256=report["sha256"])
+                else:
+                    row = value["browser_owners"][report["owner"]][report["source_role"]]
+                    row["reports"] = [{"path": name, "sha256": report["sha256"]}]
+            ok, errors = validate_equivalent_work(value, report_root=report_root)
+            self.assertTrue(ok, errors)
+            original_digest = value["reports"][0]["sha256"]
+            value["reports"][0]["sha256"] = "0" * 64
+            ok, errors = validate_equivalent_work(value, report_root=report_root)
+            self.assertFalse(ok)
+            self.assertTrue(any("report_manifest_digest_invalid" in error for error in errors))
+            value["reports"][0]["sha256"] = original_digest
+            (report_root / value["reports"][0]["path"]).write_text('{"changed":true}')
+            ok, errors = validate_equivalent_work(value, report_root=report_root)
+            self.assertFalse(ok)
+            self.assertTrue(any("report_manifest_digest_invalid" in error for error in errors))
 
     def test_rejects_missing_library_receiver_seed_or_identity(self):
         value = self.fixture()

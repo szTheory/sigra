@@ -823,7 +823,7 @@ async function main() {
   else if (options.mode === 'workload' && options.scope) {
     const root = path.resolve(options.root);
     const workflow = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
-    await profileScope({ ...options, root, workflowOwners: parseWorkflowBrowserOwners(workflow), reportRoot: path.join(path.dirname(path.resolve(options.output)), 'native-retry') });
+    await profileScope({ ...options, root, workflowOwners: parseWorkflowBrowserOwners(workflow), reportRoot: options.reportRoot ? path.resolve(options.reportRoot) : path.join(path.dirname(path.resolve(options.output)), 'native-retry') });
   }
   else if (options.mode === 'workload') await runWorkload(options);
   else await profileScope(options);
