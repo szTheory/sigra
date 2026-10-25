@@ -5,8 +5,8 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: "255.1"
 current_phase_name: "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets"
 status: in_progress
-stopped_at: Plan02 candidate trace ownership fix in progress
-last_updated: "2026-10-24T23:40:34.567689+00:00"
+stopped_at: Final exact-source native comparison running
+last_updated: "2026-10-25T00:58:36.741358+00:00"
 state_head: 03863a1953f0b65e0da76cb7a07fbf0d40c044a6
 progress:
   total_phases: 5
@@ -16,7 +16,7 @@ progress:
   percent: 60
 milestone_status: active
 workflow_step: executing_local
-last_activity: "2026-10-24 - Plan01 source halt resolved; ready for local Plan02; hosted work remains unauthorized"
+last_activity: "2026-10-24 - Trace ownership fixed; final frozen library/browser comparison running"
 requirements_approved: true
 roadmap_approved: true
 phase252_verification_status: passed
@@ -36,7 +36,7 @@ next_command: $gsd-execute-phase 255.1
 resume_command: $gsd-execute-phase 255.1
 next_command_conditional: false
 historical_verification_is_forward_blocker: false
-resume_file: .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md
+resume_file: .planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-PLAN.md
 phase254_current_execution_addendum: .planning/execution/254-CONTINUATION.json
 phase255_1_discussion_status: complete
 phase255_1_planning_status: passed
@@ -69,14 +69,14 @@ phase255_1_state_preservation: .planning/execution/255.1/STATE-PRESERVATION.json
 # Current position
 
 **Current Phase:** 255.1 — Prove CI performance targets
-**Current plan:** 255.1-02 — persistent reports and equivalent useful work
+**Current plan:** 255.1-02 — persistent reports and equal useful work
 **Next/resume command:** $gsd-execute-phase 255.1
 
-Plan01 local source work is complete. Real merge 9eb8dd091bd6aea5c90474365b4a1645499b9c37 preserves refreshed main09df342, shipped1.7.2 release/lock behavior and the phase's CI/auth improvements. Both reconstructed source trees merge exactly with main. The new genuine native tracer passes52 tests with seed637948; no old receipt was reused for changed code. Fourteen source/cache tests and focused CI/product/generator checks passed. Full native mix ci on clean reconciled source9eb passed in328.374 seconds with all three reports complete and zero failures; its earlier sandbox-denied attempt remains separate. See .planning/execution/255.1/unblock-source/NATIVE-RESULT.json.
+Plan01 source recovery is complete. Plan02 report/evaluator changes and the candidate trace-ownership fix are implemented. Final local verification is running against candidate cfe5e8d3ee82358b625d2715d773afc5c494bcf9 and control 8d7355185ca95f2310b701d95c79646b2002916f; see `.planning/execution/255.1/attempts/07/RUNNING.json`. Both sources passed startup checks. The control library gate and candidate admin browser owner are active; no final comparison pass is claimed.
 
-Fresh init.execute-phase and phase-plan-index report zero halted plans and ready Plan02. The circular gate was fixed: later work/cache receipts remain unproved but do not block their own authorized local implementation. Current sources/feasibility are .planning/execution/255.1/SOURCES.json and FEASIBILITY.json; both requirements remain open, overall/hosted readiness remains blocked, zero acceptance samples. Source result and fresh native tracer: `.planning/execution/255.1/unblock-source/SOURCE-RESULT.json` and LOCAL-TRACER.json.
+The previous source pair passed library comparisons, but its candidate admin browser owner had18 trace-start failures and25 passes. The control's behavior43/checkpoints3/gallery42 cases passed. Preserve those outcomes at `attempts/06/STOPPED.json`; they do not prove the corrected sources. Focused pass/failure probes verify trace ownership, retained failure ZIP, 0600 auth storage and deletion at `attempts/06/TRACE-OWNERSHIP-FIX.json`.
 
-The first blocked Plan02 parity result is preserved at 02c66b999; the interrupted retry is preserved at cebc9b193. Plan02 native parity retry now uses refreshed sources candidate cfe5e8d3 / control 8d735518 containing the new report and formatter code. Active orchestration: /root; the stopped Linux browser comparison found candidate trace ownership conflicts:18 admin-theme cases failed,25 passed. Control behavior43/checkpoints3/gallery42 passed. Both old frozen sources passed library parity. A fixture fix and fresh exact-source verification are required; no old producer result will be relabelled. See attempts/04/LIBRARY-PARITY.json and attempts/06/STOPPED.json. Local Plans02–05 may proceed. Plans06/07 still require distinct concrete hosted preparation and measurement approvals. No push, hosted invocation, acceptance family or budget renewal occurred. The original41-conflict source result and earlier stopped attempts remain recoverable from c8db6253949570b6e94bf62466e94ccf4b80508e and prior evidence refs. Reusable fan-out lessons are in prompts/fan-out-prompt.txt.
+Local Plans03–05 await their predecessors. Hosted preparation/measurement remains unauthorized until the concrete checkpoints in Plans06/07. Both CISPEED requirements remain open; zero acceptance samples. General lessons: `prompts/fan-out-prompt.txt`.
 
 # Prior work
 

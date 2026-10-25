@@ -206,9 +206,9 @@
       "read_back_equal": true
     },
     "remaining_blockers": [
-      "Equivalent-work persistence/parity is the next local task (Plan02).",
-      "Actual hosted PR/cache/runner/rules receipts remain unproved.",
-      "Plans06 and07 retain separate concrete preparation and measurement approvals."
+      "Final frozen control/candidate library and all five browser-owner comparisons are pending.",
+      "Actual hosted PR, branch-rule, runner and exact-cache restore records remain unproved.",
+      "Plans06/07 retain separate concrete hosted preparation and measurement approvals."
     ],
     "forward_route": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/FORWARD-ROUTE.json",
     "status": "in_progress",
@@ -265,13 +265,12 @@
     "active_execution": {
       "task": "/root",
       "plan": "255.1-02",
-      "status": "final_source_native_library_and_linux_browser_verification_pending",
-      "implementation_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
-      "source_refresh_record": ".planning/execution/255.1/trace-fixed-source/PROMOTION.json",
+      "status": "final_exact_source_native_verification_running",
       "sources": ".planning/execution/255.1/SOURCES.json",
       "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
       "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
-      "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
+      "progress_record": ".planning/execution/255.1/attempts/07/RUNNING.json",
+      "scope": "Final local library and browser identity/status comparisons only; no hosted authority or speed acceptance."
     },
     "source_native_verification": {
       "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
@@ -303,20 +302,19 @@
   "next_command_precondition": null,
   "state_preservation": ".planning/execution/255.1/STATE-PRESERVATION.json",
   "blockers": [
-    "Equivalent-work persistence/parity is the next local task (Plan02).",
-    "Actual hosted PR/cache/runner/rules receipts remain unproved.",
-    "Plans06 and07 retain separate concrete preparation and measurement approvals."
+    "Final frozen control/candidate library and all five browser-owner comparisons are pending.",
+    "Actual hosted PR, branch-rule, runner and exact-cache restore records remain unproved.",
+    "Plans06/07 retain separate concrete hosted preparation and measurement approvals."
   ],
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
     "task": "/root",
     "plan": "255.1-02",
-    "status": "final_source_native_library_and_linux_browser_verification_pending",
-    "implementation_commit": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
-    "source_refresh_record": ".planning/execution/255.1/trace-fixed-source/PROMOTION.json",
+    "status": "final_exact_source_native_verification_running",
     "sources": ".planning/execution/255.1/SOURCES.json",
     "candidate_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
     "control_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
-    "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
+    "progress_record": ".planning/execution/255.1/attempts/07/RUNNING.json",
+    "scope": "Final local library and browser identity/status comparisons only; no hosted authority or speed acceptance."
   }
 }
