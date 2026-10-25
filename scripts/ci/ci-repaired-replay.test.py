@@ -45,6 +45,62 @@ class RepairedReplay(unittest.TestCase):
                 mod.package_inputs(root / "contract.json", root / "registrations.json", root, output)
             self.assertFalse(output.exists())
 
+    def test_package_includes_only_contract_declared_native_coverage_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            contract, registrations = make_package_root(root)
+            package = root.parent / (root.name + "-declared.tar.gz")
+            manifest = module().package_inputs(contract, registrations, root, package)
+            _, files = module().verify_package(package)
+            self.assertIn("evidence/custom-map.json", files)
+            self.assertIn("evidence/custom-parity.json", files)
+            self.assertNotIn("scripts/ci/.comparison-test-map.json", files)
+            self.assertEqual(set(path for path in files),
+                             {row["path"] for row in manifest["members"]})
+            (root / "evidence/custom-map.json").write_text("tampered")
+            refused = root.parent / (root.name + "-bad-digest.tar.gz")
+            with self.assertRaisesRegex(ValueError, "native_coverage_input_digest_mismatch:mapping_path"):
+                module().package_inputs(contract, registrations, root, refused)
+            self.assertFalse(refused.exists())
+
+    def test_package_requires_strict_kind_and_rejects_unlisted_files(self):
+        mod = module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            contract, registrations = make_package_root(root)
+            contract_doc = json.loads(contract.read_text())
+            contract_doc.pop("comparison_kind")
+            contract_doc["experiment_kind"] = "repaired_control_pr"
+            contract.write_text(json.dumps(contract_doc))
+            output = root.parent / (root.name + "-legacy.tar.gz")
+            with self.assertRaisesRegex(ValueError, "comparison_kind_must_be_repaired_control_pr"):
+                mod.package_inputs(contract, registrations, root, output)
+            self.assertFalse(output.exists())
+
+            contract_doc.pop("experiment_kind")
+            contract_doc["comparison_kind"] = "repaired_control_pr"
+            contract.write_text(json.dumps(contract_doc))
+            (root / "credentials.json").write_text('{"token":"do-not-package"}')
+            with self.assertRaisesRegex(ValueError, "unexpected_input_file:credentials.json"):
+                mod.package_inputs(contract, registrations, root, output)
+            self.assertFalse(output.exists())
+
+    def test_package_refuses_existing_or_self_including_output(self):
+        mod = module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            contract, registrations = make_package_root(root)
+            contract_doc = json.loads(contract.read_text())
+            contract_doc["comparison_kind"] = "repaired_control_pr"
+            contract.write_text(json.dumps(contract_doc))
+            existing = root.parent / (root.name + "-existing.tar.gz")
+            existing.write_bytes(b"preserve")
+            with self.assertRaisesRegex(ValueError, "package_output_already_exists"):
+                mod.package_inputs(contract, registrations, root, existing)
+            self.assertEqual(b"preserve", existing.read_bytes())
+            with self.assertRaisesRegex(ValueError, "package_output_inside_input_root"):
+                mod.package_inputs(contract, registrations, root, root / "new-package.tar.gz")
+
     def test_package_refuses_symlinked_or_escaping_transitive_paths(self):
         mod = module()
         with tempfile.TemporaryDirectory() as tmp:
@@ -55,13 +111,13 @@ class RepairedReplay(unittest.TestCase):
             try:
                 (root / "before" / "link.json").symlink_to(outside)
                 with self.assertRaisesRegex(ValueError, "input_symlink_rejected"):
-                    mod.package_inputs(contract, registrations, root, root / "package.tar.gz")
+                    mod.package_inputs(contract, registrations, root, root.parent / (root.name + "-symlink.tar.gz"))
                 (root / "before" / "link.json").unlink()
                 value = json.loads(contract.read_text())
                 value["replay_inputs"]["before_bundle"] = "../escape"
                 contract.write_text(json.dumps(value))
                 with self.assertRaisesRegex(ValueError, "unsafe_input_path"):
-                    mod.package_inputs(contract, registrations, root, root / "package.tar.gz")
+                    mod.package_inputs(contract, registrations, root, root.parent / (root.name + "-escape.tar.gz"))
             finally:
                 outside.unlink(missing_ok=True)
 
@@ -126,6 +182,9 @@ class RepairedReplay(unittest.TestCase):
             self.assertEqual("sigra.ci-repaired-comparison-inputs/v1", manifest["schema_version"])
             self.assertEqual("repaired_control_pr", json.loads(files[manifest["contract_path"]])["comparison_kind"])
             self.assertNotIn(".git/HEAD", files)
+            self.assertIn("scripts/ci/.comparison-test-map.json", files)
+            self.assertIn("scripts/ci/.comparison-test-parity.json", files)
+            self.assertFalse(any("__pycache__" in name for name in files))
             result_path = work / "result.json"
             replay = subprocess.run([sys.executable, "-B", str(CLI), "replay", "--package", str(package),
                                      "--output", str(result_path)], cwd=ROOT, capture_output=True, text=True)
@@ -306,13 +365,23 @@ def make_package_root(root):
                                           "sources": source_rows}))
     method = source_dir / "METHOD.json"
     method.write_text(json.dumps({"comparison_kind": "repaired_control_pr"}))
+    coverage_dir = root / "evidence"
+    coverage_dir.mkdir()
+    coverage_paths = {}
+    for filename, path_field, digest_field in (
+            ("custom-map.json", "mapping_path", "mapping_sha256"),
+            ("custom-parity.json", "parity_receipt_path", "parity_receipt_sha256")):
+        path = coverage_dir / filename
+        path.write_text(json.dumps({"fixture": filename}))
+        coverage_paths[path_field] = path.relative_to(root).as_posix()
+        coverage_paths[digest_field] = hashlib.sha256(path.read_bytes()).hexdigest()
     contexts = ["Library tests", "Example unit smoke (ExUnit + ConnTest)",
                 "Install smoke (fresh phx.new + sigra.install)", "Example HTTP smoke (boot + curl critical routes)",
                 "Example Playwright smoke (full lifecycle)"]
     owners = ("library", "admin_behavior", "admin_checkpoints", "design_gallery",
               "non_admin_smoke", "demo_showcase")
     keys = {owner: {"deps": "expected-" + owner} for owner in owners}
-    contract_doc = {"experiment_kind": "repaired_control_pr", "required_contexts": contexts,
+    contract_doc = {"comparison_kind": "repaired_control_pr", "required_contexts": contexts,
         "required_check_apps": {context: 15368 for context in contexts},
         "cache_eligibility": {"default_branch_ref": "refs/heads/main",
             "expected_keys": {"before": keys, "after": keys}},
@@ -321,6 +390,7 @@ def make_package_root(root):
             "manifest_sha256": hashlib.sha256(source_manifest.read_bytes()).hexdigest(),
             "method_path": method.relative_to(root).as_posix(),
             "method_sha256": hashlib.sha256(method.read_bytes()).hexdigest()},
+        "native_coverage_comparison": coverage_paths,
         "replay_inputs": {"before_bundle": "before", "after_bundle": "after",
                           "baseline_source_bundle": "baseline.bundle"}}
     contract = root / "contract.json"

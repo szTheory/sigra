@@ -32,9 +32,11 @@ def sha256(data):
 
 
 def safe_path(name):
+    if (not isinstance(name, str) or not name or "\\" in name or "\x00" in name):
+        raise ValueError("unsafe_input_path:" + str(name))
     path = PurePosixPath(name)
-    if (not isinstance(name, str) or not name or "\\" in name or "\x00" in name
-            or path.is_absolute() or any(part in ("", ".", "..") for part in name.split("/"))
+    if (path.is_absolute()
+            or any(part in ("", ".", "..") for part in name.split("/"))
             or path.as_posix() != name):
         raise ValueError("unsafe_input_path:" + str(name))
     return name
@@ -119,8 +121,7 @@ def package_inputs(contract_path, registrations_path, input_root, output):
     contract_rel = contained(root, contract_path)
     registrations_rel = contained(root, registrations_path)
     contract = read_json(root / contract_rel)
-    if (contract.get("comparison_kind") != "repaired_control_pr"
-            and contract.get("experiment_kind") != "repaired_control_pr"):
+    if contract.get("comparison_kind") != "repaired_control_pr":
         raise ValueError("comparison_kind_must_be_repaired_control_pr")
     _validate_comparability_contract(contract)
     replay_paths = contract.get("replay_inputs") or {}
@@ -132,22 +133,79 @@ def package_inputs(contract_path, registrations_path, input_root, output):
         expected_type = target.is_dir() if name in ("before_bundle", "after_bundle") else target.is_file()
         if not target.exists() or target.is_symlink() or not expected_type:
             raise ValueError("replay_input_missing_or_symlinked:" + name + ":" + relative)
-    files = {}
-    total = 0
+    output = Path(output)
+    if output.exists() or output.is_symlink():
+        raise ValueError("package_output_already_exists")
+    output_resolved = output.resolve()
+    if output_resolved == root or root in output_resolved.parents:
+        raise ValueError("package_output_inside_input_root")
+
+    allowed = {contract_rel, registrations_rel, *CALCULATION_FILES}
+
+    def add_declared_path(value, label):
+        relative = safe_path(value)
+        contained(root, root / relative)
+        allowed.add(relative)
+        return relative
+
+    for name in replay_paths.values():
+        safe_path(name)
+    for bundle_name in (replay_paths["before_bundle"], replay_paths["after_bundle"]):
+        bundle_root = root / bundle_name
+        for path in sorted(bundle_root.rglob("*")):
+            if path.is_symlink():
+                raise ValueError("input_symlink_rejected:" + path.relative_to(root).as_posix())
+            if path.is_file():
+                allowed.add(safe_path(path.relative_to(root).as_posix()))
+
+    source_inputs = contract.get("source_inputs") or {}
+    manifest_rel = add_declared_path(source_inputs.get("manifest_path"), "source_manifest")
+    method_rel = add_declared_path(source_inputs.get("method_path"), "frozen_method")
+    source_doc = read_json(root / manifest_rel)
+    source_rows = source_doc.get("sources") or {}
+    if set(source_rows) != {"common", "control", "candidate"}:
+        raise ValueError("source_manifest_roles_invalid")
+    for role in ("common", "control", "candidate"):
+        row = source_rows[role]
+        for kind in ("archive", "patch"):
+            add_declared_path((row.get(kind) or {}).get("path"), role + "_" + kind)
+    add_declared_path(replay_paths["baseline_source_bundle"], "baseline_source_bundle")
+    coverage = contract.get("native_coverage_comparison") or {}
+    for path_field, digest_field in (("mapping_path", "mapping_sha256"),
+                                     ("parity_receipt_path", "parity_receipt_sha256")):
+        relative = add_declared_path(coverage.get(path_field), path_field)
+        expected = coverage.get(digest_field)
+        if (not isinstance(expected, str)
+                or sha256((root / relative).read_bytes()) != expected):
+            raise ValueError("native_coverage_input_digest_mismatch:" + path_field)
+
+    actual = set()
     for path in sorted(root.rglob("*")):
         if path.is_symlink():
             raise ValueError("input_symlink_rejected:" + path.relative_to(root).as_posix())
-        if not path.is_file():
-            continue
-        name = safe_path(path.relative_to(root).as_posix())
+        if path.is_file():
+            relative = safe_path(path.relative_to(root).as_posix())
+            if relative.startswith("scripts/ci/__pycache__/"):
+                continue
+            actual.add(relative)
+    unexpected = sorted(actual - allowed)
+    if unexpected:
+        raise ValueError("unexpected_input_file:" + unexpected[0])
+    missing = sorted(allowed - actual)
+    if missing:
+        if missing[0] in CALCULATION_FILES:
+            raise ValueError("calculation_dependency_missing:" + missing[0])
+        raise ValueError("declared_input_missing:" + missing[0])
+
+    files = {}
+    total = 0
+    for name in sorted(allowed):
+        path = root / name
         raw = path.read_bytes()
         total += len(raw)
         if total > MAX_BYTES or len(files) >= MAX_FILES:
             raise ValueError("package_size_limit")
         files[name] = raw
-    for required in CALCULATION_FILES:
-        if required not in files:
-            raise ValueError("calculation_dependency_missing:" + required)
     source_identity = _validate_source_members(contract, files)
     members = [{"path": name, "size": len(raw), "sha256": sha256(raw)}
                for name, raw in sorted(files.items())]
@@ -161,7 +219,6 @@ def package_inputs(contract_path, registrations_path, input_root, output):
         "members": members,
         "package_status": "ready",
     }
-    output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     with tarfile.open(output, "w:gz") as archive:
         entries = [("INPUTS.json", (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode())]
@@ -276,8 +333,7 @@ def _replay_in_root(root, manifest):
     contract_path = root / safe_path(manifest["contract_path"])
     registrations_path = root / safe_path(manifest["registrations_path"])
     contract = read_json(contract_path)
-    if (contract.get("comparison_kind") != "repaired_control_pr"
-            and contract.get("experiment_kind") != "repaired_control_pr"):
+    if contract.get("comparison_kind") != "repaired_control_pr":
         raise ValueError("comparison_kind_must_be_repaired_control_pr")
     _validate_comparability_contract(contract)
     paths = contract.get("replay_inputs") or {}
