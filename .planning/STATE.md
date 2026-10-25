@@ -5,7 +5,7 @@ milestone_name: CI-SPEED-AND-RELIABILITY
 current_phase: "255.1"
 current_phase_name: "Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets"
 status: in_progress
-stopped_at: Plan02 library parity passed; repairing local Linux browser runner
+stopped_at: Plan02 library parity passed; Linux browser matrix running
 last_updated: "2026-10-24T23:40:34.567689+00:00"
 state_head: 03863a1953f0b65e0da76cb7a07fbf0d40c044a6
 progress:
@@ -76,7 +76,7 @@ Plan01 local source work is complete. Real merge 9eb8dd091bd6aea5c90474365b4a164
 
 Fresh init.execute-phase and phase-plan-index report zero halted plans and ready Plan02. The circular gate was fixed: later work/cache receipts remain unproved but do not block their own authorized local implementation. Current sources/feasibility are .planning/execution/255.1/SOURCES.json and FEASIBILITY.json; both requirements remain open, overall/hosted readiness remains blocked, zero acceptance samples. Source result and fresh native tracer: `.planning/execution/255.1/unblock-source/SOURCE-RESULT.json` and LOCAL-TRACER.json.
 
-The first blocked Plan02 parity result is preserved at 02c66b999; the interrupted retry is preserved at cebc9b193. Plan02 native parity retry now uses refreshed sources candidate 60058d46 / control ada01b37 containing the new report and formatter code. Active orchestration: /root; local Linux browser runner repair is in progress. Both frozen sources passed library parity; all five browser pairs remain unproved. See attempts/04/LIBRARY-PARITY.json and attempts/05/LINUX-UNBLOCK.json. Local Plans02–05 may proceed. Plans06/07 still require distinct concrete hosted preparation and measurement approvals. No push, hosted invocation, acceptance family or budget renewal occurred. The original41-conflict source result and earlier stopped attempts remain recoverable from c8db6253949570b6e94bf62466e94ccf4b80508e and prior evidence refs. Reusable fan-out lessons are in prompts/fan-out-prompt.txt.
+The first blocked Plan02 parity result is preserved at 02c66b999; the interrupted retry is preserved at cebc9b193. Plan02 native parity retry now uses refreshed sources candidate 60058d46 / control ada01b37 containing the new report and formatter code. Active orchestration: /root; local Linux browser matrix is running. Both frozen sources passed library parity; control admin behavior passed43 browser cases with source/digest/selection/cleanup checks; the remaining browser rows are pending. See attempts/04/LIBRARY-PARITY.json and attempts/06/LOCAL-LINUX-PROGRESS.json. Local Plans02–05 may proceed. Plans06/07 still require distinct concrete hosted preparation and measurement approvals. No push, hosted invocation, acceptance family or budget renewal occurred. The original41-conflict source result and earlier stopped attempts remain recoverable from c8db6253949570b6e94bf62466e94ccf4b80508e and prior evidence refs. Reusable fan-out lessons are in prompts/fan-out-prompt.txt.
 
 # Prior work
 

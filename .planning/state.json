@@ -443,13 +443,13 @@
     "active_execution": {
       "task": "/root",
       "plan": "255.1-02",
-      "status": "repairing_native_browser_evaluator_before_linux_retry",
+      "status": "native_linux_browser_matrix_running",
       "sources": ".planning/execution/255.1/SOURCES.json",
       "candidate_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
       "control_sha": "ada01b374c92da790857d9b826cf633a799e654a",
       "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
-      "linux_environment_record": ".planning/execution/255.1/attempts/05/LINUX-UNBLOCK.json",
-      "scope": "Local tests only; browser parity incomplete; no hosted authority or performance acceptance."
+      "progress_record": ".planning/execution/255.1/attempts/06/LOCAL-LINUX-PROGRESS.json",
+      "scope": "Local test identity/status parity only; no hosted authority or performance acceptance."
     },
     "source_native_verification": {
       "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
@@ -476,12 +476,12 @@
   "active_execution": {
     "task": "/root",
     "plan": "255.1-02",
-    "status": "repairing_native_browser_evaluator_before_linux_retry",
+    "status": "native_linux_browser_matrix_running",
     "sources": ".planning/execution/255.1/SOURCES.json",
     "candidate_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
     "control_sha": "ada01b374c92da790857d9b826cf633a799e654a",
     "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
-    "linux_environment_record": ".planning/execution/255.1/attempts/05/LINUX-UNBLOCK.json",
-    "scope": "Local tests only; browser parity incomplete; no hosted authority or performance acceptance."
+    "progress_record": ".planning/execution/255.1/attempts/06/LOCAL-LINUX-PROGRESS.json",
+    "scope": "Local test identity/status parity only; no hosted authority or performance acceptance."
   }
 }
