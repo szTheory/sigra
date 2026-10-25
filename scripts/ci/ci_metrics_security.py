@@ -102,8 +102,21 @@ def verify_snapshot_hashes(bundle: pathlib.Path) -> list[str]:
             path = bundle / rel
             expected_rel = f"raw/families/{family.name}/jobs-attempt-{attempt}.json"
             request = f"/repos/{repository}/actions/runs/{family_run.get('id')}/attempts/{attempt}/jobs?per_page=100"
+            request_ok = request in requests
+            if not request_ok:
+                pages = sorted(row for row in requests if row.startswith(request + "&page="))
+                try:
+                    response = json.loads(path.read_text())
+                    total = response.get("total_count")
+                    jobs = response.get("jobs")
+                    page_numbers = [int(row.rsplit("=", 1)[1]) for row in pages]
+                    request_ok = (isinstance(total, int) and isinstance(jobs, list) and len(jobs) == total
+                                  and page_numbers == list(range(1, len(page_numbers) + 1))
+                                  and bool(page_numbers) and (total <= 100 or len(page_numbers) == (total + 99) // 100))
+                except (OSError, ValueError, TypeError):
+                    request_ok = False
             if (rel != expected_rel or not path.resolve().is_relative_to(bundle.resolve())
-                    or not _matches(path, ref.get("sha256")) or request not in requests):
+                    or not _matches(path, ref.get("sha256")) or not request_ok):
                 diagnostics.append(f"family_attempt_hash_mismatch:{family.name}:{attempt}")
         for item in facts.get("changed_path_pages", []):
             try:
@@ -604,6 +617,39 @@ def comparison_runner_images(metadata: list[dict], *, require_proof: bool = Fals
     return result
 
 
+def validate_repaired_control_metadata(metadata: list[dict], *, expected_ref: str | None = None) -> list[str]:
+    """Require exact warm-cache and native runner identity for each of six owners."""
+    diagnostics = []
+    owners = {"library", "admin_behavior", "admin_checkpoints", "design_gallery", "non_admin_smoke", "demo_showcase"}
+    by_owner = {}
+    for row in metadata if isinstance(metadata, list) else []:
+        owner = row.get("matrix_seam") or ("library" if row.get("job_name") == "Library tests shard" else None)
+        if owner in by_owner:
+            diagnostics.append("repaired_metadata_owner_duplicate:" + owner)
+        by_owner[owner] = row
+    if set(by_owner) != owners:
+        diagnostics.append("repaired_metadata_owner_set_incomplete")
+    for owner in sorted(owners & set(by_owner)):
+        row = by_owner[owner]
+        cache = row.get("cache_outcome")
+        if not isinstance(cache, dict) or not cache:
+            diagnostics.append("repaired_cache_outcome_missing:" + owner)
+            continue
+        for component, result in cache.items():
+            if not isinstance(result, dict) or result.get("cache_hit") is not True or result.get("exact_key") is not True:
+                diagnostics.append("repaired_cache_not_exact_hit:" + owner + ":" + str(component))
+            if (not all(isinstance(result.get(field), str) and result.get(field)
+                        for field in ("matched_cache_key", "scope", "ref"))
+                    or not isinstance(result.get("conditions"), list) or not result.get("conditions")):
+                diagnostics.append("repaired_cache_identity_incomplete:" + owner + ":" + str(component))
+            elif expected_ref is not None and (result.get("scope") != expected_ref or result.get("ref") != expected_ref):
+                diagnostics.append("repaired_cache_ref_scope_mismatch:" + owner + ":" + str(component))
+        image = row.get("runner_image") or {}
+        if not all(isinstance(value, str) and value for value in (row.get("runner_os"), row.get("runner_arch"), image.get("image_os"), image.get("image_version"))):
+            diagnostics.append("repaired_native_runner_identity_missing:" + owner)
+    return sorted(set(diagnostics))
+
+
 def validate_profiled_receipt_sources(contract: dict, receipt: dict, root: pathlib.Path) -> None:
     """Keep a historical profiling receipt intact while checking an approved source amendment."""
     expected = {'before':contract.get('baseline_application_sha'),
@@ -696,9 +742,12 @@ def bind_required_checks_by_attempt(run: dict, jobs_by_attempt: dict, checks: li
             job_id = str(job.get("id", ""))
             if not job_id.isdigit() or row_errors:
                 continue
-            if job_id in job_by_id and job_by_id[job_id] != job:
-                diagnostics.append("ranking_job_physical_identity_conflict")
-                continue
+            if job_id in job_by_id:
+                prior = {key: value for key, value in job_by_id[job_id].items() if key != "_verified_attempt" and key not in ("run_attempt", "source_run_attempt", "attempt")}
+                current = {key: value for key, value in job.items() if key not in ("run_attempt", "source_run_attempt", "attempt")}
+                if prior != current:
+                    diagnostics.append("ranking_job_physical_identity_conflict")
+                    continue
             job_by_id[job_id] = {**job, "_verified_attempt": attempt}
             if job_id not in seen_physical_ids:
                 seen_physical_ids.add(job_id)
@@ -1013,6 +1062,46 @@ def comparison_request_budget_reserve(contract: dict, path: pathlib.Path, endpoi
             pass
 
 
+def comparison_watcher_start(contract: dict, path: pathlib.Path, run_id: object, *, owner: str, now: int | None = None) -> dict:
+    """Claim the single watcher slot for a run in the same durable budget ledger."""
+    import time
+    path = pathlib.Path(path)
+    lock = path.with_name(path.name + ".lock")
+    try:
+        lock.mkdir()
+    except FileExistsError as error:
+        raise ValueError("request_budget_ledger_locked") from error
+    try:
+        ledger = _comparison_budget_read(path, contract)
+        run_id = str(run_id)
+        if not run_id.isdigit() or not owner:
+            raise ValueError("comparison_watcher_identity_invalid")
+        existing = next((row for row in ledger.get("records", []) if row.get("kind") == "watcher" and row.get("run_id") == run_id), None)
+        if existing:
+            if existing.get("owner") != owner:
+                raise ValueError("comparison_watcher_already_claimed")
+            return {"run_id": run_id, "owner": owner, "started_at_epoch": existing.get("at_epoch"), "resumed": True}
+        requests = [row for row in ledger.get("records", []) if row.get("kind") == "request"]
+        current = int(now if now is not None else time.time())
+        if current - int(ledger.get("started_at_epoch", current)) >= 3600:
+            raise ValueError("request_budget_time_limit_exhausted")
+        if len(requests) >= 600:
+            raise ValueError("request_budget_request_limit_exhausted")
+        latest = next((row for row in reversed(ledger.get("records", [])) if row.get("kind") in ("request", "policy")), {})
+        if latest.get("stop_reason"):
+            raise ValueError("request_budget_hard_stop:" + latest["stop_reason"])
+        if latest.get("core_remaining") is not None and int(latest["core_remaining"]) <= 250:
+            raise ValueError("request_budget_core_limit_stop")
+        updated = _comparison_budget_append(path, ledger, {"kind": "watcher", "run_id": run_id, "owner": owner, "at_epoch": current})
+        _comparison_budget_read(path, contract)
+        return {"run_id": run_id, "owner": owner, "started_at_epoch": current, "ledger_records": len(updated["records"])}
+    finally:
+        try:
+            lock.rmdir()
+        except OSError:
+            pass
+
+
 def comparison_request_budget_record_response(contract: dict, path: pathlib.Path, *, core_remaining: int | None = None, reset_at: int | None = None, stop_reason: str | None = None) -> None:
     path = pathlib.Path(path)
     ledger = _comparison_budget_read(path, contract)
@@ -1027,16 +1116,23 @@ def comparison_request_budget_record_response(contract: dict, path: pathlib.Path
 
 
 def deduplicate_physical_jobs(attempts: dict) -> tuple[list[dict], list[dict]]:
-    """Count each GitHub job ID once; retain reused API rows as explicit history."""
-    seen = set()
+    """Count each physical job once and mark contradictory repeated receipts."""
+    seen = {}
     counted, rows = [], []
     for attempt, jobs in sorted(attempts.items(), key=lambda item: int(item[0])):
         for job in jobs:
             job_id = str(job.get("id", ""))
-            if not job_id or job_id in seen:
-                rows.append({"attempt": int(attempt), "job": job, "counted": False})
+            normalized = {key: value for key, value in job.items() if key not in ("run_attempt", "source_run_attempt", "attempt")}
+            if not job_id:
+                rows.append({"attempt": int(attempt), "job": job, "counted": False, "conflict": True})
                 continue
-            seen.add(job_id)
+            if job_id in seen:
+                conflict = seen[job_id] != normalized
+                rows.append({"attempt": int(attempt), "job": job, "counted": False, "conflict": conflict})
+                if conflict:
+                    rows[-1]["physical_job_id"] = job_id
+                continue
+            seen[job_id] = normalized
             row = {"attempt": int(attempt), "job": job, "counted": True}
             counted.append(row)
             rows.append(row)
@@ -1051,25 +1147,29 @@ def derive_attempt_job_costs(attempt_jobs: dict) -> dict:
     attempt_costs = []
     if not isinstance(attempt_jobs, dict) or not attempt_jobs:
         return {"total_seconds": None, "known_subtotal_seconds": 0.0, "attempts": [], "unknown_jobs": ["attempt_jobs"], "diagnostics": ["attempt_jobs_missing"]}
+    counted, history = deduplicate_physical_jobs(attempt_jobs) if isinstance(attempt_jobs, dict) else ([], [])
+    conflicts = {row.get("physical_job_id") for row in history if row.get("conflict")}
+    for job_id in sorted(value for value in conflicts if value):
+        unknown.append(f"physical:{job_id}")
+        diagnostics.append("physical_job_identity_conflict")
+    unique_by_attempt = {}
+    for row in counted:
+        unique_by_attempt.setdefault(str(row["attempt"]), []).append(row["job"])
     for attempt, jobs in sorted(attempt_jobs.items(), key=lambda item: int(item[0]) if str(item[0]).isdigit() else 0):
         if not str(attempt).isdigit() or int(attempt) < 1 or not isinstance(jobs, list):
             diagnostics.append("attempt_jobs_shape_invalid")
             unknown.append(f"{attempt}:*")
             continue
-        seen = set()
         attempt_total = 0.0
-        for job in jobs:
+        for job in unique_by_attempt.get(str(attempt), []):
             job_id = str(job.get("id", ""))
             identity = f"{attempt}:{job_id or '?'}"
             if not job_id.isdigit():
                 unknown.append(identity)
                 diagnostics.append("job_id_invalid")
                 continue
-            if job_id in seen:
-                unknown.append(identity)
-                diagnostics.append("duplicate_job_id_within_attempt")
+            if job_id in conflicts:
                 continue
-            seen.add(job_id)
             try:
                 unexecuted = (not job.get("started_at") and not job.get("completed_at")) or (
                     job.get("status") == "completed" and not job.get("steps")
@@ -1106,24 +1206,42 @@ def derive_required_result_wait(run: dict, jobs_by_attempt: dict, checks: list[d
         origin_field = "run_started_at" if run.get("run_started_at") else "queued_at"
     if errors:
         return {"seconds": None, "missing_contexts": list(required), "diagnostics": errors}
-    successes = {}
+    latest = {}
     for checks_for_attempt in by_attempt.values():
         for name, check in checks_for_attempt.items():
-            if check.get("status") == "completed" and check.get("conclusion") == "success":
-                try:
-                    completed = _utc(check["completed_at"])
-                    created = _utc(run[origin_field])
-                    seconds = (completed - created).total_seconds()
-                    if seconds < 0:
-                        continue
-                except (KeyError, TypeError, ValueError):
+            try:
+                check_attempt = int(check.get("attempt", 0))
+            except (TypeError, ValueError):
+                check_attempt = 0
+            current = latest.get(name)
+            if current is None or check_attempt >= current[0]:
+                latest[name] = (check_attempt, check)
+    successes = {}
+    stale_failures = []
+    bound_jobs = {}
+    for name, (check_attempt, check) in latest.items():
+        if check.get("status") == "completed" and check.get("conclusion") == "success":
+            try:
+                completed = _utc(check["completed_at"])
+                created = _utc(run[origin_field])
+                seconds = (completed - created).total_seconds()
+                if seconds < 0:
                     continue
-                successes[name] = max(successes.get(name, 0.0), seconds)
+            except (KeyError, TypeError, ValueError):
+                continue
+            successes[name] = seconds
+            bound_jobs[name] = {"attempt": check.get("attempt"), "check_id": check.get("id"), "job_id": check.get("job_id"), "completed_at": check.get("completed_at")}
+        else:
+            stale_failures.append(name)
     missing = sorted(set(required) - set(successes))
     diagnostics = []
     if attempt is not None and not run.get(origin_field):
         diagnostics.append("attempt_queue_or_start_origin_missing")
-    return {"seconds": None if missing or diagnostics else round(max(successes.values()), 6), "missing_contexts": missing, "diagnostics": diagnostics}
+    if stale_failures:
+        diagnostics.append("later_required_check_not_successful:" + ",".join(sorted(stale_failures)))
+    endpoint = max((check.get("completed_at") for name, (_, check) in latest.items() if name in successes), default=None)
+    return {"seconds": None if missing or diagnostics else round(max(successes.values()), 6), "missing_contexts": missing,
+            "diagnostics": diagnostics, "required_result_completed_at": endpoint, "bound_required_jobs": bound_jobs}
 
 
 def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, required_contexts: list[str], *, run_attempt: int | None = None) -> dict:
@@ -1165,12 +1283,22 @@ def derive_comparison_family_costs(bundle: pathlib.Path, run_id: object, require
             raise ValueError("comparison_check_runs_invalid")
         cost = derive_attempt_job_costs(jobs_by_attempt)
         wait = derive_required_result_wait(run, jobs_by_attempt, checks, required_contexts, attempt=run_attempt)
+        unique_jobs, physical_history = deduplicate_physical_jobs(jobs_by_attempt)
+        if any(row.get("conflict") for row in physical_history):
+            cost["total_seconds"] = None
+            cost["diagnostics"] = sorted(set(cost["diagnostics"] + ["physical_job_identity_conflict"]))
         return {"status": "complete", "run_id": run_id, "conclusion": run.get("conclusion"),
                 "created_at": run.get("created_at"), "run_attempt": run.get("run_attempt"),
+                "pull_request_number": ((run.get("pull_requests") or [{}])[0].get("number") if len(run.get("pull_requests") or []) == 1 else None),
+                "pull_request_merge_sha": ((run.get("pull_requests") or [{}])[0].get("merge_commit_sha") if len(run.get("pull_requests") or []) == 1 else None),
                 "attempt_origin_at": (run.get("run_started_at") or run.get("queued_at")) if run_attempt is not None else run.get("created_at"), "head_sha": run.get("head_sha"),
                 "runner_seconds": cost["total_seconds"], "runner_known_subtotal_seconds": cost["known_subtotal_seconds"],
                 "runner_unknown_jobs": cost["unknown_jobs"], "runner_diagnostics": cost["diagnostics"],
                 "attempt_costs": cost["attempts"], "required_result_wait_seconds": wait["seconds"],
+                "required_result_completed_at": wait.get("required_result_completed_at"),
+                "bound_required_jobs": wait.get("bound_required_jobs", {}),
+                "unique_physical_jobs": len(unique_jobs), "physical_job_history": physical_history,
+                "unknown_durations": cost["unknown_jobs"],
                 "missing_required_contexts": wait["missing_contexts"], "wait_diagnostics": wait["diagnostics"]}
     except (OSError, ValueError, TypeError, KeyError) as error:
         return {"status": "unknown", "run_id": run_id, "runner_seconds": None,
@@ -1186,6 +1314,12 @@ def comparison_contract_sha256(contract: dict) -> str:
 def validate_comparison_plan(contract: dict) -> list[str]:
     """Validate the immutable Phase 254 execution copy before runs are registered."""
     diagnostics = []
+    if contract.get("comparison_kind") not in (None, "repaired_control_pr"):
+        diagnostics.append("comparison_kind_invalid")
+    if contract.get("comparison_kind") == "repaired_control_pr":
+        required = contract.get("required_contexts")
+        if not isinstance(required, list) or len(required) != 5 or len(set(required)) != 5:
+            diagnostics.append("repaired_required_contexts_invalid")
     sample_identity = contract.get("sample_identity")
     if sample_identity not in (None, "run_id+run_attempt"):
         diagnostics.append("comparison_sample_identity_invalid")
@@ -1306,6 +1440,8 @@ def validate_comparison_registration_ledger(contract: dict, ledger: dict) -> lis
                      and api_run.get("event") == "pull_request" and api_run.get("path") == ".github/workflows/ci.yml"
                      and len(api_run.get("pull_requests") or []) == 1
                      and api_run["pull_requests"][0].get("head", {}).get("sha") == expected_sha)
+            if contract.get("comparison_kind") == "repaired_control_pr":
+                valid = valid and api_run["pull_requests"][0].get("merge_commit_sha") == row.get("pull_request_merge_sha")
         except (ValueError, TypeError, KeyError):
             valid = False
         if (row.get("sequence") != index or row.get("previous_sha256") != previous or row.get("record_sha256") != digest
@@ -1325,13 +1461,14 @@ def comparison_registered_runs(contract: dict, ledger: dict, role: str) -> list[
     rows = [row for row in ledger.get("records", []) if row.get("family_role") == role]
     if not rows:
         raise ValueError("comparison_role_has_no_registered_runs")
-    return [{"reservation_id": row["reservation_id"], "pair_id": row["pair_id"],
+    return [{"comparison_kind": contract.get("comparison_kind"), "reservation_id": row["reservation_id"], "pair_id": row["pair_id"],
              "family_role": role, "run_id": row["run_id"], "run_attempt": row.get("run_attempt"),
              "sample_id": f"{row['run_id']}-attempt-{row['run_attempt']}" if row.get("run_attempt") is not None else str(row["run_id"]),
              "attempt_origin_at": row.get("attempt_origin_at"), "created_at": row["created_at"],
              "event": row.get("event"), "workflow_path": row.get("workflow_path"),
              "head_sha": row["head_sha"], "pull_request_head_sha": row["pull_request_head_sha"],
              "pull_request_base_sha": row["pull_request_base_sha"],
+             **({"pull_request_merge_sha": row.get("pull_request_merge_sha")} if contract.get("comparison_kind") == "repaired_control_pr" else {}),
              "pull_request_number": row["pull_request_number"]} for row in rows]
 
 
@@ -1352,6 +1489,8 @@ def validate_registered_run_observation(registration: dict, api_run: dict) -> li
     expected = expected and pr.get("number") == registration.get("pull_request_number")
     expected = expected and pr.get("head", {}).get("sha") == registration.get("pull_request_head_sha")
     expected = expected and pr.get("base", {}).get("sha") == registration.get("pull_request_base_sha")
+    if registration.get("comparison_kind") == "repaired_control_pr":
+        expected = expected and pr.get("merge_commit_sha") == registration.get("pull_request_merge_sha")
     return [] if expected else ["comparison_run_registered_identity_mismatch"]
 
 
@@ -1383,6 +1522,8 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
             or reservation.get("pair_id") is None):
         raise ValueError("comparison_run_identity_does_not_match_reservation")
     pr = pull_requests[0]
+    if contract.get("comparison_kind") == "repaired_control_pr" and not isinstance(pr.get("merge_commit_sha"), str):
+        raise ValueError("comparison_pull_request_merge_identity_missing")
     if pr.get("head", {}).get("sha") != expected_sha:
         raise ValueError("comparison_run_pull_request_head_mismatch")
     if (reservation.get("pull_request_number") is not None and pr.get("number") != reservation.get("pull_request_number")):
@@ -1424,6 +1565,7 @@ def register_comparison_run(contract: dict, reservation_id: str, api_run: dict, 
         "pull_request_number": pr.get("number"),
         "pull_request_head_sha": pr.get("head", {}).get("sha"),
         "pull_request_base_sha": pr.get("base", {}).get("sha"),
+        **({"pull_request_merge_sha": pr.get("merge_commit_sha")} if contract.get("comparison_kind") == "repaired_control_pr" else {}),
         "api_run_sha256": api_run_sha256,
         "api_run_response_b64": base64.b64encode(raw_api).decode("ascii"),
     }

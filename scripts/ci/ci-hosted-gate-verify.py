@@ -1878,6 +1878,11 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             and run.get("path") == registration.get("workflow_path")
             and run.get("head_sha") == registration.get("head_sha"),
             "collected run origin differs from early registration")
+    repaired_control = registration.get("comparison_kind") == "repaired_control_pr"
+    if repaired_control:
+        require(isinstance(run.get("created_at"), str) and bool(run.get("created_at"))
+                and run.get("created_at") == registration.get("created_at"),
+                "original run creation time differs from early registration")
     if attempt_scoped:
         attempt_origin = run.get("run_started_at") or run.get("queued_at")
         require(run.get("run_attempt") == attempt and attempt_origin == registration.get("attempt_origin_at")
@@ -1892,6 +1897,9 @@ def verify_comparison_family_origin(family_directory, registration, required_con
             and (pr.get("head") or {}).get("sha") == registration.get("pull_request_head_sha")
             and (pr.get("base") or {}).get("sha") == registration.get("pull_request_base_sha"),
             "pull request head/base origin differs from early registration")
+    if repaired_control and registration.get("pull_request_merge_sha") is not None:
+        require(pr.get("merge_commit_sha") == registration.get("pull_request_merge_sha"),
+                "pull request merge tree differs from early registration")
     require(pr.get("head", {}).get("repo", {}).get("id") == run.get("repository", {}).get("id")
             and pr.get("base", {}).get("repo", {}).get("id") == run.get("repository", {}).get("id"),
             "pull request repositories differ from measured run repository")
@@ -1905,6 +1913,9 @@ def verify_comparison_family_origin(family_directory, registration, required_con
         document, _ = read(ref.get("path"), ref.get("sha256"))
         jobs = document.get("jobs") if isinstance(document, dict) else None
         require(isinstance(jobs, list), f"raw attempt jobs missing for attempt {attempt}")
+        if repaired_control:
+            require(type(document.get("total_count")) is int and document["total_count"] == len(jobs),
+                    f"raw attempt job pagination is incomplete for attempt {attempt}")
         seen = set()
         for job in jobs:
             jid = job.get("id")
@@ -1917,30 +1928,44 @@ def verify_comparison_family_origin(family_directory, registration, required_con
     checks, _ = read(family_prefix + "check-runs.json", manifest.get("check_runs_sha256"))
     check_rows = checks.get("check_runs") if isinstance(checks, dict) else None
     require(isinstance(check_rows, list), "raw check-run response is malformed")
-    latest = str(run.get("run_attempt") or max(map(int, jobs_by_attempt)))
-    latest_jobs = jobs_by_attempt.get(latest)
-    require(isinstance(latest_jobs, list), "latest attempt job receipt is missing")
-    jobs_by_id = {str(job["id"]): job for job in latest_jobs}
-    bound = {}
-    for check in check_rows:
-        if check.get("name") not in required_contexts:
-            continue
-        check_id = str(check.get("id", ""))
-        external_id = str(check.get("external_id", ""))
-        candidates = [job for job_id, job in jobs_by_id.items()
-                      if (check_id.isdigit() and job_id == check_id)
-                      or (external_id.isdigit() and job_id == external_id)
-                      or (check_id.isdigit() and job.get("check_run_url") ==
-                          f"https://api.github.com/repos/{REPOSITORY}/check-runs/{check_id}")]
-        job = candidates[0] if len(candidates) == 1 else None
-        require(job is not None and check.get("head_sha") == registration.get("head_sha")
-                and (check.get("app") or {}).get("slug") == "github-actions"
-                and str(job.get("name")) == check.get("name"),
-                f"required check is not bound to an actual job: {check.get('name')}")
-        require(check.get("status") == "completed" and check.get("conclusion") == "success",
-                f"required check did not succeed: {check.get('name')}")
-        require(check.get("name") not in bound, f"duplicate required check: {check.get('name')}")
-        bound[check["name"]] = check
+    if repaired_control:
+        from ci_metrics_security import bind_required_checks_by_attempt
+        errors, endpoints, _ = bind_required_checks_by_attempt(run, jobs_by_attempt, check_rows, required_contexts)
+        require(not errors, "required check to job binding failed: " + ",".join(errors))
+        bound = {}
+        for name in required_contexts:
+            candidates = [(int(attempt), row[name]) for attempt, rows in endpoints.items() if name in rows]
+            require(bool(candidates), f"required check is missing: {name}")
+            latest_attempt, latest_check = max(candidates, key=lambda item: item[0])
+            require(latest_check.get("status") == "completed" and latest_check.get("conclusion") == "success",
+                    f"latest applicable required check did not succeed: {name}")
+            bound[name] = latest_check
+    else:
+        latest = str(run.get("run_attempt") or max(map(int, jobs_by_attempt)))
+    latest_jobs = jobs_by_attempt.get(latest) if not repaired_control else None
+    if not repaired_control:
+        require(isinstance(latest_jobs, list), "latest attempt job receipt is missing")
+        jobs_by_id = {str(job["id"]): job for job in latest_jobs}
+        bound = {}
+        for check in check_rows:
+            if check.get("name") not in required_contexts:
+                continue
+            check_id = str(check.get("id", ""))
+            external_id = str(check.get("external_id", ""))
+            candidates = [job for job_id, job in jobs_by_id.items()
+                          if (check_id.isdigit() and job_id == check_id)
+                          or (external_id.isdigit() and job_id == external_id)
+                          or (check_id.isdigit() and job.get("check_run_url") ==
+                              f"https://api.github.com/repos/{REPOSITORY}/check-runs/{check_id}")]
+            job = candidates[0] if len(candidates) == 1 else None
+            require(job is not None and check.get("head_sha") == registration.get("head_sha")
+                    and (check.get("app") or {}).get("slug") == "github-actions"
+                    and str(job.get("name")) == check.get("name"),
+                    f"required check is not bound to an actual job: {check.get('name')}")
+            require(check.get("status") == "completed" and check.get("conclusion") == "success",
+                    f"required check did not succeed: {check.get('name')}")
+            require(check.get("name") not in bound, f"duplicate required check: {check.get('name')}")
+            bound[check["name"]] = check
     require(set(bound) == set(required_contexts), "raw checks do not contain the exact five successful required contexts")
 
     evidence_ref = manifest.get("artifact_evidence")

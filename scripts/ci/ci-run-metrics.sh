@@ -90,6 +90,8 @@ DIAGNOSIS_OUTPUT=""
 BASELINE_FILE=""
 BASELINE_SOURCE_BUNDLE=""
 COLLECT_COMPARISON=false
+WATCH_COMPARISON_RUNS=false
+WATCH_OUTPUT_DIR=""
 COMPARISON_ROLE=""
 COMPARISON_ATTEMPT_SCOPED=false
 REQUEST_BUDGET_LEDGER=""
@@ -150,6 +152,8 @@ while [[ $# -gt 0 ]]; do
     --threshold) THRESHOLD="$2"; shift 2;;
     --collect) COLLECT=true; shift;;
     --collect-comparison) COLLECT_COMPARISON=true; shift;;
+    --watch-comparison-runs) WATCH_COMPARISON_RUNS=true; shift;;
+    --watch-output-dir) WATCH_OUTPUT_DIR="$2"; shift 2;;
     --comparison-role) COMPARISON_ROLE="$2"; shift 2;;
     --request-budget-ledger) REQUEST_BUDGET_LEDGER="$2"; shift 2;;
     --bounded-request) BOUNDED_REQUEST="$2"; shift 2;;
@@ -824,10 +828,33 @@ PY
       attempts_json='{}'
       for ((attempt=attempt_first; attempt<=attempts; attempt++)); do
         jobs_file="$tmp/family-${id}-attempt-${attempt}-jobs.json"
-        if ! api_get "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" "$jobs_file"; then
-          jobs_status="${API_STOP_REASON:-attempt_jobs_unavailable}"
-          break
+        if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+          jobs_response="$tmp/family-${id}-attempt-${attempt}-jobs-page.json"
+          jobs_collected='[]'; jobs_total=''; jobs_page=1
+          while (( jobs_page <= 100 )); do
+            if ! api_get "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100&page=${jobs_page}" "$jobs_response"; then
+              jobs_status="${API_STOP_REASON:-attempt_jobs_unavailable}"; break
+            fi
+            page_count="$(jq -r 'if (.jobs|type)=="array" and (.total_count|type)=="number" then (.jobs|length) else -1 end' "$jobs_response")"
+            page_total="$(jq -r '.total_count // -1' "$jobs_response")"
+            if (( page_count < 0 )) || [[ -n "$jobs_total" && "$jobs_total" != "$page_total" ]]; then
+              jobs_status=attempt_jobs_pagination_inconsistent; break
+            fi
+            jobs_total="$page_total"
+            jobs_collected="$(jq -cn --argjson prior "$jobs_collected" --slurpfile current "$jobs_response" '$prior + $current[0].jobs')"
+            (( page_count < 100 )) && break
+            jobs_page=$((jobs_page + 1))
+          done
+          if [[ "$jobs_status" == complete ]]; then
+            [[ "$jobs_page" -le 100 && "$(jq 'length' <<<"$jobs_collected")" == "$jobs_total" ]] || jobs_status=attempt_jobs_pagination_incomplete
+            if [[ "$jobs_status" == complete ]]; then jq -cn --argjson total "$jobs_total" --argjson jobs "$jobs_collected" '{total_count:$total,jobs:$jobs}' >"$jobs_file"; fi
+          fi
+        else
+          if ! api_get "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" "$jobs_file"; then
+            jobs_status="${API_STOP_REASON:-attempt_jobs_unavailable}"
+          fi
         fi
+        [[ "$jobs_status" == complete ]] || break
         cp "$jobs_file" "$family_dir/jobs-attempt-${attempt}.json"
         attempts_json="$(jq -cn --argjson prior "$attempts_json" --argjson attempt "$attempt" --arg path "raw/families/$sample_id/jobs-attempt-${attempt}.json" --arg hash "$(sha256_file "$family_dir/jobs-attempt-${attempt}.json")" --arg endpoint "/repos/${REPO}/actions/runs/${id}/attempts/${attempt}/jobs?per_page=100" '$prior + {($attempt|tostring):{path:$path,sha256:$hash,endpoint:$endpoint}}')"
       done
@@ -1043,10 +1070,53 @@ PY
   [[ "$manifest_status" == complete ]]
 }
 
+watch_comparison_runs() {
+  [[ -s "$CONTRACT_FILE" && -s "$REGISTRATIONS_FILE" && -s "$REQUEST_BUDGET_LEDGER" && -n "$WATCH_OUTPUT_DIR" ]] || fail "watcher_inputs_missing"
+  if [[ -e "$WATCH_OUTPUT_DIR" ]]; then
+    [[ -d "$WATCH_OUTPUT_DIR" && -z "$(find "$WATCH_OUTPUT_DIR" -maxdepth 1 -name 'run-*-poll-*.json' -print -quit)" ]] || fail "watcher_output_already_exists"
+  else mkdir -p "$WATCH_OUTPUT_DIR"; fi
+  local owner run_id registration run_file poll_index interval status_json result_file
+  owner="repaired-control:${COMPARISON_ROLE}:$(sha256_file "$CONTRACT_FILE")"
+  interval=60
+  [[ "${CI_METRICS_TEST_MODE:-0}" != 1 ]] || interval="${CI_METRICS_TEST_WATCH_INTERVAL_SECONDS:-60}"
+  [[ "$interval" =~ ^[0-9]+$ ]] || fail "watcher_interval_invalid"
+  while IFS= read -r registration; do
+    [[ -n "$registration" ]] || continue
+    run_id="$(jq -r '.run_id' <<<"$registration")"
+    [[ "$run_id" =~ ^[1-9][0-9]*$ ]] || fail "watcher_run_id_invalid"
+    PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REQUEST_BUDGET_LEDGER" "$run_id" "$owner" <<'PY' || fail "comparison_watcher_claim_failed"
+import json,pathlib,sys
+from ci_metrics_security import comparison_watcher_start
+c=json.loads(pathlib.Path(sys.argv[1]).read_text())
+comparison_watcher_start(c,pathlib.Path(sys.argv[2]),sys.argv[3],owner=sys.argv[4])
+PY
+    poll_index=0
+    while :; do
+      poll_index=$((poll_index+1))
+      result_file="$WATCH_OUTPUT_DIR/run-${run_id}-poll-${poll_index}.json"
+      api_get "/repos/${REPO}/actions/runs/${run_id}" "$result_file" || fail "comparison_watcher_read_failed:${run_id}:${API_STOP_REASON}"
+      PYTHONPATH="$ROOT/scripts/ci" python3 - "$result_file" "$registration" <<'PY' || fail "comparison_watcher_origin_changed:${run_id}"
+import json,pathlib,sys
+from ci_metrics_security import validate_registered_run_observation
+run=json.loads(pathlib.Path(sys.argv[1]).read_text()); registration=json.loads(sys.argv[2])
+errors=validate_registered_run_observation(registration,run)
+if errors: raise SystemExit(','.join(errors))
+if run.get('status') not in ('queued','in_progress','completed'):
+    raise SystemExit('comparison_watcher_status_invalid')
+PY
+      status_json="$(jq -r '.status' "$result_file")"
+      [[ "$status_json" != completed ]] || break
+      (( poll_index < 60 )) || fail "comparison_watcher_poll_limit_exhausted:${run_id}"
+      if [[ "${CI_METRICS_TEST_MODE:-0}" != 1 || "${CI_METRICS_TEST_NO_SLEEP:-0}" != 1 ]]; then sleep "$interval"; fi
+    done
+  done < <(jq -c '.[]' "$COMPARISON_RUNS_FILE")
+  jq -n --arg owner "$owner" --argjson interval "$interval" --argjson polls "$(find "$WATCH_OUTPUT_DIR" -maxdepth 1 -name 'run-*-poll-*.json' | wc -l | tr -d ' ')" --argjson requests "$API_REQUESTS" '{status:"complete",owner:$owner,interval_seconds:$interval,poll_count:$polls,request_count:$requests}'
+}
+
 collect_comparison() {
   [[ -s "$CONTRACT_FILE" && -s "$REGISTRATIONS_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$SOURCE_BUNDLE" ]] || fail "--collect-comparison requires --contract, --registrations, --request-budget-ledger and --source-bundle"
   [[ "$COMPARISON_ROLE" == before || "$COMPARISON_ROLE" == after ]] || fail "--comparison-role must be before or after"
-  local tmp contract_window_end contract_hash registration_hash budget_hash
+  local tmp contract_window_end contract_hash registration_hash budget_hash watcher_requests watcher_poll_count
   COMPARISON_ATTEMPT_SCOPED="$(jq -r '.sample_identity == "run_id+run_attempt"' "$CONTRACT_FILE")"
   tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-comparison-collect.XXXXXX")"
   COMPARISON_RUNS_FILE="$tmp/registered-runs.json"
@@ -1111,14 +1181,39 @@ PY
   [[ "$contract_window_end" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || { rm -rf "$tmp"; fail "comparison_window_end_invalid"; }
   CUTOFF="$contract_window_end"
   API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:preflight"
+  if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+    API_LEDGER="$tmp/watcher-request-ledger.json"
+    API_TEMP_DIR="$tmp"
+    API_STARTED="$(date +%s)"; API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_CORE_REMAINING=""; API_UNKNOWN='[]'; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false
+    API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:watcher"
+    api_get rate_limit "$tmp/watcher-rate-limit.json" || { rm -rf "$tmp"; fail "comparison_watcher_rate_preflight_failed:${API_STOP_REASON}"; }
+    WATCH_OUTPUT_DIR="$tmp/watcher"
+    watch_comparison_runs >"$tmp/watcher-result.json"
+    watcher_requests="$API_REQUESTS"
+    watcher_poll_count="$(jq -r '.poll_count' "$tmp/watcher-result.json")"
+    cp "$tmp/watcher" "$tmp/watcher-receipts" 2>/dev/null || true
+    API_TEMP_DIR=""; API_LEDGER=""; API_BUDGET_OWNER=""
+  else
+    watcher_requests=0; watcher_poll_count=0
+  fi
   collect_window
+  if [[ "$watcher_requests" -gt 0 ]]; then
+    mkdir -p "$SOURCE_BUNDLE/raw/watcher"
+    cp "$tmp/watcher"/run-*-poll-*.json "$SOURCE_BUNDLE/raw/watcher/"
+    cp "$tmp/watcher-rate-limit.json" "$SOURCE_BUNDLE/raw/watcher-rate-limit.json"
+    jq --slurpfile watched "$tmp/watcher-request-ledger.json" '.requests += ($watched[0].requests // [])' "$SOURCE_BUNDLE/request-ledger.json" >"$tmp/request-ledger-combined.json"
+    mv "$tmp/request-ledger-combined.json" "$SOURCE_BUNDLE/request-ledger.json"
+    watcher_hashes="$(find "$SOURCE_BUNDLE/raw/watcher" -maxdepth 1 -type f -print0 | xargs -0 shasum -a 256 | awk '{print $2 ":" $1}' | jq -Rn '[inputs|split(":")|{path:.[0],sha256:.[1]}]')"
+    jq --arg hash "$(sha256_file "$SOURCE_BUNDLE/request-ledger.json")" --argjson count "$watcher_requests" --argjson polls "$watcher_poll_count" --argjson receipts "$watcher_hashes" '.request_count += $count | .source_sha256.request_ledger=$hash | .watcher_receipts=$receipts | .watcher_poll_count=$polls' "$SOURCE_BUNDLE/manifest.json" >"$tmp/manifest-watcher.json"
+    mv "$tmp/manifest-watcher.json" "$SOURCE_BUNDLE/manifest.json"
+  fi
   if [[ "$COMPARISON_ATTEMPT_SCOPED" == true ]]; then
     PYTHONPATH="$ROOT/scripts/ci" python3 - "$SOURCE_BUNDLE" "$CONTRACT_FILE" "$COMPARISON_RUNS_FILE" "$COMPARISON_ROLE" "$ROOT" <<'PY' || fail "attempt_scoped_raw_family_materialization_failed"
 import hashlib,json,pathlib,sys
 root=pathlib.Path(sys.argv[1]).resolve(); contract=json.loads(pathlib.Path(sys.argv[2]).read_text())
 registrations=json.loads(pathlib.Path(sys.argv[3]).read_text()); role=sys.argv[4]
 project_root=pathlib.Path(sys.argv[5]).resolve()
-from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding, comparison_runner_images
+from ci_metrics_security import comparison_native_inventories, validate_producer_commit, validate_workflow_source, validate_producer_binding, comparison_runner_images, validate_repaired_control_metadata
 inventories=comparison_native_inventories(contract,role,project_root)
 expected_sha=contract.get('baseline_application_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('application_sha')
 expected_producer_sha=(contract.get('baseline_identity') or {}).get('producer_source_sha') if role=='before' else (contract.get('candidate_identity') or {}).get('producer_source_sha')
@@ -1204,7 +1299,13 @@ for registration in registrations:
             'directory':str(output.relative_to(root)),'file_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in output.iterdir()}})
     detail['derived_native_coverage']=derived
     (family/'manifest.json').write_text(json.dumps(detail,sort_keys=True,separators=(',',':')))
-    images=comparison_runner_images([m for m,_ in producer],require_proof=contract.get('runner_image_proof_required') is True)
+    repaired=contract.get('comparison_kind')=='repaired_control_pr'
+    images=comparison_runner_images([m for m,_ in producer],require_proof=(repaired or contract.get('runner_image_proof_required') is True))
+    if repaired:
+        expected_ref=f"refs/pull/{run['pull_requests'][0]['number']}/merge" if len(run.get('pull_requests') or [])==1 else None
+        metadata_errors=validate_repaired_control_metadata([m for m,_ in producer],expected_ref=expected_ref)
+        if metadata_errors: raise SystemExit('repaired_control_metadata_invalid:'+','.join(metadata_errors))
+        if len(images)!=6: raise SystemExit('repaired_control_runner_image_owner_set_incomplete')
     caches=[value for m,_ in metadata for value in (m.get('cache_outcome') or {}).values()]
     warm=bool(caches) and all(value in ('hit',True) for value in caches)
     families.append({'reservation_id':registration['reservation_id'],'pair_id':registration['pair_id'],'family_role':role,'run_id':int(run_id),
@@ -1212,6 +1313,7 @@ for registration in registrations:
         'conclusion':run.get('conclusion'),'workload':detail.get('workload'),'workload_sha':workload_sha,
         'source_workload_revision_sha256':workload_sha,'coverage_map_sha256':contract['native_coverage_comparison']['mapping_sha256'],'workflow_sha256':workflow_sha,
         'runner_class':images,'runner_image':images,'cache_stratum':'warm' if warm else 'not_warm',
+        'cache_key_scope':{owner:{key:{'matched_cache_key':value.get('matched_cache_key'),'scope':value.get('scope'),'ref':value.get('ref'),'exact_key':value.get('exact_key'),'cache_hit':value.get('cache_hit'),'conditions':value.get('conditions')} for key,value in (row.get('cache_outcome') or {}).items() if isinstance(value,dict)} for owner,row in ((m.get('matrix_seam') or 'library',m) for m,_ in producer)},
         'exunit_instrumentation':instrument['exunit'],'playwright_instrumentation':instrument['playwright'],'attempts':[]})
 manifest_path=root/'manifest.json'; manifest=json.loads(manifest_path.read_text())
 manifest['comparison_families']=families
@@ -1226,7 +1328,9 @@ PY
   printf '[]\n' >"$origin_results"
   while IFS= read -r registration; do
     [[ -n "$registration" ]] || continue
-    printf '%s\n' "$registration" >"$tmp/registration.json"
+    jq --arg kind "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" \
+      '. + (if $kind=="repaired_control_pr" then {comparison_kind:$kind} else {} end)' \
+      <<<"$registration" >"$tmp/registration.json"
     if ! python3 "$ROOT/scripts/ci/ci-hosted-gate-verify.py" --mode comparison-family \
       --evidence "$SOURCE_BUNDLE" --registration "$tmp/registration.json" \
       --required-contexts "$(jq -c '.required_contexts' "$CONTRACT_FILE")" >"$tmp/origin-one.json" 2>"$tmp/origin-one.err"; then
@@ -2322,6 +2426,29 @@ PY
   exit 0
 fi
 
+if [[ "$WATCH_COMPARISON_RUNS" == true ]]; then
+  [[ -s "$CONTRACT_FILE" && -s "$REGISTRATIONS_FILE" && -n "$REQUEST_BUDGET_LEDGER" && -n "$WATCH_OUTPUT_DIR" ]] || fail "--watch-comparison-runs requires --contract, --registrations, --request-budget-ledger and --watch-output-dir"
+  [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]] || fail "comparison_watcher_requires_repaired_control_pr"
+  [[ "$REQUEST_METHOD" == GET ]] || fail "repaired_control_measurement_get_only"
+  local_watch_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-comparison-watch.XXXXXX")"
+  COMPARISON_RUNS_FILE="$local_watch_tmp/registered-runs.json"
+  PYTHONPATH="$ROOT/scripts/ci" python3 - "$CONTRACT_FILE" "$REGISTRATIONS_FILE" "$COMPARISON_ROLE" "$COMPARISON_RUNS_FILE" <<'PY' || { rm -rf "$local_watch_tmp"; fail "comparison_watcher_registration_invalid"; }
+import json,pathlib,sys
+from ci_metrics_security import comparison_registered_runs
+contract=json.loads(pathlib.Path(sys.argv[1]).read_text())
+ledger=json.loads(pathlib.Path(sys.argv[2]).read_text())
+rows=comparison_registered_runs(contract,ledger,sys.argv[3])
+pathlib.Path(sys.argv[4]).write_text(json.dumps(rows,sort_keys=True,separators=(',',':')))
+PY
+  mkdir -p "$WATCH_OUTPUT_DIR"
+  API_LEDGER="${WATCH_OUTPUT_DIR}.request-ledger.json"; API_STARTED="$(date +%s)"; API_REQUESTS=0; API_STOP_REASON=""; API_RESET_AT=""; API_CORE_REMAINING=""; API_UNKNOWN='[]'; API_REQUEST_LOG='[]'; API_LAST_RATE_REQUEST=0; API_RATE_CHECK_IN_FLIGHT=false; API_TEMP_DIR="$WATCH_OUTPUT_DIR"; API_BUDGET_OWNER="comparison:${COMPARISON_ROLE}:watcher"
+  api_get rate_limit "$WATCH_OUTPUT_DIR/rate-limit.json" || { rm -rf "$local_watch_tmp"; fail "comparison_watcher_rate_preflight_failed:${API_STOP_REASON}"; }
+  watch_comparison_runs
+  api_write_ledger complete; API_COMPLETED=true
+  rm -rf "$local_watch_tmp"
+  exit 0
+fi
+
 if [[ "$DIAGNOSE_V1" == true ]]; then
   [[ -f "$SOURCE_BUNDLE" && -f "$BASELINE_FILE" && -n "$DIAGNOSIS_OUTPUT" ]] || fail "--diagnose-v1 requires archived --source-bundle, --baseline and --output"
   diagnosis_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ci-diagnosis.XXXXXX")"
@@ -2418,11 +2545,17 @@ PY
 fi
 if [[ "$COLLECT_COMPARISON" == true ]]; then
   [[ "$COLLECT" != true && "$EVALUATE_COMPARISON" != true && "$REGISTER_COMPARISON_RUN" != true ]] || fail "--collect-comparison cannot be combined with other collector modes"
+  if [[ -s "$CONTRACT_FILE" ]] && [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+    [[ "$REQUEST_METHOD" == GET ]] || fail "repaired_control_measurement_get_only"
+  fi
   collect_comparison
   exit 0
 fi
 if [[ "$EVALUATE_COMPARISON" == true ]]; then
   [[ -s "$CONTRACT_FILE" && -d "$BEFORE_BUNDLE" && -d "$AFTER_BUNDLE" ]] || fail "--evaluate-comparison requires --contract and extracted --before-bundle/--after-bundle directories"
+  if [[ "$(jq -r '.comparison_kind // empty' "$CONTRACT_FILE")" == repaired_control_pr ]]; then
+    [[ "$REQUEST_METHOD" == GET ]] || fail "repaired_control_measurement_get_only"
+  fi
   FORMAT=json
   before_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-before.XXXXXX")"
   after_json="$(mktemp "${TMPDIR:-/tmp}/ci-comparison-after.XXXXXX")"
@@ -2485,6 +2618,8 @@ if registrations:
                 or registration_by_run.get(str(row.get('run_id'))))
             if registration is None:
                 issue(label+'_family_registration_missing',row.get('run_id')); continue
+            if contract.get('comparison_kind')=='repaired_control_pr':
+                registration={**registration,'comparison_kind':'repaired_control_pr'}
             result=subprocess.run([sys.executable,str(project_root/'scripts/ci/ci-hosted-gate-verify.py'),
                 '--mode','comparison-family','--evidence',str(bundle_paths[label]),
                 '--registration-json',json.dumps(registration,separators=(',',':')),
@@ -2593,6 +2728,7 @@ for label, data in [('before',before),('after',after)]:
             if raw.get('cost_status')!='complete': issue(label+'_raw_family_invalid',{'run_id':row.get('run_id'),'diagnostics':raw.get('diagnostics')}); continue
             row={**row,'created_at':raw.get('created_at'),'conclusion':raw.get('conclusion'),
                  'required_result_wait_seconds':raw.get('required_result_wait_seconds'),
+                 'pull_request_number':raw.get('pull_request_number'),'pull_request_merge_sha':raw.get('pull_request_merge_sha'),
                  'runner_seconds':raw.get('runner_seconds'),'runner_known_subtotal_seconds':raw.get('runner_known_subtotal_seconds'),
                  'runner_unknown_jobs':raw.get('runner_unknown_jobs'),'raw_attempt_costs':raw.get('attempt_costs'),
                  'required_context_missing':raw.get('missing_required_contexts')}
@@ -2625,6 +2761,22 @@ for pair_id in sorted(set(before_rows)&set(after_rows)):
     # independently proven above by the complete native coverage comparison.
     identity_field='coverage_map_sha256' if contract.get('sample_identity')=='run_id+run_attempt' else 'workload_sha'
     fields=['workload',identity_field,'runner_class','runner_image','cache_stratum','exunit_instrumentation','playwright_instrumentation']
+    if contract.get('comparison_kind')=='repaired_control_pr':
+        fields.append('cache_key_scope')
+        for side,row in [('before',b),('after',a)]:
+            cache=row.get('cache_key_scope')
+            if not isinstance(cache,dict) or set(cache)!={'library','admin_behavior','admin_checkpoints','design_gallery','non_admin_smoke','demo_showcase'}:
+                issue(side+'_repaired_cache_owner_evidence_incomplete',pair_id)
+            elif any(not isinstance(value,dict) or value.get('cache_hit') is not True or value.get('exact_key') is not True
+                     or not all(isinstance(value.get(field),str) and value.get(field) for field in ('matched_cache_key','scope','ref'))
+                     or not isinstance(value.get('conditions'),list) or not value.get('conditions')
+                     for owner in cache.values() for value in owner.values()):
+                issue(side+'_repaired_cache_identity_invalid',pair_id)
+            else:
+                expected_ref=f"refs/pull/{row.get('pull_request_number')}/merge"
+                if not row.get('pull_request_merge_sha') or any(value.get('scope')!=expected_ref or value.get('ref')!=expected_ref
+                    for owner in cache.values() for value in owner.values()):
+                    issue(side+'_repaired_cache_ref_scope_mismatch',pair_id)
     mismatch=[field for field in fields if b.get(field)!=a.get(field)]
     if 'runner_image' in mismatch: issue('runner_image_drift',{'pair_id':pair_id,'before':b.get('runner_image'),'after':a.get('runner_image')})
     if mismatch: issue('pair_not_equivalent',{'pair_id':pair_id,'fields':mismatch}); continue
