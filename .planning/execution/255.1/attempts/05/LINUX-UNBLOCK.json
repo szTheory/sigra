@@ -1,0 +1,70 @@
+{
+  "schema_version": "sigra.local-linux-unblock/v1",
+  "status": "blocked",
+  "local_only": true,
+  "acceptance_samples": 0,
+  "hosted_status": "blocked",
+  "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+  "environment": "Ubuntu24.04 amd64 emulated on macOS arm64",
+  "otp": "28.5",
+  "elixir": "1.19.5",
+  "node": "20.20.2",
+  "playwright": "1.59.1",
+  "erl_aflags": "+JMsingle true",
+  "prerequisites": {
+    "browser_launch": "passed",
+    "actual_os_dependency_installer": "passed",
+    "fresh_control_preparation": "passed",
+    "app_readiness": "passed"
+  },
+  "owner": "admin_behavior",
+  "source_role": "control",
+  "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+  "product_cases_executed": 0,
+  "failure": "MATRIX_SEAM absent from local workflow invocation environment",
+  "cleanup": "passed",
+  "raw_receipts": [
+    {
+      "path": ".gsd/255.1-linux-parity/evaluator/.gsd/linux-parity/control-admin_behavior/SOURCE.json",
+      "sha256": "2cd417e36bc15b11f4532613c05a30ef6d2ef069b3d254cfc5e19108fe90a521",
+      "bytes": 731
+    },
+    {
+      "path": ".gsd/255.1-linux-parity/evaluator/.gsd/linux-parity/control-admin_behavior/RESULT.json",
+      "sha256": "3412c7d2b543d5a100fe8ae2212fbdcd5a5cd79a19c14b2baa6927ca2f551d4c",
+      "bytes": 7106
+    },
+    {
+      "path": ".gsd/255.1-linux-parity/evaluator/.gsd/linux-parity/control-admin_behavior/browser-control-admin_behavior.json",
+      "sha256": "5cb3ec55ae94c73bc26e84ae2356b6597839efd9f1df67e39e7c1f04a40de1b5",
+      "bytes": 10637
+    },
+    {
+      "path": ".gsd/255.1-linux-parity/tool-probe/os-deps.json",
+      "sha256": "e330cd7c107370f33a708fd830b28a25276a4b6a6addb6665f91ab16a5dc601f",
+      "bytes": 3015
+    }
+  ],
+  "prior_tracking": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "f06abfc71615340a11d92eb82c229c0233529fedc65b8fc0f51c84b8185874d7",
+      "recovery_commit": "9958a1867cba235f99f878d0d3bd428d57af0f2b",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "3aef6cc742e15cc9af338158c5e7434c20b2d6a4832677c1ff8fe7d3fd4089d2",
+      "recovery_commit": "9958a1867cba235f99f878d0d3bd428d57af0f2b",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "8f64226ca2e9896c9058c267ecf260caece7788fd6dc6a535a234634d53a0320",
+      "recovery_commit": "9958a1867cba235f99f878d0d3bd428d57af0f2b",
+      "read_back_equal": true
+    }
+  ],
+  "remote_requests": 0,
+  "remote_mutations": 0
+}

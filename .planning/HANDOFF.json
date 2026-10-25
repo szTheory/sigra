@@ -263,15 +263,15 @@
     "execution_state_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
     "source_recovery": ".planning/execution/255.1/unblock-source/SOURCE-RESULT.json",
     "active_execution": {
-      "task": "/root/execute_plan02",
+      "task": "/root",
       "plan": "255.1-02",
-      "status": "native_parity_retry_pending_or_running",
-      "implementation_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
-      "source_refresh_record": ".planning/execution/255.1/plan02-preflight-source/PROMOTION.json",
+      "status": "repairing_native_browser_evaluator_before_linux_retry",
       "sources": ".planning/execution/255.1/SOURCES.json",
       "candidate_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
       "control_sha": "ada01b374c92da790857d9b826cf633a799e654a",
-      "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
+      "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
+      "linux_environment_record": ".planning/execution/255.1/attempts/05/LINUX-UNBLOCK.json",
+      "scope": "Local tests only; browser parity incomplete; no hosted authority or performance acceptance."
     },
     "source_native_verification": {
       "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
@@ -309,14 +309,14 @@
   ],
   "state_refresh_preservation": ".planning/execution/255.1/STATE-REFRESH-PRESERVATION.json",
   "active_execution": {
-    "task": "/root/execute_plan02",
+    "task": "/root",
     "plan": "255.1-02",
-    "status": "native_parity_retry_pending_or_running",
-    "implementation_commit": "60058d465e171183aa6ea86f247cd6644337ebcb",
-    "source_refresh_record": ".planning/execution/255.1/plan02-preflight-source/PROMOTION.json",
+    "status": "repairing_native_browser_evaluator_before_linux_retry",
     "sources": ".planning/execution/255.1/SOURCES.json",
     "candidate_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
     "control_sha": "ada01b374c92da790857d9b826cf633a799e654a",
-    "scope": "Authorized local producer/report/parity verification only; no hosted preparation, publication or collection."
+    "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
+    "linux_environment_record": ".planning/execution/255.1/attempts/05/LINUX-UNBLOCK.json",
+    "scope": "Local tests only; browser parity incomplete; no hosted authority or performance acceptance."
   }
 }
