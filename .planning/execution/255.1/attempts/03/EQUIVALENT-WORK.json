@@ -7,7 +7,7 @@
     "design_gallery": {},
     "non_admin_smoke": {}
   },
-  "completed_at": "2026-10-25T00:08:03Z",
+  "completed_at": "2026-10-25T00:08:29Z",
   "hosted_delivery_gaps": [
     "New library receiver reports and their changed terminal-outcome manifest payload have no hosted artifact API producer/run/attempt proof.",
     "This local comparison does not prove artifact upload, retention, retrieval, or workflow terminal delivery.",
@@ -63098,7 +63098,7 @@
       }
     }
   },
-  "local_status": "running",
+  "local_status": "blocked",
   "native_commands": [
     {
       "command": [
@@ -63242,11 +63242,15 @@
       "tree_sha": "cee215875eaae458ea3c88c1cb51addb4a19440c"
     }
   },
-  "status": "running",
+  "status": "blocked",
   "toolchain": {
     "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
     "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
     "node": "v20.19.5",
     "python": "3.14.4"
-  }
+  },
+  "validation_errors": [
+    "control_browser_admin_behavior_failed:playwright-browser-install_failed_exit_1",
+    "native_run_interrupted_after_first_failed_browser_owner"
+  ]
 }
