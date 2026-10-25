@@ -1,0 +1,62 @@
+{
+  "status": "running_snapshot",
+  "local_only": true,
+  "acceptance_samples": 0,
+  "completed_browser_pairs": {
+    "admin_behavior": {
+      "status": "passed"
+    }
+  },
+  "completed_browser_rows": [
+    {
+      "role": "candidate",
+      "owner": "admin_behavior",
+      "cases": 43
+    },
+    {
+      "role": "control",
+      "owner": "admin_behavior",
+      "cases": 43
+    },
+    {
+      "role": "control",
+      "owner": "admin_checkpoints",
+      "cases": 3
+    },
+    {
+      "role": "control",
+      "owner": "design_gallery",
+      "cases": 42
+    }
+  ],
+  "active_browser": [
+    {
+      "role": "control",
+      "owner": "non_admin_smoke",
+      "session_id": 69178
+    },
+    {
+      "role": "control",
+      "owner": "demo_showcase",
+      "session_id": 17189
+    },
+    {
+      "role": "candidate",
+      "owner": "admin_checkpoints",
+      "session_id": 61820
+    }
+  ],
+  "library": {
+    "status": "prior_Mac_attempt_blocked",
+    "record": ".planning/execution/255.1/attempts/07/LIBRARY-PARITY.json",
+    "next": "fresh isolated PostgreSQL and nested user/network namespace Linux canary",
+    "agent": "/root/execute_plan02"
+  },
+  "namespace_probe": {
+    "status": "passed",
+    "source": ".gsd/255.1-linux-parity/namespace-probe/SOURCE.json",
+    "added_unshare_flags": 1342177280,
+    "privileged": false,
+    "sys_admin": false
+  }
+}
