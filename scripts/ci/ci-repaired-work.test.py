@@ -283,6 +283,8 @@ def selected_rows(report: dict) -> list[dict]:
                     results = test.get("results") or []
                     if test.get("status") == "skipped" and not results:
                         status = "skipped"
+                    elif test.get("status") == "flaky" or len(results) > 1:
+                        status = "retried"
                     elif results:
                         status = results[-1].get("status")
                     else:
@@ -935,6 +937,10 @@ class RepairedWorkContractTest(unittest.TestCase):
             extra = dict(identity, id="spec-extra", title="extra")
             self.assertTrue(any("identity_or_expected_status_mismatch" in error
                                 for error in extract(result_tests=[dict(identity), extra])[2]))
+            recovered = dict(identity, status="flaky",
+                             results=[{"status": "failed"}, {"status": "passed"}])
+            self.assertTrue(any("browser_result_status_invalid" in error
+                                for error in extract(result_test=recovered)[2]))
             duplicate = {"suites": [{"title": "Suite", "specs": [{"file": identity["file"], "id": identity["id"],
                          "title": identity["title"], "tests": [dict(identity), dict(identity)]}]}]}
             duplicate_path = report_root / "admin_behavior.json"
