@@ -1,0 +1,173 @@
+name: Phase 255.1 shared app caches
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - owner: admin_behavior
+            port: '4001'
+            database: sigra_admin_behavior
+          - owner: admin_checkpoints
+            port: '4002'
+            database: sigra_admin_checkpoints
+          - owner: design_gallery
+            port: '4003'
+            database: sigra_design_gallery
+          - owner: non_admin_smoke
+            port: '4004'
+            database: sigra_non_admin_smoke
+          - owner: demo_showcase
+            port: '4005'
+            database: sigra_demo_showcase
+    env:
+      MIX_ENV: dev
+      CI: 'true'
+      PORT: ${{ matrix.port }}
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGDATABASE: ${{ matrix.database }}
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check dispatch origin
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/main
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+        with:
+          ref: d3a873538e6924def807f045342d603e7c819cdc
+          persist-credentials: false
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        id: beam
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Restore example dependencies
+        id: deps
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-port${{ matrix.port }}-otp${{ steps.beam.outputs.otp-version }}-elixir${{ steps.beam.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-port${{ matrix.port }}-otp${{ steps.beam.outputs.otp-version }}-elixir${{ steps.beam.outputs.elixir-version }}-dev-
+          enableCrossOsArchive: false
+      - name: Prepare repaired control
+        working-directory: test/example
+        run: mix do deps.get + compile --warnings-as-errors
+      - name: Save example dependencies
+        id: save
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-port${{ matrix.port }}-otp${{ steps.beam.outputs.otp-version }}-elixir${{ steps.beam.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          enableCrossOsArchive: false
+      - name: Capture safe cache receipt
+        if: always()
+        env:
+          OWNER: ${{ matrix.owner }}
+          CACHE_KEY: ${{ steps.deps.outputs.cache-primary-key }}
+          HASHFILES_DIGEST: ${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}
+          SAVE_STEP_OUTCOME: ${{ steps.save.outcome }}
+          CACHE_HIT: ${{ steps.deps.outputs.cache-hit }}
+          OTP_VERSION: ${{ steps.beam.outputs.otp-version }}
+          ELIXIR_VERSION: ${{ steps.beam.outputs.elixir-version }}
+          SOURCE: d3a873538e6924def807f045342d603e7c819cdc
+          MAIN_SHA: ${{ github.sha }}
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          JOB_ID: ${{ github.job }}
+          OWNER_PORT: ${{ matrix.port }}
+          OWNER_DATABASE: ${{ matrix.database }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref }}
+          WORKSPACE: ${{ github.workspace }}
+          RUNNER_OS_NAME: ${{ runner.os }}
+          RUNNER_ARCH_NAME: ${{ runner.arch }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/shared-cache"
+          python3 - "$RUNNER_TEMP/shared-cache/${OWNER}.json" <<'PY'
+          import glob, hashlib, json, os, pathlib, platform, subprocess, sys
+          def output(*args):
+              return subprocess.check_output(args, text=True, stderr=subprocess.STDOUT).strip()
+          if os.environ['REF_NAME'] != 'refs/heads/main' or os.environ['EVENT_NAME'] != 'workflow_dispatch':
+              raise SystemExit('shared-cache receipt has wrong event/ref')
+          if not os.environ['CACHE_KEY'] or not os.environ['MAIN_SHA'] or not os.environ['WORKFLOW_SHA']:
+              raise SystemExit('shared-cache receipt identity is incomplete')
+          paths = set()
+          for exact in ('test/example/mix.lock', 'mix.exs'):
+              if pathlib.Path(exact).is_file(): paths.add(exact)
+          for pattern in ('test/example/config/**/*', 'test/example/lib/**/*.ex', 'lib/**/*.ex'):
+              paths.update(path for path in glob.glob(pattern, recursive=True) if pathlib.Path(path).is_file())
+          manifest = [{'path': path, 'sha256': hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()}
+                      for path in sorted(paths)]
+          if not manifest:
+              raise SystemExit('shared-cache hashFiles input manifest is empty')
+          restore_hit = os.environ['CACHE_HIT'].lower() == 'true'
+          runner_image = os.environ.get('ImageVersion') or os.environ.get('ImageOS') or platform.platform()
+          mix_version = output('mix', '--version')
+          elixir_output = output('elixir', '--version')
+          otp_output = output('erl', '-noshell', '-eval',
+              'io:format("~s", [erlang:system_info(otp_release)]), halt().')
+          receipt = {
+              'schema_version': 'sigra.phase2551.shared-cache-save-receipt/v1',
+              'owner': os.environ['OWNER'], 'source': os.environ['SOURCE'],
+              'source_tree': output('git', 'rev-parse', 'HEAD^{tree}'),
+              'main_sha': os.environ['MAIN_SHA'], 'workflow_sha': os.environ['WORKFLOW_SHA'],
+              'workflow_ref': os.environ['WORKFLOW_REF'],
+              'run_id': int(os.environ['RUN_ID']), 'run_attempt': int(os.environ['RUN_ATTEMPT']),
+              'job_name': 'seed (' + os.environ['OWNER'] + ', ' + os.environ['OWNER_PORT'] + ', ' + os.environ['OWNER_DATABASE'] + ')',
+              'port': os.environ['OWNER_PORT'], 'database': os.environ['OWNER_DATABASE'],
+              'event': os.environ['EVENT_NAME'], 'ref': os.environ['REF_NAME'],
+              'workspace': os.environ['WORKSPACE'], 'runner_os': os.environ['RUNNER_OS_NAME'],
+              'runner_arch': os.environ['RUNNER_ARCH_NAME'], 'runner_image': runner_image,
+              'otp': os.environ['OTP_VERSION'], 'elixir': os.environ['ELIXIR_VERSION'],
+              'mix_version': mix_version, 'elixir_output': elixir_output, 'otp_output': otp_output,
+              'hashfiles_digest': os.environ['HASHFILES_DIGEST'], 'hash_manifest': manifest,
+              'key': os.environ['CACHE_KEY'], 'save_step_outcome': os.environ['SAVE_STEP_OUTCOME'],
+              'save_log_corroboration': 'controller_required', 'restore_hit': restore_hit,
+              'actual_cache_restores': 1 if restore_hit else 0,
+              'archive_settings': {'enableCrossOsArchive': False,
+                  'cache_action': '55cc8345863c7cc4c66a329aec7e433d2d1c52a9',
+                  'paths': ['test/example/deps', 'test/example/_build']},
+              'cache_paths': ['test/example/deps', 'test/example/_build']}
+          pathlib.Path(sys.argv[1]).write_text(json.dumps(receipt, sort_keys=True) + '\n')
+          PY
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: shared-cache-${{ matrix.owner }}
+          path: ${{ runner.temp }}/shared-cache/${{ matrix.owner }}.json
+          if-no-files-found: error
+          retention-days: 7
