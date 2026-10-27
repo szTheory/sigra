@@ -58,6 +58,12 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Capture runner image before browser setup
+      shell: bash
+      run: |
+        mkdir -p "$GITHUB_WORKSPACE/test/example/priv/playwright/artifacts/ci-setup"
+        node "$GITHUB_WORKSPACE/scripts/ci/ci-runner-image.mjs" capture           --output "$GITHUB_WORKSPACE/test/example/priv/playwright/artifacts/ci-setup/runner-image.json"
+
     - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
       id: setup_beam
       if: inputs.skip-beam-setup != 'true'
@@ -147,10 +153,9 @@ runs:
         CACHE_HIT: ${{ steps.browser_cache_result.outputs.hit }}
       run: |
         set -euo pipefail
-        if [ "$CACHE_HIT" = "true" ]; then
-          npx playwright install-deps $BROWSERS
-        else
-          npx playwright install --with-deps $BROWSERS
+        python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py"           --playwright-dir "$PWD"           --report "$GITHUB_WORKSPACE/test/example/priv/playwright/artifacts/ci-setup/os-deps.json" $BROWSERS
+        if [ "$CACHE_HIT" != "true" ]; then
+          npx playwright install $BROWSERS
         fi
 
     - name: Boot example app
