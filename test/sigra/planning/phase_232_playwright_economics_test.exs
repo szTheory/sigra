@@ -118,7 +118,8 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
     ]
 
     assert shard =~ "fail-fast: false"
-    assert shard =~ "image: public.ecr.aws/docker/library/postgres:15"
+    assert shard =~
+             "image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48"
     assert shard =~ "uses: ./.github/actions/example-playwright-boot"
 
     actual_seams =
