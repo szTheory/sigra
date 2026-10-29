@@ -164,7 +164,7 @@ jobs:
               'cache_paths': ['test/example/deps', 'test/example/_build']}
           pathlib.Path(sys.argv[1]).write_text(json.dumps(receipt, sort_keys=True) + '\n')
           PY
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: shared-cache-${{ matrix.owner }}
