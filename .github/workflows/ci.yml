@@ -418,6 +418,10 @@ jobs:
         # plan 06 Task 1's ci.yml verify block. No live `gh`, no
         # artifacts -- both this guard and its self-test run unconditionally.
         run: bash scripts/ci/playwright-cache-key-guard.sh
+      - name: Browser environment helper self-tests
+        run: |
+          python3 -B scripts/ci/ci-playwright-os-deps.test.py
+          node --test scripts/ci/ci-runner-image.test.mjs
       - name: Playwright cache key guard self-test
         run: bash scripts/ci/playwright-cache-key-guard.test.sh
       - name: Demotion observer self-test
@@ -501,7 +505,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: sigra_test
@@ -587,7 +591,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -837,7 +841,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
@@ -902,7 +906,7 @@ jobs:
     if: ${{ !cancelled() }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1026,7 +1030,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1140,7 +1144,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1193,7 +1197,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1256,7 +1260,7 @@ jobs:
           - "--no-organizations --no-passkeys"
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1376,7 +1380,7 @@ jobs:
     if: github.event_name != 'pull_request'
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1434,7 +1438,7 @@ jobs:
     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -1602,7 +1606,7 @@ jobs:
             browser_cache_key: playwright-chromium-1.59.1-v3
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2004,7 +2008,7 @@ jobs:
     needs: release_ref_guard
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2013,6 +2017,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image before browser setup
+        run: |
+          mkdir -p test/example/priv/playwright/artifacts/admin-checkpoints/ci-setup
+          node scripts/ci/ci-runner-image.mjs capture             --output test/example/priv/playwright/artifacts/admin-checkpoints/ci-setup/runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         with:
           version-file: .tool-versions
@@ -2034,8 +2042,7 @@ jobs:
       - name: Install Playwright browsers
         working-directory: test/example/priv/playwright
         run: |
-          python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
-            --playwright-dir "$PWD" --report "$RUNNER_TEMP/generated-playwright-os-deps.json" chromium webkit
+          python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py"             --playwright-dir "$PWD"             --report "$GITHUB_WORKSPACE/test/example/priv/playwright/artifacts/admin-checkpoints/ci-setup/os-deps.json" chromium webkit
           npx playwright install chromium webkit
       - name: Run generated admin acceptance smoke
         env:
@@ -2288,7 +2295,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2532,7 +2539,7 @@ jobs:
       pull-requests: write  # required for gh pr create
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
@@ -2723,7 +2730,7 @@ jobs:
       PORT: "4011"
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:15
+        image: docker.io/library/postgres:15@sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
         env:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
