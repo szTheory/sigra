@@ -68,7 +68,7 @@ jobs:
     # with a JOB-level ref guard and a 20-leg repeat matrix. The live ci.yml
     # job is neither given a matrix nor renamed.
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -97,6 +97,10 @@ jobs:
           --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Capture runner image before browser setup
+        run: |
+          mkdir -p test/example/priv/playwright/artifacts/admin-checkpoints/ci-setup
+          node scripts/ci/ci-runner-image.mjs capture             --output test/example/priv/playwright/artifacts/admin-checkpoints/ci-setup/runner-image.json
       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
         with:
           version-file: .tool-versions
@@ -117,7 +121,9 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium webkit
+        run: |
+          python3 -B "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py"             --playwright-dir "$PWD"             --report "$GITHUB_WORKSPACE/test/example/priv/playwright/artifacts/admin-checkpoints/ci-setup/os-deps.json" chromium webkit
+          npx playwright install chromium webkit
       - name: Run generated admin acceptance smoke
         env:
           PGUSER: postgres
